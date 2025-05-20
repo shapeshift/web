@@ -11,7 +11,7 @@ import {
   Progress,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -195,8 +195,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
       asset.precision,
     )
-    const price = marketData.price
-    return bnOrZero(cryptoAmount).times(price).toString()
+    const price = marketData?.price
+    return bnOrZero(cryptoAmount).times(bnOrZero(price)).toString()
   }, [
     asset,
     marketData,

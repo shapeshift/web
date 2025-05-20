@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -36,7 +36,7 @@ export const Deposit: React.FC<DepositProps> = ({
 }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     stakingAssetId: assetId,
@@ -176,7 +176,7 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const handleCancel = history.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
@@ -192,13 +192,13 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
-      const fiat = crypto.times(marketData.price)
+      const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance, marketData.price],
+    [asset.precision, balance, marketData?.price],
   )
 
   const cryptoInputValidation = useMemo(
@@ -218,7 +218,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset.precision))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(bnOrZero(marketData?.price))
 
   if (!state || !dispatch) return null
 

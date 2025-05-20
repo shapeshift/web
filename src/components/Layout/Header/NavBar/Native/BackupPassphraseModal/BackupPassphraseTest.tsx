@@ -19,7 +19,7 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -48,7 +48,7 @@ type TestState = {
 export const BackupPassphraseTest: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
-  const { goBack: handleBackClick, ...history } = useHistory()
+  const navigate = useNavigate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
@@ -69,7 +69,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]
-      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 3)
 
       if (!targetWord) return setError('walletProvider.shapeShift.create.error')
       randomWords.push(targetWord)
@@ -99,13 +99,13 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed
     if (testCount >= TEST_COUNT_REQUIRED) {
-      history.push(BackupPassphraseRoutes.Success)
+      navigate(BackupPassphraseRoutes.Success)
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, revoker])
+  }, [testCount, navigate, revoker])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
@@ -119,12 +119,16 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     setHasAlreadySaved(e.target.checked)
   }, [])
 
-  const handleSkipClick = useCallback(() => history.push(BackupPassphraseRoutes.Success), [history])
+  const handleSkipClick = useCallback(() => navigate(BackupPassphraseRoutes.Success), [navigate])
+
+  const handleBackClick = useCallback(() => {
+    navigate(-1)
+  }, [navigate])
 
   if (!testState) return null
 
   return (
-    <SlideTransition>
+    <Box>
       <IconButton
         variant='ghost'
         icon={arrowBackIcon}
@@ -139,73 +143,75 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
       </ModalHeader>
       {!preventClose && <ModalCloseButton />}
       <ModalBody>
-        <RawText>
-          <Text
-            as='span'
-            color='text.subtle'
-            translation={'walletProvider.shapeShift.testPhrase.body'}
-          />{' '}
-          <Tag colorScheme='green'>
-            {translate(
-              `walletProvider.shapeShift.testPhrase.${
-                testState.targetWordIndex + 1
-              }${makeOrdinalSuffix(testState.targetWordIndex + 1)}`,
-            )}
-            <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
-          </Tag>{' '}
-          <Text
-            as='span'
-            color='text.subtle'
-            translation={'walletProvider.shapeShift.testPhrase.body3'}
-          />
-        </RawText>
-        <Wrap mt={12} mb={6}>
-          {testState &&
-            testState.randomWords.map((word: string, index: number) =>
-              revocable(
-                <Button
-                  key={index}
-                  flexGrow={4}
-                  flexBasis='auto'
-                  // we need to pass an arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
-                  onClick={() => handleClick(index)}
-                >
-                  {word}
-                </Button>,
-                revoker.addRevoker.bind(revoker),
-              ),
-            )}
-        </Wrap>
-        <Box>
-          <Box position='relative' mb={8} mt={10}>
-            <Divider />
+        <SlideTransition>
+          <RawText>
             <Text
-              translation={'common.or'}
-              transform='translate(-50%, -50%)'
-              left='50%'
-              position='absolute'
+              as='span'
               color='text.subtle'
-            />
-          </Box>
-          <Checkbox mb={4} spacing={4} onChange={handleCheckBoxClick} isChecked={hasAlreadySaved}>
+              translation={'walletProvider.shapeShift.testPhrase.body'}
+            />{' '}
+            <Tag colorScheme='green'>
+              {translate(
+                `walletProvider.shapeShift.testPhrase.${
+                  testState.targetWordIndex + 1
+                }${makeOrdinalSuffix(testState.targetWordIndex + 1)}`,
+              )}
+              <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
+            </Tag>{' '}
             <Text
-              fontSize='sm'
-              fontWeight='bold'
-              translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
+              as='span'
+              color='text.subtle'
+              translation={'walletProvider.shapeShift.testPhrase.body3'}
             />
-          </Checkbox>
-          <Button
-            colorScheme='blue'
-            width='full'
-            size='md'
-            isDisabled={!hasAlreadySaved}
-            onClick={handleSkipClick}
-          >
-            <Text translation={'common.skip'} />
-          </Button>
-        </Box>
+          </RawText>
+          <Wrap mt={12} mb={6}>
+            {testState &&
+              testState.randomWords.map((word: string, index: number) =>
+                revocable(
+                  <Button
+                    key={index}
+                    flexGrow={4}
+                    flexBasis='auto'
+                    // we need to pass an arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
+                    onClick={() => handleClick(index)}
+                  >
+                    {word}
+                  </Button>,
+                  revoker.addRevoker.bind(revoker),
+                ),
+              )}
+          </Wrap>
+          <Box>
+            <Box position='relative' mb={8} mt={10}>
+              <Divider />
+              <Text
+                translation={'common.or'}
+                transform='translate(-50%, -50%)'
+                left='50%'
+                position='absolute'
+                color='text.subtle'
+              />
+            </Box>
+            <Checkbox mb={4} spacing={4} onChange={handleCheckBoxClick} isChecked={hasAlreadySaved}>
+              <Text
+                fontSize='sm'
+                fontWeight='bold'
+                translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
+              />
+            </Checkbox>
+            <Button
+              colorScheme='blue'
+              width='full'
+              size='md'
+              isDisabled={!hasAlreadySaved}
+              onClick={handleSkipClick}
+            >
+              <Text translation={'common.skip'} />
+            </Button>
+          </Box>
+        </SlideTransition>
       </ModalBody>
-    </SlideTransition>
+    </Box>
   )
 }

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
-import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
+import type { ElementType, FocusEvent, JSX, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { ControllerRenderProps, FieldError, RegisterOptions } from 'react-hook-form'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
@@ -266,14 +266,16 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               if (isFiat) {
                 setValue('amountUserCurrency', value)
                 const _cryptoAmount = bnOrZero(value)
-                  .div(assetMarketDataUserCurrency.price)
+                  .div(bnOrZero(assetMarketDataUserCurrency?.price))
                   .toFixed()
                 setValue('amountCryptoPrecision', _cryptoAmount)
               } else {
                 setValue('amountCryptoPrecision', value)
                 setValue(
                   'amountUserCurrency',
-                  bnOrZero(value).times(assetMarketDataUserCurrency.price).toFixed(),
+                  bnOrZero(value)
+                    .times(bnOrZero(assetMarketDataUserCurrency?.price))
+                    .toFixed(),
                 )
               }
             }}
@@ -285,7 +287,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       },
       [
         asset,
-        assetMarketDataUserCurrency.price,
+        assetMarketDataUserCurrency?.price,
         fiatAmount,
         formattedCryptoAmount,
         handleOnBlur,

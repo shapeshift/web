@@ -15,7 +15,7 @@ import type { CowSwapError } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
@@ -36,7 +36,6 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import {
-  selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAmountUserCurrency,
   selectActiveQuoteBuyAsset,
@@ -53,7 +52,7 @@ import { useAppSelector } from '@/state/store'
 const cardBorderRadius = { base: '2xl' }
 
 export const LimitOrderConfirm = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     state: { wallet, isConnected },
@@ -63,7 +62,7 @@ export const LimitOrderConfirm = () => {
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
 
-  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
@@ -90,12 +89,12 @@ export const LimitOrderConfirm = () => {
   useEffect(() => {
     if (!data || error) return
 
-    history.push(LimitOrderRoutePaths.PlaceOrder)
-  }, [data, error, history])
+    navigate(LimitOrderRoutePaths.PlaceOrder)
+  }, [data, error, navigate])
 
   const handleBack = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Input)
-  }, [history])
+    navigate(LimitOrderRoutePaths.Input)
+  }, [navigate])
 
   useEffect(() => {
     if (prevIsConnected && !isConnected) {
@@ -152,7 +151,7 @@ export const LimitOrderConfirm = () => {
 
   if (!activeQuote) {
     console.error('Attempted to submit an undefined limit order')
-    history.push(LimitOrderRoutePaths.Input)
+    navigate(LimitOrderRoutePaths.Input)
     return null
   }
 

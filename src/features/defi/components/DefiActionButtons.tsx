@@ -1,8 +1,10 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
 import qs from 'qs'
+import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router'
 
 import type {
   DefiAction,
@@ -24,11 +26,14 @@ export type DefiActionButtonProps = {
 
 export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => {
   const translate = useTranslate()
-  const { history, query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const location = useLocation()
+
+  const navigate = useNavigate()
 
   const handleClick = useCallback(
     (action: DefiAction) => {
-      return history.push({
+      return navigate({
         pathname: location.pathname,
         search: qs.stringify({
           ...query,
@@ -36,7 +41,7 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
         }),
       })
     },
-    [history, location.pathname, query],
+    [navigate, location.pathname, query],
   )
 
   const renderMenu = useMemo(() => {

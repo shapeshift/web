@@ -149,9 +149,6 @@ export const isActiveStakingOpportunity = (
   return hasActiveStaking || hasRewards || hasActiveUndelegations
 }
 
-export const isActiveStakingEarnOpportunity = (
-  earnUserStakingOpportunity: StakingEarnOpportunityType,
-): boolean => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
 export const isFoxEthStakingAssetId = (assetId: AssetId) => foxEthAssetIds.includes(assetId)
 
 // Returns either

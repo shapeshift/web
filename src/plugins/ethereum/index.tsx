@@ -32,7 +32,7 @@ export default function register(): Plugins {
                 return new ethereum.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().VITE_ETHEREUM_NODE_URL,
-                  midgardUrl: getConfig().VITE_MIDGARD_URL,
+                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                 })
               },
             ],

@@ -59,7 +59,6 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
-    potentialAffiliateBps: '0',
     isStreaming: false,
     recommendedMinimumCryptoBaseUnit: '10000000000',
     rate: '144114.94366197183098591549',
@@ -100,7 +99,6 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
-    potentialAffiliateBps: '0',
     isStreaming: true,
     recommendedMinimumCryptoBaseUnit: '10000000000',
     rate: '158199.45070422535211267606',
@@ -153,11 +151,11 @@ describe('getTradeQuote', () => {
   it('should get a thorchain quote for a thorchain trade', async () => {
     mockedThorService.get.mockImplementation((url: string) => {
       switch (url) {
-        case '/lcd/thorchain/pools':
+        case '/thorchain/pools':
           return Promise.resolve(
             Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse>),
           )
-        case '/lcd/thorchain/inbound_addresses':
+        case '/thorchain/inbound_addresses':
           return Promise.resolve(
             Ok({ data: mockInboundAddresses } as unknown as AxiosResponse<
               InboundAddressResponse[]

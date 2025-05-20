@@ -19,6 +19,11 @@ export enum ThorchainMessageType {
   MsgSend = 'thorchain/MsgSend',
 }
 
+export enum MayachainMessageType {
+  MsgDeposit = 'thorchain/MsgDeposit',
+  MsgSend = 'thorchain/MsgSend',
+}
+
 export enum CosmosSdkMessageType {
   MsgBeginRedelegate = 'cosmos-sdk/MsgBeginRedelegate',
   MsgDelegate = 'cosmos-sdk/MsgDelegate',
@@ -27,23 +32,35 @@ export enum CosmosSdkMessageType {
   MsgWithdrawDelegationReward = 'cosmos-sdk/MsgWithdrawDelegationReward',
 }
 
-export type ThorchainMsgDeposit = {
-  type: ThorchainMessageType.MsgDeposit
+type MsgDeposit<
+  T = ThorchainMessageType.MsgDeposit | MayachainMessageType.MsgDeposit,
+  U = 'THOR.RUNE' | 'THOR.TCY' | 'MAYA.CACAO',
+> = {
+  type: T
   value: {
-    coins: [{ asset: 'THOR.RUNE'; amount: string }]
+    coins: [{ asset: U; amount: string }]
     memo: string
     signer: string
   }
 }
 
-export type ThorchainMsgSend = {
-  type: ThorchainMessageType.MsgSend
+type MsgSend<T = ThorchainMessageType.MsgSend | MayachainMessageType.MsgSend> = {
+  type: T
   value: {
     amount: [{ amount: string; denom: string }]
     from_address: string
     to_address: string
   }
 }
+
+export type ThorchainMsgDeposit = MsgDeposit<
+  ThorchainMessageType.MsgDeposit,
+  'THOR.RUNE' | 'THOR.TCY'
+>
+export type ThorchainMsgSend = MsgSend<ThorchainMessageType.MsgSend>
+
+export type MayachainMsgDeposit = MsgDeposit<MayachainMessageType.MsgDeposit, 'MAYA.CACAO'>
+export type MayachainMsgSend = MsgSend<MayachainMessageType.MsgSend>
 
 export type CosmosSdkMsgBeginRedelegate = {
   type: CosmosSdkMessageType.MsgBeginRedelegate
@@ -93,6 +110,8 @@ export type CosmosSdkMsgWithdrawDelegationReward = {
 export type Message =
   | ThorchainMsgDeposit
   | ThorchainMsgSend
+  | MayachainMsgDeposit
+  | MayachainMsgSend
   | CosmosSdkMsgBeginRedelegate
   | CosmosSdkMsgDelegate
   | CosmosSdkMsgSend
@@ -111,7 +130,7 @@ export type BuildTransactionInput<T extends CosmosSdkChainId> = {
   memo?: string
 } & types.ChainSpecificBuildTxData<T>
 
-export type BuildTxInput = { gas: string; fee: string; denom?: string }
+export type BuildTxInput = { gas: string; fee: string; denom?: string; coin?: string }
 
 export type Info = {
   totalSupply: string

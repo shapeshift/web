@@ -1,6 +1,7 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, ButtonGroup, Card, CardBody, HStack, List } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { JSX } from 'react'
 import { useMemo, useState } from 'react'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
@@ -20,6 +21,15 @@ const hstackProps: StackProps = {
     md: 'nowrap',
   },
 }
+
+const accountRowButtonProps = {
+  justifyContent: 'space-between',
+  sx: {
+    '.account-entry-row__amounts': {
+      pl: 2,
+    },
+  },
+} as const
 
 const ALL_FILTER_KEY = 'All'
 
@@ -97,6 +107,8 @@ export const FoxTokenBalances = () => {
           accountId={filteredAssetAccountIds[assetAccountNumber]}
           assetId={filteredAssetId}
           showNetworkIcon={true}
+          maximumFractionDigits={2}
+          {...accountRowButtonProps}
         />,
       )
 

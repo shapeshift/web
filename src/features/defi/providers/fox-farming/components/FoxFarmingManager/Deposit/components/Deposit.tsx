@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -50,7 +51,8 @@ export const Deposit: React.FC<DepositProps> = ({
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, assetReference, chainId, contractAddress, rewardId } = query
 
   const foxFarmingOpportunityFilter = useMemo(
@@ -225,7 +227,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset?.precision, cryptoBalance],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoHumanAmountAvailable).times(marketData?.price),
+    () => bnOrZero(cryptoHumanAmountAvailable).times(bnOrZero(marketData?.price)),
     [cryptoHumanAmountAvailable, marketData?.price],
   )
 
@@ -245,13 +247,13 @@ export const Deposit: React.FC<DepositProps> = ({
     (value: string) => {
       if (!asset) return
       const crypto = bn(fromBaseUnit(cryptoBalance, asset.precision))
-      const fiat = crypto.times(marketData.price)
+      const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset, cryptoBalance, marketData.price],
+    [asset, cryptoBalance, marketData?.price],
   )
 
   const cryptoInputValidation = useMemo(
@@ -270,9 +272,9 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmount],
   )
 
-  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
-  const handleCancel = browserHistory.goBack
+  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
   return (
     <ReusableDeposit

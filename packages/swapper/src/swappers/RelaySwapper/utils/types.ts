@@ -5,7 +5,6 @@ export type RelayTradeBaseParams = {
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
-  potentialAffiliateBps: string
 }
 
 export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBaseParams & {
@@ -14,17 +13,21 @@ export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBasePa
   sendAddress: T extends 'rate' ? undefined : string
   accountNumber: T extends 'rate' ? undefined : number
   slippageTolerancePercentageDecimal?: string
+  xpub: string | undefined
 }
 
 export type RelayTransactionMetadata = {
-  to: string | undefined
-  value: string | undefined
-  data: string | undefined
-  gasLimit: string | undefined
+  to?: string
+  value?: string
+  data?: string
+  gasLimit?: string
+  psbt?: string
+  opReturnData?: string
 }
 
 export type RelayStatus = {
   status: 'success' | 'failed' | 'pending' | 'refund' | 'delayed' | 'waiting'
+  details?: string
   inTxHashes: string[]
   txHashes: string[]
   time: number
@@ -54,6 +57,11 @@ export type RelayFetchQuoteParams<T extends 'quote' | 'rate'> = {
   amount?: string
   referrer?: string
   refundOnOrigin?: boolean
+  // Not mandatory on relay side but we keep it mandatory here to avoid
+  // losing user funds for UTXOs as we rely on their address to get the quote
+  // it would mean there would be a risk of refunding to their own address
+  // instead of our user address
+  refundTo: string
   slippageTolerance?: string
   appFees?: AppFee[]
 }
@@ -94,24 +102,95 @@ export type QuoteDetails = {
   timeEstimate: number
 }
 
-export type RelayQuoteItemData = {
+export type RelayQuoteEvmItemData = {
   to?: string
   data?: string
   value?: string
   gas?: string
 }
 
-// @TODO: Change this to EVM and add UTXO/SVM types
+export type RelayQuoteUtxoItemData = {
+  psbt?: string
+  to?: string
+  opReturnData?: string
+}
+
+export type RelayQuoteSolanaItemData = {
+  instructions: RelaySolanaInstruction[]
+  addressLookupTableAddresses: string[]
+}
+
 export type RelayQuoteItem = {
-  data?: RelayQuoteItemData
+  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
+}
+
+export type RelayQuoteStep = {
+  id: string
+  requestId: string
+  items?: RelayQuoteItem[]
 }
 
 export type RelayQuote = {
   fees: RelayFees
   details: QuoteDetails
-  steps: {
-    id: string
-    requestId: string
-    items?: RelayQuoteItem[]
+  steps: RelayQuoteStep[]
+}
+
+export const isRelayQuoteUtxoItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteUtxoItemData => {
+  return 'psbt' in item
+}
+
+export const isRelayQuoteEvmItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteEvmItemData => {
+  return 'to' in item && 'data' in item && 'value' in item && 'gas' in item
+}
+
+export const isRelayQuoteSolanaItemData = (
+  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+): item is RelayQuoteSolanaItemData => {
+  return 'instructions' in item
+}
+
+export type RelaySolanaInstruction = {
+  keys: {
+    pubkey: string
+    isSigner: boolean
+    isWritable: boolean
   }[]
+  data: string
+  programId: string
+}
+
+export enum RelayErrorCode {
+  AmountTooLow = 'AMOUNT_TOO_LOW',
+  Erc20RouterAddressNotFound = 'ERC20_ROUTER_ADDRESS_NOT_FOUND',
+  ExtraTransactionsNotSupported = 'EXTRA_TXS_NOT_SUPPORTED',
+  InsufficientFunds = 'INSUFFICIENT_FUNDS',
+  InsufficientLiquidity = 'INSUFFICIENT_LIQUIDITY',
+  InvalidAddress = 'INVALID_ADDRESS',
+  InvalidExtraTransactions = 'INVALID_EXTRA_TXS',
+  NoQuotes = 'NO_QUOTES',
+  NoSwapRoutesFound = 'NO_SWAP_ROUTES_FOUND',
+  PermitFailed = 'PERMIT_FAILED',
+  SwapImpactTooHigh = 'SWAP_IMPACT_TOO_HIGH',
+  SwapQuoteFailed = 'SWAP_QUOTE_FAILED',
+  Unauthorized = 'UNAUTHORIZED',
+  UnknownError = 'UNKNOWN_ERROR',
+  UnsupportedChain = 'UNSUPPORTED_CHAIN',
+  UnsupportedCurrency = 'UNSUPPORTED_CURRENCY',
+  UnsupportedExecutionType = 'UNSUPPORTED_EXECUTION_TYPE',
+  UnsupportedRoute = 'UNSUPPORTED_ROUTE',
+  UserRecipientMismatch = 'USER_RECIPIENT_MISMATCH',
+}
+
+export type RelayError = {
+  errorCode: RelayErrorCode
+  message: string
+}
+
+export const isRelayError = (error: unknown): error is RelayError => {
+  return typeof error === 'object' && error !== null && 'errorCode' in error && 'message' in error
 }

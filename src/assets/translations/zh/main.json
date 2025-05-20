@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "数量",
     "ascending": "升序",
     "descending": "降序",
     "free": "免费",
@@ -194,7 +195,8 @@
     "tbd": "TBD",
     "installed": "已安装",
     "others": "其他",
-    "hardwareWallets": "硬件钱包"
+    "hardwareWallets": "硬件钱包",
+    "dustAmount": "Dust 数量"
   },
   "consentBanner": {
     "body": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问 %{privateLink} 如果您不希望被匿名跟踪。请查看我们的 %{privacyPolicyLink} 更多细节。",
@@ -606,6 +608,7 @@
     "lending": "贷款",
     "pools": "流动性池",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "FOX 生态系统",
     "markets": "市场",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "设置 RUNE 地址",
         "reward": "奖励分配"
       },
+      "tcy": {
+        "stake": "质押",
+        "withdraw": "提现",
+        "unstakeRequest": "取消质押请求",
+        "setRuneAddress": "设置 RUNE 地址",
+        "reward": "奖励分配"
+      },
       "weth": {
         "deposit": "充值",
         "approve": "授权",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "还款+退款",
         "out": "Outbound 已收到",
         "refund": "退款",
+        "stake": "质押",
         "swapOut": "已收到兑换",
         "swap": "交易",
         "swapRefund": "兑换退款",
+        "unstake": "取消质押",
         "withdraw": "已请求提现",
         "withdrawNative": "提现",
         "withdrawOut": "已收到提现"
@@ -995,7 +1007,7 @@
     "allowanceResetTxName": "额度重置交易：",
     "allowanceApprovalTxName": "额度授权交易：",
     "tradeComplete": "现在，您的钱包在 %{chainName} 上持有 %{cryptoAmountFormatted} 。",
-    "tradeCompleteSurplus": "您获得了额外的 %{extra}!",
+    "tradeCompleteSurplus": "您获得了额外的 %{extraPercent}!",
     "doAnotherTrade": "进行另一笔交易",
     "summary": "交易概览",
     "estimatedCompletionTime": "预计完成时间",
@@ -1644,7 +1656,7 @@
       },
       "success": {
         "header": "Ledger 已连接",
-        "success": "您现在可以关闭此窗口，或者它将很快自动关闭",
+        "success": "您现在可以关闭此窗口了。",
         "error": "连接你的钱包时出错"
       },
       "errors": {
@@ -1829,7 +1841,7 @@
       "success": {
         "encryptingWallet": "正在加密您的钱包... 如果您的浏览器要求将数据存储在持久存储中，请单击“允许”。",
         "header": "钱包已连接",
-        "success": "您现在可以关闭此窗口，或者它将很快自动关闭。",
+        "success": "您现在可以关闭此窗口了。",
         "error": "连接你的钱包时出错"
       },
       "testPhrase": {
@@ -2270,6 +2282,7 @@
       "modal": {
         "title": "钱包连接",
         "ethereum": "以太坊",
+        "connectAll": "连接所有帐户",
         "signMessage": {
           "signingFrom": "签名来自",
           "requestFrom": "请求来自",
@@ -2561,7 +2574,8 @@
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
-    "instabilityWarning": "目前，用户在向 THORChain 流动性池存款时可能会收到退款，请谨慎操作。",
+    "instabilityWarning": "Thorchain LP 的存款已在协议层面禁用。如果您尝试充值，资产将被自动退还。此限制将在 3.5 版本中恢复正常。",
+    "depositsDisabled": "充值已禁用",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
     "totalLiquidity": "总流动性",
@@ -2649,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "质押 FOX 可赚取 RUNE。"
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "质押 TCY，赚取 RUNE。"
     }
   },
   "RFOX": {
@@ -2770,6 +2788,101 @@
     "pendingDistribution": "待分配奖励",
     "selectRuneAddress": "选择一个 RUNE 地址"
   },
+  "TCY": {
+    "stake": "质押",
+    "unstake": "取消质押",
+    "staking": "TCY 质押",
+    "myPosition": "我的仓位",
+    "myStakedBalance": "我的质押余额",
+    "myStakedBalanceHelper": "您已经质押的 %{symbol} 数量。",
+    "pendingRewardsBalance": "待领取奖励余额",
+    "pendingRewardsBalanceHelper": "这只是根据当前时段收入估算的待领取奖励。所有奖励结算将在周期结束时进行，因此在月底前无法精确计算。\n",
+    "lifetimeRewards": "终身奖励",
+    "lifetimeRewardsHelper": "截至目前，您通过质押 %{symbol} 所赚取的总奖励",
+    "timeStaked": "质押时长",
+    "timeStakedHelper": "您质押 %{symbol} 的时长",
+    "stakingReward": "质押奖励",
+    "claimsEmpty": {
+      "emptyTitle": "没有可领取的奖励",
+      "emptyBody": "您似乎没有可领取的 TCY。要尝试使用其他钱包吗？",
+      "connectWalletBody": "连接钱包以查看您可领取的 TCY。"
+    },
+    "claimSelect": {
+      "unavailableClaims": "领取不可用",
+      "notEligible": "不符合资格"
+    },
+    "claimStatus": {
+      "pendingTitle": "领取待处理中",
+      "back": "返回",
+      "pendingSubtitle": "我们正在处理您领取的 %{amount} TCY",
+      "viewTransaction": "查看交易",
+      "successTitle": "领取成功",
+      "successSubtitle": "您已成功领取 %{amount} TCY",
+      "goBack": "返回",
+      "failedTitle": "出了些问题",
+      "failedSubtitle": "您的领取已失败。请重试。"
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "需要少量 %{symbol} 以帮助在 THOR 网络上识别您的地址。",
+      "networkFeeTooltip": "这是在区块链上处理该交易所需的 %{symbol} 费用，该费用并非由 ShapeShift 收取。",
+      "missingFundsForGasAlert": "%{symbol} 数量不足，您至少需要 %{amount} %{symbol} 才能完成交易。我们建议您多发送一些，以应对网络费用波动。",
+      "confirmTitle": "确认领取",
+      "networkFee": "网络费用",
+      "confirmAndClaim": "领取 & 质押",
+      "notice": "您正在领取 %{amount} TCY。它将被自动质押——您可以随时解除质押以将其接收至钱包。"
+    },
+    "assetClaimButton": {
+      "claimAction": "领取"
+    },
+    "claimAddressInput": {
+      "label": "领取地址",
+      "useWalletAddress": "使用钱包地址",
+      "useCustomAddress": "使用自定义地址",
+      "helperText": "这是您接收 TCY 的地址。"
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} 地址",
+      "helperText": "这是用于发送您领取交易的地址。"
+    },
+    "stakeInput": {
+      "amount": "数量",
+      "networkFee": "网络费用",
+      "networkFeeTooltip": "网络费用",
+      "stake": "质押",
+      "amountPlaceholder": "输入数量"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "确认质押",
+      "confirmAndStake": "确认 & 质押"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "确认取消质押",
+      "confirmAndUnstake": "确认 & 取消质押"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "取消质押待处理中",
+      "pendingSubtitle": "我们正在处理您取消质押的 %{amount} TCY",
+      "successTitle": "取消质押成功",
+      "failedTitle": "出了些问题",
+      "failedSubtitle": "您的取消质押已失败。请重试。",
+      "successSubtitle": "您已成功取消质押 %{amount} TCY",
+      "goBack": "返回"
+    },
+    "stakeStatus": {
+      "pendingTitle": "质押待处理中",
+      "pendingSubtitle": "我们正在处理您质押的 %{amount} TCY",
+      "successTitle": "质押成功",
+      "failedTitle": "出了些错误",
+      "failedSubtitle": "您的质押已失败。请重试。",
+      "viewTransaction": "查看交易",
+      "successSubtitle": "您已成功质押 %{amount} TCY",
+      "goBack": "返回"
+    },
+    "cta": {
+      "title": "您有可领取的 TCY！",
+      "button": "查看可领取的奖励"
+    }
+  },
   "markets": {
     "recommended": "推荐的",
     "watchlist": "我的关注列表",
@@ -2840,12 +2953,7 @@
       "claim": "领取",
       "claimed": "已领取",
       "discountText": "*%{percent}% 交易费折扣",
-      "noClaims": "暂无可领取的奖励",
-      "banner": {
-        "title": "给它戴上帽子。",
-        "description": "您持有的 FOX 或 FWH 越多，您在每笔兑换中获得的代币就越多。",
-        "cta": "了解更多"
-      }
+      "noClaims": "暂无可领取的奖励"
     },
     "governance": {
       "title": "治理",
@@ -2875,6 +2983,32 @@
       "getPublicKey": "无法从钱包获取公钥。",
       "getUtxos": "无法获取 utxos。",
       "getValidator": "无法获取验证器。"
+    }
+  },
+  "notificationCenter": {
+    "title": "通知",
+    "viewTransaction": "查看交易",
+    "viewOrder": "查看订单",
+    "cancelOrder": "取消订单",
+    "pair": "交易对",
+    "limitPrice": "限价",
+    "expires": "到期时间",
+    "filled": "已成交",
+    "swap": "交换",
+    "claim": "领取",
+    "protocol": "协议",
+    "streamingStatus": "流式传输状态",
+    "executionPrice": "执行价格",
+    "status": {
+      "title": "状态",
+      "open": "未结",
+      "expired": "已到期",
+      "cancelled": "已取消",
+      "confirmed": "已确认",
+      "failed": "已失败",
+      "pending": "待处理",
+      "claimAvailable": "可领取",
+      "unknown": "未知"
     }
   }
 }

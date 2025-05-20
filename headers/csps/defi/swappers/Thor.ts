@@ -7,5 +7,5 @@ const env = loadEnv(mode, process.cwd(), '')
 
 export const csp: Csp = {
   // removes `/v2` from midgard url
-  'connect-src': [String(env.VITE_MIDGARD_URL).slice(0, -3)],
+  'connect-src': [String(env.VITE_THORCHAIN_MIDGARD_URL).slice(0, -3)],
 }

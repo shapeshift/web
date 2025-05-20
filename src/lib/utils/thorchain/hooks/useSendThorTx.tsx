@@ -41,11 +41,11 @@ import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedF
 import { reactQueries } from '@/react-queries'
 import { selectInboundAddressData } from '@/react-queries/selectors'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
-  selectSelectedCurrency,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector } from '@/state/store'
@@ -60,6 +60,9 @@ type Action =
   | 'depositRunepool'
   | 'withdrawSavers'
   | 'withdrawRunepool'
+  | 'claimTcy'
+  | 'stakeTcy'
+  | 'unstakeTcy'
 
 type UseSendThorTxProps = {
   accountId: AccountId | null
@@ -72,6 +75,8 @@ type UseSendThorTxProps = {
   memo: string | null
   dustAmountCryptoBaseUnit?: string
 }
+
+const actionsWithDustAmount: Action[] = ['withdrawLiquidity', 'withdrawSavers', 'claimTcy']
 
 export const useSendThorTx = ({
   accountId,
@@ -91,7 +96,7 @@ export const useSendThorTx = ({
   const toast = useToast()
   const translate = useTranslate()
 
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, assetId ? fromAssetId(assetId).chainId : ''),
@@ -102,9 +107,7 @@ export const useSendThorTx = ({
   }, [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, accountNumberFilter))
 
-  const shouldUseDustAmount = useMemo(() => {
-    return ['withdrawLiquidity', 'withdrawSavers'].includes(action)
-  }, [action])
+  const shouldUseDustAmount = useMemo(() => actionsWithDustAmount.includes(action), [action])
 
   // Either a fall through of the passed dustAmountCryptoBaseUnit, or the default dust amount for that feeAsset
   // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs
@@ -292,7 +295,9 @@ export const useSendThorTx = ({
     if (
       action !== 'withdrawRunepool' &&
       !shouldUseDustAmount &&
-      !bn(amountOrDustCryptoBaseUnit).gt(0)
+      !bn(amountOrDustCryptoBaseUnit).gt(0) &&
+      // TODO(gomes): remove me before launch
+      !memo.includes('tcy-')
     )
       throw new Error('invalid amount specified')
 
@@ -314,6 +319,7 @@ export const useSendThorTx = ({
             chainSpecific: {
               gas: fast.chainSpecific.gasLimit,
               fee: fast.txFee,
+              coin: memo.includes('tcy+') ? 'THOR.TCY' : undefined,
             },
           })
 

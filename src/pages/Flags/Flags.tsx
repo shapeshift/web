@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Debugging } from './Debugging'
 import { FlagRow } from './FlagRow'
@@ -23,7 +23,7 @@ import { Main } from '@/components/Layout/Main'
 import { RawText } from '@/components/Text'
 import { slices } from '@/state/reducer'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import type { AppDispatch } from '@/state/store'
 import { clearState, useAppSelector } from '@/state/store'
 
@@ -50,9 +50,9 @@ const stackDirection: StackDirection = { base: 'column', md: 'row' }
 const stackDivider = <StackDivider />
 
 export const Flags = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
-  const featureFlags = useAppSelector(selectFeatureFlags)
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
 
   const handleApply = useCallback(() => {
@@ -60,12 +60,12 @@ export const Flags = () => {
       // Delete persisted state
       clearState()
       setError(null)
-      history.push('/')
+      navigate('/')
     } catch (e) {
       console.error(e)
       setError(String((e as Error)?.message))
     }
-  }, [history])
+  }, [navigate])
 
   const handleResetPreferences = useCallback(() => {
     try {

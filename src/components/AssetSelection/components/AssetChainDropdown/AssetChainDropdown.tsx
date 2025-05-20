@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetRowLoading } from '../AssetRowLoading'
@@ -20,11 +20,11 @@ import { AssetChainRow } from './AssetChainRow'
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectChainDisplayNameByAssetId,
-  selectIsWalletConnected,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
@@ -66,7 +66,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const chainDisplayName = useAppSelector(state =>
       selectChainDisplayNameByAssetId(state, assetId ?? ''),
     )
-    const isWalletConnected = useAppSelector(selectIsWalletConnected)
+    const isWalletConnected = useAppSelector(portfolio.selectors.selectIsWalletConnected)
     const onlyConnectedChains = isWalletConnected ? _onlyConnectedChains : false
 
     const relatedAssetIdsFilter = useMemo(
@@ -121,28 +121,6 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       },
       [isAssetChainIdConnected, isAssetChainIdSupported, onlyConnectedChains],
     )
-
-    // If the currently selected assetId becomes disabled (by switching assets or disconnecting a
-    // chain), switch to the first enabled related assetId
-    useEffect(() => {
-      const isCurrentAssetIdDisabled = assetId ? isAssetChainIdDisabled(assetId) : false
-
-      if (isCurrentAssetIdDisabled) {
-        const firstEnabledAssetId = filteredRelatedAssetIds.find(
-          assetId => !isAssetChainIdDisabled(assetId),
-        )
-        if (firstEnabledAssetId) {
-          onChangeAsset(firstEnabledAssetId)
-        }
-      }
-    }, [
-      filteredRelatedAssetIds,
-      isAssetChainIdConnected,
-      assetId,
-      onChangeAsset,
-      isAssetChainIdSupported,
-      isAssetChainIdDisabled,
-    ])
 
     const renderedChains = useMemo(() => {
       if (!assetId) return null

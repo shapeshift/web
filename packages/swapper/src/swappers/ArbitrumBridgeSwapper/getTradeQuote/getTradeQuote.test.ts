@@ -44,7 +44,6 @@ describe('getTradeQuote', () => {
     buyAsset: ETH_ARBITRUM,
     accountNumber: 0,
     affiliateBps: '0',
-    potentialAffiliateBps: '0',
     supportsEIP1559: true,
     receiveAddress: '0xfauxmes',
     sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',

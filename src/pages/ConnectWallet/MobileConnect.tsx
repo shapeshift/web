@@ -9,15 +9,15 @@ import {
   Flex,
   Heading as CkHeading,
   Image,
-  keyframes,
   Link,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
+import { keyframes } from '@emotion/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, matchPath, useHistory } from 'react-router-dom'
+import { generatePath, matchPath, useNavigate } from 'react-router-dom'
 
 import { MobileWallestList } from './components/WalletList'
 
@@ -71,7 +71,7 @@ export const MobileConnect = () => {
   const [isLoading, setIsLoading] = useState(true)
   const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
   const hasWallet = Boolean(state.walletInfo?.deviceId)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { isOpen, onClose, onOpen } = useDisclosure()
   const [defaultRoute, setDefaultRoute] = useState<MobileWalletDialogRoutes>(
     MobileWalletDialogRoutes.Saved,
@@ -92,12 +92,13 @@ export const MobileConnect = () => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
     // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
     // The (/:chainId/:assetSubId) part is URI encoded as one entity in the regular app flow in <AssetAccountRow />, using generatePath()
-    // This applies a similar logic here, that works with history.push()
-    const match = matchPath<{ accountId?: string; chainId?: string; assetSubId?: string }>(
-      query.returnUrl,
+    // This applies a similar logic here, that works with navigate()
+    const match = matchPath(
       {
         path: '/accounts/:accountId/:chainId/:assetSubId',
+        end: false,
       },
+      query.returnUrl,
     )
     const path = match
       ? generatePath('/accounts/:accountId/:assetId', {
@@ -105,8 +106,8 @@ export const MobileConnect = () => {
           assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
         })
       : query?.returnUrl
-    hasWallet && history.push(path ?? '/trade')
-  }, [history, hasWallet, query, state, dispatch])
+    hasWallet && navigate(path ?? '/trade')
+  }, [navigate, hasWallet, query, state, dispatch])
 
   useEffect(() => {
     if (!wallets.length) {

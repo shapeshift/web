@@ -31,7 +31,7 @@ import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
-import type { cosmos, thorchain } from './'
+import type { cosmos, mayachain, thorchain } from './'
 import type {
   BuildTransactionInput,
   CosmosSDKToken,
@@ -49,11 +49,13 @@ import type {
 const CHAIN_ID_TO_BECH32_ADDR_PREFIX = {
   [KnownChainIds.CosmosMainnet]: 'cosmos',
   [KnownChainIds.ThorchainMainnet]: 'thor',
+  [KnownChainIds.MayachainMainnet]: 'maya',
 }
 
 const CHAIN_ID_TO_BECH32_VAL_PREFIX = {
   [KnownChainIds.CosmosMainnet]: 'cosmosvaloper',
   [KnownChainIds.ThorchainMainnet]: 'thorv',
+  [KnownChainIds.MayachainMainnet]: 'mayav',
 }
 
 export const assertIsValidatorAddress = (validator: string, chainId: CosmosSdkChainId) => {
@@ -73,13 +75,18 @@ const transformValidator = (validator: unchained.cosmossdk.types.Validator): Val
 export const cosmosSdkChainIds = [
   KnownChainIds.CosmosMainnet,
   KnownChainIds.ThorchainMainnet,
+  KnownChainIds.MayachainMainnet,
 ] as const
 
-export type CosmosSdkChainAdapter = cosmos.ChainAdapter | thorchain.ChainAdapter
+export type CosmosSdkChainAdapter =
+  | cosmos.ChainAdapter
+  | thorchain.ChainAdapter
+  | mayachain.ChainAdapter
 
 export enum Denoms {
   rune = 'rune',
   uatom = 'uatom',
+  cacao = 'cacao',
 }
 
 type Denom = `${Denoms}`
@@ -154,9 +161,25 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const account = await (async () => {
-        if (this.providers.http instanceof unchained.thorchain.V1Api) {
+        if (
+          this.providers.http instanceof unchained.thorchain.V1Api ||
+          this.providers.http instanceof unchained.mayachain.V1Api
+        ) {
           const data = await this.providers.http.getAccount({ pubkey })
-          return { ...data, delegations: [], redelegations: [], undelegations: [], rewards: [] }
+
+          const assets = data.assets.map<CosmosSDKToken>(asset => ({
+            amount: asset.amount,
+            assetId: generateAssetIdFromCosmosSdkDenom(asset.denom, this.getFeeAssetId()),
+          }))
+
+          return {
+            ...data,
+            assets,
+            delegations: [],
+            redelegations: [],
+            undelegations: [],
+            rewards: [],
+          }
         }
 
         const data = await this.providers.http.getAccount({ pubkey })
@@ -403,7 +426,11 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   async getValidator(address: string): Promise<Validator | undefined> {
     try {
-      if (this.providers.http instanceof unchained.thorchain.V1Api) return
+      if (
+        this.providers.http instanceof unchained.thorchain.V1Api ||
+        this.providers.http instanceof unchained.mayachain.V1Api
+      )
+        return
 
       const validator = await this.providers.http.getValidator({ pubkey: address })
       return transformValidator(validator)

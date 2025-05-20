@@ -3,6 +3,7 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Box,
   Button,
   Code,
   IconButton,
@@ -12,14 +13,13 @@ import {
   ModalHeader,
   Tag,
   useColorModeValue,
-  useUnmountEffect,
   Wrap,
 } from '@chakra-ui/react'
 import range from 'lodash/range'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -37,7 +37,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
   const translate = useTranslate()
   const [revoker] = useState(new (Revocable(class {}))())
-  const { goBack, ...history } = useHistory()
+  const navigate = useNavigate()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = useCallback(() => {
@@ -49,9 +49,15 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
 
   const alertColor = useColorModeValue('blue.500', 'blue.200')
 
-  useUnmountEffect(() => {
-    if (revealedOnce.current) revoker.revoke()
-  }, [revoker])
+  // Revoke on unmount
+  useEffect(
+    () => () => {
+      if (revealedOnce.current) revoker.revoke()
+    },
+    // Don't add revoker here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   const words = useMemo(() => {
     if (!revocableWallet) return
@@ -102,22 +108,20 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   }, [])
 
   const handleCreateBackupClick = useCallback(
-    () => history.push(BackupPassphraseRoutes.Test),
-    [history],
+    () => navigate(BackupPassphraseRoutes.Test),
+    [navigate],
   )
 
   const handleBackClick = useCallback(() => {
     if (isMobile) {
       close()
-
       return
     }
-
-    goBack()
-  }, [goBack, close])
+    navigate(-1) // This is the equivalent of history.goBack() in v6
+  }, [navigate, close])
 
   return (
-    <SlideTransition>
+    <Box>
       <IconButton
         variant='ghost'
         icon={arrowBackIcon}
@@ -131,41 +135,43 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         <Text translation={'modals.shapeShift.backupPassphrase.info.title'} />
       </ModalHeader>
       {!preventClose && <ModalCloseButton />}
-      <ModalBody>
-        <Text
-          color='text.subtle'
-          translation={'modals.shapeShift.backupPassphrase.info.description'}
-          mb={6}
-        />
-        <Alert status='info'>
-          <AlertIcon />
-          <AlertDescription>
-            <Text
-              color={alertColor}
-              translation={'modals.shapeShift.backupPassphrase.info.warning'}
-            />
-          </AlertDescription>
-        </Alert>
-
-        <Wrap mt={12} mb={6}>
-          {revealed ? words : placeholders}
-        </Wrap>
-      </ModalBody>
-      <ModalFooter justifyContent='space-between'>
-        <Button onClick={handleShow} leftIcon={faEyeIcon}>
+      <SlideTransition>
+        <ModalBody>
           <Text
-            translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
+            color='text.subtle'
+            translation={'modals.shapeShift.backupPassphrase.info.description'}
+            mb={6}
           />
-        </Button>
-        <Button
-          colorScheme='blue'
-          size='lg'
-          disabled={!(words && revealedOnce.current)}
-          onClick={handleCreateBackupClick}
-        >
-          <Text translation={'walletProvider.shapeShift.create.button'} />
-        </Button>
-      </ModalFooter>
-    </SlideTransition>
+          <Alert status='info'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text
+                color={alertColor}
+                translation={'modals.shapeShift.backupPassphrase.info.warning'}
+              />
+            </AlertDescription>
+          </Alert>
+
+          <Wrap mt={12} mb={6}>
+            {revealed ? words : placeholders}
+          </Wrap>
+        </ModalBody>
+        <ModalFooter justifyContent='space-between'>
+          <Button onClick={handleShow} leftIcon={faEyeIcon}>
+            <Text
+              translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
+            />
+          </Button>
+          <Button
+            colorScheme='blue'
+            size='lg'
+            disabled={!(words && revealedOnce.current)}
+            onClick={handleCreateBackupClick}
+          >
+            <Text translation={'walletProvider.shapeShift.create.button'} />
+          </Button>
+        </ModalFooter>
+      </SlideTransition>
+    </Box>
   )
 }

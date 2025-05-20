@@ -15,7 +15,7 @@ import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimTx } from './hooks/useArbitrumClaimTx'
@@ -50,12 +50,12 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   setClaimTxHash,
   setClaimTxStatus,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleGoBack = useCallback(() => {
-    history.push(ClaimRoutePaths.Select)
-  }, [history])
+    navigate(ClaimRoutePaths.Select)
+  }, [navigate])
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
 
@@ -97,15 +97,14 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   )
 
   const amountUserCurrency = useMemo(() => {
-    const price =
-      destinationAssetMarketDataUserCurrency.price !== '0'
-        ? destinationAssetMarketDataUserCurrency.price
-        : assetMarketDataUserCurrency.price
+    const price = destinationAssetMarketDataUserCurrency?.price
+      ? destinationAssetMarketDataUserCurrency.price
+      : assetMarketDataUserCurrency?.price
 
-    return bnOrZero(amountCryptoPrecision).times(price).toFixed()
+    return bnOrZero(amountCryptoPrecision).times(bnOrZero(price)).toFixed()
   }, [
-    assetMarketDataUserCurrency.price,
-    destinationAssetMarketDataUserCurrency.price,
+    assetMarketDataUserCurrency?.price,
+    destinationAssetMarketDataUserCurrency?.price,
     amountCryptoPrecision,
   ])
 
@@ -127,8 +126,8 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
 
   const handleSubmit = useCallback(async () => {
     await claimMutation.mutateAsync()
-    history.push(ClaimRoutePaths.Status)
-  }, [claimMutation, history])
+    navigate(ClaimRoutePaths.Status)
+  }, [claimMutation, navigate])
 
   const confirmCopy = useMemo(() => {
     if (claimMutation.isError) {

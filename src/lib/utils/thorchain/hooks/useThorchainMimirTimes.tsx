@@ -1,14 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
-
-import { thorchainBlockTimeMs } from '../constants'
 import { selectLiquidityLockupTime, selectRunePoolMaturityTime } from '../selectors'
-
-import { reactQueries } from '@/react-queries'
+import { useThorchainMimir } from './useThorchainMimir'
 
 export const useThorchainMimirTimes = () => {
-  return useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
+  return useThorchainMimir({
     select: mimir => ({
       liquidityLockupTime: selectLiquidityLockupTime(mimir),
       runePoolDepositMaturityTime: selectRunePoolMaturityTime(mimir),

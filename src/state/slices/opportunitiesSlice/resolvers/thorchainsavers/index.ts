@@ -40,7 +40,7 @@ import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 import { thornode } from '@/react-queries/queries/thornode'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -100,7 +100,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const { SaversVaults } = selectFeatureFlags(state)
+  const { SaversVaults } = preferences.selectors.selectFeatureFlags(state)
 
   if (!(SaversVaults && opportunityIds?.length)) {
     return Promise.resolve({
@@ -154,11 +154,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     const apy = bnOrZero(
       midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
     ).toString()
-    const tvl = fromThorBaseUnit(thorchainPool.synth_supply).times(marketData.price).toFixed()
+    const tvl = fromThorBaseUnit(thorchainPool.synth_supply)
+      .times(bnOrZero(marketData?.price))
+      .toFixed()
     const saversMaxSupplyUserCurrency = fromThorBaseUnit(
       bnOrZero(thorchainPool.synth_supply).plus(thorchainPool.synth_supply_remaining),
     )
-      .times(marketData.price)
+      .times(bnOrZero(marketData?.price))
       .toFixed()
 
     const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
@@ -178,7 +180,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       saversMaxSupplyFiat: saversMaxSupplyUserCurrency,
       isFull: thorchainPool.synth_mint_paused,
       isClaimableRewards: false,
-      isReadOnly: true,
     }
   }
 
@@ -186,11 +187,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   if (getConfig().VITE_FEATURE_RUNEPOOL && asset) {
     const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
-      `${getConfig().VITE_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
+      `${
+        getConfig().VITE_THORCHAIN_MIDGARD_URL
+      }/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
     )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(
-        `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+        `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/runepool`,
       )
 
     const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
@@ -278,7 +281,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       id: thorchainAssetId as StakingId,
       provider: DefiProvider.ThorchainSavers,
       tvl: fromThorBaseUnit(runepoolInformation.providers.value)
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price))
         .toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
@@ -290,7 +293,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,
-      isReadOnly: true,
     }
   }
 
@@ -319,7 +321,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   try {
     const { data: mimir } = await axios.get<ThorchainMimir>(
-      `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
+      `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/mimir`,
     )
 
     const liquidityLockupTime = selectLiquidityLockupTime(mimir)
@@ -366,14 +368,14 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         try {
           if (stakingOpportunityId === thorchainAssetId) {
             const { data } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
-              `${getConfig().VITE_MIDGARD_URL}/runepool/${asset_address}`,
+              `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/runepool/${asset_address}`,
             )
 
             return bnOrZero(data[0].dateLastAdded).plus(runePoolDepositMaturityTime).toNumber()
           }
 
           const { data } = await axios.get<MidgardSaverResponse>(
-            `${getConfig().VITE_MIDGARD_URL}/saver/${asset_address}`,
+            `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/saver/${asset_address}`,
           )
 
           const dateLastAdded = data.pools.find(({ pool }) => pool === accountPosition.asset)

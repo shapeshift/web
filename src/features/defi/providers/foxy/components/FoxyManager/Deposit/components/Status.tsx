@@ -4,7 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { DepositContext } from '../DepositContext'
 
@@ -16,13 +16,8 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { Summary } from '@/features/defi/components/Summary'
 import { TxStatus as TransactionStatus } from '@/features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
@@ -34,8 +29,7 @@ type StatusProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
-  const history = useHistory()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
   const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
 
   const { data: maybeSafeTx } = useSafeTxQuery({
@@ -44,10 +38,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   })
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/wallet/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
-  const handleCancel = history.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
     if (maybeSafeTx?.isQueuedSafeTx)
@@ -185,7 +179,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(usedGasOrEstimateCryptoPrecision)
-                  .times(feeMarketData.price)
+                  .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
               />
               <Amount.Crypto

@@ -13,7 +13,7 @@ import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
 
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -36,9 +36,10 @@ import { useActions } from '@/hooks/useActions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { calculateFeeUsd } from '@/lib/fees/utils'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
-import { selectCalculatedFees, selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -94,7 +95,7 @@ export const LimitOrderInput = ({
     state: { isConnected },
   } = useWallet()
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorToast()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -113,7 +114,6 @@ export const LimitOrderInput = ({
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
@@ -142,12 +142,7 @@ export const LimitOrderInput = ({
 
   const priceDirection = useAppSelector(selectLimitPriceDirection)
 
-  const feeParams = useMemo(
-    () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
-    [inputSellAmountUsd],
-  )
-
-  const { feeUsd, feeBps } = useAppSelector(state => selectCalculatedFees(state, feeParams))
+  const { feeUsd } = calculateFeeUsd({ inputAmountUsd: bnOrZero(inputSellAmountUsd) })
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({
@@ -204,7 +199,7 @@ export const LimitOrderInput = ({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
-      affiliateBps: feeBps.toFixed(0),
+      affiliateBps: DEFAULT_FEE_BPS,
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,
@@ -214,7 +209,6 @@ export const LimitOrderInput = ({
     sellAsset.assetId,
     sellAsset.chainId,
     buyAsset.assetId,
-    feeBps,
     sellAccountAddress,
     recipientAddress,
   ])
@@ -298,7 +292,7 @@ export const LimitOrderInput = ({
       }
 
       setLimitOrderInitialized(quoteResponse.id)
-      history.push(LimitOrderRoutePaths.Confirm)
+      navigate(LimitOrderRoutePaths.Confirm)
 
       // If the new limit flow is enabled, we don't need to check the allowance here, so we
       // update the slice state immediately and return
@@ -318,12 +312,12 @@ export const LimitOrderInput = ({
 
         // If approval is required, route there
         if (bn(allowanceOnChainCryptoBaseUnit).lt(limitOrderQuoteParams.sellAmountCryptoBaseUnit)) {
-          history.push(LimitOrderRoutePaths.AllowanceApproval)
+          navigate(LimitOrderRoutePaths.AllowanceApproval)
           return
         }
 
         // Otherwise, proceed with confirmation
-        history.push(LimitOrderRoutePaths.Confirm)
+        navigate(LimitOrderRoutePaths.Confirm)
         return
       } catch (e) {
         showErrorToast(e)
@@ -342,7 +336,7 @@ export const LimitOrderInput = ({
     isNewLimitFlowEnabled,
     handleConnect,
     setLimitOrderInitialized,
-    history,
+    navigate,
     showErrorToast,
   ])
 
@@ -361,28 +355,16 @@ export const LimitOrderInput = ({
   )
 
   const handleShowLimitOrdersList = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Orders)
-  }, [history])
+    navigate(LimitOrderRoutePaths.Orders)
+  }, [navigate])
 
   const handleSwitchAssets = useCallback(() => {
     switchAssets({ sellAssetUsdRate, buyAssetUsdRate })
   }, [buyAssetUsdRate, sellAssetUsdRate, switchAssets])
 
   const isLoading = useMemo(() => {
-    return (
-      isCheckingAllowance ||
-      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
-      // Only consider snapshot API queries as pending if we don't have voting power yet
-      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
-      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading
-    )
-  }, [
-    isCheckingAllowance,
-    isTradeQuoteRequestAborted,
-    isVotingPowerLoading,
-    shouldShowTradeQuoteOrAwaitInput,
-  ])
+    return isCheckingAllowance || (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted)
+  }, [isCheckingAllowance, isTradeQuoteRequestAborted, shouldShowTradeQuoteOrAwaitInput])
 
   const headerRightContent = useMemo(() => {
     if (!(isCompact || isSmallerThanXl)) return <></>
@@ -522,7 +504,7 @@ export const LimitOrderInput = ({
 
     return (
       <SharedTradeInputFooter
-        affiliateBps={feeBps.toFixed(0)}
+        affiliateBps={DEFAULT_FEE_BPS}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
@@ -554,7 +536,6 @@ export const LimitOrderInput = ({
       </SharedTradeInputFooter>
     )
   }, [
-    feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
     priceDirection,

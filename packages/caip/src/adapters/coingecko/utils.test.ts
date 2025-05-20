@@ -129,6 +129,9 @@ describe('adapters:coingecko:utils', () => {
         'cosmos:thorchain-1': {
           'cosmos:thorchain-1/slip44:931': 'thorchain',
         },
+        'cosmos:mayachain-mainnet-v1': {
+          'cosmos:mayachain-mainnet-v1/slip44:931': 'cacao',
+        },
         'eip155:1': {
           'eip155:1/slip44:60': 'ethereum',
           'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',

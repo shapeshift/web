@@ -5,6 +5,7 @@ import { WithdrawType } from '@shapeshiftoss/types'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -50,7 +51,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress: validatorAddress } = query
   const toast = useToast()
 
@@ -98,18 +100,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     bn(10).pow(asset.precision),
   )
 
-  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
+  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData?.price)).toString()
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   const handlePercentClick = useCallback(
     (percent: number) => {
       const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman)
         .times(percent)
         .dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -117,7 +119,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         shouldValidate: true,
       })
     },
-    [asset.precision, cryptoStakeBalanceHuman, marketData.price, setValue],
+    [asset.precision, cryptoStakeBalanceHuman, marketData?.price, setValue],
   )
 
   const handleContinue = useCallback(

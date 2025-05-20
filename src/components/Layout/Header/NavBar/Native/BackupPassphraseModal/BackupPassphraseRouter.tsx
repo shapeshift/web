@@ -1,7 +1,7 @@
-import { useUnmountEffect } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router'
+import { Route, Switch } from 'wouter'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseInfo } from './BackupPassphraseInfo'
@@ -13,11 +13,10 @@ import { BackupPassphraseTest } from './BackupPassphraseTest'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-const startRedirect = () => <Redirect to={BackupPassphraseRoutes.Start} />
-
 export const BackupPassphraseRouter = () => {
-  const location = useLocation()
   const { state } = useWallet()
+  const location = useLocation()
+
   const [revocableWallet, setRevocableWallet] = useState(
     createRevocableWallet({
       id: state.walletInfo?.deviceId,
@@ -25,20 +24,26 @@ export const BackupPassphraseRouter = () => {
     }),
   )
 
-  useUnmountEffect(() => {
-    revocableWallet?.revoke()
-    setRevocableWallet(
-      createRevocableWallet({
-        id: state.walletInfo?.deviceId,
-        label: state.walletInfo?.name,
-      }),
-    )
-  }, [])
+  useEffect(
+    // Revoke on unmount
+    () => () => {
+      revocableWallet?.revoke()
+      setRevocableWallet(
+        createRevocableWallet({
+          id: state.walletInfo?.deviceId,
+          label: state.walletInfo?.name,
+        }),
+      )
+    },
+    // Don't add revoker and related deps here or problems
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   return (
     <AnimatePresence mode='wait'>
-      <Switch location={location} key={location.key}>
-        <Route exact path={BackupPassphraseRoutes.Start}>
+      <Switch location={location.pathname}>
+        <Route path={BackupPassphraseRoutes.Start}>
           <BackupPassphraseStart revocableWallet={revocableWallet} />
         </Route>
         <Route path={BackupPassphraseRoutes.Info}>
@@ -53,7 +58,9 @@ export const BackupPassphraseRouter = () => {
         <Route path={BackupPassphraseRoutes.Success}>
           <BackupPassphraseSuccess />
         </Route>
-        <Route path='*' render={startRedirect} />
+        <Route>
+          <BackupPassphraseStart revocableWallet={revocableWallet} />
+        </Route>
       </Switch>
     </AnimatePresence>
   )

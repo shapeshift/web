@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
 
@@ -16,9 +16,43 @@ import { Text } from '@/components/Text'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
+const buttonProps = { variant: 'solid', width: 'full' }
+
+const activeAccountFlexProps = {
+  flexDir: {
+    base: 'column',
+    md: 'row',
+  },
+  alignItems: {
+    base: 'flex-start',
+    md: 'center',
+  },
+  justifyContent: {
+    base: 'flex-start',
+    md: 'space-between',
+  },
+  px: {
+    base: 2,
+    md: 0,
+  },
+  gap: {
+    base: 0,
+    md: 2,
+  },
+  py: {
+    base: 4,
+    md: 0,
+  },
+} as const
+
+const activeAccountLabelPx = {
+  base: 3,
+  md: 0,
+} as const
+
 export const RFOXHeader = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const {
     stakingAssetId,
@@ -28,8 +62,8 @@ export const RFOXHeader = () => {
   } = useRFOXContext()
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
-  }, [history])
+    navigate('/explore')
+  }, [navigate])
 
   const accountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
@@ -52,8 +86,8 @@ export const RFOXHeader = () => {
     if (accountIds.length <= 1) return null
 
     return (
-      <Flex alignItems='center' gap={2}>
-        <Text translation='common.activeAccount' fontWeight='medium' />
+      <Flex {...activeAccountFlexProps}>
+        <Text translation='common.activeAccount' fontWeight='medium' px={activeAccountLabelPx} />
 
         <InlineCopyButton
           isDisabled={!stakingAssetAccountId}
@@ -63,9 +97,7 @@ export const RFOXHeader = () => {
             defaultAccountId={selectedAssetAccountId}
             assetId={stakingAssetId}
             onChange={handleChange}
-            // dis already memoized
-            // eslint-disable-next-line react-memo/require-usememo
-            buttonProps={{ variant: 'solid', width: 'full' }}
+            buttonProps={buttonProps}
           />
         </InlineCopyButton>
       </Flex>

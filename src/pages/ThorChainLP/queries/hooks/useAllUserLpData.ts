@@ -89,7 +89,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
                     assets,
                     pool,
                     position,
-                    runePrice: runeMarketDataUserCurrency.price,
+                    runePrice: runeMarketDataUserCurrency?.price,
                     liquidityLockupTime: thorchainMimirTimes.liquidityLockupTime,
                   }),
                 )
@@ -109,7 +109,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
     portfolioAccounts,
     queryClient,
     runeAccountIds,
-    runeMarketDataUserCurrency.price,
+    runeMarketDataUserCurrency?.price,
     thorchainMimirTimes,
   ])
 

@@ -1,12 +1,14 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody, Center, Stack } from '@chakra-ui/react'
+import type { JSX } from 'react'
 import { memo, useCallback } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
+import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -42,24 +44,29 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
 const rfoxIcon = <RFOXIcon />
+const tcyIcon = <TCYIcon />
 
 const pageProps = { paddingTop: 4 }
 
 export const Explore = memo(() => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handlePoolsClick = useCallback(() => {
-    history.push('/pools')
-  }, [history])
+    navigate('/pools')
+  }, [navigate])
 
   const handleLendingClick = useCallback(() => {
-    history.push('/lending')
-  }, [history])
+    navigate('/lending')
+  }, [navigate])
 
   const handleRFOXClick = useCallback(() => {
-    history.push('/rfox')
-  }, [history])
+    navigate('/rfox')
+  }, [navigate])
+
+  const handleTCYClick = useCallback(() => {
+    navigate('/tcy')
+  }, [navigate])
 
   return (
     <>
@@ -100,6 +107,13 @@ export const Explore = memo(() => {
           icon={lendingIcon}
           bg='linear-gradient(161deg, #D69E2E 6.22%, #935F22 87.07%)'
           onClick={handleLendingClick}
+        />
+        <ExploreCard
+          title='explore.tcy.title'
+          body='explore.tcy.body'
+          icon={tcyIcon}
+          bg='linear-gradient(159deg, #319795 2.01%, #215063 86%);'
+          onClick={handleTCYClick}
         />
       </Main>
     </>

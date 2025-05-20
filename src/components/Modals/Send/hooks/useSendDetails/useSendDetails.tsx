@@ -1,10 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { solana } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
@@ -43,6 +44,7 @@ type UseSendDetailsReturnType = {
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
+  const translate = useTranslate()
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.AmountCryptoPrecision)
   const { setValue } = useFormContext<SendInput>()
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({
@@ -68,7 +70,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.SendMax,
   })
 
-  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId)).price
+  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+    ?.price
 
   const chainAdapterManager = getChainAdapterManager()
   const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()
@@ -208,6 +211,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return estimatedFees
       } catch (e: unknown) {
         console.debug(e)
+
+        if (e instanceof ChainAdapterError) {
+          throw new Error(translate(e.metadata.translation, e.metadata.options))
+        }
+
         throw new Error((e as Error).message)
       }
     },
@@ -221,6 +229,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       feeAsset.symbol,
       nativeAssetBalance,
       setValue,
+      translate,
     ],
   )
 
@@ -244,7 +253,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const {
     isFetching: _isEstimatedFormFeesFetching,
     data: estimatedFees,
-    error,
+    error: estimatedFeesError,
   } = useQuery({
     queryKey,
     queryFn: setEstimatedFormFeesQueryFn,
@@ -290,7 +299,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
                 ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
                 : 0,
             )
-    const maxFiat = maxCrypto.times(price)
+    const maxFiat = maxCrypto.times(bnOrZero(price))
 
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)
     const maxFiatOrZero = maxFiat.isPositive() ? maxFiat : bn(0)
@@ -328,14 +337,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     // openapi-generator error-handling https://github.com/OpenAPITools/openapi-generator/blob/8357cc313be5a099f994c4ffaf56146f40dba911/samples/client/petstore/typescript-fetch/builds/enum/runtime.ts#L221
     if (
-      error?.message ===
+      estimatedFeesError?.message ===
       'The request failed and the interceptors did not return an alternative response'
     )
       return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
-    if (error?.message) {
-      setValue(SendFormFields.AmountFieldError, error.message)
+    if (estimatedFeesError?.message) {
+      setValue(SendFormFields.AmountFieldError, estimatedFeesError.message)
     }
-  }, [error, hasEnteredPositiveAmount, setValue])
+  }, [estimatedFeesError, hasEnteredPositiveAmount, setValue])
 
   useEffect(() => {
     if (!estimatedFees) return
@@ -356,7 +365,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
     if (feeAsset.assetId !== assetId) {
       const maxCrypto = bnOrZero(cryptoHumanBalance)
-      const maxFiat = maxCrypto.times(price)
+      const maxFiat = maxCrypto.times(bnOrZero(price))
 
       setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
@@ -406,9 +415,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       const cryptoAmount =
-        fieldName === SendFormFields.FiatAmount ? bn(inputValue).div(price) : inputValue
+        fieldName === SendFormFields.FiatAmount ? bn(inputValue).div(bnOrZero(price)) : inputValue
       const fiatAmount =
-        fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(price)
+        fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(bnOrZero(price))
       const otherAmount =
         fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
 

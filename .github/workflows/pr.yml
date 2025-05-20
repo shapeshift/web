@@ -6,7 +6,7 @@ on:
 jobs:
   static:
     name: Static
-    runs-on: size-bertha
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -56,4 +56,4 @@ jobs:
         run: yarn type-check
 
       - name: Test
-        run: yarn test:ci
+        run: yarn test

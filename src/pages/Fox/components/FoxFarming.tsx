@@ -20,7 +20,7 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
@@ -74,7 +74,7 @@ export const FoxFarming = () => {
   const { assetAccountId } = useFoxPageContext()
   const translate = useTranslate()
   const isFoxFarmingEnabled = useFeatureFlag('FoxPageFoxFarmingSection')
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const appDispatch = useAppDispatch()
   const {
@@ -135,7 +135,7 @@ export const FoxFarming = () => {
   )
 
   const fetchOpportunityData = useCallback(async () => {
-    if (foxEthMarketData.price === '0') return
+    if (foxEthMarketData?.price === '0') return
 
     await appDispatch(
       opportunitiesApi.endpoints.getOpportunityIds.initiate(
@@ -177,7 +177,7 @@ export const FoxFarming = () => {
     }
 
     return true
-  }, [assetAccountId, appDispatch, foxEthMarketData.price, opportunityId])
+  }, [assetAccountId, appDispatch, foxEthMarketData?.price, opportunityId])
 
   useEffect(() => {
     queryClient.invalidateQueries({
@@ -188,7 +188,7 @@ export const FoxFarming = () => {
   const { isLoading: isOpportunityDataLoading, isFetching: isOpportunityDataFetching } = useQuery({
     queryKey: ['fetchOpportunityData', assetAccountId],
     queryFn: fetchOpportunityData,
-    enabled: Boolean(foxEthMarketData.price !== '0'),
+    enabled: Boolean(foxEthMarketData?.price !== '0'),
   })
 
   const isOpportunityLoading = useMemo(
@@ -222,24 +222,28 @@ export const FoxFarming = () => {
         return
       }
 
-      history.push({
-        pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action,
-          accountId: assetAccountId,
-        }),
-        state: { background: location },
-      })
+      navigate(
+        {
+          pathname: location.pathname,
+          search: qs.stringify({
+            type,
+            provider,
+            chainId,
+            contractAddress,
+            assetNamespace,
+            assetReference,
+            highestBalanceAccountAddress,
+            rewardId: rewardAddress,
+            modal: action,
+            accountId: assetAccountId,
+          }),
+        },
+        {
+          state: { background: location },
+        },
+      )
     },
-    [dispatch, history, isConnected, location, assetAccountId],
+    [dispatch, navigate, isConnected, location, assetAccountId],
   )
 
   const handleManageClick = useCallback(() => {

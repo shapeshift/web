@@ -99,7 +99,7 @@ export const useTradeExecution = (
   // This is ugly, but we need to use refs to get around the fact that the
   // poll fn effectively creates a closure and will hold stale variables forever
   // Unless we use refs or another way to get around the closure (e.g hijacking `this`, we are doomed)
-  const cancelPollingRef = useRef<() => void | undefined>()
+  const cancelPollingRef = useRef<() => void | undefined>(undefined)
 
   // cancel on component unmount so polling doesn't cause chaos after the component has unmounted
   useEffect(() => {
@@ -243,7 +243,6 @@ export const useTradeExecution = (
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
       const stepSellAssetChainId = hop.sellAsset.chainId
-      const stepSellAssetAssetId = hop.sellAsset.assetId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
       if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
@@ -329,10 +328,6 @@ export const useTradeExecution = (
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
           const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
-          const senderAddress =
-            stepSellAssetAssetId === bchAssetId
-              ? _senderAddress.replace('bitcoincash:', '')
-              : _senderAddress
 
           const output = await execution.execUtxoTransaction({
             swapperName,
@@ -349,8 +344,6 @@ export const useTradeExecution = (
               })
 
               const output = await adapter.broadcastTransaction({
-                senderAddress,
-                receiverAddress,
                 hex: signedTx,
               })
 

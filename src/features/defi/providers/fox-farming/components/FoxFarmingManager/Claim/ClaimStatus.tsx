@@ -6,7 +6,7 @@ import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -19,7 +19,6 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -78,11 +77,12 @@ const StatusInfo = {
 type ClaimStatusProps = { accountId: AccountId | undefined }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
-  const { history: browserHistory } = useBrowserRouter()
+  const navigate = useNavigate()
   const translate = useTranslate()
-  const {
-    state: { txid, amount, assetId, userAddress, estimatedGas, chainId, contractAddress },
-  } = useLocation<ClaimStatusState>()
+  const location = useLocation()
+  const { txid, amount, assetId, userAddress, estimatedGas, chainId, contractAddress } =
+    location.state as ClaimStatusState
+
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.Pending,
   })
@@ -128,8 +128,11 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   )
 
   const claimFiatAmount = useMemo(
-    () => bnOrZero(amount).times(assetMarketData.price).toString(),
-    [amount, assetMarketData.price],
+    () =>
+      bnOrZero(amount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
+    [amount, assetMarketData?.price],
   )
 
   const serializedTxIndex = useMemo(() => {
@@ -193,7 +196,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     }
   }, [amount, asset, assets, claimFiatAmount, opportunity, status])
 
-  const handleClose = useCallback(() => browserHistory.goBack(), [browserHistory])
+  const handleClose = useCallback(() => navigate(-1), [navigate])
 
   const txLink = useMemo(() => {
     if (!feeAsset) return
@@ -293,7 +296,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(status ? estimatedGas : state.usedGasFeeCryptoPrecision)
-                    .times(feeMarketData.price)
+                    .times(bnOrZero(feeMarketData?.price))
                     .toFixed(2)}
                 />
                 <Amount.Crypto

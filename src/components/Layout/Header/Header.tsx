@@ -6,7 +6,7 @@ import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -14,6 +14,7 @@ import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
+import { NotificationCenter } from './NotificationCenter/NotificationCenter'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -24,10 +25,10 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectEnabledWalletAccountIds,
   selectPortfolioDegradedState,
-  selectShowSnapsModal,
   selectWalletId,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -51,10 +52,10 @@ export const Header = memo(() => {
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const previousIsCorrectVersion = usePrevious(isCorrectVersion)
-  const showSnapModal = useSelector(selectShowSnapsModal)
+  const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { isConnected, wallet },
     dispatch,
@@ -71,6 +72,7 @@ export const Header = memo(() => {
   }, [scrollY])
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isNotificationCenterEnabled = useFeatureFlag('NotificationCenter')
 
   /**
    * FOR DEVELOPERS:
@@ -79,10 +81,10 @@ export const Header = memo(() => {
   const handleKeyPress = useCallback(
     (event: { altKey: unknown; shiftKey: unknown; keyCode: number }) => {
       if (event.altKey && event.shiftKey && event.keyCode === 70) {
-        history.push('/flags')
+        navigate('/flags')
       }
     },
-    [history],
+    [navigate],
   )
 
   useEffect(() => {
@@ -138,7 +140,7 @@ export const Header = memo(() => {
       previousConnectedRdns === METAMASK_RDNS &&
       connectedRdns === METAMASK_RDNS
     ) {
-      history.push(`/assets/${btcAssetId}`)
+      navigate(`/assets/${btcAssetId}`)
 
       // they installed the snap
       toast({
@@ -153,7 +155,7 @@ export const Header = memo(() => {
     connectedRdns,
     currentWalletId,
     dispatch,
-    history,
+    navigate,
     isCorrectVersion,
     isSnapInstalled,
     previousConnectedRdns,
@@ -208,6 +210,7 @@ export const Header = memo(() => {
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
+              {isConnected && isNotificationCenterEnabled && <NotificationCenter />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

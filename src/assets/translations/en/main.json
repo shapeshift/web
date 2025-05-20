@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
     "free": "Free",
@@ -162,6 +163,7 @@
     "disabled": "Disabled",
     "staged": "Staged",
     "poolHalted": "Pool Halted",
+    "chainHalted": "Chain Halted",
     "poolDisabled": "Pool Disabled",
     "prices": "Prices",
     "symmetric": "Symmetric",
@@ -194,7 +196,9 @@
     "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
-    "hardwareWallets": "Hardware Wallets"
+    "hardwareWallets": "Hardware Wallets",
+    "dustAmount": "Dust Amount",
+    "marketDataUnavailable": "Market data is unavailable for %{asset}"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -606,6 +610,7 @@
     "lending": "Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
     "actionMenu": {
@@ -671,6 +676,13 @@
         "setRuneAddress": "Set RUNE Address",
         "reward": "Reward Distribution"
       },
+      "tcy": {
+        "stake": "Stake",
+        "withdraw": "Withdraw",
+        "unstakeRequest": "Unstake Request",
+        "setRuneAddress": "Set RUNE Address",
+        "reward": "Reward Distribution"
+      },
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
@@ -711,9 +723,11 @@
         "loanRepaymentRefundNative": "Loan Repayment + Refund",
         "out": "Outbound Received",
         "refund": "Refund",
+        "stake": "Stake",
         "swapOut": "Swap Received",
         "swap": "Trade",
         "swapRefund": "Swap Refund",
+        "unstake": "Unstake",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"
@@ -1031,17 +1045,14 @@
     "awaitingApproval": "Awaiting approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "foxSavings": {
-      "youSaved": "You saved %{feeSaving} on your trade with FOX Savings!",
-      "youCouldHaveSaved": "You could have saved %{fee} on your trade with FOX Savings.",
+      "youSaved": "You saved %{feeSaving} on your trade!",
       "buyFox": "Buy FOX",
       "share": "Share",
       "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!",
-      "youGotMore": "You got %{cryptoUpside} more on this trade because you hold FOX"
+      "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "learnMoreAboutFox": "Learn more about FOX Benefits",
-    "freeTrade": "This trade is free based on your FOX holdings of %{foxBalance} FOX",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee based on your FOX holdings of %{foxBalance} FOX."
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -2225,11 +2236,6 @@
         "title": "✨ Get FOX rewards + more! ✨",
         "body": "Earn FOX rewards by completing tasks on DappBack",
         "cta": "Launch DappBack"
-      },
-      "bondProtocol": {
-        "title": "Buy FOX at a Discount!",
-        "body": "Buy FOX at a discount with BondProtocol",
-        "cta": "Launch BondProtocol"
       }
     },
     "analytics": {
@@ -2502,28 +2508,6 @@
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
   },
-  "foxDiscounts": {
-    "currentFoxPower": "Your FOX Power",
-    "foxPower": "FOX Power",
-    "simulateTitle": "Simulate your FOX power discounts",
-    "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your %{feature}. Simply adjust the sliders below to indicate your FOX holder amount and the %{featureLowerCase} size in fiat, and watch your potential savings unfold!",
-    "featureSize": "%{feature} Size",
-    "totalFee": "Total Fee",
-    "discountLabel": "%{discountType} Discount",
-    "basedOnFee": "Based on a fee of: %{fee}",
-    "feeSummary": "Fee Summary",
-    "simulateFee": "Simulate FOX Discount",
-    "freeUnderThreshold": "%{feature} under %{threshold} are always FREE",
-    "breakdownHeader": "Your Discount",
-    "breakdownBody": "Below is a breakdown of your %{featureLowerCase} fees and the corresponding Discount applied. Learn how much more you can save on the simulate tab.",
-    "featureFee": "%{feature} Fee",
-    "totalFeatureFee": "Total %{feature} Fee",
-    "underThreshold": "Low Trade",
-    "thorHolder": "THORSwap Holder",
-    "foxHolder": "FOX Holder",
-    "foxWifHatHolder": "FOX Wif Hat Holder",
-    "foxBuy": "FOX Buy"
-  },
   "chart": {
     "interval": {
       "5min": "Past five minutes",
@@ -2562,7 +2546,6 @@
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedNetworkExplainer": "Your wallet isn't connected to %{network}. Please connect this chain or switch to a wallet that supports this network.",
     "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
-    "instabilityWarning": "Deposits for thorchain LP are disabled on a protocol level. If you try to deposit, assets will bounce back with a refund. This will revert on version 3.5.",
     "depositsDisabled": "Deposits Disabled",
     "shareOfPool": "Share of Pool",
     "assetDepositAmount": "%{asset} Deposit Amount",
@@ -2651,6 +2634,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Stake FOX earn RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Stake TCY earn RUNE."
     }
   },
   "RFOX": {
@@ -2772,6 +2759,104 @@
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address"
   },
+  "TCY": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "staking": "TCY Staking",
+    "myPosition": "My Position",
+    "myStakedBalance": "My Staked Balance",
+    "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
+    "myRewardsBalance": "My RUNE Rewards Balance",
+    "myRewardsBalanceHelper": "The amount of RUNE staking rewards. Automatically distributed to your wallet daily.",
+    "pendingRewardsBalance": "Pending Rewards Balance",
+    "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
+    "lifetimeRewards": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
+    "timeStaked": "Time Staked",
+    "timeStakedHelper": "The amount of time you have staked your %{symbol}",
+    "stakingReward": "Staking Reward",
+    "claimsEmpty": {
+      "emptyTitle": "No claims available",
+      "emptyBody": "It appears you have no TCY claims available. Try with another wallet?",
+      "connectWalletBody": "Connect your wallet to see your TCY claims."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Unavailable Claims",
+      "notEligible": "Not Eligible"
+    },
+    "claimStatus": {
+      "pendingTitle": "Claim is pending",
+      "back": "Back",
+      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
+      "viewTransaction": "View Transaction",
+      "successTitle": "Claim is successful",
+      "successSubtitle": "You have successfully claimed %{amount} TCY",
+      "goBack": "Go Back",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your claim has failed. Please try again."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "A tiny amount of %{symbol} is required to identify your address on the THOR network",
+      "networkFeeTooltip": "This is the %{symbol} fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift",
+      "missingFundsForGasAlert": "Not enough %{symbol}, you need at least %{amount} %{symbol} to complete transaction. We recommend sending a bit more covering for fluctuating network fees.",
+      "confirmTitle": "Confirm Claim",
+      "networkFee": "Network Fee",
+      "confirmAndClaim": "Claim & Stake",
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
+    },
+    "assetClaimButton": {
+      "claimAction": "Claim"
+    },
+    "claimAddressInput": {
+      "label": "Claim Address",
+      "useWalletAddress": "Use wallet address",
+      "useCustomAddress": "Use custom address",
+      "helperText": "This is where your TCY will be sent."
+    },
+    "assetAddressInput": {
+      "label": "%{symbol} Address",
+      "helperText": "This is the address that will be used to send your claim transaction."
+    },
+    "stakeInput": {
+      "amount": "Amount",
+      "networkFee": "Network Fee",
+      "networkFeeTooltip": "Network Fee",
+      "stake": "Stake",
+      "amountPlaceholder": "Enter amount"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Confirm Stake",
+      "confirmAndStake": "Confirm & Stake"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirm Unstake",
+      "confirmAndUnstake": "Confirm & Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake is pending",
+      "pendingSubtitle": "We are processing your unstake for %{amount} TCY",
+      "successTitle": "Unstake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your unstake has failed. Please try again.",
+      "successSubtitle": "You have successfully unstaked %{amount} TCY",
+      "goBack": "Go Back"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Stake is pending",
+      "pendingSubtitle": "We are processing your stake for %{amount} TCY",
+      "successTitle": "Stake is successful",
+      "failedTitle": "Something went wrong",
+      "failedSubtitle": "Your stake has failed. Please try again.",
+      "viewTransaction": "View Transaction",
+      "successSubtitle": "You have successfully staked %{amount} TCY",
+      "goBack": "Go Back"
+    },
+    "cta": {
+      "title": "THORChain TCY Claims are here!",
+      "hasClaimsTitle": "You have TCY claims available!",
+      "button": "Check Claims"
+    }
+  },
   "markets": {
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
@@ -2815,14 +2900,14 @@
   },
   "foxPage": {
     "title": "FOX Token Dashboard",
-    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you fee discounts, a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
+    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
       "whatIs": "What is rFOX Staking?",
       "totalSymbolBurn": "Total %{symbol} Burn",
       "simulateTitle": "rFOX Simulator",
-      "simulateSubtle": "Input number of deposit something",
+      "simulateSubtle": "Simulate your rFOX staking yield",
       "estimatedRewards": "Estimated Rewards",
       "depositAmount": "Deposit Amount",
       "shapeshiftRevenue": "ShapeShift Revenue",
@@ -2834,20 +2919,6 @@
       "totalClaimableRewards": "Total Claimable Rewards",
       "totalStakingValue": "Total Staking Value",
       "nextEpoch": "Next Epoch"
-    },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "Claim your FOX Wif Hat (FWH). Act fast - discounts decay over time. The more FOX or FWH you hold, the more you save. Stack more FOX tokens for continuous savings plus revenue sharing, governance, and yield farming perks. Learn more about those programs on the rest of this page.",
-      "discount": "*The discount decreases linearly over time, expiring on %{date}. Take advantage of your %{percent}% discount before it decreases further!",
-      "claim": "Claim",
-      "claimed": "Claimed",
-      "discountText": "*%{percent}% off trade fees",
-      "noClaims": "No claims available",
-      "banner": {
-        "title": "Put a hat on it.",
-        "description": "The more FOX or FWH you hold, the more tokens you get per swap.",
-        "cta": "Learn More"
-      }
     },
     "governance": {
       "title": "Governance",
@@ -2877,6 +2948,32 @@
       "getPublicKey": "Failed to get public key from wallet.",
       "getUtxos": "Failed to get utxos.",
       "getValidator": "Failed to get validator."
+    }
+  },
+  "notificationCenter": {
+    "title": "Notifications",
+    "viewTransaction": "View Transaction",
+    "viewOrder": "View Order",
+    "cancelOrder": "Cancel Order",
+    "pair": "Pair",
+    "limitPrice": "Limit Price",
+    "expires": "Expires",
+    "filled": "Filled",
+    "swap": "Swap",
+    "claim": "Claim",
+    "protocol": "Protocol",
+    "streamingStatus": "Streaming Status",
+    "executionPrice": "Execution Price",
+    "status": {
+      "title": "Status",
+      "open": "Open",
+      "expired": "Expired",
+      "cancelled": "Cancelled",
+      "confirmed": "Confirmed",
+      "failed": "Failed",
+      "pending": "Pending",
+      "claimAvailable": "Claim Available",
+      "unknown": "Unknown"
     }
   }
 }

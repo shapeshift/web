@@ -7,10 +7,10 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router'
 
 import { addWallet } from '../mobileMessageHandlers'
 import { Revocable, revocable } from '../RevocableWallet'
-import type { MobileSetupProps } from '../types'
 
 import { RawText, Text } from '@/components/Text'
 
@@ -53,7 +53,9 @@ const RevokableWord = ({ index, invalidTries, word, addRevoker, onClick }: Revok
   )
 }
 
-export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
+export const MobileCreateTest = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
@@ -72,7 +74,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex] ?? ''
-      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 4)
       randomWords.push(targetWord)
       randomWords = shuffle(randomWords)
       const correctAnswerIndex = randomWords.indexOf(targetWord)
@@ -105,7 +107,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
           if (!newWallet) throw new Error('Failed to add wallet')
 
           queryClient.invalidateQueries({ queryKey: ['listWallets'] })
-          history.replace('/mobile/success', { vault: newWallet })
+          navigate('/mobile/success', { state: { vault: newWallet }, replace: true })
         }
       })()
 
@@ -114,7 +116,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, vault, revoker, queryClient])
+  }, [testCount, navigate, vault, revoker, queryClient])
 
   const handleClick = useCallback(
     (index: number) => {

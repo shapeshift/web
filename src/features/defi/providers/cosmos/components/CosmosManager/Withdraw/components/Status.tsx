@@ -4,6 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -39,7 +40,7 @@ const externalLinkIcon = <ExternalLinkIcon />
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
@@ -76,18 +77,20 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const fiatAmount = useMemo(
     () =>
       bnOrZero(state?.withdraw.cryptoAmount)
-        .times(underlyingAssetMarketData.price)
+        .times(bnOrZero(underlyingAssetMarketData?.price))
         .toString(),
-    [state?.withdraw.cryptoAmount, underlyingAssetMarketData.price],
+    [state?.withdraw.cryptoAmount, underlyingAssetMarketData?.price],
   )
 
+  const navigate = useNavigate()
+
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/wallet/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   useEffect(() => {
     if (!opportunityMetadata || !state) return

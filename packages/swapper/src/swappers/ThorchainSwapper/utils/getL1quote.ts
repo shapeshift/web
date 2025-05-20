@@ -60,7 +60,6 @@ export const getL1Quote = async (
     accountNumber,
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
-    potentialAffiliateBps,
   } = input
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -271,7 +270,6 @@ export const getL1Quote = async (
               memo,
               receiveAddress,
               affiliateBps,
-              potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
               slippageTolerancePercentageDecimal: isStreaming
@@ -387,7 +385,6 @@ export const getL1Quote = async (
               memo,
               receiveAddress,
               affiliateBps,
-              potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
               tradeType: tradeType ?? TradeType.L1ToL1,
@@ -483,7 +480,6 @@ export const getL1Quote = async (
               memo,
               receiveAddress,
               affiliateBps,
-              potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
               expiry: quote.expiry,

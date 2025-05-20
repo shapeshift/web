@@ -1,4 +1,5 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
+import type { FlexProps } from '@chakra-ui/react'
 import { Flex, IconButton } from '@chakra-ui/react'
 import type { MouseEvent, PropsWithChildren } from 'react'
 import React, { useCallback, useMemo } from 'react'
@@ -11,6 +12,7 @@ import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 type InlineCopyButtonProps = {
   value: string
   isDisabled?: boolean
+  flexProps?: FlexProps
 } & PropsWithChildren
 
 const copyIcon = <CopyIcon />
@@ -20,6 +22,7 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   value,
   children,
   isDisabled,
+  flexProps,
 }) => {
   const translate = useTranslate()
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
@@ -49,7 +52,7 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   if (isDisabled) return <>{children}</>
 
   return (
-    <Flex gap={2} alignItems='center'>
+    <Flex gap={2} alignItems='center' {...flexProps}>
       {children}
       {translate ? (
         <TooltipWithTouch label={translate(isCopied ? 'common.copied' : 'common.copy')}>

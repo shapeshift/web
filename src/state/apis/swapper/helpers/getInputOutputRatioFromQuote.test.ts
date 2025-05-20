@@ -34,11 +34,6 @@ vi.mock('@/state/slices/marketDataSlice/selectors', async importActual => {
   const actual: Record<any, any> = await importActual()
   return {
     ...actual,
-    selectMarketDataUsd: vi.fn(() => ({
-      [ethAssetId]: mockMarketData({ price: '1844' }),
-      [foxAssetId]: mockMarketData({ price: '0.02' }),
-      [usdcAssetId]: mockMarketData({ price: '1' }),
-    })),
     selectUsdRateByAssetId: vi.fn((_state: ReduxState, assetId: AssetId) => {
       switch (assetId) {
         case ethAssetId:
@@ -51,6 +46,24 @@ vi.mock('@/state/slices/marketDataSlice/selectors', async importActual => {
           assertUnreachable(assetId as never)
       }
     }),
+  }
+})
+
+vi.mock('@/state/slices/marketDataSlice/marketDataSlice', async importActual => {
+  const actual: Record<any, any> = await importActual()
+  return {
+    ...actual,
+    marketData: {
+      ...actual.marketData,
+      selectors: {
+        ...actual.marketData.selectors,
+        selectMarketDataUsd: vi.fn(() => ({
+          [ethAssetId]: mockMarketData({ price: '1844' }),
+          [foxAssetId]: mockMarketData({ price: '0.02' }),
+          [usdcAssetId]: mockMarketData({ price: '1' }),
+        })),
+      },
+    },
   }
 })
 

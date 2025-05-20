@@ -1,5 +1,5 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
@@ -27,17 +27,6 @@ import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitie
 import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-interface ClaimStatusState {
-  txid: string
-  assetId: AssetId
-  amount: string
-  userAddress: string
-  estimatedGas: string
-  usedGasFeeCryptoPrecision?: string
-  status: string
-  chainId: ChainId
-}
 
 type ClaimState = {
   txStatus: TxStatus
@@ -73,12 +62,12 @@ type ClaimStatusProps = {
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { poll } = usePoll<TransactionReceipt | null>()
-  const { history: browserHistory } = useBrowserRouter()
+  const { navigate } = useBrowserRouter()
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
-  } = useLocation<ClaimStatusState>()
+  } = useLocation()
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.Pending,
   })
@@ -184,7 +173,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     maybeSafeTx?.isExecutedSafeTx,
   ])
 
-  const handleClose = useMemo(() => () => browserHistory.goBack(), [browserHistory])
+  const handleClose = useMemo(() => () => navigate(-1), [navigate])
 
   return (
     <SlideTransition>
@@ -266,7 +255,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                       : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
-                    .times(feeMarketData.price)
+                    .times(bnOrZero(feeMarketData?.price))
                     .toFixed(2)}
                 />
                 <Amount.Crypto

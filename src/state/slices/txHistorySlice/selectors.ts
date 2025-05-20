@@ -1,4 +1,4 @@
-import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
@@ -11,6 +11,7 @@ import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
+import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
@@ -18,6 +19,7 @@ import { selectAssets } from '../assetsSlice/selectors'
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
+import { txHistory } from './txHistorySlice'
 
 import { getTimeFrameBounds, isSome } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
@@ -26,6 +28,7 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectMemoParamFromFilter,
   selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
@@ -39,11 +42,11 @@ export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector
 )
 
 export const selectTxs = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.txs.byId,
+  txHistory.selectors.selectTxsById,
   byId => byId,
 )
 export const selectTxIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.txs.ids,
+  txHistory.selectors.selectTxIds,
   ids => ids,
 )
 
@@ -96,7 +99,7 @@ const selectMatchingAssetsParamFromFilter = (_state: ReduxState, filter: TxHisto
 
 const selectWalletTxIdsByAccountIdAssetId = createSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
+  txHistory.selectors.selectTxIdsByAccountIdAssetId,
   (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
@@ -142,7 +145,8 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectAssetIdParamFromFilter,
   selectTxStatusParamFromFilter,
   selectParserParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser): TxId[] => {
+  selectMemoParamFromFilter,
+  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser, memo): TxId[] => {
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
           return accountId === accountIdFilter
@@ -152,13 +156,19 @@ export const selectTxIdsByFilter = createCachedSelector(
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const maybeFilteredByRfox = parser
+    const maybeFilteredByParser = parser
       ? uniqueIds.filter(txId => txs[txId].data?.parser === parser)
       : uniqueIds
 
+    const maybeFilteredByMemo = memo
+      ? maybeFilteredByParser.filter(
+          txId => (txs[txId].data as ThorTxMetadata | undefined)?.memo?.startsWith(memo),
+        )
+      : maybeFilteredByParser
+
     const maybeUniqueIdsByStatus = txStatusFilter
-      ? maybeFilteredByRfox.filter(txId => txs[txId].status === txStatusFilter)
-      : maybeFilteredByRfox
+      ? maybeFilteredByMemo.filter(txId => txs[txId].status === txStatusFilter)
+      : maybeFilteredByMemo
     const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },
@@ -324,7 +334,7 @@ export const selectTxsByQuery = createCachedSelector(
 )
 
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
-  (state: ReduxState) => state.txHistory.hydrationMeta,
+  txHistory.selectors.selectHydrationMeta,
   selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
@@ -364,7 +374,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
 )
 
 export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.hydrationMeta,
+  txHistory.selectors.selectHydrationMeta,
   selectEnabledWalletAccountIds,
   (hydrationMeta, walletEnabledAccountIds) => {
     return Object.entries(hydrationMeta)

@@ -1,12 +1,11 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Flex, Stack } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -46,7 +45,7 @@ const expanderButtonWidth = { base: 'full', md: 'auto' }
 export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ ids, assetId }) => {
   const translate = useTranslate()
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const {
     state: { isConnected },
     dispatch,
@@ -97,23 +96,27 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         assets,
       )
 
-      history.push({
-        pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action ? action : 'overview',
-        }),
-        state: { background: location },
-      })
+      navigate(
+        {
+          pathname: location.pathname,
+          search: qs.stringify({
+            type,
+            provider,
+            chainId,
+            contractAddress,
+            assetNamespace,
+            assetReference,
+            highestBalanceAccountAddress,
+            rewardId: rewardAddress,
+            modal: action ? action : 'overview',
+          }),
+        },
+        {
+          state: { background: location },
+        },
+      )
     },
-    [assets, dispatch, history, isConnected, location],
+    [assets, dispatch, navigate, isConnected, location],
   )
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [

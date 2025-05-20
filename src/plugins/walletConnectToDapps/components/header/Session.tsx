@@ -16,20 +16,19 @@ import { useCallback, useMemo } from 'react'
 
 import { AddressLinks } from './AddressLinks'
 import { DappAvatar } from './DappAvatar'
-import { Networks } from './Networks'
 
 import { RawText, Text } from '@/components/Text'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import { extractConnectedAccounts } from '@/plugins/walletConnectToDapps/utils'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
-import { selectSelectedLocale } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from '@/state/store'
 
 const checkIcon = <CheckIcon />
 const smallCloseIcon = <SmallCloseIcon />
 
 export const Session = ({ session }: { session: SessionTypes.Struct }) => {
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
 
   const { dispatch, web3wallet, core } = useWalletConnectV2()
   const connectedAccounts = useMemo(() => extractConnectedAccounts(session), [session])
@@ -102,7 +101,6 @@ export const Session = ({ session }: { session: SessionTypes.Struct }) => {
             <RawText>{dayjs.unix(session.expiry).locale(selectedLocale).format('ll LT')}</RawText>
           </HStack>
           <AddressLinks accountIds={connectedAccounts} />
-          <Networks accountIds={connectedAccounts} />
           {isExpired ? (
             <HStack justifyContent='space-between'>
               <Button

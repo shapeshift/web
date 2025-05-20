@@ -1,8 +1,9 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import React, { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
@@ -38,7 +39,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
   setUnstakeTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
     txHash: txId,
@@ -46,8 +47,8 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
   })
 
   const handleGoBack = useCallback(() => {
-    history.push(UnstakeRoutePaths.Input)
-  }, [history])
+    navigate(UnstakeRoutePaths.Input)
+  }, [navigate])
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),

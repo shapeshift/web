@@ -9,8 +9,7 @@ import type {
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
-import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
-import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { arbitrumBridgeApi, getTradeQuoteWithWallet } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -125,8 +124,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const bridgeAmountUserCurrency = useMemo(
     () =>
-      bnOrZero(bridgeAmountCryptoPrecision).times(sellAssetMarketDataUserCurrency.price).toFixed(),
-    [bridgeAmountCryptoPrecision, sellAssetMarketDataUserCurrency.price],
+      bnOrZero(bridgeAmountCryptoPrecision)
+        .times(bnOrZero(sellAssetMarketDataUserCurrency?.price ?? '0'))
+        .toFixed(),
+    [bridgeAmountCryptoPrecision, sellAssetMarketDataUserCurrency?.price],
   )
 
   const sellAssetAccountNumberFilter = useMemo(
@@ -144,7 +145,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       chainId,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       affiliateBps: '0',
-      potentialAffiliateBps: '0',
       allowMultiHop: true,
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
@@ -218,8 +218,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const networkFeeUserCurrency = useMemo(() => {
     if (!networkFeeCryptoPrecision) return null
-    return bnOrZero(networkFeeCryptoPrecision).times(feeAssetMarketData.price).toFixed()
-  }, [feeAssetMarketData.price, networkFeeCryptoPrecision])
+    return bnOrZero(networkFeeCryptoPrecision)
+      .times(bnOrZero(feeAssetMarketData?.price))
+      .toFixed()
+  }, [feeAssetMarketData?.price, networkFeeCryptoPrecision])
 
   const { mutateAsync: handleBridge } = useMutation({
     mutationFn: async () => {
@@ -305,7 +307,12 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     sellAsset,
     buyAsset,
     feeAsset,
-    feeAssetMarketData,
+    feeAssetMarketData: feeAssetMarketData ?? {
+      price: '0',
+      marketCap: '0',
+      volume: '0',
+      changePercent24Hr: 0,
+    },
     sellAssetAccountNumber,
     tradeQuoteQuery,
     allowanceContract,

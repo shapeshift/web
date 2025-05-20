@@ -5,6 +5,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -17,11 +18,6 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { Summary } from '@/features/defi/components/Summary'
 import { TxStatus } from '@/features/defi/components/TxStatus/TxStatus'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -47,7 +43,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
@@ -108,12 +104,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/wallet/earn')
-  }, [browserHistory])
+    navigate('/wallet/earn')
+  }, [navigate])
 
   const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+    navigate(-1)
+  }, [navigate])
 
   useEffect(() => {
     if (!state?.opportunity || !assetId) return
@@ -212,7 +208,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
-                  .times(marketData.price)
+                  .times(bnOrZero(marketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
@@ -237,7 +233,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.networkFeeCryptoBaseUnit)
                   .div(bn(10).pow(feeAsset.precision))
-                  .times(feeMarketData.price)
+                  .times(bnOrZero(feeMarketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto

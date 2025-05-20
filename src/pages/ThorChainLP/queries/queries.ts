@@ -2,6 +2,7 @@ import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { isSome } from '@shapeshiftoss/utils'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getAddress, isAddress } from 'viem'
@@ -17,7 +18,7 @@ import type {
 import { AsymSide } from '@/lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 
-const midgardUrl = getConfig().VITE_MIDGARD_URL
+const midgardUrl = getConfig().VITE_THORCHAIN_MIDGARD_URL
 
 const liquidityMember = (address: string) => ({
   queryKey: ['thorchainLiquidityMember', { address }] as [string, { address: string }],
@@ -153,4 +154,28 @@ export const getThorchainLpPosition = async ({
     assetAddress: position.assetAddress,
     opportunityId,
   }
+}
+
+export const getThorchainLpUtxoFromAddresses = async ({
+  accountId,
+  assetId: poolAssetId,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+}) => {
+  const { chainId } = fromAssetId(poolAssetId)
+
+  if (!isUtxoChainId(chainId)) throw new Error(`Not a UTXO chain: ${chainId}`)
+
+  const lpPositions = await queryClient.fetchQuery({
+    ...thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
+    // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
+    staleTime: 0,
+  })
+
+  if (!lpPositions) return []
+
+  return lpPositions.map(position => position.assetAddress).filter(isSome)
 }

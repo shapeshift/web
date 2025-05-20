@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { FC } from 'react'
+import type { FC, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -67,7 +67,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const { isModeratePriceImpact, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
     tradeId: activeQuote?.id ?? '',
     hopIndex: 0,
@@ -249,7 +249,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     <>
       <WarningAcknowledgement
         message={translate('warningAcknowledgement.highSlippageTrade', {
-          slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
+          slippagePercentage: bnOrZero(priceImpactPercentageAbsolute).toFixed(2).toString(),
         })}
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={shouldShowWarningAcknowledgement}

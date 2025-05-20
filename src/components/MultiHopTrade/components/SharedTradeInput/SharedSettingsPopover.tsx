@@ -123,8 +123,14 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
       [handleSlippageTypeChange],
     )
 
-    const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
-    const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
+    const isHighSlippage = useMemo(
+      () => slippageAmount && bnOrZero(slippageAmount).gt(1),
+      [slippageAmount],
+    )
+    const isLowSlippage = useMemo(
+      () => slippageAmount && bnOrZero(slippageAmount).lt(0.05),
+      [slippageAmount],
+    )
 
     if (!isAdvancedSlippageEnabled) return null
 
@@ -143,7 +149,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
             </PopoverTrigger>
           </Box>
         </Tooltip>
-        <PopoverContent>
+        <PopoverContent width='auto' maxWidth='md'>
           <PopoverBody>
             <Row>
               <Row.Label>
@@ -181,7 +187,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
               {slippageType === SlippageType.Custom && (
                 <Row.Value>
                   <FormControl isInvalid={isInvalid}>
-                    <InputGroup variant='filled'>
+                    <InputGroup variant='filled' maxWidth='100px'>
                       <Input
                         placeholder={slippageAmount}
                         value={slippageAmount}

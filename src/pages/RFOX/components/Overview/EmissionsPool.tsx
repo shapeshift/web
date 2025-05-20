@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -34,7 +34,7 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
     select: (totalRevenue: bigint) => {
       return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
-        .times(runeAssetMarketData.price)
+        .times(bnOrZero(runeAssetMarketData?.price))
         .toFixed(2)
     },
   })

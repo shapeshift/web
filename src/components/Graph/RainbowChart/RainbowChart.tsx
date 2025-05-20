@@ -1,5 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { curveLinear } from '@visx/curve'
 import type { Margin } from '@visx/xychart'
 import { AnimatedAxis, AreaSeries, AreaStack, Tooltip, XYChart } from '@visx/xychart'
@@ -14,7 +13,8 @@ import { useSelector } from 'react-redux'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import type { RainbowData } from '@/hooks/useBalanceChartData/useBalanceChartData'
-import { selectAssets, selectSelectedLocale } from '@/state/slices/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { colors } from '@/theme/colors'
 
@@ -35,7 +35,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   height,
   margin = defaultMargin,
 }) => {
-  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])
   const assets = useSelector(selectAssets)
 

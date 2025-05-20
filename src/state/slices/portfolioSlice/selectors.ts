@@ -28,8 +28,11 @@ import {
   selectWalletId,
   selectWalletName,
 } from '../common-selectors'
+import { opportunities } from '../opportunitiesSlice/opportunitiesSlice'
 import type { UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
+import { preferences } from '../preferencesSlice/preferencesSlice'
+import { portfolio } from './portfolioSlice'
 import type {
   AssetBalancesById,
   AssetEquityBalance,
@@ -59,20 +62,16 @@ import {
   selectChainIdParamFromFilter,
 } from '@/state/selectors'
 import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import {
-  selectStakingOpportunitiesById,
-  selectUserStakingOpportunitiesById,
-} from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'
+import { selectUserStakingOpportunitiesById } from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'
 import {
   genericBalanceByFilter,
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '@/state/slices/portfolioSlice/utils'
-import { selectBalanceThreshold } from '@/state/slices/preferencesSlice/selectors'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
-  (state: ReduxState) => state.portfolio.accounts.byId,
+  portfolio.selectors.selectAccountsById,
   (walletAccountIds, accountsById): PortfolioAccounts['byId'] => {
     return pickBy(accountsById, (_account, accountId: AccountId) =>
       walletAccountIds.includes(accountId),
@@ -105,7 +104,7 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
-  (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
+  portfolio.selectors.selectAccountMetadataById,
   selectEnabledWalletAccountIds,
   (accountMetadata, walletAccountIds): AccountMetadataById => {
     return pickBy(accountMetadata, (_, accountId: AccountId) =>
@@ -288,7 +287,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectPortfolioAccountBalancesBaseUnit,
     selectPortfolioAssetBalancesBaseUnit,
     selectMarketDataUserCurrency,
-    selectBalanceThreshold,
+    preferences.selectors.selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAccountIdParamFromFilter,
     (
@@ -337,7 +336,7 @@ export const selectIsPortfolioLoading = createSelector(
 
 export const selectPortfolioAssetAccountBalancesSortedUserCurrency = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalancesByAccountId,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (portfolioUserCurrencyAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
     return Object.entries(
       portfolioUserCurrencyAccountBalances,
@@ -401,7 +400,7 @@ export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
 export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectUserStakingOpportunitiesById,
-  selectStakingOpportunitiesById,
+  opportunities.selectors.selectStakingOpportunitiesById,
   (accounts, userStakingOpportunities, stakingOpportunitiesById): PortfolioAccountBalancesById => {
     return Object.entries(accounts).reduce<PortfolioAccountBalancesById>((acc, [accountId]) => {
       Object.entries(userStakingOpportunities)
@@ -632,7 +631,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createCachedSel
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectAccountIdParamFromFilter,
   selectAssets,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (accountAssets, accountId, assets, balanceThreshold): AssetId[] => {
     if (!accountId) return []
     const assetsByAccountIds = accountAssets?.[accountId] ?? {}
@@ -687,7 +686,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
     const accounts = findAccountsByAssetId(portfolioAccounts, assetId)
     const aboveThreshold = Object.entries(accountBalances).reduce<AccountId[]>(
@@ -741,7 +740,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalUserCurrencyBalance,
-  selectBalanceThreshold,
+  preferences.selectors.selectBalanceThreshold,
   (
     assetsById,
     marketData,
@@ -870,6 +869,32 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
   },
 )
 
+export const selectAccountIdsByAccountNumberAndChainId = createSelector(
+  selectEnabledWalletAccountIds,
+  selectPortfolioAccountMetadata,
+  (
+    walletAccountIds,
+    accountMetadata,
+  ): PartialRecord<number, PartialRecord<ChainId, AccountId[]>> => {
+    const result: PartialRecord<number, PartialRecord<ChainId, AccountId[]>> = {}
+
+    for (const accountId of walletAccountIds) {
+      const { chainId } = fromAccountId(accountId)
+      const { accountNumber } = accountMetadata[accountId].bip44Params
+
+      const entry = result[accountNumber]
+
+      if (entry === undefined) {
+        result[accountNumber] = { [chainId]: [accountId] }
+      } else {
+        entry[chainId] = [...(entry[chainId] ?? []), accountId]
+      }
+    }
+
+    return result
+  },
+)
+
 export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
@@ -933,7 +958,7 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioHasWalletId = createSelector(
-  (state: ReduxState) => state.portfolio.wallet.ids,
+  portfolio.selectors.selectWalletIds,
   (_state: ReduxState, walletId: WalletId) => walletId,
   (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),
 )
@@ -980,10 +1005,8 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
   },
 )
 
-export const selectIsAccountMetadataLoadingByAccountId = (state: ReduxState) =>
-  state.portfolio.isAccountMetadataLoadingByAccountId
 export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
-  selectIsAccountMetadataLoadingByAccountId,
+  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
   selectChainIdParamFromFilter,
   (isAccountMetadataLoadingByAccountId, chainId): boolean => {
     return Object.entries(isAccountMetadataLoadingByAccountId).some(
@@ -992,7 +1015,7 @@ export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
   },
 )
 export const selectIsAnyAccountMetadataLoadedForChainId = createSelector(
-  selectIsAccountMetadataLoadingByAccountId,
+  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
   selectChainIdParamFromFilter,
   (isAccountMetadataLoadingByAccountId, chainId): boolean => {
     return Object.entries(isAccountMetadataLoadingByAccountId).some(

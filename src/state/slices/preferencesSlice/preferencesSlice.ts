@@ -22,6 +22,7 @@ export type FeatureFlags = {
   ArbitrumNova: boolean
   Solana: boolean
   Base: boolean
+  Mayachain: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   WalletConnectToDapps: boolean
@@ -73,11 +74,13 @@ export type FeatureFlags = {
   ChainflipDca: boolean
   JupiterSwap: boolean
   NewWalletFlow: boolean
-  FoxPageFoxWifHatSection: boolean
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
-  ThorchainPoolsInstabilityWarning: boolean
   RelaySwapper: boolean
+  NotificationCenter: boolean
+  ThorchainTcy: boolean
+  ThorchainTcyWidget: boolean
+  ThorchainTcyActivity: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -85,7 +88,7 @@ export type Flag = keyof FeatureFlags
 export enum CurrencyFormats {
   DotDecimalCommaThousands = 'en-US', // $123,456.78 (examples for a user using USD)
   DotDecimalCommaThousandsLakhCrore = 'en-IN', // $1,23,456.78
-  DotDecimalQuoteThousands = 'de-CH', // $ 123’456.78
+  DotDecimalQuoteThousands = 'de-CH', // $ 123'456.78
   CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
@@ -122,6 +125,7 @@ const initialState: Preferences = {
     ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
     Base: getConfig().VITE_FEATURE_BASE,
+    Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
@@ -173,11 +177,13 @@ const initialState: Preferences = {
     SolanaSwapper: getConfig().VITE_FEATURE_SWAPPER_SOLANA,
     JupiterSwap: getConfig().VITE_FEATURE_JUPITER_SWAP,
     NewWalletFlow: getConfig().VITE_FEATURE_NEW_WALLET_FLOW,
-    FoxPageFoxWifHatSection: getConfig().VITE_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION,
     NewLimitFlow: getConfig().VITE_FEATURE_NEW_LIMIT_FLOW,
     ThorchainSwapperVolatilityAck: getConfig().VITE_FEATURE_THORCHAIN_SWAPPER_ACK,
-    ThorchainPoolsInstabilityWarning: getConfig().VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS,
     RelaySwapper: getConfig().VITE_FEATURE_SWAPPER_RELAY,
+    NotificationCenter: getConfig().VITE_FEATURE_NOTIFICATION_CENTER,
+    ThorchainTcy: getConfig().VITE_FEATURE_THORCHAIN_TCY,
+    ThorchainTcyWidget: getConfig().VITE_FEATURE_THORCHAIN_TCY_WIDGET,
+    ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -195,41 +201,53 @@ const initialState: Preferences = {
 export const preferences = createSlice({
   name: 'preferences',
   initialState,
-  reducers: {
-    clearFeatureFlags: state => {
+  reducers: create => ({
+    clearFeatureFlags: create.reducer(state => {
       state.featureFlags = initialState.featureFlags
-    },
-    setFeatureFlag(state, { payload }: { payload: { flag: keyof FeatureFlags; value: boolean } }) {
-      state.featureFlags[payload.flag] = payload.value
-    },
-    setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
+    }),
+    setFeatureFlag: create.reducer(
+      (state, { payload }: { payload: { flag: keyof FeatureFlags; value: boolean } }) => {
+        state.featureFlags[payload.flag] = payload.value
+      },
+    ),
+    setSelectedLocale: create.reducer((state, { payload }: { payload: { locale: string } }) => {
       state.selectedLocale = payload.locale
-    },
-    setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {
-      state.selectedCurrency = payload.currency
-    },
-    setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
-      state.balanceThreshold = payload.threshold
-    },
-    setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
-      state.currencyFormat = payload.currencyFormat
-    },
-    setChartTimeframe(state, { payload }: { payload: { timeframe: HistoryTimeframe } }) {
-      state.chartTimeframe = payload.timeframe
-    },
-    setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
+    }),
+    setSelectedCurrency: create.reducer(
+      (state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) => {
+        state.selectedCurrency = payload.currency
+      },
+    ),
+
+    setBalanceThreshold: create.reducer(
+      (state, { payload }: { payload: { threshold: string } }) => {
+        state.balanceThreshold = payload.threshold
+      },
+    ),
+    setCurrencyFormat: create.reducer(
+      (state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) => {
+        state.currencyFormat = payload.currencyFormat
+      },
+    ),
+
+    setChartTimeframe: create.reducer(
+      (state, { payload }: { payload: { timeframe: HistoryTimeframe } }) => {
+        state.chartTimeframe = payload.timeframe
+      },
+    ),
+    setWelcomeModal: create.reducer((state, { payload }: { payload: { show: boolean } }) => {
       state.showWelcomeModal = payload.show
-    },
-    setShowConsentBanner(state, { payload }: { payload: boolean }) {
+    }),
+    setShowConsentBanner: create.reducer((state, { payload }: { payload: boolean }) => {
       state.showConsentBanner = payload
-    },
-    setShowSnapsModal(state, { payload }: { payload: boolean }) {
+    }),
+    setShowSnapsModal: create.reducer((state, { payload }: { payload: boolean }) => {
       state.showSnapsModal = payload
-    },
-    setSnapInstalled(state, { payload }: { payload: boolean }) {
+    }),
+    setSnapInstalled: create.reducer((state, { payload }: { payload: boolean }) => {
       state.snapInstalled = payload
-    },
-    toggleWatchedAssetId(state, { payload }: { payload: AssetId }) {
+    }),
+    toggleWatchedAssetId: create.reducer((state, { payload }: { payload: AssetId }) => {
       const isWatched = state.watchedAssets.includes(payload)
       if (isWatched) {
         state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
@@ -241,9 +259,22 @@ export const preferences = createSlice({
         assetId: payload,
         isAdding: !isWatched,
       })
-    },
-    setHomeMarketView(state, { payload }: { payload: HomeMarketView }) {
+    }),
+    setHomeMarketView: create.reducer((state, { payload }: { payload: HomeMarketView }) => {
       state.selectedHomeView = payload
-    },
+    }),
+  }),
+  selectors: {
+    selectFeatureFlags: state => state.featureFlags,
+    selectWatchedAssetIds: state => state.watchedAssets,
+    selectSelectedLocale: state => state.selectedLocale,
+    selectSelectedCurrency: state => state.selectedCurrency,
+    selectBalanceThreshold: state => state.balanceThreshold,
+    selectCurrencyFormat: state => state.currencyFormat,
+    selectChartTimeframe: state => state.chartTimeframe,
+    selectShowWelcomeModal: state => state.showWelcomeModal,
+    selectShowSnapsModal: state => state.showSnapsModal,
+    selectSelectedHomeView: state => state.selectedHomeView,
+    selectShowConsentBanner: state => state.showConsentBanner,
   },
 })

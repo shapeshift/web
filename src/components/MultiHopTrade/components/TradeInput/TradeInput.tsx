@@ -1,9 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper'
+import { isArbitrumBridgeTradeQuoteOrRate, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
@@ -11,7 +10,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -28,7 +27,7 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
-import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -37,7 +36,6 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { selectIsVotingPowerLoading } from '@/state/apis/snapshot/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
@@ -47,6 +45,7 @@ import {
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
+  selectInputSellAmountCryptoBaseUnit,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
@@ -100,7 +99,7 @@ export const TradeInput = ({
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { showErrorToast } = useErrorToast()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
@@ -135,6 +134,7 @@ export const TradeInput = ({
   const selectedSellAssetChainId = useAppSelector(selectSelectedSellAssetChainId)
   const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
   const activeQuote = useAppSelector(selectActiveQuote)
+  const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -156,18 +156,12 @@ export const TradeInput = ({
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
-
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
       Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
-      // Only consider snapshot API queries as pending if we don't have voting power yet
-      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
-      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading ||
       Boolean(walletId && isWalletReceiveAddressLoading),
     [
       walletId,
@@ -175,7 +169,6 @@ export const TradeInput = ({
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
-      isVotingPowerLoading,
       isWalletReceiveAddressLoading,
     ],
   )
@@ -230,6 +223,26 @@ export const TradeInput = ({
     return <TradeSettingsMenu isLoading={isLoading} isCompact={isCompact} />
   }, [isCompact, isLoading])
 
+  // Master effect syncing URL with state - note this is only done at trade input time
+  // That's the only place we want things to be in sync, other routes should be a redirect
+  useEffect(() => {
+    if (isStandalone) return
+
+    if (!(sellAsset.assetId && buyAsset.assetId)) return
+
+    navigate(
+      `/trade/${buyAsset.assetId}/${sellAsset.assetId}/${sellInputAmountCryptoBaseUnit ?? '0'}`,
+      { replace: true }, // replace so we don't spew the history stack and make the back button actually work
+    )
+  }, [
+    sellAsset.assetId,
+    buyAsset.assetId,
+    sellInputAmountCryptoBaseUnit,
+    navigate,
+    isStandalone,
+    hasUserEnteredAmount,
+  ])
+
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
     [dispatch],
@@ -275,12 +288,12 @@ export const TradeInput = ({
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
-        history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+        navigate('/trade/verify-addresses')
         setIsConfirmationLoading(false)
         return
       }
 
-      history.push({ pathname: TradeRoutePaths.Confirm })
+      navigate('/trade/confirm')
     } catch (e) {
       showErrorToast(e)
     }
@@ -291,7 +304,7 @@ export const TradeInput = ({
     activeQuoteMeta,
     dispatch,
     handleConnect,
-    history,
+    navigate,
     isConnected,
     mixpanel,
     showErrorToast,
@@ -358,6 +371,7 @@ export const TradeInput = ({
     (assetId: AssetId) => {
       const { chainId } = fromAssetId(assetId)
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+      if (chainId === KnownChainIds.MayachainMainnet) return false
 
       return true
     },
@@ -367,6 +381,7 @@ export const TradeInput = ({
   const chainIdFilterPredicate = useCallback(
     (chainId: ChainId) => {
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+      if (chainId === KnownChainIds.MayachainMainnet) return false
 
       return true
     },

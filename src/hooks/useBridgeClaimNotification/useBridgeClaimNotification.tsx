@@ -1,4 +1,4 @@
-import type { ToastId } from '@chakra-ui/react'
+import type { ResponsiveValue, ToastId } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -8,12 +8,11 @@ import {
   usePrevious,
   useToast,
 } from '@chakra-ui/react'
-import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import { useEffect, useRef, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { IconCircle } from '@/components/IconCircle'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
@@ -26,10 +25,10 @@ const flexAlignItems = { base: 'flex-start', md: 'center' }
 
 export const useBridgeClaimNotification = () => {
   const toast = useToast()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
-  const toastIdRef = useRef<ToastId | undefined>()
+  const toastIdRef = useRef<ToastId | undefined>(undefined)
 
   const {
     state: { deviceId: walletDeviceId },
@@ -63,7 +62,7 @@ export const useBridgeClaimNotification = () => {
     const _toastIdRef = toast({
       render: ({ onClose }) => {
         const handleCtaClick = () => {
-          history.push(ClaimRoutePaths.Select)
+          navigate(ClaimRoutePaths.Select)
           onClose()
         }
 
@@ -101,5 +100,5 @@ export const useBridgeClaimNotification = () => {
 
     // don't spam user
     setIsDisabled(true)
-  }, [claimsByStatus.Available.length, history, isDisabled, isLoading, toast, translate])
+  }, [claimsByStatus.Available.length, navigate, isDisabled, isLoading, toast, translate])
 }

@@ -1,4 +1,5 @@
 import type React from 'react'
+import type { JSX } from 'react'
 
 /*
  * Article for context -- https://sneas.github.io/blog/react-nested-navigation/
@@ -23,6 +24,7 @@ export type Route = {
   isNew?: boolean
   isViewOnly?: boolean
   category?: RouteCategory
+  menuRightComponent?: React.ReactNode
 } & (
   | {
       mobileNav: boolean

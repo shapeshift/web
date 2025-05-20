@@ -5,7 +5,7 @@ import { truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -16,7 +16,8 @@ import { Text } from '@/components/Text'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { SparkLine } from '@/pages/Buy/components/Sparkline'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
-import { selectIsMarketDataLoaded, selectMarketDataUserCurrency } from '@/state/slices/selectors'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -34,10 +35,10 @@ type MarketsTableProps = {
 
 export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClick }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
-  const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
+  const isMarketDataLoaded = useAppSelector(marketData.selectors.selectIsMarketDataLoaded)
 
   const assetIds = useMemo(() => rows.map(row => row.assetId), [rows])
 
@@ -51,9 +52,9 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
       e.stopPropagation()
       const assetId = e.currentTarget.getAttribute('data-asset-id')
       if (!assetId) return
-      history.push(`/trade/${assetId}`)
+      navigate(`/trade/${assetId}`)
     },
-    [history],
+    [navigate],
   )
   const columns: Column<Asset>[] = useMemo(
     () => [

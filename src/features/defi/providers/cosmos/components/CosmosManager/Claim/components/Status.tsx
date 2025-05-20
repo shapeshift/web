@@ -4,6 +4,7 @@ import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { TxStatus } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -55,7 +56,8 @@ type StatusProps = {
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
-  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const navigate = useNavigate()
   const { chainId, assetReference } = query
   const translate = useTranslate()
   const assetNamespace = 'slip44'
@@ -77,8 +79,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [asset.precision, opportunity?.rewardsCryptoBaseUnit],
   )
   const rewardFiatAmount = useMemo(
-    () => bnOrZero(rewardCryptoAmount).times(assetMarketData.price).toString(),
-    [assetMarketData.price, rewardCryptoAmount],
+    () =>
+      bnOrZero(rewardCryptoAmount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
+    [assetMarketData?.price, rewardCryptoAmount],
   )
 
   const txStatus = useMemo(() => {
@@ -102,7 +107,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [assetId, assets, opportunity, rewardCryptoAmount, rewardFiatAmount, txStatus])
 
-  const handleBack = useCallback(() => history.goBack(), [history])
+  const handleBack = useCallback(() => navigate(-1), [navigate])
 
   if (!state || !opportunity || !dispatch) return null
 

@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
+import { assetIdToPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 
 import { fromThorBaseUnit } from '..'
 import { THOR_PRECISION } from '../constants'
@@ -115,7 +114,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const poolResult = await thorService.get<ThornodePoolResponse>(
-    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+    `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
   )
 
   if (poolResult.isErr()) throw poolResult.unwrapErr()
@@ -158,7 +157,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const poolResult = await thorService.get<ThornodePoolResponse>(
-    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+    `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
   )
 
   if (poolResult.isErr()) throw poolResult.unwrapErr()
@@ -182,10 +181,10 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 export const calculateEarnings = (
   pool: MidgardEarningsHistoryPoolItem,
   userPoolShare: string,
-  runePrice: string,
+  runePrice: string | undefined,
 ) => {
   const totalEarningsRune = fromThorBaseUnit(pool.earnings).times(userPoolShare)
-  const totalEarningsFiat = totalEarningsRune.times(runePrice).toFixed()
+  const totalEarningsFiat = totalEarningsRune.times(bnOrZero(runePrice)).toFixed()
 
   const assetEarningsCryptoPrecision = fromThorBaseUnit(pool.assetLiquidityFees)
     .times(userPoolShare)

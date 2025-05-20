@@ -24,7 +24,6 @@ import { MaybeChartUnavailable } from '@/components/MaybeChartUnavailable'
 import { Text } from '@/components/Text'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectChartTimeframe,
   selectIsPortfolioLoading,
   selectPortfolioAssetIds,
   selectPortfolioTotalUserCurrencyBalance,
@@ -47,7 +46,7 @@ const timeControlsButtonGroupProps = {
 }
 
 export const DashboardChart = () => {
-  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const userChartTimeframe = useAppSelector(preferences.selectors.selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
   const dispatch = useAppDispatch()
   const handleTimeframeChange = useCallback(

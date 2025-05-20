@@ -1,13 +1,14 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { BorrowRoutePaths } from './types'
 
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -68,14 +69,14 @@ export const Borrow = ({
       const crypto = (() => {
         if (!isFiat) return value
         const valueCryptoPrecision = bnOrZero(value)
-          .div(bn(collateralAssetMarketData?.price ?? '0'))
+          .div(bnOrZero(collateralAssetMarketData?.price))
           .toFixed()
         return valueCryptoPrecision
       })()
       const fiat = (() => {
         if (isFiat) return value
         const valueFiatUserCurrency = bnOrZero(value)
-          .times(bn(collateralAssetMarketData?.price ?? '0'))
+          .times(bnOrZero(collateralAssetMarketData?.price))
           .toFixed()
         return valueFiatUserCurrency
       })()
@@ -150,7 +151,7 @@ const BorrowRoutes = memo(
   }: BorrowRoutesProps) => {
     const location = useLocation()
 
-    const renderBorrowInput = useCallback(
+    const borrowInput = useMemo(
       () => (
         <BorrowInput
           isAccountSelectionDisabled={isAccountSelectionDisabled}
@@ -185,7 +186,7 @@ const BorrowRoutes = memo(
       ],
     )
 
-    const renderBorrowSweep = useCallback(
+    const borrowSweep = useMemo(
       () => (
         <BorrowSweep
           collateralAssetId={collateralAssetId}
@@ -195,7 +196,7 @@ const BorrowRoutes = memo(
       [collateralAssetId, collateralAccountId],
     )
 
-    const renderBorrowConfirm = useCallback(
+    const borrowConfirm = useMemo(
       () => (
         <BorrowConfirm
           collateralAssetId={collateralAssetId}
@@ -226,26 +227,19 @@ const BorrowRoutes = memo(
 
     return (
       <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
-          <Suspense fallback={suspenseFallback}>
-            <Route
-              key={BorrowRoutePaths.Input}
-              path={BorrowRoutePaths.Input}
-              render={renderBorrowInput}
-            />
-            <Route
-              key={BorrowRoutePaths.Sweep}
-              path={BorrowRoutePaths.Sweep}
-              render={renderBorrowSweep}
-            />
-
-            <Route
-              key={BorrowRoutePaths.Confirm}
-              path={BorrowRoutePaths.Confirm}
-              render={renderBorrowConfirm}
-            />
-          </Suspense>
-        </Switch>
+        <Suspense fallback={suspenseFallback}>
+          <Switch location={location.pathname}>
+            <Route key={BorrowRoutePaths.Input} path={BorrowRoutePaths.Input}>
+              {borrowInput}
+            </Route>
+            <Route key={BorrowRoutePaths.Sweep} path={BorrowRoutePaths.Sweep}>
+              {borrowSweep}
+            </Route>
+            <Route key={BorrowRoutePaths.Confirm} path={BorrowRoutePaths.Confirm}>
+              {borrowConfirm}
+            </Route>
+          </Switch>
+        </Suspense>
       </AnimatePresence>
     )
   },

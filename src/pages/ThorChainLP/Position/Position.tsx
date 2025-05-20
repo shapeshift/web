@@ -25,7 +25,7 @@ import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { AddLiquidity } from '../components/AddLiquidity/AddLiquidity'
 import { Faq } from '../components/Faq'
@@ -61,10 +61,10 @@ const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
 
 const PoolHeader: React.FC<{ name?: string }> = ({ name }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleBack = useCallback(() => history.push('/pools/positions'), [history])
+  const handleBack = useCallback(() => navigate('/pools/positions'), [navigate])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
@@ -155,7 +155,7 @@ export const Position = () => {
 
   const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
   const accountId = useMemo(() => params.accountId, [params.accountId])
-  const assetId = useMemo(() => poolAssetIdToAssetId(poolAssetId), [poolAssetId])
+  const assetId = useMemo(() => poolAssetIdToAssetId(poolAssetId ?? ''), [poolAssetId])
   const opportunityId = useMemo(() => {
     return decodeURIComponent(params.opportunityId ?? '')
   }, [params.opportunityId])
@@ -194,7 +194,7 @@ export const Position = () => {
       const poolEarnings = data?.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
 
-      return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)
+      return calculateEarnings(poolEarnings, position.poolShare, runeMarketData?.price)
     },
   })
 
@@ -403,7 +403,7 @@ export const Position = () => {
                 <TabPanel px={0} py={0}>
                   <AddLiquidity headerComponent={TabHeader} opportunityId={opportunityId} />
                 </TabPanel>
-                {accountId && (
+                {accountId && poolAssetId && (
                   <TabPanel px={0} py={0}>
                     <RemoveLiquidity
                       headerComponent={TabHeader}

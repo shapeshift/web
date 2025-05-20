@@ -23,6 +23,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
     refetchOnFocus: false,
     refetchOnMountOrArgChange: false,
     refetchOnReconnect: false,
+    invalidationBehavior: 'delayed' as const,
   },
 })
 
@@ -92,6 +93,7 @@ export const mockStore: ReduxState = {
       ArbitrumBridge: false,
       Base: false,
       BnbSmartChain: false,
+      Mayachain: false,
       ZrxSwap: false,
       ThorSwap: false,
       ThorSwapStreamingSwaps: false,
@@ -142,11 +144,13 @@ export const mockStore: ReduxState = {
       ChainflipDca: false,
       JupiterSwap: false,
       NewWalletFlow: false,
-      FoxPageFoxWifHatSection: false,
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
-      ThorchainPoolsInstabilityWarning: false,
       RelaySwapper: false,
+      NotificationCenter: false,
+      ThorchainTcy: false,
+      ThorchainTcyWidget: false,
+      ThorchainTcyActivity: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -259,7 +263,7 @@ export const mockStore: ReduxState = {
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
   },
-  tradeQuoteSlice: {
+  tradeQuote: {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
@@ -269,7 +273,7 @@ export const mockStore: ReduxState = {
     isTradeQuoteRequestAborted: false,
     sortOption: QuoteSortOption.BEST_RATE,
   },
-  limitOrderSlice: {
+  limitOrder: {
     activeQuote: undefined,
     confirmedLimitOrder: {},
     orderSubmission: {},
@@ -279,14 +283,11 @@ export const mockStore: ReduxState = {
       version: 0,
       rehydrated: false,
     },
-    votingPowerByModel: {
-      SWAPPER: undefined,
-      THORCHAIN_LP: undefined,
-    },
+    votingPower: undefined,
     strategies: undefined,
     proposals: undefined,
   },
-  localWalletSlice: {
+  localWallet: {
     _persist: {
       version: 0,
       rehydrated: false,

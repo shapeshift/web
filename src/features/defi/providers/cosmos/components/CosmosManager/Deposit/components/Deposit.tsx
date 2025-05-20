@@ -4,7 +4,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -48,7 +48,7 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
@@ -85,8 +85,8 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset.precision, balance],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(amountAvailableCryptoPrecision).times(marketData.price),
-    [amountAvailableCryptoPrecision, marketData.price],
+    () => bnOrZero(amountAvailableCryptoPrecision).times(bnOrZero(marketData?.price)),
+    [amountAvailableCryptoPrecision, marketData?.price],
   )
 
   const handleMaxClick = useCallback(
@@ -108,7 +108,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .minus(estimatedFees.average.txFee)
         .div(bn(10).pow(asset.precision))
         .toString()
-      const fiatAmount = bnOrZero(cryptoAmountHuman).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmountHuman).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -116,7 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
         shouldValidate: true,
       })
     },
-    [accountId, asset.precision, assetId, amountAvailableCryptoPrecision, marketData.price],
+    [accountId, asset.precision, assetId, amountAvailableCryptoPrecision, marketData?.price],
   )
 
   const handleContinue = useCallback(
@@ -158,7 +158,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset, assetId, assets, dispatch, onNext, opportunityMetadata, state, toast, translate],
   )
 
-  const handleCancel = history.goBack
+  const handleCancel = useCallback(() => navigate(-1), [navigate])
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
@@ -174,13 +174,13 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const fiat = crypto.times(marketData.price)
+      const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance, marketData.price],
+    [asset.precision, balance, marketData?.price],
   )
 
   const cryptoInputValidation = useMemo(

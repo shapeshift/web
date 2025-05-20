@@ -1,5 +1,6 @@
 {
   "common": {
+    "amount": "Cantidad",
     "ascending": "Ascendente",
     "descending": "Descendente",
     "free": "Gratis",
@@ -194,7 +195,8 @@
     "tbd": "por definir",
     "installed": "Instalado",
     "others": "Otros",
-    "hardwareWallets": "Billeteras de Hardware"
+    "hardwareWallets": "Billeteras de Hardware",
+    "dustAmount": "Cantidad de polvo"
   },
   "consentBanner": {
     "body": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita %{privateLink} si no quieres que te rastreen de forma anónima. Vea nuestra %{privacyPolicyLink} para más detalles.",
@@ -606,6 +608,7 @@
     "lending": "Préstamo",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "tcy": "TCY",
     "foxEcosystem": "Ecosistema FOX",
     "markets": "Mercados",
     "actionMenu": {
@@ -671,6 +674,13 @@
         "setRuneAddress": "Establecer Dirección RUNE",
         "reward": "Distribución de Recompensas"
       },
+      "tcy": {
+        "stake": "Stake",
+        "withdraw": "Retirar",
+        "unstakeRequest": "Solicitud de Unstake",
+        "setRuneAddress": "Establecer dirección RUNE",
+        "reward": "Distribución de Recompensas"
+      },
       "weth": {
         "deposit": "Depositar",
         "approve": "Aprobar",
@@ -711,9 +721,11 @@
         "loanRepaymentRefundNative": "Pago de préstamo + Reembolso",
         "out": "Saliente Recibido",
         "refund": "Reembolso",
+        "stake": "Stake",
         "swapOut": "Intercambio Recibido",
         "swap": "Intercambiar",
         "swapRefund": "Reembolso de intercambio",
+        "unstake": "Unstake",
         "withdraw": "Retiro Solicitado",
         "withdrawNative": "Retirar",
         "withdrawOut": "Retiro Recibido"
@@ -995,7 +1007,7 @@
     "allowanceResetTxName": "Restablecimiento de asignación tx:",
     "allowanceApprovalTxName": "Aprobación de asignación tx:",
     "tradeComplete": "Ahora tienes %{cryptoAmountFormatted} en tu billetera en %{chainName}.",
-    "tradeCompleteSurplus": "¡Obtuviste un %{extra} extra!",
+    "tradeCompleteSurplus": "¡Obtuviste un %{extraPercent} extra!",
     "doAnotherTrade": "Hacer otro intercambio",
     "summary": "Resumen de Intercambio",
     "estimatedCompletionTime": "Tiempo Estimado de Finalización",
@@ -1644,7 +1656,7 @@
       },
       "success": {
         "header": "Ledger Conectada",
-        "success": "Cierra esta ventana o se cerrará automáticamente en breve",
+        "success": "Ahora puedes cerrar esta ventana.",
         "error": "Hubo un error al conectar tu billetera"
       },
       "errors": {
@@ -1829,7 +1841,7 @@
       "success": {
         "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, clic en 'Permitir'.",
         "header": "Billetera Conectado",
-        "success": "Puede cerrar esta ventana o se cerrará automáticamente",
+        "success": "Ahora puedes cerrar esta ventana.",
         "error": "Hubo un error al conectar tu billetera"
       },
       "testPhrase": {
@@ -2270,6 +2282,7 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "connectAll": "Conectar Todas las Cuentas",
         "signMessage": {
           "signingFrom": "Firmando desde",
           "requestFrom": "Solicitud de",
@@ -2561,7 +2574,8 @@
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
     "unsupportedNetworkExplainer": "Tu billetera no está conectada a %{network}. Conecte esta cadena o cambie a una billetera que admita esta red.",
     "unsupportedNetworksExplainer": "Tu billetera no está conectada a %{network1} y %{network2}. Conecte esta cadena o cambie a una billetera que admita estas redes.",
-    "instabilityWarning": "Actualmente, usuarios están recibiendo reembolsos al realizar depósitos en pools THORChain. Proceda con precaución.",
+    "instabilityWarning": "Depósitos para Thorchain LP deshabilitados a nivel de protocolo. Si intentas depositar, los activos se recuperarán con un reembolso. Esto se revertirá en versión 3.5.",
+    "depositsDisabled": "Depósitos Deshabilitados",
     "shareOfPool": "Participación de Pool",
     "assetDepositAmount": "%{asset} Monto de Depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2649,6 +2663,10 @@
     "rfox": {
       "title": "rFOX",
       "body": "Staking FOX gana RUNE."
+    },
+    "tcy": {
+      "title": "TCY",
+      "body": "Stake TCY gana RUNE."
     }
   },
   "RFOX": {
@@ -2770,6 +2788,101 @@
     "pendingDistribution": "Distribución Pendiente",
     "selectRuneAddress": "Seleccione una dirección RUNE"
   },
+  "TCY": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "staking": "Staking TCY",
+    "myPosition": "Mi posición",
+    "myStakedBalance": "Mi Balance Staked",
+    "myStakedBalanceHelper": "Cantidad de %{symbol} que has staked",
+    "pendingRewardsBalance": "Saldo de Recompensas Pendiente",
+    "pendingRewardsBalanceHelper": "Esto es solo una estimación de recompensas pendientes basada en ingresos acumulados hasta la fecha. Toda contabilidad se realiza al final del periodo y no se puede calcular con exactitud antes del fin de mes.",
+    "lifetimeRewards": "Recompensas de por Vida",
+    "lifetimeRewardsHelper": "Las recompensas totales que has ganado al staked tu %{symbol} hasta la fecha",
+    "timeStaked": "Tiempo Staked",
+    "timeStakedHelper": "Cantidad de tiempo que has staked tu %{symbol}",
+    "stakingReward": "Recompensas Staking",
+    "claimsEmpty": {
+      "emptyTitle": "No hay reclamaciones disponibles",
+      "emptyBody": "Parece que no tienes reclamaciones TCY disponibles. ¿Probar con otra billetera?",
+      "connectWalletBody": "Conecta tu billetera para ver tus reclamos TCY."
+    },
+    "claimSelect": {
+      "unavailableClaims": "Reclamaciones no Disponibles",
+      "notEligible": "No Elegible"
+    },
+    "claimStatus": {
+      "pendingTitle": "El Reclamo está pendiente",
+      "back": "Atrás",
+      "pendingSubtitle": "Estamos procesando su reclamo por %{amount} TCY",
+      "viewTransaction": "Ver Transacción",
+      "successTitle": "Reclamación exitosa",
+      "successSubtitle": "Has reclamado con éxito %{amount} TCY",
+      "goBack": "Regresar",
+      "failedTitle": "Algo salió mal",
+      "failedSubtitle": "Tu reclamación ha fallado. Inténtalo de nuevo."
+    },
+    "claimConfirm": {
+      "dustAmountTooltip": "Se requiere una pequeña cantidad de %{symbol} para identificar su dirección en la red THOR",
+      "networkFeeTooltip": "Esta tarifa de %{symbol} es para procesar la transacción en la cadena de bloques, no es tarifa cobrada por ShapeShift",
+      "missingFundsForGasAlert": "No hay suficientes %{symbol}; necesitas al menos %{amount} %{symbol} para completar la transacción. Recomendamos enviar un poco más para cubrir las fluctuaciones en las tarifas de red.",
+      "confirmTitle": "Confirmar Reclamación",
+      "networkFee": "Tarifa de Red",
+      "confirmAndClaim": "Reclamar y Stake",
+      "notice": "Estás reclamando %{amount} TCY. Se stake automáticamente; unstake en cualquier momento para recibirlo en tu billetera."
+    },
+    "assetClaimButton": {
+      "claimAction": "Reclamar"
+    },
+    "claimAddressInput": {
+      "label": "Dirección de Reclamación",
+      "useWalletAddress": "Usar dirección de billetera",
+      "useCustomAddress": "Usar dirección personalizada",
+      "helperText": "Aquí es donde se enviará su TCY."
+    },
+    "assetAddressInput": {
+      "label": "Dirección de %{symbol}",
+      "helperText": "Esta dirección se utilizará para enviar su transacción de reclamo."
+    },
+    "stakeInput": {
+      "amount": "Cantidad",
+      "networkFee": "Tarifa de Red",
+      "networkFeeTooltip": "Tarifa de Red",
+      "stake": "Stake",
+      "amountPlaceholder": "Ingrese monto"
+    },
+    "stakeConfirm": {
+      "confirmTitle": "Confirmar Stake",
+      "confirmAndStake": "Confirmar & Stake"
+    },
+    "unstakeConfirm": {
+      "confirmTitle": "Confirmar Unstake",
+      "confirmAndUnstake": "Confirmar & Unstake"
+    },
+    "unstakeStatus": {
+      "pendingTitle": "Unstake está pendiente",
+      "pendingSubtitle": "Estamos procesando su unstake por %{amount} TCY",
+      "successTitle": "Unstake realizado correctamente",
+      "failedTitle": "Algo salió mal",
+      "failedSubtitle": "Unstake ha fallado. Inténtalo de nuevo.",
+      "successSubtitle": "Ha unstake exitosamente %{amount} TCY",
+      "goBack": "Volver"
+    },
+    "stakeStatus": {
+      "pendingTitle": "Stake está pendiente",
+      "pendingSubtitle": "Estamos procesando su stake por %{amount} TCY",
+      "successTitle": "Stake exitosa",
+      "failedTitle": "Algo salió mal",
+      "failedSubtitle": "Su stake ha fallado. Inténtalo de nuevo.",
+      "viewTransaction": "Ver Transacción",
+      "successSubtitle": "Has stake con éxito %{amount} TCY",
+      "goBack": "Volver"
+    },
+    "cta": {
+      "title": "¡Tienes reclamaciones TCY disponibles!",
+      "button": "Verificar Reclamaciones"
+    }
+  },
   "markets": {
     "recommended": "Recomendado",
     "watchlist": "Mi lista de seguimiento",
@@ -2840,12 +2953,7 @@
       "claim": "Reclamar",
       "claimed": "Reclamado",
       "discountText": "*%{percent}% descuento en tarifas de intercambio",
-      "noClaims": "No hay reclamaciones disponibles",
-      "banner": {
-        "title": "Ponle un sombrero.",
-        "description": "Cuanto más FOX o FWH tengas, más tokens obtendrás por intercambio.",
-        "cta": "Más información"
-      }
+      "noClaims": "No hay reclamaciones disponibles"
     },
     "governance": {
       "title": "Gobernancia",
@@ -2875,6 +2983,32 @@
       "getPublicKey": "No se pudo obtener la clave pública de billetera.",
       "getUtxos": "No se pudieron obtener utxos.",
       "getValidator": "No se pudo obtener validador."
+    }
+  },
+  "notificationCenter": {
+    "title": "Notificaciones",
+    "viewTransaction": "Ver Transacción",
+    "viewOrder": "Ver Orden",
+    "cancelOrder": "Cancelar Orden",
+    "pair": "Emparejar",
+    "limitPrice": "Precio Límite",
+    "expires": "Caduca",
+    "filled": "Completado",
+    "swap": "Intercambiar",
+    "claim": "Reclamar",
+    "protocol": "Protocolo",
+    "streamingStatus": "Estado de Transmisión",
+    "executionPrice": "Precio de Ejecución",
+    "status": {
+      "title": "Estado",
+      "open": "Abierto",
+      "expired": "Venció",
+      "cancelled": "Cancelado",
+      "confirmed": "Confirmado",
+      "failed": "Fallido",
+      "pending": "Pendiente",
+      "claimAvailable": "Reclamación Disponible",
+      "unknown": "Desconocido"
     }
   }
 }

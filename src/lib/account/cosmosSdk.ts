@@ -1,5 +1,5 @@
 import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
-import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
+import { supportsCosmos, supportsMayachain, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
@@ -20,6 +20,9 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
       }
       if (chainReference === CHAIN_REFERENCE.ThorchainMainnet) {
         if (!supportsThorchain(wallet)) continue
+      }
+      if (chainReference === CHAIN_REFERENCE.MayachainMainnet) {
+        if (!supportsMayachain(wallet)) continue
       }
       if (
         wallet instanceof MetaMaskMultiChainHDWallet &&

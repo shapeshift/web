@@ -10,6 +10,11 @@ import type { ThorchainBlock, ThorchainMimir } from '@/lib/utils/thorchain/types
 
 const thornodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
+export const fetchThorchainMimir = async () => {
+  const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/thorchain/mimir`)
+  return data
+}
+
 // Feature-agnostic, abstracts away THORNode endpoints
 export const thornode = createQueryKeys('thornode', {
   poolData: (assetId: AssetId | undefined) => ({
@@ -19,7 +24,7 @@ export const thornode = createQueryKeys('thornode', {
 
       const poolAssetId = assetIdToPoolAssetId({ assetId })
       const { data } = await axios.get<ThornodePoolResponse>(
-        `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+        `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
       )
 
       return data
@@ -29,7 +34,7 @@ export const thornode = createQueryKeys('thornode', {
     queryKey: ['thornodePoolsData'],
     queryFn: async () => {
       const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-        `${thornodeUrl}/lcd/thorchain/pools`,
+        `${thornodeUrl}/thorchain/pools`,
       )
 
       if (poolResponse.isOk()) {
@@ -42,17 +47,14 @@ export const thornode = createQueryKeys('thornode', {
   mimir: () => {
     return {
       queryKey: ['thorchainMimir'],
-      queryFn: async () => {
-        const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/lcd/thorchain/mimir`)
-        return data
-      },
+      queryFn: fetchThorchainMimir,
     }
   },
   block: () => {
     return {
       queryKey: ['thorchainBlockHeight'],
       queryFn: async () => {
-        const { data } = await axios.get<ThorchainBlock>(`${thornodeUrl}/lcd/thorchain/block`)
+        const { data } = await axios.get<ThorchainBlock>(`${thornodeUrl}/thorchain/block`)
         return data
       },
     }
@@ -65,7 +67,7 @@ export const thornode = createQueryKeys('thornode', {
           // Get all inbound addresses
           (
             await thorService.get<InboundAddressResponse[]>(
-              `${thornodeUrl}/lcd/thorchain/inbound_addresses`,
+              `${thornodeUrl}/thorchain/inbound_addresses`,
             )
           ).andThen(({ data: inboundAddresses }) => {
             // Exclude halted

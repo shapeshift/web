@@ -18,15 +18,19 @@ import { TestProviders } from '@/test/TestProviders'
 
 vi.mock('react-hook-form')
 vi.mock('@/hooks/useWallet/useWallet')
-vi.mock('@/state/slices/selectors', () => ({
-  ...vi.importActual('@/state/slices/selectors'),
-  selectUserCurrencyToUsdRate: () => '1',
-  selectMarketDataUsd: vi.fn(() => ({})),
-  selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
-  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
-  selectMarketDataByAssetIdUserCurrency: () => ({ price: '3500' }),
-  selectPortfolioAssetIds: () => [],
-}))
+vi.mock('@/state/slices/selectors', async () => {
+  const actual = await vi.importActual('@/state/slices/selectors')
+  return {
+    ...actual,
+    selectUserCurrencyToUsdRate: () => '1',
+    selectMarketDataUsd: vi.fn(() => ({})),
+    selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
+    selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
+    selectMarketDataByAssetIdUserCurrency: () => ({ price: '3500' }),
+    selectPortfolioAssetIds: () => [],
+    selectAssets: () => ({ [ethAssetId]: mockEthereum }),
+  }
+})
 
 const fees = {
   [FeeDataKey.Slow]: {

@@ -197,7 +197,7 @@ export const ExpandableStepperSteps = ({
 
   const [timeLeft, setTimeLeft] = useState(estimatedCompletionTimeForStepMs)
 
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const intervalRef = useRef<NodeJS.Timeout>(undefined)
 
   // Reset the timer when the hop/step changes
   useEffect(() => {

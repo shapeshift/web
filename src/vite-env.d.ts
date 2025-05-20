@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 interface ImportMetaEnv {
   // Feature flags - present in all envs
   readonly VITE_FEATURE_BNBSMARTCHAIN: string
@@ -9,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_ARBITRUM_NOVA: string
   readonly VITE_FEATURE_SOLANA: string
   readonly VITE_FEATURE_BASE: string
+  readonly VITE_FEATURE_MAYACHAIN: string
   readonly VITE_FEATURE_OPTIMISM: string
   readonly VITE_FEATURE_MIXPANEL: string
   readonly VITE_FEATURE_SAVERS_VAULTS: string
@@ -49,10 +48,8 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_PHANTOM_WALLET: string
   readonly VITE_FEATURE_LIMIT_ORDERS: string
   readonly VITE_FEATURE_NEW_WALLET_FLOW: string
-  readonly VITE_FEATURE_FOX_PAGE_FOX_WIF_HAT_SECTION: string
   readonly VITE_FEATURE_NEW_LIMIT_FLOW: string
   readonly VITE_FEATURE_THORCHAIN_SWAPPER_ACK: string
-  readonly VITE_FEATURE_THORCHAIN_POOLS_INSTABILITY_WARNINGS: string
   readonly VITE_FEATURE_DYNAMIC_LP_ASSETS: string
   readonly VITE_FEATURE_READ_ONLY_ASSETS: string
   readonly VITE_FEATURE_SWAPPER_SOLANA: string
@@ -80,6 +77,7 @@ interface ImportMetaEnv {
   readonly VITE_ALCHEMY_POLYGON_URL: string
   readonly VITE_TOKEMAK_STATS_URL: string
   readonly VITE_COINGECKO_API_KEY: string
+  readonly VITE_COINCAP_API_KEY: string
   readonly VITE_EXCHANGERATEHOST_BASE_URL: string
   readonly VITE_EXCHANGERATEHOST_API_KEY: string
   readonly VITE_ALCHEMY_API_KEY: string
@@ -148,6 +146,8 @@ interface ImportMetaEnv {
   readonly VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
   readonly VITE_UNCHAINED_THORCHAIN_WS_URL: string
   readonly VITE_UNCHAINED_THORCHAIN_V1_HTTP_URL: string
+  readonly VITE_UNCHAINED_MAYACHAIN_HTTP_URL: string
+  readonly VITE_UNCHAINED_MAYACHAIN_WS_URL: string
   readonly VITE_UNCHAINED_SOLANA_HTTP_URL: string
   readonly VITE_UNCHAINED_SOLANA_WS_URL: string
   readonly VITE_ETHEREUM_NODE_URL: string
@@ -160,8 +160,10 @@ interface ImportMetaEnv {
   readonly VITE_ARBITRUM_NOVA_NODE_URL: string
   readonly VITE_BASE_NODE_URL: string
   readonly VITE_THORCHAIN_NODE_URL: string
+  readonly VITE_MAYACHAIN_NODE_URL: string
   readonly VITE_SOLANA_NODE_URL: string
-  readonly VITE_MIDGARD_URL: string
+  readonly VITE_THORCHAIN_MIDGARD_URL: string
+  readonly VITE_MAYACHAIN_MIDGARD_URL: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

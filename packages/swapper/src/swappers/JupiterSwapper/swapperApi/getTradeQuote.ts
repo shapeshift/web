@@ -235,7 +235,6 @@ export const getTradeQuote = async (
     id: uuid(),
     quoteOrRate: 'quote',
     rate,
-    potentialAffiliateBps: affiliateBps,
     affiliateBps,
     receiveAddress,
     slippageTolerancePercentageDecimal,
@@ -248,7 +247,7 @@ export const getTradeQuote = async (
         buyAmountAfterFeesCryptoBaseUnit: priceResponse.outAmount,
         sellAmountIncludingProtocolFeesCryptoBaseUnit: priceResponse.inAmount,
         jupiterQuoteResponse: priceResponse,
-        jupiterTransactionMetadata: {
+        solanaTransactionMetadata: {
           addressLookupTableAddresses,
           instructions,
         },

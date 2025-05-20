@@ -104,7 +104,7 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    it('should throw on invalid destination address', () => {
+    it('should throw on missing destination address', () => {
       const memo = '=:ETH.ETH::9786345:ss:50'
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
@@ -602,7 +602,7 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    it('should throw on invalid destination address', () => {
+    it('should throw on missing destination address', () => {
       const memo = '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F::9786345:ss:50'
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
@@ -695,9 +695,62 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    it('should throw on invalid destination address', () => {
+    it('should throw on missing destination address', () => {
       const memo = '$-:BTC.BTC::9786345:ss:0'
       expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+  })
+
+  describe('claim tcy', () => {
+    it('processes with affiliate name', () => {
+      const memo = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4:ss'
+      const expected = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('processes with no affiliate name', () => {
+      const memo = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      const expected = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should throw on missing address', () => {
+      const memo = 'tcy:'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+  })
+
+  describe('stake tcy', () => {
+    it('processes tcy+ memo', () => {
+      const memo = 'tcy+'
+      const expected = 'tcy+'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('strips additional parts', () => {
+      const memo = 'tcy+:foo:bar:baz'
+      const expected = 'tcy+'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+  })
+
+  describe('unstake tcy', () => {
+    it('processes with 100% bps', () => {
+      const memo = 'tcy-:10000'
+      const expected = 'tcy-:10000'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('processes with 50% bps', () => {
+      const memo = 'tcy-:5000'
+      const expected = 'tcy-:5000'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('strips additional parts', () => {
+      const memo = 'tcy-:5000:foo:bar'
+      const expected = 'tcy-:5000'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
     })
   })
 })

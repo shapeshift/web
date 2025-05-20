@@ -24,7 +24,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import type { Filter } from './FoxTokenFilterButton'
@@ -35,7 +35,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
@@ -94,7 +94,7 @@ const rfoxIconStyles = {
 
 export const RFOXSection = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
@@ -152,10 +152,10 @@ export const RFOXSection = () => {
 
   const handleManageClick = useCallback(() => {
     setStakingAssetAccountId(stakingAssetAccountId)
-    history.push({
+    navigate({
       pathname: '/rfox',
     })
-  }, [history, stakingAssetAccountId, setStakingAssetAccountId])
+  }, [navigate, stakingAssetAccountId, setStakingAssetAccountId])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
@@ -213,7 +213,7 @@ export const RFOXSection = () => {
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
     select: (totalRevenue: bigint) => {
       return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price))
         .toFixed(2)
     },
   })

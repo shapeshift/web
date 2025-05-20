@@ -1,11 +1,11 @@
+import type { IWalletKit } from '@reown/walletkit'
+import { WalletKit } from '@reown/walletkit'
 import type WalletConnectCore from '@walletconnect/core'
 import { Core } from '@walletconnect/core'
-import type { IWeb3Wallet } from '@walletconnect/web3wallet'
-import { Web3Wallet } from '@walletconnect/web3wallet'
 
 import { getConfig } from '@/config'
 
-let walletConnectWallet: Promise<IWeb3Wallet>
+let walletConnectWallet: Promise<IWalletKit>
 let core: WalletConnectCore
 
 // WalletConnect Core singleton
@@ -23,7 +23,7 @@ export const getWalletConnectCore = () => {
 // WalletConnect Web3Wallet singleton
 export const getWalletConnectWallet = () => {
   if (!walletConnectWallet) {
-    walletConnectWallet = Web3Wallet.init({
+    walletConnectWallet = WalletKit.init({
       core: getWalletConnectCore(), // <- pass the shared `core` instance
       metadata: {
         name: 'ShapeShift',

@@ -121,7 +121,7 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'bep20',
         assetReference: '0x0eb3a705fc54725037cc9e008bdede697f62f335',
       })
-      expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnCosmos, atomOnBsc])
+      expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnBsc, atomOnCosmos])
     })
 
     it('can get AssetIds for USD Coin on Solana and EVM chains using coingecko', () => {

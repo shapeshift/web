@@ -4,6 +4,7 @@ import type { AssetId } from './assetId/assetId'
 import { fromAssetId, toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
+import { tcyAssetId } from './constants'
 
 export const accountIdToChainId = (accountId: AccountId): ChainId =>
   fromAccountId(accountId).chainId
@@ -20,6 +21,7 @@ export const generateAssetIdFromCosmosSdkDenom = (
   denom: string,
   nativeAssetId: AssetId,
 ): AssetId => {
+  if (denom === 'tcy') return tcyAssetId
   if (denom.startsWith('ibc')) {
     return toAssetId({
       assetNamespace: constants.ASSET_NAMESPACE.ibc,
@@ -37,6 +39,7 @@ export const dogecoinAssetMap = { [constants.dogeAssetId]: 'dogecoin' }
 export const litecoinAssetMap = { [constants.ltcAssetId]: 'litecoin' }
 export const cosmosAssetMap = { [constants.cosmosAssetId]: 'cosmos' }
 export const thorchainAssetMap = { [constants.thorchainAssetId]: 'thorchain' }
+export const mayachainAssetMap = { [constants.mayachainAssetId]: 'cacao' }
 
 interface Flavoring<FlavorT> {
   _type?: FlavorT

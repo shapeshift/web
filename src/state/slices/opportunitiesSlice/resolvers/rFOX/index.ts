@@ -1,7 +1,6 @@
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
-import type { MarketData } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
@@ -37,10 +36,7 @@ export const rFOXStakingMetadataResolver = async ({
 
   const stakingAsset = selectAssetById(state, opportunityId)
 
-  const stakingAssetMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
-    state,
-    opportunityId,
-  )
+  const stakingAssetMarketData = selectMarketDataByAssetIdUserCurrency(state, opportunityId)
 
   const contractData = await readContract(client, {
     abi: erc20Abi,
@@ -50,7 +46,7 @@ export const rFOXStakingMetadataResolver = async ({
   })
 
   const tvl = bn(fromBaseUnit(contractData.toString(), stakingAsset?.precision ?? 0))
-    .times(stakingAssetMarketData.price)
+    .times(bnOrZero(stakingAssetMarketData?.price))
     .toFixed(2)
 
   const underlyingAssetIds = [opportunityId]

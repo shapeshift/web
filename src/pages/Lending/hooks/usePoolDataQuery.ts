@@ -5,12 +5,11 @@ import { useMemo } from 'react'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
-import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import {
   getAllThorchainLendingPositions,
   getThorchainPoolInfo,
 } from '@/lib/utils/thorchain/lending'
-import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import {
   selectAssetById,
@@ -36,10 +35,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
-  const { data: mimir } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
+  const { data: mimir } = useThorchainMimir({})
 
   const isAssetLendingEnabled = useMemo(() => {
     if (!mimir || !poolAsset) return false
@@ -93,8 +89,10 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
         fromThorBaseUnit(poolInfo.loan_collateral_remaining),
       )
 
-      const tvl = tvlCryptoPrecision.times(poolAssetMarketData.price).toFixed()
-      const maxSupplyFiat = maxSupplyCryptoPrecision.times(poolAssetMarketData.price).toFixed()
+      const tvl = tvlCryptoPrecision.times(bnOrZero(poolAssetMarketData?.price)).toFixed()
+      const maxSupplyFiat = maxSupplyCryptoPrecision
+        .times(bnOrZero(poolAssetMarketData?.price))
+        .toFixed()
 
       return {
         totalBorrowers,

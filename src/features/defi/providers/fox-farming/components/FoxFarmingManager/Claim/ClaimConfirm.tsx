@@ -14,7 +14,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -64,7 +64,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   const assets = useAppSelector(selectAssets)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { chainId, contractAddress } = query
 
   assertIsFoxEthStakingContractAddress(contractAddress)
@@ -108,8 +108,11 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   )
 
   const claimFiatAmount = useMemo(
-    () => bnOrZero(amount).times(assetMarketData.price).toString(),
-    [amount, assetMarketData.price],
+    () =>
+      bnOrZero(amount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
+    [amount, assetMarketData?.price],
   )
 
   const toast = useToast()
@@ -121,14 +124,16 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
       onOngoingFarmingTxIdChange(txid, contractAddress)
-      history.push('/status', {
-        txid,
-        assetId,
-        amount,
-        userAddress: accountAddress,
-        estimatedGas,
-        chainId,
-        contractAddress,
+      navigate('/status', {
+        state: {
+          txid,
+          assetId,
+          amount,
+          userAddress: accountAddress,
+          estimatedGas,
+          chainId,
+          contractAddress,
+        },
       })
       trackOpportunityEvent(
         MixPanelEvent.ClaimConfirm,
@@ -161,7 +166,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     claimRewards,
     contractAddress,
     estimatedGas,
-    history,
+    navigate,
     onOngoingFarmingTxIdChange,
     opportunity,
     toast,
@@ -190,7 +195,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     accountAddress,
     feeAsset.precision,
     feeMarketData,
-    feeMarketData.price,
+    feeMarketData?.price,
     getClaimFees,
     wallet,
     foxFarmingContract,
@@ -279,7 +284,9 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
               >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
-                    value={bnOrZero(estimatedGas).times(feeMarketData.price).toFixed(2)}
+                    value={bnOrZero(estimatedGas)
+                      .times(bnOrZero(feeMarketData?.price))
+                      .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'

@@ -27,7 +27,7 @@ const getThorchainStreamingSwap = async (
 ): Promise<ThornodeStreamingSwapResponseSuccess | undefined> => {
   const thorTxHash = sellTxHash.replace(/^0x/, '')
   const { data: streamingSwapData } = await axios.get<ThornodeStreamingSwapResponse>(
-    `${getConfig().VITE_THORCHAIN_NODE_URL}/lcd/thorchain/swap/streaming/${thorTxHash}`,
+    `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/swap/streaming/${thorTxHash}`,
   )
 
   if (!streamingSwapData) return
@@ -71,7 +71,7 @@ export const useThorStreamingProgress = ({
   failedSwaps: StreamingSwapFailedSwap[]
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
-  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()
+  const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>(undefined)
   const { poll, cancelPolling } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
   const hopExecutionMetadataFilter = useMemo(() => {

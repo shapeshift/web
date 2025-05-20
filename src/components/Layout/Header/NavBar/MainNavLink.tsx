@@ -3,7 +3,7 @@ import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { CircleIcon } from '@/components/Icons/Circle'
 import { breakpoints } from '@/theme/theme'
@@ -17,6 +17,7 @@ type SidebarLinkProps = {
   isNew?: boolean
   isViewOnly?: boolean
   isActive?: boolean
+  menuRightComponent?: React.ReactNode
 } & ButtonProps
 
 const styleProp = { width: '0.5em', height: '0.5em', color: 'var(--chakra-colors-pink-200)' }
@@ -28,14 +29,41 @@ const activeProp = {
 }
 
 export const MainNavLink = memo((props: SidebarLinkProps) => {
-  const { isCompact, onClick, isNew, isViewOnly, label, isActive, buttonProps } = useMemo(() => {
-    const { isCompact, onClick, isNew, isViewOnly, label, isActive, ...buttonProps } = props
-    return { isCompact, onClick, isNew, isViewOnly, label, isActive, buttonProps }
+  const {
+    isCompact,
+    onClick,
+    isNew,
+    isViewOnly,
+    label,
+    isActive,
+    buttonProps,
+    menuRightComponent,
+  } = useMemo(() => {
+    const {
+      isCompact,
+      onClick,
+      isNew,
+      isViewOnly,
+      label,
+      isActive,
+      menuRightComponent,
+      ...buttonProps
+    } = props
+    return {
+      isCompact,
+      onClick,
+      isNew,
+      isViewOnly,
+      label,
+      isActive,
+      buttonProps,
+      menuRightComponent,
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
 
   const [isNavigationPending, startNavTransition] = useTransition()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
   const translate = useTranslate()
 
@@ -51,11 +79,12 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
       if (props.to) {
         e.preventDefault()
         startNavTransition(() => {
-          history.push(props.to as string)
+          // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
+          navigate(((props.to as string | undefined) ?? '').replace('/*', ''))
         })
       }
     },
-    [isActive, onClick, props.to, history, startNavTransition],
+    [isActive, onClick, props.to, navigate, startNavTransition],
   )
 
   const justifyContentProp = useMemo(
@@ -115,6 +144,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
             {translate('common.viewOnly')}
           </Tag>
         )}
+        {menuRightComponent}
       </Button>
     </Tooltip>
   )

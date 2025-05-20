@@ -6,6 +6,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { mergeWith } from 'lodash'
+import type { JSX } from 'react'
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -217,10 +218,14 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     )
 
     const handleConnectAll = useCallback(() => {
-      const namespacesChainIds = Object.values({
-        ...requiredNamespaces,
-        ...optionalNamespaces,
-      }).flatMap(namespace => namespace.chains ?? [])
+      const requiredNamespacesChainIds = Object.values(requiredNamespaces).flatMap(
+        namespace => namespace.chains ?? [],
+      )
+      const optionalNamespacesChainIds = Object.values(
+        supportedOptionalNamespacesWithAccounts,
+      ).flatMap(namespace => namespace.chains ?? [])
+
+      const namespacesChainIds = [...requiredNamespacesChainIds, ...optionalNamespacesChainIds]
 
       const filteredAccountIds = portfolioAccountIds.filter(accountId => {
         const chainId = fromAccountId(accountId).chainId
@@ -240,7 +245,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       selectedAccountIds,
       toggleAccountId,
       requiredNamespaces,
-      optionalNamespaces,
+      supportedOptionalNamespacesWithAccounts,
       portfolioAccountIds,
     ])
 

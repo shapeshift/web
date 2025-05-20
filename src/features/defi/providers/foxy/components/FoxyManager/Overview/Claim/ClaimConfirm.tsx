@@ -15,7 +15,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -65,7 +65,7 @@ export const ClaimConfirm = ({
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const chainAdapterManager = getChainAdapterManager()
 
@@ -143,13 +143,15 @@ export const ClaimConfirm = ({
         contractAddress,
         bip44Params,
       })
-      history.push('/status', {
-        txid,
-        assetId: stakingAssetId,
-        amount,
-        userAddress,
-        estimatedGas,
-        chainId,
+      navigate('/status', {
+        state: {
+          txid,
+          assetId: stakingAssetId,
+          amount,
+          userAddress,
+          estimatedGas,
+          chainId,
+        },
       })
     } catch (error) {
       console.error(error)
@@ -170,7 +172,7 @@ export const ClaimConfirm = ({
     contractAddress,
     estimatedGas,
     foxyApi,
-    history,
+    navigate,
     toast,
     translate,
     userAddress,
@@ -216,7 +218,7 @@ export const ClaimConfirm = ({
     chainAdapterManager,
     contractAddress,
     feeAsset.precision,
-    feeMarketData.price,
+    feeMarketData?.price,
     foxyApi,
     walletState.wallet,
   ])
@@ -236,7 +238,7 @@ export const ClaimConfirm = ({
             />
           </Stack>
           <Amount.Fiat
-            value={cryptoHumanBalance.times(assetMarketData.price).toString()}
+            value={cryptoHumanBalance.times(bnOrZero(assetMarketData?.price)).toString()}
             color='text.subtle'
             prefix='≈'
           />
@@ -279,7 +281,7 @@ export const ClaimConfirm = ({
                   <Amount.Fiat
                     value={bnOrZero(estimatedGas)
                       .div(`1e+${feeAsset.precision}`)
-                      .times(feeMarketData.price)
+                      .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
                   />
                   <Amount.Crypto

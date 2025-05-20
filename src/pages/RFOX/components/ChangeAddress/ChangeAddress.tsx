@@ -2,7 +2,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
@@ -113,25 +114,14 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
-        <Suspense fallback={suspenseFallback}>
-          <Route
-            key={ChangeAddressRoutePaths.Input}
-            path={ChangeAddressRoutePaths.Input}
-            render={renderChangeAddressInput}
-          />
-          <Route
-            key={ChangeAddressRoutePaths.Confirm}
-            path={ChangeAddressRoutePaths.Confirm}
-            render={renderChangeAddressConfirm}
-          />
-          <Route
-            key={ChangeAddressRoutePaths.Status}
-            path={ChangeAddressRoutePaths.Status}
-            render={renderChangeAddressStatus}
-          />
-        </Suspense>
-      </Switch>
+      <Suspense fallback={suspenseFallback}>
+        <Switch location={location.pathname}>
+          <Route path={ChangeAddressRoutePaths.Input}>{renderChangeAddressInput()}</Route>
+          <Route path={ChangeAddressRoutePaths.Confirm}>{renderChangeAddressConfirm()}</Route>
+          <Route path={ChangeAddressRoutePaths.Status}>{renderChangeAddressStatus()}</Route>
+          <Route path='*'>{renderChangeAddressInput()}</Route>
+        </Switch>
+      </Suspense>
     </AnimatePresence>
   )
 }

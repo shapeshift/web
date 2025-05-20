@@ -18,8 +18,7 @@ import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-
-import type { NativeSetupProps } from '../types'
+import { useLocation, useNavigate } from 'react-router'
 
 import { Text } from '@/components/Text'
 
@@ -38,7 +37,9 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
+export const NativeTestPhrase = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.300', 'whiteAlpha.200')
   const dottedTitleBackground = useColorModeValue('#f7fafc', '#2e3236')
@@ -78,7 +79,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
 
       const targetWordIndex = shuffledNumbers[testCount.current]
       const targetWord = words[targetWordIndex]
-      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
+      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 3)
       randomWords.push(targetWord)
       randomWords = shuffle(randomWords)
       const correctAnswerIndex = randomWords.indexOf(targetWord)
@@ -109,9 +110,9 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
 
   const handleBackupComplete = useCallback(() => {
     vault.seal()
-    history.replace('/native/password', { vault })
+    navigate('/native/password', { state: { vault }, replace: true })
     setTimeout(() => revoker.revoke(), 250)
-  }, [history, revoker, vault])
+  }, [navigate, revoker, vault])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
@@ -139,7 +140,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
           mb={12}
         />
         <VStack spacing={6} alignItems='stretch'>
-          <Box borderRadius='xl' p={6} position='relative' pb={20}>
+          <Box borderRadius='xl' p={6} position='relative' pb={4}>
             <CText
               textAlign='center'
               position='absolute'
@@ -199,7 +200,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
           </Box>
         </VStack>
 
-        <Flex justifyContent='center' mt={6}>
+        <Flex justifyContent='center' mt={2}>
           <Flex gap={2} justify='center'>
             {Array.from({ length: TEST_COUNT_REQUIRED }).map((_, index) => (
               <Box

@@ -2,10 +2,9 @@ import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
-import { FoxWifHat } from './FoxWifHat'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Display } from '@/components/Display'
@@ -27,11 +26,11 @@ export const FoxHeader = () => {
     selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
   )
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
-  }, [history])
+    navigate('/explore')
+  }, [navigate])
 
   const activeAccountDropdown = useMemo(() => {
     if (accountIds.length <= 1) return null
@@ -64,7 +63,6 @@ export const FoxHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <FoxWifHat />
         <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>

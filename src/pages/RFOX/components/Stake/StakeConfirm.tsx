@@ -17,7 +17,7 @@ import { getChainShortName } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useRfoxStake } from './hooks/useRfoxStake'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
@@ -61,7 +61,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   confirmedQuote,
 }) => {
   const queryClient = useQueryClient()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const stakingAsset = useAppSelector(state =>
@@ -97,9 +97,9 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const stakeAmountUserCurrency = useMemo(
     () =>
       bnOrZero(stakingAmountCryptoPrecision)
-        .times(stakingAssetMarketDataUserCurrency.price)
+        .times(bnOrZero(stakingAssetMarketDataUserCurrency?.price))
         .toFixed(),
-    [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency.price],
+    [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency?.price],
   )
 
   const {
@@ -257,16 +257,16 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   )
 
   const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
+    navigate(StakeRoutePaths.Input)
+  }, [navigate])
 
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
     if (isApprovalRequired) return handleApprove()
 
     await handleStake()
-    history.push(StakeRoutePaths.Status)
-  }, [handleStake, history, isApprovalRequired, handleApprove, stakingAsset])
+    navigate(StakeRoutePaths.Status)
+  }, [handleStake, navigate, isApprovalRequired, handleApprove, stakingAsset])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

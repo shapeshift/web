@@ -5,7 +5,7 @@ import { isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PriceImpact } from '../../PriceImpact'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
@@ -67,7 +67,7 @@ export const ConfirmSummary = ({
   isLoading: isParentLoading,
   receiveAddress,
 }: ConfirmSummaryProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
@@ -99,13 +99,12 @@ export const ConfirmSummary = ({
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
-  // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
 
-  const { priceImpactPercentage } = usePriceImpact(activeQuote)
+  const { priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
@@ -259,8 +258,8 @@ export const ConfirmSummary = ({
 
   const handleOpenCompactQuoteList = useCallback(() => {
     if (!isCompact && !isSmallerThanXl) return
-    history.push(TradeRoutePaths.QuoteList)
-  }, [history, isCompact, isSmallerThanXl])
+    navigate(`/trade/${TradeRoutePaths.QuoteList}`)
+  }, [navigate, isCompact, isSmallerThanXl])
 
   const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =
     useMemo(() => {
@@ -330,14 +329,16 @@ export const ConfirmSummary = ({
           intermediaryTransactionOutputs={intermediaryTransactionOutputs}
         />
 
-        {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
+        {priceImpactPercentageAbsolute && (
+          <PriceImpact priceImpactPercentage={priceImpactPercentageAbsolute} />
+        )}
       </>
     )
   }, [
     buyAmountAfterFeesCryptoPrecision,
     buyAsset.symbol,
     isLoading,
-    priceImpactPercentage,
+    priceImpactPercentageAbsolute,
     slippagePercentageDecimal,
     tradeQuoteStep?.intermediaryTransactionOutputs,
     tradeQuoteStep?.source,

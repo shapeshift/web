@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { JSX } from 'react'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -10,7 +11,7 @@ import { partitionCompareWith } from '@/lib/utils'
 import { PluginManager } from '@/plugins'
 import { activePlugins } from '@/plugins/activePlugins'
 import type { Route } from '@/Routes/helpers'
-import { selectFeatureFlags } from '@/state/slices/preferencesSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type PluginProviderProps = {
   children: React.ReactNode
@@ -33,7 +34,7 @@ const PluginContext = createContext<PluginProviderContextProps>({
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [supportedChains, setSupportedChains] = useState<ChainId[]>([])
   const [routes, setRoutes] = useState<Route[]>([])
-  const featureFlags = useSelector(selectFeatureFlags)
+  const featureFlags = useSelector(preferences.selectors.selectFeatureFlags)
 
   const pluginManagerRef = useRef<PluginManager>(new PluginManager())
   const pluginManager = useMemo(() => pluginManagerRef.current, [pluginManagerRef])
@@ -113,6 +114,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.ArbitrumNova && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
       if (!featureFlags.Base && chainId === KnownChainIds.BaseMainnet) return false
       if (!featureFlags.Solana && chainId === KnownChainIds.SolanaMainnet) return false
+      if (!featureFlags.Mayachain && chainId === KnownChainIds.MayachainMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       return true

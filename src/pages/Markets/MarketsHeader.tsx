@@ -1,7 +1,7 @@
 import { Container, Heading, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
@@ -14,7 +14,8 @@ const containerPaddingTop = { base: 0, md: 8 }
 
 export const MarketsHeader = () => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
+  const location = useLocation()
   const NavItems: TabItem[] = useMemo(() => {
     return [
       {
@@ -31,13 +32,12 @@ export const MarketsHeader = () => {
   }, [])
 
   const handleBack = useCallback(() => {
-    history.push('/explore')
-  }, [history])
+    navigate('/explore')
+  }, [navigate])
 
   const maybeCategory = useMemo(
-    () =>
-      history.location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
-    [history.location.pathname],
+    () => location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
+    [location.pathname],
   )
 
   return (

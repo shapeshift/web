@@ -55,7 +55,6 @@ export async function getTrade({
     accountNumber,
     supportsEIP1559,
     affiliateBps,
-    potentialAffiliateBps,
     quoteOrRate,
   } = input
 
@@ -298,7 +297,6 @@ export async function getTrade({
           exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
         },
         affiliateBps,
-        potentialAffiliateBps,
         swapperName: SwapperName.LIFI,
         steps,
         rate: netRate,

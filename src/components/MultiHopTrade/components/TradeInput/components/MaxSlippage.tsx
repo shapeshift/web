@@ -1,5 +1,4 @@
-import { Divider, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Divider, Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
 import {

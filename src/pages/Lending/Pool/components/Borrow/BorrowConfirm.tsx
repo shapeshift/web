@@ -24,7 +24,7 @@ import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toHex } from 'viem'
 
 import { LoanSummary } from '../LoanSummary'
@@ -53,13 +53,13 @@ import { getThorchainLendingPosition } from '@/lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { useLendingQuoteOpenQuery } from '@/pages/Lending/hooks/useLendingQuoteQuery'
 import { useQuoteEstimatedFeesQuery } from '@/react-queries/hooks/useQuoteEstimatedFeesQuery'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
-  selectSelectedCurrency,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
@@ -93,7 +93,7 @@ export const BorrowConfirm = ({
   } = useWallet()
 
   const borrowAssetId = borrowAsset?.assetId ?? ''
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
@@ -196,13 +196,14 @@ export const BorrowConfirm = ({
   }, [confirmedQuote, eventData, mixpanel, mutateAsync, txId])
 
   const handleBack = useCallback(() => {
-    history.push(BorrowRoutePaths.Input)
-  }, [history])
+    navigate(BorrowRoutePaths.Input)
+  }, [navigate])
+
   const divider = useMemo(() => <Divider />, [])
 
   const chainAdapter = getChainAdapterManager().get(fromAssetId(collateralAssetId).chainId)
 
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
   const {
     data: estimatedFeesData,
@@ -258,7 +259,7 @@ export const BorrowConfirm = ({
       setTxid(null)
       setConfirmedQuote(null)
       setDepositAmount(null)
-      return history.push(BorrowRoutePaths.Input)
+      return navigate(BorrowRoutePaths.Input)
     }
 
     if (
@@ -344,7 +345,7 @@ export const BorrowConfirm = ({
     refetchLendingQuote,
     setConfirmedQuote,
     setDepositAmount,
-    history,
+    navigate,
     selectedCurrency,
   ])
 
@@ -453,7 +454,7 @@ export const BorrowConfirm = ({
                     <Amount.Fiat
                       color='text.subtle'
                       value={bnOrZero(depositAmount)
-                        .times(collateralAssetMarketData?.price ?? '0')
+                        .times(bnOrZero(collateralAssetMarketData?.price))
                         .toString()}
                       prefix='≈'
                     />

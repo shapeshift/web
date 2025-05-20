@@ -41,7 +41,7 @@ export type SwapperConfig = {
   VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
-  VITE_MIDGARD_URL: string
+  VITE_THORCHAIN_MIDGARD_URL: string
   VITE_UNCHAINED_BITCOIN_HTTP_URL: string
   VITE_UNCHAINED_DOGECOIN_HTTP_URL: string
   VITE_UNCHAINED_LITECOIN_HTTP_URL: string
@@ -143,12 +143,6 @@ export type QuoteFeeData = {
   chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
 }
 
-export const isSolanaFeeData = (
-  chainSpecific: QuoteFeeData['chainSpecific'],
-): chainSpecific is SolanaFeeData => {
-  return Boolean(chainSpecific && 'priorityFee' in chainSpecific)
-}
-
 export type BuyAssetBySellIdInput = {
   sellAsset: Asset
   assets: Asset[]
@@ -159,7 +153,6 @@ type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
@@ -294,7 +287,7 @@ export type TradeQuoteStep = {
     gasLimit: string
   }
   jupiterQuoteResponse?: QuoteResponse
-  jupiterTransactionMetadata?: {
+  solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
   }
@@ -316,7 +309,6 @@ type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
-  potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   priceImpactPercentageDecimal?: string

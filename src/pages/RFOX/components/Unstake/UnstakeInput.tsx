@@ -5,7 +5,7 @@ import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
@@ -66,7 +66,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   headerComponent,
 }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
     useRFOXContext()
@@ -213,7 +213,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     if (!(userStakingBalanceCryptoPrecision && stakingAssetMarketData)) return
 
     return bnOrZero(userStakingBalanceCryptoPrecision)
-      .times(stakingAssetMarketData?.price ?? 0)
+      .times(bnOrZero(stakingAssetMarketData?.price))
       .toFixed(2)
   }, [stakingAssetMarketData, userStakingBalanceCryptoPrecision])
 
@@ -282,12 +282,12 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       cooldownPeriod,
     })
 
-    history.push(UnstakeRoutePaths.Confirm)
+    navigate(UnstakeRoutePaths.Confirm)
   }, [
     amountCryptoPrecision,
     cooldownPeriod,
     hasEnteredValue,
-    history,
+    navigate,
     setConfirmedQuote,
     stakingAsset,
     stakingAssetAccountId,

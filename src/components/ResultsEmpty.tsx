@@ -1,16 +1,15 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Circle, Flex } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { Box, Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { PropsWithChildren } from 'react'
+import type { JSX, PropsWithChildren } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link } from 'react-router-dom'
 
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { Text } from '@/components/Text'
 
-type ResultsEmptyProp = {
+export type ResultsEmptyProps = {
   icon?: JSX.Element
   title?: string | JSX.Element
   body?: string | [string, InterpolationOptions]
@@ -21,7 +20,7 @@ type ResultsEmptyProp = {
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
+export const ResultsEmpty: React.FC<ResultsEmptyProps> = ({
   icon = <DefiIcon boxSize='24px' color='purple.500' />,
   title = 'defi.noActivePositions',
   body = 'assets.assetCards.stakingBody',
@@ -45,7 +44,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
         )}
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
         {typeof title === 'object' && <Box mt={4}>{title}</Box>}
-        {ctaHref && ctaText && (
+        {ctaText && (
           <Button
             colorScheme='purple'
             as={Link}

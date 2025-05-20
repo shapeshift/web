@@ -3,8 +3,8 @@ import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { RouteProps } from 'react-router-dom'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import {
   useMenuRoutes,
@@ -14,6 +14,7 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import type { WalletConnectedProps } from '@/components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
+import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 
 const warningTwoIcon = <WarningTwoIcon />
@@ -101,31 +102,26 @@ export const WalletConnectedMenu = ({
   connectedType,
   onClose,
 }: WalletConnectedProps) => {
-  const location = useLocation()
-
   const connectedWalletMenuRoutes = useMemo(
     () => connectedType && SUPPORTED_WALLETS[connectedType].connectedWalletMenuRoutes,
     [connectedType],
   )
 
-  const renderRoute = useCallback((route: RouteProps, i: number) => {
+  const location = useLocation()
+
+  const renderRoute = useCallback((route: WalletProviderRouteProps, i: number) => {
     const Component = route.component
-    return !Component ? null : (
-      <Route
-        key={`walletConnectedMenuRoute_${i}`}
-        exact
-        path={route.path}
-        // we need to pass an arg here, so we need an anonymous function wrapper
-        // eslint-disable-next-line react-memo/require-usememo
-        render={routeProps => <Component {...routeProps} />}
-      />
+    return (
+      <Route key={`walletConnectedMenuRoute_${i}`} path={route.path || ''}>
+        <Component />
+      </Route>
     )
   }, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location} key={location.key}>
-        <Route exact path={WalletConnectedRoutes.Connected}>
+      <Switch location={location.pathname}>
+        <Route path={WalletConnectedRoutes.Connected}>
           <SubMenuContainer>
             <ConnectedMenu
               connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
@@ -138,7 +134,7 @@ export const WalletConnectedMenu = ({
             />
           </SubMenuContainer>
         </Route>
-        {connectedWalletMenuRoutes?.map(renderRoute)}
+        {connectedWalletMenuRoutes?.map((route, index) => renderRoute(route, index))}
       </Switch>
     </AnimatePresence>
   )

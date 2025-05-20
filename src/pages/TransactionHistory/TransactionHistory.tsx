@@ -1,7 +1,7 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useRouteMatch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { DownloadButton } from './DownloadButton'
 import { useFilters } from './hooks/useFilters'
@@ -18,6 +18,8 @@ import { useAppSelector } from '@/state/store'
 
 const headingPadding = [2, 3, 6]
 const stackMargin = { base: 0, xl: -4, '2xl': -6 }
+
+const singleTransaction = <SingleTransaction />
 
 const TransactionHistoryContent = () => {
   const translate = useTranslate()
@@ -62,17 +64,13 @@ const TransactionHistoryContent = () => {
   )
 }
 
-export const TransactionHistory = memo(() => {
-  const { path } = useRouteMatch()
+const transactionHistory = <TransactionHistoryContent />
 
+export const TransactionHistory = memo(() => {
   return (
-    <Switch>
-      <Route exact path={`${path}/`}>
-        <TransactionHistoryContent />
-      </Route>
-      <Route path={`${path}/transaction/:txId`}>
-        <SingleTransaction />
-      </Route>
-    </Switch>
+    <Routes>
+      <Route path='/' element={transactionHistory} />
+      <Route path='/transaction/:txId' element={singleTransaction} />
+    </Routes>
   )
 })

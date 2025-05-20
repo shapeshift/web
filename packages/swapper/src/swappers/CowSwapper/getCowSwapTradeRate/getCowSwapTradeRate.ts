@@ -40,7 +40,6 @@ async function _getCowSwapTradeRate(
     chainId,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    potentialAffiliateBps,
     affiliateBps,
   } = input
 
@@ -129,6 +128,7 @@ async function _getCowSwapTradeRate(
       sellAsset,
       response: cowswapQuoteResponse,
       affiliateBps,
+      slippageTolerancePercentageDecimal,
     })
 
   const id = cowswapQuoteResponse.id?.toString()
@@ -147,7 +147,6 @@ async function _getCowSwapTradeRate(
     quoteOrRate: 'rate',
     receiveAddress,
     affiliateBps,
-    potentialAffiliateBps,
     rate,
     slippageTolerancePercentageDecimal,
     swapperName: SwapperName.CowSwap,

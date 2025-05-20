@@ -1,13 +1,12 @@
 import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Flex } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { Button, Flex, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -25,7 +24,6 @@ import type {
   StakingEarnOpportunityType,
 } from '@/state/slices/opportunitiesSlice/types'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from '@/state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from '@/state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -36,7 +34,6 @@ import { useAppSelector } from '@/state/store'
 
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
-  assetId: AssetId
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -72,12 +69,9 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
-  ids,
-  assetId,
-}) => {
+export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({ ids }) => {
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     state: { isConnected },
@@ -118,7 +112,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
       if (provider === DefiProvider.rFOX) {
-        return history.push('/rfox')
+        return navigate('/rfox')
       }
 
       if (!isConnected) {
@@ -135,23 +129,27 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         assets,
       )
 
-      history.push({
-        pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action,
-        }),
-        state: { background: location },
-      })
+      navigate(
+        {
+          pathname: location.pathname,
+          search: qs.stringify({
+            type,
+            provider,
+            chainId,
+            contractAddress,
+            assetNamespace,
+            assetReference,
+            highestBalanceAccountAddress,
+            rewardId: rewardAddress,
+            modal: action,
+          }),
+        },
+        {
+          state: { background: location },
+        },
+      )
     },
-    [assets, dispatch, history, isConnected, location],
+    [assets, dispatch, navigate, isConnected, location],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [
@@ -192,38 +190,23 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
-          const opportunityAssetId = opportunity.assetId
-          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
-          if (!opportunity.underlyingAssetIds.length) return null
-          const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
-          const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
 
-          const underlyingBalances = getUnderlyingAssetIdsBalances({
-            assetId: opportunityUnderlyingAssetId,
-            underlyingAssetIds: opportunity.underlyingAssetIds,
-            underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
-            cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit ?? '0',
+          const fiatRewardsAmount = calculateRewardFiatAmount({
+            rewardAssetIds: row.original.rewardAssetIds,
+            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
             assets,
             marketDataUserCurrency,
           })
 
-          const cryptoAmountPrecision = isUnderlyingAsset
-            ? underlyingBalances[opportunity.underlyingAssetIds[underlyingAssetIndex]]
-                .cryptoBalancePrecision
-            : bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-                .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
-                .toFixed()
+          const hasValue =
+            bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(fiatRewardsAmount).gt(0)
+
+          // Note, this already includes rewards. Let's not double-count them
+          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
 
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>
-              <Amount.Fiat value={row.original.fiatAmount} />
-              <Amount.Crypto
-                variant='sub-text'
-                size='xs'
-                value={cryptoAmountPrecision.toString()}
-                symbol={assets[assetId]?.symbol ?? ''}
-              />
+              <Amount.Fiat value={totalFiatAmount} />
             </Flex>
           ) : (
             <RawText variant='sub-text'>-</RawText>
@@ -323,7 +306,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       },
     ],
-    [assetId, assets, handleClick, marketDataUserCurrency, translate],
+    [assets, handleClick, marketDataUserCurrency, translate],
   )
 
   if (!filteredDown.length) return null

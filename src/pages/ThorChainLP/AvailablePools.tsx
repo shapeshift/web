@@ -4,7 +4,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useHistory } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'
@@ -19,6 +19,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
@@ -43,7 +44,7 @@ const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSi
 type RowProps = Row<Pool>
 
 export const AvailablePools = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const { data: pools } = usePools()
   const translate = useTranslate()
 
@@ -58,11 +59,11 @@ export const AvailablePools = () => {
           const pool = row.original
 
           const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-            assetId: pool?.assetId,
+            assetId: pool.assetId,
             swapperName: SwapperName.Thorchain,
           })
 
-          const isThorchainPoolsInstable = useFeatureFlag('ThorchainPoolsInstabilityWarning')
+          const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(pool.assetId)
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
@@ -70,7 +71,7 @@ export const AvailablePools = () => {
 
           const statusContent = useMemo(() => {
             switch (true) {
-              case isThorchainPoolsInstable:
+              case isThorchainLpDepositEnabledForPool === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='pools.depositsDisabled' />,
@@ -102,7 +103,7 @@ export const AvailablePools = () => {
                 }
             }
           }, [
-            isThorchainPoolsInstable,
+            isThorchainLpDepositEnabledForPool,
             isThorchainLpInteractionDisabled,
             isTradingActive,
             pool.annualPercentageRate,
@@ -173,9 +174,9 @@ export const AvailablePools = () => {
 
   const handlePoolClick = useCallback(
     ({ original: pool }: Row<Pool>) => {
-      history.push(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
+      navigate(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
     },
-    [history],
+    [navigate],
   )
 
   return (

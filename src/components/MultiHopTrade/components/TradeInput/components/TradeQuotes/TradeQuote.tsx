@@ -6,7 +6,7 @@ import {
   swappers,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { FC } from 'react'
+import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
@@ -132,7 +132,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
         selectMarketDataByFilter(state, {
           assetId: feeAssetId,
-        }).price
+        })?.price
 
       return getTotalNetworkFeeUserCurrencyPrecision(
         quote,
@@ -165,9 +165,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         isTradingWithoutMarketData
           ? undefined
           : bn(totalReceiveAmountCryptoPrecision)
-              .times(buyAssetMarketData.price ?? 0)
+              .times(bnOrZero(buyAssetMarketData?.price))
               .toString(),
-      [buyAssetMarketData.price, isTradingWithoutMarketData, totalReceiveAmountCryptoPrecision],
+      [buyAssetMarketData?.price, isTradingWithoutMarketData, totalReceiveAmountCryptoPrecision],
     )
 
     const handleQuoteSelection = useCallback(() => {

@@ -1,7 +1,9 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
+import type { JSX } from 'react'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'wouter'
 
 import { RemoveLiquidityRoutePaths } from './types'
 
@@ -12,12 +14,17 @@ import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const RemoveLiquidityConfirm = makeSuspenseful(
   lazy(() =>
     import('./RemoveLiquidityConfirm').then(({ RemoveLiquidityConfirm }) => ({
       default: RemoveLiquidityConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const RemoveLiquidityInput = makeSuspenseful(
@@ -26,6 +33,7 @@ const RemoveLiquidityInput = makeSuspenseful(
       default: RemoveLiquidityInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const RemoveLiquidityStatus = makeSuspenseful(
@@ -34,6 +42,7 @@ const RemoveLiquidityStatus = makeSuspenseful(
       default: RemoveLiquidityStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const RemoveLiquiditySweep = makeSuspenseful(
@@ -42,6 +51,7 @@ const RemoveLiquiditySweep = makeSuspenseful(
       default: RemoveLiquiditySweep,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const RemoveLiquidityEntries = [
@@ -58,11 +68,6 @@ export type RemoveLiquidityProps = {
   poolAssetId: string
 }
 
-export type RemoveLiquidityRoutesProps = RemoveLiquidityProps & {
-  confirmedQuote: LpConfirmedWithdrawalQuote | null
-  setConfirmedQuote: (quote: LpConfirmedWithdrawalQuote) => void
-}
-
 export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
   headerComponent,
   opportunityId,
@@ -76,101 +81,91 @@ export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
       <RemoveLiquidityRoutes
         headerComponent={headerComponent}
         opportunityId={opportunityId}
-        setConfirmedQuote={setConfirmedQuote}
-        confirmedQuote={confirmedQuote}
         accountId={accountId}
         poolAssetId={poolAssetId}
+        confirmedQuote={confirmedQuote}
+        setConfirmedQuote={setConfirmedQuote}
       />
     </MemoryRouter>
   )
 }
 
-const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
+type RemoveLiquidityRoutesProps = RemoveLiquidityProps & {
+  confirmedQuote: LpConfirmedWithdrawalQuote | null
+  setConfirmedQuote: (quote: LpConfirmedWithdrawalQuote) => void
+}
+
+export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   headerComponent,
   opportunityId,
-  confirmedQuote,
-  setConfirmedQuote,
   accountId,
   poolAssetId,
+  confirmedQuote,
+  setConfirmedQuote,
 }) => {
   const mixpanel = getMixPanel()
-  const history = useHistory()
-  const location = useLocation()
-  const renderRemoveLiquidityInput = useCallback(
-    () => (
-      <RemoveLiquidityInput
-        headerComponent={headerComponent}
-        opportunityId={opportunityId}
-        confirmedQuote={confirmedQuote}
-        setConfirmedQuote={setConfirmedQuote}
-        accountId={accountId}
-        poolAssetId={poolAssetId}
-      />
-    ),
-    [confirmedQuote, headerComponent, opportunityId, accountId, setConfirmedQuote, poolAssetId],
-  )
-  const renderRemoveLiquidityConfirm = useCallback(
-    () => (confirmedQuote ? <RemoveLiquidityConfirm confirmedQuote={confirmedQuote} /> : <></>),
-    [confirmedQuote],
-  )
-  const renderRemoveLiquidityStatus = useCallback(
-    () => (confirmedQuote ? <RemoveLiquidityStatus confirmedQuote={confirmedQuote} /> : <></>),
-    [confirmedQuote],
-  )
+  const [, setLocation] = useLocation()
 
-  const renderRemoveLiquiditySweep = useCallback(() => {
-    if (!mixpanel) return null
-    if (!confirmedQuote) return null
+  const handleSweepSeen = useCallback(() => {
+    if (!confirmedQuote || !mixpanel) return
 
-    const handleSweepSeen = () => {
-      if (confirmedQuote.positionStatus?.incomplete) {
-        mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
-      } else {
-        mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
-      }
-
-      history.push(RemoveLiquidityRoutePaths.Confirm)
+    if (confirmedQuote.positionStatus?.incomplete) {
+      setLocation(RemoveLiquidityRoutePaths.Status)
+      mixpanel.track(
+        MixPanelEvent.LpIncompleteWithdrawPreview,
+        confirmedQuote as Record<string, unknown>,
+      )
+    } else {
+      setLocation(RemoveLiquidityRoutePaths.Confirm)
+      mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote as Record<string, unknown>)
     }
+  }, [confirmedQuote, mixpanel, setLocation])
 
-    return (
-      <RemoveLiquiditySweep
-        confirmedQuote={confirmedQuote}
-        // eslint-disable-next-line react-memo/require-usememo
-        onSweepSeen={handleSweepSeen}
-        // eslint-disable-next-line react-memo/require-usememo
-        onBack={() => {
-          history.push(RemoveLiquidityRoutePaths.Input)
-        }}
-      />
-    )
-  }, [confirmedQuote, history, mixpanel])
+  const handleBack = useCallback(() => {
+    setLocation(RemoveLiquidityRoutePaths.Input)
+  }, [setLocation])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
-        <Suspense fallback={suspenseFallback}>
-          <Route
-            key={RemoveLiquidityRoutePaths.Input}
-            path={RemoveLiquidityRoutePaths.Input}
-            render={renderRemoveLiquidityInput}
-          />
-          <Route
-            key={RemoveLiquidityRoutePaths.Confirm}
-            path={RemoveLiquidityRoutePaths.Confirm}
-            render={renderRemoveLiquidityConfirm}
-          />
-          <Route
-            key={RemoveLiquidityRoutePaths.Status}
-            path={RemoveLiquidityRoutePaths.Status}
-            render={renderRemoveLiquidityStatus}
-          />
-          <Route
-            key={RemoveLiquidityRoutePaths.Sweep}
-            path={RemoveLiquidityRoutePaths.Sweep}
-            render={renderRemoveLiquiditySweep}
-          />
-        </Suspense>
-      </Switch>
+      <Suspense fallback={suspenseFallback}>
+        <Switch>
+          <Route path={RemoveLiquidityRoutePaths.Input}>
+            <RemoveLiquidityInput
+              headerComponent={headerComponent}
+              opportunityId={opportunityId}
+              accountId={accountId}
+              poolAssetId={poolAssetId}
+              confirmedQuote={confirmedQuote}
+              setConfirmedQuote={setConfirmedQuote}
+            />
+          </Route>
+          <Route path={RemoveLiquidityRoutePaths.Confirm}>
+            {confirmedQuote && <RemoveLiquidityConfirm confirmedQuote={confirmedQuote} />}
+          </Route>
+          <Route path={RemoveLiquidityRoutePaths.Status}>
+            {confirmedQuote && <RemoveLiquidityStatus confirmedQuote={confirmedQuote} />}
+          </Route>
+          <Route path={RemoveLiquidityRoutePaths.Sweep}>
+            {confirmedQuote && (
+              <RemoveLiquiditySweep
+                confirmedQuote={confirmedQuote}
+                onSweepSeen={handleSweepSeen}
+                onBack={handleBack}
+              />
+            )}
+          </Route>
+          <Route>
+            <RemoveLiquidityInput
+              headerComponent={headerComponent}
+              opportunityId={opportunityId}
+              accountId={accountId}
+              poolAssetId={poolAssetId}
+              confirmedQuote={confirmedQuote}
+              setConfirmedQuote={setConfirmedQuote}
+            />
+          </Route>
+        </Switch>
+      </Suspense>
     </AnimatePresence>
   )
 }

@@ -115,7 +115,7 @@ describe('coincap market service', () => {
       mocks.get.mockResolvedValue({ data: [btc] })
       await coinMarketService.findAll({ count: 10 })
       expect(mocks.get).toHaveBeenCalledTimes(1)
-      const url = 'https://api.coincap.io/v2/assets?limit=10&offset=1'
+      const url = 'https://rest.coincap.io/v3/assets?limit=10&offset=1'
       expect(mocks.get).toBeCalledWith(url)
     })
 

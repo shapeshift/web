@@ -121,6 +121,36 @@ export const thorchain: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const tcy: Readonly<Asset> = Object.freeze({
+  assetId: caip.tcyAssetId,
+  chainId: caip.thorchainChainId,
+  name: 'TCY',
+  networkName: 'THORChain',
+  symbol: 'TCY',
+  precision: 8,
+  color: '#33FF99',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/scripts/generateAssetData/thorchain/icons/tcy-icon.png',
+  explorer: 'https://viewblock.io/thorchain',
+  explorerAddressLink: 'https://viewblock.io/thorchain/address/',
+  explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  relatedAssetKey: null,
+})
+
+export const mayachain: Readonly<Asset> = Object.freeze({
+  assetId: caip.mayachainAssetId,
+  chainId: caip.mayachainChainId,
+  name: 'MAYAChain',
+  networkName: 'MAYAChain',
+  symbol: 'CACAO',
+  precision: 10,
+  color: '#63FDD9',
+  icon: 'https://gitlab.com/mayachain/frontend/mayachain-explorer-v2/-/raw/main/assets/images/cacao.png',
+  explorer: 'https://mayascan.org',
+  explorerAddressLink: 'https://mayascan.org/address/',
+  explorerTxLink: 'https://mayascan.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const optimism: Readonly<Asset> = Object.freeze({
   assetId: caip.optimismAssetId,
   chainId: caip.optimismChainId,

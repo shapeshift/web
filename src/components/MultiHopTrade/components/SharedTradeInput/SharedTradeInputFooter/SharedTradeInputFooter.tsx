@@ -2,6 +2,7 @@ import { CardFooter } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { ReceiveSummary } from './components/ReceiveSummary'
@@ -15,7 +16,7 @@ import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputFooterProps = {
-  affiliateBps: string | undefined
+  affiliateBps: string
   affiliateFeeAfterDiscountUserCurrency: string | undefined
   buyAsset: Asset
   children?: JSX.Element
@@ -39,11 +40,9 @@ type SharedTradeInputFooterProps = {
 
 export const SharedTradeInputFooter = ({
   affiliateBps,
-  affiliateFeeAfterDiscountUserCurrency,
   buyAsset,
   children,
   hasUserEnteredAmount,
-  inputAmountUsd,
   isError,
   isLoading: isParentLoading,
   quoteStatusTranslation,
@@ -125,16 +124,7 @@ export const SharedTradeInputFooter = ({
             invertRate={invertRate}
             noExpand={noExpand}
           >
-            <ReceiveSummary
-              isLoading={isLoading}
-              swapperName={swapperName}
-              swapSource={swapSource}
-              inputAmountUsd={inputAmountUsd}
-              affiliateBps={affiliateBps}
-              affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
-            >
-              {receiveSummaryDetails}
-            </ReceiveSummary>
+            <ReceiveSummary isLoading={isLoading}>{receiveSummaryDetails}</ReceiveSummary>
           </RateGasRow>
         )}
       </CardFooter>

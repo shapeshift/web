@@ -1,11 +1,12 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Flex, IconButton, useDisclosure } from '@chakra-ui/react'
-import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import { memo, useCallback } from 'react'
-import { FiLogOut } from 'react-icons/fi'
+import { FiSettings } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
@@ -13,7 +14,6 @@ import { WalletBalance } from './WalletBalance'
 
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
@@ -24,7 +24,7 @@ const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const moreIcon = isMobile ? <FiLogOut /> : <IoEllipsisHorizontal />
+const moreIcon = isMobile ? <FiSettings /> : <IoEllipsisHorizontal />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -44,7 +44,7 @@ export const DashboardHeaderTop = memo(() => {
     state: { isConnected },
   } = useWallet()
 
-  const { history } = useBrowserRouter()
+  const navigate = useNavigate()
   const send = useModal('send')
   const receive = useModal('receive')
   const qrCode = useModal('qrCode')
@@ -63,8 +63,8 @@ export const DashboardHeaderTop = memo(() => {
   }, [receive])
 
   const handleTradeClick = useCallback(() => {
-    history.push('/trade')
-  }, [history])
+    navigate('/trade')
+  }, [navigate])
 
   return (
     <Container

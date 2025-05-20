@@ -7,6 +7,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -59,8 +60,9 @@ export const ThorchainSaversDeposit: React.FC<ThorchainSaversDepositProps> = ({
   } = useWallet()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const navigate = useNavigate()
 
   const assetId = toAssetId({
     chainId,
@@ -115,14 +117,14 @@ export const ThorchainSaversDeposit: React.FC<ThorchainSaversDepositProps> = ({
   )
 
   const handleBack = useCallback(() => {
-    history.push({
+    navigate({
       pathname: location.pathname,
       search: qs.stringify({
         ...query,
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location, query])
+  }, [navigate, location, query])
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const accountMetadata = useAppSelector(state =>
@@ -222,7 +224,7 @@ export const ThorchainSaversDeposit: React.FC<ThorchainSaversDepositProps> = ({
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !asset || !marketData?.price) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

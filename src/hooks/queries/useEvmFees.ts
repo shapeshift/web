@@ -69,7 +69,10 @@ export const useEvmFees = ({
       isGetFeesWithWalletEIP1559SupportArgs(getFeesWithWalletEIP1559SupportInput) && enabled
         ? () => getFeesWithWalletEIP1559Support(getFeesWithWalletEIP1559SupportInput)
         : skipToken,
-    select: feeAsset ? fees => selectEvmFees(fees, feeAsset, feeAssetMarketData) : undefined,
+    select:
+      feeAsset && feeAssetMarketData
+        ? fees => selectEvmFees(fees, feeAsset, feeAssetMarketData)
+        : undefined,
     staleTime,
     refetchInterval,
     refetchIntervalInBackground,

@@ -3,9 +3,8 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useContext, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
@@ -55,7 +54,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
-  const history = useHistory()
+  const navigate = useNavigate()
   const { showErrorToast } = useErrorToast()
   const {
     state: { wallet },
@@ -74,7 +73,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     assetReference,
   })
   const assets = useAppSelector(selectAssets)
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -99,7 +98,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
   const isTokenDeposit = isToken(assetId)
 
   const feeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId),
   )
 
   const { data: thorchainSaversDepositQuote } = useGetThorchainSaversDepositQuoteQuery({
@@ -259,7 +258,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  const handleCancel = useCallback(() => history.push('/'), [history])
+  const handleCancel = useCallback(() => {
+    navigate('/')
+  }, [navigate])
 
   if (!isTokenDeposit || !inboundAddress || !state || !dispatch) return null
 
@@ -271,7 +272,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
-        .times(feeMarketData.price)
+        .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}
       isReset={isReset}
       loading={state.loading}

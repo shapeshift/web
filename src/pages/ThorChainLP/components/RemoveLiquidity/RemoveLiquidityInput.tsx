@@ -21,16 +21,17 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import type { JSX } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useLocation } from 'wouter'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -41,7 +42,6 @@ import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippageP
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -53,6 +53,7 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable } from '@/lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateRemoveThorchainLiquidityPosition } from '@/lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from '@/lib/utils/thorchain/lp/types'
@@ -111,9 +112,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   poolAssetId,
 }) => {
   const mixpanel = getMixPanel()
-  const history = useHistory()
+  const [, setLocation] = useLocation()
   const translate = useTranslate()
-  const { history: browserHistory } = useBrowserRouter()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
 
@@ -182,9 +182,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: poolAsset?.assetId,
+    assetId,
     swapperName: SwapperName.Thorchain,
   })
+
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(
+    fromAssetId(assetId).chainId,
+  )
 
   const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
 
@@ -323,8 +327,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [opportunityId, userLpData])
 
   const handleBackClick = useCallback(() => {
-    browserHistory.push('/pools')
-  }, [browserHistory])
+    setLocation('/pools')
+  }, [setLocation])
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {
@@ -443,8 +447,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   ])
 
   const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
-    return poolAssetFeeAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
-  }, [poolAssetFeeAssetMarketData.price, poolAssetFeeAssetProtocolFeeCryptoPrecision])
+    return poolAssetFeeAssetProtocolFeeCryptoPrecision.times(
+      bnOrZero(poolAssetFeeAssetMarketData?.price),
+    )
+  }, [poolAssetFeeAssetMarketData?.price, poolAssetFeeAssetProtocolFeeCryptoPrecision])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
@@ -464,19 +470,19 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const poolAssetFeeAssetDustAmountFiatUserCurrency = useMemo(() => {
     return bnOrZero(poolAssetFeeAssetDustAmountCryptoPrecision).times(
-      poolAssetFeeAssetMarketData.price,
+      bnOrZero(poolAssetFeeAssetMarketData?.price),
     )
-  }, [poolAssetFeeAssetMarketData.price, poolAssetFeeAssetDustAmountCryptoPrecision])
+  }, [poolAssetFeeAssetMarketData?.price, poolAssetFeeAssetDustAmountCryptoPrecision])
 
   // We also include the dust amount in the gas fee as it's deducted in the input validation
   // This will result in displaying gas fees and dust amounts as a single value in the UI
   const poolAssetGasFeeFiatUserCurrency = useMemo(
     () =>
       bnOrZero(poolAssetTxFeeCryptoPrecision)
-        .times(poolAssetFeeAssetMarketData.price)
+        .times(bnOrZero(poolAssetFeeAssetMarketData?.price))
         .plus(poolAssetFeeAssetDustAmountFiatUserCurrency),
     [
-      poolAssetFeeAssetMarketData.price,
+      poolAssetFeeAssetMarketData?.price,
       poolAssetTxFeeCryptoPrecision,
       poolAssetFeeAssetDustAmountFiatUserCurrency,
     ],
@@ -488,8 +494,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [actualRuneWithdrawAmountCryptoPrecision, runeOutboundFeeCryptoBaseUnit])
 
   const runeProtocolFeeFiatUserCurrency = useMemo(() => {
-    return runeProtocolFeeCryptoPrecision.times(runeMarketData.price)
-  }, [runeMarketData, runeProtocolFeeCryptoPrecision])
+    return runeProtocolFeeCryptoPrecision.times(bnOrZero(runeMarketData?.price))
+  }, [runeMarketData?.price, runeProtocolFeeCryptoPrecision])
 
   const runeTxFeeCryptoPrecision = useMemo(
     () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
@@ -497,8 +503,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const runeGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
-    [runeMarketData.price, runeTxFeeCryptoPrecision],
+    () => bnOrZero(runeTxFeeCryptoPrecision).times(bnOrZero(runeMarketData?.price)),
+    [runeMarketData?.price, runeTxFeeCryptoPrecision],
   )
 
   const totalProtocolFeeFiatUserCurrency = useMemo(() => {
@@ -567,14 +573,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
           return bnOrZero(value)
-            .div(bn(marketData.price ?? '0'))
+            .div(bn(marketData?.price))
             .toFixed()
         })()
 
         const amountFiatUserCurrency = (() => {
           if (isFiat) return value
           return bnOrZero(value)
-            .times(bn(marketData.price ?? '0'))
+            .times(bn(marketData?.price))
             .toFixed()
         })()
 
@@ -628,7 +634,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       })
 
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price ?? '0'))
         .toFixed()
 
       setSlippageFiatUserCurrency(withdrawType !== 'sym' ? _slippageFiatUserCurrency : '0')
@@ -642,7 +648,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     percentageSelection,
     poolAsset,
     position,
-    runeMarketData.price,
+    runeMarketData?.price,
   ])
 
   useEffect(() => {
@@ -729,16 +735,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (!mixpanel) return
     if (!confirmedQuote) return
-    if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
+    if (isSweepNeeded) return setLocation(RemoveLiquidityRoutePaths.Sweep)
 
-    if (incompleteSide) {
+    if (confirmedQuote.positionStatus?.incomplete) {
       mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
     } else {
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
-    history.push(RemoveLiquidityRoutePaths.Confirm)
-  }, [confirmedQuote, history, incompleteSide, isSweepNeeded, mixpanel])
+    setLocation(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, setLocation, mixpanel, isSweepNeeded])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && withdrawType)) return null
@@ -762,7 +768,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           const isRune = asset.assetId === runeAsset.assetId
           const marketData = isRune ? runeMarketData : poolAssetMarketData
           const handleRemoveLiquidityInputChange = createHandleRemoveLiquidityInputChange(
-            marketData,
+            marketData ?? {
+              price: '0',
+              marketCap: '0',
+              volume: '0',
+              changePercent24Hr: 0,
+            },
             isRune,
           )
           const cryptoAmount = bnOrZero(
@@ -925,7 +936,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       minimumPoolAssetWithdrawAmountFiatUserCurrency.gt(minimumRuneWithdrawAmountFiatUserCurrency)
     ) {
       const minLimitCryptoPrecision = minimumPoolAssetWithdrawAmountFiatUserCurrency
-        .div(poolAssetMarketData.price)
+        .div(bnOrZero(poolAssetMarketData?.price ?? '0'))
         .toFixed(THOR_PRECISION)
       const minLimit = `${minLimitCryptoPrecision} ${poolAsset.symbol}`
       return translate('trade.errors.amountTooSmall', { minLimit })
@@ -938,7 +949,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       minimumRuneWithdrawAmountFiatUserCurrency.gt(minimumPoolAssetWithdrawAmountFiatUserCurrency)
     ) {
       const minLimitCryptoPrecision = minimumRuneWithdrawAmountFiatUserCurrency
-        .div(runeMarketData.price)
+        .div(bnOrZero(runeMarketData?.price ?? '0'))
         .toFixed(THOR_PRECISION)
       const minLimit = `${minLimitCryptoPrecision} ${runeAsset.symbol}`
       return translate('trade.errors.amountTooSmall', { minLimit })
@@ -947,10 +958,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     actualAssetWithdrawAmountFiatUserCurrency,
     actualRuneWithdrawAmountFiatUserCurrency,
     poolAsset,
-    poolAssetMarketData.price,
+    poolAssetMarketData?.price,
     poolAssetProtocolFeeFiatUserCurrency,
     runeAsset,
-    runeMarketData.price,
+    runeMarketData?.price,
     runeProtocolFeeFiatUserCurrency,
     slippageFiatUserCurrency,
     translate,
@@ -958,6 +969,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     if (isUnsupportedWithdraw) return translate('common.unsupportedNetwork')
+    if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
     if (position?.remainingLockupTime)
@@ -979,6 +991,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     hasEnoughRuneBalanceForTx,
     isThorchainLpWithdrawEnabled,
     isTradingActive,
+    isChainHalted,
     isUnsupportedWithdraw,
     minimumWithdrawError,
     poolAssetFeeAsset,
@@ -1131,6 +1144,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           }
           isLoading={
             isTradingActiveLoading ||
+            isChainHaltedFetching ||
             (isEstimatedPoolAssetFeesDataLoading && opportunityType === AsymSide.Asset) ||
             (isEstimatedRuneFeesDataLoading && opportunityType !== AsymSide.Asset) ||
             isSweepNeededLoading

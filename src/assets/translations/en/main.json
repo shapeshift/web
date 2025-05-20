@@ -2852,7 +2852,8 @@
       "goBack": "Go Back"
     },
     "cta": {
-      "title": "You have TCY claims available!",
+      "title": "THORChain TCY Claims are here!",
+      "hasClaimsTitle": "You have TCY claims available!",
       "button": "Check Claims"
     }
   },

@@ -91,9 +91,13 @@ export const useNotificationSubscriber = () => {
 
             if (relatedTx.status === TxStatus.Pending) return null
 
-            const asset = selectAssetById(store.getState(), relatedTx.transfers[0].assetId)
+            const sellAsset = selectAssetById(store.getState(), relatedTx.transfers[0].assetId)
+            const buyAsset = selectAssetById(
+              store.getState(),
+              relatedTx.transfers[relatedTx.transfers.length - 1].assetId,
+            )
 
-            if (!asset) return null
+            if (!sellAsset || !buyAsset) return null
 
             const newNotification = {
               type: NotificationType.Swap,
@@ -108,8 +112,8 @@ export const useNotificationSubscriber = () => {
                   : 'notificationCenter.notificationsTitles.swap.confirmed',
                 {
                   sellAmountAndSymbol: toCrypto(
-                    fromBaseUnit(relatedTx.transfers[0].value, asset.precision),
-                    asset.symbol,
+                    fromBaseUnit(relatedTx.transfers[0].value, sellAsset.precision),
+                    sellAsset.symbol,
                     {
                       maximumFractionDigits: 8,
                       omitDecimalTrailingZeros: true,
@@ -118,8 +122,11 @@ export const useNotificationSubscriber = () => {
                     },
                   ),
                   buyAmountAndSymbol: toCrypto(
-                    fromBaseUnit(relatedTx.transfers[0].value, asset.precision),
-                    asset.symbol,
+                    fromBaseUnit(
+                      relatedTx.transfers[relatedTx.transfers.length - 1].value,
+                      buyAsset.precision,
+                    ),
+                    buyAsset.symbol,
                     {
                       maximumFractionDigits: 8,
                       omitDecimalTrailingZeros: true,

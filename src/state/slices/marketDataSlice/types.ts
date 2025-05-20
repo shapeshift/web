@@ -14,7 +14,7 @@ export type PriceHistoryByTimeframe<T extends SupportedFiatCurrencies | AssetId>
 
 export type MarketDataById<T extends SupportedFiatCurrencies | AssetId> = PartialRecord<
   T,
-  MarketData
+  MarketData | undefined
 >
 
 export type MarketDataStateVariant<T extends SupportedFiatCurrencies | AssetId> = {

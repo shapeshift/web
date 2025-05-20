@@ -196,7 +196,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       )}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoPrecision)
-        .times(feeMarketData.price)
+        .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}
       loading={state.loading}
       preFooter={preFooter}

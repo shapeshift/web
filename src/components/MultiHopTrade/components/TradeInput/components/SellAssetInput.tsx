@@ -52,9 +52,8 @@ export const SellAssetInput = memo(
 
     const dispatch = useAppDispatch()
 
-    const { price: sellAssetUserCurrencyRate } = useAppSelector(state =>
-      selectMarketDataByFilter(state, { assetId: asset.assetId }),
-    )
+    const { price: sellAssetUserCurrencyRate } =
+      useAppSelector(state => selectMarketDataByFilter(state, { assetId: asset.assetId })) || {}
 
     // sync local state with redux on mount only
     useEffect(() => {
@@ -77,11 +76,11 @@ export const SellAssetInput = memo(
         const sellAmountCryptoPrecision = isFiat
           ? isRateZero
             ? '0'
-            : bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
+            : bnOrZero(value).div(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
           : value
 
         const sellAmountUserCurrency = !isFiat
-          ? bnOrZero(value).times(sellAssetUserCurrencyRate).toFixed()
+          ? bnOrZero(value).times(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
           : value
 
         setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)

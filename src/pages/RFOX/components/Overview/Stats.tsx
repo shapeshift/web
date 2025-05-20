@@ -1,6 +1,6 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 
 import { EmissionsPool } from './EmissionsPool'
@@ -36,7 +36,7 @@ export const Stats: React.FC = () => {
     if (!affiliateRevenueQuery.data) return
 
     return bn(fromBaseUnit(affiliateRevenueQuery.data, runeAsset?.precision ?? 0))
-      .times(runeAssetMarketData.price)
+      .times(bnOrZero(runeAssetMarketData?.price))
       .toFixed(2)
   }, [affiliateRevenueQuery, runeAsset, runeAssetMarketData])
 

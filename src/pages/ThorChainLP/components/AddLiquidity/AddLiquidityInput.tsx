@@ -827,13 +827,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   const poolAssetGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),
-    [poolAssetFeeAssetMarktData.price, poolAssetTxFeeCryptoPrecision],
+    () =>
+      bnOrZero(poolAssetTxFeeCryptoPrecision).times(bnOrZero(poolAssetFeeAssetMarktData?.price)),
+    [poolAssetFeeAssetMarktData?.price, poolAssetTxFeeCryptoPrecision],
   )
 
   const runeGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
-    [runeMarketData.price, runeTxFeeCryptoPrecision],
+    () => bnOrZero(runeTxFeeCryptoPrecision).times(bnOrZero(runeMarketData?.price)),
+    [runeMarketData?.price, runeTxFeeCryptoPrecision],
   )
 
   const totalGasFeeFiatUserCurrency = useMemo(() => {
@@ -895,14 +896,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
           return bnOrZero(value)
-            .div(bn(marketData.price ?? '0'))
+            .div(bn(marketData?.price))
             .toFixed()
         })()
 
         const amountFiatUserCurrency = (() => {
           if (isFiat) return value
           return bnOrZero(value)
-            .times(bn(marketData.price ?? '0'))
+            .times(bn(marketData?.price))
             .toFixed()
         })()
 
@@ -959,7 +960,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       setSlippageDecimalPercentage(estimate.slippageDecimalPercent)
 
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price))
         .toFixed()
 
       setSlippageFiatUserCurrency(_slippageFiatUserCurrency)
@@ -1079,7 +1080,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           const isRune = asset.assetId === runeAsset.assetId
           const marketData = isRune ? runeMarketData : poolAssetMarketData
           const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(
-            marketData,
+            marketData ?? {
+              price: '0',
+              marketCap: '0',
+              volume: '0',
+              changePercent24Hr: 0,
+            },
             isRune,
           )
 

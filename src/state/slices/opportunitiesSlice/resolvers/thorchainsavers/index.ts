@@ -154,11 +154,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     const apy = bnOrZero(
       midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
     ).toString()
-    const tvl = fromThorBaseUnit(thorchainPool.synth_supply).times(marketData.price).toFixed()
+    const tvl = fromThorBaseUnit(thorchainPool.synth_supply)
+      .times(bnOrZero(marketData?.price))
+      .toFixed()
     const saversMaxSupplyUserCurrency = fromThorBaseUnit(
       bnOrZero(thorchainPool.synth_supply).plus(thorchainPool.synth_supply_remaining),
     )
-      .times(marketData.price)
+      .times(bnOrZero(marketData?.price))
       .toFixed()
 
     const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
@@ -279,7 +281,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       id: thorchainAssetId as StakingId,
       provider: DefiProvider.ThorchainSavers,
       tvl: fromThorBaseUnit(runepoolInformation.providers.value)
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price))
         .toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,

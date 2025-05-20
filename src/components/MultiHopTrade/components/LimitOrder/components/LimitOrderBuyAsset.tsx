@@ -77,7 +77,9 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
 
         if (bnOrZero(sellAmountCryptoPrecision).gt(0)) {
           const cryptoValue = isInputtingFiatSellAmount
-            ? bnOrZero(value).div(marketData.price).toString()
+            ? bnOrZero(value)
+                .div(bnOrZero(marketData?.price))
+                .toString()
             : value
 
           const newRate = bnOrZero(cryptoValue).div(sellAmountCryptoPrecision).toString()
@@ -93,7 +95,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         setLimitPrice,
         setLimitPriceMode,
         isInputtingFiatSellAmount,
-        marketData.price,
+        marketData?.price,
       ],
     )
 

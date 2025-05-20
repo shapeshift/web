@@ -145,7 +145,7 @@ export const useQuoteEstimatedFeesQuery = ({
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const txFeeFiat = bnOrZero(estimatedFees.fast.txFee)
               .div(bn(10).pow(feeAsset.precision))
-              .times(feeAssetMarketData.price)
+              .times(bnOrZero(feeAssetMarketData?.price))
               .toString()
             return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
           }

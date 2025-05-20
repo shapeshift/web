@@ -195,8 +195,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
       asset.precision,
     )
-    const price = marketData.price
-    return bnOrZero(cryptoAmount).times(price).toString()
+    const price = marketData?.price
+    return bnOrZero(cryptoAmount).times(bnOrZero(price)).toString()
   }, [
     asset,
     marketData,

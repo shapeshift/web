@@ -77,9 +77,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const fiatAmount = useMemo(
     () =>
       bnOrZero(state?.withdraw.cryptoAmount)
-        .times(underlyingAssetMarketData.price)
+        .times(bnOrZero(underlyingAssetMarketData?.price))
         .toString(),
-    [state?.withdraw.cryptoAmount, underlyingAssetMarketData.price],
+    [state?.withdraw.cryptoAmount, underlyingAssetMarketData?.price],
   )
 
   const navigate = useNavigate()

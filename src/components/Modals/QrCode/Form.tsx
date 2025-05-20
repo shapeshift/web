@@ -129,7 +129,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
             methods.setValue(
               SendFormFields.FiatAmount,
-              bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),
+              bnOrZero(maybeUrlResult.amountCryptoPrecision)
+                .times(bnOrZero(marketData?.price))
+                .toString(),
             )
           }
 

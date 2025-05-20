@@ -181,10 +181,10 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 export const calculateEarnings = (
   pool: MidgardEarningsHistoryPoolItem,
   userPoolShare: string,
-  runePrice: string,
+  runePrice: string | undefined,
 ) => {
   const totalEarningsRune = fromThorBaseUnit(pool.earnings).times(userPoolShare)
-  const totalEarningsFiat = totalEarningsRune.times(runePrice).toFixed()
+  const totalEarningsFiat = totalEarningsRune.times(bnOrZero(runePrice)).toFixed()
 
   const assetEarningsCryptoPrecision = fromThorBaseUnit(pool.assetLiquidityFees)
     .times(userPoolShare)

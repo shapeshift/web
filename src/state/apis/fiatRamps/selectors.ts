@@ -8,7 +8,6 @@ import { fiatRampApi } from './fiatRamps'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectAssetIdParamFromFilter } from '@/state/selectors'
-import { defaultMarketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 
 export const selectFiatBuyAssetIds = createDeepEqualOutputSelector(
@@ -39,7 +38,12 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
     return assetIds.reduce<AssetWithMarketData[]>((acc, assetId) => {
       const assetData = assetsById[assetId]
       if (!assetData) return acc
-      const marketDataForAsset = marketData[assetId] ?? defaultMarketData
+      const marketDataForAsset = marketData[assetId] ?? {
+        price: '0',
+        marketCap: '0',
+        volume: '0',
+        changePercent24Hr: 0,
+      }
       acc.push({ ...assetData, ...marketDataForAsset })
       return acc
     }, [])

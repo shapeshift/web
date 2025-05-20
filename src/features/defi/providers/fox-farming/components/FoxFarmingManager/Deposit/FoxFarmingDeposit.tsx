@@ -1,6 +1,5 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -31,7 +30,6 @@ import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectIsPortfolioLoading,
-  selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -47,10 +45,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const translate = useTranslate()
   const toast = useToast()
   const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { assetNamespace, chainId, contractAddress, assetReference } = query
-
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const { assetNamespace, chainId, contractAddress } = query
 
   const { farmingAccountId } = useFoxEth()
 
@@ -118,7 +113,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     }
   }, [translate, contractAddress, accountId, handleAccountIdChange])
 
-  if (loading || !marketData || !foxFarmingOpportunity || !StepConfig) {
+  if (loading || !foxFarmingOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

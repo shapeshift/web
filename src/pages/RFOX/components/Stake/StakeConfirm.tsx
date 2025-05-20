@@ -97,9 +97,9 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const stakeAmountUserCurrency = useMemo(
     () =>
       bnOrZero(stakingAmountCryptoPrecision)
-        .times(stakingAssetMarketDataUserCurrency.price)
+        .times(bnOrZero(stakingAssetMarketDataUserCurrency?.price))
         .toFixed(),
-    [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency.price],
+    [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency?.price],
   )
 
   const {

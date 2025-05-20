@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import createCachedSelector from 're-reselect'
 
-import { defaultMarketData, marketData } from './marketDataSlice'
+import { marketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
 import { getTrimmedOutOfBoundsMarketData } from './utils'
 
@@ -65,20 +65,12 @@ const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 export const selectMarketDataByAssetIdUserCurrency = createCachedSelector(
   selectMarketDataUserCurrency,
   selectAssetId,
-  (marketData, assetId): MarketData => {
-    return marketData[assetId] ?? defaultMarketData
+  (marketData, assetId): MarketData | undefined => {
+    return marketData[assetId]
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectMarketDataByFilter = createCachedSelector(
-  selectMarketDataUserCurrency,
-  selectAssetIdParamFromFilter,
-  (marketData, assetId): MarketData => {
-    return marketData[assetId ?? ''] ?? defaultMarketData
-  },
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
-
-export const selectMarketDataNullableByFilter = createCachedSelector(
   selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
   (marketData, assetId): MarketData | undefined => {

@@ -85,8 +85,8 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset.precision, balance],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(amountAvailableCryptoPrecision).times(marketData.price),
-    [amountAvailableCryptoPrecision, marketData.price],
+    () => bnOrZero(amountAvailableCryptoPrecision).times(bnOrZero(marketData?.price)),
+    [amountAvailableCryptoPrecision, marketData?.price],
   )
 
   const handleMaxClick = useCallback(
@@ -108,7 +108,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .minus(estimatedFees.average.txFee)
         .div(bn(10).pow(asset.precision))
         .toString()
-      const fiatAmount = bnOrZero(cryptoAmountHuman).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmountHuman).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -116,7 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
         shouldValidate: true,
       })
     },
-    [accountId, asset.precision, assetId, amountAvailableCryptoPrecision, marketData.price],
+    [accountId, asset.precision, assetId, amountAvailableCryptoPrecision, marketData?.price],
   )
 
   const handleContinue = useCallback(
@@ -174,13 +174,13 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const fiat = crypto.times(marketData.price)
+      const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance, marketData.price],
+    [asset.precision, balance, marketData?.price],
   )
 
   const cryptoInputValidation = useMemo(

@@ -224,7 +224,7 @@ export const ThorchainSaversDeposit: React.FC<ThorchainSaversDepositProps> = ({
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !asset || !marketData?.price) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

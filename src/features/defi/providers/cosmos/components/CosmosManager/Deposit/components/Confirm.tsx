@@ -86,8 +86,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [state?.deposit.cryptoAmount],
   )
   const fiatAmount = useMemo(
-    () => bnOrZero(cryptoAmount).times(assetMarketData.price).toString(),
-    [assetMarketData.price, cryptoAmount],
+    () =>
+      bnOrZero(cryptoAmount)
+        .times(bnOrZero(assetMarketData?.price))
+        .toString(),
+    [assetMarketData?.price, cryptoAmount],
   )
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -252,7 +255,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={estimatedGasCryptoPrecision.times(feeMarketData.price).toFixed()}
+                value={estimatedGasCryptoPrecision.times(bnOrZero(feeMarketData?.price)).toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'

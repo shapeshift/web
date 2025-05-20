@@ -150,7 +150,9 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           )
           methods.setValue(
             SendFormFields.FiatAmount,
-            bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),
+            bnOrZero(maybeUrlResult.amountCryptoPrecision)
+              .times(bnOrZero(marketData?.price))
+              .toString(),
           )
         }
 

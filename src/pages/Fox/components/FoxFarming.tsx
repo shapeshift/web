@@ -135,7 +135,7 @@ export const FoxFarming = () => {
   )
 
   const fetchOpportunityData = useCallback(async () => {
-    if (foxEthMarketData.price === '0') return
+    if (foxEthMarketData?.price === '0') return
 
     await appDispatch(
       opportunitiesApi.endpoints.getOpportunityIds.initiate(
@@ -177,7 +177,7 @@ export const FoxFarming = () => {
     }
 
     return true
-  }, [assetAccountId, appDispatch, foxEthMarketData.price, opportunityId])
+  }, [assetAccountId, appDispatch, foxEthMarketData?.price, opportunityId])
 
   useEffect(() => {
     queryClient.invalidateQueries({
@@ -188,7 +188,7 @@ export const FoxFarming = () => {
   const { isLoading: isOpportunityDataLoading, isFetching: isOpportunityDataFetching } = useQuery({
     queryKey: ['fetchOpportunityData', assetAccountId],
     queryFn: fetchOpportunityData,
-    enabled: Boolean(foxEthMarketData.price !== '0'),
+    enabled: Boolean(foxEthMarketData?.price !== '0'),
   })
 
   const isOpportunityLoading = useMemo(

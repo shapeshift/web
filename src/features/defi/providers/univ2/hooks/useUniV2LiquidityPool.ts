@@ -73,7 +73,7 @@ export const useUniV2LiquidityPool = ({
   const wallet = useWallet().state.wallet
   const asset0Price = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId0OrWeth),
-  ).price
+  )?.price
 
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
 
@@ -400,7 +400,7 @@ export const useUniV2LiquidityPool = ({
 
     // Total market cap of liquidity pool in usdc.
     // Multiplied by 2 to show equal amount of eth and fox.
-    const totalLiquidity = ethInReserve.times(asset0Price).times(2)
+    const totalLiquidity = ethInReserve.times(bnOrZero(asset0Price)).times(2)
     return totalLiquidity.toString()
   }, [asset0.precision, asset0Price, uniV2LPContract])
 

@@ -36,7 +36,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps> = ({ setStakeTxid }) => {
   const fiatAmount = useMemo(
     () =>
       bnOrZero(amountCryptoPrecision)
-        .times(tcyMarketData?.price ?? 0)
+        .times(bnOrZero(tcyMarketData?.price))
         .toFixed(2),
     [amountCryptoPrecision, tcyMarketData],
   )

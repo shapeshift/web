@@ -37,7 +37,7 @@ export const UnstakeConfirm: React.FC<UnstakeConfirmProps> = ({ setUnstakeTxid }
   const fiatAmount = useMemo(
     () =>
       bnOrZero(amountCryptoPrecision)
-        .times(tcyMarketData?.price ?? 0)
+        .times(bnOrZero(tcyMarketData?.price))
         .toFixed(2),
     [amountCryptoPrecision, tcyMarketData],
   )

@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
@@ -25,7 +25,7 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
     stakingAssetId,
     select: (totalStaked: bigint) => {
       return bn(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0))
-        .times(stakingAssetMarketData.price)
+        .times(bnOrZero(stakingAssetMarketData?.price))
         .toFixed(2)
     },
   })

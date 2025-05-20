@@ -85,8 +85,10 @@ export const LimitOrderConfig = ({
 
   const fiatValue = useMemo(
     () =>
-      bnOrZero(limitPriceForSelectedPriceDirection).times(priceAssetMarketData.price).toString(),
-    [limitPriceForSelectedPriceDirection, priceAssetMarketData.price],
+      bnOrZero(limitPriceForSelectedPriceDirection)
+        .times(bnOrZero(priceAssetMarketData?.price))
+        .toString(),
+    [limitPriceForSelectedPriceDirection, priceAssetMarketData?.price],
   )
 
   const limitPriceCryptoPrecision = useMemo(() => {
@@ -151,7 +153,9 @@ export const LimitOrderConfig = ({
 
       let cryptoValue = value
       if (isInputtingFiatSellAmount || isFiatValue) {
-        cryptoValue = bnOrZero(value).div(priceAssetMarketData.price).toFixed(priceAsset.precision)
+        cryptoValue = bnOrZero(value)
+          .div(bnOrZero(priceAssetMarketData?.price))
+          .toFixed(priceAsset.precision)
       }
 
       setLimitPriceMode(LimitPriceMode.CustomValue)
@@ -159,7 +163,7 @@ export const LimitOrderConfig = ({
     },
     [
       isInputtingFiatSellAmount,
-      priceAssetMarketData.price,
+      priceAssetMarketData?.price,
       priceAsset.precision,
       setLimitPrice,
       setLimitPriceMode,

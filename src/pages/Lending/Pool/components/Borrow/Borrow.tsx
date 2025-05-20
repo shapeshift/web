@@ -8,7 +8,7 @@ import { Route, Switch } from 'wouter'
 import { BorrowRoutePaths } from './types'
 
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -69,14 +69,14 @@ export const Borrow = ({
       const crypto = (() => {
         if (!isFiat) return value
         const valueCryptoPrecision = bnOrZero(value)
-          .div(bn(collateralAssetMarketData?.price ?? '0'))
+          .div(bnOrZero(collateralAssetMarketData?.price))
           .toFixed()
         return valueCryptoPrecision
       })()
       const fiat = (() => {
         if (isFiat) return value
         const valueFiatUserCurrency = bnOrZero(value)
-          .times(bn(collateralAssetMarketData?.price ?? '0'))
+          .times(bnOrZero(collateralAssetMarketData?.price))
           .toFixed()
         return valueFiatUserCurrency
       })()

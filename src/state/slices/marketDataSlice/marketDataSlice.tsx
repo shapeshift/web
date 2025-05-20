@@ -46,13 +46,6 @@ export const initialState: MarketDataState = {
   isMarketDataLoaded: false,
 }
 
-export const defaultMarketData: MarketData = {
-  price: '0',
-  marketCap: '0',
-  volume: '0',
-  changePercent24Hr: 0,
-}
-
 type CryptoPriceHistoryPayload = {
   timeframe: HistoryTimeframe
   historyDataByAssetId: Record<AssetId, HistoryData[]>

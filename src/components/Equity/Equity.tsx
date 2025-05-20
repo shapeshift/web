@@ -29,7 +29,7 @@ import {
   selectEquityTotalBalance,
   selectIsAnyOpportunitiesApiQueryPending,
   selectIsPortfolioLoading,
-  selectMarketDataNullableByFilter,
+  selectMarketDataByAssetIdUserCurrency,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -59,7 +59,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     }
   }, [accountId, assetId])
 
-  const marketData = useAppSelector(state => selectMarketDataNullableByFilter(state, filter))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const totalEquityBalance = useAppSelector(state => selectEquityTotalBalance(state, filter))
   const equityRows = useAppSelector(state => selectAssetEquityItemsByFilter(state, filter))
 

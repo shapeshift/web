@@ -47,7 +47,9 @@ const StakedBalance = ({ accountId }: { accountId: string | undefined }) => {
   const { data: staker } = useTcyStaker(accountId)
 
   const amountCryptoPrecision = fromBaseUnit(staker?.amount ?? '0', THOR_PRECISION)
-  const amountUserCurrency = bnOrZero(amountCryptoPrecision).times(tcyMarketData.price).toFixed(2)
+  const amountUserCurrency = bnOrZero(amountCryptoPrecision)
+    .times(bnOrZero(tcyMarketData?.price))
+    .toFixed(2)
 
   if (!tcyAsset) return null
 
@@ -72,7 +74,9 @@ const RewardsBalance = ({ accountId }: { accountId: string | undefined }) => {
   const { data: distributor } = useTcyDistributor(accountId)
 
   const amountCryptoPrecision = fromBaseUnit(distributor?.total ?? '0', THOR_PRECISION)
-  const amountUserCurrency = bnOrZero(amountCryptoPrecision).times(runeMarketData.price).toFixed(2)
+  const amountUserCurrency = bnOrZero(amountCryptoPrecision)
+    .times(bnOrZero(runeMarketData?.price))
+    .toFixed(2)
 
   if (!runeAsset) return null
 

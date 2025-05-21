@@ -106,7 +106,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         <ExternalLinkIcon mb='1px' />
       </Link>
     )
-  }, [tradeTxLink, translate])
+  }, [tradeTxLink])
 
   const filter = useMemo(() => {
     return {

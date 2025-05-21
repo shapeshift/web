@@ -200,7 +200,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
       const { sendMax, to, value, from, chainSpecific } = input
-      const { fee } = chainSpecific
+      const { coin = 'THOR.RUNE', fee } = chainSpecific
+
+      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY') throw new Error('unsupported coin type')
 
       if (!fee) throw new Error('fee is required')
 
@@ -210,7 +212,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const msg: ThorchainMsgSend = {
         type: ThorchainMessageType.MsgSend,
         value: {
-          amount: [{ amount, denom: this.denom }],
+          amount: [{ amount, denom: coin === 'THOR.TCY' ? 'tcy' : this.denom }],
           from_address: from,
           to_address: to,
         },

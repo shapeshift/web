@@ -181,6 +181,10 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
+  [notificationCenterSlice.reducerPath]: persistReducer(
+    notificationCenterPersistConfig,
+    notificationCenterSlice.reducer,
+  ),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

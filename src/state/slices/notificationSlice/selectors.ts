@@ -6,10 +6,10 @@ import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
 export const selectNotifications = notificationCenterSlice.selectors.selectNotifications
 
-export const selectNotificationsByCreatedAtDesc = createDeepEqualOutputSelector(
+export const selectInitializedNotificationsByUpdatedAtDesc = createDeepEqualOutputSelector(
   notificationCenterSlice.selectors.selectNotifications,
   notifications => {
-    return [...notifications].sort((a, b) => b.createdAt - a.createdAt)
+    return [...notifications].sort((a, b) => b.updatedAt - a.updatedAt)
   },
 )
 

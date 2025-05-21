@@ -17,7 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { NotificationCard } from './components/NotificationCard'
 
 import {
-  selectNotificationsByCreatedAtDesc,
+  selectInitializedNotificationsByUpdatedAtDesc,
   selectPendingNotificationsWithoutRelatedSuccessOrError,
 } from '@/state/slices/notificationSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -32,7 +32,7 @@ export const NotificationCenter = memo(() => {
   const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
   const handleClose = useCallback(() => setIsOpen(false), [])
 
-  const notifications = useAppSelector(selectNotificationsByCreatedAtDesc)
+  const notifications = useAppSelector(selectInitializedNotificationsByUpdatedAtDesc)
 
   const pendingNotificationsWithoutRelatedSuccessOrError = useAppSelector(
     selectPendingNotificationsWithoutRelatedSuccessOrError,

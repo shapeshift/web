@@ -3,7 +3,7 @@ import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import type { JSX } from 'react'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { DashboardTab } from '../DashboardTab'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
@@ -34,13 +34,42 @@ const navCss = {
   },
 }
 
+type SplatRouteParams = {
+  '*': string
+}
+
+type ParsedUrlParams = {
+  accountId?: string
+  assetId?: string
+}
+
 export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+  const routeSplatParams = useParams<SplatRouteParams>()
 
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
+
+  const parsedUrlParams = useMemo((): ParsedUrlParams => {
+    const pathSplat = routeSplatParams['*']
+    if (!pathSplat) return {}
+    const segments = pathSplat.split('/')
+    if (segments[0] !== 'accounts' || segments.length < 2) {
+      return {}
+    }
+    const accountId = segments[1] ? decodeURIComponent(segments[1]) : undefined
+    const chainId = segments[2] ? decodeURIComponent(segments[2]) : undefined
+    const assetSubId =
+      segments.length > 3 && segments[3] ? decodeURIComponent(segments[3]) : undefined
+    const nftId = segments.length > 4 && segments[4] ? decodeURIComponent(segments[4]) : undefined
+    let assetId = `${chainId}/${assetSubId}`
+    if (nftId) {
+      assetId = `${assetId}/${nftId}`
+    }
+    return { accountId, assetId }
+  }, [routeSplatParams])
 
   useEffect(() => {
     if (activeRef.current) {
@@ -145,7 +174,10 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         pt={paddingTop}
         mt={marginTop}
       >
-        <DashboardHeaderTop />
+        <DashboardHeaderTop
+          accountId={parsedUrlParams.accountId}
+          assetId={parsedUrlParams.assetId}
+        />
         {renderTabs}
       </Stack>
     </DashboardHeaderWrapper>

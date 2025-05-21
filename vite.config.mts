@@ -139,7 +139,6 @@ export default defineConfig(({ mode }) => {
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@arbitrum')) return '@arbitrum'
-              if (id.includes('@unstoppabledomains')) return '@unstoppabledomains'
               if (id.includes('@metamask')) return '@metamask'
               if (id.includes('@walletconnect')) return '@walletconnect'
               if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'

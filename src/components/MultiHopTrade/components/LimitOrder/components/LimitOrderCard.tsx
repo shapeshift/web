@@ -1,10 +1,13 @@
-import { CloseIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Center, Flex, IconButton, Progress, Tag, Td, Tr } from '@chakra-ui/react'
+import { CloseIcon, ExternalLinkIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { Center, Flex, IconButton, Link, Progress, Tag, Td, Text, Tr } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
+import { assertGetCowNetwork, COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
+import type { Trade } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { skipToken, useQuery } from '@tanstack/react-query'
+import axios from 'axios'
 import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -15,6 +18,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { ChainIcon } from '@/components/ChainMenu'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { RawText } from '@/components/Text'
+import { getConfig } from '@/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -74,6 +78,35 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const buyAsset = useSelectorWithArgs(selectAssetById, buyAssetId)
   const sellAsset = useSelectorWithArgs(selectAssetById, sellAssetId)
+  const explorerTxLink = buyAsset?.explorerTxLink
+
+  const { data: tradeTxLink } = useQuery({
+    queryKey: ['cowTrade', uid],
+    queryFn:
+      status === OrderStatus.FULFILLED && explorerTxLink
+        ? () => {
+            const chainId = fromAccountId(accountId).chainId
+            const network = assertGetCowNetwork(chainId)
+            return axios.get<Trade[]>(
+              `${getConfig().VITE_COWSWAP_BASE_URL}/${network}/api/v1/trades?orderUid=${uid}`,
+            )
+          }
+        : skipToken,
+    select: data => {
+      const txHash = data?.data?.[0]?.txHash
+      return `${explorerTxLink}/${txHash}`
+    },
+  })
+
+  const maybeExternalLink = useMemo(() => {
+    if (!tradeTxLink) return null
+
+    return (
+      <Link href={tradeTxLink} isExternal>
+        <ExternalLinkIcon mb='1px' />
+      </Link>
+    )
+  }, [tradeTxLink, translate])
 
   const filter = useMemo(() => {
     return {
@@ -309,7 +342,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
           ) : (
             <HoverTooltip label={expiryText} isDisabled={status !== OrderStatus.OPEN}>
               <Tag size='sm' colorScheme={tagColorScheme} variant='subtle'>
-                {translate(`limitOrder.status.${status}`)}
+                <Flex direction='row' alignItems='center' justifyContent='center' gap={1}>
+                  <Text>{translate(`limitOrder.status.${status}`)}</Text>
+                  {maybeExternalLink}
+                </Flex>
               </Tag>
             </HoverTooltip>
           )}

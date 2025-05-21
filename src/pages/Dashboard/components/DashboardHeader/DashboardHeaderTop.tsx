@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Flex, IconButton, useDisclosure } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { memo, useCallback } from 'react'
 import { FiSettings } from 'react-icons/fi'
@@ -19,6 +20,8 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
@@ -36,13 +39,19 @@ const buttonGroupDisplay = { base: 'none', md: 'flex' }
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
 
-export const DashboardHeaderTop = memo(() => {
+type DashboardHeaderTopProps = {
+  accountId?: AccountId
+  assetId?: string
+}
+
+export const DashboardHeaderTop = memo(({ accountId, assetId }: DashboardHeaderTopProps) => {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
     state: { isConnected },
   } = useWallet()
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const navigate = useNavigate()
   const send = useModal('send')
@@ -55,12 +64,12 @@ export const DashboardHeaderTop = memo(() => {
 
   const handleSendClick = useCallback(() => {
     mixpanel?.track(MixPanelEvent.SendClick)
-    send.open({})
-  }, [send, mixpanel])
+    send.open({ assetId: asset?.assetId, accountId })
+  }, [mixpanel, send, asset?.assetId, accountId])
 
   const handleReceiveClick = useCallback(() => {
-    receive.open({})
-  }, [receive])
+    receive.open({ asset, accountId })
+  }, [receive, asset, accountId])
 
   const handleTradeClick = useCallback(() => {
     navigate('/trade')

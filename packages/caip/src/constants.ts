@@ -49,7 +49,6 @@ export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'
 export const tcyAssetId: AssetId = 'cosmos:thorchain-1/slip44:tcy'
 export const mayachainAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:931'
-export const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
 
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'

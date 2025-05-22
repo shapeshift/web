@@ -142,15 +142,14 @@ export const maya: Readonly<Asset> = Object.freeze({
   name: 'MAYA',
   networkName: 'MAYAChain',
   symbol: 'MAYA',
-  precision: 8,
+  precision: 4,
   color: '#33FF99',
-  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_maya_asset/scripts/generateAssetData/thorchain/icons/tcy-icon.png',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_maya_asset/scripts/generateAssetData/thorchain/icons/maya.png',
   explorer: 'https://mayascan.org',
   explorerAddressLink: 'https://mayascan.org/address/',
   explorerTxLink: 'https://mayascan.org/tx/',
   relatedAssetKey: null,
 })
-
 
 export const mayachain: Readonly<Asset> = Object.freeze({
   assetId: caip.mayachainAssetId,

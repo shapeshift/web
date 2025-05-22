@@ -3,6 +3,7 @@ import {
   cosmosAssetId,
   fromAssetId,
   mayachainAssetId,
+  mayaTokenAssetId,
   tcyAssetId,
   thorchainAssetId,
   toAssetId,
@@ -15,6 +16,7 @@ const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
   ['rune', thorchainAssetId],
   ['tcy', tcyAssetId],
+  ['maya', mayaTokenAssetId],
   ['thor.tcy', tcyAssetId],
   ['cacao', mayachainAssetId],
 ])

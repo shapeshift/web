@@ -6,6 +6,8 @@ import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 import { mayaTokenAssetId, tcyAssetId } from './constants'
 
+const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
+
 export const accountIdToChainId = (accountId: AccountId): ChainId =>
   fromAccountId(accountId).chainId
 

@@ -1,7 +1,7 @@
 import type { PersistPartial } from 'redux-persist/es/persistReducer'
 
-import { initialState } from '@/state/slices/notificationSlice/notificationSlice'
-import type { NotificationCenterState } from '@/state/slices/notificationSlice/types'
+import { initialState } from '@/state/slices/actionSlice/actionSlice'
+import type { NotificationCenterState } from '@/state/slices/actionSlice/types'
 
 export const clearNotificationCenter = (
   _state: NotificationCenterState,

@@ -19,7 +19,7 @@ import { NotificationStatusTag } from './NotificationStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
-import type { NotificationUnion } from '@/state/slices/notificationSlice/types'
+import type { NotificationUnion } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 

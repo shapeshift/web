@@ -17,9 +17,9 @@ import { useTranslate } from 'react-polyglot'
 import { NotificationCard } from './components/NotificationCard'
 
 import {
-  selectInitializedNotificationsByUpdatedAtDesc,
-  selectPendingNotificationsWithoutRelatedSuccessOrError,
-} from '@/state/slices/notificationSlice/selectors'
+  selectInitializedActionsByUpdatedAtDesc,
+  selectPendingActions,
+} from '@/state/slices/actionSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -32,17 +32,13 @@ export const NotificationCenter = memo(() => {
   const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
   const handleClose = useCallback(() => setIsOpen(false), [])
 
-  const notifications = useAppSelector(selectInitializedNotificationsByUpdatedAtDesc)
+  const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
 
-  const pendingNotificationsWithoutRelatedSuccessOrError = useAppSelector(
-    selectPendingNotificationsWithoutRelatedSuccessOrError,
-  )
+  const pendingActions = useAppSelector(selectPendingActions)
 
   const notificationsCards = useMemo(() => {
-    return notifications.map(notification => (
-      <NotificationCard key={notification.id} {...notification} />
-    ))
-  }, [notifications])
+    return actions.map(action => <NotificationCard key={action.id} {...action} />)
+  }, [actions])
 
   return (
     <>
@@ -61,7 +57,7 @@ export const NotificationCenter = memo(() => {
           color='white'
           top='-0.2em'
           right='-0.2em'
-          opacity={pendingNotificationsWithoutRelatedSuccessOrError.length ? 1 : 0}
+          opacity={pendingActions.length ? 1 : 0}
           transitionProperty='common'
           transitionDuration='normal'
         />

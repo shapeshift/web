@@ -20,6 +20,8 @@ import {
   clearTxHistoryMigrations,
   localWalletMigrations,
 } from './migrations'
+import { actionCenterSlice } from './slices/actionSlice/actionSlice'
+import type { NotificationCenterState } from './slices/actionSlice/types'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -28,8 +30,6 @@ import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlic
 import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import type { MarketDataState } from './slices/marketDataSlice/types'
-import { notificationCenterSlice } from './slices/notificationSlice/notificationSlice'
-import type { NotificationCenterState } from './slices/notificationSlice/types'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import type { OpportunitiesState } from './slices/opportunitiesSlice/types'
@@ -147,7 +147,7 @@ export const sliceReducers = {
   ),
   notificationCenter: persistReducer<NotificationCenterState>(
     notificationCenterPersistConfig,
-    notificationCenterSlice.reducer,
+    actionCenterSlice.reducer,
   ),
 }
 
@@ -181,9 +181,9 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
-  [notificationCenterSlice.reducerPath]: persistReducer(
+  [actionCenterSlice.reducerPath]: persistReducer(
     notificationCenterPersistConfig,
-    notificationCenterSlice.reducer,
+    actionCenterSlice.reducer,
   ),
 }
 

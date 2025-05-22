@@ -1,7 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -10,14 +9,9 @@ import { handleSend } from '../../utils'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { notificationCenterSlice } from '@/state/slices/notificationSlice/notificationSlice'
-import type { NotificationPayload } from '@/state/slices/notificationSlice/types'
-import { NotificationStatus, NotificationType } from '@/state/slices/notificationSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { store, useAppDispatch } from '@/state/store'
+import { store } from '@/state/store'
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -25,10 +19,6 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const dispatch = useAppDispatch()
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
 
   const handleFormSend = useCallback(
     async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string | undefined> => {
@@ -38,28 +28,6 @@ export const useFormSend = () => {
         if (!wallet) throw new Error('No wallet connected')
 
         const broadcastTXID = await handleSend({ wallet, sendInput })
-
-        const notification: NotificationPayload = {
-          title: translate('notificationCenter.notificationsTitles.send.pending', {
-            amountAndSymbol: toCrypto(
-              fromBaseUnit(sendInput.amountCryptoPrecision, asset.precision),
-              asset.symbol,
-              {
-                maximumFractionDigits: 8,
-                omitDecimalTrailingZeros: true,
-                abbreviated: true,
-                truncateLargeNumbers: true,
-              },
-            ),
-          }),
-          type: NotificationType.Send,
-          status: NotificationStatus.Pending,
-          txIds: [serializeTxIndex(sendInput.accountId, broadcastTXID, sendInput.input)],
-          assetIds: [sendInput.assetId],
-          relatedNotificationIds: [],
-        }
-
-        dispatch(notificationCenterSlice.actions.upsertNotification(notification))
 
         setTimeout(() => {
           if (!toastOnBroadcast) return
@@ -118,7 +86,7 @@ export const useFormSend = () => {
         return ''
       }
     },
-    [toast, translate, wallet, dispatch, toCrypto],
+    [toast, translate, wallet],
   )
 
   return {

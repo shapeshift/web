@@ -5,7 +5,7 @@ import { useQueries } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useAccountsFetchQuery } from './hooks/useAccountsFetchQuery'
+import { useAccountsFetch } from './hooks/useAccountsFetch'
 
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
@@ -96,8 +96,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // and covers most assets users will have
   useFindAllMarketDataQuery()
 
-  // Master hook for accounts fetch as a react-query
-  useAccountsFetchQuery()
+  // Master hook for accounts fetch
+  useAccountsFetch()
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {

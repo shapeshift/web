@@ -213,6 +213,8 @@ export const useAccountsFetchQuery = () => {
       },
     ],
     queryFn: wallet && deviceId && !hasManagedAccounts ? queryFn : skipToken,
+    staleTime: Infinity,
+    gcTime: Infinity,
   })
 
   return query

@@ -35,11 +35,12 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
     selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
-    isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : {},
+    isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : undefined,
   )
 
   const accountRows = useMemo(() => {
     if (!isOpen) return null
+    if (!accountIdsByAccountNumber) return null
 
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
       <AccountNumberRow

@@ -136,6 +136,22 @@ export const tcy: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const maya: Readonly<Asset> = Object.freeze({
+  assetId: caip.mayaTokenAssetId,
+  chainId: caip.mayachainChainId,
+  name: 'MAYA',
+  networkName: 'MAYAChain',
+  symbol: 'MAYA',
+  precision: 8,
+  color: '#33FF99',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_maya_asset/scripts/generateAssetData/thorchain/icons/tcy-icon.png',
+  explorer: 'https://mayascan.org',
+  explorerAddressLink: 'https://mayascan.org/address/',
+  explorerTxLink: 'https://mayascan.org/tx/',
+  relatedAssetKey: null,
+})
+
+
 export const mayachain: Readonly<Asset> = Object.freeze({
   assetId: caip.mayachainAssetId,
   chainId: caip.mayachainChainId,

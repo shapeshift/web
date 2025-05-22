@@ -1,5 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import * as caip from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+
+const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
 export const ethereum: Readonly<Asset> = Object.freeze({
   assetId: caip.ethAssetId,
@@ -137,13 +140,13 @@ export const tcy: Readonly<Asset> = Object.freeze({
 })
 
 export const maya: Readonly<Asset> = Object.freeze({
-  assetId: caip.mayaTokenAssetId,
+  assetId: mayaTokenAssetId,
   chainId: caip.mayachainChainId,
   name: 'MAYA',
   networkName: 'MAYAChain',
   symbol: 'MAYA',
   precision: 4,
-  color: '#33FF99',
+  color: '#00FA0',
   icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_maya_asset/scripts/generateAssetData/thorchain/icons/maya.png',
   explorer: 'https://mayascan.org',
   explorerAddressLink: 'https://mayascan.org/address/',

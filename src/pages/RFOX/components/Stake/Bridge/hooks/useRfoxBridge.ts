@@ -52,7 +52,7 @@ type UseRfoxBridgeReturn = {
   sellAsset: Asset | undefined
   buyAsset: Asset | undefined
   feeAsset: Asset | undefined
-  feeAssetMarketData: MarketData
+  feeAssetMarketData: MarketData | undefined
   sellAssetAccountNumber: number | undefined
   tradeQuoteQuery: UseQueryResult<Result<TradeQuote, SwapErrorRight>, Error>
   allowanceContract: string | undefined
@@ -307,12 +307,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     sellAsset,
     buyAsset,
     feeAsset,
-    feeAssetMarketData: feeAssetMarketData ?? {
-      price: '0',
-      marketCap: '0',
-      volume: '0',
-      changePercent24Hr: 0,
-    },
+    feeAssetMarketData,
     sellAssetAccountNumber,
     tradeQuoteQuery,
     allowanceContract,

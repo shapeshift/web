@@ -99,10 +99,8 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   })
 
   const maybeExternalLink = useMemo(() => {
-    if (!tradeTxLink) return null
-
     return (
-      <Link href={tradeTxLink} isExternal>
+      <Link href={tradeTxLink ?? ''} isExternal>
         <ExternalLinkIcon mb='1px' />
       </Link>
     )
@@ -344,7 +342,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               <Tag size='sm' colorScheme={tagColorScheme} variant='subtle'>
                 <Flex direction='row' alignItems='center' justifyContent='center' gap={1}>
                   <Text>{translate(`limitOrder.status.${status}`)}</Text>
-                  {maybeExternalLink}
+                  {status === OrderStatus.FULFILLED && explorerTxLink && maybeExternalLink}
                 </Flex>
               </Tag>
             </HoverTooltip>

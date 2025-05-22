@@ -238,7 +238,7 @@ const HistoricalLimitOrders: FC<{
         return (
           order.class === OrderClass.LIMIT &&
           order.signingScheme === SigningScheme.EIP712 &&
-          [OrderStatus.FULFILLED].includes(order.status)
+          ![OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status)
         )
       })
       .map(({ accountId, order }) => {
@@ -248,8 +248,6 @@ const HistoricalLimitOrders: FC<{
         return { accountId, sellAssetId, buyAssetId, order }
       })
   }, [ordersResponse])
-
-  console.log({ historicalLimitOrders })
 
   const rowVirtualizer = useVirtualizer({
     count: historicalLimitOrders.length,

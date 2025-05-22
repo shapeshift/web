@@ -4,7 +4,7 @@ import type { AssetId } from './assetId/assetId'
 import { fromAssetId, toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
-import { mayaTokenAssetId, tcyAssetId } from './constants'
+import { tcyAssetId } from './constants'
 
 const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 

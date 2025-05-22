@@ -7,7 +7,7 @@ import { FIRST_CLASS_KEYMANAGER_TO_RDNS } from '../../constants'
 
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import type { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
@@ -64,11 +64,11 @@ export const FirstClassBody = ({
       }
 
       const deviceId = await wallet.getDeviceID()
-      const isLocked = await wallet.isLocked().catch((e: unknown) => {
-        // Keplr isLocked method is currently borked, swallow the error
-        console.error(e)
-        return false
-      })
+      // Keplr unlock checks are borked
+      // And Phantom initial window.phantom?.ethereum._metamask.isUnlocked() returns false despite being unlocked
+      const isLocked = [KeyManager.Keplr, KeyManager.Phantom].includes(keyManager)
+        ? false
+        : await wallet.isLocked()
 
       await wallet.initialize()
 

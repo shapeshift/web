@@ -889,12 +889,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
   const createHandleAddLiquidityInputChange = useCallback(
-    (marketData: MarketData, isRune: boolean) => {
+    (marketData: MarketData | undefined, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
-        if (!poolAsset || !marketData) return
+        if (!poolAsset) return
 
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
             .div(bn(marketData?.price))
             .toFixed()
@@ -902,6 +904,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
         const amountFiatUserCurrency = (() => {
           if (isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
             .times(bn(marketData?.price))
             .toFixed()
@@ -1080,12 +1084,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           const isRune = asset.assetId === runeAsset.assetId
           const marketData = isRune ? runeMarketData : poolAssetMarketData
           const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(
-            marketData ?? {
-              price: '0',
-              marketCap: '0',
-              volume: '0',
-              changePercent24Hr: 0,
-            },
+            marketData,
             isRune,
           )
 

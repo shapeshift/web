@@ -3,7 +3,6 @@ import {
   cosmosAssetId,
   fromAssetId,
   mayachainAssetId,
-  mayaTokenAssetId,
   tcyAssetId,
   thorchainAssetId,
   toAssetId,
@@ -11,6 +10,8 @@ import {
 
 import type { Message } from '../types'
 import type { TxMetadata } from './types'
+
+const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],

@@ -14,8 +14,6 @@ import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { actionCenterSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { store } from '@/state/store'
 
 export const getTradeStatusHandler = async ({
@@ -63,7 +61,6 @@ export const getTradeStatusHandler = async ({
   const deviceLocale = preferences.selectors.selectCurrencyFormat(store.getState())
   const selectedCurrency = preferences.selectors.selectSelectedCurrency(store.getState())
   const localeParts = getParts(deviceLocale, selectedCurrency)
-  const tradeExecution = selectConfirmedTradeExecution(store.getState())
 
   // @TODO: use real amounts as we got the txHash already
   if (status === TxStatus.Confirmed) {
@@ -105,13 +102,11 @@ export const getTradeStatusHandler = async ({
       }),
     )
 
-    // We are not inside the swapper, we need to send a toast to notify the user that the swap finished
-    if (tradeExecution?.state !== TradeExecutionState.TradeComplete) {
-      toast({
-        title: notificationTitle,
-        status: 'success',
-      })
-    }
+    // @TODO: do we want to show this even if the user is on the trade confirmation page?
+    toast({
+      title: notificationTitle,
+      status: 'success',
+    })
   }
 
   if (status === TxStatus.Failed) {
@@ -126,13 +121,10 @@ export const getTradeStatusHandler = async ({
       }),
     )
 
-    // We are not inside the swapper, we need to send a toast to notify the user that the swap failed
-    if (tradeExecution?.state !== TradeExecutionState.TradeComplete) {
-      toast({
-        title: translate('notificationCenter.notificationsTitles.swap.failed'),
-        status: 'error',
-      })
-    }
+    toast({
+      title: translate('notificationCenter.notificationsTitles.swap.failed'),
+      status: 'error',
+    })
   }
 
   return {

@@ -43,7 +43,6 @@ export const initialState: MarketDataState = {
       },
     },
   },
-  isMarketDataLoaded: false,
 }
 
 type CryptoPriceHistoryPayload = {
@@ -60,13 +59,9 @@ export const marketData = createSlice({
     selectMarketDataUsd: state => state.crypto.byId,
     selectCryptoPriceHistory: state => state.crypto.priceHistory,
     selectFiatPriceHistory: state => state.fiat.priceHistory,
-    selectIsMarketDataLoaded: state => state.isMarketDataLoaded,
   },
   reducers: {
     clear: () => initialState,
-    setMarketDataLoaded: state => {
-      state.isMarketDataLoaded = true
-    },
     setCryptoMarketData: {
       reducer: function setCryptoMarketData(
         state,

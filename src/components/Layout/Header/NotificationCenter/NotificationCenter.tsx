@@ -10,17 +10,17 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react'
-import { ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { ClaimDetails } from './components/Details/ClaimDetails'
-import { GenericTransactionDetails } from './components/Details/GenericTransactionDetails'
-import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
-import { SwapDetails } from './components/Details/SwapDetails'
 import { NotificationCard } from './components/NotificationCard'
-import { NotificationStatus, NotificationType } from './types'
+
+import {
+  selectInitializedActionsByUpdatedAtDesc,
+  selectPendingActions,
+} from '@/state/slices/actionSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -31,7 +31,15 @@ export const NotificationCenter = memo(() => {
   const translate = useTranslate()
   const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
   const handleClose = useCallback(() => setIsOpen(false), [])
-  const hasPendingTxs = true
+
+  const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
+
+  const pendingActions = useAppSelector(selectPendingActions)
+
+  const notificationsCards = useMemo(() => {
+    return actions.map(action => <NotificationCard key={action.id} {...action} />)
+  }, [actions])
+
   return (
     <>
       <Box position='relative'>
@@ -49,7 +57,7 @@ export const NotificationCenter = memo(() => {
           color='white'
           top='-0.2em'
           right='-0.2em'
-          opacity={hasPendingTxs ? 1 : 0}
+          opacity={pendingActions.length ? 1 : 0}
           transitionProperty='common'
           transitionDuration='normal'
         />
@@ -78,7 +86,8 @@ export const NotificationCenter = memo(() => {
               height='calc(100vh - 70px - env(safe-area-inset-top))'
               className='scroll-container'
             >
-              <NotificationCard
+              {notificationsCards}
+              {/* <NotificationCard
                 type={NotificationType.Limit}
                 assetId={usdcAssetId}
                 secondaryAssetId={ethAssetId}
@@ -126,7 +135,7 @@ export const NotificationCenter = memo(() => {
                 title='Your unstake of 0.00 FOX is ready to claim'
               >
                 <ClaimDetails />
-              </NotificationCard>
+              </NotificationCard> */}
             </Box>
           </Box>
         </DrawerContent>

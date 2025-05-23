@@ -13,12 +13,15 @@ import { swapperApi } from './apis/swapper/swapperApi'
 import {
   clearAssetsMigrations,
   clearMarketDataMigrations,
+  clearNotificationCenterMigrations,
   clearOpportunitiesMigrations,
   clearPortfolioMigrations,
   clearSnapshotMigrations,
   clearTxHistoryMigrations,
   localWalletMigrations,
 } from './migrations'
+import { actionCenterSlice } from './slices/actionSlice/actionSlice'
+import type { NotificationCenterState } from './slices/actionSlice/types'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -116,6 +119,13 @@ const limitOrderApiPersistConfig = {
   version: 0,
 }
 
+const notificationCenterPersistConfig = {
+  key: 'notificationCenter',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearNotificationCenterMigrations).map(Number)),
+  migrate: createMigrate(clearNotificationCenterMigrations, { debug: false }),
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -134,6 +144,10 @@ export const sliceReducers = {
   localWallet: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
+  ),
+  notificationCenter: persistReducer<NotificationCenterState>(
+    notificationCenterPersistConfig,
+    actionCenterSlice.reducer,
   ),
 }
 
@@ -167,6 +181,10 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
+  [actionCenterSlice.reducerPath]: persistReducer(
+    notificationCenterPersistConfig,
+    actionCenterSlice.reducer,
+  ),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

@@ -2974,6 +2974,18 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
+    },
+    "notificationsTitles": {
+      "send": {
+        "failed": "Send %{amountAndSymbol} Failed",
+        "pending": "Sending %{amountAndSymbol}...",
+        "confirmed": "Successfully sent %{amountAndSymbol}."
+      },
+      "swap": {
+        "pending": "Swap %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",
+        "failed": "Swap %{sellAmountAndSymbol} to %{buyAmountAndSymbol} Failed",
+        "confirmed": "Successfully swapped %{sellAmountAndSymbol} to %{buyAmountAndSymbol}."
+      }
     }
   }
 }

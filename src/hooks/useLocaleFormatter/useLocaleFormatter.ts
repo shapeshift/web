@@ -65,7 +65,7 @@ const getCurrencyParts = (parts: Intl.NumberFormatPart[], end = false) => {
   return currency
 }
 
-const getParts = (locale: string, fiatType = 'USD') => {
+export const getParts = (locale: string, fiatType = 'USD') => {
   if (!Intl) {
     throw new Error('Intl library is required')
   }
@@ -110,6 +110,34 @@ const getParts = (locale: string, fiatType = 'USD') => {
 type useLocaleFormatterArgs = {
   locale?: string
   fiatType?: string
+}
+
+/** Format a number as a crypto display value */
+export const numberToCrypto = (
+  num: BigNumber.Value,
+  symbol = 'BTC',
+  localeParts: LocaleParts,
+  options?: NumberFormatOptions,
+): string => {
+  if (
+    options?.truncateLargeNumbers &&
+    bnOrZero(num).toFixed(0).length > MAXIMUM_LARGE_NUMBER_CHARS
+  ) {
+    return `${truncate(bnOrZero(num).toFixed(0), { length: 16, omission: '...' })} ${symbol}`
+  }
+
+  const maximumFractionDigits =
+    options?.maximumFractionDigits !== undefined ? options.maximumFractionDigits : CRYPTO_PRECISION
+
+  const formatOptions = {
+    decimalSeparator: localeParts.decimal,
+    groupSeparator: localeParts.group,
+    groupSize: localeParts.groupSize,
+    secondaryGroupSize: localeParts.secondaryGroupSize,
+    suffix: ` ${symbol}`,
+  }
+
+  return bnOrZero(num).decimalPlaces(maximumFractionDigits).toFormat(formatOptions)
 }
 
 /**
@@ -189,32 +217,12 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   )
 
   /** Format a number as a crypto display value */
-  const numberToCrypto = (
+  const toCrypto = (
     num: BigNumber.Value,
     symbol = 'BTC',
     options?: NumberFormatOptions,
   ): string => {
-    if (
-      options?.truncateLargeNumbers &&
-      bnOrZero(num).toFixed(0).length > MAXIMUM_LARGE_NUMBER_CHARS
-    ) {
-      return `${truncate(bnOrZero(num).toFixed(0), { length: 16, omission: '...' })} ${symbol}`
-    }
-
-    const maximumFractionDigits =
-      options?.maximumFractionDigits !== undefined
-        ? options.maximumFractionDigits
-        : CRYPTO_PRECISION
-
-    const formatOptions = {
-      decimalSeparator: localeParts.decimal,
-      groupSeparator: localeParts.group,
-      groupSize: localeParts.groupSize,
-      secondaryGroupSize: localeParts.secondaryGroupSize,
-      suffix: ` ${symbol}`,
-    }
-
-    return bnOrZero(num).decimalPlaces(maximumFractionDigits).toFormat(formatOptions)
+    return numberToCrypto(num, symbol, localeParts, options)
   }
 
   /** Format a number as a fiat display value */
@@ -267,7 +275,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     deviceLocale,
     number: {
       localeParts,
-      toCrypto: numberToCrypto,
+      toCrypto,
       toFiat: numberToFiat,
       toPercent: numberToPercent,
       toString: numberToString,

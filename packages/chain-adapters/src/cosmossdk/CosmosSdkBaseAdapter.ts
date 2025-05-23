@@ -31,7 +31,6 @@ import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
-import type { cosmos, mayachain, thorchain } from './'
 import type {
   BuildTransactionInput,
   CosmosSDKToken,
@@ -78,10 +77,7 @@ export const cosmosSdkChainIds = [
   KnownChainIds.MayachainMainnet,
 ] as const
 
-export type CosmosSdkChainAdapter =
-  | cosmos.ChainAdapter
-  | thorchain.ChainAdapter
-  | mayachain.ChainAdapter
+export type CosmosSdkChainAdapter = CosmosSdkBaseAdapter<CosmosSdkChainId>
 
 export enum Denoms {
   rune = 'rune',

@@ -1,19 +1,9 @@
-import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type {
-  BTCSignTx,
-  ETHSignTypedData,
-  SolanaSignTx,
-  ThorchainSignTx,
-} from '@shapeshiftoss/hdwallet-core'
+import type { ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type {
-  EvmTransactionRequest,
-  SupportedTradeQuoteStepIndex,
-  TradeQuote,
-} from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
@@ -22,7 +12,7 @@ import {
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-import type { CosmosSdkChainId } from '@shapeshiftoss/types'
+import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -289,6 +279,7 @@ export const useTradeExecution = (
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
+
           const from = await adapter.getAddress({ accountNumber, wallet })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
@@ -300,13 +291,7 @@ export const useTradeExecution = (
             from,
             supportsEIP1559,
             permit2Signature: permit2.permit2Signature,
-            signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
-              const { txToSign } = await adapter.buildCustomTx({
-                ...transactionRequest,
-                wallet,
-                accountNumber,
-              } as evm.BuildCustomTxInput)
-
+            signAndBroadcastTransaction: async (txToSign: SignTx<EvmChainId>) => {
               const output = await signAndBroadcast({
                 adapter,
                 txToSign,
@@ -326,8 +311,9 @@ export const useTradeExecution = (
           if (accountType === undefined) throw Error('Missing UTXO account type')
 
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
+
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
+          const senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
 
           const output = await execution.execUtxoTransaction({
             swapperName,
@@ -335,17 +321,11 @@ export const useTradeExecution = (
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             xpub,
-            senderAddress: _senderAddress,
+            senderAddress,
             accountType,
-            signAndBroadcastTransaction: async (txToSign: BTCSignTx) => {
-              const signedTx = await adapter.signTransaction({
-                txToSign,
-                wallet,
-              })
-
-              const output = await adapter.broadcastTransaction({
-                hex: signedTx,
-              })
+            signAndBroadcastTransaction: async (txToSign: SignTx<UtxoChainId>) => {
+              const signedTx = await adapter.signTransaction({ txToSign, wallet })
+              const output = await adapter.broadcastTransaction({ hex: signedTx })
 
               trackMixpanelEventOnExecute()
               return output
@@ -356,37 +336,22 @@ export const useTradeExecution = (
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
           const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
+
           const from = await adapter.getAddress({ accountNumber, wallet })
+
           const output = await execution.execCosmosSdkTransaction({
             swapperName,
             tradeQuote,
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
-            signAndBroadcastTransaction: async (transactionRequest: StdSignDoc) => {
-              const txToSign: SignTx<CosmosSdkChainId> = {
-                addressNList: toAddressNList(adapter.getBip44Params(bip44Params)),
-                tx: {
-                  fee: {
-                    amount: [...transactionRequest.fee.amount],
-                    gas: transactionRequest.fee.gas,
-                  },
-                  memo: transactionRequest.memo,
-                  msg: [...transactionRequest.msgs],
-                  signatures: [],
-                },
-                sequence: transactionRequest.sequence,
-                account_number: transactionRequest.account_number,
-                chain_id: transactionRequest.chain_id,
-              }
-              const signedTx = await adapter.signTransaction({
-                txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
-                wallet,
-              })
+            signAndBroadcastTransaction: async (txToSign: SignTx<CosmosSdkChainId>) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
-                receiverAddress: tradeQuote.receiveAddress,
-                hex: signedTx,
+                receiverAddress,
+                hex,
               })
 
               trackMixpanelEventOnExecute()
@@ -398,7 +363,9 @@ export const useTradeExecution = (
         }
         case CHAIN_NAMESPACE.Solana: {
           const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
+
           const from = await adapter.getAddress({ accountNumber, wallet })
+
           const output = await execution.execSolanaTransaction({
             swapperName,
             tradeQuote,
@@ -406,14 +373,12 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SolanaSignTx) => {
-              const signedTx = await adapter.signTransaction({
-                txToSign,
-                wallet,
-              })
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
-                receiverAddress: tradeQuote.receiveAddress,
-                hex: signedTx,
+                receiverAddress,
+                hex,
               })
 
               trackMixpanelEventOnExecute()

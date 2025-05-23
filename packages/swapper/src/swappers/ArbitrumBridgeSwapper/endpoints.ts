@@ -1,30 +1,21 @@
 import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } from '@arbitrum/sdk'
 import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
 import type { ethers as ethersv5 } from 'ethers5'
-import type { InterpolationOptions } from 'node-polyglot'
 
-import type {
-  CommonTradeQuoteInput,
-  EvmTransactionRequest,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
-import { checkEvmSwapStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
+import {
+  checkEvmSwapStatus,
+  getExecutableTradeStep,
+  getHopByIndex,
+  isExecutableTradeQuote,
+} from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { fetchArbitrumBridgeQuote } from './utils/fetchArbitrumBridgeSwap'
@@ -87,10 +78,7 @@ export const getParentToChildMessageDataFromParentTxHash = async ({
 }
 
 export const arbitrumBridgeApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, deps) => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -107,15 +95,12 @@ export const arbitrumBridgeApi: SwapperApi = {
       return [tradeQuote]
     })
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, deps) => {
     const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps)
 
-    return tradeRateResult.map(tradeQuote => {
-      const id = tradeQuote.id
-      const firstHop = getHopByIndex(tradeQuote, 0)
+    return tradeRateResult.map(tradeRate => {
+      const id = tradeRate.id
+      const firstHop = getHopByIndex(tradeRate, 0)
       if (!firstHop) {
         console.error('No first hop found in trade rate')
         return []
@@ -125,31 +110,30 @@ export const arbitrumBridgeApi: SwapperApi = {
         sellAssetId: firstHop.sellAsset.assetId,
         chainId: firstHop.sellAsset.chainId as EvmChainId,
       })
-      return [tradeQuote]
+      return [tradeRate]
     })
   },
-
   getUnsignedEvmTransaction: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    const step = getHopByIndex(tradeQuote, stepIndex)
-    if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
-
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
-
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { receiveAddress } = tradeQuote
 
-    await assertValidTrade({ buyAsset, sellAsset })
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
+      step
+
+    const assertion = await assertValidTrade({ buyAsset, sellAsset })
+    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
     const swap = await fetchArbitrumBridgeQuote({
-      chainId,
+      chainId: sellAsset.chainId,
       supportsEIP1559,
       buyAsset,
       receiveAddress,
@@ -167,8 +151,10 @@ export const arbitrumBridgeApi: SwapperApi = {
       txRequest: { data, value, to },
     } = request
 
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
     const feeData = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
+      adapter,
       data: data.toString(),
       to,
       value: value.toString(),
@@ -176,37 +162,35 @@ export const arbitrumBridgeApi: SwapperApi = {
       supportsEIP1559,
     })
 
-    return {
-      chainId: Number(fromChainId(chainId).chainReference),
+    return adapter.buildCustomApiTx({
+      accountNumber,
       data: data.toString(),
       from,
       to,
       value: value.toString(),
       ...feeData,
-    }
+    })
   },
   getEvmTransactionFees: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
-    const step = getHopByIndex(tradeQuote, stepIndex)
-    if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
-
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
-
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const { receiveAddress } = tradeQuote
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
 
     const assertion = await assertValidTrade({ buyAsset, sellAsset })
     if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
     const swap = await fetchArbitrumBridgeQuote({
-      chainId,
+      chainId: sellAsset.chainId,
       supportsEIP1559,
       buyAsset,
       receiveAddress,
@@ -225,7 +209,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     } = request
 
     const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
+      adapter: assertGetEvmChainAdapter(sellAsset.chainId),
       data: data.toString(),
       to,
       value: value.toString(),
@@ -235,18 +219,13 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     return networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: async ({
     txHash,
     chainId,
     assertGetEvmChainAdapter,
     accountId,
     fetchIsSmartContractAddressQuery,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const swapTxStatus = await checkEvmSwapStatus({
       txHash,
       chainId,

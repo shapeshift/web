@@ -2,12 +2,12 @@ import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { AccountMetadata, EvmChainId } from '@shapeshiftoss/types'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 
 import { assertIsDefined } from '@/lib/utils'
@@ -26,7 +26,7 @@ import {
 type ApproveEIP155RequestArgs = {
   requestEvent: SupportedSessionRequest
   wallet: HDWallet
-  chainAdapter: EvmBaseAdapter<EvmChainId>
+  chainAdapter: EvmChainAdapter
   accountMetadata?: AccountMetadata
   customTransactionData?: CustomTransactionData
   accountId?: AccountId

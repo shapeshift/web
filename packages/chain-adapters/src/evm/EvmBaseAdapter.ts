@@ -58,17 +58,6 @@ import {
 import { bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type {
-  arbitrum,
-  arbitrumNova,
-  avalanche,
-  base,
-  bnbsmartchain,
-  ethereum,
-  gnosis,
-  optimism,
-  polygon,
-} from '.'
-import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
@@ -89,16 +78,7 @@ export const evmChainIds = [
   KnownChainIds.BaseMainnet,
 ] as const
 
-export type EvmChainAdapter =
-  | ethereum.ChainAdapter
-  | avalanche.ChainAdapter
-  | optimism.ChainAdapter
-  | bnbsmartchain.ChainAdapter
-  | polygon.ChainAdapter
-  | gnosis.ChainAdapter
-  | arbitrum.ChainAdapter
-  | arbitrumNova.ChainAdapter
-  | base.ChainAdapter
+export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,

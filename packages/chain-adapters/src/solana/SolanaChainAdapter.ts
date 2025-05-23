@@ -241,9 +241,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
-  async buildSendApiTransaction(input: BuildSendApiTxInput<KnownChainIds.SolanaMainnet>): Promise<{
-    txToSign: SignTx<KnownChainIds.SolanaMainnet>
-  }> {
+  async buildSendApiTransaction(
+    input: BuildSendApiTxInput<KnownChainIds.SolanaMainnet>,
+  ): Promise<SignTx<KnownChainIds.SolanaMainnet>> {
     try {
       const { from, accountNumber, to, chainSpecific, value } = input
       const { instructions = [], tokenId } = chainSpecific
@@ -275,7 +275,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         chainSpecific.addressLookupTableAccounts ?? [],
       )
 
-      const txToSign: SignTx<KnownChainIds.SolanaMainnet> = {
+      return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         blockHash: blockhash,
         computeUnitLimit,
@@ -285,8 +285,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         value: tokenId ? '' : value,
         addressLookupTableAccountInfos,
       }
-
-      return { txToSign }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',
@@ -299,9 +297,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   }> {
     try {
       const from = await this.getAddress(input)
-      const tx = await this.buildSendApiTransaction({ ...input, from })
+      const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return tx
+      return { txToSign }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',

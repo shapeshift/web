@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { isToken } from '@shapeshiftoss/utils'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { LuArrowUpDown } from 'react-icons/lu'
@@ -17,7 +18,6 @@ import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useModal } from '@/hooks/useModal/useModal'
-import { isToken } from '@/lib/utils'
 
 const arrowUpDownIcon = <LuArrowUpDown />
 

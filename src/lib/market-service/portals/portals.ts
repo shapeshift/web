@@ -9,7 +9,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { createThrottle } from '@shapeshiftoss/utils'
+import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import dayjs from 'dayjs'
@@ -24,7 +24,7 @@ import { getConfig } from '@/config'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from '@/lib/portals/constants'
 import type { GetTokensResponse, HistoryResponse } from '@/lib/portals/types'
-import { assertUnreachable, getTimeFrameBounds, isToken } from '@/lib/utils'
+import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)

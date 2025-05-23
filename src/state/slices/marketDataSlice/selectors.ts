@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import createCachedSelector from 're-reselect'
@@ -150,3 +151,6 @@ export const selectUserCurrencyRateByAssetId = createCachedSelector(
       .toString()
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
+
+export const selectIsAnyMarketDataApiQueryPending = (state: ReduxState) =>
+  Object.values(state.marketApi.queries).some(query => query?.status === QueryStatus.pending)

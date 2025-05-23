@@ -11,12 +11,15 @@ import { ChainRow } from './components/ChainRow'
 
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
+  selectIsAnyMarketDataApiQueryPending,
   selectIsPortfolioLoading,
+  selectWalletConnectedChainIds,
   selectWalletConnectedChainIdsSorted,
   selectWalletId,
 } from '@/state/slices/selectors'
@@ -89,7 +92,16 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
 const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
-  const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
+
+  // Don't use user-currency sorting until we're fully loaded - else this will keep on re-rendering forever and will
+  // both look janky (lots of reordering) and most importantly, barely usable
+  const portfolioChainIdsSortedUserCurrency = useAppSelector(state =>
+    isAccountsMetadataLoading || isAnyMarketDataLoading
+      ? selectWalletConnectedChainIds(state)
+      : selectWalletConnectedChainIdsSorted(state),
+  )
   const chainRows = useMemo(
     () =>
       portfolioChainIdsSortedUserCurrency.map(chainId => (

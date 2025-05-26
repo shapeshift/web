@@ -1043,17 +1043,14 @@
     "awaitingApproval": "Очікує на затвердження",
     "awaitingAllowanceReset": "Очікування скидання дозволу",
     "foxSavings": {
-      "youSaved": "Ви заощадили %{feeSaving} на вашій торгівлі з FOX Savings!",
       "youCouldHaveSaved": "Ви могли б заощадити %{fee} на вашій торгівлі з FOX Savings.",
       "buyFox": "Купити FOX",
       "share": "Поширити",
-      "postBody": "Я щойно заощадив %{fee}, торгуючи на @ShapeShift, просто володіючи $FOX!",
-      "youGotMore": "Ви отримуєте %{cryptoUpside} більше на цій угоді, тому що у вас є FOX"
+      "postBody": "Я щойно заощадив %{fee}, торгуючи на @ShapeShift, просто володіючи $FOX!"
     },
     "networkFee": "Мережева плата",
     "learnMoreAboutFox": "Дізнайтеся більше про переваги FOX",
-    "freeTrade": "Ця торгівля безкоштовна на основі ваших FOX на %{foxBalance}. FOX",
-    "feeExplainer": "Котирування включає %{feePercentage}% комісію ShapeShift на основі ваших FOX на %{foxBalance} FOX."
+    "freeTrade": "Ця торгівля безкоштовна на основі ваших FOX на %{foxBalance}. FOX"
   },
   "limitOrder": {
     "heading": "Ліміт",
@@ -2879,7 +2876,6 @@
       "goBack": "Повернутися"
     },
     "cta": {
-      "title": "Ви можете подати заяву на компенсацію TCY!",
       "button": "Перевірити претензії"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "Інформаційна панель FOX ",
-    "description": "З 2019 року наш токен FOX, що змінює форму, пропонує користувачам постійно зростаючий світ корисності та переваг. Сьогодні наш токен управління ERC-20 дає вам знижки на комісію, частку в доходах THORChain і дозволяє впливати на майбутнє ShapeShift шляхом голосування. Продавайте, обмінюйте, купуйте, постачайте та керуйте своїми активами FOX тут.",
     "foxToken": "Токен FOX",
     "24hrPriceChange": "24-годинна зміна ціни",
     "rfox": {
       "whatIs": "Що таке стейкінг rFOX?",
       "totalSymbolBurn": "Всього %{symbol} Спалили.",
       "simulateTitle": "Симулятор rFOX",
-      "simulateSubtle": "Введіть номер депозиту на щось",
       "estimatedRewards": "Орієнтовна винагорода",
       "depositAmount": "Сума депозиту",
       "shapeshiftRevenue": "Дохід ShapeShift",

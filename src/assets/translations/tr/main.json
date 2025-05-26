@@ -1043,17 +1043,14 @@
     "awaitingApproval": "Onay bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
     "foxSavings": {
-      "youSaved": "FOX Savings ile yaptığınız işlemde %{feeSaving} tasarruf ettiniz!",
       "youCouldHaveSaved": "FOX Savings ile yaptığınız işlemde %{fee} tasarruf edebilirdiniz.",
       "buyFox": "FOX satın al",
       "share": "Paylaş",
-      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!",
-      "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız çünkü FOX tutuyorsunuz"
+      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!"
     },
     "networkFee": "Ağ Ücreti",
     "learnMoreAboutFox": "FOX Avantajları hakkında daha fazla bilgi edinin",
-    "freeTrade": "Bu işlem, %{foxBalance} FOX FOX varlıklarınıza bağlı olarak ücretsizdir",
-    "feeExplainer": "Teklif, %{foxBalance} FOX FOX hissenize bağlı olarak %{feePercentage}% ShapeShift ücretini içerir."
+    "freeTrade": "Bu işlem, %{foxBalance} FOX FOX varlıklarınıza bağlı olarak ücretsizdir"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -2879,7 +2876,6 @@
       "goBack": "Geri Git"
     },
     "cta": {
-      "title": "TCY talepleriniz mevcut!",
       "button": "Talepleri Kontrol Et"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "FOX Token Panosu",
-    "description": "2019'dan beri, şekil değiştiren FOX Token'ımız kullanıcılara sürekli genişleyen bir fayda ve avantaj dünyası sunuyor. Bugün, ERC-20 yönetim token'ımız size ücret indirimleri, THORChain'de gelirlerde bir pay sağlıyor ve ShapeShift'in geleceğini oylarınızla etkilemenizi sağlıyor. FOX varlıklarınızı burada stake edin, takas edin, satın alın, tedarik edin ve yönetin.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24sa Fiyat Değişimi",
     "rfox": {
       "whatIs": "rFOX Staking Nedir?",
       "totalSymbolBurn": "Toplam %{symbol} Yakma",
       "simulateTitle": "rFOX Simülatörü",
-      "simulateSubtle": "Yatırma işleminin girdi numarası",
       "estimatedRewards": "Tahmini Ödüller",
       "depositAmount": "Depozito Tutarı",
       "shapeshiftRevenue": "ShapeShift Revenue",

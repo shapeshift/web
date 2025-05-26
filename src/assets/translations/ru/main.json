@@ -1043,17 +1043,14 @@
     "awaitingApproval": "Ожидает одобрения",
     "awaitingAllowanceReset": "Ожидание сброса разрешений",
     "foxSavings": {
-      "youSaved": "Вы сэкономили %{feeSaving} на сделке с FOX Savings! ",
       "youCouldHaveSaved": "Вы могли бы сэкономить %{fee} на сделке с FOX Savings. ",
       "buyFox": "Купить FOX ",
       "share": "Поделиться ",
-      "postBody": "Я только что сэкономил %{fee}, торгуя на @ShapeShift, просто владея $FOX! ",
-      "youGotMore": "Вы получили на %{cryptoUpside} больше на этой сделке, потому что вы держите FOX"
+      "postBody": "Я только что сэкономил %{fee}, торгуя на @ShapeShift, просто владея $FOX! "
     },
     "networkFee": "Сетевой сбор",
     "learnMoreAboutFox": "Узнайте больше о преимуществах FOX",
-    "freeTrade": "Эта сделка бесплатна на основе ваших FOX в размере %{foxBalance} FOX",
-    "feeExplainer": "Котировка включает %{feePercentage}% ShapeShift комиссию, основанную на вашей доле FOX в %{foxBalance} FOX."
+    "freeTrade": "Эта сделка бесплатна на основе ваших FOX в размере %{foxBalance} FOX"
   },
   "limitOrder": {
     "heading": "Ограничение",
@@ -2879,7 +2876,6 @@
       "goBack": "Вернуться"
     },
     "cta": {
-      "title": "Вам доступны требования TCY!",
       "button": "Проверьте претензии"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "Панель управления токенами FOX",
-    "description": "Начиная с 2019 года, наш токен ShapeShift FOX предлагает пользователям постоянно расширяющийся мир полезностей и преимуществ. Сегодня наш токен управления ERC-20 дает вам скидки на комиссионные, долю в доходах THORChain и позволяет влиять на будущее ShapeShift с помощью вашего голоса. Стейкайте, обменивайте, покупайте, поставляйте и управляйте своими FOX-холдингами здесь.",
     "foxToken": "Токен FOX",
     "24hrPriceChange": "Изменение цены за 24 часа",
     "rfox": {
       "whatIs": "Что такое стейкинг rFOX?",
       "totalSymbolBurn": "Всего %{symbol} Сжечь",
       "simulateTitle": "Симулятор rFOX",
-      "simulateSubtle": "Ввод номера депозита что-то",
       "estimatedRewards": "Предполагаемые вознаграждения",
       "depositAmount": "Сумма депозита",
       "shapeshiftRevenue": "Доходы ShapeShift",

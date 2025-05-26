@@ -1043,17 +1043,14 @@
     "awaitingApproval": "Esperando aprobación",
     "awaitingAllowanceReset": "Esperando restablecimiento de asignación",
     "foxSavings": {
-      "youSaved": "¡Ahorraste %{feeSaving} en tu operación con Ahorros FOX!",
       "youCouldHaveSaved": "Podrías haber ahorrado %{fee} en tu intercambio con Ahorros FOX.",
       "buyFox": "Comprar FOX",
       "share": "Compartir",
-      "postBody": "¡Acabo de ahorrar %{fee} al intercambiar en @ShapeShift simplemente por ser propietario de $FOX!",
-      "youGotMore": "Obtuviste %{cryptoUpside} más en esta operación porque tienes FOX"
+      "postBody": "¡Acabo de ahorrar %{fee} al intercambiar en @ShapeShift simplemente por ser propietario de $FOX!"
     },
     "networkFee": "Tarifa de Red",
     "learnMoreAboutFox": "Aprende más sobre beneficios FOX",
-    "freeTrade": "Operación gratis en función de sus tenencias FOX de %{foxBalance} FOX",
-    "feeExplainer": "Cotización incluye tarifa ShapeShift del %{feePercentage}% basada en tenencias FOX de %{foxBalance} FOX."
+    "freeTrade": "Operación gratis en función de sus tenencias FOX de %{foxBalance} FOX"
   },
   "limitOrder": {
     "heading": "Límite",
@@ -2879,7 +2876,6 @@
       "goBack": "Volver"
     },
     "cta": {
-      "title": "¡Tienes reclamaciones TCY disponibles!",
       "button": "Verificar Reclamaciones"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "Panel de control token FOX",
-    "description": "Desde 2019, nuestro token FOX ShapeShift ofrece un mundo en constante expansión de utilidades y ventajas. Hoy, nuestro token de gobernanza ERC-20 le ofrece descuentos en tarifas, participación en ingresos de THORChain y le permite influir en el futuro de ShapeShift a través de su voto. Stake, intercambie, compre, suministre y administre sus tenencias FOX aquí.",
     "foxToken": "Token FOX",
     "24hrPriceChange": "Cambio de precio 24 horas",
     "rfox": {
       "whatIs": "¿Qué es el staking de rFOX?",
       "totalSymbolBurn": "Quema total de %{symbol}",
       "simulateTitle": "Simulador rFOX",
-      "simulateSubtle": "Ingrese el número en depósito de algo",
       "estimatedRewards": "Recompensas Estimadas",
       "depositAmount": "Monto de Depósito",
       "shapeshiftRevenue": "Ingreso ShapeShift",

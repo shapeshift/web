@@ -1043,17 +1043,14 @@
     "awaitingApproval": "Wartet auf Genehmigung",
     "awaitingAllowanceReset": "Warten auf Zurücksetzen des Genehmigungsbetrags",
     "foxSavings": {
-      "youSaved": "Sie haben bei Ihrem Handel mit FOX Savings %{feeSaving} gespart!",
       "youCouldHaveSaved": "Sie hätten bei Ihrem Handel mit FOX Savings %{fee} sparen können.",
       "buyFox": "FOX kaufen",
       "share": "Anteil",
-      "postBody": "Ich habe gerade %{fee} beim Handel auf @ShapeShift gespart, nur weil ich $FOX besitze!",
-      "youGotMore": "Sie haben bei diesem Handel %{cryptoUpside} mehr bekommen, weil Sie FOX halten"
+      "postBody": "Ich habe gerade %{fee} beim Handel auf @ShapeShift gespart, nur weil ich $FOX besitze!"
     },
     "networkFee": "Netzwerkgebühr",
     "learnMoreAboutFox": "Erfahren Sie mehr über die Vorteile von FOX",
-    "freeTrade": "Dieser Handel ist kostenlos, basierend auf Ihren FOX Beständen von %{foxBalance} FOX",
-    "feeExplainer": "Das Angebot beinhaltet eine ShapeShift Gebühr von %{feePercentage} % basierend auf Ihren FOX Beständen von %{foxBalance} FOX."
+    "freeTrade": "Dieser Handel ist kostenlos, basierend auf Ihren FOX Beständen von %{foxBalance} FOX"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -2879,7 +2876,6 @@
       "goBack": "Geh zurück"
     },
     "cta": {
-      "title": "Ihnen stehen TCY Ansprüche zur Verfügung!",
       "button": "Ansprüche prüfen"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "FOX-Token-Dashboard",
-    "description": "Seit 2019 bietet unser \"Shapeshifting\" FOX Token den Benutzern eine ständig wachsende Welt voller Nutzen und Vorteile. Heute erhalten Sie mit unserem ERC20 Governance Token Gebührenrabatte, einen Anteil an den Einnahmen von THORChain und können die Zukunft von ShapeShift durch Ihre Stimme beeinflussen. Setzen Sie hier Ihre FOX-Bestände ein, tauschen Sie sie, kaufen Sie sie, senden Sie sie und verwalten Sie sie.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Preisänderung",
     "rfox": {
       "whatIs": "Was ist rFOX Staking?",
       "totalSymbolBurn": "Summe von %{symbol} verbrannt",
       "simulateTitle": "rFOX Simulator",
-      "simulateSubtle": "Geben Sie die Anzahl der Einzahlungen ein",
       "estimatedRewards": "Geschätzte Belohnungen",
       "depositAmount": "Einzahlungsbetrag",
       "shapeshiftRevenue": "ShapeShift Umsatz",

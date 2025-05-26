@@ -1043,17 +1043,14 @@
     "awaitingApproval": "授权中",
     "awaitingAllowanceReset": "额度重置中",
     "foxSavings": {
-      "youSaved": "您使用 FOX Savings 为此交易节省了 %{feeSaving}！",
       "youCouldHaveSaved": "您可以使用 FOX Savings 在此交易中节省 %{fee}。",
       "buyFox": "购买 FOX",
       "share": "分享",
-      "postBody": "通过持有 $FOX，我在 @ShapeShift 上交易时节省了 %{fee}！",
-      "youGotMore": "由于您持有 FOX，本次交易您额外获得了 %{cryptoUpside}"
+      "postBody": "通过持有 $FOX，我在 @ShapeShift 上交易时节省了 %{fee}！"
     },
     "networkFee": "网络费用",
     "learnMoreAboutFox": "了解更多关于 FOX 权益的信息",
-    "freeTrade": "根据您的 FOX 持有量 (当前为 %{foxBalance} FOX)，这笔交易是免费的",
-    "feeExplainer": "根据您的 FOX 持有量 (当前为 %{foxBalance} FOX)，此报价包含 %{feePercentage}% ShapeShift 费用。"
+    "freeTrade": "根据您的 FOX 持有量 (当前为 %{foxBalance} FOX)，这笔交易是免费的"
   },
   "limitOrder": {
     "heading": "限价",
@@ -2879,7 +2876,6 @@
       "goBack": "返回"
     },
     "cta": {
-      "title": "您有可领取的 TCY！",
       "button": "查看可领取的奖励"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "FOX 代币仪表板",
-    "description": "自 2019 年以来，我们的变形 FOX 代币一直为用户提供不断扩展的实用性和优势。如今，我们的 ERC-20 治理代币为您提供费用折扣、THORChain 的收入份额，并使你能够通过投票影响 ShapeShift 的未来。在这里质押、交换、购买、供应和管理你的 FOX 资产。",
     "foxToken": "FOX 代币",
     "24hrPriceChange": "24小时价格变化",
     "rfox": {
       "whatIs": "什么是 rFOX Staking？",
       "totalSymbolBurn": "%{symbol} 总销毁数",
       "simulateTitle": "rFOX 模拟器",
-      "simulateSubtle": "输入存款金额",
       "estimatedRewards": "预计奖励",
       "depositAmount": "存款金额",
       "shapeshiftRevenue": "ShapeShift 收入",

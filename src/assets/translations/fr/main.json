@@ -1043,17 +1043,14 @@
     "awaitingApproval": "En attente d'autorisation",
     "awaitingAllowanceReset": "En attente de réinitialisation d'allocation",
     "foxSavings": {
-      "youSaved": "Vous avez économisé %{feeSaving} sur votre échange avec FOX Savings !",
       "youCouldHaveSaved": "Vous auriez pu économiser %{fee} sur votre échange avec FOX Savings.",
       "buyFox": "Acheter des FOX",
       "share": "Partager",
-      "postBody": "Je viens d'économiser %{fee} en échangeant sur @ShapeShift simplement en possédant des $FOX !",
-      "youGotMore": "Vous avez reçu %{cryptoUpside} en plus sur cette transaction car vous détenez des FOX"
+      "postBody": "Je viens d'économiser %{fee} en échangeant sur @ShapeShift simplement en possédant des $FOX !"
     },
     "networkFee": "Frais de réseau",
     "learnMoreAboutFox": "En savoir plus sur les avantages FOX",
-    "freeTrade": "Cet échange est gratuit en se basant sur vos avoirs FOX de %{foxBalance} FOX",
-    "feeExplainer": "Ce devis comprend des frais ShapeShift de %{feePercentage}% en se basant sur vos avoirs FOX de %{foxBalance} FOX."
+    "freeTrade": "Cet échange est gratuit en se basant sur vos avoirs FOX de %{foxBalance} FOX"
   },
   "limitOrder": {
     "heading": "Limite",
@@ -2879,7 +2876,6 @@
       "goBack": "Retour"
     },
     "cta": {
-      "title": "Vous avez des réclamations TCY disponibles !",
       "button": "Vérifier les réclamations"
     }
   },
@@ -2926,14 +2922,12 @@
   },
   "foxPage": {
     "title": "Tableau de bord du jeton FOX",
-    "description": "Depuis 2019, notre jeton FOX évolue sans cesse et offre aux utilisateurs une gamme d'utilités et d'avantages en constante expansion. Aujourd'hui, notre jeton de gouvernance ERC-20 vous offre des réductions sur les frais, une part des revenus sur THORChain et vous permet d'influencer l'avenir de ShapeShift grâce à vos votes. Misez, échangez, achetez, approvisionnez et gérez vos avoirs FOX ici.",
     "foxToken": "Jeton FOX",
     "24hrPriceChange": "Évolution du prix sur 24h",
     "rfox": {
       "whatIs": "Qu'est-ce que c'est miser avec rFOX ?",
       "totalSymbolBurn": "Total des %{symbol} brûlés",
       "simulateTitle": "Simulateur rFOX",
-      "simulateSubtle": "Entrez le montant de dépôt désiré",
       "estimatedRewards": "Récompenses estimées",
       "depositAmount": "Montant du dépôt",
       "shapeshiftRevenue": "Revenus de ShapeShift",

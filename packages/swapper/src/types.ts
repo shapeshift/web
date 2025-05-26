@@ -1,5 +1,6 @@
 import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
+import type { Route } from '@lifi/sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -318,6 +319,37 @@ type TradeQuoteBase = {
   swapperName: SwapperName // The swapper that generated this quote/rate
 }
 
+export type SwapId = string
+
+export type SwapMetadata = {
+  lifiRoute?: Route
+  chainflipSwapId?: number
+  sellTxHash?: string
+  stepIndex: SupportedTradeQuoteStepIndex
+  sellAccountId: AccountId | undefined
+  swapperName: SwapperName
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+}
+
+export enum SwapStatus {
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+  Cancelled = 'cancelled',
+}
+
+export type Swap = {
+  id: SwapId
+  createdAt: number
+  updatedAt: number
+  quoteId: string
+  metadata: SwapMetadata
+  status: SwapStatus
+}
+
 // https://github.com/microsoft/TypeScript/pull/40002
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
   ? R
@@ -456,6 +488,7 @@ export type CheckTradeStatusInput = {
   accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
+  swap: Swap | undefined
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &

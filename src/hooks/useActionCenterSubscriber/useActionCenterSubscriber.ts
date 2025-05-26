@@ -7,7 +7,8 @@ import { checkStatusHandlersMapping } from './checkStatusHandlers/checkStatusHan
 import { useTradeActionSubscriber } from './useTradeActionSubscriber'
 
 import { selectPendingActions } from '@/state/slices/actionSlice/selectors'
-import { isTradePayloadDiscriminator } from '@/state/slices/actionSlice/types'
+import { ActionStatus, isTradePayloadDiscriminator } from '@/state/slices/actionSlice/types'
+import { selectSwapById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useActionCenterSubscriber = () => {
@@ -15,30 +16,40 @@ export const useActionCenterSubscriber = () => {
   const pendingActions = useAppSelector(selectPendingActions)
   const toast = useToast()
   const translate = useTranslate()
+  const swapByIds = useAppSelector(selectSwapById)
 
   const actionsQueries = useMemo(() => {
-    return pendingActions.map(action => {
-      const handler = checkStatusHandlersMapping[action.type]
+    return pendingActions
+      .map(action => {
+        const handler = checkStatusHandlersMapping[action.type]
 
-      return {
-        queryKey: ['actionCenterPolling', action.id],
-        queryFn:
-          handler && isTradePayloadDiscriminator(action)
-            ? () =>
-                handler({
-                  toast,
-                  quote: action.metadata.quote,
-                  stepIndex: action.metadata.stepIndex,
-                  sellTxHash: action.metadata.sellTxHash,
-                  translate,
-                  sellAccountId: action.metadata.sellAccountId,
-                })
-            : () => Promise.resolve(undefined),
-        refetchInterval: 10000,
-        enabled: Boolean(handler && isTradePayloadDiscriminator(action)),
-      }
-    })
-  }, [pendingActions, toast, translate])
+        if (!isTradePayloadDiscriminator(action)) return undefined
+
+        const swap = swapByIds[action.metadata.swapId]
+
+        if (!swap) return undefined
+
+        return {
+          queryKey: ['actionCenterPolling', action.id, swap.id, swap.metadata.sellTxHash],
+          queryFn:
+            handler && isTradePayloadDiscriminator(action)
+              ? () =>
+                  handler({
+                    toast,
+                    swap,
+                    translate,
+                  })
+              : () => Promise.resolve(undefined),
+          refetchInterval: 10000,
+          enabled: Boolean(
+            handler &&
+              isTradePayloadDiscriminator(action) &&
+              action.status === ActionStatus.Pending,
+          ),
+        }
+      })
+      .filter((query): query is NonNullable<typeof query> => query !== undefined)
+  }, [pendingActions, toast, translate, swapByIds])
 
   useQueries({
     queries: actionsQueries,

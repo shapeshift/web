@@ -1,10 +1,13 @@
-import { getHopByIndex, swappers } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { swappers, SwapStatus } from '@shapeshiftoss/swapper'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 
 import type { CheckStatusHandlerProps } from './types'
 
 import { getConfig } from '@/config'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getParts, numberToCrypto } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -14,37 +17,32 @@ import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { actionCenterSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectActionBySwapId } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store } from '@/state/store'
 
 export const getTradeStatusHandler = async ({
   toast,
-  quote,
-  stepIndex,
-  sellTxHash,
+  swap,
   translate,
-  sellAccountId,
 }: CheckStatusHandlerProps) => {
-  const maybeSwapper = swappers[quote.swapperName]
+  const maybeSwapper = swappers[swap.metadata.swapperName]
 
   if (maybeSwapper === undefined)
-    throw new Error(`no swapper matching swapperName '${quote.swapperName}'`)
+    throw new Error(`no swapper matching swapperName '${swap.metadata.swapperName}'`)
 
   const swapper = maybeSwapper
 
-  const hop = getHopByIndex(quote, stepIndex)
-
-  if (!hop) {
-    throw new Error(`No hop found for stepIndex ${stepIndex}`)
-  }
-
-  const chainId = hop.sellAsset.chainId
+  if (!swap.metadata.sellAccountId) return
+  if (!swap.metadata.sellTxHash) return
 
   const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-    quoteId: quote.id,
-    txHash: sellTxHash,
-    chainId,
-    accountId: sellAccountId,
-    stepIndex,
+    quoteId: swap.quoteId,
+    txHash: swap.metadata.sellTxHash,
+    chainId: swap.metadata.sellAsset.chainId,
+    accountId: swap.metadata.sellAccountId,
+    stepIndex: swap.metadata.stepIndex,
+    swap,
     config: getConfig(),
     assertGetEvmChainAdapter,
     assertGetUtxoChainAdapter,
@@ -53,23 +51,132 @@ export const getTradeStatusHandler = async ({
     fetchIsSmartContractAddressQuery,
   })
 
-  const firstStep = quote?.steps[0]
-  const lastStep = quote?.steps[quote.steps.length - 1]
-  const tradeSellAsset = firstStep.sellAsset
-  const tradeBuyAsset = lastStep.buyAsset
+  if (!buyTxHash) return
+
+  const tradeSellAsset = swap.metadata.sellAsset
+  const tradeBuyAsset = swap.metadata.buyAsset
 
   const deviceLocale = preferences.selectors.selectCurrencyFormat(store.getState())
   const selectedCurrency = preferences.selectors.selectSelectedCurrency(store.getState())
   const localeParts = getParts(deviceLocale, selectedCurrency)
 
-  // @TODO: use real amounts as we got the txHash already
   if (status === TxStatus.Confirmed) {
-    const notificationTitle = translate('notificationCenter.notificationsTitles.swap.confirmed', {
+    const accountId = swap.metadata.sellAccountId
+    const adapter = getChainAdapterManager().get(swap.metadata.sellAsset.chainId)
+
+    if (adapter) {
+      try {
+        const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
+          txid: buyTxHash,
+        })
+
+        const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
+
+        if (parsedTx.transfers?.length) {
+          const receiveTransfer = parsedTx.transfers.find(
+            transfer =>
+              transfer.type === TransferType.Receive && transfer.assetId === tradeBuyAsset.assetId,
+          )
+
+          if (receiveTransfer?.value) {
+            store.dispatch(
+              swapSlice.actions.updateSwap({
+                id: swap.id,
+                metadata: {
+                  ...swap.metadata,
+                  buyAmountCryptoBaseUnit: receiveTransfer.value,
+                },
+              }),
+            )
+
+            const notificationTitle = translate(
+              'notificationCenter.notificationsTitles.swap.title',
+              {
+                sellAmountAndSymbol: numberToCrypto(
+                  fromBaseUnit(swap.metadata.sellAmountCryptoBaseUnit, tradeSellAsset.precision),
+                  tradeSellAsset.symbol,
+                  localeParts,
+                  {
+                    maximumFractionDigits: 8,
+                    omitDecimalTrailingZeros: true,
+                    abbreviated: true,
+                    truncateLargeNumbers: true,
+                  },
+                ),
+                buyAmountAndSymbol: numberToCrypto(
+                  fromBaseUnit(receiveTransfer.value, tradeBuyAsset.precision),
+                  tradeBuyAsset.symbol,
+                  localeParts,
+                  {
+                    maximumFractionDigits: 8,
+                    omitDecimalTrailingZeros: true,
+                    abbreviated: true,
+                    truncateLargeNumbers: true,
+                  },
+                ),
+              },
+            )
+
+            store.dispatch(
+              actionCenterSlice.actions.updateAction({
+                title: notificationTitle,
+                metadata: {
+                  swapId: swap.id,
+                },
+                status: ActionStatus.Complete,
+                assetIds: [tradeSellAsset.assetId, tradeBuyAsset.assetId],
+              }),
+            )
+            store.dispatch(
+              swapSlice.actions.updateSwap({
+                id: swap.id,
+                status: SwapStatus.Success,
+              }),
+            )
+
+            // @TODO: do we want to show this even if the user is on the trade confirmation page?
+            toast({
+              title: notificationTitle,
+              status: 'success',
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch transaction details:', error)
+
+        store.dispatch(
+          actionCenterSlice.actions.updateAction({
+            metadata: {
+              swapId: swap.id,
+            },
+            status: ActionStatus.Complete,
+            assetIds: [tradeSellAsset.assetId, tradeBuyAsset.assetId],
+          }),
+        )
+        store.dispatch(
+          swapSlice.actions.updateSwap({
+            id: swap.id,
+            status: SwapStatus.Success,
+          }),
+        )
+
+        const notificationTitle = selectActionBySwapId(store.getState(), {
+          swapId: swap.id,
+        })?.title
+
+        // @TODO: do we want to show this even if the user is on the trade confirmation page?
+        toast({
+          title: notificationTitle,
+          status: 'success',
+        })
+
+        return
+      }
+    }
+
+    const notificationTitle = translate('notificationCenter.notificationsTitles.swap.title', {
       sellAmountAndSymbol: numberToCrypto(
-        fromBaseUnit(
-          firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          tradeSellAsset.precision,
-        ),
+        fromBaseUnit(swap.metadata.sellAmountCryptoBaseUnit, tradeSellAsset.precision),
         tradeSellAsset.symbol,
         localeParts,
         {
@@ -80,7 +187,7 @@ export const getTradeStatusHandler = async ({
         },
       ),
       buyAmountAndSymbol: numberToCrypto(
-        fromBaseUnit(lastStep.buyAmountAfterFeesCryptoBaseUnit, tradeBuyAsset.precision),
+        fromBaseUnit(swap.metadata.buyAmountCryptoBaseUnit, tradeBuyAsset.precision),
         tradeBuyAsset.symbol,
         localeParts,
         {
@@ -93,12 +200,17 @@ export const getTradeStatusHandler = async ({
     })
     store.dispatch(
       actionCenterSlice.actions.updateAction({
-        title: notificationTitle,
         metadata: {
-          swapId: quote.id,
+          swapId: swap.id,
         },
         status: ActionStatus.Complete,
         assetIds: [tradeSellAsset.assetId, tradeBuyAsset.assetId],
+      }),
+    )
+    store.dispatch(
+      swapSlice.actions.updateSwap({
+        id: swap.id,
+        status: SwapStatus.Success,
       }),
     )
 
@@ -116,8 +228,14 @@ export const getTradeStatusHandler = async ({
         status: ActionStatus.Failed,
         assetIds: [tradeSellAsset.assetId, tradeBuyAsset.assetId],
         metadata: {
-          swapId: quote.id,
+          swapId: swap.id,
         },
+      }),
+    )
+    store.dispatch(
+      swapSlice.actions.updateSwap({
+        id: swap.id,
+        status: SwapStatus.Failed,
       }),
     )
 

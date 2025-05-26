@@ -1,5 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 export enum ActionCenterType {
   Deposit = 'Deposit',
@@ -22,11 +21,7 @@ export enum ActionStatus {
 export type ActionId = string
 
 type ActionSwapMetadata = {
-  sellTxHash: string
-  quote: TradeQuote | TradeRate
-  stepIndex: SupportedTradeQuoteStepIndex
   swapId: string
-  sellAccountId: AccountId
 }
 
 type ActionLimitOrderMetadata = {

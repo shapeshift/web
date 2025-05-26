@@ -14,6 +14,19 @@ export const actionCenterSlice = createSlice({
   initialState,
   reducers: create => ({
     upsertAction: create.reducer((state, { payload }: PayloadAction<ActionPayload>) => {
+      // as an extra safety avoid deduplicating actions with the same swapId as they should be unique
+      if (isTradePayloadDiscriminator(payload) && payload.metadata?.swapId) {
+        const existingActionIndex = state.actions.findIndex(
+          action =>
+            isTradePayloadDiscriminator(action) &&
+            action.metadata.swapId === payload.metadata.swapId,
+        )
+
+        if (existingActionIndex !== -1) {
+          return
+        }
+      }
+
       const actionWithId: Action = {
         ...payload,
         id: uuidv4(),

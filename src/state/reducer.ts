@@ -11,17 +11,18 @@ import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import {
+  clearActionCenterMigrations,
   clearAssetsMigrations,
   clearMarketDataMigrations,
-  clearNotificationCenterMigrations,
   clearOpportunitiesMigrations,
   clearPortfolioMigrations,
   clearSnapshotMigrations,
+  clearSwapsMigrations,
   clearTxHistoryMigrations,
   localWalletMigrations,
 } from './migrations'
 import { actionCenterSlice } from './slices/actionSlice/actionSlice'
-import type { NotificationCenterState } from './slices/actionSlice/types'
+import type { ActionCenterState } from './slices/actionSlice/types'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -37,6 +38,7 @@ import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from './slices/portfolioSlice/portfolioSliceCommon'
 import type { Preferences } from './slices/preferencesSlice/preferencesSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
+import { swapSlice } from './slices/swapSlice/swapSlice'
 import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -119,11 +121,17 @@ const limitOrderApiPersistConfig = {
   version: 0,
 }
 
-const notificationCenterPersistConfig = {
-  key: 'notificationCenter',
+const actionCenterPersistConfig = {
+  key: 'actionCenter',
   storage: localforage,
-  version: Math.max(...Object.keys(clearNotificationCenterMigrations).map(Number)),
-  migrate: createMigrate(clearNotificationCenterMigrations, { debug: false }),
+  version: Math.max(...Object.keys(clearActionCenterMigrations).map(Number)),
+  migrate: createMigrate(clearActionCenterMigrations, { debug: false }),
+}
+
+const swapPersistConfig = {
+  key: 'swap',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearSwapsMigrations).map(Number)),
 }
 
 export const sliceReducers = {
@@ -145,8 +153,8 @@ export const sliceReducers = {
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
   ),
-  notificationCenter: persistReducer<NotificationCenterState>(
-    notificationCenterPersistConfig,
+  actionCenter: persistReducer<ActionCenterState>(
+    actionCenterPersistConfig,
     actionCenterSlice.reducer,
   ),
 }
@@ -182,9 +190,10 @@ export const apiReducers = {
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
   [actionCenterSlice.reducerPath]: persistReducer(
-    notificationCenterPersistConfig,
+    actionCenterPersistConfig,
     actionCenterSlice.reducer,
   ),
+  [swapSlice.reducerPath]: persistReducer(swapPersistConfig, swapSlice.reducer),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

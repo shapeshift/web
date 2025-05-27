@@ -100,7 +100,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     bn(10).pow(asset.precision),
   )
 
-  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
+  const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData?.price)).toString()
 
   const handleCancel = useCallback(() => {
     navigate(-1)
@@ -111,7 +111,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman)
         .times(percent)
         .dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -119,7 +119,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         shouldValidate: true,
       })
     },
-    [asset.precision, cryptoStakeBalanceHuman, marketData.price, setValue],
+    [asset.precision, cryptoStakeBalanceHuman, marketData?.price, setValue],
   )
 
   const handleContinue = useCallback(

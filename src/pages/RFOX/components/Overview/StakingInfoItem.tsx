@@ -48,7 +48,7 @@ export const StakingInfoItem = ({
     if (!amountCryptoBaseUnit) return
 
     return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision))
-      .times(marketDataUserCurrency.price)
+      .times(bnOrZero(marketDataUserCurrency?.price))
       .toFixed(2)
   }, [amountCryptoBaseUnit, marketDataUserCurrency, asset])
 

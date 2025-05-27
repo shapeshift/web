@@ -11,10 +11,13 @@ import {
 import type { Message } from '../types'
 import type { TxMetadata } from './types'
 
+const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
+
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
   ['rune', thorchainAssetId],
   ['tcy', tcyAssetId],
+  ['maya', mayaTokenAssetId],
   ['thor.tcy', tcyAssetId],
   ['cacao', mayachainAssetId],
 ])

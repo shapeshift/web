@@ -822,13 +822,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   const poolAssetGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),
-    [poolAssetFeeAssetMarktData.price, poolAssetTxFeeCryptoPrecision],
+    () =>
+      bnOrZero(poolAssetTxFeeCryptoPrecision).times(bnOrZero(poolAssetFeeAssetMarktData?.price)),
+    [poolAssetFeeAssetMarktData?.price, poolAssetTxFeeCryptoPrecision],
   )
 
   const runeGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
-    [runeMarketData.price, runeTxFeeCryptoPrecision],
+    () => bnOrZero(runeTxFeeCryptoPrecision).times(bnOrZero(runeMarketData?.price)),
+    [runeMarketData?.price, runeTxFeeCryptoPrecision],
   )
 
   const totalGasFeeFiatUserCurrency = useMemo(() => {
@@ -883,21 +884,25 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
   const createHandleAddLiquidityInputChange = useCallback(
-    (marketData: MarketData, isRune: boolean) => {
+    (marketData: MarketData | undefined, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
-        if (!poolAsset || !marketData) return
+        if (!poolAsset) return
 
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
-            .div(bn(marketData.price ?? '0'))
+            .div(bn(marketData?.price))
             .toFixed()
         })()
 
         const amountFiatUserCurrency = (() => {
           if (isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
-            .times(bn(marketData.price ?? '0'))
+            .times(bn(marketData?.price))
             .toFixed()
         })()
 
@@ -954,7 +959,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       setSlippageDecimalPercentage(estimate.slippageDecimalPercent)
 
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price))
         .toFixed()
 
       setSlippageFiatUserCurrency(_slippageFiatUserCurrency)

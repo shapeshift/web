@@ -35,7 +35,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
@@ -213,7 +213,7 @@ export const RFOXSection = () => {
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
     select: (totalRevenue: bigint) => {
       return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price))
         .toFixed(2)
     },
   })

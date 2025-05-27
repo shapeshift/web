@@ -52,7 +52,7 @@ type UseRfoxBridgeReturn = {
   sellAsset: Asset | undefined
   buyAsset: Asset | undefined
   feeAsset: Asset | undefined
-  feeAssetMarketData: MarketData
+  feeAssetMarketData: MarketData | undefined
   sellAssetAccountNumber: number | undefined
   tradeQuoteQuery: UseQueryResult<Result<TradeQuote, SwapErrorRight>, Error>
   allowanceContract: string | undefined
@@ -124,8 +124,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const bridgeAmountUserCurrency = useMemo(
     () =>
-      bnOrZero(bridgeAmountCryptoPrecision).times(sellAssetMarketDataUserCurrency.price).toFixed(),
-    [bridgeAmountCryptoPrecision, sellAssetMarketDataUserCurrency.price],
+      bnOrZero(bridgeAmountCryptoPrecision)
+        .times(bnOrZero(sellAssetMarketDataUserCurrency?.price ?? '0'))
+        .toFixed(),
+    [bridgeAmountCryptoPrecision, sellAssetMarketDataUserCurrency?.price],
   )
 
   const sellAssetAccountNumberFilter = useMemo(
@@ -216,8 +218,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const networkFeeUserCurrency = useMemo(() => {
     if (!networkFeeCryptoPrecision) return null
-    return bnOrZero(networkFeeCryptoPrecision).times(feeAssetMarketData.price).toFixed()
-  }, [feeAssetMarketData.price, networkFeeCryptoPrecision])
+    return bnOrZero(networkFeeCryptoPrecision)
+      .times(bnOrZero(feeAssetMarketData?.price))
+      .toFixed()
+  }, [feeAssetMarketData?.price, networkFeeCryptoPrecision])
 
   const { mutateAsync: handleBridge } = useMutation({
     mutationFn: async () => {

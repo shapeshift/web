@@ -190,7 +190,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
                   .div(bn(10).pow(feeAsset.precision))
-                  .times(feeMarketData.price)
+                  .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
               />
               <Amount.Crypto

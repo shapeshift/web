@@ -255,7 +255,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                       : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
-                    .times(feeMarketData.price)
+                    .times(bnOrZero(feeMarketData?.price))
                     .toFixed(2)}
                 />
                 <Amount.Crypto

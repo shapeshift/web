@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectPortfolioLoadingStatus } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -52,9 +52,6 @@ export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTi
             ),
           ),
         )
-
-        // used to trigger mixpanel init after load of market data
-        dispatch(marketData.actions.setMarketDataLoaded())
 
         // We *have* to return a value other than undefined from react-query queries, see
         // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries

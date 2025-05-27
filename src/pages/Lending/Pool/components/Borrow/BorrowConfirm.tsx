@@ -454,7 +454,7 @@ export const BorrowConfirm = ({
                     <Amount.Fiat
                       color='text.subtle'
                       value={bnOrZero(depositAmount)
-                        .times(collateralAssetMarketData?.price ?? '0')
+                        .times(bnOrZero(collateralAssetMarketData?.price))
                         .toString()}
                       prefix='≈'
                     />

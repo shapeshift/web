@@ -9,7 +9,6 @@ import {
   fetchUniV2PairData,
   getOrCreateContractByAddress,
 } from '@shapeshiftoss/contracts'
-import type { MarketData } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 
@@ -46,10 +45,7 @@ export const ethFoxStakingMetadataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
   const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision ?? 0
-  const lpTokenMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
-    state,
-    foxEthLpAssetId,
-  )
+  const lpTokenMarketData = selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
@@ -68,7 +64,7 @@ export const ethFoxStakingMetadataResolver = async ({
   const totalSupply = await foxFarmingContract.read.totalSupply()
   const tvl = bnOrZero(totalSupply.toString())
     .div(bn(10).pow(lpAssetPrecision))
-    .times(lpTokenPrice)
+    .times(bnOrZero(lpTokenPrice))
     .toFixed(2)
 
   // apr
@@ -81,8 +77,8 @@ export const ethFoxStakingMetadataResolver = async ({
   const lpTotalSupply = (await uniV2LPContract.read.totalSupply()).toString()
   const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
   const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
-  const ethPoolRatio = ethReserves.div(lpTotalSupply).toString()
-  const foxPoolRatio = foxReserves.div(lpTotalSupply).toString()
+  const ethPoolRatio = ethReserves.div(bnOrZero(lpTotalSupply)).toString()
+  const foxPoolRatio = foxReserves.div(bnOrZero(lpTotalSupply)).toString()
 
   const totalSupplyV2 = await uniV2LPContract.read.totalSupply()
 
@@ -137,10 +133,7 @@ export const ethFoxStakingUserDataResolver = async ({
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const lpTokenMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
-    state,
-    foxEthLpAssetId,
-  )
+  const lpTokenMarketData = selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
   const { assetReference } = fromAssetId(opportunityId)

@@ -70,7 +70,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.SendMax,
   })
 
-  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId)).price
+  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+    ?.price
 
   const chainAdapterManager = getChainAdapterManager()
   const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()
@@ -298,7 +299,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
                 ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
                 : 0,
             )
-    const maxFiat = maxCrypto.times(price)
+    const maxFiat = maxCrypto.times(bnOrZero(price))
 
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)
     const maxFiatOrZero = maxFiat.isPositive() ? maxFiat : bn(0)
@@ -364,7 +365,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
     if (feeAsset.assetId !== assetId) {
       const maxCrypto = bnOrZero(cryptoHumanBalance)
-      const maxFiat = maxCrypto.times(price)
+      const maxFiat = maxCrypto.times(bnOrZero(price))
 
       setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
@@ -414,9 +415,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       const cryptoAmount =
-        fieldName === SendFormFields.FiatAmount ? bn(inputValue).div(price) : inputValue
+        fieldName === SendFormFields.FiatAmount ? bn(inputValue).div(bnOrZero(price)) : inputValue
       const fiatAmount =
-        fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(price)
+        fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(bnOrZero(price))
       const otherAmount =
         fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
 

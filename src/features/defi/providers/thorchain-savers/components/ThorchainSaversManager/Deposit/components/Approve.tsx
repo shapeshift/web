@@ -273,7 +273,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
-        .times(feeMarketData.price)
+        .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}
       isReset={isReset}
       loading={state.loading}

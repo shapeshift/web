@@ -243,7 +243,7 @@ export const YourPositions = () => {
               )
               if (!poolEarnings) return null
 
-              return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)
+              return calculateEarnings(poolEarnings, position.poolShare, runeMarketData?.price)
             },
           })
 
@@ -292,7 +292,7 @@ export const YourPositions = () => {
         },
       },
     ],
-    [pools, runeAsset, runeMarketData.price, translate],
+    [pools, runeAsset, runeMarketData?.price, translate],
   )
 
   const handlePoolClick = useCallback(

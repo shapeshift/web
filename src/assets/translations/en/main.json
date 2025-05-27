@@ -197,7 +197,8 @@
     "installed": "Installed",
     "others": "Others",
     "hardwareWallets": "Hardware Wallets",
-    "dustAmount": "Dust Amount"
+    "dustAmount": "Dust Amount",
+    "marketDataUnavailable": "Market data is unavailable for %{asset}"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -2765,6 +2766,8 @@
     "myPosition": "My Position",
     "myStakedBalance": "My Staked Balance",
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
+    "myRewardsBalance": "My RUNE Rewards Balance",
+    "myRewardsBalanceHelper": "The amount of RUNE staking rewards. Automatically distributed to your wallet daily.",
     "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
     "lifetimeRewards": "Lifetime Rewards",
@@ -2849,7 +2852,8 @@
       "goBack": "Go Back"
     },
     "cta": {
-      "title": "You have TCY claims available!",
+      "title": "THORChain TCY Claims are here!",
+      "hasClaimsTitle": "You have TCY claims available!",
       "button": "Check Claims"
     }
   },
@@ -2896,7 +2900,7 @@
   },
   "foxPage": {
     "title": "FOX Token Dashboard",
-    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you fee discounts, a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
+    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {

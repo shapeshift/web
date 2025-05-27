@@ -224,7 +224,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.estimatedGasCryptoPrecision)
-                  .times(feeMarketData.price)
+                  .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
               />
               <Amount.Crypto

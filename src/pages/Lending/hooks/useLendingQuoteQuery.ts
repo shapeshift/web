@@ -47,8 +47,8 @@ const selectLendingQuoteQuery = memoize(
     borrowAssetMarketData,
   }: {
     data: LendingDepositQuoteResponseSuccess
-    collateralAssetMarketData: MarketData
-    borrowAssetMarketData: MarketData
+    collateralAssetMarketData: MarketData | undefined
+    borrowAssetMarketData: MarketData | undefined
   }): LendingQuoteOpen => {
     const quote = data
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
@@ -59,7 +59,7 @@ const selectLendingQuoteQuery = memoize(
     const quoteCollateralAmountFiatUserCurrency = fromThorBaseUnit(
       quote.expected_collateral_deposited,
     )
-      .times(collateralAssetMarketData.price)
+      .times(bnOrZero(collateralAssetMarketData?.price))
       .toString()
 
     const quoteCollateralAmountFiatUsd = bn(quoteCollateralAmountFiatUserCurrency)
@@ -74,7 +74,7 @@ const selectLendingQuoteQuery = memoize(
       quote.expected_amount_out,
     ).toString()
     const quoteBorrowedAmountUserCurrency = bnOrZero(quoteBorrowedAmountCryptoPrecision)
-      .times(borrowAssetMarketData?.price ?? 0)
+      .times(bnOrZero(borrowAssetMarketData?.price))
       .toString()
     const quoteBorrowedAmountUsd = bn(quoteBorrowedAmountUserCurrency)
       .div(userCurrencyToUsdRate)
@@ -90,7 +90,7 @@ const selectLendingQuoteQuery = memoize(
       .div(BASE_BPS_POINTS)
       .toString()
     const quoteTotalFeesFiatUserCurrency = fromThorBaseUnit(quote.fees.total)
-      .times(borrowAssetMarketData?.price ?? 0)
+      .times(bnOrZero(borrowAssetMarketData?.price))
       .toString()
     const quoteTotalFeesFiatUsd = bn(quoteTotalFeesFiatUserCurrency)
       .div(userCurrencyToUsdRate)
@@ -104,7 +104,7 @@ const selectLendingQuoteQuery = memoize(
       .toString()
 
     const quoteSlippageBorrowedAssetUsd = bn(quoteSlippageBorrowedAssetCryptoPrecision)
-      .times(borrowAssetMarketData?.price ?? 0)
+      .times(bnOrZero(borrowAssetMarketData?.price))
       .div(userCurrencyToUsdRate)
       .toString()
 
@@ -280,7 +280,7 @@ export const useLendingQuoteOpenQuery = ({
         destinationAccountMetadata &&
         collateralAsset &&
         borrowAssetReceiveAddress &&
-        collateralAssetMarketData.price !== '0',
+        collateralAssetMarketData?.price,
     ),
   })
 

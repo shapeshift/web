@@ -205,7 +205,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
-                  .times(marketData.price)
+                  .times(bnOrZero(marketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
@@ -230,7 +230,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
                   .div(bn(10).pow(feeAsset.precision))
-                  .times(feeMarketData.price)
+                  .times(bnOrZero(feeMarketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
@@ -256,7 +256,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   fontWeight='bold'
                   value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
                     .div(bn(10).pow(feeAsset.precision))
-                    .times(feeMarketData.price)
+                    .times(bnOrZero(feeMarketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto

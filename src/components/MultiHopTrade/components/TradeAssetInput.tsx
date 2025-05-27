@@ -45,7 +45,9 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
   const balance = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
   )
-  const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
+  const fiatBalance = bnOrZero(balance)
+    .times(bnOrZero(marketData?.price))
+    .toString()
 
   const onMaxClick = useCallback(
     (isFiat: boolean) => {

@@ -263,7 +263,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         rpcUrls: [this.getRpcUrl()],
         blockExplorerUrls: [targetNetwork.explorer],
       })
-    } catch (err) {
+    } catch (err: any) {
+      // Internal MM bug when broadcasting the wallet_addEthereumChain JSON-RPC call
+      // This is *not* an exception, it actually succeeds
+      // See https://github.com/shapeshift/web/issues/9301#issuecomment-2790459115
+      if (err.code === -32603 && err.message.includes('is not a function')) return
       throw new ChainAdapterError(err, {
         translation: 'chainAdapters.errors.switchChainFailed',
         options: { chain: this.getDisplayName() },

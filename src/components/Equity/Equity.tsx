@@ -7,6 +7,7 @@ import {
   Skeleton,
   Stack,
   StackDivider,
+  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -14,6 +15,7 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 
+import { RawText } from '../Text'
 import { EquityAccountRow } from './EquityAccountRow'
 import { EquityRowLoading } from './EquityRow'
 import { UnderlyingAsset } from './UnderlyingAsset'
@@ -27,6 +29,7 @@ import {
   selectEquityTotalBalance,
   selectIsAnyOpportunitiesApiQueryPending,
   selectIsPortfolioLoading,
+  selectMarketDataByAssetIdUserCurrency,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -56,6 +59,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     }
   }, [accountId, assetId])
 
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const totalEquityBalance = useAppSelector(state => selectEquityTotalBalance(state, filter))
   const equityRows = useAppSelector(state => selectAssetEquityItemsByFilter(state, filter))
 
@@ -117,6 +121,20 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     [borderColor],
   )
 
+  const balanceContent = useMemo(() => {
+    if (!marketData)
+      return (
+        <Flex>
+          <Tooltip label={translate('common.marketDataUnavailable', { asset: asset?.name })}>
+            <RawText fontSize='xl' lineHeight={1} color='text.subtle'>
+              N/A
+            </RawText>
+          </Tooltip>
+        </Flex>
+      )
+    return <Amount.Fiat fontSize='xl' value={totalFiatBalance} lineHeight={1} />
+  }, [asset?.name, marketData, totalFiatBalance, translate])
+
   if (!asset || !isConnected) return null
 
   return (
@@ -130,9 +148,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         <Flex flexDir='column' flex={1}>
           <Heading as='h5'>{translate('common.yourBalance')}</Heading>
           <Flex flexDir='column' gap={1}>
-            <Skeleton isLoaded={!isLoading}>
-              <Amount.Fiat fontSize='xl' value={totalFiatBalance} lineHeight={1} />
-            </Skeleton>
+            <Skeleton isLoaded={!isLoading}>{balanceContent}</Skeleton>
             <Skeleton isLoaded={!isLoading}>
               <Amount.Crypto
                 variant='sub-text'

@@ -544,7 +544,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bn(fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision))
-                    .times(marketData.price)
+                    .times(bnOrZero(marketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto
@@ -567,7 +567,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Skeleton isLoaded={!quoteLoading}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(estimatedGasCryptoPrecision).times(feeMarketData.price).toFixed()}
+                  value={bnOrZero(estimatedGasCryptoPrecision)
+                    .times(bnOrZero(feeMarketData?.price))
+                    .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
@@ -591,7 +593,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                   <Amount.Fiat
                     fontWeight='bold'
                     value={bn(fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision))
-                      .times(feeMarketData.price)
+                      .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
                   />
                   <Amount.Crypto

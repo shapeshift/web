@@ -447,8 +447,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   ])
 
   const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
-    return poolAssetFeeAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
-  }, [poolAssetFeeAssetMarketData.price, poolAssetFeeAssetProtocolFeeCryptoPrecision])
+    return poolAssetFeeAssetProtocolFeeCryptoPrecision.times(
+      bnOrZero(poolAssetFeeAssetMarketData?.price),
+    )
+  }, [poolAssetFeeAssetMarketData?.price, poolAssetFeeAssetProtocolFeeCryptoPrecision])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
@@ -468,19 +470,19 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const poolAssetFeeAssetDustAmountFiatUserCurrency = useMemo(() => {
     return bnOrZero(poolAssetFeeAssetDustAmountCryptoPrecision).times(
-      poolAssetFeeAssetMarketData.price,
+      bnOrZero(poolAssetFeeAssetMarketData?.price),
     )
-  }, [poolAssetFeeAssetMarketData.price, poolAssetFeeAssetDustAmountCryptoPrecision])
+  }, [poolAssetFeeAssetMarketData?.price, poolAssetFeeAssetDustAmountCryptoPrecision])
 
   // We also include the dust amount in the gas fee as it's deducted in the input validation
   // This will result in displaying gas fees and dust amounts as a single value in the UI
   const poolAssetGasFeeFiatUserCurrency = useMemo(
     () =>
       bnOrZero(poolAssetTxFeeCryptoPrecision)
-        .times(poolAssetFeeAssetMarketData.price)
+        .times(bnOrZero(poolAssetFeeAssetMarketData?.price))
         .plus(poolAssetFeeAssetDustAmountFiatUserCurrency),
     [
-      poolAssetFeeAssetMarketData.price,
+      poolAssetFeeAssetMarketData?.price,
       poolAssetTxFeeCryptoPrecision,
       poolAssetFeeAssetDustAmountFiatUserCurrency,
     ],
@@ -492,8 +494,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [actualRuneWithdrawAmountCryptoPrecision, runeOutboundFeeCryptoBaseUnit])
 
   const runeProtocolFeeFiatUserCurrency = useMemo(() => {
-    return runeProtocolFeeCryptoPrecision.times(runeMarketData.price)
-  }, [runeMarketData, runeProtocolFeeCryptoPrecision])
+    return runeProtocolFeeCryptoPrecision.times(bnOrZero(runeMarketData?.price))
+  }, [runeMarketData?.price, runeProtocolFeeCryptoPrecision])
 
   const runeTxFeeCryptoPrecision = useMemo(
     () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
@@ -501,8 +503,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const runeGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
-    [runeMarketData.price, runeTxFeeCryptoPrecision],
+    () => bnOrZero(runeTxFeeCryptoPrecision).times(bnOrZero(runeMarketData?.price)),
+    [runeMarketData?.price, runeTxFeeCryptoPrecision],
   )
 
   const totalProtocolFeeFiatUserCurrency = useMemo(() => {
@@ -564,21 +566,25 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
   const createHandleRemoveLiquidityInputChange = useCallback(
-    (marketData: MarketData, isRune: boolean) => {
+    (marketData: MarketData | undefined, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
-        if (!poolAsset || !marketData) return
+        if (!poolAsset) return
 
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
-            .div(bn(marketData.price ?? '0'))
+            .div(bn(marketData?.price))
             .toFixed()
         })()
 
         const amountFiatUserCurrency = (() => {
           if (isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
-            .times(bn(marketData.price ?? '0'))
+            .times(bn(marketData?.price))
             .toFixed()
         })()
 
@@ -632,7 +638,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       })
 
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
-        .times(runeMarketData.price)
+        .times(bnOrZero(runeMarketData?.price ?? '0'))
         .toFixed()
 
       setSlippageFiatUserCurrency(withdrawType !== 'sym' ? _slippageFiatUserCurrency : '0')
@@ -646,7 +652,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     percentageSelection,
     poolAsset,
     position,
-    runeMarketData.price,
+    runeMarketData?.price,
   ])
 
   useEffect(() => {
@@ -929,7 +935,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       minimumPoolAssetWithdrawAmountFiatUserCurrency.gt(minimumRuneWithdrawAmountFiatUserCurrency)
     ) {
       const minLimitCryptoPrecision = minimumPoolAssetWithdrawAmountFiatUserCurrency
-        .div(poolAssetMarketData.price)
+        .div(bnOrZero(poolAssetMarketData?.price ?? '0'))
         .toFixed(THOR_PRECISION)
       const minLimit = `${minLimitCryptoPrecision} ${poolAsset.symbol}`
       return translate('trade.errors.amountTooSmall', { minLimit })
@@ -942,7 +948,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       minimumRuneWithdrawAmountFiatUserCurrency.gt(minimumPoolAssetWithdrawAmountFiatUserCurrency)
     ) {
       const minLimitCryptoPrecision = minimumRuneWithdrawAmountFiatUserCurrency
-        .div(runeMarketData.price)
+        .div(bnOrZero(runeMarketData?.price ?? '0'))
         .toFixed(THOR_PRECISION)
       const minLimit = `${minLimitCryptoPrecision} ${runeAsset.symbol}`
       return translate('trade.errors.amountTooSmall', { minLimit })
@@ -951,10 +957,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     actualAssetWithdrawAmountFiatUserCurrency,
     actualRuneWithdrawAmountFiatUserCurrency,
     poolAsset,
-    poolAssetMarketData.price,
+    poolAssetMarketData?.price,
     poolAssetProtocolFeeFiatUserCurrency,
     runeAsset,
-    runeMarketData.price,
+    runeMarketData?.price,
     runeProtocolFeeFiatUserCurrency,
     slippageFiatUserCurrency,
     translate,

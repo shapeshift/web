@@ -99,7 +99,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     const currentEpochRewardsCryptoBaseUnit = currentEpochRewardsCryptoBaseUnitQuery.data.toString()
 
     return bnOrZero(fromBaseUnit(currentEpochRewardsCryptoBaseUnit, runeAsset.precision))
-      .times(runeMarketData.price)
+      .times(bnOrZero(runeMarketData?.price))
       .toFixed(2)
   }, [currentEpochRewardsCryptoBaseUnitQuery, runeAsset, runeMarketData])
 

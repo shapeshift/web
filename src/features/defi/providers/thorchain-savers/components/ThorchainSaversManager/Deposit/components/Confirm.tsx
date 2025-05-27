@@ -518,7 +518,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                   value={bn(
                     fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
                   )
-                    .times(marketData.price)
+                    .times(bnOrZero(marketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto
@@ -541,7 +541,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Box textAlign='right'>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(estimatedGasCryptoPrecision).times(feeMarketData.price).toFixed()}
+                  value={bnOrZero(estimatedGasCryptoPrecision)
+                    .times(bnOrZero(feeMarketData?.price))
+                    .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'

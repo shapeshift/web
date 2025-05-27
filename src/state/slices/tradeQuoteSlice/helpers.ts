@@ -25,7 +25,7 @@ import { store } from '@/state/store'
 export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
-  getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string,
+  getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string | undefined,
 ): BigNumber | undefined => {
   const feeAssetUserCurrencyRate = getFeeAssetUserCurrencyRate(feeAsset.assetId)
 
@@ -33,7 +33,7 @@ export const getHopTotalNetworkFeeUserCurrency = (
 
   const networkFeeFiatPrecision = bnOrZero(
     fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision),
-  ).times(feeAssetUserCurrencyRate)
+  ).times(bnOrZero(feeAssetUserCurrencyRate))
 
   return networkFeeFiatPrecision
 }
@@ -48,7 +48,7 @@ export const getHopTotalNetworkFeeUserCurrency = (
 export const getTotalNetworkFeeUserCurrencyPrecision = (
   quote: TradeQuote | TradeRate,
   getFeeAsset: (assetId: AssetId) => Asset,
-  getFeeAssetRate: (feeAssetId: AssetId) => string,
+  getFeeAssetRate: (feeAssetId: AssetId) => string | undefined,
 ): BigNumber | undefined => {
   // network fee is unknown, which is different than it being akschual 0
   if (quote.steps.every(step => !step.feeData.networkFeeCryptoBaseUnit)) return
@@ -79,7 +79,7 @@ const getNetworkFeeUserCurrency = (quote: TradeQuote | TradeRate | undefined): B
   const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
     selectMarketDataByFilter(state, {
       assetId: feeAssetId,
-    }).price
+    })?.price
 
   return (
     getTotalNetworkFeeUserCurrencyPrecision(quote, getFeeAsset, getFeeAssetUserCurrencyRate) ??

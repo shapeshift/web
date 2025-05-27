@@ -19,7 +19,7 @@ import { NotificationStatusTag } from './NotificationStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
-import type { NotificationUnion } from '@/state/slices/actionSlice/types'
+import type { Action } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 
@@ -33,7 +33,7 @@ const hoverProps = {
 type NotificationCardProps = {
   isCollapsable?: boolean
   defaultIsOpen?: boolean
-} & NotificationUnion &
+} & Action &
   PropsWithChildren
 
 export const NotificationCard = ({

@@ -49,7 +49,9 @@ export const actionCenterSlice = createSlice({
           return state.actions.findIndex(
             action =>
               isLimitOrderPayloadDiscriminator(action) &&
-              action.metadata.limitOrderId === payload.metadata.limitOrderId,
+              ((action.metadata.limitOrderId &&
+                action.metadata.limitOrderId === payload.metadata.limitOrderId) ||
+                (action.metadata.quoteId && action.metadata.quoteId === payload.metadata.quoteId)),
           )
         }
 
@@ -71,6 +73,10 @@ export const actionCenterSlice = createSlice({
       const action = {
         ...existingAction,
         ...payload,
+        metadata: {
+          ...existingAction.metadata,
+          ...payload.metadata,
+        },
         updatedAt: Date.now(),
         // ts is borked there, couldn't find any cleaner solution than a cast for simplicity
       } as Action

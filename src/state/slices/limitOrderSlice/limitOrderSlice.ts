@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { QuoteId } from '@shapeshiftoss/types'
+import type { OrderId, QuoteId } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -256,6 +256,16 @@ export const limitOrderSlice = createSlice({
           action.payload.id,
         )
         draftOrderSubmission.limitOrder.txHash = txHash
+      },
+    ),
+    setLimitOrderId: create.reducer(
+      (state, action: PayloadAction<{ id: QuoteId; orderId: OrderId }>) => {
+        const { orderId } = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(
+          state.orderSubmission,
+          action.payload.id,
+        )
+        draftOrderSubmission.limitOrder.orderId = orderId
       },
     ),
   }),

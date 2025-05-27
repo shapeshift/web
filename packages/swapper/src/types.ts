@@ -19,6 +19,7 @@ import type {
   KnownChainIds,
   OrderQuoteResponse,
   PartialRecord,
+  QuoteId,
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
@@ -332,6 +333,7 @@ export type SwapMetadata = {
   buyAsset: Asset
   sellAmountCryptoBaseUnit: string
   buyAmountCryptoBaseUnit: string
+  txLink?: string
 }
 
 export enum SwapStatus {
@@ -345,7 +347,7 @@ export type Swap = {
   id: SwapId
   createdAt: number
   updatedAt: number
-  quoteId: string
+  quoteId: QuoteId
   metadata: SwapMetadata
   status: SwapStatus
 }

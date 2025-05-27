@@ -2978,6 +2978,9 @@
     "notificationsTitles": {
       "swap": {
         "title": "Swap %{sellAmountAndSymbol} to %{buyAmountAndSymbol}"
+      },
+      "limitOrder": {
+        "title": "Limit Order %{sellAmountAndSymbol} to %{buyAmountAndSymbol}"
       }
     }
   }

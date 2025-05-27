@@ -1,15 +1,16 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { swappers, SwapStatus } from '@shapeshiftoss/swapper'
+import { fetchSafeTransactionInfo, swappers, SwapStatus } from '@shapeshiftoss/swapper'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 
-import type { CheckStatusHandlerProps } from './types'
+import type { SwapCheckStatusHandlerProps } from './types'
 
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getParts, numberToCrypto } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { getTxLink } from '@/lib/getTxLink'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
@@ -17,7 +18,7 @@ import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { actionCenterSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectActionBySwapId } from '@/state/slices/selectors'
+import { selectActionBySwapId, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store } from '@/state/store'
 
@@ -25,7 +26,7 @@ export const getTradeStatusHandler = async ({
   toast,
   swap,
   translate,
-}: CheckStatusHandlerProps) => {
+}: SwapCheckStatusHandlerProps) => {
   const maybeSwapper = swappers[swap.metadata.swapperName]
 
   if (maybeSwapper === undefined)
@@ -37,7 +38,7 @@ export const getTradeStatusHandler = async ({
   if (!swap.metadata.sellTxHash) return
 
   const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-    quoteId: swap.quoteId,
+    quoteId: swap.quoteId.toString(),
     txHash: swap.metadata.sellTxHash,
     chainId: swap.metadata.sellAsset.chainId,
     accountId: swap.metadata.sellAccountId,
@@ -71,6 +72,22 @@ export const getTradeStatusHandler = async ({
         })
 
         const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
+
+        const feeAsset = selectFeeAssetByChainId(store.getState(), parsedTx?.chainId ?? '')
+
+        const maybeSafeTx = await fetchSafeTransactionInfo({
+          accountId,
+          safeTxHash: buyTxHash,
+          fetchIsSmartContractAddressQuery,
+        })
+
+        const txLink = getTxLink({
+          stepSource: parsedTx.trade?.dexName,
+          defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+          txId: tx.txid,
+          maybeSafeTx,
+          accountId,
+        })
 
         if (parsedTx.transfers?.length) {
           const receiveTransfer = parsedTx.transfers.find(
@@ -131,6 +148,10 @@ export const getTradeStatusHandler = async ({
               swapSlice.actions.updateSwap({
                 id: swap.id,
                 status: SwapStatus.Success,
+                metadata: {
+                  ...swap.metadata,
+                  txLink,
+                },
               }),
             )
 
@@ -139,6 +160,7 @@ export const getTradeStatusHandler = async ({
               title: notificationTitle,
               status: 'success',
             })
+            return
           }
         }
       } catch (error) {

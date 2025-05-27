@@ -1,29 +1,74 @@
+import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { actionCenterSlice } from './actionSlice'
-import { ActionStatus, isTradePayloadDiscriminator } from './types'
+import {
+  ActionStatus,
+  isLimitOrderPayloadDiscriminator,
+  isTradePayloadDiscriminator,
+} from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectSwapIdParamFromFilter } from '@/state/selectors'
 
 export const selectActions = actionCenterSlice.selectors.selectActions
 
-export const selectInitializedActionsByUpdatedAtDesc = createDeepEqualOutputSelector(
+export const selectInitializedActionsByUpdatedAtDescFilteredByWallet =
+  createDeepEqualOutputSelector(
+    selectActions,
+    selectEnabledWalletAccountIds,
+    (actions, enabledWalletAccountIds) => {
+      return [...actions]
+        .filter(
+          action =>
+            (action.initiatorAccountId &&
+              enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
+            !action.initiatorAccountId,
+        )
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+    },
+  )
+
+export const selectPendingActionsFilteredByWallet = createDeepEqualOutputSelector(
   selectActions,
-  actions => {
-    return [...actions].sort((a, b) => b.updatedAt - a.updatedAt)
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      action =>
+        action.status === ActionStatus.Pending &&
+        ((action.initiatorAccountId &&
+          enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
+          !action.initiatorAccountId),
+    )
   },
 )
 
-export const selectPendingActions = createDeepEqualOutputSelector(selectActions, actions => {
-  return actions.filter(action => action.status === ActionStatus.Pending)
-})
+export const selectPendingSwapActionsFilteredByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      action =>
+        (action.status === ActionStatus.Pending || action.status === ActionStatus.Open) &&
+        ((action.initiatorAccountId &&
+          enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
+          !action.initiatorAccountId),
+    )
+  },
+)
 
-export const selectActionIds = createDeepEqualOutputSelector(selectActions, actions => {
-  return actions.map(action => action.id)
-})
-
-export const selectActionSwapIds = createDeepEqualOutputSelector(selectPendingActions, actions => {
-  return actions.filter(isTradePayloadDiscriminator).map(action => action.metadata?.swapId)
-})
+export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      action =>
+        action.status === ActionStatus.Open &&
+        isLimitOrderPayloadDiscriminator(action) &&
+        ((action.initiatorAccountId &&
+          enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
+          !action.initiatorAccountId),
+    )
+  },
+)
 
 export const selectActionBySwapId = createDeepEqualOutputSelector(
   selectActions,

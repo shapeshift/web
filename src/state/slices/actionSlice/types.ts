@@ -1,10 +1,13 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Asset, OrderId, QuoteId } from '@shapeshiftoss/types'
+
+import type { PriceDirection } from '../limitOrderInputSlice/constants'
 
 export enum ActionCenterType {
   Deposit = 'Deposit',
   Claim = 'Claim',
   Swap = 'Swap',
-  Limit = 'Limit',
+  LimitOrder = 'LimitOrder',
 }
 
 export enum ActionStatus {
@@ -24,8 +27,23 @@ type ActionSwapMetadata = {
   swapId: string
 }
 
+export type ActionLimitPrice = {
+  [PriceDirection.BuyAssetDenomination]: string
+  [PriceDirection.SellAssetDenomination]: string
+}
+
 type ActionLimitOrderMetadata = {
-  limitOrderId: string
+  quoteId: QuoteId
+  limitOrderId?: OrderId
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  sellAsset: Asset
+  buyAsset: Asset
+  limitPrice: ActionLimitPrice
+  expires: number | undefined
+  executedBuyAmountCryptoBaseUnit?: string
+  executedSellAmountCryptoBaseUnit?: string
+  filledDecimalPercentage?: string
 }
 
 export type SwapAction = {
@@ -37,17 +55,19 @@ export type SwapAction = {
   title: string
   assetIds: AssetId[]
   metadata: ActionSwapMetadata
+  initiatorAccountId: AccountId
 }
 
 export type LimitOrderAction = {
   id: ActionId
-  type: ActionCenterType.Limit
+  type: ActionCenterType.LimitOrder
   status: ActionStatus
   createdAt: number
   updatedAt: number
   title: string
   assetIds: AssetId[]
   metadata: ActionLimitOrderMetadata
+  initiatorAccountId: AccountId
 }
 
 export type BaseAction = {
@@ -59,6 +79,7 @@ export type BaseAction = {
   title: string
   assetIds: AssetId[]
   metadata: undefined
+  initiatorAccountId: AccountId | undefined
 }
 
 export type Action = SwapAction | LimitOrderAction | BaseAction
@@ -98,5 +119,7 @@ export const isTradePayloadDiscriminator = (
 export const isLimitOrderPayloadDiscriminator = (
   action: ActionPayload | ActionUpdatePayload,
 ): action is LimitOrderAction => {
-  return Boolean(action.metadata && 'limitOrderId' in action.metadata)
+  return Boolean(
+    action.metadata && ('quoteId' in action.metadata || 'limitOrderId' in action.metadata),
+  )
 }

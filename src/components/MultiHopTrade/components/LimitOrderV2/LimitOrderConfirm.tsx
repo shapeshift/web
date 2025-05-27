@@ -48,9 +48,8 @@ import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/sto
 export const LimitOrderConfirm = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
-    limitOrderSlice.actions,
-  )
+  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed, setLimitOrderId } =
+    useActions(limitOrderSlice.actions)
   const {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
@@ -321,6 +320,13 @@ export const LimitOrderConfirm = () => {
 
         setLimitOrderTxComplete(quoteId)
 
+        if (result.data) {
+          setLimitOrderId({
+            id: quoteId,
+            orderId: result.data,
+          })
+        }
+
         // refetch the orders list for this account
         const accountId = activeQuote?.params.accountId
         queryClient.invalidateQueries({
@@ -368,6 +374,7 @@ export const LimitOrderConfirm = () => {
     sellAsset,
     setLimitOrderTxComplete,
     setLimitOrderTxFailed,
+    setLimitOrderId,
     wallet,
     walletDispatch,
   ])

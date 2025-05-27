@@ -1,6 +1,4 @@
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 
@@ -18,11 +16,11 @@ import { getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { relayService } from './utils/relayService'
-import type { RelayStatus } from './utils/types'
+import type { RelayStatus, Transaction } from './utils/types'
 
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
-const txByQuoteIdMap: Map<string, SignTx<EvmChainId>> = new Map()
+const txByQuoteIdMap: Map<string, Transaction> = new Map()
 
 export const relayApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input, deps, chainIdToRelayChainId),
@@ -96,11 +94,11 @@ export const relayApi: SwapperApi = {
       to,
       value,
       ...feeData,
-      // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for total gas used.
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
     })
 
-    txByQuoteIdMap.set(tradeQuote.id, unsignedTx)
+    txByQuoteIdMap.set(tradeQuote.id, { data, from, to, value })
 
     return unsignedTx
   },

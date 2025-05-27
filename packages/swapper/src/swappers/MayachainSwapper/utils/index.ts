@@ -1,5 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { mayachainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -9,10 +7,6 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
 import { assetIdToPoolAssetId } from './poolAssetHelpers/poolAssetHelpers'
-
-export * from './poolAssetHelpers/poolAssetHelpers'
-
-export const isCacao = (assetId: AssetId) => assetId === mayachainAssetId
 
 export const assertValidTrade = ({
   buyAsset,

@@ -39,21 +39,17 @@ const getSupportedAssets = async (
 
 export const mayachainSwapper: Swapper = {
   executeEvmTransaction,
-
   executeCosmosSdkTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },
-
   executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },
-
   filterAssetIdsBySellable: async (_, config) => {
     const { supportedSellAssetIds } = await getSupportedAssets(config)
 
     return supportedSellAssetIds
   },
-
   filterBuyAssetsBySellAssetId: async ({ assets, sellAsset, config }) => {
     const { supportedSellAssetIds, supportedBuyAssetIds } = await getSupportedAssets(config)
 

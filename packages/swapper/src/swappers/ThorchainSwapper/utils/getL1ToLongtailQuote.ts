@@ -12,14 +12,15 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { ThorTradeQuote } from '../../../thorchain-utils'
-import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
+import { getAffiliate, getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
+import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo/addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
@@ -153,10 +154,11 @@ export const getL1ToLongtailQuote = async (
         finalAssetAmountOut: quotedAmountOut.toString(),
         slippageBps: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??
-            getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
+            getDefaultSlippageDecimalPercentageForSwapper(swapperName),
         ).toString(),
         quotedMemo: quote.memo,
         longtailTokens,
+        affiliate: getAffiliate(swapperName),
       })
 
       return Ok({

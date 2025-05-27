@@ -1,8 +1,6 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { Token } from '@uniswap/sdk-core'
 
-export const THORCHAIN_AFFILIATE_NAME = 'ss'
-
 export const WETH_TOKEN = new Token(
   Number(CHAIN_REFERENCE.EthereumMainnet),
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',

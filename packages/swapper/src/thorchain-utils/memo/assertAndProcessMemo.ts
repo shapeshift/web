@@ -1,7 +1,5 @@
 import { bn } from '@shapeshiftoss/utils'
 
-import { THORCHAIN_AFFILIATE_NAME } from '../../swappers/ThorchainSwapper/utils/constants'
-
 function assertMemoHasPool(pool: string | undefined, memo: string): asserts pool is string {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
 }
@@ -104,10 +102,7 @@ function assertIsValidBasisPoints(
 /**
  * asserts memo is valid and processes the memo to ensure our affiliate code is always present
  */
-export const assertAndProcessMemo = (
-  memo: string,
-  affiliate = THORCHAIN_AFFILIATE_NAME,
-): string => {
+export const assertAndProcessMemo = (memo: string, affiliate: string): string => {
   const [action] = memo.split(':')
 
   assertMemoHasAction(action, memo)

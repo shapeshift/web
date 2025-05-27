@@ -32,7 +32,7 @@ import { makeSwapErrorRight } from '../utils'
 import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
-import { addLimitToMemo, getNativePrecision, getSwapSource } from './index'
+import { addLimitToMemo, getAffiliate, getNativePrecision, getSwapSource } from './index'
 import type {
   ThorEvmTradeQuote,
   ThorEvmTradeRate,
@@ -85,7 +85,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     accountNumber,
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
-    potentialAffiliateBps,
   } = input
 
   const nativePrecision = getNativePrecision(swapperName)
@@ -219,7 +218,11 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       slippageBps: route.slippageBps,
     })
 
-    return addLimitToMemo({ memo: route.quote.memo, limit: limitWithManualSlippage })
+    return addLimitToMemo({
+      memo: route.quote.memo,
+      limit: limitWithManualSlippage,
+      affilate: getAffiliate(swapperName),
+    })
   }
 
   const makeThorTradeRateOrQuote = <U extends ThorTradeRateOrQuote>({
@@ -247,7 +250,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       memo,
       receiveAddress,
       affiliateBps: route.affiliateBps,
-      potentialAffiliateBps,
       isStreaming: route.isStreaming,
       recommendedMinimumCryptoBaseUnit,
       slippageTolerancePercentageDecimal: slippage,

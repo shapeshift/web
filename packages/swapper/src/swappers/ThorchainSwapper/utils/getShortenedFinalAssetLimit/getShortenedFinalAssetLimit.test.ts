@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { addFinalAssetLimitToMemo } from '../../../../thorchain-utils'
+import { addFinalAssetLimitToMemo, THORCHAIN_AFFILIATE_NAME } from '../../../../thorchain-utils'
 import { getShortenedFinalAssetLimit } from './getShortenedFinalAssetLimit'
 
 const RECEIVE_ADDRESS = '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6'
@@ -30,6 +30,7 @@ describe('makeMemoWithShortenedfinalAssetLimit', () => {
     const modifiedMemoWithfinalAssetLimitOut = addFinalAssetLimitToMemo({
       memo: quotedMemo,
       finalAssetLimit,
+      affiliate: THORCHAIN_AFFILIATE_NAME,
     })
 
     expect(modifiedMemoWithfinalAssetLimitOut.length).toBe(80)
@@ -103,6 +104,7 @@ describe('makeMemoWithShortenedfinalAssetLimit', () => {
     const modifiedMemoWithfinalAssetLimitOut = addFinalAssetLimitToMemo({
       memo: quotedMemo,
       finalAssetLimit,
+      affiliate: THORCHAIN_AFFILIATE_NAME,
     })
 
     expect(modifiedMemoWithfinalAssetLimitOut.length).toBeLessThanOrEqual(220)

@@ -34,6 +34,7 @@ export const addL1ToLongtailPartsToMemo = ({
   finalAssetAmountOut,
   slippageBps,
   longtailTokens,
+  affiliate: _affiliate,
 }: {
   sellAssetChainId: ChainId
   slippageBps: BigNumber.Value
@@ -42,6 +43,7 @@ export const addL1ToLongtailPartsToMemo = ({
   finalAssetAssetId: AssetId
   finalAssetAmountOut: string
   longtailTokens: AssetId[]
+  affiliate: string
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
@@ -115,9 +117,10 @@ export const addL1ToLongtailPartsToMemo = ({
   const memoWithShortenedFinalAssetAmountOut = addFinalAssetLimitToMemo({
     memo: memoWithoutFinalAssetLimit,
     finalAssetLimit: shortenedFinalAssetAmount,
+    affiliate: _affiliate,
   })
 
   assert(memoWithShortenedFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')
 
-  return assertAndProcessMemo(memoWithShortenedFinalAssetAmountOut)
+  return assertAndProcessMemo(memoWithShortenedFinalAssetAmountOut, _affiliate)
 }

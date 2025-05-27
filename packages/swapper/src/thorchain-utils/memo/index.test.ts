@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { THORCHAIN_AFFILIATE_NAME } from '../constants'
 import { addAggregatorAddressToMemo } from './addAggregatorAddressToMemo'
 import { addFinalAssetAddressToMemo } from './addFinalAssetAddressToMemo'
 import { addFinalAssetLimitToMemo } from './addFinalAssetLimitToMemo'
@@ -66,6 +67,7 @@ describe('memo', () => {
         const modifiedMemo1 = addFinalAssetLimitToMemo({
           memo: memo1,
           finalAssetLimit: '100001',
+          affiliate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0:47:ec01:100001',
@@ -78,6 +80,7 @@ describe('memo', () => {
         const modifiedMemo1 = addFinalAssetLimitToMemo({
           memo: memo1,
           finalAssetLimit: '99992',
+          affiliate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0:47:ec01:100001',
@@ -94,6 +97,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -104,6 +108,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -116,6 +121,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '2000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -126,6 +132,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '2000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(memo2)
       })
@@ -135,6 +142,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -145,6 +153,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(
           '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -160,6 +169,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '42',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
@@ -171,6 +181,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '42',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
@@ -184,6 +195,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '1337',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
@@ -195,6 +207,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '1337',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(memo2)
       })
@@ -206,6 +219,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '42',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
@@ -217,6 +231,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '42',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
@@ -231,6 +246,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -241,6 +257,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(
           '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -253,6 +270,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '2000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -263,6 +281,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '2000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(memo2)
       })
@@ -273,6 +292,7 @@ describe('memo', () => {
         const modifiedMemo1 = addLimitToMemo({
           memo: memo1,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo1).toBe(
           '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -283,6 +303,7 @@ describe('memo', () => {
         const modifiedMemo2 = addLimitToMemo({
           memo: memo2,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo2).toBe(
           '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
@@ -296,6 +317,7 @@ describe('memo', () => {
         const modifiedMemo = addLimitToMemo({
           memo,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo).toBe(memo)
       })
@@ -307,6 +329,7 @@ describe('memo', () => {
         const modifiedMemo = addLimitToMemo({
           memo,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo).toBe(memo)
       })
@@ -318,6 +341,7 @@ describe('memo', () => {
         const modifiedMemo = addLimitToMemo({
           memo,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo).toBe(memo)
       })
@@ -329,6 +353,7 @@ describe('memo', () => {
         const modifiedMemo = addLimitToMemo({
           memo,
           limit: '1000000000',
+          affilate: THORCHAIN_AFFILIATE_NAME,
         })
         expect(modifiedMemo).toBe('-:ETH/ETH:5000::ss:0')
       })
@@ -340,48 +365,48 @@ describe('memo', () => {
       it('processes with affiliate name and with fee bps', () => {
         const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
         const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
         const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
         const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with affiliate name and no fee bps', () => {
         let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss'
         let expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:'
         expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
         const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345::50'
         const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with affiliate name and no fee bps and swapOut parameters', () => {
         let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss::ae:kd:12345602'
         let expected =
           '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0:ae:kd:12345602'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:'
         expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with swapOut parameters and no affiliate name', () => {
@@ -389,95 +414,95 @@ describe('memo', () => {
           '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345::50:ae:kd:12345602'
         const expected =
           '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50:ae:kd:12345602'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and no fee bps and swapOut parameters', () => {
         let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:::ae:kd:12345602'
         let expected =
           '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0:ae:kd:12345602'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and no fee bps', () => {
         let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345'
         let expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:'
         expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345::'
         expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
         const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345'
         const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with wrong affiliate name', () => {
         const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:bad:50'
         const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid asset', () => {
         const memo = '=::0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on missing destination address', () => {
         const memo = '=:ETH.ETH::9786345:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on invalid limit standard swap', () => {
         let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:bad:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on invalid limit streaming swap', () => {
         let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:/:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6://:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:///:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0//:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/0/:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:/0/:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:/0/0:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6://0:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -485,85 +510,85 @@ describe('memo', () => {
       it('processes with affiliate name and with fee bps', () => {
         const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
         const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
         const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
         const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with affiliate name and with no fee bps', () => {
         let memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss'
         let expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:'
         expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
         const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:::50'
         const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
         const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
         const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with no affiliate name and with no fee bps', () => {
         let memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
         let expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:'
         expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::'
         expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:::'
         expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with wrong affiliate name', () => {
         const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::bad:50'
         const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid pool', () => {
         const memo = '+:::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on paired address', () => {
         const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:bad:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -571,86 +596,86 @@ describe('memo', () => {
       it('processes with affiliate name and with fee bps', () => {
         const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
         const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
         const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
         const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with affiliate name and with no fee bps', () => {
         let memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss'
         let expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:'
         expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
         const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:::50'
         const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with no fee bps', () => {
         let memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
         let expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:'
         expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::'
         expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:::'
         expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
         const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
         const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with paired address', () => {
         const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:pairedAddr:ss:50'
         const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:pairedAddr:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with wrong affiliate name', () => {
         const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::bad:50'
         const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid pool', () => {
         const memo = '+:::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -658,93 +683,93 @@ describe('memo', () => {
       it('processes with affiliate name and with fee bps', () => {
         const memo = '-:ETH/ETH:5000::ss:50'
         const expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
         const memo = '-:ETH/ETH:5000::ss:50'
         const expected = '-:ETH/ETH:5000::ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with affiliate name and with no fee bps', () => {
         let memo = '-:ETH/ETH:5000::ss'
         let expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH/ETH:5000::ss:'
         expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
         const memo = '-:ETH/ETH:5000:::50'
         const expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with no fee bps', () => {
         let memo = '-:ETH/ETH:5000'
         let expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH/ETH:5000:'
         expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH/ETH:5000::'
         expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH/ETH:5000:::'
         expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
         const memo = '-:ETH/ETH:5000'
         const expected = '-:ETH/ETH:5000::ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with wrong affiliate name', () => {
         const memo = '-:ETH/ETH:5000::bad:0'
         const expected = '-:ETH/ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid pool', () => {
         const memo = '-::5000::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on asset', () => {
         const memo = '-:ETH/ETH:5000:ETH/ETH:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on invalid basis points', () => {
         let memo = '-:ETH/ETH:50000::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo = '-:ETH/ETH:-1::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -752,91 +777,91 @@ describe('memo', () => {
       it('processes with affiliate name and with fee bps', () => {
         const memo = '-:ETH.ETH:5000::ss:50'
         const expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
         const memo = '-:ETH.ETH:5000::ss:50'
         const expected = '-:ETH.ETH:5000::ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with affiliate name and with no fee bps', () => {
         let memo = '-:ETH.ETH:5000::ss'
         let expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH.ETH:5000::ss:'
         expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
         const memo = '-:ETH.ETH:5000:::50'
         const expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with no fee bps', () => {
         let memo = '-:ETH.ETH:5000'
         let expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH.ETH:5000:'
         expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH.ETH:5000::'
         expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '-:ETH.ETH:5000:::'
         expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
         const memo = '-:ETH.ETH:5000'
         const expected = '-:ETH.ETH:5000::ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with asset', () => {
         const memo = '-:ETH.ETH:5000:ETH.ETH:ss:0'
         const expected = '-:ETH.ETH:5000:ETH.ETH:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with wrong affiliate name', () => {
         const memo = '-:ETH.ETH:5000::bad:0'
         const expected = '-:ETH.ETH:5000::ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid pool', () => {
         const memo = '-::5000::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on invalid basis points', () => {
         const memo = '-:ETH/ETH:50000::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -846,7 +871,7 @@ describe('memo', () => {
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
         const expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
@@ -855,13 +880,13 @@ describe('memo', () => {
         const expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
@@ -870,13 +895,13 @@ describe('memo', () => {
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss'
         let expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:'
         expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
@@ -884,7 +909,7 @@ describe('memo', () => {
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345::50'
         const expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with no fee bps', () => {
@@ -892,19 +917,19 @@ describe('memo', () => {
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345'
         let expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:'
         expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345::'
         expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
@@ -913,13 +938,13 @@ describe('memo', () => {
         const expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
@@ -928,28 +953,28 @@ describe('memo', () => {
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:bad:50'
         const expected =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid asset', () => {
         const memo = '$+::0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on missing destination address', () => {
         const memo = '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F::9786345:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       // TODO(gomes): revert me back in https://github.com/shapeshift/web/pull/6753
       it.skip('should throw on invalid min out', () => {
         let memo =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
 
         memo =
           '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:0:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -957,81 +982,81 @@ describe('memo', () => {
       it('process with affiliate name and with fee bps', () => {
         const memo = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:50'
         const expected = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
         const memo = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:50'
         const expected = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('process with affiliate name and with no fee bps', () => {
         let memo = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss'
         let expected = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:'
         expected = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with fee bps', () => {
         const memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345::50'
         const expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name and with no fee bps', () => {
         let memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345'
         let expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:'
         expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
 
         memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345::'
         expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
         const memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345'
         const expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
 
-        const first = assertAndProcessMemo(memo)
+        const first = assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)
         expect(first).toBe(expected)
-        const second = assertAndProcessMemo(first)
+        const second = assertAndProcessMemo(first, THORCHAIN_AFFILIATE_NAME)
         expect(second).toBe(expected)
-        const third = assertAndProcessMemo(second)
+        const third = assertAndProcessMemo(second, THORCHAIN_AFFILIATE_NAME)
         expect(third).toBe(expected)
-        const fourth = assertAndProcessMemo(third)
+        const fourth = assertAndProcessMemo(third, THORCHAIN_AFFILIATE_NAME)
         expect(fourth).toBe(expected)
       })
 
       it('processes with wrong affiliate name', () => {
         const memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:bad:0'
         const expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on invalid asset', () => {
         const memo = '$+::bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:50'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
 
       it('should throw on missing destination address', () => {
         const memo = '$-:BTC.BTC::9786345:ss:0'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -1039,18 +1064,18 @@ describe('memo', () => {
       it('processes with affiliate name', () => {
         const memo = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4:ss'
         const expected = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with no affiliate name', () => {
         const memo = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
         const expected = 'tcy:sthor1qhm0wjsrlw8wpvzrnpj8xxqu87tcucd6h98le4'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('should throw on missing address', () => {
         const memo = 'tcy:'
-        expect(() => assertAndProcessMemo(memo)).toThrow()
+        expect(() => assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toThrow()
       })
     })
 
@@ -1058,13 +1083,13 @@ describe('memo', () => {
       it('processes tcy+ memo', () => {
         const memo = 'tcy+'
         const expected = 'tcy+'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('strips additional parts', () => {
         const memo = 'tcy+:foo:bar:baz'
         const expected = 'tcy+'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
     })
 
@@ -1072,19 +1097,19 @@ describe('memo', () => {
       it('processes with 100% bps', () => {
         const memo = 'tcy-:10000'
         const expected = 'tcy-:10000'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('processes with 50% bps', () => {
         const memo = 'tcy-:5000'
         const expected = 'tcy-:5000'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
 
       it('strips additional parts', () => {
         const memo = 'tcy-:5000:foo:bar'
         const expected = 'tcy-:5000'
-        expect(assertAndProcessMemo(memo)).toBe(expected)
+        expect(assertAndProcessMemo(memo, THORCHAIN_AFFILIATE_NAME)).toBe(expected)
       })
     })
   })

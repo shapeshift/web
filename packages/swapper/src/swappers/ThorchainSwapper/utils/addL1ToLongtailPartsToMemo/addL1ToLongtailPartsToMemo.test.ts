@@ -1,6 +1,7 @@
 import { btcChainId, dogeChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
+import { THORCHAIN_AFFILIATE_NAME } from '../../../../thorchain-utils'
 import {
   addL1ToLongtailPartsToMemo,
   getMaxBytesLengthByChainId,
@@ -40,6 +41,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
       finalAssetAmountOut,
       slippageBps,
       longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+      affiliate: THORCHAIN_AFFILIATE_NAME,
     })
 
     expect(modifiedMemo).toBe(
@@ -63,6 +65,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+        affiliate: THORCHAIN_AFFILIATE_NAME,
       }),
     ).toThrow('memo is too long')
   })
@@ -82,6 +85,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+        affiliate: THORCHAIN_AFFILIATE_NAME,
       }),
     ).toThrow('memo is too long')
   })
@@ -100,6 +104,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+        affiliate: THORCHAIN_AFFILIATE_NAME,
       }),
     ).toThrow('memo is too long')
   })
@@ -118,6 +123,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+        affiliate: THORCHAIN_AFFILIATE_NAME,
       }),
     ).toThrow('memo is too long')
   })
@@ -134,6 +140,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
       finalAssetAmountOut,
       slippageBps,
       longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+      affiliate: THORCHAIN_AFFILIATE_NAME,
     })
 
     expect(modifiedMemo.length).toBeLessThanOrEqual(getMaxBytesLengthByChainId(dogeChainId))

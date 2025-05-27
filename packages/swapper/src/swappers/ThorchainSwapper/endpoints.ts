@@ -84,7 +84,7 @@ export const thorchainApi: SwapperApi = {
         throw Error(`Unsupported sellAsset: ${sellAsset.assetId}`)
     }
   },
-  getCosmosSdkTransactionFees: cosmossdk.getCosmosSdkTransactionFees,
+  getCosmosSdkTransactionFees: input => cosmossdk.getCosmosSdkTransactionFees(input),
   checkTradeStatus: input => {
     const { config } = input
     const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain`

@@ -2977,10 +2977,10 @@
     },
     "notificationsTitles": {
       "swap": {
-        "title": "Swap %{sellAmountAndSymbol} to %{buyAmountAndSymbol}"
+        "title": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
       },
       "limitOrder": {
-        "title": "Limit Order %{sellAmountAndSymbol} to %{buyAmountAndSymbol}"
+        "title": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
       }
     }
   }

@@ -18,8 +18,13 @@ import { NotificationStatusIcon } from './NotificationStatusIcon'
 import { NotificationStatusTag } from './NotificationStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
 import type { Action } from '@/state/slices/actionSlice/types'
+import { isTradePayloadDiscriminator } from '@/state/slices/actionSlice/types'
+import { selectSwapById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
 
@@ -45,8 +50,10 @@ export const NotificationCard = ({
   children,
   isCollapsable = true,
   defaultIsOpen = false,
+  ...action
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
+  const swapById = useAppSelector(selectSwapById)
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -59,6 +66,12 @@ export const NotificationCard = ({
       return notificationDate.toDate().toLocaleString()
     }
   }, [createdAt])
+
+  const swap = useMemo(() => {
+    if (isTradePayloadDiscriminator(action)) {
+      return swapById[action.metadata.swapId]
+    }
+  }, [action, swapById])
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {
@@ -87,6 +100,16 @@ export const NotificationCard = ({
                 <NotificationStatusTag status={status} />
                 <RawText>{formattedDate}</RawText>
                 <RawText>{type}</RawText>
+                {swap?.metadata.swapperName && (
+                  <RawText>
+                    <HoverTooltip label={swap.metadata.swapperName}>
+                      <SwapperIcons
+                        swapperName={swap.metadata.swapperName}
+                        swapSource={undefined}
+                      />
+                    </HoverTooltip>
+                  </RawText>
+                )}
               </HStack>
             </Stack>
             {isCollapsable && (

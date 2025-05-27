@@ -71,16 +71,7 @@ export const NotificationCenter = memo(() => {
 
             const swap = swapById[action.metadata.swapId]
 
-            return (
-              <SwapDetails
-                txLink={swap.metadata.txLink}
-                buyAsset={swap.metadata.buyAsset}
-                sellAsset={swap.metadata.sellAsset}
-                buyAmountCryptoBaseUnit={swap.metadata.buyAmountCryptoBaseUnit}
-                sellAmountCryptoBaseUnit={swap.metadata.sellAmountCryptoBaseUnit}
-                swapperName={swap.metadata.swapperName}
-              />
-            )
+            return <SwapDetails txLink={swap.metadata.txLink} />
           }
           default:
             return null

@@ -51,7 +51,7 @@ const chainToChainId: Record<Chain, ChainId> = {
   [Chain.THOR]: thorchainChainId,
 }
 
-const getFeeAssetFromThorchainChain = (chain: Chain): AssetId => {
+const getFeeAssetFromChain = (chain: Chain): AssetId => {
   return chainIdToFeeAssetId(chainToChainId[chain])
 }
 
@@ -82,10 +82,13 @@ export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair 
 
     const chainId = chainToChainId[chain]
 
-    if (!chainId) throw new Error(`no chainId for chain: ${chain}`)
+    if (!chainId) {
+      console.error(`no chainId for chain: ${chain}`)
+      return
+    }
 
     if (!assetReference) {
-      const assetId = getFeeAssetFromThorchainChain(chain)
+      const assetId = getFeeAssetFromChain(chain)
 
       return [pool.asset, assetId]
     } else {

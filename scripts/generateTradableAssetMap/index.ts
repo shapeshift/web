@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { mayachainAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { mayachainAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import fs from 'fs'
@@ -21,9 +21,9 @@ const axiosConfig = {
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
 
-export const generateTradableThorAssetMap = async (
+export const generateTradableAssetMap = async (
   url: string,
-  nativePair: AssetIdPair,
+  nativePairs: AssetIdPair[],
   swapper: string,
 ) => {
   const thorService = axios.create(axiosConfig)
@@ -37,7 +37,7 @@ export const generateTradableThorAssetMap = async (
       // native asset is not included in the pools list, so it needs to be manually added as a tradable asset
       const assetIdPairs: AssetIdPair[] = [
         ...poolData.map(getAssetIdPairFromPool).filter(isSome),
-        nativePair,
+        ...nativePairs,
       ]
 
       const assetsRecord = assetIdPairs.reduce<Record<string, AssetId>>((acc, [asset, assetId]) => {
@@ -60,9 +60,12 @@ export const generateTradableThorAssetMap = async (
   }
 }
 
-generateTradableThorAssetMap(
+generateTradableAssetMap(
   'https://daemon.thorchain.shapeshift.com/lcd/thorchain/pools',
-  ['THOR.RUNE', thorchainAssetId],
+  [
+    ['THOR.RUNE', thorchainAssetId],
+    ['THOR.TCY', tcyAssetId],
+  ],
   'ThorchainSwapper',
 )
   .then(() => {
@@ -70,9 +73,9 @@ generateTradableThorAssetMap(
   })
   .catch(err => console.info(err))
 
-generateTradableThorAssetMap(
+generateTradableAssetMap(
   'https://daemon.mayachain.shapeshift.com/lcd/mayachain/pools',
-  ['MAYA.CACAO', mayachainAssetId],
+  [['MAYA.CACAO', mayachainAssetId]],
   'MayachainSwapper',
 )
   .then(() => {

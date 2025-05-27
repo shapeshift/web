@@ -3,12 +3,12 @@ import invert from 'lodash/invert'
 
 import generatedTradableAssetMap from '../../generated/generatedTradableAssetMap.json'
 
-export const thorPoolIdAssetIdSymbolMap = generatedTradableAssetMap as Record<string, AssetId>
+const poolIdAssetIdSymbolMap = generatedTradableAssetMap as Record<string, AssetId>
 
-const assetIdToPoolAssetIdMap = invert(thorPoolIdAssetIdSymbolMap)
+export const assetIdToPoolAssetIdMap = invert(poolIdAssetIdSymbolMap)
 
 export const poolAssetIdToAssetId = (id: string): AssetId | undefined =>
-  thorPoolIdAssetIdSymbolMap[id.toUpperCase()]
+  poolIdAssetIdSymbolMap[id.toUpperCase()]
 
 export const assetIdToPoolAssetId = ({ assetId }: { assetId: AssetId }): string | undefined =>
   assetIdToPoolAssetIdMap[assetId.toLowerCase()]

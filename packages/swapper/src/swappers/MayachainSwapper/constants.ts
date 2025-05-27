@@ -5,6 +5,7 @@ import { SwapperName } from '../../types'
 import { assetIdToPoolAssetIdMap } from './utils/poolAssetHelpers/poolAssetHelpers'
 
 export const MAYA_PRECISION = 8
+export const MAYACHAIN_AFFILIATE_NAME = ''
 
 export const MAYACHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId),

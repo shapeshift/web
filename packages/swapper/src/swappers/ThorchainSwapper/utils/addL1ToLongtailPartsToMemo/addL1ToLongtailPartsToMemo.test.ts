@@ -1,7 +1,7 @@
 import { btcChainId, dogeChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
-import { THORCHAIN_AFFILIATE_NAME } from '../../../../thorchain-utils'
+import { THORCHAIN_AFFILIATE_NAME } from '../../constants'
 import {
   addL1ToLongtailPartsToMemo,
   getMaxBytesLengthByChainId,

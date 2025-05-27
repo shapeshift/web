@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { THORCHAIN_AFFILIATE_NAME } from '../constants'
+import { THORCHAIN_AFFILIATE_NAME } from '../../swappers/ThorchainSwapper'
 import { addAggregatorAddressToMemo } from './addAggregatorAddressToMemo'
 import { addFinalAssetAddressToMemo } from './addFinalAssetAddressToMemo'
 import { addFinalAssetLimitToMemo } from './addFinalAssetLimitToMemo'

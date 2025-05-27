@@ -35,6 +35,7 @@ import {
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
 import {
+  THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT,
   THORCHAIN_POOL_MODULE_ADDRESS,
 } from '@/lib/utils/thorchain/constants'
@@ -128,7 +129,10 @@ export const useSendThorTx = ({
     return asset ? getThorchainTransactionType(asset.chainId) : undefined
   }, [asset])
 
-  const memo = useMemo(() => _memo && assertAndProcessMemo(_memo), [_memo])
+  const memo = useMemo(
+    () => _memo && assertAndProcessMemo(_memo, THORCHAIN_AFFILIATE_NAME),
+    [_memo],
+  )
 
   const { data: inboundAddressData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

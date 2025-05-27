@@ -5,6 +5,7 @@ import { SwapperName } from '../../types'
 import { thorPoolIdAssetIdSymbolMap } from './utils/poolAssetHelpers/poolAssetHelpers'
 
 export const THOR_PRECISION = 8
+export const THORCHAIN_AFFILIATE_NAME = 'ss'
 
 export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: Object.values(thorPoolIdAssetIdSymbolMap).map(assetId => fromAssetId(assetId).chainId),

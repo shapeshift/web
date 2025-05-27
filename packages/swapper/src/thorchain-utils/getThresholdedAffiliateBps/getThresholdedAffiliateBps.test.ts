@@ -22,7 +22,7 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-vi.mock('../thorService', () => {
+vi.mock('../service', () => {
   const mockAxios = {
     default: {
       create: vi.fn(() => ({

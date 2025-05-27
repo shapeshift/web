@@ -1,16 +1,21 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 
-import { isCacao, MAYA_PRECISION, MAYACHAIN_STREAM_SWAP_SOURCE } from '../swappers/MayachainSwapper'
+import {
+  isCacao,
+  MAYA_PRECISION,
+  MAYACHAIN_AFFILIATE_NAME,
+  MAYACHAIN_STREAM_SWAP_SOURCE,
+} from '../swappers/MayachainSwapper'
 import * as mayachain from '../swappers/MayachainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
   isRune,
   THOR_PRECISION,
+  THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '../swappers/ThorchainSwapper'
-import { THORCHAIN_AFFILIATE_NAME } from '../swappers/ThorchainSwapper/utils/constants'
 import * as thorchain from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { SwapperConfig, SwapSource, TradeQuote, TradeRate } from '../types'
 import { SwapperName } from '../types'
@@ -95,7 +100,7 @@ export const getAffiliate = (swapperName: SwapperName) => {
     case SwapperName.Thorchain:
       return THORCHAIN_AFFILIATE_NAME
     case SwapperName.Mayachain:
-      return ''
+      return MAYACHAIN_AFFILIATE_NAME
     default:
       throw new Error(`Invalid swapper: ${swapperName}`)
   }

@@ -21,10 +21,10 @@ const swapperName = SwapperName.Mayachain
 export const mayachainApi: SwapperApi = {
   getTradeRate,
   getTradeQuote,
-  getUnsignedEvmTransaction: input => evm.getUnsignedEvmTransaction({ ...input, swapperName }),
-  getEvmTransactionFees: input => evm.getEvmTransactionFees({ ...input, swapperName }),
-  getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction({ ...input, swapperName }),
-  getUtxoTransactionFees: input => utxo.getUtxoTransactionFees({ ...input, swapperName }),
+  getUnsignedEvmTransaction: input => evm.getUnsignedEvmTransaction(input, swapperName),
+  getEvmTransactionFees: input => evm.getEvmTransactionFees(input, swapperName),
+  getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction(input, swapperName),
+  getUtxoTransactionFees: input => utxo.getUtxoTransactionFees(input, swapperName),
   getUnsignedCosmosSdkTransaction: async ({
     tradeQuote,
     stepIndex,

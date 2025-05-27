@@ -5,15 +5,12 @@ import type { GetUnsignedEvmTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getEvmData } from './getEvmData'
 
-export const getEvmTransactionFees = async ({
-  from,
-  stepIndex,
-  tradeQuote,
-  supportsEIP1559,
-  assertGetEvmChainAdapter,
-  config,
-  swapperName,
-}: GetUnsignedEvmTransactionArgs & { swapperName: SwapperName }): Promise<string> => {
+export const getEvmTransactionFees = async (
+  args: GetUnsignedEvmTransactionArgs,
+  swapperName: SwapperName,
+): Promise<string> => {
+  const { from, stepIndex, tradeQuote, supportsEIP1559, assertGetEvmChainAdapter, config } = args
+
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)

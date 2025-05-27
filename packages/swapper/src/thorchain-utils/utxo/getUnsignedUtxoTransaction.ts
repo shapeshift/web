@@ -6,15 +6,12 @@ import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
 import { getThorTxData } from './getThorTxData'
 
-export const getUnsignedUtxoTransaction = async ({
-  tradeQuote,
-  stepIndex,
-  xpub,
-  accountType,
-  assertGetUtxoChainAdapter,
-  config,
-  swapperName,
-}: GetUnsignedUtxoTransactionArgs & { swapperName: SwapperName }): Promise<SignTx<UtxoChainId>> => {
+export const getUnsignedUtxoTransaction = async (
+  args: GetUnsignedUtxoTransactionArgs,
+  swapperName: SwapperName,
+): Promise<SignTx<UtxoChainId>> => {
+  const { tradeQuote, stepIndex, xpub, accountType, assertGetUtxoChainAdapter, config } = args
+
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
   const { memo } = tradeQuote as ThorTradeQuote

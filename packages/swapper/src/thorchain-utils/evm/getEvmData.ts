@@ -8,17 +8,14 @@ import type { ThorEvmTradeQuote } from '../types'
 import { TradeType } from '../types'
 import { getThorTxData } from './getThorTxData'
 
-export const getEvmData = async ({
-  config,
-  step,
-  tradeQuote,
-  swapperName,
-}: {
+type GetEvmDataArgs = {
   config: SwapperConfig
   step: TradeQuoteStep
   tradeQuote: TradeQuote
   swapperName: SwapperName
-}) => {
+}
+
+export const getEvmData = async ({ config, step, tradeQuote, swapperName }: GetEvmDataArgs) => {
   const {
     router,
     vault,

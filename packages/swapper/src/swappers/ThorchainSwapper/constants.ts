@@ -8,8 +8,12 @@ export const THOR_PRECISION = 8
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 
 export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId),
-  buy: Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId),
+  sell: [
+    ...new Set(Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId)),
+  ],
+  buy: [
+    ...new Set(Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId)),
+  ],
 }
 
 export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Streaming`

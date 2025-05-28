@@ -36,7 +36,7 @@ export const getTradeRate = async (
     buyAsset,
     sellAsset,
     url: `${deps.config.VITE_THORCHAIN_NODE_URL}/thorchain/pools`,
-    swapperName: SwapperName.Mayachain,
+    swapperName: SwapperName.Thorchain,
   })
 
   if (poolDetails.isErr()) return Err(poolDetails.unwrapErr())

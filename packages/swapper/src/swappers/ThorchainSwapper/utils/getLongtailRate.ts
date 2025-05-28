@@ -9,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type { ThorTradeRate } from '../../../thorchain-utils'
-import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote } from '../../../thorchain-utils'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
@@ -85,7 +85,6 @@ export const getLongtailToL1Rate = async (
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
-    TradeType.LongTailToL1,
     swapperName,
   )
 

@@ -16,7 +16,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper, isNativeEvmAsset } from '../index'
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
 import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
@@ -287,7 +287,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
-      const { supportsEIP1559, sendAddress } = input as GetEvmTradeRateInput | GetEvmTradeQuoteInput
+      const { supportsEIP1559 } = input as GetEvmTradeRateInput | GetEvmTradeQuoteInput
 
       const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -304,23 +304,10 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             swapperName,
           })
 
-          const feeData = await (async () => {
-            if (!sendAddress) {
-              const { average } = await adapter.getGasFeeData()
-              return { ...average, gasLimit: SAFE_GAS_LIMIT }
-            }
-
-            const { average } = await adapter.getFeeData({
-              to: router,
-              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-              chainSpecific: { from: sendAddress, data },
-            })
-
-            return average.chainSpecific
-          })()
+          const { average } = await adapter.getGasFeeData()
 
           const networkFeeCryptoBaseUnit = adapters.evm.calcNetworkFeeCryptoBaseUnit({
-            ...feeData,
+            ...average,
             supportsEIP1559,
             gasLimit: SAFE_GAS_LIMIT,
           })

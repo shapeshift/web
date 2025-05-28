@@ -11,6 +11,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
@@ -26,7 +27,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { assertUnreachable, isToken } from '@/lib/utils'
+import { assertUnreachable } from '@/lib/utils'
 import { assertGetThorchainChainAdapter } from '@/lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,

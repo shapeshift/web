@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
-  EvmBaseAdapter,
+  EvmChainAdapter,
   FeeDataEstimate,
   FeeDataKey,
   GetFeeDataInput,
@@ -41,7 +41,7 @@ export const convertHexToNumber = (value: string): number => parseInt(value, 16)
 
 export const getFeesForTx = async (
   tx: TransactionParams,
-  evmChainAdapter: EvmBaseAdapter<EvmChainId>,
+  evmChainAdapter: EvmChainAdapter,
   wcAccountId: AccountId,
 ) => {
   const getFeeDataInput: GetFeeDataInput<EvmChainId> = {

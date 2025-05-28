@@ -10,6 +10,7 @@ import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { SendInput } from './Form'
 
@@ -18,7 +19,7 @@ import {
   checkIsSnapInstalled,
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { assertGetChainAdapter, contractAddressOrUndefined } from '@/lib/utils'
+import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'

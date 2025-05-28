@@ -43,11 +43,6 @@ export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain
 export const THORCHAIN_LONGTAIL_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Long-tail`
 export const THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Long-tail streaming`
 
-// https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
-// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
-// expressed in thor units (8 decimals of precision)
-export const THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT = '2000000'
-
 export const BTC_MAXIMUM_BYTES_LENGTH = 80
 export const BCH_MAXIMUM_BYTES_LENGTH = 220
 

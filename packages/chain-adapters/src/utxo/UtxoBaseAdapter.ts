@@ -51,7 +51,6 @@ import {
 } from '../utils'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
-import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput, GetUtxosInput } from './types'
 import { getAddresses } from './utils'
 import { utxoSelect } from './utxoSelect'
@@ -63,11 +62,7 @@ export const utxoChainIds = [
   KnownChainIds.LitecoinMainnet,
 ] as const
 
-export type UtxoChainAdapter =
-  | bitcoin.ChainAdapter
-  | bitcoincash.ChainAdapter
-  | dogecoin.ChainAdapter
-  | litecoin.ChainAdapter
+export type UtxoChainAdapter = UtxoBaseAdapter<UtxoChainId>
 
 export interface ChainAdapterArgs {
   chainId?: UtxoChainId

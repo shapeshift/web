@@ -1,56 +1,51 @@
-import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
 import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../swappers/JupiterSwapper'
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
-import { isExecutableTradeQuote, isExecutableTradeStep } from '../utils'
+import { getExecutableTradeStep, isExecutableTradeQuote } from '../utils'
 
 export const getUnsignedSolanaTransaction = async ({
+  stepIndex,
   tradeQuote,
   from,
   assertGetSolanaChainAdapter,
 }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
-  if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+  if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-  const firstStep = tradeQuote.steps[0]
+  const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const adapter = assertGetSolanaChainAdapter(firstStep.sellAsset.chainId)
+  const { accountNumber, solanaTransactionMetadata, sellAsset } = step
 
-  if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
+  const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
-  const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+  const { fast } = await adapter.getFeeData({
     to: '',
     value: '0',
     chainSpecific: {
       from,
-      addressLookupTableAccounts: firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-      instructions: firstStep.solanaTransactionMetadata?.instructions,
+      addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+      instructions: solanaTransactionMetadata?.instructions,
     },
-  }
+  })
 
-  const feeData = await adapter.getFeeData(getFeeDataInput)
-
-  const solanaInstructions = firstStep.solanaTransactionMetadata?.instructions?.map(instruction =>
+  const solanaInstructions = solanaTransactionMetadata?.instructions?.map(instruction =>
     adapter.convertInstruction(instruction),
   )
 
-  const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
-    to: '',
+  return adapter.buildSendApiTransaction({
     from,
+    to: '',
     value: '0',
-    accountNumber: firstStep.accountNumber,
+    accountNumber,
     chainSpecific: {
-      addressLookupTableAccounts: firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
+      addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
       instructions: solanaInstructions,
       // As always, as relay uses jupiter under the hood, we need to add the compute unit safety margin
-      computeUnitLimit: bnOrZero(feeData.fast.chainSpecific.computeUnits)
+      computeUnitLimit: bnOrZero(fast.chainSpecific.computeUnits)
         .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
         .toFixed(0),
-      computeUnitPrice: feeData.fast.chainSpecific.priorityFee,
+      computeUnitPrice: fast.chainSpecific.priorityFee,
     },
-  }
-
-  return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
+  })
 }

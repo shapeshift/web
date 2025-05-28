@@ -1,8 +1,8 @@
+import { thorchain } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, convertBasisPointsToDecimalPercentage, convertPrecision } from '@shapeshiftoss/utils'
 
 import type { SwapperConfig } from '../../../../types'
-import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'
 import type { MidgardPoolResponse } from '../../types'
 import { THORCHAIN_FIXED_PRECISION } from '../constants'
 import { isRune } from '../isRune/isRune'
@@ -10,7 +10,7 @@ import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../thorService'
 
 export const getOutboundFeeInSellAssetThorBaseUnit = (runePerAsset: string) => {
-  return bn(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT).dividedBy(runePerAsset)
+  return bn(thorchain.NATIVE_FEE).dividedBy(runePerAsset)
 }
 
 export const getExpectedAffiliateFeeSellAssetThorUnit = (
@@ -42,7 +42,7 @@ export const getThresholdedAffiliateBps = async ({
   config: SwapperConfig
 }) => {
   const outboundFeeSellAssetThorUnit = await (async () => {
-    if (isRune(sellAsset.assetId)) return THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT
+    if (isRune(sellAsset.assetId)) return thorchain.NATIVE_FEE
 
     const midgardUrl = config.VITE_THORCHAIN_MIDGARD_URL
     const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })

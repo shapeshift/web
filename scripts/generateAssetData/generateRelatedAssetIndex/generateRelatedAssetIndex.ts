@@ -19,6 +19,7 @@ import {
   decodeRelatedAssetIndex,
   encodeAssetData,
   encodeRelatedAssetIndex,
+  isToken,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -35,7 +36,6 @@ import { zerionFungiblesSchema } from './validators/fungible'
 
 import type { CoingeckoAssetDetails } from '@/lib/coingecko/types'
 import type { PartialFields } from '@/lib/types'
-import { isToken } from '@/lib/utils'
 
 // NOTE: this must call the zerion api directly rather than our proxy because of rate limiting requirements
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'

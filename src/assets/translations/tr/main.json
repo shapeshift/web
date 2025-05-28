@@ -163,6 +163,7 @@
     "disabled": "Devre Dışı",
     "staged": "Aşamalı",
     "poolHalted": "Havuz Durduruldu",
+    "chainHalted": "Zincir Durduruldu",
     "poolDisabled": "Havuz Devre Dışı",
     "prices": "Fiyatlar",
     "symmetric": "Simetrik",
@@ -196,7 +197,8 @@
     "installed": "Kurulu",
     "others": "Diğerleri",
     "hardwareWallets": "Donanım Cüzdanları",
-    "dustAmount": "Toz Miktarı"
+    "dustAmount": "Toz Miktarı",
+    "marketDataUnavailable": "%{asset} için piyasa verileri mevcut değil"
   },
   "consentBanner": {
     "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
@@ -1043,14 +1045,14 @@
     "awaitingApproval": "Onay bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
     "foxSavings": {
-      "youCouldHaveSaved": "FOX Savings ile yaptığınız işlemde %{fee} tasarruf edebilirdiniz.",
+      "youSaved": "İşleminizde %{feeSaving} tasarruf ettiniz!",
       "buyFox": "FOX satın al",
       "share": "Paylaş",
-      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!"
+      "postBody": "Sadece $FOX sahibi olarak @ShapeShift'te işlem yaparak %{fee} tasarruf ettim!",
+      "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız"
     },
     "networkFee": "Ağ Ücreti",
-    "learnMoreAboutFox": "FOX Avantajları hakkında daha fazla bilgi edinin",
-    "freeTrade": "Bu işlem, %{foxBalance} FOX FOX varlıklarınıza bağlı olarak ücretsizdir"
+    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -2234,11 +2236,6 @@
         "title": "✨ FOX ödüllerini ve daha fazlasını alın! ✨",
         "body": "DappBack'teki görevleri tamamlayarak FOX ödülleri kazanın",
         "cta": "DappBack'i Başlatın"
-      },
-      "bondProtocol": {
-        "title": "FOX'u İndirimli Satın Alın!",
-        "body": "BondProtocol ile FOX'u indirimli satın alın",
-        "cta": "BondProtocol'ü Başlat"
       }
     },
     "analytics": {
@@ -2511,28 +2508,6 @@
       "emptyBody": "Şu anda herhangi bir krediniz yok gibi görünüyor. Bu finansal zen mi, yoksa bir sonraki büyük borç verme maceranızdan önce sadece bir mola mı? Her iki durumda da sakinliğin tadını çıkarın!"
     }
   },
-  "foxDiscounts": {
-    "currentFoxPower": "FOX Power'ın",
-    "foxPower": "FOX Power",
-    "simulateTitle": "FOX Power indirimlerinizi simüle edin",
-    "simulateBody": "Toplam ücretlerinizi ve %{feature} özelliğinizde alacağınız indirimi belirlemek için bu kullanışlı hesaplayıcıyı kullanın. FOX tutucu miktarınızı ve fiat cinsinden %{featureLowerCase} boyutunu belirtmek için aşağıdaki kaydırıcıları ayarlayın ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
-    "featureSize": "%{feature} Boyut",
-    "totalFee": "Toplam Ücret",
-    "discountLabel": "%{discountType} İndirim",
-    "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
-    "feeSummary": "Ücret Özeti",
-    "simulateFee": "FOX İndirimini Simüle Et",
-    "freeUnderThreshold": "%{threshold} altındaki %{feature} her zaman ÜCRETSİZDİR",
-    "breakdownHeader": "İndiriminiz",
-    "breakdownBody": "Aşağıda %{featureLowerCase} ücretlerinizin ve uygulanan ilgili İndirimin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",
-    "featureFee": "%{feature} Ücret",
-    "totalFeatureFee": "Toplam %{feature} Ücret",
-    "underThreshold": "Düşük Takas",
-    "thorHolder": "THORSwap Sahibi",
-    "foxHolder": "FOX Sahibi",
-    "foxWifHatHolder": "FOX Wif Hat Sahibi",
-    "foxBuy": "FOX Satın Al"
-  },
   "chart": {
     "interval": {
       "5min": "Son beş dakika",
@@ -2571,7 +2546,6 @@
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
     "unsupportedNetworkExplainer": "Cüzdanınız %{network} ağına bağlı değil. Lütfen bu zinciri bağlayın veya bu ağı destekleyen bir cüzdana geçin.",
     "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'ye bağlı değil. Lütfen bu zinciri bağlayın veya bu ağları destekleyen bir cüzdana geçin.",
-    "instabilityWarning": "Thorchain LP için mevduatlar protokol düzeyinde devre dışı bırakıldı. Eğer mevduat yapmayı denerseniz, varlıklar geri ödemeyle geri dönecek. Bu, 3.5 sürümünde geri dönecek.",
     "depositsDisabled": "Yatırma Devredışı",
     "shareOfPool": "Havuz Payı",
     "assetDepositAmount": "%{asset} Yatırma Tutarı",
@@ -2792,6 +2766,8 @@
     "myPosition": "Pozisyonum",
     "myStakedBalance": "Stake Edilmiş Bakiyem",
     "myStakedBalanceHelper": "Stake edilen %{symbol} miktarı",
+    "myRewardsBalance": "RUNE Ödül Bakiyem",
+    "myRewardsBalanceHelper": "RUNE staking ödüllerinin miktarı. Her gün otomatik olarak cüzdanınıza dağıtılır.",
     "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
     "pendingRewardsBalanceHelper": "Bu, yalnızca dönem sonu gelirlerine dayalı bekleyen ödüllerinizin bir tahminidir. Tüm muhasebe dönem sonunda yapılır ve ay sonundan önce tam olarak hesaplanamaz",
     "lifetimeRewards": "Ömür Boyu Ödüller",
@@ -2876,6 +2852,8 @@
       "goBack": "Geri Git"
     },
     "cta": {
+      "title": "THORChain TCY Talepleri burada!",
+      "hasClaimsTitle": "TCY talepleriniz mevcut!",
       "button": "Talepleri Kontrol Et"
     }
   },
@@ -2922,12 +2900,14 @@
   },
   "foxPage": {
     "title": "FOX Token Panosu",
+    "description": "2019'dan beri, şekil değiştiren FOX Token'ımız kullanıcılara sürekli genişleyen bir fayda ve avantaj dünyası sunuyor. Bugün, ERC-20 yönetim token'ımız size THORChain'deki gelirlerden bir pay veriyor ve oyunuzla ShapeShift'in geleceğini etkilemenizi sağlıyor. FOX varlıklarınızı burada stake edin, takas edin, satın alın, tedarik edin ve yönetin.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24sa Fiyat Değişimi",
     "rfox": {
       "whatIs": "rFOX Staking Nedir?",
       "totalSymbolBurn": "Toplam %{symbol} Yakma",
       "simulateTitle": "rFOX Simülatörü",
+      "simulateSubtle": "rFOX staking getirilerinizi simüle edin",
       "estimatedRewards": "Tahmini Ödüller",
       "depositAmount": "Depozito Tutarı",
       "shapeshiftRevenue": "ShapeShift Revenue",
@@ -2939,15 +2919,6 @@
       "totalClaimableRewards": "Toplam Talep Edilebilir Ödüller",
       "totalStakingValue": "Toplam Staking Değeri",
       "nextEpoch": "Sonraki Dönem"
-    },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "FOX Wif Hat'inizi (FWH) talep edin. Hızlı davranın - indirimler zamanla azalır. Ne kadar çok FOX veya FWH'niz varsa o kadar çok tasarruf edersiniz. Sürekli tasarruflar ve gelir paylaşımı, yönetim ve verim çiftçiliği avantajları için daha fazla FOX token'ı biriktirin. Bu programlar hakkında daha fazla bilgiyi bu sayfanın geri kalanında bulabilirsiniz.",
-      "discount": "*İndirim zamanla doğrusal olarak azalır ve %{date} tarihinde sona erer. Daha fazla azalmadan önce %{percent}% indiriminizden yararlanın!",
-      "claim": "Topla",
-      "claimed": "Toplanan",
-      "discountText": "*%{percent}% işlem ücretlerinde indirim",
-      "noClaims": "Uygun toplanabilir yok"
     },
     "governance": {
       "title": "Yönetim",

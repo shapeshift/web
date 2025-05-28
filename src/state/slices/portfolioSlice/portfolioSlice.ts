@@ -4,6 +4,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import difference from 'lodash/difference'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
@@ -128,10 +129,31 @@ export const portfolio = createSlice({
       // upsert all
       draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
       draftState.accounts.ids = Object.keys(draftState.accounts.byId)
-      draftState.accountBalances.byId = merge(
-        draftState.accountBalances.byId,
-        payload.accountBalances.byId,
-      )
+
+      // Handle account balances
+      Object.entries(payload.accountBalances.byId).forEach(([accountId, balances]) => {
+        if (!draftState.accountBalances.byId[accountId]) {
+          draftState.accountBalances.byId[accountId] = {}
+        }
+
+        const missingAssetIds = difference(
+          Object.keys(draftState.accountBalances.byId[accountId]),
+          Object.keys(balances),
+        )
+
+        // Zero out missing assets
+        const zeroedBalances = missingAssetIds.reduce(
+          (acc, assetId) => ({ ...acc, [assetId]: '0' }),
+          {},
+        )
+
+        draftState.accountBalances.byId[accountId] = {
+          ...draftState.accountBalances.byId[accountId],
+          ...zeroedBalances,
+          ...balances,
+        }
+      })
+
       draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
     }),
     /**

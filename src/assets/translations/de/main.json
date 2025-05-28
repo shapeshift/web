@@ -163,6 +163,7 @@
     "disabled": "Deaktiviert",
     "staged": "Gestaffelt",
     "poolHalted": "Pool angehalten",
+    "chainHalted": "Blockchain angehalten",
     "poolDisabled": "Pool deaktiviert",
     "prices": "Preise",
     "symmetric": "Symmetrische",
@@ -196,7 +197,8 @@
     "installed": "Eingerichtet",
     "others": "Sonstiges",
     "hardwareWallets": "Hardware Wallets",
-    "dustAmount": "Kleinbetrag"
+    "dustAmount": "Kleinbetrag",
+    "marketDataUnavailable": "Marktdaten für %{asset} nicht verfügbar"
   },
   "consentBanner": {
     "body": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen %{privateLink} wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere %{privacyPolicyLink} für mehr Details.",
@@ -323,14 +325,14 @@
         "next": "Weiter",
         "close": "Schließen",
         "headers": {
-          "aboutStakingRewards": "Über Staking-Belohnungen",
+          "aboutStakingRewards": "Über Staking Belohnungen",
           "unstaking": "Staking beenden von %{assetName}",
           "risks": "Gibt es Risiken?"
         },
         "bodies": {
           "rateFluctuationInfo": "Der Betrag von %{assetName}, den Sie verdienen, die jährliche prozentuale Rendite (APR), schwankt normalerweise zwischen 7 % und 20 %.",
           "amountStakingInfo": "Sie können einen beliebigen Betrag von %{assetName} einsetzen und erhalten sofort Belohnungen.",
-          "withdrawInfo": "Sie können Ihre Prämien jederzeit abheben, wofür eine geringe Transfergebühr von ca. 0,01 $ anfällt.",
+          "withdrawInfo": "Sie können Ihre Belohnungen jederzeit abheben, wofür eine geringe Transfergebühr von ca. 0,01 $ anfällt.",
           "unbondingInfo": "Wenn Sie Ihre Token aus Staking entfernen, bleiben sie für %{unbondingDays} Tage gesperrt, während dieser Zeit erhalten sie keine Belohnungen. Nach %{unbondingDays} Tagen wird Ihr %{assetName} zu Ihrem primären Wallet übertragen.",
           "slashingInfo": "Das Staking erfolgt über einen Validator. Es ist sehr selten, aber wenn der Validator, mit dem Sie gestaket haben, durcheinander kommt, indem er falsche oder nicht korrekte Transaktionen zulässt, könnten Sie einen Teil Ihres Vermögens verlieren.",
           "partnerInfo": "Wir haben dieses Risiko verringert, indem wir mit einem seriösen Prüfer zusammenarbeiten, der über eine sichere, zuverlässige und geprüfte Infrastruktur verfügt."
@@ -343,7 +345,7 @@
       },
       "getStarted": {
         "header": "Staken Sie Ihr %{assetName} ein, um zu verdienen",
-        "body": "Staking ist der Prozess, Gelder in einer Kryptowährungs-Wallet zu halten, um den Betrieb eines Blockchain-Netzwerks zu unterstützen, und im Gegenzug werden die Inhaber für ihren Beitrag belohnt.",
+        "body": "Staking ist der Prozess, Gelder in einer Kryptowährungs Wallet zu halten, um den Betrieb einer Blockchain zu unterstützen, und im Gegenzug werden die Inhaber für ihren Beitrag belohnt.",
         "userProtectionInfo": "*Die Renditen werden geschätzt, diese können je nach Marktbedingungen schwanken.",
         "cta": {
           "startStaking": "Beginne Staking",
@@ -1043,14 +1045,14 @@
     "awaitingApproval": "Wartet auf Genehmigung",
     "awaitingAllowanceReset": "Warten auf Zurücksetzen des Genehmigungsbetrags",
     "foxSavings": {
-      "youCouldHaveSaved": "Sie hätten bei Ihrem Handel mit FOX Savings %{fee} sparen können.",
+      "youSaved": "Sie haben beim Handel %{feeSaving} gespart!",
       "buyFox": "FOX kaufen",
       "share": "Anteil",
-      "postBody": "Ich habe gerade %{fee} beim Handel auf @ShapeShift gespart, nur weil ich $FOX besitze!"
+      "postBody": "Ich habe gerade %{fee} beim Handel auf @ShapeShift gespart, nur weil ich $FOX besitze!",
+      "youGotMore": "Sie haben beim Handel %{cryptoUpside} mehr bekommen"
     },
     "networkFee": "Netzwerkgebühr",
-    "learnMoreAboutFox": "Erfahren Sie mehr über die Vorteile von FOX",
-    "freeTrade": "Dieser Handel ist kostenlos, basierend auf Ihren FOX Beständen von %{foxBalance} FOX"
+    "feeExplainer": "Das Angebot beinhaltet eine ShapeShift-Gebühr von %{feePercentage} %"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -2234,11 +2236,6 @@
         "title": "✨ Erhalte FOX-Belohnungen + mehr! ✨",
         "body": "Verdienen Sie FOX-Belohnungen, indem Sie Aufgaben auf DappBack erledigen",
         "cta": "Starte DappBack"
-      },
-      "bondProtocol": {
-        "title": "FOX mit Rabatt kaufen!",
-        "body": "FOX mit Rabatt kaufen über BondProtocol",
-        "cta": "BondProtokoll starten"
       }
     },
     "analytics": {
@@ -2511,28 +2508,6 @@
       "emptyBody": "Offenbar haben Sie im Moment keine Kredite. Ist das ein finanzieller Zen-Zauber oder nur eine Pause vor Ihrem nächsten großen Kreditabenteuer? Wie auch immer, genießen Sie die Ruhe!"
     }
   },
-  "foxDiscounts": {
-    "currentFoxPower": "Deine FOX Power",
-    "foxPower": "FOX Power",
-    "simulateTitle": "Simulieren Sie Ihre FOX-Power Rabatte",
-    "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihr %{feature} erhalten. Passen Sie einfach die Schieberegler unten an, um die Ihrer FOX Guthaben\n und die %{featureLowerCase}-Größe in Fiat anzugeben, und beobachten Sie, wie sich Ihre potenziellen Einsparungen entfalten!",
-    "featureSize": "%{feature} Größe",
-    "totalFee": "Gesamtgebühr",
-    "discountLabel": "%{discountType} Rabatt",
-    "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
-    "feeSummary": "Gebührenübersicht",
-    "simulateFee": "FOX Rabatt simulieren",
-    "freeUnderThreshold": "%{feature} unter %{threshold} sind immer KOSTENLOS",
-    "breakdownHeader": "Ihr Rabatt",
-    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer %{featureLowerCase} Gebühren und den entsprechenden Rabatt. Erfahren Sie, wie viel Sie auf der Registerkarte „Simulieren“ noch sparen können.",
-    "featureFee": "%{feature} Gebühr",
-    "totalFeatureFee": "Gesamte %{feature} Gebühr",
-    "underThreshold": "geringer Handels - Rabatt",
-    "thorHolder": "THORSwap Halter",
-    "foxHolder": "FOX Halter",
-    "foxWifHatHolder": "FOX Wif Hat Halter",
-    "foxBuy": "FOX Kaufen"
-  },
   "chart": {
     "interval": {
       "5min": "Letzten fünf Minuten",
@@ -2571,7 +2546,6 @@
     "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
     "unsupportedNetworkExplainer": "Ihre Wallet ist nicht mit %{network} verbunden. Bitte verbinden Sie sie oder wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
     "unsupportedNetworksExplainer": "Ihre Wallet ist nicht mit %{network1} und %{network2} verbunden. Bitte verbinden Sie sie  oder wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
-    "instabilityWarning": "Einzahlungen für Thorchain LP sind auf Protokollebene deaktiviert. Wenn Sie versuchen eine Einzahlung vorzunehmen, werden die Vermögenswerte mit einer Rückerstattung zurückgebucht. Dies wird ab Version 3.5 wieder rückgängig gemacht.",
     "depositsDisabled": "Einzahlungen deaktiviert",
     "shareOfPool": "Anteil am Pool",
     "assetDepositAmount": "%{asset} Einzahlungsbetrag",
@@ -2792,6 +2766,8 @@
     "myPosition": "Meine Position",
     "myStakedBalance": "Mein eingesetztes Guthaben",
     "myStakedBalanceHelper": "Der Betrag von %{symbol}, den Sie eingesetzt haben",
+    "myRewardsBalance": "Mein RUNE Belohnungsguthaben",
+    "myRewardsBalanceHelper": "Die Höhe der RUNE Staking Belohnungen. Wird täglich automatisch an Ihr Wallet ausgezahlt.",
     "pendingRewardsBalance": "Ausstehende Belohnung",
     "pendingRewardsBalanceHelper": "Dies ist lediglich eine Schätzung Ihrer ausstehenden Belohnung basierend auf den Einnahmen der Epoche bis zum aktuellen Datum. Die gesamte Abrechnung erfolgt am Ende der Epoche und kann erst am Monatsende exakt berechnet werden.",
     "lifetimeRewards": "bisherigen Belohnungen",
@@ -2876,6 +2852,8 @@
       "goBack": "Geh zurück"
     },
     "cta": {
+      "title": "THORChain TCY Ansprüche sind da!",
+      "hasClaimsTitle": "Ihnen stehen TCY Ansprüche zur Verfügung!",
       "button": "Ansprüche prüfen"
     }
   },
@@ -2922,12 +2900,14 @@
   },
   "foxPage": {
     "title": "FOX-Token-Dashboard",
+    "description": "Seit 2019 bietet unser Shapeshifting FOX Token Nutzern eine stetig wachsende Welt voller Nutzen und Vorteile. Heute ermöglicht Ihnen unser ERC20 Governance Token eine Beteiligung an den Einnahmen von THORChain und ermöglicht Ihnen, die Zukunft von ShapeShift durch Ihre Stimme zu beeinflussen. Hier können Sie Ihre FOX-Bestände einsetzen, tauschen, kaufen, bereitstellen und verwalten.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Preisänderung",
     "rfox": {
       "whatIs": "Was ist rFOX Staking?",
       "totalSymbolBurn": "Summe von %{symbol} verbrannt",
       "simulateTitle": "rFOX Simulator",
+      "simulateSubtle": "Simulieren Sie Ihre rFOX Staking Rendite",
       "estimatedRewards": "Geschätzte Belohnungen",
       "depositAmount": "Einzahlungsbetrag",
       "shapeshiftRevenue": "ShapeShift Umsatz",
@@ -2939,15 +2919,6 @@
       "totalClaimableRewards": "Gesamte einforderbare Belohnungen",
       "totalStakingValue": "Gesamter Einsatzwert",
       "nextEpoch": "Nächste Epoche"
-    },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "Sichern Sie sich Ihren FOX Wif Hat (FWH). Handeln Sie schnell – Rabatte verfallen mit der Zeit. Je mehr FOX oder FWH Sie besitzen, desto mehr sparen Sie. Stapeln Sie weitere FOX-Token für kontinuierliche Einsparungen sowie Umsatzbeteiligung, Governance und Yield Farming-Vergünstigungen. Mehr zu diesen Programmen erfahren Sie weiter unten auf dieser Seite.",
-      "discount": "*Der Rabatt verringert sich mit der Zeit linear und läuft am %{date} ab. Nutzen Sie Ihren %{percent}%-Rabatt, bevor er weiter verringert wird!",
-      "claim": "Beanspruchen",
-      "claimed": "Beansprucht",
-      "discountText": "*%{percent} % Rabatt auf Handelsgebühren",
-      "noClaims": "Keine Ansprüche vorhanden"
     },
     "governance": {
       "title": "Verwaltung",

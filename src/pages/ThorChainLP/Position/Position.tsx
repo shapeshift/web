@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { mayaPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
@@ -155,7 +155,7 @@ export const Position = () => {
 
   const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
   const accountId = useMemo(() => params.accountId, [params.accountId])
-  const assetId = useMemo(() => mayaPoolAssetIdToAssetId(poolAssetId ?? ''), [poolAssetId])
+  const assetId = useMemo(() => thorPoolAssetIdToAssetId(poolAssetId ?? ''), [poolAssetId])
   const opportunityId = useMemo(() => {
     return decodeURIComponent(params.opportunityId ?? '')
   }, [params.opportunityId])

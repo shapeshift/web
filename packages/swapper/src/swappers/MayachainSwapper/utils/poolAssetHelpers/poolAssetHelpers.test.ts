@@ -6,7 +6,7 @@ import { assetIdToMayaPoolAssetId, mayaPoolAssetIdToAssetId } from './poolAssetH
 describe('poolAssetHelpers', () => {
   const usdcAssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
-  describe('poolAssetIdToAssetId', () => {
+  describe('mayaPoolAssetIdToAssetId', () => {
     it('returns Ethereum assetId when poolAssetId is ETH.ETH', () => {
       const result = mayaPoolAssetIdToAssetId('ETH.ETH')
       expect(result).toEqual(ethAssetId)
@@ -33,7 +33,7 @@ describe('poolAssetHelpers', () => {
     })
   })
 
-  describe('assetIdToPoolAssetId', () => {
+  describe('assetIdToMayaPoolAssetId', () => {
     it('returns Ethereum pool when assetId is ethAssetId', () => {
       const assetId = ethAssetId
       const result = assetIdToMayaPoolAssetId({ assetId })

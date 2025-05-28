@@ -9,18 +9,22 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
 
-import type { NotificationStatus, NotificationType } from '../types'
 import { NotificationStatusIcon } from './NotificationStatusIcon'
 import { NotificationStatusTag } from './NotificationStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
+import type { Action } from '@/state/slices/actionSlice/types'
+import { isTradePayloadDiscriminator } from '@/state/slices/actionSlice/types'
+import { selectSwapById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
 
@@ -32,32 +36,28 @@ const hoverProps = {
 }
 
 type NotificationCardProps = {
-  type: NotificationType
-  assetId: AssetId
-  secondaryAssetId?: AssetId
-  status: NotificationStatus
-  date: number
-  title: string
   isCollapsable?: boolean
   defaultIsOpen?: boolean
-} & PropsWithChildren
+} & Action &
+  PropsWithChildren
 
 export const NotificationCard = ({
   type,
-  assetId,
-  secondaryAssetId,
   status,
-  date,
+  createdAt,
+  assetIds,
   title,
   children,
   isCollapsable = true,
   defaultIsOpen = false,
+  ...action
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
+  const swapById = useAppSelector(selectSwapById)
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs.unix(date)
+    const notificationDate = dayjs(createdAt)
     const sevenDaysAgo = now.subtract(7, 'day')
 
     if (notificationDate.isAfter(sevenDaysAgo)) {
@@ -65,7 +65,13 @@ export const NotificationCard = ({
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [date])
+  }, [createdAt])
+
+  const swap = useMemo(() => {
+    if (isTradePayloadDiscriminator(action)) {
+      return swapById[action.metadata.swapId]
+    }
+  }, [action, swapById])
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {
@@ -83,7 +89,7 @@ export const NotificationCard = ({
       _hover={isCollapsable ? hoverProps : undefined}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4}>
-        <AssetIconWithBadge assetId={assetId} secondaryAssetId={secondaryAssetId} size='md'>
+        <AssetIconWithBadge assetId={assetIds[0]} secondaryAssetId={assetIds[1]} size='md'>
           <NotificationStatusIcon status={status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>
@@ -94,6 +100,13 @@ export const NotificationCard = ({
                 <NotificationStatusTag status={status} />
                 <RawText>{formattedDate}</RawText>
                 <RawText>{type}</RawText>
+                {swap?.swapperName && (
+                  <RawText>
+                    <HoverTooltip label={swap.swapperName}>
+                      <SwapperIcons swapperName={swap.swapperName} swapSource={undefined} />
+                    </HoverTooltip>
+                  </RawText>
+                )}
               </HStack>
             </Stack>
             {isCollapsable && (

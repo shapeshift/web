@@ -19,6 +19,7 @@ import {
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
+import type { QuoteId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { EventEmitter } from 'node:events'
 
@@ -30,6 +31,7 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
+import { selectSwapByQuoteId } from '@/state/slices/swapSlice/selectors'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
 
@@ -93,6 +95,11 @@ export class TradeExecution {
       // Given the intersection of the inherent bits of sc wallets (only one chain, not deployed on others) and EVM chains (same address on every chain)
       // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
       const accountId = selectFirstHopSellAccountId(store.getState())
+
+      const swap = selectSwapByQuoteId(store.getState(), {
+        quoteId: tradeQuote.id as unknown as QuoteId,
+      })
+
       const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
@@ -100,6 +107,7 @@ export class TradeExecution {
             txHash: sellTxHash,
             chainId,
             accountId,
+            swap,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,

@@ -207,6 +207,20 @@ export const mockStore: ReduxState = {
     },
     hydrationMeta: {},
   },
+  actionCenter: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    actions: [],
+  },
+  swaps: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    swaps: [],
+  },
   opportunities: {
     _persist: {
       version: 0,

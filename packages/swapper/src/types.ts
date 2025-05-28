@@ -1,5 +1,6 @@
 import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
+import type { Route } from '@lifi/sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -18,6 +19,7 @@ import type {
   KnownChainIds,
   OrderQuoteResponse,
   PartialRecord,
+  QuoteId,
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
@@ -318,6 +320,37 @@ type TradeQuoteBase = {
   swapperName: SwapperName // The swapper that generated this quote/rate
 }
 
+export type SwapId = string
+
+export type SwapMetadata = {
+  lifiRoute?: Route
+  chainflipSwapId?: number
+  stepIndex: SupportedTradeQuoteStepIndex
+}
+
+export enum SwapStatus {
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+}
+
+export type Swap = {
+  id: SwapId
+  createdAt: number
+  updatedAt: number
+  quoteId: QuoteId
+  sellAsset: Asset
+  buyAsset: Asset
+  status: SwapStatus
+  sellTxHash?: string
+  sellAccountId: AccountId | undefined
+  swapperName: SwapperName
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  txLink?: string
+  metadata: SwapMetadata
+}
+
 // https://github.com/microsoft/TypeScript/pull/40002
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
   ? R
@@ -456,6 +489,7 @@ export type CheckTradeStatusInput = {
   accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
+  swap: Swap | undefined
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &

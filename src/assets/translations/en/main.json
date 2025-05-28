@@ -2975,13 +2975,6 @@
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
     },
-    "notificationsTitles": {
-      "swap": {
-        "title": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
-      },
-      "limitOrder": {
-        "title": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
-      }
-    }
+    "notificationTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
   }
 }

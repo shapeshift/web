@@ -102,11 +102,8 @@ export const NotificationCard = ({
                 <RawText>{type}</RawText>
                 {swap?.metadata.swapperName && (
                   <RawText>
-                    <HoverTooltip label={swap.metadata.swapperName}>
-                      <SwapperIcons
-                        swapperName={swap.metadata.swapperName}
-                        swapSource={undefined}
-                      />
+                    <HoverTooltip label={swap.swapperName}>
+                      <SwapperIcons swapperName={swap.swapperName} swapSource={undefined} />
                     </HoverTooltip>
                   </RawText>
                 )}

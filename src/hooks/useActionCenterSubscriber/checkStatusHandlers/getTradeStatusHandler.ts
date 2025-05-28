@@ -27,21 +27,21 @@ export const getTradeStatusHandler = async ({
   swap,
   translate,
 }: SwapCheckStatusHandlerProps) => {
-  const maybeSwapper = swappers[swap.metadata.swapperName]
+  const maybeSwapper = swappers[swap.swapperName]
 
   if (maybeSwapper === undefined)
-    throw new Error(`no swapper matching swapperName '${swap.metadata.swapperName}'`)
+    throw new Error(`no swapper matching swapperName '${swap.swapperName}'`)
 
   const swapper = maybeSwapper
 
-  if (!swap.metadata.sellAccountId) return
-  if (!swap.metadata.sellTxHash) return
+  if (!swap.sellAccountId) return
+  if (!swap.sellTxHash) return
 
   const { status, message, buyTxHash } = await swapper.checkTradeStatus({
     quoteId: swap.quoteId.toString(),
-    txHash: swap.metadata.sellTxHash,
-    chainId: swap.metadata.sellAsset.chainId,
-    accountId: swap.metadata.sellAccountId,
+    txHash: swap.sellTxHash,
+    chainId: swap.sellAsset.chainId,
+    accountId: swap.sellAccountId,
     stepIndex: swap.metadata.stepIndex,
     swap,
     config: getConfig(),
@@ -54,16 +54,16 @@ export const getTradeStatusHandler = async ({
 
   if (!buyTxHash) return
 
-  const tradeSellAsset = swap.metadata.sellAsset
-  const tradeBuyAsset = swap.metadata.buyAsset
+  const tradeSellAsset = swap.sellAsset
+  const tradeBuyAsset = swap.buyAsset
 
   const deviceLocale = preferences.selectors.selectCurrencyFormat(store.getState())
   const selectedCurrency = preferences.selectors.selectSelectedCurrency(store.getState())
   const localeParts = getParts(deviceLocale, selectedCurrency)
 
   if (status === TxStatus.Confirmed) {
-    const accountId = swap.metadata.sellAccountId
-    const adapter = getChainAdapterManager().get(swap.metadata.sellAsset.chainId)
+    const accountId = swap.sellAccountId
+    const adapter = getChainAdapterManager().get(swap.sellAsset.chainId)
 
     if (adapter) {
       try {
@@ -99,40 +99,34 @@ export const getTradeStatusHandler = async ({
             store.dispatch(
               swapSlice.actions.updateSwap({
                 id: swap.id,
-                metadata: {
-                  ...swap.metadata,
-                  buyAmountCryptoBaseUnit: receiveTransfer.value,
-                },
+                buyAmountCryptoBaseUnit: receiveTransfer.value,
               }),
             )
 
-            const notificationTitle = translate(
-              'notificationCenter.notificationsTitles.swap.title',
-              {
-                sellAmountAndSymbol: numberToCrypto(
-                  fromBaseUnit(swap.metadata.sellAmountCryptoBaseUnit, tradeSellAsset.precision),
-                  tradeSellAsset.symbol,
-                  localeParts,
-                  {
-                    maximumFractionDigits: 8,
-                    omitDecimalTrailingZeros: true,
-                    abbreviated: true,
-                    truncateLargeNumbers: true,
-                  },
-                ),
-                buyAmountAndSymbol: numberToCrypto(
-                  fromBaseUnit(receiveTransfer.value, tradeBuyAsset.precision),
-                  tradeBuyAsset.symbol,
-                  localeParts,
-                  {
-                    maximumFractionDigits: 8,
-                    omitDecimalTrailingZeros: true,
-                    abbreviated: true,
-                    truncateLargeNumbers: true,
-                  },
-                ),
-              },
-            )
+            const notificationTitle = translate('notificationCenter.notificationTitle', {
+              sellAmountAndSymbol: numberToCrypto(
+                fromBaseUnit(swap.sellAmountCryptoBaseUnit, tradeSellAsset.precision),
+                tradeSellAsset.symbol,
+                localeParts,
+                {
+                  maximumFractionDigits: 8,
+                  omitDecimalTrailingZeros: true,
+                  abbreviated: true,
+                  truncateLargeNumbers: true,
+                },
+              ),
+              buyAmountAndSymbol: numberToCrypto(
+                fromBaseUnit(receiveTransfer.value, tradeBuyAsset.precision),
+                tradeBuyAsset.symbol,
+                localeParts,
+                {
+                  maximumFractionDigits: 8,
+                  omitDecimalTrailingZeros: true,
+                  abbreviated: true,
+                  truncateLargeNumbers: true,
+                },
+              ),
+            })
 
             store.dispatch(
               actionCenterSlice.actions.updateAction({
@@ -148,10 +142,7 @@ export const getTradeStatusHandler = async ({
               swapSlice.actions.updateSwap({
                 id: swap.id,
                 status: SwapStatus.Success,
-                metadata: {
-                  ...swap.metadata,
-                  txLink,
-                },
+                txLink,
               }),
             )
 
@@ -196,9 +187,9 @@ export const getTradeStatusHandler = async ({
       }
     }
 
-    const notificationTitle = translate('notificationCenter.notificationsTitles.swap.title', {
+    const notificationTitle = translate('notificationCenter.notificationTitle', {
       sellAmountAndSymbol: numberToCrypto(
-        fromBaseUnit(swap.metadata.sellAmountCryptoBaseUnit, tradeSellAsset.precision),
+        fromBaseUnit(swap.sellAmountCryptoBaseUnit, tradeSellAsset.precision),
         tradeSellAsset.symbol,
         localeParts,
         {
@@ -209,7 +200,7 @@ export const getTradeStatusHandler = async ({
         },
       ),
       buyAmountAndSymbol: numberToCrypto(
-        fromBaseUnit(swap.metadata.buyAmountCryptoBaseUnit, tradeBuyAsset.precision),
+        fromBaseUnit(swap.buyAmountCryptoBaseUnit, tradeBuyAsset.precision),
         tradeBuyAsset.symbol,
         localeParts,
         {
@@ -246,7 +237,7 @@ export const getTradeStatusHandler = async ({
   if (status === TxStatus.Failed) {
     store.dispatch(
       actionCenterSlice.actions.updateAction({
-        title: translate('notificationCenter.notificationsTitles.swap.failed'),
+        title: translate('notificationCenter.notificationTitle'),
         status: ActionStatus.Failed,
         assetIds: [tradeSellAsset.assetId, tradeBuyAsset.assetId],
         metadata: {
@@ -262,7 +253,7 @@ export const getTradeStatusHandler = async ({
     )
 
     toast({
-      title: translate('notificationCenter.notificationsTitles.swap.failed'),
+      title: translate('notificationCenter.notificationTitle'),
       status: 'error',
     })
   }

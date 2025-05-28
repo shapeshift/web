@@ -75,19 +75,18 @@ export const useTradeActionSubscriber = () => {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         quoteId: tradeQuote.id as unknown as QuoteId,
+        sellTxHash: tradeExecution.firstHop.swap.sellTxHash,
+        sellAccountId,
+        swapperName: tradeQuote.swapperName,
+        sellAsset: firstStep.sellAsset,
+        buyAsset: lastStep.buyAsset,
+        sellAmountCryptoBaseUnit: tradeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAmountCryptoBaseUnit:
+          tradeQuote.steps[tradeQuote.steps.length - 1].buyAmountAfterFeesCryptoBaseUnit,
         metadata: {
           lifiRoute: isLifiTradeQuote(tradeQuote) ? tradeQuote.selectedLifiRoute : undefined,
           chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
-          sellTxHash: tradeExecution.firstHop.swap.sellTxHash,
           stepIndex: currentHopIndex,
-          sellAccountId,
-          swapperName: tradeQuote.swapperName,
-          sellAsset: firstStep.sellAsset,
-          buyAsset: lastStep.buyAsset,
-          sellAmountCryptoBaseUnit:
-            tradeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          buyAmountCryptoBaseUnit:
-            tradeQuote.steps[tradeQuote.steps.length - 1].buyAmountAfterFeesCryptoBaseUnit,
         },
         status: SwapStatus.Pending,
       }
@@ -98,7 +97,7 @@ export const useTradeActionSubscriber = () => {
         actionCenterSlice.actions.upsertAction({
           type: ActionCenterType.Swap,
           status: ActionStatus.Pending,
-          title: translate('notificationCenter.notificationsTitles.swap.title', {
+          title: translate('notificationCenter.notificationTitle', {
             sellAmountAndSymbol: toCrypto(
               fromBaseUnit(
                 firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -166,10 +165,7 @@ export const useTradeActionSubscriber = () => {
       dispatch(
         swapSlice.actions.updateSwap({
           id: swap.id,
-          metadata: {
-            ...swap.metadata,
-            sellTxHash: tradeExecution.firstHop.swap.sellTxHash,
-          },
+          sellTxHash: tradeExecution.firstHop.swap.sellTxHash,
         }),
       )
     }
@@ -188,7 +184,7 @@ export const useTradeActionSubscriber = () => {
             if (!swap) return undefined
 
             return {
-              queryKey: ['actionCenterPolling', action.id, swap.id, swap.metadata.sellTxHash],
+              queryKey: ['actionCenterPolling', action.id, swap.id, swap.sellTxHash],
               queryFn: () =>
                 getTradeStatusHandler({
                   toast,

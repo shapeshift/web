@@ -83,7 +83,7 @@ export const useLimitOrderActionSubscriber = () => {
         actionCenterSlice.actions.upsertAction({
           type: ActionCenterType.LimitOrder,
           status: ActionStatus.Pending,
-          title: translate('notificationCenter.notificationsTitles.limitOrder.title', {
+          title: translate('notificationCenter.notificationTitle', {
             sellAmountAndSymbol: toCrypto(
               fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
               sellAsset.symbol,

@@ -325,22 +325,13 @@ export type SwapId = string
 export type SwapMetadata = {
   lifiRoute?: Route
   chainflipSwapId?: number
-  sellTxHash?: string
   stepIndex: SupportedTradeQuoteStepIndex
-  sellAccountId: AccountId | undefined
-  swapperName: SwapperName
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  buyAmountCryptoBaseUnit: string
-  txLink?: string
 }
 
 export enum SwapStatus {
   Pending = 'pending',
   Success = 'success',
   Failed = 'failed',
-  Cancelled = 'cancelled',
 }
 
 export type Swap = {
@@ -348,8 +339,16 @@ export type Swap = {
   createdAt: number
   updatedAt: number
   quoteId: QuoteId
-  metadata: SwapMetadata
+  sellAsset: Asset
+  buyAsset: Asset
   status: SwapStatus
+  sellTxHash?: string
+  sellAccountId: AccountId | undefined
+  swapperName: SwapperName
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  txLink?: string
+  metadata: SwapMetadata
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002

@@ -71,7 +71,7 @@ export const NotificationCenter = memo(() => {
 
             const swap = swapById[action.metadata.swapId]
 
-            return <SwapDetails txLink={swap.metadata.txLink} />
+            return <SwapDetails txLink={swap.txLink} />
           }
           default:
             return null

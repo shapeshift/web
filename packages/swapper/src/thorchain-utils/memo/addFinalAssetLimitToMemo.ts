@@ -10,6 +10,7 @@ type AddFinalAssetLimitToMemoArgs = {
    * The final asset amount out to be added to the memo. THOR Aggregator will use the last two numbers as exponents.
    */
   finalAssetLimit: string
+  affiliate: string
 }
 
 /**
@@ -18,6 +19,7 @@ type AddFinalAssetLimitToMemoArgs = {
 export const addFinalAssetLimitToMemo = ({
   memo,
   finalAssetLimit,
+  affiliate: _affiliate,
 }: AddFinalAssetLimitToMemoArgs) => {
   const memoParts = memo.split(MEMO_PART_DELIMITER)
   const [action] = memoParts
@@ -72,5 +74,5 @@ export const addFinalAssetLimitToMemo = ({
       throw new Error(`unsupported memo: ${memo}`)
   }
 
-  return assertAndProcessMemo(updatedMemo)
+  return assertAndProcessMemo(updatedMemo, _affiliate)
 }

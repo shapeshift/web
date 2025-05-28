@@ -1,7 +1,5 @@
 import { bn } from '@shapeshiftoss/utils'
 
-import { THORCHAIN_AFFILIATE_NAME } from '../../swappers/ThorchainSwapper/utils/constants'
-
 function assertMemoHasPool(pool: string | undefined, memo: string): asserts pool is string {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
 }
@@ -104,7 +102,7 @@ function assertIsValidBasisPoints(
 /**
  * asserts memo is valid and processes the memo to ensure our affiliate code is always present
  */
-export const assertAndProcessMemo = (memo: string): string => {
+export const assertAndProcessMemo = (memo: string, affiliate: string): string => {
   const [action] = memo.split(':')
 
   assertMemoHasAction(action, memo)
@@ -143,9 +141,7 @@ export const assertAndProcessMemo = (memo: string): string => {
         return ''
       })()
 
-      return `${_action}:${asset}:${destAddr}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${
-        fee || 0
-      }${maybeSwapOutParts}`
+      return `${_action}:${asset}:${destAddr}:${limit}:${affiliate}:${fee || 0}${maybeSwapOutParts}`
     }
     case 'add':
     case '+':
@@ -157,13 +153,13 @@ export const assertAndProcessMemo = (memo: string): string => {
       // Add Liquidity - ADD:POOL:PAIREDADDR:AFFILIATE:FEE
       if (pool.includes('.')) {
         if (maybePairedAddr) assertMemoHasPairedAddr(maybePairedAddr, memo)
-        return `${_action}:${pool}:${maybePairedAddr ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
+        return `${_action}:${pool}:${maybePairedAddr ?? ''}:${affiliate}:${fee || 0}`
       }
 
       // Deposit Savers - ADD:POOL::AFFILIATE:FEE
       if (pool.includes('/')) {
         if (maybePairedAddr) throw new Error('paired address is not supported for saver deposit')
-        return `${_action}:${pool}::${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
+        return `${_action}:${pool}::${affiliate}:${fee || 0}`
       }
 
       throw new Error(`invalid pool in memo: ${memo}`)
@@ -180,14 +176,14 @@ export const assertAndProcessMemo = (memo: string): string => {
       if (pool.includes('.')) {
         if (maybeAsset) assertMemoHasAsset(maybeAsset, memo)
         assertIsValidBasisPoints(basisPoints, memo)
-        return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
+        return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}:${affiliate}:0`
       }
 
       // Withdraw Savers - WITHDRAW:POOL:BASISPOINTS
       if (pool.includes('/')) {
         if (maybeAsset) throw new Error('asset is not supported for savers withdraw')
         assertIsValidBasisPoints(basisPoints, memo)
-        return `${_action}:${pool}:${basisPoints}::${THORCHAIN_AFFILIATE_NAME}:0`
+        return `${_action}:${pool}:${basisPoints}::${affiliate}:0`
       }
 
       throw new Error(`invalid pool in memo: ${memo}`)
@@ -200,9 +196,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
 
-      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
-        fee || 0
-      }`
+      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${affiliate}:${fee || 0}`
     }
     // LOAN-:ASSET:DESTADDR:MINOUT
     case '$-':
@@ -212,7 +206,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
 
-      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
+      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${affiliate}:0`
     }
     case 'pool+': {
       return memo
@@ -223,7 +217,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertIsValidBasisPoints(basisPoints, memo)
 
-      return `${_action}:${basisPoints}:${THORCHAIN_AFFILIATE_NAME}:0`
+      return `${_action}:${basisPoints}:${affiliate}:0`
     }
     case 'tcy': {
       // TCY:CLAIMADDR

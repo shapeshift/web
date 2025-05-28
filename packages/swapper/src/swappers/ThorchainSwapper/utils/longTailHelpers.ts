@@ -7,7 +7,8 @@ import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, getContract } from 'viem'
 
-import type { ThornodePoolResponse } from '../types'
+import type { ThornodePoolResponse } from '../../../thorchain-utils'
+import { TradeType } from '../../../thorchain-utils'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
 export const getWrappedToken = (nativeAsset: Asset): Token => {
@@ -28,13 +29,6 @@ export const getTokenFromAsset = (asset: Asset): Token => {
   const { chainReference: chainReferenceStr, assetReference } = fromAssetId(assetId)
   const chainReference = Number(chainReferenceStr)
   return new Token(chainReference, assetReference, precision, symbol, name)
-}
-
-export enum TradeType {
-  LongTailToLongTail = 'LongTailToLongTail',
-  LongTailToL1 = 'LongTailToL1',
-  L1ToLongTail = 'L1ToLongTail',
-  L1ToL1 = 'L1ToL1',
 }
 
 export function getTradeType(

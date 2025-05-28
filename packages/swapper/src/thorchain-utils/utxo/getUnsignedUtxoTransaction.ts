@@ -21,10 +21,8 @@ export const getUnsignedUtxoTransaction = async (
 
   const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = step
 
-  const { vault, opReturnData } = await getThorTxData({
+  const { vault } = await getThorTxData({
     sellAsset,
-    xpub,
-    memo,
     config,
     swapperName,
   })
@@ -38,7 +36,7 @@ export const getUnsignedUtxoTransaction = async (
     skipToAddressValidation: true,
     chainSpecific: {
       accountType,
-      opReturnData,
+      opReturnData: memo,
       satoshiPerByte: (feeData.chainSpecific as UtxoFeeData).satsPerByte,
     },
   })

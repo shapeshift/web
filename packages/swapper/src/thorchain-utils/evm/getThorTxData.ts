@@ -18,11 +18,11 @@ type GetThorTxDataArgs = {
   swapperName: SwapperName
 }
 
-type GetThorTxDataReturn = Promise<{
+type GetThorTxDataReturn = {
   data: string
   router: Address
   vault: Address
-}>
+}
 
 export const getThorTxData = async ({
   sellAsset,
@@ -31,7 +31,7 @@ export const getThorTxData = async ({
   expiry,
   config,
   swapperName,
-}: GetThorTxDataArgs): GetThorTxDataReturn => {
+}: GetThorTxDataArgs): Promise<GetThorTxDataReturn> => {
   const { assetReference } = fromAssetId(sellAsset.assetId)
 
   const daemonUrl = getDaemonUrl(config, swapperName)

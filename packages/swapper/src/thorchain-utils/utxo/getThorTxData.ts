@@ -6,25 +6,19 @@ import { getDaemonUrl } from '../index'
 
 type GetThorTxDataArgs = {
   sellAsset: Asset
-  xpub: string
-  memo: string
   config: SwapperConfig
   swapperName: SwapperName
 }
 
-type GetThorTxDataReturn = Promise<{
-  opReturnData: string
+type GetThorTxDataReturn = {
   vault: string
-  pubkey: string
-}>
+}
 
 export const getThorTxData = async ({
   sellAsset,
-  xpub,
-  memo,
   config,
   swapperName,
-}: GetThorTxDataArgs): GetThorTxDataReturn => {
+}: GetThorTxDataArgs): Promise<GetThorTxDataReturn> => {
   const daemonUrl = getDaemonUrl(config, swapperName)
 
   const res = await getInboundAddressDataForChain(daemonUrl, sellAsset.assetId, false, swapperName)
@@ -32,9 +26,5 @@ export const getThorTxData = async ({
 
   const { address: vault } = res.unwrap()
 
-  return {
-    opReturnData: memo,
-    vault,
-    pubkey: xpub,
-  }
+  return { vault }
 }

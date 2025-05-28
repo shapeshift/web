@@ -20,10 +20,8 @@ export const getUtxoTransactionFees = async (
 
   const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-  const { vault, opReturnData } = await getThorTxData({
+  const { vault } = await getThorTxData({
     sellAsset,
-    xpub,
-    memo,
     config,
     swapperName,
   })
@@ -31,7 +29,7 @@ export const getUtxoTransactionFees = async (
   const { fast } = await adapter.getFeeData({
     to: vault,
     value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    chainSpecific: { pubkey: xpub, opReturnData },
+    chainSpecific: { pubkey: xpub, opReturnData: memo },
     sendMax: false,
   })
 

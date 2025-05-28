@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type {
+  OrderId,
   OrderQuoteResponse,
   PartialRecord,
   QuoteId,
@@ -16,6 +17,7 @@ export type LimitOrderTransactionMetadata = {
   state: TransactionExecutionState
   txHash?: string
   message?: string | [string, InterpolationOptions]
+  orderId?: OrderId
 }
 
 export type LimitOrderSubmissionMetadata = {

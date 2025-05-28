@@ -163,6 +163,7 @@
     "disabled": "已禁用",
     "staged": "进行的",
     "poolHalted": "已暂停的池",
+    "chainHalted": "区块链已暂停",
     "poolDisabled": "池已禁用",
     "prices": "价格",
     "symmetric": "对称",
@@ -196,7 +197,8 @@
     "installed": "已安装",
     "others": "其他",
     "hardwareWallets": "硬件钱包",
-    "dustAmount": "Dust 数量"
+    "dustAmount": "Dust 数量",
+    "marketDataUnavailable": "%{asset} 的市场数据不可用"
   },
   "consentBanner": {
     "body": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问 %{privateLink} 如果您不希望被匿名跟踪。请查看我们的 %{privacyPolicyLink} 更多细节。",
@@ -1043,14 +1045,14 @@
     "awaitingApproval": "授权中",
     "awaitingAllowanceReset": "额度重置中",
     "foxSavings": {
-      "youCouldHaveSaved": "您可以使用 FOX Savings 在此交易中节省 %{fee}。",
+      "youSaved": "您在交易中节省了 %{feeSaving}！",
       "buyFox": "购买 FOX",
       "share": "分享",
-      "postBody": "通过持有 $FOX，我在 @ShapeShift 上交易时节省了 %{fee}！"
+      "postBody": "通过持有 $FOX，我在 @ShapeShift 上交易时节省了 %{fee}！",
+      "youGotMore": "您在本次交易中额外获得了 %{cryptoUpside}"
     },
     "networkFee": "网络费用",
-    "learnMoreAboutFox": "了解更多关于 FOX 权益的信息",
-    "freeTrade": "根据您的 FOX 持有量 (当前为 %{foxBalance} FOX)，这笔交易是免费的"
+    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用"
   },
   "limitOrder": {
     "heading": "限价",
@@ -2234,11 +2236,6 @@
         "title": "✨ 获得 FOX 奖励及更多！ ✨",
         "body": "通过在 DappBack 上完成任务赚取 FOX 奖励",
         "cta": "启动 DappBack"
-      },
-      "bondProtocol": {
-        "title": "打折购买 FOX ！",
-        "body": "使用 BondProtocol 以折扣价购买 FOX",
-        "cta": "启动 Bondprotocol"
       }
     },
     "analytics": {
@@ -2511,28 +2508,6 @@
       "emptyBody": "你目前似乎没有任何贷款。这是金融禅宗还是只是您下一次大型贷款冒险之前的休息？不管怎样，享受平静吧！"
     }
   },
-  "foxDiscounts": {
-    "currentFoxPower": "你的 FOX Power",
-    "foxPower": "FOX Power",
-    "simulateTitle": "模拟您的 FOX Power 折扣",
-    "simulateBody": "使用这个便捷的计算器来确定您的总费用以及您在 %{feature} 上将获得的折扣。只需调整下面的滑块，输入您的 FOX 持有数量和 %{featureLowerCase} 的法币价值，便可查看您的潜在节省！",
-    "featureSize": "%{feature} 规模",
-    "totalFee": "总费用",
-    "discountLabel": "%{discountType} 折扣",
-    "basedOnFee": "基于费用：%{fee}",
-    "feeSummary": "费用概要",
-    "simulateFee": "模拟 FOX 折扣",
-    "freeUnderThreshold": "%{threshold} 以下的 %{feature} 始终免费",
-    "breakdownHeader": "您的折扣",
-    "breakdownBody": "以下是您的 %{featureLowerCase} 费用明细以及相应的折扣。前往模拟选项卡，了解您还能节省多少费用。",
-    "featureFee": "%{feature} 费用",
-    "totalFeatureFee": "总费用%{feature}",
-    "underThreshold": "低交易量",
-    "thorHolder": "THORSwap 持有者",
-    "foxHolder": "FOX 持有者",
-    "foxWifHatHolder": "FOX Wif Hat 持有者",
-    "foxBuy": "FOX 购买"
-  },
   "chart": {
     "interval": {
       "5min": "过去五分钟",
@@ -2571,7 +2546,6 @@
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
-    "instabilityWarning": "Thorchain LP 的存款已在协议层面禁用。如果您尝试充值，资产将被自动退还。此限制将在 3.5 版本中恢复正常。",
     "depositsDisabled": "充值已禁用",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
@@ -2792,6 +2766,8 @@
     "myPosition": "我的仓位",
     "myStakedBalance": "我的质押余额",
     "myStakedBalanceHelper": "您已经质押的 %{symbol} 数量。",
+    "myRewardsBalance": "我的 RUNE 奖励余额",
+    "myRewardsBalanceHelper": "RUNE 质押奖励数量。每天自动分发至您的钱包。",
     "pendingRewardsBalance": "待领取奖励余额",
     "pendingRewardsBalanceHelper": "这只是根据当前时段收入估算的待领取奖励。所有奖励结算将在周期结束时进行，因此在月底前无法精确计算。\n",
     "lifetimeRewards": "终身奖励",
@@ -2876,6 +2852,8 @@
       "goBack": "返回"
     },
     "cta": {
+      "title": "THORChain TCY 领取已上线！",
+      "hasClaimsTitle": "您有可领取的 TCY！",
       "button": "查看可领取的奖励"
     }
   },
@@ -2922,12 +2900,14 @@
   },
   "foxPage": {
     "title": "FOX 代币仪表板",
+    "description": "自 2019 年以来，我们的变形 FOX 代币不断为用户带来丰富的实用性与优势。如今，作为一款 ERC-20 治理代币，FOX 不仅赋予您对 THORChain 收入的分成权，您还可以通过投票影响 ShapeShift 未来的发展方向。在这里，您可以质押、兑换、购买、提供流动性，并管理您的 FOX 资产。",
     "foxToken": "FOX 代币",
     "24hrPriceChange": "24小时价格变化",
     "rfox": {
       "whatIs": "什么是 rFOX Staking？",
       "totalSymbolBurn": "%{symbol} 总销毁数",
       "simulateTitle": "rFOX 模拟器",
+      "simulateSubtle": "模拟您的 rFOX 质押收益",
       "estimatedRewards": "预计奖励",
       "depositAmount": "存款金额",
       "shapeshiftRevenue": "ShapeShift 收入",
@@ -2939,15 +2919,6 @@
       "totalClaimableRewards": "可领取奖励总额",
       "totalStakingValue": "总质押价值",
       "nextEpoch": "下一个时段"
-    },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "领取您的 FOX Wif Hat (FWH)。请快速行动——折扣随时间递减。您持有的 FOX 或 FWH 越多，节省的费用就越多。持有更多 FOX 代币可享受持续折扣，同时获得收益分成、治理权以及收益挖矿福利。请查看本页的剩余部分以了解更多关于此计划的信息。",
-      "discount": "*折扣会随时间线性递减，并于 %{date} 到期。在折扣进一步减少之前使用您的 %{percent}% 折扣！",
-      "claim": "领取",
-      "claimed": "已领取",
-      "discountText": "*%{percent}% 交易费折扣",
-      "noClaims": "暂无可领取的奖励"
     },
     "governance": {
       "title": "治理",

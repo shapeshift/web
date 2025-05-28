@@ -131,14 +131,14 @@ export const portfolio = createSlice({
       draftState.accounts.ids = Object.keys(draftState.accounts.byId)
 
       // Handle account balances
-      Object.entries(payload.accountBalances.byId).forEach(([accountId, balances]) => {
+      Object.entries(payload.accountBalances.byId).forEach(([accountId, payloadBalances]) => {
         if (!draftState.accountBalances.byId[accountId]) {
           draftState.accountBalances.byId[accountId] = {}
         }
 
         const missingAssetIds = difference(
           Object.keys(draftState.accountBalances.byId[accountId]),
-          Object.keys(balances),
+          Object.keys(payloadBalances),
         )
 
         // Zero out missing assets
@@ -150,7 +150,7 @@ export const portfolio = createSlice({
         draftState.accountBalances.byId[accountId] = {
           ...draftState.accountBalances.byId[accountId],
           ...zeroedBalances,
-          ...balances,
+          ...payloadBalances,
         }
       })
 

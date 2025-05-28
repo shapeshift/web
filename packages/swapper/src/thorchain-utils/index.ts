@@ -29,6 +29,7 @@ export * from './routerCallData/routerCalldata'
 export * from './service'
 export * from './types'
 export * from './getL1RateOrQuote'
+export * from './getPoolDetails'
 
 export * as cosmossdk from './cosmossdk'
 export * as evm from './evm'

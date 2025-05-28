@@ -75,7 +75,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   input: T extends ThorTradeRate ? GetTradeRateInput : CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
-  tradeType: TradeType,
   swapperName: SwapperName,
 ): Promise<Result<T[], SwapErrorRight>> => {
   const {
@@ -131,7 +130,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     quote: ThornodeQuoteResponseSuccess,
     isStreaming: boolean,
   ): ThorTradeRoute => {
-    const source = getSwapSource(tradeType, isStreaming, swapperName)
+    const source = getSwapSource(TradeType.L1ToL1, isStreaming, swapperName)
 
     return {
       source,
@@ -258,7 +257,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       router,
       vault,
       expiry: route.quote.expiry,
-      tradeType: tradeType ?? TradeType.L1ToL1,
+      tradeType: TradeType.L1ToL1,
       swapperName,
       steps: [
         {

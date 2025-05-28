@@ -1,12 +1,11 @@
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { ThornodePoolResponse, ThorTradeQuote } from '../../thorchain-utils'
-import { getL1RateOrQuote, thorService, TradeType } from '../../thorchain-utils'
+import type { ThorTradeQuote } from '../../thorchain-utils'
+import { getL1RateOrQuote, getPoolDetails } from '../../thorchain-utils'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
-import { assertValidTrade, assetIdToPoolAssetId } from './utils'
+import { assertValidTrade } from './utils'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -17,41 +16,15 @@ export const getTradeQuote = async (
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const url = `${deps.config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`
+  const poolDetails = await getPoolDetails({
+    buyAsset,
+    sellAsset,
+    url: `${deps.config.VITE_MAYACHAIN_NODE_URL}/mayachain/pools`,
+    swapperName: SwapperName.Mayachain,
+  })
 
-  const res = await thorService.get<ThornodePoolResponse[]>(url)
-  if (res.isErr()) return Err(res.unwrapErr())
+  if (poolDetails.isErr()) return Err(poolDetails.unwrapErr())
+  const { streamingInterval } = poolDetails.unwrap()
 
-  const { data: poolsResponse } = res.unwrap()
-
-  const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
-  const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
-
-  // If one or both of these are undefined it means we are tradeing one or more long-tail ERC20 tokens
-  const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
-  const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
-
-  const streamingInterval =
-    sellAssetPool && buyAssetPool
-      ? (() => {
-          const sellAssetDepthBps = sellAssetPool.derived_depth_bps
-          const buyAssetDepthBps = buyAssetPool.derived_depth_bps
-          const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
-          // Low health for the pools of this swap - use a longer streaming interval
-          if (swapDepthBps.lt(5000)) return 10
-          // Moderate health for the pools of this swap - use a moderate streaming interval
-          if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
-          // Pool is at 90%+ health - use a 1 block streaming interval
-          return 1
-        })()
-      : // TODO: One of the pools is RUNE - use the as-is 10 until we work out how best to handle this
-        10
-
-  return getL1RateOrQuote<ThorTradeQuote>(
-    input,
-    deps,
-    streamingInterval,
-    TradeType.L1ToL1,
-    SwapperName.Mayachain,
-  )
+  return getL1RateOrQuote<ThorTradeQuote>(input, deps, streamingInterval, SwapperName.Mayachain)
 }

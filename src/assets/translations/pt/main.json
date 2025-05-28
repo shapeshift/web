@@ -163,6 +163,7 @@
     "disabled": "Desabilitado",
     "staged": "Staged",
     "poolHalted": "Pool Pausada",
+    "chainHalted": "Rede \"Pausada\"",
     "poolDisabled": "Pool Desabilitada",
     "prices": "Preços",
     "symmetric": "Simétrico",
@@ -196,7 +197,8 @@
     "installed": "Instalado",
     "others": "Outros",
     "hardwareWallets": "Hardware Wallets",
-    "dustAmount": "Quantia sobrando"
+    "dustAmount": "Quantia sobrando",
+    "marketDataUnavailable": "Dados de mercado indisponíveis para %{asset}"
   },
   "consentBanner": {
     "body": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite %{privateLink} se você não quiser ser rastreado anonimamente. Veja nossa %{privacyPolicyLink} para mais detalhes.",
@@ -1043,14 +1045,14 @@
     "awaitingApproval": "Aguardando aprovação",
     "awaitingAllowanceReset": "Aguardando redefinição de permissão",
     "foxSavings": {
-      "youCouldHaveSaved": "Você poderia ter economizado %{fee} em sua negociação com a FOX Savings.",
+      "youSaved": "Você economizou %{feeSaving} na sua negociação!",
       "buyFox": "Comprar FOX",
       "share": "Compartilhar",
-      "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!"
+      "postBody": "Acabei de economizar %{fee} negociando na @ShapeShift só por possuir $FOX!",
+      "youGotMore": "Você ganhou %{cryptoUpside} a mais nesta negociação"
     },
     "networkFee": "Taxa de rede",
-    "learnMoreAboutFox": "Leia mais sobre benefícios do FOX",
-    "freeTrade": "Este trade é gratuito, baseado em quantos FOX você holda, que são %{foxBalance} FOX"
+    "feeExplainer": "A cotação inclui uma taxa de %{feePercentage}% da ShapeShift"
   },
   "limitOrder": {
     "heading": "Limite",
@@ -2234,11 +2236,6 @@
         "title": "✨ Receba recompensa em FOX e muito mais! ✨",
         "body": "Ganhe recompensas em FOX completando tarefas no DappBack.",
         "cta": "Abrir o DappBack."
-      },
-      "bondProtocol": {
-        "title": "Compre FOX com desconto!",
-        "body": "Compre FOX com desconto na BondProtocol",
-        "cta": "Iniciar a BondProtocol"
       }
     },
     "analytics": {
@@ -2511,28 +2508,6 @@
       "emptyBody": "Parece que você não tem nenhum empréstimo no momento. Isso é momento zen das suas finanças ou apenas uma pausa antes de sua próxima grande aventura de empréstimo? De qualquer forma, aproveite a calma!"
     }
   },
-  "foxDiscounts": {
-    "currentFoxPower": "Seu Poder FOX",
-    "foxPower": "Poder FOX",
-    "simulateTitle": "Simule seus descontos FOX",
-    "simulateBody": "Use esta calculadora útil para determinar o total de taxas e o desconto que você receberá em seu %{feature}. Basta ajustar com os controles abaixo para indicar o valor que você detém de FOX e o tamanho de %{featureLowerCase} em moeda fiduciária e observar o potenciam crescimento do seu capital!",
-    "featureSize": "%{feature} Tamanho",
-    "totalFee": "Taxa total",
-    "discountLabel": "%{discountType} Desconto",
-    "basedOnFee": "Com base em uma taxa de: %{fee}",
-    "feeSummary": "Resumo das Taxas",
-    "simulateFee": "Simular desconto FOX",
-    "freeUnderThreshold": "%{feature} abaixo de %{threshold} são sempre GRATUITOS",
-    "breakdownHeader": "Seu desconto",
-    "breakdownBody": "Abaixo está um detalhamento de suas taxas %{featureLowerCase} e o Desconto correspondente aplicado. Saiba quanto mais você pode economizar na aba simular.",
-    "featureFee": "%{feature} Taxa",
-    "totalFeatureFee": "Taxa %{feature} Total",
-    "underThreshold": "Trade Baixo",
-    "thorHolder": "Holder THORSwap",
-    "foxHolder": "Holder FOX",
-    "foxWifHatHolder": "Holder FOX Wif Hat",
-    "foxBuy": "Compre FOX"
-  },
   "chart": {
     "interval": {
       "5min": "Passados ​​cinco minutos",
@@ -2571,7 +2546,6 @@
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
     "unsupportedNetworkExplainer": "Sua carteira não está conectada a %{network}. Conecte esta rede ou mude para uma carteira que suporte esta rede.",
     "unsupportedNetworksExplainer": "Sua carteira não está conectada a %{network1} e %{network2}. Conecte esta rede ou mude para uma carteira que suporte essas redes.",
-    "instabilityWarning": "Os depósitos para LP da Thorchain estão desativados no nível do protocolo. Se você tentar depositar, os ativos serão devolvidos com um reembolso. Isso será revertido na versão 3.5.",
     "depositsDisabled": "Depósitos Desativados",
     "shareOfPool": "Participação na pool",
     "assetDepositAmount": "%{asset} Valor do depósito",
@@ -2792,6 +2766,8 @@
     "myPosition": "Minha Posição",
     "myStakedBalance": "Meu Saldo em Stake",
     "myStakedBalanceHelper": "Quantidade de %{symbol} que você tem em stake",
+    "myRewardsBalance": "Meu saldo de recompensas RUNE",
+    "myRewardsBalanceHelper": "A quantidade de recompensas de staking de RUNE. Distribuídas automaticamente para sua carteira diariamente.",
     "pendingRewardsBalance": "Saldo de Recompensas Pendentes",
     "pendingRewardsBalanceHelper": "Esta é apenas uma estimativa das suas recompensas pendentes com base nas receitas acumuladas até o momento. Toda a contabilização é feita no final do período e não pode ser calculada exatamente antes do final do mês.",
     "lifetimeRewards": "Recompensas Vitalícias",
@@ -2876,6 +2852,8 @@
       "goBack": "Volte"
     },
     "cta": {
+      "title": "Os resgates da THORChain TCY estão aqui!",
+      "hasClaimsTitle": "Você tem resgate de TCY disponíveis!",
       "button": "Verificar Resgates"
     }
   },
@@ -2922,12 +2900,14 @@
   },
   "foxPage": {
     "title": "Painel de Tokens FOX",
+    "description": "Desde 2019, nosso token FOX, oferece aos usuários um mundo de cada vez mais utilidades e vantagens. Hoje, nosso token de governança garante uma participação nos lucros da THORChain e permite que você influencie o futuro do ShapeShift por meio do seu voto. Faça stake, troque, compre, forneça liquidez e gerencie seus FOX aqui.",
     "foxToken": "Token FOX",
     "24hrPriceChange": "Alteração de preço 24h",
     "rfox": {
       "whatIs": "O que é staking de rFOX?",
       "totalSymbolBurn": "Total de %{symbol} queimado",
       "simulateTitle": "Simulador rFOX",
+      "simulateSubtle": "Simule seu rendimento de staking rFOX",
       "estimatedRewards": "Recompensas estimadas",
       "depositAmount": "Valor do depósito",
       "shapeshiftRevenue": "Receita da ShapeShift",
@@ -2939,15 +2919,6 @@
       "totalClaimableRewards": "Total de recompensas resgatáveis.",
       "totalStakingValue": "Valor total em staking",
       "nextEpoch": "Próxima Época"
-    },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "Resgate seu FOX Wif Hat (FWH). Aja rápido - os descontos diminuem com o tempo. Quanto mais FOX ou FWH você tiver, mais você economiza. Acumule mais tokens FOX para economias contínuas, além de compartilhamento de receita, governança e vantagens de yield farming. Saiba mais sobre esses programas no restante desta página.",
-      "discount": "*O desconto diminui linearmente ao longo do tempo, expirando em %{date}. Aproveite seu desconto de %{percent}% antes que ele diminua ainda mais!",
-      "claim": "Resgate",
-      "claimed": "Resgatado",
-      "discountText": "*%{percent}% de desconto em taxas de trading",
-      "noClaims": "Nenhum resgate disponível"
     },
     "governance": {
       "title": "Governança",

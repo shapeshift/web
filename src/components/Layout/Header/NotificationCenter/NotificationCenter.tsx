@@ -14,6 +14,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
 import { SwapDetails } from './components/Details/SwapDetails'
 import { NotificationCard } from './components/NotificationCard'
 
@@ -21,7 +22,11 @@ import {
   selectInitializedActionsByUpdatedAtDescFilteredByWallet,
   selectPendingActionsFilteredByWallet,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionCenterType, isTradePayloadDiscriminator } from '@/state/slices/actionSlice/types'
+import {
+  ActionCenterType,
+  isLimitOrderPayloadDiscriminator,
+  isTradePayloadDiscriminator,
+} from '@/state/slices/actionSlice/types'
 import { selectSwapById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -51,6 +56,23 @@ export const NotificationCenter = memo(() => {
 
             return <SwapDetails txLink={swap.txLink} />
           }
+          case ActionCenterType.LimitOrder:
+            if (!isLimitOrderPayloadDiscriminator(action)) return
+
+            return (
+              <LimitOrderDetails
+                buyAsset={action.metadata.buyAsset}
+                sellAsset={action.metadata.sellAsset}
+                expires={action.metadata.expires}
+                buyAmountCryptoPrecision={action.metadata.buyAmountCryptoBaseUnit}
+                sellAmountCryptoPrecision={action.metadata.sellAmountCryptoBaseUnit}
+                limitPrice={action.metadata.limitPrice}
+                filledDecimalPercentage={action.metadata.filledDecimalPercentage}
+                executedBuyAmountCryptoBaseUnit={action.metadata.executedBuyAmountCryptoBaseUnit}
+                executedSellAmountCryptoBaseUnit={action.metadata.executedSellAmountCryptoBaseUnit}
+                status={action.status}
+              />
+            )
           default:
             return null
         }

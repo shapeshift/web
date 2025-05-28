@@ -34,15 +34,15 @@ const cardSx = {
 }
 
 type YouGotMoreProps = {
-  totalUpsideCryptoPrecision: string
-  totalUpsidePercentage: string
+  extraDeltaCryptoPrecision: string
+  extraDeltePercentage: string
   sellAsset: Asset
   buyAsset: Asset
 }
 
 export const YouGotMore = ({
-  totalUpsideCryptoPrecision,
-  totalUpsidePercentage,
+  extraDeltaCryptoPrecision,
+  extraDeltePercentage,
   sellAsset,
   buyAsset,
 }: YouGotMoreProps) => {
@@ -83,8 +83,8 @@ export const YouGotMore = ({
   }, [makeShot])
 
   const formattedPercentage = useMemo(() => {
-    return `+${bnOrZero(totalUpsidePercentage).toFixed(2)}%`
-  }, [totalUpsidePercentage])
+    return `+${bnOrZero(extraDeltePercentage).toFixed(2)}%`
+  }, [extraDeltePercentage])
 
   const pair = useMemo(() => {
     return `${sellAsset.symbol}/${buyAsset.symbol}`
@@ -95,12 +95,12 @@ export const YouGotMore = ({
       cryptoUpside: (
         <Amount.Crypto
           as='span'
-          value={bnOrZero(totalUpsideCryptoPrecision).toFixed(buyAsset.precision)}
+          value={bnOrZero(extraDeltaCryptoPrecision).toFixed(buyAsset.precision)}
           symbol={buyAsset.symbol}
         />
       ),
     }),
-    [buyAsset.precision, buyAsset.symbol, totalUpsideCryptoPrecision],
+    [buyAsset.precision, buyAsset.symbol, extraDeltaCryptoPrecision],
   )
 
   return (

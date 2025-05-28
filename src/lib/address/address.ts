@@ -9,11 +9,6 @@ import { ensReverseLookupShim } from './ens'
 import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
-import {
-  resolveUnstoppableDomain,
-  reverseLookupUnstoppableDomain,
-  validateUnstoppableDomain,
-} from '@/lib/address/unstoppable-domains'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type VanityAddressValidatorsByChainId = {
@@ -145,8 +140,7 @@ export const parseMaybeUrl = async ({
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
 const getVanityAddressValidatorsByChain = (): VanityAddressValidatorsByChainId => {
   return {
-    [btcChainId]: [validateUnstoppableDomain],
-    [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
+    [ethChainId]: [validateEnsDomain],
   }
 }
 
@@ -191,8 +185,7 @@ type VanityAddressResolversByChainId = {
 
 const getVanityResolversByChainId = (): VanityAddressResolversByChainId => {
   return {
-    [btcChainId]: [resolveUnstoppableDomain],
-    [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
+    [ethChainId]: [resolveEnsDomain],
   }
 }
 
@@ -223,8 +216,7 @@ type ReverseResolversByChainId = {
 }
 
 const reverseLookupResolversByChainId: ReverseResolversByChainId = {
-  [btcChainId]: [reverseLookupUnstoppableDomain],
-  [ethChainId]: [ensReverseLookupShim, reverseLookupUnstoppableDomain],
+  [ethChainId]: [ensReverseLookupShim],
 }
 
 export const reverseLookupVanityAddress: ReverseLookupVanityAddress = async args => {

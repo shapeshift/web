@@ -13,7 +13,7 @@ export const withdrawEvent = getAbiItem({ abi: RFOX_ABI, name: 'Withdraw' })
 
 export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'QmSSgDoyc3RubRbwh4CUfvAyyJK8mHdiZHMKy6dGWePxep'
+export const CURRENT_EPOCH_IPFS_HASH = 'bafkreidcymnjad6u2qvfmluzfg6siknccdzskwdnfb2fvqsxagk7vx53he'
 export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
 
 const client = viemClientByNetworkId[arbitrum.id]

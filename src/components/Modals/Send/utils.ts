@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId, tcyAssetId } from '@shapeshiftoss/caip'
 import type {
   BuildSendTxInput,
   FeeData,
@@ -213,7 +213,11 @@ export const handleSend = async ({
         value,
         wallet,
         accountNumber,
-        chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
+        chainSpecific: {
+          gas: fees.chainSpecific.gasLimit,
+          fee: fees.txFee,
+          ...(sendInput.assetId === tcyAssetId ? { coin: 'THOR.TCY' } : {}),
+        },
         sendMax: sendInput.sendMax,
       }
       const adapter = assertGetCosmosSdkChainAdapter(chainId)

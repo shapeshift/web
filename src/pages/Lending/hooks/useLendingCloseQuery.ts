@@ -43,8 +43,8 @@ const selectLendingCloseQueryData = memoize(
     repaymentAsset,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
-    collateralAssetMarketData: MarketData
-    repaymentAssetMarketData: MarketData
+    collateralAssetMarketData: MarketData | undefined
+    repaymentAssetMarketData: MarketData | undefined
     repaymentPercent: number
     repaymentAsset: Asset | undefined
   }): LendingQuoteClose => {
@@ -240,18 +240,8 @@ export const useLendingQuoteCloseQuery = ({
     select: data =>
       selectLendingCloseQueryData({
         data,
-        collateralAssetMarketData: collateralAssetMarketData ?? {
-          price: '0',
-          marketCap: '0',
-          volume: '0',
-          changePercent24Hr: 0,
-        },
-        repaymentAssetMarketData: repaymentAssetMarketData ?? {
-          price: '0',
-          marketCap: '0',
-          volume: '0',
-          changePercent24Hr: 0,
-        },
+        collateralAssetMarketData,
+        repaymentAssetMarketData,
         repaymentPercent,
         repaymentAsset,
       }),

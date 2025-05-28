@@ -73,12 +73,7 @@ export class MarketServiceManager {
     const assets = this.assetService.assetsById
 
     if (isNft(assetId)) {
-      return {
-        price: '0',
-        marketCap: '0',
-        volume: '0',
-        changePercent24Hr: 0,
-      }
+      return null
     }
 
     const result = await (async () => {

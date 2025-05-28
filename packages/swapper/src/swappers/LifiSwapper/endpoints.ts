@@ -232,6 +232,7 @@ export const lifiApi: SwapperApi = {
     stepIndex,
     chainId,
     accountId,
+    swap,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }): Promise<{
@@ -239,7 +240,7 @@ export const lifiApi: SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }> => {
-    const lifiRoute = tradeQuoteMetadata.get(quoteId)
+    const lifiRoute = swap?.metadata.lifiRoute
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
 
     // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {

@@ -11,14 +11,18 @@ import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import {
+  clearActionCenterMigrations,
   clearAssetsMigrations,
   clearMarketDataMigrations,
   clearOpportunitiesMigrations,
   clearPortfolioMigrations,
   clearSnapshotMigrations,
+  clearSwapsMigrations,
   clearTxHistoryMigrations,
   localWalletMigrations,
 } from './migrations'
+import { actionCenterSlice } from './slices/actionSlice/actionSlice'
+import type { ActionCenterState } from './slices/actionSlice/types'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -34,6 +38,7 @@ import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from './slices/portfolioSlice/portfolioSliceCommon'
 import type { Preferences } from './slices/preferencesSlice/preferencesSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
+import { swapSlice } from './slices/swapSlice/swapSlice'
 import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -116,6 +121,19 @@ const limitOrderApiPersistConfig = {
   version: 0,
 }
 
+const actionCenterPersistConfig = {
+  key: 'actionCenter',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearActionCenterMigrations).map(Number)),
+  migrate: createMigrate(clearActionCenterMigrations, { debug: false }),
+}
+
+const swapPersistConfig = {
+  key: 'swap',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearSwapsMigrations).map(Number)),
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -134,6 +152,10 @@ export const sliceReducers = {
   localWallet: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
+  ),
+  actionCenter: persistReducer<ActionCenterState>(
+    actionCenterPersistConfig,
+    actionCenterSlice.reducer,
   ),
 }
 
@@ -167,6 +189,11 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
+  [actionCenterSlice.reducerPath]: persistReducer(
+    actionCenterPersistConfig,
+    actionCenterSlice.reducer,
+  ),
+  [swapSlice.reducerPath]: persistReducer(swapPersistConfig, swapSlice.reducer),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

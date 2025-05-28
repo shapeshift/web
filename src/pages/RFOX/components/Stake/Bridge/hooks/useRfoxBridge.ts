@@ -290,6 +290,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
               quoteId: '',
               stepIndex: 0,
               accountId: confirmedQuote.sellAssetAccountId,
+              swap: undefined,
               ...swapperDeps,
             })
         : skipToken,

@@ -15,3 +15,7 @@ export interface LifiTradeRate extends TradeRate {
   selectedLifiRoute?: Route
   lifiTools?: LifiTools
 }
+
+export const isLifiTradeQuote = (tradeQuote: TradeQuote): tradeQuote is LifiTradeQuote => {
+  return 'selectedLifiRoute' in tradeQuote
+}

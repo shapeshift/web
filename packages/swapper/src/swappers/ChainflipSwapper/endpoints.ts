@@ -279,21 +279,20 @@ export const chainflipApi: SwapperApi = {
   checkTradeStatus: async ({
     config,
     quoteId,
+    swap,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }> => {
-    const swap = tradeQuoteMetadata.get(quoteId)
-    if (!swap) throw Error(`Missing trade quote metadata for quoteId ${quoteId}`)
-    // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap
-    const swapId = swap.id
+    const chainflipSwapId = tradeQuoteMetadata.get(quoteId)?.id || swap?.metadata.chainflipSwapId
+    if (!chainflipSwapId) throw Error(`Missing trade quote metadata for quoteId ${quoteId}`)
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
-      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
+      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${chainflipSwapId}`,
     )
 
     if (maybeStatusResponse.isErr()) {

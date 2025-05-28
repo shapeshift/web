@@ -5,7 +5,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -15,7 +15,6 @@ import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
-import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useAccountsFetchQuery = () => {
@@ -36,28 +35,6 @@ export const useAccountsFetchQuery = () => {
     // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
     return enabledWalletAccountIds.length > 0
   }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
-
-  // reset portfolio and tx history api states to ensure refetch on wallet switch
-  useEffect(() => {
-    if (!wallet) return
-
-    dispatch(portfolioApi.util.resetApiState())
-    dispatch(txHistoryApi.util.resetApiState())
-  }, [dispatch, wallet])
-
-  // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
-  // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
-  useEffect(() => {
-    const { getAllTxHistory } = txHistoryApi.endpoints
-
-    enabledWalletAccountIds.forEach(accountId => {
-      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
-    })
-
-    enabledWalletAccountIds.forEach(requestedAccountId => {
-      dispatch(getAllTxHistory.initiate(requestedAccountId))
-    })
-  }, [dispatch, enabledWalletAccountIds])
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
@@ -213,6 +190,8 @@ export const useAccountsFetchQuery = () => {
       },
     ],
     queryFn: wallet && deviceId && !hasManagedAccounts ? queryFn : skipToken,
+    staleTime: Infinity,
+    gcTime: Infinity,
   })
 
   return query

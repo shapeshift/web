@@ -240,7 +240,6 @@ export const NewWalletViewsSwitch = () => {
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
-        <Divider mb={2} />
         <HardwareWalletsSection
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}

@@ -38,6 +38,7 @@ export const Account = () => {
       <Routes>
         <Route index element={accountDetailsElement} />
         <Route path=':chainId/:assetSubId' element={accountTokenElement} />
+        <Route path=':chainId/:assetSubId/:nftId' element={accountTokenElement} />
       </Routes>
     </Flex>
   )

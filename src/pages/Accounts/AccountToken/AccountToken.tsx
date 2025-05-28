@@ -20,6 +20,7 @@ export type MatchParams = {
   accountId: AccountId
   chainId: string
   assetSubId: string
+  nftId: string
 }
 
 const stackDirection: StackDirection = { base: 'column', xl: 'row' }
@@ -27,7 +28,7 @@ const flexMaxWidth = { base: 'full', xl: 'sm' }
 const multiHopTradeDisplay = { base: 'none', md: 'flex' }
 
 export const AccountToken = () => {
-  const { accountId, chainId, assetSubId } = useParams<MatchParams>()
+  const { accountId, chainId, assetSubId, nftId } = useParams<MatchParams>()
 
   /**
    * if the user switches the wallet while visiting this page,
@@ -40,8 +41,9 @@ export const AccountToken = () => {
 
   const assetId = useMemo(() => {
     if (!chainId || !assetSubId) return null
+    if (nftId) return `${decodeURIComponent(chainId)}/${decodeURIComponent(assetSubId)}/${nftId}`
     return `${decodeURIComponent(chainId)}/${decodeURIComponent(assetSubId)}`
-  }, [chainId, assetSubId])
+  }, [chainId, assetSubId, nftId])
 
   const nativeSellAssetId = useMemo(() => {
     if (!assetId) return

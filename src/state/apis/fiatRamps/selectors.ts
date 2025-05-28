@@ -38,12 +38,10 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
     return assetIds.reduce<AssetWithMarketData[]>((acc, assetId) => {
       const assetData = assetsById[assetId]
       if (!assetData) return acc
-      const marketDataForAsset = marketData[assetId] ?? {
-        price: '0',
-        marketCap: '0',
-        volume: '0',
-        changePercent24Hr: 0,
-      }
+      const marketDataForAsset = marketData[assetId]
+
+      if (!marketDataForAsset) return acc
+
       acc.push({ ...assetData, ...marketDataForAsset })
       return acc
     }, [])

@@ -317,7 +317,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
-      return navigate(BridgeRoutePaths.Confirm, { state: { state: bridgeQuote } })
+      return navigate(BridgeRoutePaths.Confirm, { state: bridgeQuote })
     }
 
     navigate(StakeRoutePaths.Confirm)

@@ -1,5 +1,5 @@
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { getDaemonUrl } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -27,18 +27,9 @@ const getThorchainStreamingSwap = async (
   sellTxHash: string,
   swapperName: SwapperName,
 ): Promise<ThornodeStreamingSwapResponseSuccess | undefined> => {
-  const daemonUrl = (() => {
-    switch (swapperName) {
-      case SwapperName.Thorchain:
-        return `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain`
-      case SwapperName.Mayachain:
-        return `${getConfig().VITE_MAYACHAIN_NODE_URL}/mayachain`
-      default:
-        throw new Error(`Invalid swapper: ${swapperName}`)
-    }
-  })()
-
+  const daemonUrl = getDaemonUrl(getConfig(), swapperName)
   const thorTxHash = sellTxHash.replace(/^0x/, '')
+
   const { data: streamingSwapData } = await axios.get<ThornodeStreamingSwapResponse>(
     `${daemonUrl}/swap/streaming/${thorTxHash}`,
   )

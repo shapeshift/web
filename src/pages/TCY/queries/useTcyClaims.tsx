@@ -1,5 +1,5 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isRune, mayaPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import axios from 'axios'
@@ -92,7 +92,7 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
             .map(response => response.data.tcy_claimer)
             .flat()
             .filter(claimer => {
-              const assetId = mayaPoolAssetIdToAssetId(claimer.asset)
+              const assetId = thorPoolAssetIdToAssetId(claimer.asset)
               if (!assetId) return false
 
               const chainId = fromAssetId(assetId).chainId
@@ -105,7 +105,7 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               ...claimer,
               accountId,
               amountThorBaseUnit: claimer.amount,
-              assetId: mayaPoolAssetIdToAssetId(claimer.asset) ?? '',
+              assetId: thorPoolAssetIdToAssetId(claimer.asset) ?? '',
               l1_address:
                 claimer.asset === 'BCH.BCH'
                   ? `bitcoincash:${claimer.l1_address}`

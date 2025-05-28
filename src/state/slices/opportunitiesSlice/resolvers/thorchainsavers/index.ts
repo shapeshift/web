@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
-import { mayaPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -68,7 +68,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   })
 
   const opportunityIds = sortedPools.reduce<OpportunityId[]>((acc, currentPool) => {
-    const maybeOpportunityId = mayaPoolAssetIdToAssetId(currentPool.asset)
+    const maybeOpportunityId = thorPoolAssetIdToAssetId(currentPool.asset)
 
     if (
       bnOrZero(currentPool.savers_depth).gt(0) &&
@@ -135,7 +135,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const thorchainPool of availablePools) {
-    const assetId = mayaPoolAssetIdToAssetId(thorchainPool.asset)
+    const assetId = thorPoolAssetIdToAssetId(thorchainPool.asset)
     if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 
     const opportunityId = assetId as StakingId
@@ -198,7 +198,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
     const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
       (acc, pool) => {
-        const assetId = mayaPoolAssetIdToAssetId(pool.asset)
+        const assetId = thorPoolAssetIdToAssetId(pool.asset)
 
         if (!assetId) return acc
 
@@ -211,13 +211,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     )
 
     const underlyingAssetIds = reservePositions.pools
-      .map(pool => mayaPoolAssetIdToAssetId(pool.pool))
+      .map(pool => thorPoolAssetIdToAssetId(pool.pool))
       .filter(
         assetId => isSome(assetId) && opportunityIds.includes(assetId as OpportunityId),
       ) as AssetId[]
 
     const totalRuneAmount = reservePositions.pools.reduce((acc, pool) => {
-      const assetId = mayaPoolAssetIdToAssetId(pool.pool)
+      const assetId = thorPoolAssetIdToAssetId(pool.pool)
 
       if (!assetId) return acc
 
@@ -230,7 +230,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     const { underlyingAssetRatiosBaseUnit, underlyingAssetWeightPercentageDecimal } =
       reservePositions.pools.reduce(
         (acc, pool) => {
-          const assetId = mayaPoolAssetIdToAssetId(pool.pool)
+          const assetId = thorPoolAssetIdToAssetId(pool.pool)
 
           if (!assetId) return acc
 

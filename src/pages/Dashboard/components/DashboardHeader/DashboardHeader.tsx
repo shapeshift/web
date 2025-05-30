@@ -14,7 +14,10 @@ import { Amount } from '@/components/Amount/Amount'
 import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const paddingTop = { base: 'env(safe-area-inset-top)', md: '4.5rem' }
+const paddingTop = {
+  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: '4.5rem',
+}
 const marginTop = { base: 0, md: '-4.5rem' }
 
 export type TabItem = {

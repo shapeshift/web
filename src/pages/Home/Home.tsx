@@ -10,7 +10,10 @@ import { DashboardHeaderWrapper } from '@/pages/Dashboard/components/DashboardHe
 import { WalletBalance } from '@/pages/Dashboard/components/DashboardHeader/WalletBalance'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 
-const paddingTop = { base: 'calc(env(safe-area-inset-top) + 2rem)', md: '4.5rem' }
+const paddingTop = {
+  base: 'calc(env(safe-area-inset-top) + 2rem + var(--safe-area-inset-top))',
+  md: '4.5rem',
+}
 const marginTop = { base: 0, md: '-4.5rem' }
 const activeStyle = { opacity: 0.5 }
 const pageProps = { paddingTop: 0 }

@@ -44,7 +44,10 @@ const pxProp = { base: 0, xl: 4 }
 const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
 const widthProp = { base: 'auto', md: 'full' }
-const paddingTopProp = { base: 'env(safe-area-inset-top)', md: 0 }
+const paddingTopProp = {
+  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: 0,
+}
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)

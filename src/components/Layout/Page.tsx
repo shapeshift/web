@@ -44,7 +44,7 @@ export const Page: React.FC<PageProps> = ({
     <Flex
       flex={1}
       flexDir='column'
-      pt={isSubpage ? 0 : 'env(safe-area-inset-top)'}
+      pt={isSubpage ? 0 : 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'}
       pb='var(--mobile-nav-offset)'
       {...rest}
     >

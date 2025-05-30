@@ -13,8 +13,8 @@ export const DashboardDrawer: React.FC<DashboardDrawerProps> = memo(({ isOpen, o
     <Drawer isOpen={isOpen} onClose={onClose} blockScrollOnMount={false} placement='left'>
       <DrawerOverlay />
       <DrawerContent
-        paddingTop='env(safe-area-inset-top)'
-        paddingBottom='max(1rem, env(safe-area-inset-top))'
+        paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
+        paddingBottom='max(1rem, calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
         overflowY='auto'
       >
         <SideNavContent onClose={onClose} />

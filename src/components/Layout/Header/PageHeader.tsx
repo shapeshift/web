@@ -10,7 +10,10 @@ import { RawText } from '@/components/Text'
 
 const arrowBack = <ArrowBackIcon />
 const paddingX = { base: 4, xl: 8 }
-const paddingTop = { base: 'env(safe-area-inset-top)', md: 6 }
+const paddingTop = {
+  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: 6,
+}
 const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
 
 export const PageBackButton: React.FC<{ onBack?: () => void }> = ({ onBack }) => {

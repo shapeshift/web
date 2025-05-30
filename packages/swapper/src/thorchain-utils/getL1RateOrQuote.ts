@@ -118,7 +118,8 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   const swapQuote = maybeSwapQuote.unwrap()
 
   const maybeStreamingSwapQuote =
-    swapperName === SwapperName.Thorchain && config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS
+    (swapperName === SwapperName.Thorchain && config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS) ||
+    swapperName === SwapperName.Mayachain
       ? await getQuote({ ...baseQuoteArgs, streaming: true, streamingInterval }, deps)
       : undefined
 

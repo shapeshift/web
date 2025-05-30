@@ -30,7 +30,7 @@ import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
-import { reactQueries } from '@/react-queries'
+import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries/thornode'
 import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
 import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteOrRateRequest } from '@/state/apis/swapper/types'
@@ -173,8 +173,10 @@ export const swapperApi = createApi({
                   if (![SwapperName.Thorchain, SwapperName.Mayachain].includes(swapperName))
                     return true
 
+                  const chainId = getChainIdBySwapper(swapperName)
+
                   const inboundAddresses = await queryClient.fetchQuery({
-                    ...reactQueries.thornode.inboundAddresses(getChainIdBySwapper(swapperName)),
+                    ...getInboundAddressesQuery(chainId),
                     // Go stale instantly
                     staleTime: 0,
                     // Never store queries in cache since we always want fresh data
@@ -184,7 +186,7 @@ export const swapperApi = createApi({
                   const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
 
                   const mimir = await queryClient.fetchQuery({
-                    ...reactQueries.thornode.mimir(getChainIdBySwapper(swapperName)),
+                    ...getMimirQuery(chainId),
                     staleTime: thorchainBlockTimeMs,
                   })
 

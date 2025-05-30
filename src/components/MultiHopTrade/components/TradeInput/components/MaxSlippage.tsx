@@ -1,8 +1,8 @@
 import { Divider, Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
-import { MAYACHAIN_STREAM_SWAP_SOURCE } from '@shapeshiftoss/swapper'
 import {
+  MAYACHAIN_STREAM_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'

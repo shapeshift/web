@@ -1,10 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainChainId } from '@shapeshiftoss/caip'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 
 import { useThorchainMimir } from './useThorchainMimir'
 
 export const useIsLpDepositEnabled = (assetId: AssetId | undefined) => {
   return useThorchainMimir({
+    chainId: thorchainChainId,
     enabled: Boolean(assetId),
     select: mimir => {
       if (!assetId) return undefined

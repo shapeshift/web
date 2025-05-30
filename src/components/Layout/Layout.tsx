@@ -7,7 +7,10 @@ import { MobileNavBar } from './Header/NavBar/MobileNavBar'
 import { SideNav } from './Header/SideNav'
 
 const widthProp = { base: 'full', md: 'calc(100% - 93px)', '2xl': 'calc(100% - 384px)' }
-const paddingBottomProp = { base: 'calc(0 + env(safe-area-inset-bottom))', md: 0 }
+const paddingBottomProp = {
+  base: 'calc(0 + env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
+  md: 0,
+}
 
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
   return (

@@ -52,6 +52,8 @@ const styles = {
       minHeight: '100%',
       overflowY: 'scroll',
     },
+    '--safe-area-inset-top': '0px',
+    '--safe-area-inset-bottom': '0px',
     '#root': {
       background: 'background.surface.base',
     },

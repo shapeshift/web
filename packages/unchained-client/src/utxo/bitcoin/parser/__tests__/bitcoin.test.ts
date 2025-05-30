@@ -44,7 +44,12 @@ vi.mock('axios', () => {
   }
 })
 
-const txParser = new TransactionParser({ chainId: btcChainId, assetId: btcAssetId, midgardUrl: '' })
+const txParser = new TransactionParser({
+  chainId: btcChainId,
+  assetId: btcAssetId,
+  thorMidgardUrl: '',
+  mayaMidgardUrl: '',
+})
 
 describe('parseTx', () => {
   describe('standard', () => {

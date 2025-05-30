@@ -12,7 +12,6 @@ import { describe, expect, it, vi } from 'vitest'
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
-import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import * as arbitrum from './ArbitrumChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -80,7 +79,7 @@ const makeGetAccountMockResponse = (balance: {
 const makeChainAdapterArgs = (overrideArgs?: {
   providers?: { http: unchained.arbitrum.V1Api }
   chainId?: EvmChainId
-}): ChainAdapterArgs<unchained.arbitrum.V1Api> =>
+}): arbitrum.ChainAdapterArgs =>
   merge(
     {
       providers: {
@@ -88,6 +87,7 @@ const makeChainAdapterArgs = (overrideArgs?: {
         ws: {} as unchained.ws.Client<unchained.arbitrum.Tx>,
       },
       rpcUrl: '',
+      mayaMidgardUrl: '',
     },
     overrideArgs,
   )

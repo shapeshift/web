@@ -8,10 +8,10 @@ export interface ParserArgs {
 }
 
 export class Parser implements SubParser<Tx> {
-  private readonly thorchainParser: ThorchainParser
+  protected parser: ThorchainParser<'thorchain' | 'mayachain'>
 
   constructor(args: ParserArgs) {
-    this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
+    this.parser = new ThorchainParser({ midgardUrl: args.midgardUrl })
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -21,6 +21,6 @@ export class Parser implements SubParser<Tx> {
     const memo = opReturn.match(opReturnRegex)?.groups?.memo
 
     if (!memo) return
-    return await this.thorchainParser.parse(memo)
+    return await this.parser.parse(memo)
   }
 }

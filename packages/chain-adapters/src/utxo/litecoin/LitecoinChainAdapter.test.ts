@@ -130,7 +130,7 @@ describe('LitecoinChainAdapter', () => {
       },
       coinName: 'Litecoin',
       chainId: KnownChainIds.LitecoinMainnet,
-      midgardUrl: '',
+      thorMidgardUrl: '',
     }
   })
 

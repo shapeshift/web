@@ -141,7 +141,7 @@ describe('BitcoinCashChainAdapter', () => {
       },
       coinName: 'BitcoinCash',
       chainId: KnownChainIds.BitcoinCashMainnet,
-      midgardUrl: '',
+      thorMidgardUrl: '',
     }
   })
 

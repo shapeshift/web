@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -177,7 +177,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const thorchainNotationAssetId = useMemo(() => {
     // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
     // Left as-is for this PR to avoid a bigly diff
-    return assetIdToPoolAssetId({ assetId: poolAssetId })
+    return assetIdToThorPoolAssetId({ assetId: poolAssetId })
   }, [poolAssetId])
 
   const memo = useMemo(() => {
@@ -188,7 +188,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     const asymDestinationPoolAssetId =
       opportunityType === 'sym' && actionSide !== 'sym'
-        ? assetIdToPoolAssetId({ assetId })
+        ? assetIdToThorPoolAssetId({ assetId })
         : undefined
 
     return isDeposit

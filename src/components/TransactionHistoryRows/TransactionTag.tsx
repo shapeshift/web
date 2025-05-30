@@ -63,7 +63,11 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
       </Tag>
     )
   }
-  if (txData && txData.parser === 'thorchain' && txData.swap?.type === 'Streaming') {
+  if (
+    txData &&
+    (txData.parser === 'thorchain' || txData.parser === 'mayachain') &&
+    txData.swap?.type === 'Streaming'
+  ) {
     return (
       <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
         {txData.swap.type}

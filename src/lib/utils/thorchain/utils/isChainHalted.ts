@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 
 import type { ThorchainMimir } from '../types'
 
@@ -16,7 +16,7 @@ export const isChainHalted = ({ mimir, blockHeight, chainId }: IsChainHaltedPara
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
   if (!feeAssetId) throw new Error(`No fee asset found for chainId: ${chainId}`)
 
-  const poolAssetId = assetIdToPoolAssetId({ assetId: feeAssetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId: feeAssetId })
   if (!poolAssetId) throw new Error(`No pool asset found for feeAssetId: ${feeAssetId}`)
 
   const chainThorNotation = poolAssetId.split('.')[0]

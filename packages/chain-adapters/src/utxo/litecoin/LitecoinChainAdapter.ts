@@ -33,7 +33,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.LitecoinMainnet>
       parser: new unchained.litecoin.TransactionParser({
         assetId: ltcAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
-        midgardUrl: args.midgardUrl,
+        midgardUrl: args.thorMidgardUrl,
       }),
       supportedAccountTypes: SUPPORTED_ACCOUNT_TYPES,
       supportedChainIds: SUPPORTED_CHAIN_IDS,

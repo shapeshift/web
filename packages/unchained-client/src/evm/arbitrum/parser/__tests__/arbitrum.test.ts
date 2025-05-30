@@ -35,6 +35,7 @@ const txParser = new TransactionParser({
   chainId: arbitrumChainId,
   assetId: arbitrumAssetId,
   api: mockedApi,
+  mayaMidgardUrl: '',
 })
 
 describe('parseTx', () => {

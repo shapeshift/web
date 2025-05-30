@@ -43,7 +43,7 @@ const main = async (): Promise<void> => {
       ),
     },
     rpcUrl: 'https://dev-daemon.ethereum.shapeshift.com',
-    midgardUrl: '',
+    thorMidgardUrl: '',
   })
 
   // using 0 value array since only one contract subset exists

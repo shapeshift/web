@@ -13,7 +13,7 @@ import {
   ltcAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -87,7 +87,7 @@ export const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = uniq(
 export const getAllThorchainSaversPositions = async (
   assetId: AssetId,
 ): Promise<ThorchainSaverPositionResponse[]> => {
-  const poolId = assetIdToPoolAssetId({ assetId })
+  const poolId = assetIdToThorPoolAssetId({ assetId })
 
   if (!poolId) return []
 
@@ -113,7 +113,7 @@ export const getThorchainSaversPosition = async ({
   assetId: AssetId
 }): Promise<ThorchainSaverPositionResponse | null> => {
   const address = fromAccountId(accountId).account
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId })
 
   if (!poolAssetId) return null
 
@@ -184,7 +184,7 @@ export const getMaybeThorchainSaversDepositQuote = async ({
   asset: Asset
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
 }): Promise<Result<ThorchainSaversDepositQuoteResponseSuccess, string>> => {
-  const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
+  const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
@@ -214,7 +214,7 @@ export const getThorchainSaversWithdrawQuote = async ({
   accountId: AccountId
   bps: string
 }): Promise<Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>> => {
-  const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
+  const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 

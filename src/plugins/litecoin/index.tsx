@@ -30,7 +30,7 @@ export default function register(): Plugins {
                 return new litecoin.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Litecoin',
-                  midgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
+                  thorMidgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                 })
               },
             ],

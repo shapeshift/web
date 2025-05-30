@@ -115,17 +115,23 @@ export const ConfirmSummary = ({
   )
 
   const shouldDisableThorTaprootReceiveAddress = useMemo(() => {
-    // Taproot addresses are not supported by THORChain swapper currently
-    if (activeSwapperName === SwapperName.Thorchain && isTaprootReceiveAddress) return true
+    // Taproot addresses are not supported by THORChain or MAYAChain swappers currently
+    if (
+      (activeSwapperName === SwapperName.Thorchain ||
+        activeSwapperName === SwapperName.Mayachain) &&
+      isTaprootReceiveAddress
+    )
+      return true
 
     return false
   }, [activeSwapperName, isTaprootReceiveAddress])
 
   const shouldDisableThorNativeSmartContractReceive = useMemo(() => {
-    // THORChain is only affected by the sc limitation for native EVM receives
+    // THORChain and MAYAChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
     if (
-      activeSwapperName === SwapperName.Thorchain &&
+      (activeSwapperName === SwapperName.Thorchain ||
+        activeSwapperName === SwapperName.Mayachain) &&
       _isSmartContractReceiveAddress &&
       isEvmChainId(buyAsset.chainId) &&
       buyAsset.assetId === buyAssetFeeAsset?.assetId

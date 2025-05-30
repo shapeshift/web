@@ -75,7 +75,7 @@ export interface ChainAdapterArgs {
       | unchained.litecoin.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
-  midgardUrl: string
+  thorMidgardUrl: string
 }
 
 export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {

@@ -1,10 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
-import type { InboundAddressResponse, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId, isRune, isTcy, SwapperName } from '@shapeshiftoss/swapper'
+import type { InboundAddressResponse } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId, isNativeAsset, isTcy, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
 
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { bn } from '@/lib/bignumber/bignumber'
@@ -12,18 +10,16 @@ import { fromBaseUnit } from '@/lib/math'
 import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 
 export const selectInboundAddressData = (
-  data: Result<InboundAddressResponse[], SwapErrorRight>,
+  data: InboundAddressResponse[],
   assetId: AssetId | undefined,
-): InboundAddressResponse | undefined =>
-  data
-    ?.andThen<InboundAddressResponse | undefined>(data => {
-      if (!assetId) return Err(`AssetId is required: ${assetId}` as unknown as SwapErrorRight)
+): InboundAddressResponse | undefined => {
+  if (!assetId) throw new Error(`AssetId is required: ${assetId}`)
 
-      const assetPoolId = assetIdToPoolAssetId({ assetId })
-      const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
-      return Ok(data.find(inbound => inbound.chain === assetChainSymbol))
-    })
-    .unwrap()
+  const assetPoolId = assetIdToThorPoolAssetId({ assetId })
+  const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
+
+  return data.find(inbound => inbound.chain === assetChainSymbol)
+}
 
 export const selectIsTradingActive = ({
   assetId,
@@ -37,14 +33,15 @@ export const selectIsTradingActive = ({
   inboundAddressResponse: InboundAddressResponse | undefined
 }): boolean => {
   switch (swapperName) {
-    case SwapperName.Thorchain: {
+    case SwapperName.Thorchain:
+    case SwapperName.Mayachain: {
       if (!assetId) return false
 
-      const assetIsRune = isRune(assetId)
+      const assetIsNative = isNativeAsset(assetId, swapperName)
       const assetIsTcy = isTcy(assetId)
 
-      if (assetIsRune) {
-        // The asset is RUNE, there is no inbound address data to check against
+      if (assetIsNative) {
+        // The asset is native (RUNE/CACAO), there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
         return Boolean(mimir && mimir.HALTTHORCHAIN === 0)
       }

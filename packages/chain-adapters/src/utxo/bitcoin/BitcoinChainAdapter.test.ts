@@ -8,7 +8,6 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput, TxHistoryResponse } from '../../types'
-import type { ChainAdapterArgs } from '../UtxoBaseAdapter'
 import * as bitcoin from './BitcoinChainAdapter'
 import manyInputsManyOutputReceive from './mockData/manyInputsManyOutputReceive'
 import manyInputsManyOutputSendNoChange from './mockData/manyInputsManyOutputSendNoChange'
@@ -144,7 +143,7 @@ const getNetworkFeesMockedResponse = {
 }
 
 describe('BitcoinChainAdapter', () => {
-  let args: ChainAdapterArgs = {} as any
+  let args: bitcoin.ChainAdapterArgs = {} as any
 
   beforeEach(() => {
     args = {
@@ -154,7 +153,8 @@ describe('BitcoinChainAdapter', () => {
       },
       coinName: 'Bitcoin',
       chainId: KnownChainIds.BitcoinMainnet,
-      midgardUrl: '',
+      thorMidgardUrl: '',
+      mayaMidgardUrl: '',
     }
   })
 

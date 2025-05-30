@@ -11,7 +11,7 @@ interface Liquidity {
   type: LiquidityType
 }
 
-interface Swap {
+export interface Swap {
   type: SwapType
 }
 
@@ -95,18 +95,21 @@ interface ExtraMetadata {
   swap?: Swap
 }
 
-export interface TxMetadata extends BaseTxMetadata {
-  parser: 'thorchain'
+export interface TxMetadata<T extends 'thorchain' | 'mayachain' = 'thorchain'>
+  extends BaseTxMetadata {
+  parser: T
   memo: string
   liquidity?: Liquidity
   swap?: Swap
 }
 
-export interface ParsedTx extends StandardTx {
-  data?: TxMetadata
+interface ParsedTx<T extends 'thorchain' | 'mayachain'> extends StandardTx {
+  data?: TxMetadata<T>
 }
 
-export type TxSpecific = Partial<Pick<ParsedTx, 'data' | 'trade' | 'transfers'>>
+type TxSpecific<T extends 'thorchain' | 'mayachain'> = Partial<
+  Pick<ParsedTx<T>, 'data' | 'trade' | 'transfers'>
+>
 
 export interface ParserArgs {
   midgardUrl: string
@@ -119,14 +122,17 @@ const getLiquidityType = (pool: string): LiquidityType => (pool.includes('/') ? 
 const getSwapType = (memo: string): SwapType =>
   streamingSwapRegex.test(memo) ? 'Streaming' : 'Standard'
 
-export class Parser {
+export class Parser<T extends 'thorchain' | 'mayachain' = 'thorchain'> {
   private readonly axiosMidgard: Axios
+
+  protected dexName = Dex.Thor
+  protected parserName: T = 'thorchain' as T
 
   constructor(args: ParserArgs) {
     this.axiosMidgard = axios.create({ baseURL: args.midgardUrl })
   }
 
-  async parse(memo: string): Promise<TxSpecific | undefined> {
+  async parse(memo: string): Promise<TxSpecific<T> | undefined> {
     const [type] = memo.split(':')
 
     switch (type.toLowerCase()) {
@@ -134,54 +140,59 @@ export class Parser {
       case '=':
       case 's': {
         return {
-          data: { parser: 'thorchain', method: 'swap', memo, swap: { type: getSwapType(memo) } },
-          trade: { dexName: Dex.Thor, type: TradeType.Swap, memo },
+          data: {
+            parser: this.parserName,
+            method: 'swap',
+            memo,
+            swap: { type: getSwapType(memo) },
+          },
+          trade: { dexName: this.dexName, type: TradeType.Swap, memo },
         }
       }
       case 'add':
       case '+': {
         const [, pool] = memo.split(':')
         const type = getLiquidityType(pool)
-        return { data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } } }
+        return { data: { parser: this.parserName, method: 'deposit', memo, liquidity: { type } } }
       }
       case 'pool+': {
         const type = 'RUNEPool'
-        return { data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } } }
+        return { data: { parser: this.parserName, method: 'deposit', memo, liquidity: { type } } }
       }
       case 'withdraw':
       case '-':
       case 'wd': {
         const [, pool] = memo.split(':')
         const type = getLiquidityType(pool)
-        return { data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type } } }
+        return { data: { parser: this.parserName, method: 'withdraw', memo, liquidity: { type } } }
       }
       case 'pool-': {
         const type = 'RUNEPool'
         return {
-          data: { parser: 'thorchain', method: 'withdrawNative', memo, liquidity: { type } },
+          data: { parser: this.parserName, method: 'withdrawNative', memo, liquidity: { type } },
         }
       }
       case '$+':
       case 'loan+':
-        return { data: { parser: 'thorchain', memo, method: 'loanOpen' } }
+        return { data: { parser: this.parserName, memo, method: 'loanOpen' } }
       case '$-':
       case 'loan-':
-        return { data: { parser: 'thorchain', memo, method: 'loanRepayment' } }
+        return { data: { parser: this.parserName, memo, method: 'loanRepayment' } }
       case 'tcy':
-        return { data: { parser: 'thorchain', memo, method: 'claim' } }
+        return { data: { parser: this.parserName, memo, method: 'claim' } }
       case 'tcy+':
-        return { data: { parser: 'thorchain', memo, method: 'stake' } }
+        return { data: { parser: this.parserName, memo, method: 'stake' } }
       case 'tcy-':
-        return { data: { parser: 'thorchain', memo, method: 'unstake' } }
+        return { data: { parser: this.parserName, memo, method: 'unstake' } }
       case 'out': {
         const extraMetadata = await this.getExtraMetadata(memo)
         if (!extraMetadata) return
-        return { data: { parser: 'thorchain', memo, ...extraMetadata } }
+        return { data: { parser: this.parserName, memo, ...extraMetadata } }
       }
       case 'refund':
         const extraMetadata = await this.getExtraMetadata(memo)
         if (!extraMetadata) return
-        return { data: { parser: 'thorchain', memo, ...extraMetadata } }
+        return { data: { parser: this.parserName, memo, ...extraMetadata } }
       default:
         return
     }

@@ -4,7 +4,8 @@ import type { SupportedChainIds, SwapSource } from '../../types'
 import { SwapperName } from '../../types'
 import { assetIdToMayaPoolAssetIdMap } from './utils/poolAssetHelpers/poolAssetHelpers'
 
-export const MAYA_PRECISION = 8
+export const CACAO_PRECISION = 10
+export const MAYACHAIN_PRECISION = 8
 export const MAYACHAIN_AFFILIATE_NAME = ''
 
 export const MAYACHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

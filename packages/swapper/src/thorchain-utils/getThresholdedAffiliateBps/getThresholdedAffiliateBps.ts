@@ -28,7 +28,7 @@ export const getExpectedAffiliateFeeSellAssetThorUnit = (
   const sellAmountThorUnit = convertPrecision({
     value: sellAmountCryptoBaseUnit,
     inputExponent: sellAsset.precision,
-    outputExponent: getNativePrecision(swapperName),
+    outputExponent: getNativePrecision(sellAsset.assetId, swapperName),
   })
 
   const affiliatePercent = convertBasisPointsToDecimalPercentage(affiliateBps)

@@ -19,7 +19,6 @@ import type {
   KnownChainIds,
   OrderQuoteResponse,
   PartialRecord,
-  QuoteId,
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
@@ -301,6 +300,10 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  lifiSpecific?: {
+    lifiTools?: LifiTools
+    lifiRoute?: Route
+  }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
 
@@ -320,25 +323,30 @@ type TradeQuoteBase = {
   swapperName: SwapperName // The swapper that generated this quote/rate
 }
 
-export type SwapId = string
+export type LifiTools = {
+  bridges: string[] | undefined
+  exchanges: string[] | undefined
+}
 
-export type SwapMetadata = {
+export type SwapperSpecificMetadata = {
   lifiRoute?: Route
+  lifiTools?: LifiTools
   chainflipSwapId?: number
   stepIndex: SupportedTradeQuoteStepIndex
+  relayTransactionMetadata?: RelayTransactionMetadata
 }
 
 export enum SwapStatus {
+  Idle = 'idle',
   Pending = 'pending',
   Success = 'success',
   Failed = 'failed',
 }
 
 export type Swap = {
-  id: SwapId
+  id: string
   createdAt: number
   updatedAt: number
-  quoteId: QuoteId
   sellAsset: Asset
   buyAsset: Asset
   status: SwapStatus
@@ -348,7 +356,7 @@ export type Swap = {
   sellAmountCryptoBaseUnit: string
   buyAmountCryptoBaseUnit: string
   txLink?: string
-  metadata: SwapMetadata
+  metadata: SwapperSpecificMetadata
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -483,7 +491,6 @@ export type ExecuteTradeArgs2 = {
 }
 
 export type CheckTradeStatusInput = {
-  quoteId: string
   txHash: string
   chainId: ChainId
   accountId: AccountId | undefined

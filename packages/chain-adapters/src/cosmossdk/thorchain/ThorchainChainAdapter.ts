@@ -200,17 +200,21 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
       const { sendMax, to, value, from, chainSpecific } = input
-      const { fee } = chainSpecific
+      const { coin = 'THOR.RUNE', fee } = chainSpecific
+
+      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY') throw new Error('unsupported coin type')
 
       if (!fee) throw new Error('fee is required')
 
       const account = await this.getAccount(from)
-      const amount = this.getAmount({ account, value, fee, sendMax })
+      // Never deduct value for native, non-fee assets. Max-send fees deduction only apply to fee asset i.e THOR.RUNE here
+      // THOR.TCY is a native asset, but not a fee asset, for all intents and purposes it's a token
+      const amount = coin === 'THOR.RUNE' ? this.getAmount({ account, value, fee, sendMax }) : value
 
       const msg: ThorchainMsgSend = {
         type: ThorchainMessageType.MsgSend,
         value: {
-          amount: [{ amount, denom: this.denom }],
+          amount: [{ amount, denom: coin === 'THOR.TCY' ? 'tcy' : this.denom }],
           from_address: from,
           to_address: to,
         },

@@ -1,81 +1,62 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
-import { actionCenterSlice } from './actionSlice'
-import {
-  ActionStatus,
-  isLimitOrderPayloadDiscriminator,
-  isTradePayloadDiscriminator,
-} from './types'
+import { swapSlice } from '../swapSlice/swapSlice'
+import { actionSlice } from './actionSlice'
+import { ActionStatus, isPendingSwapAction, isSwapAction } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectSwapIdParamFromFilter } from '@/state/selectors'
 
-export const selectActions = actionCenterSlice.selectors.selectActions
-
-export const selectInitializedActionsByUpdatedAtDescFilteredByWallet =
-  createDeepEqualOutputSelector(
-    selectActions,
-    selectEnabledWalletAccountIds,
-    (actions, enabledWalletAccountIds) => {
-      return [...actions]
-        .filter(
-          action =>
-            (action.initiatorAccountId &&
-              enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
-            !action.initiatorAccountId,
-        )
-        .sort((a, b) => b.updatedAt - a.updatedAt)
-    },
-  )
-
-export const selectPendingActionsFilteredByWallet = createDeepEqualOutputSelector(
-  selectActions,
+export const selectWalletActions = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActions,
   selectEnabledWalletAccountIds,
-  (actions, enabledWalletAccountIds) => {
-    return actions.filter(
-      action =>
-        action.status === ActionStatus.Pending &&
-        ((action.initiatorAccountId &&
-          enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
-          !action.initiatorAccountId),
-    )
+  swapSlice.selectors.selectSwapsById,
+  (actions, enabledWalletAccountIds, swapsById) => {
+    return actions.filter(action => {
+      if (!isSwapAction(action)) return action
+
+      const swapId = action.swapMetadata.swapId
+      const relatedSwap = swapsById[swapId]
+
+      if (!relatedSwap?.sellAccountId) return false
+
+      return enabledWalletAccountIds.includes(relatedSwap.sellAccountId)
+    })
   },
 )
 
-export const selectPendingSwapActionsFilteredByWallet = createDeepEqualOutputSelector(
-  selectActions,
-  selectEnabledWalletAccountIds,
-  (actions, enabledWalletAccountIds) => {
-    return actions.filter(
-      action =>
-        (action.status === ActionStatus.Pending || action.status === ActionStatus.Open) &&
-        ((action.initiatorAccountId &&
-          enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
-          !action.initiatorAccountId),
-    )
+export const selectInitializedActionsByUpdatedAtDesc = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.sort((a, b) => b.updatedAt - a.updatedAt)
   },
 )
 
-export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutputSelector(
-  selectActions,
-  selectEnabledWalletAccountIds,
-  (actions, enabledWalletAccountIds) => {
-    return actions.filter(
-      action =>
-        action.status === ActionStatus.Open &&
-        isLimitOrderPayloadDiscriminator(action) &&
-        ((action.initiatorAccountId &&
-          enabledWalletAccountIds.includes(action.initiatorAccountId)) ||
-          !action.initiatorAccountId),
-    )
+export const selectWalletHasPendingActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending).length > 0
   },
 )
 
-export const selectActionBySwapId = createDeepEqualOutputSelector(
-  selectActions,
+export const selectPendingSwapActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(isPendingSwapAction)
+  },
+)
+
+export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  actionSlice.selectors.selectActionIds,
   selectSwapIdParamFromFilter,
-  (actions, swapId) => {
-    return actions.find(
-      action => isTradePayloadDiscriminator(action) && action.metadata?.swapId === swapId,
-    )
+  (actionsById, actionIds, swapId) => {
+    const actionId = actionIds.find(id => {
+      const action = actionsById[id]
+      return isSwapAction(action) && action.swapMetadata.swapId === swapId
+    })
+
+    if (!actionId) return
+
+    return actionsById[actionId]
   },
 )

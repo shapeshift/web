@@ -79,14 +79,15 @@ export const Dashboard = memo(() => {
 
   const {
     dispatch: walletDispatch,
-    state: { isConnected },
+    state: { isLoadingLocalWallet, isConnected },
   } = useWallet()
 
   useEffect(() => {
+    if (isLoadingLocalWallet) return
     if (isConnected) return
 
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [isConnected, walletDispatch])
+  }, [isLoadingLocalWallet, isConnected, walletDispatch])
 
   const handleSlideIndexChange = useCallback(
     (index: number) => {

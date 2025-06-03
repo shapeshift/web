@@ -4,7 +4,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
-  LifiTradeRate,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
@@ -267,7 +266,7 @@ export const useGetTradeQuotes = () => {
           sellAccountType: sellAccountMetadata?.accountType,
           buyAsset,
           wallet: wallet ?? undefined,
-          originalRate: activeRateRef?.current as LifiTradeRate,
+          originalRate: activeRateRef?.current as TradeRate,
           quoteOrRate: 'quote',
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,

@@ -179,16 +179,17 @@ export const SpotTradeSuccess = ({
               <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
-            {bnOrZero(maybeExtraDeltaCryptoPrecision).gt(0) && (
-              <Box px={8}>
-                <YouGotMore
-                  totalUpsidePercentage={maybeExtraDeltaPercentage}
-                  totalUpsideCryptoPrecision={maybeExtraDeltaCryptoPrecision}
-                  sellAsset={sellAsset}
-                  buyAsset={buyAsset}
-                />
-              </Box>
-            )}
+            {bnOrZero(maybeExtraDeltaCryptoPrecision).gt(0) &&
+              bnOrZero(maybeExtraDeltaPercentage).gt(0.3) && (
+                <Box px={8}>
+                  <YouGotMore
+                    extraDeltePercentage={maybeExtraDeltaPercentage}
+                    extraDeltaCryptoPrecision={maybeExtraDeltaCryptoPrecision}
+                    sellAsset={sellAsset}
+                    buyAsset={buyAsset}
+                  />
+                </Box>
+              )}
           </Flex>
         </SlideTransition>
         <Box px={8}>

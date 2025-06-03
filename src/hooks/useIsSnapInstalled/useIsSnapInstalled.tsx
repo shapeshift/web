@@ -76,8 +76,8 @@ export const useIsSnapInstalled = (): {
     queryKey: ['snapInstallation', connectedRdns, isConnected],
     queryFn: checkSnapInstallation,
     refetchInterval: POLL_INTERVAL,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0,
+    gcTime: 0,
   })
 
   return snapInstallation

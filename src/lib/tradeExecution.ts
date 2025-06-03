@@ -16,10 +16,10 @@ import {
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
+  SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-import type { QuoteId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { EventEmitter } from 'node:events'
 
@@ -31,7 +31,7 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
-import { selectSwapByQuoteId } from '@/state/slices/swapSlice/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
 
@@ -96,18 +96,37 @@ export class TradeExecution {
       // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
       const accountId = selectFirstHopSellAccountId(store.getState())
 
-      const swap = selectSwapByQuoteId(store.getState(), {
-        quoteId: tradeQuote.id as unknown as QuoteId,
-      })
+      const currentSwapId = swapSlice.selectors.selectCurrentSwapId(store.getState())
+      const swaps = swapSlice.selectors.selectSwapsById(store.getState())
+
+      if (!currentSwapId) {
+        throw new Error('Swap not found')
+      }
+
+      const swap = swaps[currentSwapId]
+
+      const updatedSwap = {
+        ...swap,
+        sellTxHash,
+        status: SwapStatus.Pending,
+        metadata: {
+          ...swap.metadata,
+          lifiRoute: tradeQuote.steps[0]?.lifiSpecific?.lifiRoute,
+          chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+          relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          stepIndex,
+        },
+      }
+
+      store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
 
       const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-            quoteId: tradeQuote.id,
             txHash: sellTxHash,
             chainId,
             accountId,
-            swap,
+            swap: updatedSwap,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,

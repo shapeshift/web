@@ -130,7 +130,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              if (id.match(/(react-icons|@chakra-ui|framer-motion|@visx|@react-spring|@coral-xyz)/))
+              if (id.match(/(react-icons|framer-motion|@visx|@react-spring|@coral-xyz)/))
                 return 'ui'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
@@ -139,7 +139,6 @@ export default defineConfig(({ mode }) => {
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@arbitrum')) return '@arbitrum'
-              if (id.includes('@unstoppabledomains')) return '@unstoppabledomains'
               if (id.includes('@metamask')) return '@metamask'
               if (id.includes('@walletconnect')) return '@walletconnect'
               if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'

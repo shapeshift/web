@@ -193,7 +193,6 @@ export const mockStore: ReduxState = {
       ids: [],
       priceHistory: {},
     },
-    isMarketDataLoaded: false,
   },
   txHistory: {
     _persist: {
@@ -207,19 +206,22 @@ export const mockStore: ReduxState = {
     },
     hydrationMeta: {},
   },
-  actionCenter: {
+  action: {
     _persist: {
       version: 0,
       rehydrated: false,
     },
-    actions: [],
+    byId: {},
+    ids: [],
   },
-  swaps: {
+  swap: {
     _persist: {
       version: 0,
       rehydrated: false,
     },
-    swaps: [],
+    byId: {},
+    ids: [],
+    currentSwapId: null,
   },
   opportunities: {
     _persist: {

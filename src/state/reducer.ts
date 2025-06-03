@@ -11,7 +11,7 @@ import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import {
-  clearActionCenterMigrations,
+  clearActionMigrations,
   clearAssetsMigrations,
   clearMarketDataMigrations,
   clearOpportunitiesMigrations,
@@ -21,8 +21,8 @@ import {
   clearTxHistoryMigrations,
   localWalletMigrations,
 } from './migrations'
-import { actionCenterSlice } from './slices/actionSlice/actionSlice'
-import type { ActionCenterState } from './slices/actionSlice/types'
+import { actionSlice } from './slices/actionSlice/actionSlice'
+import type { ActionState } from './slices/actionSlice/types'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -121,11 +121,11 @@ const limitOrderApiPersistConfig = {
   version: 0,
 }
 
-const actionCenterPersistConfig = {
-  key: 'actionCenter',
+const actionPersistConfig = {
+  key: 'action',
   storage: localforage,
-  version: Math.max(...Object.keys(clearActionCenterMigrations).map(Number)),
-  migrate: createMigrate(clearActionCenterMigrations, { debug: false }),
+  version: Math.max(...Object.keys(clearActionMigrations).map(Number)),
+  migrate: createMigrate(clearActionMigrations, { debug: false }),
 }
 
 const swapPersistConfig = {
@@ -153,10 +153,7 @@ export const sliceReducers = {
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
   ),
-  actionCenter: persistReducer<ActionCenterState>(
-    actionCenterPersistConfig,
-    actionCenterSlice.reducer,
-  ),
+  action: persistReducer<ActionState>(actionPersistConfig, actionSlice.reducer),
 }
 
 export const apiSlices = {
@@ -189,10 +186,7 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
-  [actionCenterSlice.reducerPath]: persistReducer(
-    actionCenterPersistConfig,
-    actionCenterSlice.reducer,
-  ),
+  [actionSlice.reducerPath]: persistReducer(actionPersistConfig, actionSlice.reducer),
   [swapSlice.reducerPath]: persistReducer(swapPersistConfig, swapSlice.reducer),
 }
 

@@ -2975,6 +2975,7 @@
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
     },
-    "notificationTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
+    "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
+    "swapError": "Swap failed"
   }
 }

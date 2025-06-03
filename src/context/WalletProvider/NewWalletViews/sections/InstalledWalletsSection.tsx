@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Image, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Image,
+  Stack,
+  Text as CText,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo } from 'react'
 
@@ -93,29 +102,34 @@ export const InstalledWalletsSection = ({
     [connect, onWalletSelect],
   )
 
+  if (!mipdProviders.length) return null
+
   return (
-    <Stack spacing={2} my={6}>
-      <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.installed' />
-      {/* First-class implementations always go first */}
-      {firstClassProviders.map(provider => (
-        <MipdProviderSelectItem
-          key={provider.info.rdns}
-          provider={provider}
-          connect={handleConnectFirstClass}
-          isSelected={selectedWalletId === provider.info.rdns}
-          isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
-        />
-      ))}
-      {/* MIPD providers */}
-      {filteredProviders.map(provider => (
-        <MipdProviderSelectItem
-          key={provider.info.rdns}
-          provider={provider}
-          connect={handleConnectMipd}
-          isSelected={selectedWalletId === provider.info.rdns}
-          isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
-        />
-      ))}
-    </Stack>
+    <>
+      <Stack spacing={2} my={6}>
+        <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.installed' />
+        {/* First-class implementations always go first */}
+        {firstClassProviders.map(provider => (
+          <MipdProviderSelectItem
+            key={provider.info.rdns}
+            provider={provider}
+            connect={handleConnectFirstClass}
+            isSelected={selectedWalletId === provider.info.rdns}
+            isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
+          />
+        ))}
+        {/* MIPD providers */}
+        {filteredProviders.map(provider => (
+          <MipdProviderSelectItem
+            key={provider.info.rdns}
+            provider={provider}
+            connect={handleConnectMipd}
+            isSelected={selectedWalletId === provider.info.rdns}
+            isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
+          />
+        ))}
+      </Stack>
+      <Divider mb={2} />
+    </>
   )
 }

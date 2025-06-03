@@ -1,7 +1,7 @@
 import type { Swap } from '@shapeshiftoss/swapper'
 
 export type SwapState = {
-  swaps: Swap[]
+  byId: Record<string, Swap>
+  ids: string[]
+  currentSwapId: string | null
 }
-
-export type UpdateSwapPayload = Partial<Swap> & { id: string }

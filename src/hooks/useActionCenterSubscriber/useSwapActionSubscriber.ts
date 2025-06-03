@@ -26,6 +26,7 @@ import {
   selectPendingSwapActions,
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
+import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
@@ -60,6 +61,12 @@ export const useSwapActionSubscriber = () => {
 
     if (currentSwap.status !== SwapStatus.Pending) return
     if (previousSwapStatus === currentSwap.status) return
+
+    const existingSwapAction = selectSwapActionBySwapId(store.getState(), {
+      swapId: currentSwap.id,
+    })
+
+    if (existingSwapAction) return
 
     dispatch(
       actionSlice.actions.upsertAction({
@@ -98,7 +105,7 @@ export const useSwapActionSubscriber = () => {
   }, [dispatch, translate, toCrypto, currentSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(
-    async (swap: Swap) => {
+    async (swap: Swap, action: SwapAction) => {
       const maybeSwapper = swappers[swap.swapperName]
 
       if (maybeSwapper === undefined)
@@ -196,6 +203,7 @@ export const useSwapActionSubscriber = () => {
 
                 dispatch(
                   actionSlice.actions.upsertAction({
+                    ...action,
                     title: notificationTitle,
                     swapMetadata: {
                       swapId: swap.id,
@@ -223,6 +231,7 @@ export const useSwapActionSubscriber = () => {
 
             dispatch(
               actionSlice.actions.upsertAction({
+                ...action,
                 swapMetadata: {
                   swapId: swap.id,
                 },
@@ -273,6 +282,7 @@ export const useSwapActionSubscriber = () => {
         })
         dispatch(
           actionSlice.actions.upsertAction({
+            ...action,
             swapMetadata: {
               swapId: swap.id,
             },
@@ -295,6 +305,7 @@ export const useSwapActionSubscriber = () => {
       if (status === TxStatus.Failed) {
         dispatch(
           actionSlice.actions.upsertAction({
+            ...action,
             title: translate('notificationCenter.swapTitle'),
             status: ActionStatus.Failed,
             swapMetadata: {
@@ -337,7 +348,7 @@ export const useSwapActionSubscriber = () => {
 
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
-          queryFn: () => swapStatusHandler(swap),
+          queryFn: () => swapStatusHandler(swap, action),
           refetchInterval: 10000,
           enabled: Boolean(
             isSwapAction(action) && action.status === ActionStatus.Pending && isConnected,

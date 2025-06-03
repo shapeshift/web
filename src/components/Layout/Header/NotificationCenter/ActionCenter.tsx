@@ -21,7 +21,7 @@ import {
   selectInitializedActionsByUpdatedAtDesc,
   selectWalletHasPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
+import { ActionType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -45,8 +45,6 @@ export const ActionCenter = memo(() => {
       const swapActionCardDetails = (() => {
         switch (action.type) {
           case ActionType.Swap: {
-            if (!isSwapAction(action)) return
-
             const swap = swapsById[action.swapMetadata.swapId]
 
             return <SwapDetails txLink={swap.txLink} />

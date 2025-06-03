@@ -1,7 +1,7 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import { ActionStatus, isOpenLimitOrderAction, isPendingSwapAction, isSwapAction } from './types'
+import { ActionStatus, isPendingSwapAction, isSwapAction } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectSwapIdParamFromFilter } from '@/state/selectors'
@@ -42,13 +42,6 @@ export const selectPendingSwapActions = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
     return actions.filter(isPendingSwapAction)
-  },
-)
-
-export const selectOpenLimitOrderActions = createDeepEqualOutputSelector(
-  selectWalletActions,
-  actions => {
-    return actions.filter(isOpenLimitOrderAction)
   },
 )
 

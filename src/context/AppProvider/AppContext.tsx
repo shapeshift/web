@@ -11,6 +11,7 @@ import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
@@ -66,6 +67,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useLimitOrders()
   // App-wide long-poll of actions
   useSwapActionSubscriber()
+  useLimitOrderActionSubscriber()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

@@ -16,7 +16,7 @@ export type LimitOrderTransactionMetadata = {
   state: TransactionExecutionState
   txHash?: string
   message?: string | [string, InterpolationOptions]
-  orderId?: OrderId
+  orderId?: string
 }
 
 export type LimitOrderSubmissionMetadata = {

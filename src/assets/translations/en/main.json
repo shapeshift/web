@@ -2976,6 +2976,7 @@
       "unknown": "Unknown"
     },
     "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
-    "swapError": "Swap failed"
+    "swapError": "Swap failed",
+    "limitOrderTitle": "%{buyAmountAndSymbol} → %{sellAmountAndSymbol}"
   }
 }

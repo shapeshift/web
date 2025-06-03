@@ -14,7 +14,9 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
 import { SwapDetails } from './components/Details/SwapDetails'
+import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
 import {
@@ -40,25 +42,47 @@ export const ActionCenter = memo(() => {
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const notificationsCards = useMemo(() => {
+  const actionsCards = useMemo(() => {
     return actions.map(action => {
-      const swapActionCardDetails = (() => {
+      const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
             const swap = swapsById[action.swapMetadata.swapId]
 
-            return <SwapDetails txLink={swap.txLink} />
+            return (
+              <SwapActionCard key={action.id} {...action}>
+                <SwapDetails txLink={swap.txLink} />
+              </SwapActionCard>
+            )
+          }
+          case ActionType.LimitOrder: {
+            return (
+              <LimitOrderActionCard key={action.id} {...action}>
+                <LimitOrderDetails
+                  buyAsset={action.limitOrderMetadata.buyAsset}
+                  sellAsset={action.limitOrderMetadata.sellAsset}
+                  expires={action.limitOrderMetadata.expires}
+                  buyAmountCryptoPrecision={action.limitOrderMetadata.buyAmountCryptoBaseUnit}
+                  sellAmountCryptoPrecision={action.limitOrderMetadata.sellAmountCryptoBaseUnit}
+                  limitPrice={action.limitOrderMetadata.limitPrice}
+                  filledDecimalPercentage={action.limitOrderMetadata.filledDecimalPercentage}
+                  executedBuyAmountCryptoBaseUnit={
+                    action.limitOrderMetadata.executedBuyAmountCryptoBaseUnit
+                  }
+                  executedSellAmountCryptoBaseUnit={
+                    action.limitOrderMetadata.executedSellAmountCryptoBaseUnit
+                  }
+                  status={action.status}
+                />
+              </LimitOrderActionCard>
+            )
           }
           default:
             return null
         }
       })()
 
-      return (
-        <SwapActionCard key={action.id} {...action}>
-          {swapActionCardDetails}
-        </SwapActionCard>
-      )
+      return actionsCards
     })
   }, [actions, swapsById])
 
@@ -108,7 +132,7 @@ export const ActionCenter = memo(() => {
               height='calc(100vh - 70px - env(safe-area-inset-top))'
               className='scroll-container'
             >
-              {notificationsCards}
+              {actionsCards}
             </Box>
           </Box>
         </DrawerContent>

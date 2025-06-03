@@ -2,18 +2,15 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Link, Text as CText, usePrevious, useToast } from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 
 import { useLimitOrdersQuery } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
-import { actionCenterSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionCenterType,
-  ActionStatus,
-  isLimitOrderPayloadDiscriminator,
-} from '@/state/slices/actionSlice/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType, isLimitOrderAction } from '@/state/slices/actionSlice/types'
 import { PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import {
   selectBuyAmountCryptoBaseUnit,
@@ -29,8 +26,12 @@ import {
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from '@/state/slices/limitOrderSlice/selectors'
-import { selectOpenLimitOrderActionsFilteredByWallet } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
+import {
+  selectLimitOrderActionByCowSwapQuoteId,
+  selectLimitOrderActionByLimitOrderId,
+  selectOpenLimitOrderActionsFilteredByWallet,
+} from '@/state/slices/selectors'
+import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const useLimitOrderActionSubscriber = () => {
   const dispatch = useAppDispatch()
@@ -52,7 +53,7 @@ export const useLimitOrderActionSubscriber = () => {
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   const orderSubmissionMetadataFilter = useMemo(() => {
-    return { quoteId: quoteId ?? 0 }
+    return { cowSwapQuoteId: quoteId ?? 0 }
   }, [quoteId])
 
   const limitOrderSubmissionMetadata = useSelectorWithArgs(
@@ -79,11 +80,20 @@ export const useLimitOrderActionSubscriber = () => {
         LimitOrderSubmissionState.AwaitingLimitOrderSubmission &&
       previousLimitOrderState !== LimitOrderSubmissionState.AwaitingLimitOrderSubmission
     ) {
+      const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
+        cowSwapQuoteId: quoteId,
+      })
+
+      if (action) return
+
       dispatch(
-        actionCenterSlice.actions.upsertAction({
-          type: ActionCenterType.LimitOrder,
-          status: ActionStatus.Pending,
-          title: translate('notificationCenter.notificationTitle', {
+        actionSlice.actions.upsertAction({
+          id: uuidv4(),
+          type: ActionType.LimitOrder,
+          status: ActionStatus.Idle,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          title: translate('notificationCenter.limitOrderTitle', {
             sellAmountAndSymbol: toCrypto(
               fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
               sellAsset.symbol,
@@ -105,12 +115,13 @@ export const useLimitOrderActionSubscriber = () => {
               },
             ),
           }),
-          metadata: {
-            quoteId,
+          limitOrderMetadata: {
+            cowSwapQuoteId: quoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
             sellAsset,
             buyAsset,
+            accountId,
             limitPrice: {
               [PriceDirection.BuyAssetDenomination]: limitPrice?.buyAssetDenomination ?? '',
               [PriceDirection.SellAssetDenomination]: limitPrice?.sellAssetDenomination ?? '',
@@ -118,8 +129,6 @@ export const useLimitOrderActionSubscriber = () => {
             expires: quoteExpirationTimestamp,
             filledDecimalPercentage: '0',
           },
-          assetIds: [sellAsset.assetId, buyAsset.assetId],
-          initiatorAccountId: accountId,
         }),
       )
     }
@@ -142,20 +151,28 @@ export const useLimitOrderActionSubscriber = () => {
   // Update action with cowswap order id so we can resolve action and executed limit orders later
   useEffect(() => {
     if (!limitOrderSubmissionMetadata) return
+    if (!quoteId) return
 
     if (
       limitOrderSubmissionMetadata.limitOrder.orderId &&
       previousLimitOrderId !== limitOrderSubmissionMetadata.limitOrder.orderId
     ) {
-      dispatch(
-        actionCenterSlice.actions.updateAction({
-          status: ActionStatus.Open,
-          metadata: {
-            quoteId,
-            limitOrderId: limitOrderSubmissionMetadata.limitOrder.orderId,
-          },
-        }),
-      )
+      const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
+        cowSwapQuoteId: quoteId,
+      })
+
+      if (action && action.type === ActionType.LimitOrder) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...action,
+            status: ActionStatus.Open,
+            limitOrderMetadata: {
+              ...action.limitOrderMetadata,
+              limitOrderId: limitOrderSubmissionMetadata.limitOrder.orderId,
+            },
+          }),
+        )
+      }
     }
   }, [dispatch, limitOrderSubmissionMetadata, previousLimitOrderId, quoteId])
 
@@ -166,19 +183,25 @@ export const useLimitOrderActionSubscriber = () => {
     ordersResponse.forEach(order => {
       const updatedLimitOrder = openLimitOrders.find(
         openLimitOrder =>
-          isLimitOrderPayloadDiscriminator(openLimitOrder) &&
-          openLimitOrder.metadata?.limitOrderId === order.order.uid &&
+          openLimitOrder.type === ActionType.LimitOrder &&
+          openLimitOrder.limitOrderMetadata?.limitOrderId === order.order.uid &&
           order.order.status !== OrderStatus.OPEN,
       )
 
-      if (!updatedLimitOrder) return
-      if (!isLimitOrderPayloadDiscriminator(updatedLimitOrder)) return
+      if (!updatedLimitOrder || !isLimitOrderAction(updatedLimitOrder)) return
+
+      const action = selectLimitOrderActionByLimitOrderId(store.getState(), {
+        limitOrderId: order.order.uid,
+      })
+
+      if (!action || action.type !== ActionType.LimitOrder) return
 
       if (order.order.status === OrderStatus.FULFILLED) {
         dispatch(
-          actionCenterSlice.actions.updateAction({
-            metadata: {
-              limitOrderId: order.order.uid,
+          actionSlice.actions.upsertAction({
+            ...action,
+            limitOrderMetadata: {
+              ...action.limitOrderMetadata,
               executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
               executedSellAmountCryptoBaseUnit: order.order.executedSellAmount,
               filledDecimalPercentage: bnOrZero(order.order.executedSellAmount)
@@ -193,10 +216,10 @@ export const useLimitOrderActionSubscriber = () => {
           ...[
             'limitOrder.assetToAsset',
             {
-              sellAmount: updatedLimitOrder.metadata.sellAmountCryptoBaseUnit,
-              sellAsset: updatedLimitOrder.metadata.sellAsset.symbol,
-              buyAmount: updatedLimitOrder.metadata.buyAmountCryptoBaseUnit,
-              buyAsset: updatedLimitOrder.metadata.buyAsset.symbol,
+              sellAmount: order.order.executedSellAmount,
+              sellAsset: updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
+              buyAmount: order.order.executedBuyAmount,
+              buyAsset: updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
             },
           ],
         )
@@ -222,10 +245,8 @@ export const useLimitOrderActionSubscriber = () => {
 
       if (order.order.status === OrderStatus.CANCELLED) {
         dispatch(
-          actionCenterSlice.actions.updateAction({
-            metadata: {
-              limitOrderId: order.order.uid,
-            },
+          actionSlice.actions.upsertAction({
+            ...action,
             status: ActionStatus.Cancelled,
           }),
         )
@@ -241,10 +262,8 @@ export const useLimitOrderActionSubscriber = () => {
 
       if (order.order.status === OrderStatus.EXPIRED) {
         dispatch(
-          actionCenterSlice.actions.updateAction({
-            metadata: {
-              limitOrderId: order.order.uid,
-            },
+          actionSlice.actions.upsertAction({
+            ...action,
             status: ActionStatus.Expired,
           }),
         )

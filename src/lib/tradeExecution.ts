@@ -105,13 +105,20 @@ export class TradeExecution {
 
       const swap = swaps[currentSwapId]
 
-      store.dispatch(
-        swapSlice.actions.upsertSwap({
-          ...swap,
-          sellTxHash,
-          status: SwapStatus.Pending,
-        }),
-      )
+      const updatedSwap = {
+        ...swap,
+        sellTxHash,
+        status: SwapStatus.Pending,
+        metadata: {
+          ...swap.metadata,
+          lifiRoute: tradeQuote.steps[0]?.lifiSpecific?.lifiRoute,
+          chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+          relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          stepIndex,
+        },
+      }
+
+      store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
 
       const { cancelPolling } = poll({
         fn: async () => {
@@ -119,7 +126,7 @@ export class TradeExecution {
             txHash: sellTxHash,
             chainId,
             accountId,
-            swap,
+            swap: updatedSwap,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,

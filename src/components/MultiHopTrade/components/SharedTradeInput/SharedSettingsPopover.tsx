@@ -144,6 +144,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 icon={faGear}
                 variant='ghost'
                 minWidth={0}
+                padding={2}
                 isDisabled={isDisabled}
               />
             </PopoverTrigger>

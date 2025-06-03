@@ -46,7 +46,6 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -1422,15 +1421,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const renderHeader = useMemo(() => {
     if (headerComponent) return headerComponent
     return (
-      <CardHeader display='flex' alignItems='center' justifyContent='space-between'>
-        <IconButton
-          onClick={handleBackClick}
-          variant='ghost'
-          icon={backIcon}
-          aria-label='go back'
-        />
-        {translate('pools.addLiquidity')}
-        <SlippagePopover isDisabled tooltipTranslation='pools.customSlippageDisabled' />
+      <CardHeader display='flex' alignItems='center'>
+        <Flex flex={1} justify='flex-start'>
+          <IconButton
+            onClick={handleBackClick}
+            variant='ghost'
+            icon={backIcon}
+            aria-label='go back'
+          />
+        </Flex>
+        <Flex flex={1} justify='center'>
+          {translate('pools.addLiquidity')}
+        </Flex>
+        <Flex flex={1} justify='flex-end'>
+          {/* Reserved space for future right-side content */}
+        </Flex>
       </CardHeader>
     )
   }, [backIcon, handleBackClick, headerComponent, translate])

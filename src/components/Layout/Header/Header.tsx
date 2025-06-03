@@ -14,7 +14,7 @@ import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
-import { NotificationCenter } from './NotificationCenter/NotificationCenter'
+import { ActionCenter } from './NotificationCenter/ActionCenter'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -210,7 +210,7 @@ export const Header = memo(() => {
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
-              {isConnected && isNotificationCenterEnabled && <NotificationCenter />}
+              {isConnected && isNotificationCenterEnabled && <ActionCenter />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

@@ -1,4 +1,4 @@
-import { Avatar, Button, ButtonGroup, Progress, Stack } from '@chakra-ui/react'
+import { Button, ButtonGroup, Link, Progress, Stack } from '@chakra-ui/react'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -7,25 +7,14 @@ import { RawText } from '@/components/Text'
 
 type SwapDetailsProps = {
   isStreaming?: boolean
+  txLink?: string
 }
 
-export const SwapDetails: React.FC<SwapDetailsProps> = ({ isStreaming }) => {
+export const SwapDetails: React.FC<SwapDetailsProps> = ({ isStreaming, txLink }) => {
   const translate = useTranslate()
+
   return (
     <Stack gap={4}>
-      <Row fontSize='sm'>
-        <Row.Label>{translate('notificationCenter.swap')}</Row.Label>
-        <Row.Value>
-          <RawText>0.00 SOL → 0.00 USDC</RawText>
-        </Row.Value>
-      </Row>
-      <Row fontSize='sm'>
-        <Row.Label>{translate('notificationCenter.protocol')}</Row.Label>
-        <Row.Value display='flex' alignItems='center' gap={2}>
-          <Avatar size='xs' />
-          <RawText>0x</RawText>
-        </Row.Value>
-      </Row>
       {isStreaming && (
         <Row fontSize='sm'>
           <Row.Label>{translate('notificationCenter.streamingStatus')}</Row.Label>
@@ -35,9 +24,13 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ isStreaming }) => {
           </Row.Value>
         </Row>
       )}
-      <ButtonGroup width='full' size='sm'>
-        <Button width='full'>{translate('notificationCenter.viewTransaction')}</Button>
-      </ButtonGroup>
+      {txLink && (
+        <ButtonGroup width='full' size='sm'>
+          <Button width='full' as={Link} isExternal href={txLink}>
+            {translate('notificationCenter.viewTransaction')}
+          </Button>
+        </ButtonGroup>
+      )}
     </Stack>
   )
 }

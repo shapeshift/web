@@ -287,9 +287,9 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
             arbitrumBridgeApi.checkTradeStatus({
               txHash: l1TxHash,
               chainId: sellAsset.chainId,
-              quoteId: '',
               stepIndex: 0,
               accountId: confirmedQuote.sellAssetAccountId,
+              swap: undefined,
               ...swapperDeps,
             })
         : skipToken,

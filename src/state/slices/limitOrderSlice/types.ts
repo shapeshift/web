@@ -1,8 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type {
+  CowSwapQuoteId,
   OrderQuoteResponse,
   PartialRecord,
-  QuoteId,
   UnsignedOrderCreation,
 } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -39,8 +39,8 @@ export type LimitOrderActiveQuote = {
 export type LimitOrderState = {
   activeQuote: LimitOrderActiveQuote | undefined
   confirmedLimitOrder: Record<
-    QuoteId,
+    CowSwapQuoteId,
     { params: LimitOrderCreationParams; unsignedOrderCreation: UnsignedOrderCreation }
   >
-  orderSubmission: PartialRecord<QuoteId, LimitOrderSubmissionMetadata>
+  orderSubmission: PartialRecord<CowSwapQuoteId, LimitOrderSubmissionMetadata>
 }

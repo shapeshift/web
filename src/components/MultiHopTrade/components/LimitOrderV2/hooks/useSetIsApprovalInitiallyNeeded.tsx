@@ -12,7 +12,7 @@ export const useSetIsApprovalInitiallyNeeded = () => {
   const activeQuote = useAppSelector(limitOrderSlice.selectors.selectActiveQuote)
 
   const orderSubmissionMetadataFilter = useMemo(() => {
-    return { quoteId: activeQuote?.response.id ?? 0 }
+    return { cowSwapQuoteId: activeQuote?.response.id ?? 0 }
   }, [activeQuote?.response.id])
 
   const limitOrderSubmissionMeta = useSelectorWithArgs(

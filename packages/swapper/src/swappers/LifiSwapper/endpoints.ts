@@ -65,7 +65,7 @@ export const lifiApi: SwapperApi = {
 
     return tradeQuoteResult.map(quote =>
       quote.map(tradeQuote => {
-        const { selectedLifiRoute } = tradeQuote
+        const selectedLifiRoute = tradeQuote.steps[0]?.lifiSpecific?.lifiRoute
 
         // TODO: quotes below the minimum aren't valid and should not be processed as such
         // selectedLifiRoute will be missing for quotes below the minimum
@@ -101,7 +101,7 @@ export const lifiApi: SwapperApi = {
 
     return tradeRateResult.map(quote =>
       quote.map(tradeQuote => {
-        const { selectedLifiRoute } = tradeQuote
+        const selectedLifiRoute = tradeQuote.steps[0]?.lifiSpecific?.lifiRoute
 
         // TODO: quotes below the minimum aren't valid and should not be processed as such
         // selectedLifiRoute will be missing for quotes below the minimum
@@ -227,11 +227,11 @@ export const lifiApi: SwapperApi = {
   },
 
   checkTradeStatus: async ({
-    quoteId,
     txHash,
     stepIndex,
     chainId,
     accountId,
+    swap,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }): Promise<{
@@ -239,8 +239,8 @@ export const lifiApi: SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }> => {
-    const lifiRoute = tradeQuoteMetadata.get(quoteId)
-    if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
+    const lifiRoute = swap?.metadata.lifiRoute
+    if (!lifiRoute) throw Error(`Missing Li.Fi route`)
 
     // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {
     //   swapper: SwapperName.LIFI,

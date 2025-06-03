@@ -10,7 +10,7 @@ import { limitOrderSlice } from './limitOrderSlice'
 import type { LimitOrderSubmissionMetadata } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
-import { selectQuoteIdParamFromRequiredFilter } from '@/state/selectors'
+import { selectCowSwapQuoteIdParamFromRequiredFilter } from '@/state/selectors'
 
 export const selectActiveQuoteId = createSelector(
   limitOrderSlice.selectors.selectActiveQuote,
@@ -185,14 +185,14 @@ export const selectActiveQuoteLimitPrice = createSelector(
 
 export const selectConfirmedLimitOrder = createSelector(
   limitOrderSlice.selectSlice,
-  selectQuoteIdParamFromRequiredFilter,
-  (limitOrderSlice, quoteId) => limitOrderSlice.confirmedLimitOrder[quoteId],
+  selectCowSwapQuoteIdParamFromRequiredFilter,
+  (limitOrderSlice, cowSwapQuoteId) => limitOrderSlice.confirmedLimitOrder[cowSwapQuoteId],
 )
 
 export const selectLimitOrderSubmissionMetadata = createDeepEqualOutputSelector(
   limitOrderSlice.selectSlice,
-  selectQuoteIdParamFromRequiredFilter,
-  (limitOrders, quoteId): LimitOrderSubmissionMetadata | undefined => {
-    return limitOrders.orderSubmission[quoteId]
+  selectCowSwapQuoteIdParamFromRequiredFilter,
+  (limitOrders, cowSwapQuoteId): LimitOrderSubmissionMetadata | undefined => {
+    return limitOrders.orderSubmission[cowSwapQuoteId]
   },
 )

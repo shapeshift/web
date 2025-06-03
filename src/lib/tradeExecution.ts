@@ -16,6 +16,7 @@ import {
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
+  SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
@@ -30,6 +31,7 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
 
@@ -93,13 +95,31 @@ export class TradeExecution {
       // Given the intersection of the inherent bits of sc wallets (only one chain, not deployed on others) and EVM chains (same address on every chain)
       // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
       const accountId = selectFirstHopSellAccountId(store.getState())
+
+      const currentSwapId = swapSlice.selectors.selectCurrentSwapId(store.getState())
+      const swaps = swapSlice.selectors.selectSwapsById(store.getState())
+
+      if (!currentSwapId) {
+        throw new Error('Swap not found')
+      }
+
+      const swap = swaps[currentSwapId]
+
+      store.dispatch(
+        swapSlice.actions.upsertSwap({
+          ...swap,
+          sellTxHash,
+          status: SwapStatus.Pending,
+        }),
+      )
+
       const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-            quoteId: tradeQuote.id,
             txHash: sellTxHash,
             chainId,
             accountId,
+            swap,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,

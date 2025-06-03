@@ -15,9 +15,14 @@ import { getOppositePriceDirection } from './helpers'
 
 import { localAssetData } from '@/lib/asset-service'
 
+export type LimitPriceByDirection = {
+  [PriceDirection.BuyAssetDenomination]: string
+  [PriceDirection.SellAssetDenomination]: string
+}
+
 export type LimitOrderInputState = {
   limitPriceDirection: PriceDirection
-  limitPrice: Record<PriceDirection, string>
+  limitPrice: LimitPriceByDirection
   limitPriceMode: LimitPriceMode
   expiry: ExpiryOption
 } & TradeInputBaseState

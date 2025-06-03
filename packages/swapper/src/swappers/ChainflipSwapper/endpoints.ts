@@ -16,15 +16,11 @@ import type {
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
 import { ChainflipStatusMessage } from './constants'
-import type { ChainflipBaasSwapDepositAddress } from './models'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
-
-// Persists the ID so we can look it up later when checking the status
-const tradeQuoteMetadata: Map<string, ChainflipBaasSwapDepositAddress> = new Map()
 
 export const chainflipApi: SwapperApi = {
   getTradeQuote,
@@ -43,11 +39,6 @@ export const chainflipApi: SwapperApi = {
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
     if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific.chainflipSwapId,
-      address: step.chainflipSpecific?.chainflipDepositAddress,
-    })
 
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
@@ -143,11 +134,6 @@ export const chainflipApi: SwapperApi = {
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
     if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific.chainflipSwapId,
-      address: step.chainflipSpecific.chainflipDepositAddress,
-    })
-
     const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
 
     return adapter.buildSendApiTransaction({
@@ -202,11 +188,6 @@ export const chainflipApi: SwapperApi = {
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
     if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific.chainflipSwapId,
-      address: step.chainflipSpecific.chainflipDepositAddress,
-    })
-
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
     const contractAddress =
@@ -250,11 +231,6 @@ export const chainflipApi: SwapperApi = {
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
     if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific.chainflipSwapId,
-      address: step.chainflipSpecific?.chainflipDepositAddress,
-    })
-
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
     const contractAddress =
@@ -278,22 +254,20 @@ export const chainflipApi: SwapperApi = {
 
   checkTradeStatus: async ({
     config,
-    quoteId,
+    swap,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }> => {
-    const swap = tradeQuoteMetadata.get(quoteId)
-    if (!swap) throw Error(`Missing trade quote metadata for quoteId ${quoteId}`)
-    // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap
-    const swapId = swap.id
+    const chainflipSwapId = swap?.metadata.chainflipSwapId
+    if (!chainflipSwapId) throw Error(`chainflipSwapId is required`)
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
-      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
+      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${chainflipSwapId}`,
     )
 
     if (maybeStatusResponse.isErr()) {

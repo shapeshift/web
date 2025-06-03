@@ -1,4 +1,6 @@
-import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapStatus } from '@shapeshiftoss/swapper'
+import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -9,6 +11,8 @@ import { useTradeExecution } from './useTradeExecution'
 import { useGetTradeQuotes } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { assertUnreachable } from '@/lib/utils'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
@@ -61,10 +65,36 @@ export const useTradeButtonProps = ({
     activeTradeId,
   })
 
+  const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
+
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
+
+    const firstStep = activeQuote.steps[0]
+    const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
+    const swap: Swap = {
+      id: uuidv4(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      sellAccountId,
+      swapperName: activeQuote.swapperName,
+      sellAsset: firstStep.sellAsset,
+      buyAsset: lastStep.buyAsset,
+      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      metadata: {
+        lifiRoute: activeQuote.steps[0]?.lifiSpecific?.lifiRoute,
+        chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
+        stepIndex: currentHopIndex,
+        relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+      },
+      status: SwapStatus.Idle,
+    }
+
+    dispatch(swapSlice.actions.upsertSwap(swap))
+
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [dispatch, activeQuote])
+  }, [dispatch, activeQuote, currentHopIndex, sellAccountId])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {

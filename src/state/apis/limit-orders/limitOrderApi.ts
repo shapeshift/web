@@ -15,6 +15,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import type {
   CowSwapError,
+  CowSwapQuoteId,
   Order,
   OrderCancellation,
   OrderCreation,
@@ -23,7 +24,6 @@ import type {
   OrderQuoteResponse,
   OrderStatus,
   ParsedAppData,
-  QuoteId,
   Trade,
 } from '@shapeshiftoss/types'
 import {
@@ -198,13 +198,13 @@ export const limitOrderApi = createApi({
         return [{ type: 'limitOrderQuote' as const, id: result?.id }]
       },
     }),
-    placeLimitOrder: build.mutation<OrderId, { quoteId: QuoteId; wallet: HDWallet | null }>({
+    placeLimitOrder: build.mutation<OrderId, { quoteId: CowSwapQuoteId; wallet: HDWallet | null }>({
       queryFn: async ({ quoteId, wallet }, { getState }) => {
         const state = getState() as ReduxState
         const {
           unsignedOrderCreation,
           params: { sellAssetId, accountId },
-        } = selectConfirmedLimitOrder(state, { quoteId })
+        } = selectConfirmedLimitOrder(state, { cowSwapQuoteId: quoteId })
         const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 

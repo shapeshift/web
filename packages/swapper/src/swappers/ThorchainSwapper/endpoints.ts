@@ -15,7 +15,12 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getEvmData } from './evm/utils/getEvmData'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
-import type { ThornodeStatusResponse, ThornodeTxResponse, ThorTradeQuote } from './types'
+import type {
+  ThorEvmTradeQuote,
+  ThornodeStatusResponse,
+  ThornodeTxResponse,
+  ThorTradeQuote,
+} from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
 import { getThorTxInfo as getUtxoThorTxInfo } from './utxo/utils/getThorTxData'
@@ -49,7 +54,11 @@ export const thorchainApi: SwapperApi = {
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
       : '0'
 
-    const { data, to } = await getEvmData({ config, step, tradeQuote })
+    const { data, to } = await getEvmData({
+      config,
+      step,
+      tradeQuote: tradeQuote as ThorEvmTradeQuote,
+    })
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -71,7 +80,11 @@ export const thorchainApi: SwapperApi = {
 
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = step
 
-    const { data, to } = await getEvmData({ config, step, tradeQuote })
+    const { data, to } = await getEvmData({
+      config,
+      step,
+      tradeQuote: tradeQuote as ThorEvmTradeQuote,
+    })
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

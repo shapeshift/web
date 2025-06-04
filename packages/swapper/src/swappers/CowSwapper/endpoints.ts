@@ -113,7 +113,7 @@ export const cowApi: SwapperApi = {
 
     return { chainId: sellAsset.chainId, orderToSign }
   },
-  getEvmTransactionFees: _args => {
+  getEvmTransactionFees: () => {
     // No transaction fees for CoW
     return Promise.resolve('0')
   },

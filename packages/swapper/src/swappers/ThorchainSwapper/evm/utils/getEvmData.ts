@@ -2,7 +2,7 @@ import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils
 import assert from 'assert'
 import type { Address } from 'viem'
 
-import type { SwapperConfig, TradeQuote, TradeQuoteStep } from '../../../../types'
+import type { SwapperConfig, TradeQuoteStep } from '../../../../types'
 import type { ThorEvmTradeQuote } from '../../types'
 import { getCallDataFromQuote } from '../../utils/getCallDataFromQuote'
 import { TradeType } from '../../utils/longTailHelpers'
@@ -15,19 +15,18 @@ export const getEvmData = async ({
 }: {
   config: SwapperConfig
   step: TradeQuoteStep
-  tradeQuote: TradeQuote
+  tradeQuote: ThorEvmTradeQuote
 }) => {
   const {
     router,
     vault,
     aggregator,
-    data: _data,
     memo: tcMemo,
     tradeType,
     expiry,
     longtailData,
     slippageTolerancePercentageDecimal,
-  } = tradeQuote as ThorEvmTradeQuote
+  } = tradeQuote
 
   if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
 
@@ -36,7 +35,7 @@ export const getEvmData = async ({
   switch (tradeType) {
     case TradeType.L1ToL1: {
       const data = await getCallDataFromQuote({
-        data: _data,
+        data: tradeQuote.data,
         tradeType,
         sellAsset,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -74,7 +73,7 @@ export const getEvmData = async ({
       const tcVault = vault as Address
 
       const data = await getCallDataFromQuote({
-        data: _data,
+        data: tradeQuote.data,
         tradeType,
         sellAsset,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -109,7 +108,7 @@ export const getEvmData = async ({
       assert(router, 'router required for l1 to thorchain longtail swaps')
 
       const data = await getCallDataFromQuote({
-        data: _data,
+        data: tradeQuote.data,
         tradeType,
         sellAsset,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,

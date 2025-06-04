@@ -1,9 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Flex, IconButton, useDisclosure } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import { FiSettings } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
@@ -16,6 +15,8 @@ import { WalletBalance } from './WalletBalance'
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
+import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -39,18 +40,15 @@ const buttonGroupDisplay = { base: 'none', md: 'flex' }
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
 
-type DashboardHeaderTopProps = {
-  accountId?: AccountId
-  assetId?: string
-}
-
-export const DashboardHeaderTop = memo(({ accountId, assetId }: DashboardHeaderTopProps) => {
+export const DashboardHeaderTop = memo(() => {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
     state: { isConnected },
   } = useWallet()
+  const assetId = useRouteAssetId()
+  const accountId = useRouteAccountId()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const navigate = useNavigate()
@@ -68,12 +66,18 @@ export const DashboardHeaderTop = memo(({ accountId, assetId }: DashboardHeaderT
   }, [mixpanel, send, asset?.assetId, accountId])
 
   const handleReceiveClick = useCallback(() => {
+    console.log(assetId, accountId)
     receive.open({ asset, accountId })
-  }, [receive, asset, accountId])
+  }, [assetId, accountId, receive, asset])
 
   const handleTradeClick = useCallback(() => {
     navigate('/trade')
   }, [navigate])
+
+  useEffect(() => {
+    console.log('assetId', assetId)
+    console.log('accountId', accountId)
+  }, [assetId, accountId])
 
   return (
     <Container

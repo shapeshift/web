@@ -101,7 +101,7 @@ export const Buy = () => {
         bgImg={AuroraBg}
         backgroundSize='cover'
         backgroundPosition='top center'
-        pt='env(safe-area-inset-top)'
+        pt='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
       >
         <PageContainer pt={pageContainerPt} pb={pageContainerPb}>
           <Flex

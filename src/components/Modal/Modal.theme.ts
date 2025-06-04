@@ -23,13 +23,13 @@ export const ModalStyle = {
   sizes: {
     full: {
       closeButton: {
-        top: 'calc(0.5rem + env(safe-area-inset-top))',
+        top: 'calc(0.5rem + env(safe-area-inset-top) + var(--safe-area-inset-top))',
       },
       header: {
-        paddingTop: 'calc(1rem + env(safe-area-inset-top))',
+        paddingTop: 'calc(1rem + env(safe-area-inset-top) + var(--safe-area-inset-top))',
       },
       footer: {
-        paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+        paddingBottom: 'calc(1rem + env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
       },
     },
   },

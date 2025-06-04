@@ -83,7 +83,7 @@ export const Explore = memo(() => {
         flexDir='column'
         flex={1}
         width='full'
-        pb='calc(env(safe-area-inset-bottom) + 6rem)'
+        pb='calc(env(safe-area-inset-bottom) + 6rem + var(--safe-area-inset-bottom))'
         pageProps={pageProps}
       >
         <SEO title={translate('navBar.explore')} />

@@ -13,7 +13,7 @@ export const SideNav = memo(() => {
   const shadow = useColorModeValue('lg', 'none')
   return (
     <chakra.header
-      paddingTop='env(safe-area-inset-top)'
+      paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
       left='0'
       right='0'
       height='100vh'

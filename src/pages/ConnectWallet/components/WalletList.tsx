@@ -20,12 +20,14 @@ type MobileWalletDialogProps = {
   footerComponent?: JSX.Element
   isEditing?: boolean
   onErrorChange?: (error: string | null) => void
+  onIsWaitingForRedirection?: (isWaitingForRedirection: boolean) => void
 }
 
-export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
+export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   footerComponent,
   isEditing,
   onErrorChange,
+  onIsWaitingForRedirection,
 }) => {
   const { dispatch, getAdapter, state } = useWallet()
   const { walletInfo } = state
@@ -33,6 +35,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
+  const [isInitializingWallet, setIsInitializingWallet] = useState<boolean>(false)
 
   const { isLoading, data: wallets } = useQuery({
     queryKey: ['listWallets'],
@@ -56,12 +59,29 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
 
   const handleWalletSelect = useCallback(
     async (item: RevocableWallet) => {
+      setIsInitializingWallet(true)
+
       const adapter = await getAdapter(KeyManager.Mobile)
       const deviceId = item?.id
+      alert(`deviceId: ${deviceId}`)
       if (adapter && deviceId) {
         const { name, icon } = MobileConfig
+
+        const revoker: RevocableWallet | null = await (async () => {
+          try {
+            const walletRevoker = await getWallet(deviceId)
+            return walletRevoker
+          } catch {
+            return null
+          }
+        })()
+
+        if (!revoker) {
+          setIsInitializingWallet(false)
+          return
+        }
+
         try {
-          const revoker = await getWallet(deviceId)
           if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
           if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
 
@@ -70,6 +90,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
           if (!(await wallet?.isInitialized())) {
             await wallet?.initialize()
           }
+
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -91,15 +112,17 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
           localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
           revoker.revoke()
+          onIsWaitingForRedirection?.(true)
         } catch (e) {
-          console.log(e)
           setError('walletProvider.shapeShift.load.error.pair')
         }
       } else {
         setError('walletProvider.shapeShift.load.error.pair')
       }
+
+      setIsInitializingWallet(false)
     },
-    [dispatch, getAdapter, localWallet],
+    [dispatch, getAdapter, localWallet, onIsWaitingForRedirection],
   )
 
   const handleRename = useCallback(
@@ -121,40 +144,42 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
   }, [error, onErrorChange])
 
   const content = useMemo(() => {
-    if (error) {
-      return (
-        <Alert status='error' borderRadius='md'>
-          <AlertIcon />
-          <AlertDescription>{translate(error)}</AlertDescription>
-        </Alert>
-      )
-    }
     return (
-      <Stack maxHeight='30vh' overflow='auto' px={4} mx={-4}>
-        {wallets?.map(wallet => {
-          const isSelected = walletInfo?.deviceId === wallet.id
-          const _hover = isSelected
-            ? { bg: 'background.button.secondary.base', opacity: '1' }
-            : undefined
-          const _active = isSelected
-            ? { bg: 'background.button.secondary.base', opacity: '1' }
-            : undefined
-          return (
-            <WalletCard
-              id={wallet.id}
-              key={wallet.id}
-              wallet={wallet}
-              onClick={isSelected || isEditing ? undefined : handleWalletSelect}
-              isActive={isSelected}
-              isEditing={isEditing}
-              onRename={handleRename}
-              onDelete={handleDelete}
-              _hover={_hover}
-              _active={_active}
-            />
-          )
-        })}
-      </Stack>
+      <>
+        {error ? (
+          <Alert status='error' borderRadius='md'>
+            <AlertIcon />
+            <AlertDescription>{translate(error)}</AlertDescription>
+          </Alert>
+        ) : null}
+        <Stack maxHeight='30vh' overflow='auto' px={4} mx={-4}>
+          {wallets?.map(wallet => {
+            const isSelected = walletInfo?.deviceId === wallet.id
+            const _hover = isSelected
+              ? { bg: 'background.button.secondary.base', opacity: '1' }
+              : undefined
+            const _active = isSelected
+              ? { bg: 'background.button.secondary.base', opacity: '1' }
+              : undefined
+            return (
+              <WalletCard
+                id={wallet.id}
+                key={wallet.id}
+                wallet={wallet}
+                onClick={isSelected || isEditing ? undefined : handleWalletSelect}
+                isActive={isSelected}
+                isEditing={isEditing}
+                isInitializing={isInitializingWallet && isSelected}
+                isDisabled={isInitializingWallet && !isSelected}
+                onRename={handleRename}
+                onDelete={handleDelete}
+                _hover={_hover}
+                _active={_active}
+              />
+            )
+          })}
+        </Stack>
+      </>
     )
   }, [
     error,
@@ -165,6 +190,7 @@ export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
     translate,
     walletInfo?.deviceId,
     wallets,
+    isInitializingWallet,
   ])
 
   return isLoading ? (

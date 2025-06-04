@@ -46,14 +46,14 @@ export const breakpoints = {
 const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
+      '--safe-area-inset-top': '0px',
+      '--safe-area-inset-bottom': '0px',
       backgroundColor: 'background.surface.base',
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
       minHeight: '100%',
       overflowY: 'scroll',
     },
-    '--safe-area-inset-top': '0px',
-    '--safe-area-inset-bottom': '0px',
     '#root': {
       background: 'background.surface.base',
     },

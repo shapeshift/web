@@ -27,13 +27,13 @@ export const isSome = <T>(option: T | null | undefined): option is T =>
 
 export const isToken = (assetId: AssetId) => {
   switch (fromAssetId(assetId).assetNamespace) {
-    case 'erc20':
-    case 'erc721':
-    case 'erc1155':
-    case 'bep20':
-    case 'bep721':
-    case 'bep1155':
-    case 'token':
+    case ASSET_NAMESPACE.erc20:
+    case ASSET_NAMESPACE.erc721:
+    case ASSET_NAMESPACE.erc1155:
+    case ASSET_NAMESPACE.bep20:
+    case ASSET_NAMESPACE.bep721:
+    case ASSET_NAMESPACE.bep1155:
+    case ASSET_NAMESPACE.splToken:
       return true
     default:
       return false

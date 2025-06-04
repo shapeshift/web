@@ -63,7 +63,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
 
       const adapter = await getAdapter(KeyManager.Mobile)
       const deviceId = item?.id
-      alert(`deviceId: ${deviceId}`)
+
       if (adapter && deviceId) {
         const { name, icon } = MobileConfig
 

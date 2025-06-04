@@ -23,7 +23,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { MobileWallestList } from '@/pages/ConnectWallet/components/WalletList'
+import { MobileWalletList } from '@/pages/ConnectWallet/components/WalletList'
 import { WalletConnectToDappsHeaderButton } from '@/plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 
 const addIcon = <TbCirclePlus />
@@ -160,7 +160,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
-        <MobileWallestList
+        <MobileWalletList
           footerComponent={mobileWalletFooter}
           isEditing={isEditing}
           onErrorChange={setError}

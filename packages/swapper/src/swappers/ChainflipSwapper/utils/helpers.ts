@@ -1,14 +1,14 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { isToken, makeSwapErrorRight } from '../../../utils'
+import { makeSwapErrorRight } from '../../../utils'
 import type { ChainflipSupportedChainId } from '../constants'
 import {
   ChainflipSupportedAssetIdsByChainId,

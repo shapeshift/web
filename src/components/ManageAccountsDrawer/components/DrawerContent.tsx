@@ -17,7 +17,7 @@ export const DrawerContentWrapper = ({
 }: DrawerContentWrapperProps) => {
   return (
     <>
-      <DrawerHeader pt='calc(env(safe-area-inset-top) + 1rem)'>
+      <DrawerHeader pt='calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 1rem)'>
         {title && <RawText as='h3'>{title}</RawText>}
         {description && (
           <RawText color='text.subtle' fontSize='md'>
@@ -26,7 +26,9 @@ export const DrawerContentWrapper = ({
         )}
       </DrawerHeader>
       {body && <DrawerBody>{body}</DrawerBody>}
-      <DrawerFooter pb='calc(env(safe-area-inset-bottom) + 1rem)'>{footer}</DrawerFooter>
+      <DrawerFooter pb='calc(env(safe-area-inset-bottom) + 1rem + var(--safe-area-inset-bottom))'>
+        {footer}
+      </DrawerFooter>
     </>
   )
 }

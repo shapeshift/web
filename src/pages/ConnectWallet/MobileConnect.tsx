@@ -10,6 +10,7 @@ import {
   Heading as CkHeading,
   Image,
   Link,
+  Spinner,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -19,7 +20,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useNavigate } from 'react-router-dom'
 
-import { MobileWallestList } from './components/WalletList'
+import { MobileWalletList } from './components/WalletList'
 
 import BlueFox from '@/assets/blue-fox.svg'
 import GreenFox from '@/assets/green-fox.svg'
@@ -76,6 +77,7 @@ export const MobileConnect = () => {
   const [defaultRoute, setDefaultRoute] = useState<MobileWalletDialogRoutes>(
     MobileWalletDialogRoutes.Saved,
   )
+  const [isWaitingForRedirection, setIsWaitingForRedirection] = useState<boolean>(false)
 
   const handleOpenCreateWallet = useCallback(() => {
     setDefaultRoute(MobileWalletDialogRoutes.Create)
@@ -106,8 +108,11 @@ export const MobileConnect = () => {
           assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
         })
       : query?.returnUrl
-    hasWallet && navigate(path ?? '/trade')
-  }, [navigate, hasWallet, query, state, dispatch])
+    if (hasWallet) {
+      setIsWaitingForRedirection(false)
+      navigate(path ?? '/trade')
+    }
+  }, [navigate, hasWallet, query, state, dispatch, setIsWaitingForRedirection])
 
   useEffect(() => {
     if (!wallets.length) {
@@ -139,6 +144,10 @@ export const MobileConnect = () => {
       setHideWallets(true) // If they have no wallets, show the default create or import
     }
   }, [isLoading, wallets.length])
+
+  const handleIsWaitingForRedirection = useCallback((isWaitingForRedirection: boolean) => {
+    setIsWaitingForRedirection(isWaitingForRedirection)
+  }, [])
 
   const content = useMemo(() => {
     return hideWallets ? (
@@ -191,7 +200,13 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
           </Stack>
           <Stack>
-            <MobileWallestList />
+            {isWaitingForRedirection ? (
+              <Center py={6}>
+                <Spinner />
+              </Center>
+            ) : (
+              <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
+            )}
             <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
               {translate('connectWalletPage.createOrImport')}
             </Button>
@@ -215,6 +230,8 @@ export const MobileConnect = () => {
     hideWallets,
     translate,
     wallets,
+    isWaitingForRedirection,
+    handleIsWaitingForRedirection,
   ])
 
   return (
@@ -224,7 +241,7 @@ export const MobileConnect = () => {
       flexDir='column'
       height='100dvh'
       justifyContent='flex-end'
-      pb='env(safe-area-inset-bottom)'
+      pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))'
       overflow='hidden'
       style={containerStyles}
     >
@@ -265,54 +282,54 @@ export const MobileConnect = () => {
             </Center>
           </FadeTransition>
         ) : (
-          <SlideTransitionY key='content'>
+          <>
             <Stack
               position='absolute'
-              // Account for iOS UI elements such as the Notch or Dynamic Island for top positioning
-              top='calc(var(--chakra-space-6) + env(safe-area-inset-top))'
+              top='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
               right={6}
             >
               <LanguageSelector size='sm' />
             </Stack>
+            <SlideTransitionY key='content'>
+              <Stack px={6} spacing={6} position='relative' zIndex='4'>
+                <AnimatePresence mode='wait' initial={false}>
+                  <motion.div
+                    layout
+                    transition={{ layout: { type: 'spring', bounce: 0.4, duration: 0.5 } }}
+                  >
+                    {content}
+                  </motion.div>
+                </AnimatePresence>
 
-            <Stack px={6} spacing={6} position='relative' zIndex='4'>
-              <AnimatePresence mode='wait' initial={false}>
-                <motion.div
-                  layout
-                  transition={{ layout: { type: 'spring', bounce: 0.4, duration: 0.5 } }}
+                <RawText
+                  fontSize='sm'
+                  color='text.subtle'
+                  textAlign='center'
+                  maxWidth='80%'
+                  mx='auto'
                 >
-                  {content}
-                </motion.div>
-              </AnimatePresence>
-
-              <RawText
-                fontSize='sm'
-                color='text.subtle'
-                textAlign='center'
-                maxWidth='80%'
-                mx='auto'
-              >
-                {translate('connectWalletPage.footerOne')}{' '}
-                <Link
-                  isExternal
-                  target='_blank'
-                  fontWeight='bold'
-                  href='https://app.shapeshift.com/#/legal/terms-of-service'
-                >
-                  {translate('connectWalletPage.terms')}
-                </Link>{' '}
-                {translate('common.and')}{' '}
-                <Link
-                  isExternal
-                  target='_blank'
-                  fontWeight='bold'
-                  href='https://app.shapeshift.com/#/legal/privacy-policy'
-                >
-                  {translate('connectWalletPage.privacyPolicy')}
-                </Link>
-              </RawText>
-            </Stack>
-          </SlideTransitionY>
+                  {translate('connectWalletPage.footerOne')}{' '}
+                  <Link
+                    isExternal
+                    target='_blank'
+                    fontWeight='bold'
+                    href='https://app.shapeshift.com/#/legal/terms-of-service'
+                  >
+                    {translate('connectWalletPage.terms')}
+                  </Link>{' '}
+                  {translate('common.and')}{' '}
+                  <Link
+                    isExternal
+                    target='_blank'
+                    fontWeight='bold'
+                    href='https://app.shapeshift.com/#/legal/privacy-policy'
+                  >
+                    {translate('connectWalletPage.privacyPolicy')}
+                  </Link>
+                </RawText>
+              </Stack>
+            </SlideTransitionY>
+          </>
         )}
       </AnimatePresence>
       <MobileWalletDialog isOpen={isOpen} onClose={onClose} defaultRoute={defaultRoute} />

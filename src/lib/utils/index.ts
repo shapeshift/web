@@ -1,5 +1,5 @@
 import type { AssetId, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -16,8 +16,6 @@ import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
 import crypto from 'node:crypto'
-
-import { isSplToken } from './solana'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
@@ -96,24 +94,6 @@ export function partitionCompareWith<T>(
 
   return result
 }
-
-export const isToken = (assetId: AssetId) => {
-  switch (fromAssetId(assetId).assetNamespace) {
-    case 'erc20':
-    case 'erc721':
-    case 'erc1155':
-    case 'bep20':
-    case 'bep721':
-    case 'bep1155':
-    case 'token':
-      return true
-    default:
-      return false
-  }
-}
-
-export const contractAddressOrUndefined = (assetId: AssetId) =>
-  isToken(assetId) || isSplToken(assetId) ? fromAssetId(assetId).assetReference : undefined
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)

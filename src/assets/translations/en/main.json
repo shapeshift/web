@@ -1141,6 +1141,7 @@
       }
     },
     "limitOrderFilled": "Limit order filled",
+    "limitOrderPartiallyFilled": "Limit order partially filled",
     "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {

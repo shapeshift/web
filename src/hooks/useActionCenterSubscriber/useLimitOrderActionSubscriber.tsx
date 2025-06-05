@@ -196,6 +196,59 @@ export const useLimitOrderActionSubscriber = () => {
 
       if (!action || action.type !== ActionType.LimitOrder) return
 
+      // Partially filled orders
+      if (
+        order.order.status === OrderStatus.OPEN &&
+        order.order.executedSellAmount !== order.order.sellAmount
+      ) {
+        if (bnOrZero(order.order.executedSellAmount).eq(0)) return
+
+        const partiallyFilledPercentage = bnOrZero(order.order.executedSellAmount).div(
+          order.order.sellAmount,
+        )
+
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...action,
+            status: ActionStatus.Open,
+            limitOrderMetadata: {
+              ...action.limitOrderMetadata,
+              filledDecimalPercentage: partiallyFilledPercentage.multipliedBy(100).toString(),
+            },
+          }),
+        )
+
+        const assetToAssetTranslation = translate(
+          ...[
+            'limitOrder.assetToAsset',
+            {
+              sellAmount: order.order.executedSellAmount,
+              sellAsset: updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
+              buyAmount: order.order.executedBuyAmount,
+              buyAsset: updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
+            },
+          ],
+        )
+
+        toast({
+          title: translate('limitOrder.limitOrderPartiallyFilled'),
+          description: (
+            <Box>
+              <CText mb={2}>{translate(assetToAssetTranslation)}</CText>
+              <Link href={`https://explorer.cow.fi/orders/${order.order.uid}`} isExternal>
+                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+              </Link>
+            </Box>
+          ),
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right',
+        })
+
+        return
+      }
+
       if (order.order.status === OrderStatus.FULFILLED) {
         dispatch(
           actionSlice.actions.upsertAction({

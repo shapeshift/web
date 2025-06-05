@@ -11,8 +11,8 @@ import { RawText } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import type { ActionLimitPrice } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
+import type { LimitPriceByDirection } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 
 type LimitOrderDetailsProps = {
   buyAsset: Asset
@@ -24,7 +24,7 @@ type LimitOrderDetailsProps = {
   sellAmountCryptoPrecision: string
   executedBuyAmountCryptoBaseUnit?: string
   executedSellAmountCryptoBaseUnit?: string
-  limitPrice: ActionLimitPrice
+  limitPrice: LimitPriceByDirection
 }
 
 export const LimitOrderDetails = ({

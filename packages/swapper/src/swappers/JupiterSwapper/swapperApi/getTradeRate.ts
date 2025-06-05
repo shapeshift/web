@@ -41,10 +41,8 @@ export const getTradeRate = async (
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    affiliateBps: _affiliateBps,
     receiveAddress,
     accountNumber,
-    slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
 
   const { assetsById } = deps
@@ -110,7 +108,7 @@ export const getTradeRate = async (
   const isSellTokenToken2022 = sellTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
   const isBuyTokenToken2022 = buyTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
 
-  const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : _affiliateBps
+  const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : input.affiliateBps
 
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,
@@ -118,8 +116,8 @@ export const getTradeRate = async (
     destinationAssetAddress: buyAssetAddress,
     commissionBps: affiliateBps,
     amount: sellAmount,
-    slippageBps: _slippageTolerancePercentageDecimal
-      ? convertDecimalPercentageToBasisPoints(_slippageTolerancePercentageDecimal).toFixed()
+    slippageBps: input.slippageTolerancePercentageDecimal
+      ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
       : undefined,
   })
 

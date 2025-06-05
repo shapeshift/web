@@ -1,33 +1,29 @@
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
-import { isExecutableTradeQuote, isExecutableTradeStep } from '../utils'
+import { getExecutableTradeStep, isExecutableTradeQuote } from '../utils'
 
 export const getSolanaTransactionFees = async ({
+  stepIndex,
   tradeQuote,
   from,
   assertGetSolanaChainAdapter,
 }: GetUnsignedSolanaTransactionArgs): Promise<string> => {
-  if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+  if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-  const firstStep = tradeQuote.steps[0]
+  const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const adapter = assertGetSolanaChainAdapter(firstStep.sellAsset.chainId)
+  const { solanaTransactionMetadata, sellAsset } = step
 
-  if (!isExecutableTradeStep(firstStep)) throw Error('Unable to execute step')
+  const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
-  const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+  const { fast } = await adapter.getFeeData({
     to: '',
     value: '0',
     chainSpecific: {
       from,
-      addressLookupTableAccounts: firstStep.solanaTransactionMetadata?.addressLookupTableAddresses,
-      instructions: firstStep.solanaTransactionMetadata?.instructions,
+      addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+      instructions: solanaTransactionMetadata?.instructions,
     },
-  }
+  })
 
-  const feeData = await adapter.getFeeData(getFeeDataInput)
-
-  return feeData.fast.txFee
+  return fast.txFee
 }

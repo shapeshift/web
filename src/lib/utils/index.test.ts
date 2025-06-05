@@ -8,18 +8,17 @@ import {
   foxyAssetId,
   fromAssetId,
 } from '@shapeshiftoss/caip'
+import { contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import { describe, expect, it, test, vi } from 'vitest'
 
 import {
   assertIsDefined,
-  contractAddressOrUndefined,
   deepUpsertArray,
   hashCode,
   isFulfilled,
   isNonEmpty,
   isRejected,
   isSome,
-  isToken,
   isUrl,
   partitionCompare,
   partitionCompareWith,

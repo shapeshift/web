@@ -1,8 +1,8 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, solana } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId, solanaChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter, SignTx, solana } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -10,12 +10,10 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
-  EvmTransactionRequest,
   ExecutableTradeStep,
   SolanaTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
@@ -24,6 +22,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
+  TradeStatus,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -166,7 +165,7 @@ export const getHopByIndex = (
 }
 
 export const executeEvmTransaction = (
-  txToSign: EvmTransactionRequest,
+  txToSign: SignTx<EvmChainId>,
   callbacks: EvmTransactionExecutionProps,
 ) => {
   return callbacks.signAndBroadcastTransaction(txToSign)
@@ -197,14 +196,7 @@ export const checkSafeTransactionStatus = async ({
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
-}): Promise<
-  | {
-      status: TxStatus
-      buyTxHash: string | undefined
-      message: string | [string, InterpolationOptions] | undefined
-    }
-  | undefined
-> => {
+}): Promise<TradeStatus | undefined> => {
   const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
     accountId,
     fetchIsSmartContractAddressQuery,
@@ -254,11 +246,7 @@ export const checkEvmSwapStatus = async ({
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
-}): Promise<{
-  status: TxStatus
-  buyTxHash: string | undefined
-  message: string | [string, InterpolationOptions] | undefined
-}> => {
+}): Promise<TradeStatus> => {
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       accountId,
@@ -303,22 +291,20 @@ export const getInputOutputRate = ({
 export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote =>
   quote.quoteOrRate === 'quote'
 
-export const isToken = (assetId: AssetId) => {
-  switch (fromAssetId(assetId).assetNamespace) {
-    case 'erc20':
-    case 'erc721':
-    case 'erc1155':
-    case 'bep20':
-    case 'bep721':
-    case 'bep1155':
-    case 'token':
-      return true
-    default:
-      return false
-  }
-}
 export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableTradeStep =>
   step.accountNumber !== undefined
+
+export const getExecutableTradeStep = (
+  tradeQuote: TradeQuote,
+  stepIndex: SupportedTradeQuoteStepIndex,
+) => {
+  const step = getHopByIndex(tradeQuote, stepIndex)
+  if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+
+  if (!isExecutableTradeStep(step)) throw Error('Unable to execute a trade rate step')
+
+  return step
+}
 
 export const checkSolanaSwapStatus = async ({
   txHash,
@@ -328,11 +314,7 @@ export const checkSolanaSwapStatus = async ({
   txHash: string
   accountId: AccountId | undefined
   assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
-}): Promise<{
-  status: TxStatus
-  buyTxHash: string | undefined
-  message: string | [string, InterpolationOptions] | undefined
-}> => {
+}): Promise<TradeStatus> => {
   try {
     if (!accountId) throw new Error('Missing accountId')
 

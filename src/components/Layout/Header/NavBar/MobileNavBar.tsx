@@ -213,7 +213,7 @@ export const MobileNavBar = memo(() => {
         pt={6}
         zIndex='banner'
         alignItems='center'
-        paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px)'
+        paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px + var(--safe-area-inset-bottom))'
         display={displayProp}
         className='mobile-nav'
       >
@@ -234,7 +234,7 @@ export const MobileNavBar = memo(() => {
       <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
         <DialogHeader />
         <DialogBody
-          pb='calc(env(safe-area-inset-bottom) + 2rem)'
+          pb='calc(env(safe-area-inset-bottom) + 2rem + var(--safe-area-inset-bottom))'
           display='flex'
           flexDir='column'
           gap={8}

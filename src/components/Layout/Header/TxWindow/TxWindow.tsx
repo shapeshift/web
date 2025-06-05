@@ -99,8 +99,12 @@ export const TxWindow = memo(() => {
       <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
 
-        <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
-          <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
+        <DrawerContent
+          minHeight='100vh'
+          maxHeight='100vh'
+          paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
+        >
+          <DrawerCloseButton top='calc(18px + env(safe-area-inset-top) + var(--safe-area-inset-top))' />
           <DrawerHeader
             px={paddingProp}
             display='flex'
@@ -135,7 +139,7 @@ export const TxWindow = memo(() => {
           <Box pe={2}>
             <Box
               overflow='auto'
-              height='calc(100vh - 70px - env(safe-area-inset-top))'
+              height='calc(100vh - 70px - env(safe-area-inset-top) - var(--safe-area-inset-top))'
               className='scroll-container'
             >
               <TxsByStatus txStatus='all' limit={limit} />

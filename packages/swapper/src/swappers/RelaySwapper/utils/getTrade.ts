@@ -72,12 +72,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     receiveAddress,
     accountNumber,
     affiliateBps,
-    slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
     xpub,
   } = input
 
-  const slippageToleranceBps = _slippageTolerancePercentageDecimal
-    ? convertDecimalPercentageToBasisPoints(_slippageTolerancePercentageDecimal).toFixed()
+  const slippageToleranceBps = input.slippageTolerancePercentageDecimal
+    ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
     : undefined
 
   const sellRelayChainId = relayChainMap[sellAsset.chainId]
@@ -271,7 +270,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const slippageTolerancePercentageDecimal = (() => {
-    if (_slippageTolerancePercentageDecimal) return _slippageTolerancePercentageDecimal
+    if (input.slippageTolerancePercentageDecimal) return input.slippageTolerancePercentageDecimal
     const destinationSlippageTolerancePercentageDecimal = bnOrZero(
       slippageTolerance.destination.percent,
     )
@@ -392,6 +391,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   // If same chain and not sellAsset as native currency, convert to protocol fee as native value is sent as well as erc20 tokens
   // This is a edge case we never encountered before and it's more convenient to consider it as protocol fee as quickwin
   const appFeesAsProtocolFee = (() => {
+    if (sellAsset.chainId !== buyAsset.chainId) return {}
     if (maybeAppFeesAsset.isErr()) return {}
 
     const appFeesAsset = maybeAppFeesAsset.unwrap()

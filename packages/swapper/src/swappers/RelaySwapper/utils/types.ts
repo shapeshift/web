@@ -42,6 +42,7 @@ export type AppFee = {
 }
 
 export type Transaction = {
+  from: string
   to: string
   value: string
   data: string

@@ -1,32 +1,15 @@
-import { fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
-import type {
-  CommonTradeQuoteInput,
-  EvmTransactionRequest,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
-import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
+import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getZrxTradeRate } from './getZrxTradeRate/getZrxTradeRate'
 
 export const zrxApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
@@ -36,37 +19,34 @@ export const zrxApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    { assetsById, config }: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, { assetsById, config }) => {
     const tradeRateResult = await getZrxTradeRate(
       input as GetEvmTradeRateInput,
       assetsById,
       config.VITE_ZRX_BASE_URL,
     )
 
-    return tradeRateResult.map(tradeQuote => [tradeQuote])
+    return tradeRateResult.map(tradeRate => [tradeRate])
   },
   getUnsignedEvmTransaction: async ({
-    chainId,
     from,
+    stepIndex,
     tradeQuote,
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { steps } = tradeQuote
-    const { zrxTransactionMetadata: transactionMetadata } = steps[0]
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    if (!transactionMetadata) throw new Error('Transaction metadata is required')
+    const { accountNumber, sellAsset, zrxTransactionMetadata } = step
+    if (!zrxTransactionMetadata) throw new Error('Transaction metadata is required')
 
-    const { value, to, data, gas: estimatedGas } = transactionMetadata
+    const { value, to } = zrxTransactionMetadata
 
-    const calldataWithSignature = (() => {
-      if (!permit2Signature) return data
+    const data = (() => {
+      if (!permit2Signature) return zrxTransactionMetadata.data
 
       // Append the signature to the calldata
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
@@ -75,48 +55,43 @@ export const zrxApi: SwapperApi = {
         size: 32,
       })
 
-      return concat([data, signatureLengthInHex, permit2Signature] as Hex[])
+      return concat([zrxTransactionMetadata.data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
-    const { gasLimit, ...feeData } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data: calldataWithSignature,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    return {
-      to,
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    return adapter.buildCustomApiTx({
+      accountNumber,
+      data,
       from,
+      to,
       value,
-      data: calldataWithSignature,
-      chainId: Number(fromChainId(chainId).chainReference),
-      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(gasLimit, estimatedGas ?? '0').toFixed(),
       ...feeData,
-    }
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
+      gasLimit: BigNumber.max(feeData.gasLimit, zrxTransactionMetadata.gas ?? '0').toFixed(),
+    })
   },
   getEvmTransactionFees: async ({
-    chainId,
     from,
+    stepIndex,
     tradeQuote,
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { steps } = tradeQuote
-    const { zrxTransactionMetadata: transactionMetadata } = steps[0]
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    if (!transactionMetadata) throw new Error('Transaction metadata is required')
+    const { sellAsset, zrxTransactionMetadata } = step
+    if (!zrxTransactionMetadata) throw new Error('Transaction metadata is required')
 
-    const { value, to, data } = transactionMetadata
+    const { value, to } = zrxTransactionMetadata
 
-    const calldataWithSignature = (() => {
-      if (!permit2Signature) return data
+    const data = (() => {
+      if (!permit2Signature) return zrxTransactionMetadata.data
 
       // Append the signature to the calldata
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
@@ -125,20 +100,14 @@ export const zrxApi: SwapperApi = {
         size: 32,
       })
 
-      return concat([data, signatureLengthInHex, permit2Signature] as Hex[])
+      return concat([zrxTransactionMetadata.data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data: calldataWithSignature,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    return networkFeeCryptoBaseUnit
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    return feeData.networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: checkEvmSwapStatus,
 }

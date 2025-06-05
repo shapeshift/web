@@ -1,31 +1,17 @@
 import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
 import { getStepTransaction } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
-import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import type { InterpolationOptions } from 'node-polyglot'
 
-import type {
-  CommonTradeQuoteInput,
-  EvmTransactionRequest,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { TradeQuoteError } from '../../types'
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,
+  getExecutableTradeStep,
   isExecutableTradeQuote,
   makeSwapErrorRight,
 } from '../../utils'
@@ -40,10 +26,7 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  getTradeQuote: async (input, deps) => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -80,10 +63,7 @@ export const lifiApi: SwapperApi = {
       }),
     )
   },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  getTradeRate: async (input, deps) => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -109,7 +89,7 @@ export const lifiApi: SwapperApi = {
 
         const id = selectedLifiRoute.id
 
-        // store the lifi quote metadata for transaction building later
+        // store the lifi rate metadata for transaction building later
         tradeQuoteMetadata.set(id, selectedLifiRoute)
 
         return tradeQuote
@@ -117,27 +97,27 @@ export const lifiApi: SwapperApi = {
     )
   },
   getUnsignedEvmTransaction: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+  }) => {
     configureLiFi()
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, sellAsset } = step
 
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
-
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
     const lifiStep = lifiRoute.steps[stepIndex]
 
     const { transactionRequest } = await getStepTransaction(lifiStep)
-
-    if (!transactionRequest) {
-      throw Error('undefined transactionRequest')
-    }
+    if (!transactionRequest) throw Error('undefined transactionRequest')
 
     const { to, value, data, gasLimit } = transactionRequest
 
@@ -154,8 +134,10 @@ export const lifiApi: SwapperApi = {
       })
     }
 
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
     const feeData = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
+      adapter,
       data: data.toString(),
       to,
       // This looks odd but we need this, else unchained estimate calls will fail with:
@@ -165,37 +147,37 @@ export const lifiApi: SwapperApi = {
       supportsEIP1559,
     })
 
-    return {
-      to,
-      from,
-      value: value.toString(),
+    return adapter.buildCustomApiTx({
+      accountNumber,
       data: data.toString(),
-      chainId: Number(fromChainId(chainId).chainReference),
+      from,
+      to,
+      value: value.toString(),
       ...{ ...feeData, gasLimit: gasLimit.toString() },
-    }
+    })
   },
   getEvmTransactionFees: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+  }) => {
     configureLiFi()
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { sellAsset } = step
 
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
-
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
     const lifiStep = lifiRoute.steps[stepIndex]
 
     const { transactionRequest } = await getStepTransaction(lifiStep)
-
-    if (!transactionRequest) {
-      throw Error('undefined transactionRequest')
-    }
+    if (!transactionRequest) throw Error('undefined transactionRequest')
 
     const { to, value, data, gasLimit } = transactionRequest
 
@@ -213,7 +195,7 @@ export const lifiApi: SwapperApi = {
     }
 
     const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
+      adapter: assertGetEvmChainAdapter(sellAsset.chainId),
       data: data.toString(),
       to,
       // This looks odd but we need this, else unchained estimate calls will fail with:
@@ -225,7 +207,6 @@ export const lifiApi: SwapperApi = {
 
     return networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: async ({
     txHash,
     stepIndex,
@@ -234,11 +215,7 @@ export const lifiApi: SwapperApi = {
     swap,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const lifiRoute = swap?.metadata.lifiRoute
     if (!lifiRoute) throw Error(`Missing Li.Fi route`)
 

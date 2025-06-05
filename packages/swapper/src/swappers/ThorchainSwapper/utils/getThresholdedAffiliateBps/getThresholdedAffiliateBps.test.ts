@@ -1,3 +1,4 @@
+import { thorchain } from '@shapeshiftoss/chain-adapters'
 import { bn } from '@shapeshiftoss/utils'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -5,7 +6,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { SwapperConfig } from '../../../../types'
 import { ETH } from '../../../utils/test-data/assets'
-import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'
 import type { MidgardPoolResponse } from '../../types'
 import { thorService } from '../thorService'
 import {
@@ -40,7 +40,7 @@ describe('getOutboundFeeInSellAssetThorBaseUnit', () => {
   it('should return 0.02 rune denominated in the target asset, in thor units', () => {
     const assetPricePrecision = '4.00000' // 1 token is 4x as valuable as 1 rune
     expect(getOutboundFeeInSellAssetThorBaseUnit(assetPricePrecision).toNumber()).toEqual(
-      Number(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT) / 4, // .005 of the sell asset in THOR base unit
+      Number(thorchain.NATIVE_FEE) / 4, // .005 of the sell asset in THOR base unit
     )
   })
 })

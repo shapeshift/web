@@ -11,7 +11,6 @@ import {
   IconButton,
 } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
-import { OrderStatus } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'

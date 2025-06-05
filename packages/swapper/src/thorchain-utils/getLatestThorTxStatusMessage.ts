@@ -51,7 +51,7 @@ export const getLatestThorTxStatusMessage = (
           : ThorchainStatusMessage.SwapCompleteAwaitingDestination
       }
       case 'swap_finalised': {
-        // "to be deprecated in favor of swap_status"
+        // to be deprecated in favor of swap_status (see https://thornode.ninerealms.com/thorchain/doc/)
         continue
       }
       case 'outbound_delay': {

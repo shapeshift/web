@@ -54,7 +54,11 @@ export const thorchainApi: SwapperApi = {
           from,
           value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           memo,
-          chainSpecific: { gas, fee, coin: tcyAssetId ? 'THOR.TCY' : 'THOR.RUNE' },
+          chainSpecific: {
+            gas,
+            fee,
+            coin: sellAsset.assetId === tcyAssetId ? 'THOR.TCY' : 'THOR.RUNE',
+          },
         })
 
         return txToSign

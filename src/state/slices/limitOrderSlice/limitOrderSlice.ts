@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { QuoteId } from '@shapeshiftoss/types'
+import type { CowSwapQuoteId } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -16,7 +16,7 @@ import type { LimitOrderActiveQuote, LimitOrderState, LimitOrderSubmissionMetada
 // Create a type-safe immer draft that will populate the orderSubmission object if undefined
 const makeOrderSubmissionDraft = (
   orderSubmission: LimitOrderState['orderSubmission'],
-  id: QuoteId,
+  id: CowSwapQuoteId,
 ): LimitOrderSubmissionMetadata => {
   if (!orderSubmission[id]) {
     orderSubmission[id] = limitOrderSubmissionInitialState
@@ -50,11 +50,11 @@ export const limitOrderSlice = createSlice({
         state.orderSubmission[quoteId] = limitOrderSubmissionInitialState
       },
     ),
-    setLimitOrderInitialized: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    setLimitOrderInitialized: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, action.payload)
       draftOrderSubmission.state = LimitOrderSubmissionState.Previewing
     }),
-    confirmSubmit: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    confirmSubmit: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const limitOrderQuoteId = action.payload
 
       // If there is no active quote, the state is corrupt.
@@ -104,69 +104,77 @@ export const limitOrderSlice = createSlice({
           break
       }
     }),
-    setAllowanceResetTxPending: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    setAllowanceResetTxPending: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const id = action.payload
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.allowanceReset.state = TransactionExecutionState.Pending
     }),
-    setAllowanceApprovalTxPending: create.reducer((state, action: PayloadAction<QuoteId>) => {
-      const id = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Pending
-    }),
-    setAllowanceResetTxFailed: create.reducer((state, action: PayloadAction<QuoteId>) => {
-      const id = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Failed
-    }),
-    setAllowanceApprovalTxFailed: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    setAllowanceApprovalTxPending: create.reducer(
+      (state, action: PayloadAction<CowSwapQuoteId>) => {
+        const id = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Pending
+      },
+    ),
+    setAllowanceResetTxFailed: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const id = action.payload
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Failed
     }),
-    setAllowanceResetTxComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    setAllowanceApprovalTxFailed: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
+      const id = action.payload
+      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Failed
+    }),
+    setAllowanceResetTxComplete: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const id = action.payload
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.allowanceReset.state = TransactionExecutionState.Complete
     }),
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
-    setAllowanceApprovalTxComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
-      const id = action.payload
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Complete
-    }),
+    setAllowanceApprovalTxComplete: create.reducer(
+      (state, action: PayloadAction<CowSwapQuoteId>) => {
+        const id = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        draftOrderSubmission.allowanceApproval.state = TransactionExecutionState.Complete
+      },
+    ),
     // This is deliberately disjoint to the allowance reset transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    setAllowanceResetStepComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
-      const id = action.payload
+    setAllowanceResetStepComplete: create.reducer(
+      (state, action: PayloadAction<CowSwapQuoteId>) => {
+        const id = action.payload
 
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      // Don't update the state if we're on a different stage of the flow
-      if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceReset) {
-        return
-      }
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        // Don't update the state if we're on a different stage of the flow
+        if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceReset) {
+          return
+        }
 
-      draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingAllowanceApproval
-    }),
+        draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingAllowanceApproval
+      },
+    ),
     // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    setAllowanceApprovalStepComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
-      const id = action.payload
+    setAllowanceApprovalStepComplete: create.reducer(
+      (state, action: PayloadAction<CowSwapQuoteId>) => {
+        const id = action.payload
 
-      const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
-      // Don't update the state if we're on a different stage of the flow
-      if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceApproval) {
-        return
-      }
+        const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
+        // Don't update the state if we're on a different stage of the flow
+        if (draftOrderSubmission.state !== LimitOrderSubmissionState.AwaitingAllowanceApproval) {
+          return
+        }
 
-      draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingLimitOrderSubmission
-    }),
-    setLimitOrderTxPending: create.reducer((state, action: PayloadAction<QuoteId>) => {
+        draftOrderSubmission.state = LimitOrderSubmissionState.AwaitingLimitOrderSubmission
+      },
+    ),
+    setLimitOrderTxPending: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const id = action.payload
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.limitOrder.state = TransactionExecutionState.Pending
     }),
-    setLimitOrderTxFailed: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    setLimitOrderTxFailed: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const id = action.payload
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
       draftOrderSubmission.limitOrder.state = TransactionExecutionState.Failed
@@ -175,7 +183,7 @@ export const limitOrderSlice = createSlice({
       (
         state,
         action: PayloadAction<{
-          id: QuoteId
+          id: CowSwapQuoteId
           hopIndex: number
           message: string | [string, InterpolationOptions] | undefined
         }>,
@@ -185,7 +193,7 @@ export const limitOrderSlice = createSlice({
         draftOrderSubmission.limitOrder.message = message
       },
     ),
-    setLimitOrderTxComplete: create.reducer((state, action: PayloadAction<QuoteId>) => {
+    setLimitOrderTxComplete: create.reducer((state, action: PayloadAction<CowSwapQuoteId>) => {
       const id = action.payload
 
       const draftOrderSubmission = makeOrderSubmissionDraft(state.orderSubmission, id)
@@ -196,7 +204,10 @@ export const limitOrderSlice = createSlice({
     setInitialApprovalRequirements: create.reducer(
       (
         state,
-        action: PayloadAction<{ isAllowanceApprovalRequired: boolean | undefined; id: QuoteId }>,
+        action: PayloadAction<{
+          isAllowanceApprovalRequired: boolean | undefined
+          id: CowSwapQuoteId
+        }>,
       ) => {
         const draftOrderSubmission = makeOrderSubmissionDraft(
           state.orderSubmission,
@@ -211,7 +222,10 @@ export const limitOrderSlice = createSlice({
     setAllowanceResetRequirements: create.reducer(
       (
         state,
-        action: PayloadAction<{ isAllowanceResetRequired: boolean | undefined; id: QuoteId }>,
+        action: PayloadAction<{
+          isAllowanceResetRequired: boolean | undefined
+          id: CowSwapQuoteId
+        }>,
       ) => {
         const draftOrderSubmission = makeOrderSubmissionDraft(
           state.orderSubmission,
@@ -227,7 +241,7 @@ export const limitOrderSlice = createSlice({
         state,
         action: PayloadAction<{
           txHash: string
-          id: QuoteId
+          id: CowSwapQuoteId
         }>,
       ) => {
         const { txHash, id } = action.payload
@@ -240,7 +254,7 @@ export const limitOrderSlice = createSlice({
         state,
         action: PayloadAction<{
           txHash: string
-          id: QuoteId
+          id: CowSwapQuoteId
         }>,
       ) => {
         const { txHash, id } = action.payload
@@ -249,7 +263,7 @@ export const limitOrderSlice = createSlice({
       },
     ),
     setLimitOrderSubmissionTxHash: create.reducer(
-      (state, action: PayloadAction<{ txHash: string; id: QuoteId }>) => {
+      (state, action: PayloadAction<{ txHash: string; id: CowSwapQuoteId }>) => {
         const { txHash } = action.payload
         const draftOrderSubmission = makeOrderSubmissionDraft(
           state.orderSubmission,

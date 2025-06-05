@@ -1,4 +1,5 @@
 import type { QuoteResponse } from '@jup-ag/api'
+import type { Route } from '@lifi/sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -306,6 +307,10 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  lifiSpecific?: {
+    lifiTools: LifiTools | undefined
+    lifiRoute: Route | undefined
+  }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
 
@@ -323,6 +328,42 @@ type TradeQuoteBase = {
   isLongtail?: boolean
   quoteOrRate: 'quote' | 'rate'
   swapperName: SwapperName // The swapper that generated this quote/rate
+}
+
+export type LifiTools = {
+  bridges: string[] | undefined
+  exchanges: string[] | undefined
+}
+
+export type SwapperSpecificMetadata = {
+  lifiRoute: Route | undefined
+  lifiTools: LifiTools | undefined
+  chainflipSwapId: number | undefined
+  stepIndex: SupportedTradeQuoteStepIndex
+  relayTransactionMetadata: RelayTransactionMetadata | undefined
+}
+
+export enum SwapStatus {
+  Idle = 'idle',
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+}
+
+export type Swap = {
+  id: string
+  createdAt: number
+  updatedAt: number
+  sellAsset: Asset
+  buyAsset: Asset
+  status: SwapStatus
+  sellTxHash?: string
+  sellAccountId: AccountId | undefined
+  swapperName: SwapperName
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  txLink?: string
+  metadata: SwapperSpecificMetadata
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -451,12 +492,12 @@ export type ExecuteTradeArgs = {
 }
 
 export type CheckTradeStatusInput = {
-  quoteId: string
   txHash: string
   chainId: ChainId
   accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
+  swap: Swap | undefined
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &

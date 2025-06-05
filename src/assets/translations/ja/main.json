@@ -163,6 +163,7 @@
     "disabled": "無効",
     "staged": "段階的",
     "poolHalted": "プールが停止しています",
+    "chainHalted": "チェーン停止",
     "poolDisabled": "プールが無効です",
     "prices": "価格",
     "symmetric": "対称",
@@ -196,7 +197,8 @@
     "installed": "インストール済み",
     "others": "その他",
     "hardwareWallets": "ハードウェアウォレット",
-    "dustAmount": "ダスト量"
+    "dustAmount": "ダスト量",
+    "marketDataUnavailable": "%{asset} の市場データは利用できません"
   },
   "consentBanner": {
     "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
@@ -1043,17 +1045,14 @@
     "awaitingApproval": "承認待ち",
     "awaitingAllowanceReset": "手当のリセットを待機中",
     "foxSavings": {
-      "youSaved": "FOX Savings での取引で %{feeSaving} を節約できました!",
-      "youCouldHaveSaved": "FOX Savings を利用すれば、取引で %{fee} を節約できたはずです。",
+      "youSaved": "取引で%{feeSaving}節約できました!",
       "buyFox": "FOXを購入する",
       "share": "共有",
       "postBody": "$FOX を所有しているだけで、@ShapeShift での取引で %{fee} を節約できました!",
-      "youGotMore": "FOXを保有しているため、この取引で%{cryptoUpside}増加しました"
+      "youGotMore": "この取引で %{cryptoUpside} 増加しました"
     },
     "networkFee": "ネットワーク料金",
-    "learnMoreAboutFox": "FOXの特典について詳しくはこちら",
-    "freeTrade": "この取引は、FOX保有株数%{foxBalance}FOXに基づいて無料です",
-    "feeExplainer": "見積もりには、%{foxBalance} FOX の FOX 保有量に基づく %{feePercentage}% の ShapeShift 手数料が含まれます。"
+    "feeExplainer": "見積もりには%{feePercentage}%のShapeShift料金が含まれています"
   },
   "limitOrder": {
     "heading": "制限",
@@ -2237,11 +2236,6 @@
         "title": "FOXの報酬などをゲットしましょう! ",
         "body": "DappBackでタスクを完了してFOXの報酬を獲得しましょう",
         "cta": "DappBackを起動する"
-      },
-      "bondProtocol": {
-        "title": "FOXを割引価格で購入しましょう！",
-        "body": "BondProtocolを利用してFOXを割引価格で購入する",
-        "cta": "BondProtocolの起動"
       }
     },
     "analytics": {
@@ -2514,28 +2508,6 @@
       "emptyBody": "現在、ローンはありません。この時間をお楽しみください！"
     }
   },
-  "foxDiscounts": {
-    "currentFoxPower": "あなたのFOX",
-    "foxPower": "FOXパワー",
-    "simulateTitle": "FOX割引をシミュレーションする",
-    "simulateBody": "この便利な計算ツールを使用して、合計料金と %{feature} で受けられる割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での %{featureLowerCase} サイズを示すだけで、潜在的な節約額がどのように展開されるかを確認してください。",
-    "featureSize": "%{feature} サイズ",
-    "totalFee": "合計料金",
-    "discountLabel": "%{discountType} 割引",
-    "basedOnFee": "料金に基づく: %{fee}",
-    "feeSummary": "料金概要",
-    "simulateFee": "FOX割引をシミュレートする",
-    "freeUnderThreshold": "%{threshold} 未満の %{feature} は常に無料です",
-    "breakdownHeader": "割引",
-    "breakdownBody": "以下は、%{featureLowerCase} の料金とそれに応じて適用される割引の内訳です。シミュレーション タブでさらにどれだけ節約できるかを確認してください。",
-    "featureFee": "%{feature} 料金",
-    "totalFeatureFee": "合計 %{feature} 料金",
-    "underThreshold": "少額取引",
-    "thorHolder": "THORSwapホルダー",
-    "foxHolder": "FOXホルダー",
-    "foxWifHatHolder": "FOX Wif ハットホルダー",
-    "foxBuy": "FOX を購入"
-  },
   "chart": {
     "interval": {
       "5min": "過去5分間",
@@ -2574,7 +2546,6 @@
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
     "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
     "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
-    "instabilityWarning": "Thorchain LPへの入金はプロトコルレベルで無効化されています。入金を試みると、アセットは返金されます。これはバージョン3.5で元に戻ります。",
     "depositsDisabled": "デポジットが無効です",
     "shareOfPool": "プールのシェア",
     "assetDepositAmount": "%{asset} 入金額",
@@ -2795,6 +2766,8 @@
     "myPosition": "現在のポジション",
     "myStakedBalance": "ステーク残高",
     "myStakedBalanceHelper": "あなたが賭けた%{symbol}の量",
+    "myRewardsBalance": "RUNE報酬残高",
+    "myRewardsBalanceHelper": "RUNEステーキング報酬の額。毎日ウォレットに自動的に分配されます。",
     "pendingRewardsBalance": "保留中の報酬残高",
     "pendingRewardsBalanceHelper": "これは、エポックの現在の収益に基づく、保留中の報酬の推定値です。すべての計算はエポック終了時に行われ、月末より前には正確に計算できません。",
     "lifetimeRewards": "生涯にわたる報酬",
@@ -2879,7 +2852,8 @@
       "goBack": "戻る"
     },
     "cta": {
-      "title": "TCY 請求が利用可能です。",
+      "title": "THORChain TCY クレームが始まりました!",
+      "hasClaimsTitle": "TCY 請求が利用可能です。",
       "button": "請求を確認する"
     }
   },
@@ -2926,14 +2900,14 @@
   },
   "foxPage": {
     "title": "FOXトークン ダッシュボード",
-    "description": "2019 年以来、当社のシェイプシフト FOX トークンは、ユーザーにますます広がるユーティリティと優位性のある世界を提供してきました。現在、当社の ERC-20 ガバナンストークンは、手数料の割引、THORChain での収益の分配を提供し、投票を通じて ShapeShift の将来に影響を与えることを可能にします。FOX の保有資産をここでステーク、スワップ、購入、供給、管理してください。",
+    "description": "2019年以来、変革するFOXトークンは、ユーザーに広がり続けるユーティリティとメリットを提供してきました。現在、当社のERC-20ガバナンストークンは、THORChainの収益の一部を受け取る権利を付与し、投票を通じてShapeShiftの未来に影響を与えることを可能にします。FOXトークンのステーキング、スワップ、購入、供給、そして保有資産の管理は、こちらでどうぞ。",
     "foxToken": "FOXトークン",
     "24hrPriceChange": "24時間の価格変動",
     "rfox": {
       "whatIs": "rFOXステーキングとは?",
       "totalSymbolBurn": "合計 %{symbol} バーン",
       "simulateTitle": "rFOXシミュレーター",
-      "simulateSubtle": "デポジット番号の入力",
+      "simulateSubtle": "rFOXステーキングの利回りをシミュレーションする",
       "estimatedRewards": "推定報酬",
       "depositAmount": "預入金額",
       "shapeshiftRevenue": "ShapeShiftの収益",
@@ -2945,15 +2919,6 @@
       "totalClaimableRewards": "請求可能な報酬の合計",
       "totalStakingValue": "総ステーキング価値",
       "nextEpoch": "次のエポック"
-    },
-    "foxWifHat": {
-      "title": "FOX Wif Hat",
-      "description": "FOX Wif Hat (FWH) を請求してください。すぐに行動してください。割引は時間の経過とともに減少します。FOX または FWH を多く保有するほど、節約額が増えます。FOX トークンをさらに積み重ねると、継続的な節約に加えて、収益分配、ガバナンス、およびイールド ファーミングの特典が得られます。このページの残りの部分で、これらのプログラムについて詳しくはこちらをご覧ください。",
-      "discount": "*割引は時間の経過とともに直線的に減少し、%{date} に期限切れになります。割引がさらに減少する前に、%{percent}% 割引をご利用ください。",
-      "claim": "請求",
-      "claimed": "クレーム済",
-      "discountText": "*取引手数料が%{percent}%オフ",
-      "noClaims": "請求できません"
     },
     "governance": {
       "title": "ガバナンス",

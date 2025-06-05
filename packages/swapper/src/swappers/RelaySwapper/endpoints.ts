@@ -16,11 +16,10 @@ import { getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { relayService } from './utils/relayService'
-import type { RelayStatus, Transaction } from './utils/types'
+import type { RelayStatus } from './utils/types'
 
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
-const txByQuoteIdMap: Map<string, Transaction> = new Map()
 
 export const relayApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input, deps, chainIdToRelayChainId),
@@ -98,8 +97,6 @@ export const relayApi: SwapperApi = {
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
     })
 
-    txByQuoteIdMap.set(tradeQuote.id, { data, from, to, value })
-
     return unsignedTx
   },
   getUnsignedUtxoTransaction: async ({
@@ -169,7 +166,7 @@ export const relayApi: SwapperApi = {
   getSolanaTransactionFees,
   getUnsignedSolanaTransaction,
   checkTradeStatus: async ({
-    quoteId,
+    swap,
     txHash,
     chainId,
     accountId,
@@ -185,6 +182,8 @@ export const relayApi: SwapperApi = {
       fetchIsSmartContractAddressQuery,
     })
 
+    if (!swap?.metadata.relayTransactionMetadata) throw new Error('Missing swap metadata')
+
     if (maybeSafeTransactionStatus) {
       // return any safe transaction status that has not yet executed on chain (no buyTxHash)
       if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
@@ -194,27 +193,30 @@ export const relayApi: SwapperApi = {
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
-    if (!txIndexingMap.has(quoteId) && txByQuoteIdMap.has(quoteId) && isEvmChainId(chainId)) {
-      const got = txByQuoteIdMap.get(quoteId)
+    if (
+      swap.metadata.relayTransactionMetadata &&
+      !txIndexingMap.has(swap.id) &&
+      isEvmChainId(chainId)
+    ) {
       const relayTxParam = {
-        ...got,
+        ...swap.metadata.relayTransactionMetadata,
         txHash,
       }
       // We don't need to handle the response here, we just want to notify the relay indexer
       await notifyTransactionIndexing(
         {
-          requestId: quoteId,
+          requestId: swap.metadata.relayTransactionMetadata.relayId,
           chainId: chainIdToRelayChainId[chainId].toString(),
           tx: JSON.stringify(relayTxParam),
         },
         config,
       )
 
-      txIndexingMap.set(quoteId, true)
+      txIndexingMap.set(swap.id, true)
     }
 
     const maybeStatusResponse = await relayService.get<RelayStatus>(
-      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${quoteId}`,
+      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${swap.metadata.relayTransactionMetadata.relayId}`,
     )
 
     if (maybeStatusResponse.isErr()) {

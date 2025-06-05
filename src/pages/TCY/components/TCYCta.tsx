@@ -11,6 +11,9 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { selectIsPortfolioLoading } from '@/state/slices/selectors'
 
 const margin = { base: 4, md: 0 }
+const buttonMaxW = { base: '120px', md: 'none' }
+const buttonPx = { base: 3, md: 4 }
+const buttonPy = { base: 3, md: 2 }
 
 const CtaSkeleton = () => {
   return (
@@ -43,7 +46,16 @@ export const TCYCta = () => {
       <Stack spacing={0} ml={4}>
         <AlertTitle>{translate(hasClaims ? 'TCY.cta.hasClaimsTitle' : 'TCY.cta.title')}</AlertTitle>
       </Stack>
-      <Button ml='auto' flexShrink={0} onClick={handleClick}>
+      <Button
+        ml='auto'
+        flexShrink={0}
+        onClick={handleClick}
+        whiteSpace='normal'
+        height='auto'
+        maxW={buttonMaxW}
+        px={buttonPx}
+        py={buttonPy}
+      >
         {translate('TCY.cta.button')}
       </Button>
     </Alert>

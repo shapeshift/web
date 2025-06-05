@@ -43,10 +43,10 @@ export const zrxApi: SwapperApi = {
     const { accountNumber, sellAsset, zrxTransactionMetadata } = step
     if (!zrxTransactionMetadata) throw new Error('Transaction metadata is required')
 
-    const { value, to, data: _data, gas: estimatedGas } = zrxTransactionMetadata
+    const { value, to } = zrxTransactionMetadata
 
     const data = (() => {
-      if (!permit2Signature) return _data
+      if (!permit2Signature) return zrxTransactionMetadata.data
 
       // Append the signature to the calldata
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
@@ -55,7 +55,7 @@ export const zrxApi: SwapperApi = {
         size: 32,
       })
 
-      return concat([_data, signatureLengthInHex, permit2Signature] as Hex[])
+      return concat([zrxTransactionMetadata.data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
@@ -70,7 +70,7 @@ export const zrxApi: SwapperApi = {
       value,
       ...feeData,
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(feeData.gasLimit, estimatedGas ?? '0').toFixed(),
+      gasLimit: BigNumber.max(feeData.gasLimit, zrxTransactionMetadata.gas ?? '0').toFixed(),
     })
   },
   getEvmTransactionFees: async ({
@@ -88,10 +88,10 @@ export const zrxApi: SwapperApi = {
     const { sellAsset, zrxTransactionMetadata } = step
     if (!zrxTransactionMetadata) throw new Error('Transaction metadata is required')
 
-    const { value, to, data: _data } = zrxTransactionMetadata
+    const { value, to } = zrxTransactionMetadata
 
     const data = (() => {
-      if (!permit2Signature) return _data
+      if (!permit2Signature) return zrxTransactionMetadata.data
 
       // Append the signature to the calldata
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
@@ -100,7 +100,7 @@ export const zrxApi: SwapperApi = {
         size: 32,
       })
 
-      return concat([_data, signatureLengthInHex, permit2Signature] as Hex[])
+      return concat([zrxTransactionMetadata.data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)

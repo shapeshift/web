@@ -16,6 +16,7 @@ import {
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
+  SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
@@ -30,6 +31,8 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
+import { selectCurrentSwap } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
 
@@ -93,13 +96,35 @@ export class TradeExecution {
       // Given the intersection of the inherent bits of sc wallets (only one chain, not deployed on others) and EVM chains (same address on every chain)
       // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
       const accountId = selectFirstHopSellAccountId(store.getState())
+
+      const swap = selectCurrentSwap(store.getState())
+
+      if (!swap) {
+        throw new Error('Swap not found')
+      }
+
+      const updatedSwap = {
+        ...swap,
+        sellTxHash,
+        status: SwapStatus.Pending,
+        metadata: {
+          ...swap.metadata,
+          lifiRoute: tradeQuote.steps[0]?.lifiSpecific?.lifiRoute,
+          chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+          relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          stepIndex,
+        },
+      }
+
+      store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
+
       const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-            quoteId: tradeQuote.id,
             txHash: sellTxHash,
             chainId,
             accountId,
+            swap: updatedSwap,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,

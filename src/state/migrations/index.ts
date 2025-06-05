@@ -6,8 +6,8 @@ import { clearMarketData } from './clearMarketData'
 import { clearOpportunities } from './clearOpportunities'
 import { clearPortfolio } from './clearPortfolio'
 import { clearSnapshot } from './clearSnapshot'
+import { clearSwaps } from './clearSwaps'
 import { clearTxHistory } from './clearTxHistory'
-
 export const clearTxHistoryMigrations = {
   0: clearTxHistory,
   1: clearTxHistory,
@@ -130,6 +130,11 @@ export const clearAssetsMigrations = {
   93: clearAssets,
   94: clearAssets,
   95: clearAssets,
+  96: clearAssets,
+  97: clearAssets,
+  98: clearAssets,
+  99: clearAssets,
+  100: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {
@@ -139,4 +144,8 @@ export const clearMarketDataMigrations = {
 
 export const clearSnapshotMigrations = {
   0: clearSnapshot,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearSwapsMigrations = {
+  0: clearSwaps,
 } as unknown as Omit<MigrationManifest, '_persist'>

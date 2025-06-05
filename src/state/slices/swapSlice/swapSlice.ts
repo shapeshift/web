@@ -7,7 +7,7 @@ import type { SwapState } from './types'
 export const initialState: SwapState = {
   byId: {},
   ids: [],
-  currentSwapId: null,
+  activeSwapId: null,
 }
 
 export const swapSlice = createSlice({
@@ -24,13 +24,14 @@ export const swapSlice = createSlice({
         state.byId[swap.id] = swap
         state.ids.push(swap.id)
       }
-
-      state.currentSwapId = swap.id
+    }),
+    setActiveSwapId: create.reducer((state, { payload: swapId }: PayloadAction<string>) => {
+      state.activeSwapId = swapId
     }),
   }),
   selectors: {
     selectSwapsById: state => state.byId,
     selectSwapIds: state => state.ids,
-    selectCurrentSwapId: state => state.currentSwapId,
+    selectActiveSwapId: state => state.activeSwapId,
   },
 })

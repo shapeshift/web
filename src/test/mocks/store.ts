@@ -213,7 +213,7 @@ export const mockStore: ReduxState = {
     },
     byId: {},
     ids: [],
-    currentSwapId: null,
+    activeSwapId: null,
   },
   opportunities: {
     _persist: {

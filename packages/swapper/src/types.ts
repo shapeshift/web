@@ -307,8 +307,8 @@ export type TradeQuoteStep = {
     chainflipMaxBoostFee?: number
   }
   lifiSpecific?: {
-    lifiTools?: LifiTools
-    lifiRoute?: Route
+    lifiTools: LifiTools | undefined
+    lifiRoute: Route | undefined
   }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
@@ -335,11 +335,11 @@ export type LifiTools = {
 }
 
 export type SwapperSpecificMetadata = {
-  lifiRoute?: Route
-  lifiTools?: LifiTools
-  chainflipSwapId?: number
+  lifiRoute: Route | undefined
+  lifiTools: LifiTools | undefined
+  chainflipSwapId: number | undefined
   stepIndex: SupportedTradeQuoteStepIndex
-  relayTransactionMetadata?: RelayTransactionMetadata
+  relayTransactionMetadata: RelayTransactionMetadata | undefined
 }
 
 export enum SwapStatus {

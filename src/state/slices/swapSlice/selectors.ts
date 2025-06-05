@@ -2,6 +2,12 @@ import { createSelector } from 'reselect'
 
 import { swapSlice } from './swapSlice'
 
-export const selectSwaps = createSelector(swapSlice.selectors.selectSwapsById, swapsById => {
-  return Object.values(swapsById)
-})
+export const selectCurrentSwap = createSelector(
+  swapSlice.selectors.selectSwapsById,
+  swapSlice.selectors.selectActiveSwapId,
+  (swapsById, activeSwapId) => {
+    if (!activeSwapId) return undefined
+
+    return swapsById[activeSwapId]
+  },
+)

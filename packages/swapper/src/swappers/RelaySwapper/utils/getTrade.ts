@@ -1,4 +1,4 @@
-import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcChainId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
@@ -525,6 +525,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             psbt: selectedItem.data.psbt,
             opReturnData: quoteStep.requestId,
             to: relayer,
+            relayId: quote.steps[0].requestId,
           },
           solanaTransactionMetadata: undefined,
         }
@@ -539,6 +540,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             data: selectedItem.data?.data,
             // gas is not documented in the relay docs but refers to gasLimit
             gasLimit: selectedItem.data?.gas,
+            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+            relayId: quote.steps[0].requestId,
           },
           solanaTransactionMetadata: undefined,
         }
@@ -551,7 +554,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             addressLookupTableAddresses: selectedItem.data?.addressLookupTableAddresses,
             instructions: selectedItem.data?.instructions?.map(convertSolanaInstruction),
           },
-          relayTransactionMetadata: undefined,
+          relayTransactionMetadata: {
+            relayId: quote.steps[0].requestId,
+          },
         }
       }
 

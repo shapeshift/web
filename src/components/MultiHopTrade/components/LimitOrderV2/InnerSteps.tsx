@@ -57,7 +57,7 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
   })
 
   const orderSubmissionMetadataFilter = useMemo(() => {
-    return { quoteId: quoteId ?? 0 }
+    return { cowSwapQuoteId: quoteId ?? 0 }
   }, [quoteId])
 
   const limitOrderSubmissionMetadata = useSelectorWithArgs(

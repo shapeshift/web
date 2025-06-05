@@ -72,12 +72,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     receiveAddress,
     accountNumber,
     affiliateBps,
-    slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
     xpub,
   } = input
 
-  const slippageToleranceBps = _slippageTolerancePercentageDecimal
-    ? convertDecimalPercentageToBasisPoints(_slippageTolerancePercentageDecimal).toFixed()
+  const slippageToleranceBps = input.slippageTolerancePercentageDecimal
+    ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
     : undefined
 
   const sellRelayChainId = relayChainMap[sellAsset.chainId]
@@ -271,7 +270,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const slippageTolerancePercentageDecimal = (() => {
-    if (_slippageTolerancePercentageDecimal) return _slippageTolerancePercentageDecimal
+    if (input.slippageTolerancePercentageDecimal) return input.slippageTolerancePercentageDecimal
     const destinationSlippageTolerancePercentageDecimal = bnOrZero(
       slippageTolerance.destination.percent,
     )

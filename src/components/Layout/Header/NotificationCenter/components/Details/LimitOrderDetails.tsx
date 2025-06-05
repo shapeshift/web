@@ -1,49 +1,46 @@
-import { Button, ButtonGroup, HStack, Progress, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, ButtonGroup, HStack, Link, Progress, Stack } from '@chakra-ui/react'
+import type { Order } from '@shapeshiftoss/types'
+import { OrderStatus } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
-import type { LimitPriceByDirection } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
+import type { Action } from '@/state/slices/actionSlice/types'
+import { ActionStatus, isLimitOrderAction } from '@/state/slices/actionSlice/types'
 
 type LimitOrderDetailsProps = {
-  buyAsset: Asset
-  sellAsset: Asset
-  expires?: number
-  filledDecimalPercentage?: string
-  status: ActionStatus
-  buyAmountCryptoPrecision: string
-  sellAmountCryptoPrecision: string
-  executedBuyAmountCryptoBaseUnit?: string
-  executedSellAmountCryptoBaseUnit?: string
-  limitPrice: LimitPriceByDirection
+  order: Order | undefined
+  action: Action
+  onCancelOrder: (order: OrderToCancel) => void
 }
 
-export const LimitOrderDetails = ({
-  buyAsset,
-  sellAsset,
-  expires,
-  limitPrice,
-  executedBuyAmountCryptoBaseUnit,
-  executedSellAmountCryptoBaseUnit,
-  filledDecimalPercentage,
-  status,
-}: LimitOrderDetailsProps) => {
+export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDetailsProps) => {
   const translate = useTranslate()
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
+  const {
+    buyAsset,
+    sellAsset,
+    executedBuyAmountCryptoBaseUnit,
+    executedSellAmountCryptoBaseUnit,
+    filledDecimalPercentage,
+    expires,
+    limitPrice,
+  } = isLimitOrderAction(action) ? action.limitOrderMetadata : {}
+  const status = action.status
 
   const pair = useMemo(() => {
-    return `${buyAsset.symbol}/${sellAsset.symbol}`
+    return `${buyAsset?.symbol}/${sellAsset?.symbol}`
   }, [buyAsset, sellAsset])
 
   const executedBuyAmountCryptoPrecision = useMemo(
@@ -75,6 +72,25 @@ export const LimitOrderDetails = ({
     () => toCrypto(executionPrice, buyAsset?.symbol ?? ''),
     [executionPrice, toCrypto, buyAsset],
   )
+
+  const orderToCancel = useMemo(() => {
+    if (!order) return undefined
+    if (!isLimitOrderAction(action)) return undefined
+
+    if (order.status !== OrderStatus.OPEN) return undefined
+
+    return {
+      accountId: action.limitOrderMetadata.accountId,
+      sellAssetId: action.limitOrderMetadata.sellAsset.assetId,
+      buyAssetId: action.limitOrderMetadata.buyAsset.assetId,
+      order,
+    }
+  }, [action, order])
+
+  const handleCancelOrder = useCallback(() => {
+    if (!orderToCancel) return
+    onCancelOrder(orderToCancel)
+  }, [onCancelOrder, orderToCancel])
 
   return (
     <Stack gap={4}>
@@ -112,7 +128,7 @@ export const LimitOrderDetails = ({
             <HoverTooltip placement='top' label={executionPriceCryptoFormatted}>
               <Amount.Crypto
                 value={executionPrice}
-                symbol={buyAsset.symbol}
+                symbol={buyAsset?.symbol ?? ''}
                 maximumFractionDigits={6}
               />
             </HoverTooltip>
@@ -131,10 +147,22 @@ export const LimitOrderDetails = ({
           <RawText>{formattedFilled}</RawText>
         </Row.Value>
       </Row>
-      {status === ActionStatus.Open && (
+      {order && (
         <ButtonGroup width='full' size='sm'>
-          <Button width='full'>{translate('notificationCenter.viewOrder')}</Button>
-          <Button width='full'>{translate('notificationCenter.cancelOrder')}</Button>
+          <Button
+            as={Link}
+            href={`https://explorer.cow.fi/orders/${order.uid}`}
+            isExternal
+            width='full'
+          >
+            {translate('notificationCenter.viewOrder')}
+            <ExternalLinkIcon ml='2' />
+          </Button>
+          {status === ActionStatus.Open && (
+            <Button width='full' onClick={handleCancelOrder}>
+              {translate('notificationCenter.cancelOrder')}
+            </Button>
+          )}
         </ButtonGroup>
       )}
     </Stack>

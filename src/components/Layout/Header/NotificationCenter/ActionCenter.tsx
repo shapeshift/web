@@ -10,6 +10,8 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react'
+import type { Order } from '@shapeshiftoss/types'
+import { OrderStatus } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -19,13 +21,17 @@ import { SwapDetails } from './components/Details/SwapDetails'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
+import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
+import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
+import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import {
   selectInitializedActionsByUpdatedAtDesc,
+  selectLimitOrderActionByLimitOrderId,
   selectWalletHasPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionType } from '@/state/slices/actionSlice/types'
+import { ActionType, isLimitOrderAction } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
-import { useAppSelector } from '@/state/store'
+import { store, useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -36,11 +42,37 @@ export const ActionCenter = memo(() => {
   const translate = useTranslate()
   const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
   const handleClose = useCallback(() => setIsOpen(false), [])
+  const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
   const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
 
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
+  const limitOrders = useLimitOrders()
+
+  const handleResetOrderToCancel = useCallback(() => {
+    setOrderToCancel(undefined)
+  }, [])
+
+  const handleSetOrderToCancel = useCallback((orderToCancel: OrderToCancel) => {
+    setOrderToCancel(orderToCancel)
+  }, [])
+
+  const ordersByActionId = useMemo(() => {
+    return limitOrders.data?.reduce(
+      (acc, order) => {
+        const action = selectLimitOrderActionByLimitOrderId(store.getState(), {
+          limitOrderId: order.order.uid,
+        })
+
+        if (!action || !isLimitOrderAction(action)) return acc
+
+        acc[action.id] = order.order
+        return acc
+      },
+      {} as Record<string, Order>,
+    )
+  }, [limitOrders])
 
   const actionsCards = useMemo(() => {
     return actions.map(action => {
@@ -56,23 +88,16 @@ export const ActionCenter = memo(() => {
             )
           }
           case ActionType.LimitOrder: {
+            const order = ordersByActionId?.[action.id]
+
             return (
               <LimitOrderActionCard key={action.id} {...action}>
                 <LimitOrderDetails
-                  buyAsset={action.limitOrderMetadata.buyAsset}
-                  sellAsset={action.limitOrderMetadata.sellAsset}
-                  expires={action.limitOrderMetadata.expires}
-                  buyAmountCryptoPrecision={action.limitOrderMetadata.buyAmountCryptoBaseUnit}
-                  sellAmountCryptoPrecision={action.limitOrderMetadata.sellAmountCryptoBaseUnit}
-                  limitPrice={action.limitOrderMetadata.limitPrice}
-                  filledDecimalPercentage={action.limitOrderMetadata.filledDecimalPercentage}
-                  executedBuyAmountCryptoBaseUnit={
-                    action.limitOrderMetadata.executedBuyAmountCryptoBaseUnit
-                  }
-                  executedSellAmountCryptoBaseUnit={
-                    action.limitOrderMetadata.executedSellAmountCryptoBaseUnit
-                  }
-                  status={action.status}
+                  action={action}
+                  order={order}
+                  // We are already memoizing everything here, so we don't need to memoize this function
+                  // eslint-disable-next-line react-memo/require-usememo
+                  onCancelOrder={handleSetOrderToCancel}
                 />
               </LimitOrderActionCard>
             )
@@ -84,7 +109,7 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     })
-  }, [actions, swapsById])
+  }, [actions, swapsById, ordersByActionId, handleSetOrderToCancel])
 
   return (
     <>
@@ -137,6 +162,10 @@ export const ActionCenter = memo(() => {
           </Box>
         </DrawerContent>
       </Drawer>
+      <CancelLimitOrder
+        orderToCancel={orderToCancel}
+        resetOrderToCancel={handleResetOrderToCancel}
+      />
     </>
   )
 })

@@ -12,7 +12,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { ThorTradeQuote } from '../../../thorchain-utils'
-import { getAffiliate, getL1RateOrQuote } from '../../../thorchain-utils'
+import { getAffiliate, getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -107,6 +107,7 @@ export const getL1ToLongtailQuote = async (
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
+    TradeType.L1ToLongTail,
     swapperName,
   )
 

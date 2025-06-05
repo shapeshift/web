@@ -69,7 +69,13 @@ export const getTradeRate = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1RateOrQuote<ThorTradeRate>(input, deps, streamingInterval, SwapperName.Thorchain)
+      return getL1RateOrQuote<ThorTradeRate>(
+        input,
+        deps,
+        streamingInterval,
+        tradeType,
+        SwapperName.Thorchain,
+      )
     case TradeType.LongTailToL1:
       return getLongtailToL1Rate(input, deps, streamingInterval, SwapperName.Thorchain)
     case TradeType.L1ToLongTail:

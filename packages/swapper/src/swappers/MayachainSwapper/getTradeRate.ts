@@ -2,7 +2,7 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { ThorTradeRate } from '../../thorchain-utils'
-import { getL1RateOrQuote, getPoolDetails } from '../../thorchain-utils'
+import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../thorchain-utils'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
 import { assertValidTrade } from './utils'
@@ -26,5 +26,11 @@ export const getTradeRate = async (
   if (poolDetails.isErr()) return Err(poolDetails.unwrapErr())
   const { streamingInterval } = poolDetails.unwrap()
 
-  return getL1RateOrQuote<ThorTradeRate>(input, deps, streamingInterval, SwapperName.Mayachain)
+  return getL1RateOrQuote<ThorTradeRate>(
+    input,
+    deps,
+    streamingInterval,
+    TradeType.L1ToL1,
+    SwapperName.Mayachain,
+  )
 }

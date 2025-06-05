@@ -40,7 +40,7 @@ export const getPoolDetails = async (
   const buyPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
   const streamingInterval = (() => {
-    // TODO: One of the pools is a native asset - use the as-is 10 until we work out how best to handle this
+    // TODO: One of the pools is a fee asset (RUNE/CACAO) - use the as-is 10 until we work out how best to handle this
     if (!sellPool || !buyPool) return 10
 
     const sellAssetDepthBps = sellPool.derived_depth_bps

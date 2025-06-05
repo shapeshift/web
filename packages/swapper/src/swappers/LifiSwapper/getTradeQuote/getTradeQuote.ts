@@ -24,6 +24,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   SwapSource,
+  TradeQuote,
   TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -35,7 +36,6 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
 export async function getTrade({
   input,
@@ -45,7 +45,7 @@ export async function getTrade({
   input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
   deps: SwapperDeps
   lifiChainMap: Map<ChainId, ChainKey>
-}): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
+}): Promise<Result<TradeQuote[], SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -84,10 +84,11 @@ export async function getTrade({
 
   configureLiFi()
 
-  const lifiAllowedBridges =
-    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.bridges : undefined
-  const lifiAllowedExchanges =
-    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.exchanges : undefined
+  const lifiTools =
+    quoteOrRate === 'quote' ? input.originalRate?.steps[0]?.lifiSpecific?.lifiTools : undefined
+
+  const lifiAllowedBridges = quoteOrRate === 'quote' ? lifiTools?.bridges : undefined
+  const lifiAllowedExchanges = quoteOrRate === 'quote' ? lifiTools?.exchanges : undefined
 
   const affiliateBpsDecimalPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
   const routesRequest: RoutesRequest = {
@@ -168,7 +169,7 @@ export async function getTrade({
         {
           ...input.originalRate,
           quoteOrRate: 'quote',
-        } as LifiTradeQuote,
+        } as TradeQuote,
       ])
     return Err(
       makeSwapErrorRight({
@@ -245,6 +246,20 @@ export async function getTrade({
 
           const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
 
+          const lifiBridgeTools = selectedLifiRoute.steps
+            .filter(
+              current => current.includedSteps?.some(includedStep => includedStep.type === 'cross'),
+            )
+            .map(current => current.tool)
+
+          const lifiExchangeTools = selectedLifiRoute.steps
+            .filter(
+              current =>
+                // A step tool is an exchange (swap) tool if all of its steps are non-cross-chain steps
+                current.includedSteps?.every(includedStep => includedStep.type !== 'cross'),
+            )
+            .map(current => current.tool)
+
           return {
             allowanceContract: lifiStep.estimate.approvalAddress,
             accountNumber,
@@ -261,6 +276,13 @@ export async function getTrade({
             sellAsset: stepSellAsset,
             source,
             estimatedExecutionTimeMs: 1000 * lifiStep.estimate.executionDuration,
+            lifiSpecific: {
+              lifiRoute: selectedLifiRoute,
+              lifiTools: {
+                bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
+                exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
+              },
+            },
           }
         }),
       )) as SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
@@ -274,33 +296,14 @@ export async function getTrade({
         .dividedBy(bn(selectedLifiRoute.fromAmount))
         .toString()
 
-      const lifiBridgeTools = selectedLifiRoute.steps
-        .filter(
-          current => current.includedSteps?.some(includedStep => includedStep.type === 'cross'),
-        )
-        .map(current => current.tool)
-
-      const lifiExchangeTools = selectedLifiRoute.steps
-        .filter(
-          current =>
-            // A step tool is an exchange (swap) tool if all of its steps are non-cross-chain steps
-            current.includedSteps?.every(includedStep => includedStep.type !== 'cross'),
-        )
-        .map(current => current.tool)
-
       return {
         id: selectedLifiRoute.id,
         receiveAddress,
         quoteOrRate,
-        lifiTools: {
-          bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
-          exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
-        },
         affiliateBps,
         swapperName: SwapperName.LIFI,
         steps,
         rate: netRate,
-        selectedLifiRoute,
         slippageTolerancePercentageDecimal,
       }
     }),
@@ -336,7 +339,7 @@ export async function getTrade({
   }
 
   return Ok(promises.filter(isFulfilled).map(({ value }) => value)) as Result<
-    LifiTradeQuote[] | LifiTradeRate[],
+    TradeQuote[],
     SwapErrorRight
   >
 }
@@ -345,7 +348,7 @@ export const getTradeQuote = async (
   input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {
+): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const quotesResult = await getTrade({ input, deps, lifiChainMap })
 
   return quotesResult.map(quotes =>

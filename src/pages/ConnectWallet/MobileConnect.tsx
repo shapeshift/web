@@ -10,6 +10,7 @@ import {
   Heading as CkHeading,
   Image,
   Link,
+  Spinner,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -19,7 +20,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useNavigate } from 'react-router-dom'
 
-import { MobileWallestList } from './components/WalletList'
+import { MobileWalletList } from './components/WalletList'
 
 import BlueFox from '@/assets/blue-fox.svg'
 import GreenFox from '@/assets/green-fox.svg'
@@ -76,6 +77,7 @@ export const MobileConnect = () => {
   const [defaultRoute, setDefaultRoute] = useState<MobileWalletDialogRoutes>(
     MobileWalletDialogRoutes.Saved,
   )
+  const [isWaitingForRedirection, setIsWaitingForRedirection] = useState<boolean>(false)
 
   const handleOpenCreateWallet = useCallback(() => {
     setDefaultRoute(MobileWalletDialogRoutes.Create)
@@ -106,8 +108,11 @@ export const MobileConnect = () => {
           assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
         })
       : query?.returnUrl
-    hasWallet && navigate(path ?? '/trade')
-  }, [navigate, hasWallet, query, state, dispatch])
+    if (hasWallet) {
+      setIsWaitingForRedirection(false)
+      navigate(path ?? '/trade')
+    }
+  }, [navigate, hasWallet, query, state, dispatch, setIsWaitingForRedirection])
 
   useEffect(() => {
     if (!wallets.length) {
@@ -139,6 +144,10 @@ export const MobileConnect = () => {
       setHideWallets(true) // If they have no wallets, show the default create or import
     }
   }, [isLoading, wallets.length])
+
+  const handleIsWaitingForRedirection = useCallback((isWaitingForRedirection: boolean) => {
+    setIsWaitingForRedirection(isWaitingForRedirection)
+  }, [])
 
   const content = useMemo(() => {
     return hideWallets ? (
@@ -191,7 +200,13 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
           </Stack>
           <Stack>
-            <MobileWallestList />
+            {isWaitingForRedirection ? (
+              <Center py={6}>
+                <Spinner />
+              </Center>
+            ) : (
+              <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
+            )}
             <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
               {translate('connectWalletPage.createOrImport')}
             </Button>
@@ -215,6 +230,8 @@ export const MobileConnect = () => {
     hideWallets,
     translate,
     wallets,
+    isWaitingForRedirection,
+    handleIsWaitingForRedirection,
   ])
 
   return (

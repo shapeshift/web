@@ -23,6 +23,7 @@ export type RelayTransactionMetadata = {
   gasLimit?: string
   psbt?: string
   opReturnData?: string
+  relayId: string
 }
 
 export type RelayStatus = {
@@ -41,6 +42,7 @@ export type AppFee = {
 }
 
 export type Transaction = {
+  from: string
   to: string
   value: string
   data: string

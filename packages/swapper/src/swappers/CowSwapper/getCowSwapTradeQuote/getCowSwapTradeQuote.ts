@@ -34,7 +34,7 @@ import {
   getValuesFromQuoteResponse,
 } from '../utils/helpers/helpers'
 
-async function _getCowSwapTradeQuote(
+export async function getCowSwapTradeQuote(
   input: GetEvmTradeQuoteInputBase,
   config: SwapperConfig,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
@@ -67,7 +67,7 @@ async function _getCowSwapTradeQuote(
   if (!maybeNetwork)
     return Err(
       makeSwapErrorRight({
-        message: `[CowSwap: _getCowSwapTradeQuote] - Unsupported chainId`,
+        message: `[CowSwap: getCowSwapTradeQuote] - Unsupported chainId`,
         code: TradeQuoteError.UnsupportedChain,
         details: { chainId },
       }),
@@ -141,7 +141,7 @@ async function _getCowSwapTradeQuote(
   if (!id) {
     return Err(
       makeSwapErrorRight({
-        message: `[CowSwap: _getCowSwapTradeQuote] - missing quote ID`,
+        message: `[CowSwap: getCowSwapTradeQuote] - missing quote ID`,
         code: TradeQuoteError.InvalidResponse,
       }),
     )
@@ -185,8 +185,3 @@ async function _getCowSwapTradeQuote(
 
   return Ok(quote)
 }
-
-export const getCowSwapTradeQuote = (
-  input: GetEvmTradeQuoteInputBase,
-  config: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> => _getCowSwapTradeQuote(input, config)

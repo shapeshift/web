@@ -3,6 +3,7 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { isToken } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
@@ -27,7 +28,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { isSome, isToken } from '@/lib/utils'
+import { isSome } from '@/lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,

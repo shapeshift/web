@@ -368,27 +368,27 @@ export const TradeInput = ({
   )
 
   const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
-  const isMayachainSwapperEnabled = useFeatureFlag('MayachainSwapper')
+  const isMayaSwapEnabled = useFeatureFlag('MayaSwap')
 
   const assetFilterPredicate = useCallback(
     (assetId: AssetId) => {
       const { chainId } = fromAssetId(assetId)
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
-      if (chainId === KnownChainIds.MayachainMainnet) return isMayachainSwapperEnabled
+      if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 
       return true
     },
-    [isSolanaSwapperEnabled, isMayachainSwapperEnabled],
+    [isSolanaSwapperEnabled, isMayaSwapEnabled],
   )
 
   const chainIdFilterPredicate = useCallback(
     (chainId: ChainId) => {
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
-      if (chainId === KnownChainIds.MayachainMainnet) return isMayachainSwapperEnabled
+      if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 
       return true
     },
-    [isSolanaSwapperEnabled, isMayachainSwapperEnabled],
+    [isSolanaSwapperEnabled, isMayaSwapEnabled],
   )
 
   const setSelectedBuyAssetChainId = useCallback(

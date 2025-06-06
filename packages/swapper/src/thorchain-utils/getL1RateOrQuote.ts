@@ -172,7 +172,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
     // all pool amounts are native precision regardless of token precision
     const sellAmountCryptoThorBaseUnit = bn(
-      toBaseUnit(sellAmountCryptoPrecision, sellAssetNativePrecision),
+      toBaseUnit(sellAmountCryptoPrecision, buyAssetNativePrecision),
     )
 
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()

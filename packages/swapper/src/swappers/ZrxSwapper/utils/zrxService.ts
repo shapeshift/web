@@ -3,7 +3,6 @@ import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
 
 import type { MonadicSwapperAxiosService } from '../../../types'
-import { SwapperName } from '../../../types'
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
 const maxAge = 5 * 1000 // 5 seconds
@@ -28,5 +27,5 @@ export const zrxServiceFactory = ({
 }): MonadicSwapperAxiosService => {
   const cache = createCache(maxAge, cachedUrls, { ...axiosConfig, baseURL: baseUrl })
   const axiosInstance = wrapper(cache)
-  return makeSwapperAxiosServiceMonadic(axiosInstance, SwapperName.Zrx)
+  return makeSwapperAxiosServiceMonadic(axiosInstance)
 }

@@ -1,17 +1,15 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { SafeTxInfo, SwapSource } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
-import {
+  SwapperName,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Dex } from '@shapeshiftoss/unchained-client'
 

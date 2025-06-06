@@ -1,4 +1,3 @@
-import { SwapperName } from '../../../types'
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
 const maxAgeMillis = 15 * 1000
@@ -14,4 +13,4 @@ const axiosConfig = {
 
 const relayServiceBase = createCache(maxAgeMillis, cachedUrls, axiosConfig)
 
-export const relayService = makeSwapperAxiosServiceMonadic(relayServiceBase, SwapperName.Relay)
+export const relayService = makeSwapperAxiosServiceMonadic(relayServiceBase)

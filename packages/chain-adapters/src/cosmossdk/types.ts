@@ -20,8 +20,8 @@ export enum ThorchainMessageType {
 }
 
 export enum MayachainMessageType {
-  MsgDeposit = 'thorchain/MsgDeposit',
-  MsgSend = 'thorchain/MsgSend',
+  MsgDeposit = 'mayachain/MsgDeposit',
+  MsgSend = 'mayachain/MsgSend',
 }
 
 export enum CosmosSdkMessageType {

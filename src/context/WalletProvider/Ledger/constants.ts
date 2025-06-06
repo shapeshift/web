@@ -6,6 +6,7 @@ import {
   ethAssetId,
   fromAssetId,
   ltcAssetId,
+  mayachainAssetId,
   solAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
@@ -28,6 +29,7 @@ export const availableLedgerAppAssetIds = [
   thorchainAssetId,
   cosmosAssetId,
   solAssetId,
+  mayachainAssetId,
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

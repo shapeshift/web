@@ -33,6 +33,7 @@ export default function register(): Plugins {
                 return new arbitrum.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().VITE_ARBITRUM_NODE_URL,
+                  mayaMidgardUrl: getConfig().VITE_MAYACHAIN_MIDGARD_URL,
                 })
               },
             ],

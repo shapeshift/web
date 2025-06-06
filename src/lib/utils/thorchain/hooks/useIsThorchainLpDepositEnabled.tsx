@@ -1,10 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { thorchainChainId } from '@shapeshiftoss/caip'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 
 import { useThorchainMimir } from './useThorchainMimir'
 
 export const useIsLpDepositEnabled = (assetId: AssetId | undefined) => {
   return useThorchainMimir({
+    chainId: thorchainChainId,
     enabled: Boolean(assetId),
     select: mimir => {
       if (!assetId) return undefined
@@ -12,7 +14,7 @@ export const useIsLpDepositEnabled = (assetId: AssetId | undefined) => {
       const pauseLpDepositMimirs = Object.fromEntries(
         Object.entries(mimir).filter(([k]) => k.startsWith('PAUSELPDEPOSIT-')),
       )
-      const thorchainAssetId = assetIdToPoolAssetId({ assetId })
+      const thorchainAssetId = assetIdToThorPoolAssetId({ assetId })
 
       const isDisabled = Object.entries(pauseLpDepositMimirs).some(([k, v]) => {
         // PAUSELPDEPOSIT- mimirs don't use the usual dot notation

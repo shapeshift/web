@@ -1,3 +1,4 @@
+import type * as mayachain from '../../parser/mayachain'
 import type * as thorchain from '../../parser/thorchain'
 import type { BaseTxMetadata, StandardTx } from '../../types'
 import type * as rfox from '../thorchain/parser/rfox'
@@ -10,6 +11,7 @@ export type TxMetadata =
   | IbcMetadata
   | LpMetadata
   | thorchain.TxMetadata
+  | mayachain.TxMetadata
   | rfox.TxMetadata
 
 export interface StakingMetadata extends BaseTxMetadata {

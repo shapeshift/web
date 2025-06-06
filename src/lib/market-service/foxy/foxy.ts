@@ -73,7 +73,8 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
           ),
         },
         rpcUrl: this.providerUrls.jsonRpcProviderUrl,
-        midgardUrl: '',
+        thorMidgardUrl: '',
+        mayaMidgardUrl: '',
       })
 
       // Make maxSupply as an additional field, effectively EIP-20's totalSupply

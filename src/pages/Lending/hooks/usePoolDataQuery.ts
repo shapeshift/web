@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -35,7 +36,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
-  const { data: mimir } = useThorchainMimir({})
+  const { data: mimir } = useThorchainMimir({ chainId: thorchainChainId })
 
   const isAssetLendingEnabled = useMemo(() => {
     if (!mimir || !poolAsset) return false

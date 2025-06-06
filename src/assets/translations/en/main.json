@@ -732,6 +732,13 @@
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"
       },
+      "mayachain": {
+        "out": "Outbound Received",
+        "refund": "Refund",
+        "swapOut": "Swap Received",
+        "swap": "Trade",
+        "swapRefund": "Swap Refund"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Unstake",

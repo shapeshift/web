@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { thorchainChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -49,6 +50,7 @@ export const useRepaymentLockData = ({
   })
 
   const repaymentLockData = useThorchainMimir({
+    chainId: thorchainChainId,
     select: mimirData => {
       if (!mimirData || !blockHeight) return null
 

@@ -6,7 +6,7 @@ import type { ThornodePoolResponse } from '../../thorchain-utils'
 import { thorService } from '../../thorchain-utils'
 import type { Swapper, SwapperConfig } from '../../types'
 import { executeEvmTransaction } from '../../utils'
-import { poolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
+import { thorPoolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
 
 const getSupportedAssets = async (
   config: SwapperConfig,
@@ -28,7 +28,7 @@ const getSupportedAssets = async (
 
   const assetIds = pools
     .filter(pool => pool.status === 'Available')
-    .map(pool => poolAssetIdToAssetId(pool.asset))
+    .map(pool => thorPoolAssetIdToAssetId(pool.asset))
     .filter(isSome)
 
   assetIds.forEach(assetId => {

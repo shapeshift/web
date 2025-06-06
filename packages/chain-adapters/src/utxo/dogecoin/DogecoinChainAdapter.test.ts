@@ -127,7 +127,7 @@ describe('DogecoinChainAdapter', () => {
       },
       coinName: 'Dogecoin',
       chainId: KnownChainIds.DogecoinMainnet,
-      midgardUrl: '',
+      thorMidgardUrl: '',
     }
   })
 

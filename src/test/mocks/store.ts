@@ -150,6 +150,7 @@ export const mockStore: ReduxState = {
       ThorchainTcy: false,
       ThorchainTcyWidget: false,
       ThorchainTcyActivity: false,
+      MayaSwap: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

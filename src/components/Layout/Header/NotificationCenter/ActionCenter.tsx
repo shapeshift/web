@@ -9,14 +9,16 @@ import {
   Flex,
   Icon,
   IconButton,
+  useDisclosure,
 } from '@chakra-ui/react'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useMemo } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { SwapDetails } from './components/Details/SwapDetails'
 import { SwapActionCard } from './components/SwapActionCard'
 
+import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
   selectInitializedActionsByUpdatedAtDesc,
   selectWalletHasPendingActions,
@@ -30,10 +32,11 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const [isOpen, setIsOpen] = useState(false)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  useSwapActionSubscriber({ onDrawerOpen: onOpen })
+
   const translate = useTranslate()
-  const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
-  const handleClose = useCallback(() => setIsOpen(false), [])
 
   const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
 
@@ -68,7 +71,7 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={handleToggleIsOpen}
+          onClick={onOpen}
         />
         <Circle
           position='absolute'
@@ -84,7 +87,7 @@ export const ActionCenter = memo(() => {
           transitionDuration='normal'
         />
       </Box>
-      <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
+      <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
 
         <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>

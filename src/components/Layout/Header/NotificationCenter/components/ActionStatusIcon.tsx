@@ -3,20 +3,19 @@ import { Center, CircularProgress } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { TbCheck } from 'react-icons/tb'
 
-import { NotificationStatus } from '../types'
-
 import { ArrowDownBoldIcon } from '@/components/Icons/ArrowDownBold'
 import { ErrorIcon } from '@/components/Icons/ErrorIcon'
 import { GenericTxIcon } from '@/components/Icons/GenericTx'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 
 const IconWrapper: React.FC<CenterProps> = props => (
   <Center borderRadius='full' boxSize='100%' {...props} />
 )
 
-export const NotificationStatusIcon = ({ status }: { status?: NotificationStatus }) => {
+export const ActionStatusIcon = ({ status }: { status?: ActionStatus }) => {
   const statusIcon = useMemo(() => {
     switch (status) {
-      case NotificationStatus.Pending:
+      case ActionStatus.Pending:
         return (
           <IconWrapper bg='blue.500'>
             <CircularProgress
@@ -29,22 +28,22 @@ export const NotificationStatusIcon = ({ status }: { status?: NotificationStatus
           </IconWrapper>
         )
 
-      case NotificationStatus.Claimed:
+      case ActionStatus.Claimed:
         return (
           <IconWrapper bg='green.600'>
             <ArrowDownBoldIcon />
           </IconWrapper>
         )
-      case NotificationStatus.ClaimAvailable:
-      case NotificationStatus.Complete:
+      case ActionStatus.ClaimAvailable:
+      case ActionStatus.Complete:
         return (
           <IconWrapper bg='green.600'>
             <TbCheck strokeWidth={4} />
           </IconWrapper>
         )
-      case NotificationStatus.Failed:
-      case NotificationStatus.Cancelled:
-      case NotificationStatus.Expired:
+      case ActionStatus.Failed:
+      case ActionStatus.Cancelled:
+      case ActionStatus.Expired:
         return (
           <IconWrapper bg='red.500'>
             <ErrorIcon />

@@ -147,7 +147,7 @@ export const maya: Readonly<Asset> = Object.freeze({
   symbol: 'MAYA',
   precision: 4,
   color: '#00FFA0',
-  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat_maya_asset/scripts/generateAssetData/thorchain/icons/maya.png',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/scripts/generateAssetData/thorchain/icons/maya.png',
   explorer: 'https://mayascan.org',
   explorerAddressLink: 'https://mayascan.org/address/',
   explorerTxLink: 'https://mayascan.org/tx/',

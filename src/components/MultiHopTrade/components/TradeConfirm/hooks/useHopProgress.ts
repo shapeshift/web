@@ -1,9 +1,15 @@
-import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type {
+  SupportedTradeQuoteStepIndex,
+  SwapExecutionMetadata,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import {
   ChainflipStatusMessage,
   LifiStatusMessage,
   SwapperName,
   ThorchainStatusMessage,
+  TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 
@@ -12,8 +18,6 @@ import {
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import type { SwapExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
-import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type SwapperProgressMap = Record<string, number>

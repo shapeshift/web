@@ -1,4 +1,5 @@
 import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -42,7 +43,6 @@ import {
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from '@/state/slices/limitOrderSlice/selectors'
-import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const LimitOrderConfirm = () => {

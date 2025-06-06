@@ -105,3 +105,4 @@ export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilte
 export const selectQuoteIdParamFromRequiredFilter = selectRequiredParamFromFilter('quoteId')
 export const selectCowSwapQuoteIdParamFromRequiredFilter =
   selectRequiredParamFromFilter('cowSwapQuoteId')
+export const selectSwapIdParamFromRequiredFilter = selectRequiredParamFromFilter('swapId')

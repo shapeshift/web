@@ -1,5 +1,5 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapStatus } from '@shapeshiftoss/swapper'
+import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -19,11 +19,7 @@ import {
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import {
-  HopExecutionState,
-  TradeExecutionState,
-  TransactionExecutionState,
-} from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type UseTradeButtonPropsProps = {
@@ -88,7 +84,9 @@ export const useTradeButtonProps = ({
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         stepIndex: currentHopIndex,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+        streamingSwapMetadata: undefined,
       },
+      isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
     }
 

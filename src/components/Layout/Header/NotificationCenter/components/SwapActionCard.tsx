@@ -19,6 +19,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import { StreamIcon } from '@/components/Icons/Stream'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
 import type { Action } from '@/state/slices/actionSlice/types'
@@ -99,6 +100,7 @@ export const SwapActionCard = ({
                 <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
                 <RawText>{action.type}</RawText>
+                {swap?.isStreaming ? <StreamIcon color='text.success' /> : null}
                 {swap?.swapperName && (
                   <RawText>
                     <HoverTooltip label={swap.swapperName}>

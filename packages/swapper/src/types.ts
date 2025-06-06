@@ -334,12 +334,39 @@ export type LifiTools = {
   exchanges: string[] | undefined
 }
 
+export type StreamingSwapFailedSwap = {
+  reason: string
+  swapIndex: number
+}
+
+export type StreamingSwapMetadata = {
+  attemptedSwapCount: number
+  totalSwapCount: number
+  failedSwaps: StreamingSwapFailedSwap[]
+}
+
+export enum TransactionExecutionState {
+  AwaitingConfirmation = 'AwaitingConfirmation',
+  Pending = 'Pending',
+  Complete = 'Complete',
+  Failed = 'Failed',
+}
+
+export type SwapExecutionMetadata = {
+  state: TransactionExecutionState
+  sellTxHash?: string
+  buyTxHash?: string
+  streamingSwap?: StreamingSwapMetadata
+  message?: string | [string, InterpolationOptions]
+}
+
 export type SwapperSpecificMetadata = {
   lifiRoute: Route | undefined
   lifiTools: LifiTools | undefined
   chainflipSwapId: number | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   relayTransactionMetadata: RelayTransactionMetadata | undefined
+  streamingSwapMetadata: StreamingSwapMetadata | undefined
 }
 
 export enum SwapStatus {
@@ -363,6 +390,7 @@ export type Swap = {
   buyAmountCryptoBaseUnit: string
   txLink?: string
   metadata: SwapperSpecificMetadata
+  isStreaming?: boolean
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002

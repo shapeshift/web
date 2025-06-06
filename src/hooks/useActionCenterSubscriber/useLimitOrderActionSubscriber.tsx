@@ -1,9 +1,19 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Link, Text as CText, usePrevious, useToast } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Icon,
+  Link,
+  Text as CText,
+  useColorModeValue,
+  usePrevious,
+  useToast,
+} from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, useMemo } from 'react'
+import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
@@ -33,9 +43,16 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
-export const useLimitOrderActionSubscriber = () => {
+type UseLimitOrderActionSubscriberProps = {
+  onDrawerOpen: () => void
+}
+
+export const useLimitOrderActionSubscriber = ({
+  onDrawerOpen,
+}: UseLimitOrderActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
+  const toastColor = useColorModeValue('white', 'gray.900')
 
   const {
     number: { toCrypto },
@@ -48,7 +65,50 @@ export const useLimitOrderActionSubscriber = () => {
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const quoteId = useAppSelector(selectActiveQuoteId)
   const { currentData: ordersResponse } = useLimitOrdersQuery()
-  const toast = useToast()
+  const toast = useToast({
+    render: ({ title, status, description, onClose }) => {
+      const handleClick = () => {
+        onClose()
+        onDrawerOpen()
+      }
+
+      const toastSx = {
+        '&:hover': {
+          cursor: 'pointer',
+          background: status === 'success' ? 'green.300' : 'red.300',
+        },
+      }
+
+      return (
+        <Flex
+          // We can't memo this because onClose prop comes from the render props
+          // eslint-disable-next-line react-memo/require-usememo
+          onClick={handleClick}
+          background={status === 'success' ? 'green.500' : 'red.500'}
+          color='white'
+          px={4}
+          py={2}
+          borderRadius='md'
+          // eslint-disable-next-line react-memo/require-usememo
+          sx={toastSx}
+        >
+          <Box py={1} me={2}>
+            {status === 'success' ? (
+              <Icon color={toastColor} as={TbCircleCheckFilled} height='20px' width='20px' />
+            ) : (
+              <Icon color={toastColor} as={TbCircleXFilled} height='20px' width='20px' />
+            )}
+          </Box>
+          <Box>
+            <CText fontWeight='bold' color={toastColor}>
+              {title}
+            </CText>
+            <CText color={toastColor}>{description}</CText>
+          </Box>
+        </Flex>
+      )
+    },
+  })
   const openLimitOrders = useAppSelector(selectOpenLimitOrderActionsFilteredByWallet)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 

@@ -1,4 +1,4 @@
-import { usePrevious, useToast } from '@chakra-ui/react'
+import { Box, Flex, Icon, Text, useColorModeValue, usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Swap } from '@shapeshiftoss/swapper'
@@ -8,6 +8,7 @@ import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
+import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
@@ -32,16 +33,65 @@ import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useSwapActionSubscriber = () => {
+type UseSwapActionSubscriberProps = {
+  onDrawerOpen: () => void
+}
+
+export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
+  const toastColor = useColorModeValue('white', 'gray.900')
 
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
 
+  const toast = useToast({
+    render: ({ title, status, description, onClose }) => {
+      const handleClick = () => {
+        onClose()
+        onDrawerOpen()
+      }
+
+      const toastSx = {
+        '&:hover': {
+          cursor: 'pointer',
+          background: status === 'success' ? 'green.300' : 'red.300',
+        },
+      }
+
+      return (
+        <Flex
+          // We can't memo this because onClose prop comes from the render props
+          // eslint-disable-next-line react-memo/require-usememo
+          onClick={handleClick}
+          background={status === 'success' ? 'green.500' : 'red.500'}
+          color='white'
+          px={4}
+          py={2}
+          borderRadius='md'
+          // eslint-disable-next-line react-memo/require-usememo
+          sx={toastSx}
+        >
+          <Box py={1} me={2}>
+            {status === 'success' ? (
+              <Icon color={toastColor} as={TbCircleCheckFilled} height='20px' width='20px' />
+            ) : (
+              <Icon color={toastColor} as={TbCircleXFilled} height='20px' width='20px' />
+            )}
+          </Box>
+          <Box>
+            <Text fontWeight='bold' color={toastColor}>
+              {title}
+            </Text>
+            <Text color={toastColor}>{description}</Text>
+          </Box>
+        </Flex>
+      )
+    },
+  })
+
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
-  const toast = useToast()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
   const {
     state: { isConnected },

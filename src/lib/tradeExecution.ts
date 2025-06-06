@@ -31,6 +31,7 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
+import { selectCurrentSwap } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
@@ -96,14 +97,11 @@ export class TradeExecution {
       // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
       const accountId = selectFirstHopSellAccountId(store.getState())
 
-      const currentSwapId = swapSlice.selectors.selectCurrentSwapId(store.getState())
-      const swaps = swapSlice.selectors.selectSwapsById(store.getState())
+      const swap = selectCurrentSwap(store.getState())
 
-      if (!currentSwapId) {
+      if (!swap) {
         throw new Error('Swap not found')
       }
-
-      const swap = swaps[currentSwapId]
 
       const updatedSwap = {
         ...swap,

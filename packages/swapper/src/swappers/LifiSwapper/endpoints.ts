@@ -79,9 +79,9 @@ export const lifiApi: SwapperApi = {
 
     const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps, lifiChainMap)
 
-    return tradeRateResult.map(quote =>
-      quote.map(tradeQuote => {
-        const selectedLifiRoute = tradeQuote.steps[0]?.lifiSpecific?.lifiRoute
+    return tradeRateResult.map(rate =>
+      rate.map(tradeRate => {
+        const selectedLifiRoute = tradeRate.steps[0]?.lifiSpecific?.lifiRoute
 
         // TODO: quotes below the minimum aren't valid and should not be processed as such
         // selectedLifiRoute will be missing for quotes below the minimum
@@ -92,7 +92,7 @@ export const lifiApi: SwapperApi = {
         // store the lifi rate metadata for transaction building later
         tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-        return tradeQuote
+        return tradeRate
       }),
     )
   },

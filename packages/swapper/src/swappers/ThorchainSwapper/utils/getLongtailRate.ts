@@ -92,12 +92,10 @@ export const getLongtailToL1Rate = async (
   return thorchainRates.andThen(rates => {
     const updatedRates: ThorTradeRate[] = rates.map(q => ({
       ...q,
-      accountNumber: undefined,
       aggregator: bestAggregator,
       // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
       steps: q.steps.map(s => ({
         ...s,
-        accountNumber: undefined,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         sellAsset,
         allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,

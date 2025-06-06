@@ -9,6 +9,7 @@ import {
   Flex,
   Icon,
   IconButton,
+  useDisclosure,
 } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -23,6 +24,8 @@ import { SwapActionCard } from './components/SwapActionCard'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
+import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
   selectInitializedActionsByUpdatedAtDesc,
   selectLimitOrderActionByLimitOrderId,
@@ -37,10 +40,12 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const [isOpen, setIsOpen] = useState(false)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  useSwapActionSubscriber({ onDrawerOpen: onOpen })
+  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen })
+
   const translate = useTranslate()
-  const handleToggleIsOpen = useCallback(() => setIsOpen(previousIsOpen => !previousIsOpen), [])
-  const handleClose = useCallback(() => setIsOpen(false), [])
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
   const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
@@ -116,7 +121,7 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={handleToggleIsOpen}
+          onClick={onOpen}
         />
         <Circle
           position='absolute'
@@ -132,7 +137,7 @@ export const ActionCenter = memo(() => {
           transitionDuration='normal'
         />
       </Box>
-      <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
+      <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
 
         <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>

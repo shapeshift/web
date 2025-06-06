@@ -47,7 +47,6 @@ vi.mock('@/config', () => {
   return {
     getConfig: () => ({
       VITE_THORCHAIN_NODE_URL: '',
-      VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
     }),
   }
 })
@@ -227,7 +226,6 @@ describe('getTradeQuote', () => {
         VITE_FEATURE_THORCHAINSWAP_LONGTAIL: true,
         VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: true,
         VITE_THORCHAIN_NODE_URL: '',
-        VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: true,
       },
     } as unknown as SwapperDeps)
     expect(maybeTradeQuote.isOk()).toBe(true)

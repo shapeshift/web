@@ -27,8 +27,9 @@ import type {
   QuoteFeeData,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../types'
-import { SwapperName, TradeQuoteError } from '../types'
+import { TradeQuoteError } from '../types'
 import { makeSwapErrorRight } from '../utils'
 import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
@@ -118,10 +119,10 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
   const swapQuote = maybeSwapQuote.unwrap()
 
-  const maybeStreamingSwapQuote =
-    swapperName === SwapperName.Thorchain && config.VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS
-      ? await getQuote({ ...baseQuoteArgs, streaming: true, streamingInterval }, deps)
-      : undefined
+  const maybeStreamingSwapQuote = await getQuote(
+    { ...baseQuoteArgs, streaming: true, streamingInterval },
+    deps,
+  )
 
   if (maybeStreamingSwapQuote?.isErr()) return Err(maybeStreamingSwapQuote.unwrapErr())
   const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()

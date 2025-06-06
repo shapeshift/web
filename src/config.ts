@@ -84,7 +84,6 @@ const validators = {
   VITE_FEATURE_MAYACHAIN: bool({ default: false }),
   VITE_FEATURE_ZRX_SWAP: bool({ default: false }),
   VITE_FEATURE_THOR_SWAP: bool({ default: false }),
-  VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
   VITE_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   VITE_FEATURE_SAVERS_VAULTS_DEPOSIT: bool({ default: false }),
   VITE_FEATURE_SAVERS_VAULTS_WITHDRAW: bool({ default: false }),

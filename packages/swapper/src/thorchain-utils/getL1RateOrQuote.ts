@@ -34,7 +34,13 @@ import { makeSwapErrorRight } from '../utils'
 import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
-import { addLimitToMemo, getAffiliate, getNativePrecision, getSwapSource } from './index'
+import {
+  addLimitToMemo,
+  assertAndProcessMemo,
+  getAffiliate,
+  getNativePrecision,
+  getSwapSource,
+} from './index'
 import type {
   ThorEvmTradeQuote,
   ThorEvmTradeRate,
@@ -224,7 +230,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
     // always use auto stream quote memo (0 limit = 5bps - 50bps, sometimes up to 100bps)
     // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-    if (route.isStreaming) return route.quote.memo
+    if (route.isStreaming) return assertAndProcessMemo(route.quote.memo, getAffiliate(swapperName))
 
     const limitWithManualSlippage = getLimitWithManualSlippage({
       expectedAmountOutThorBaseUnit: route.expectedAmountOutThorBaseUnit,

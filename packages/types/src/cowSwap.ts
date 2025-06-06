@@ -165,6 +165,7 @@ export type OrderMetaData = {
   owner: Address
   uid: string
   availableBalance?: string | null
+  sellAmount: string
   executedSellAmount: string
   executedSellAmountBeforeFees: string
   executedBuyAmount: string

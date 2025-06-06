@@ -4,10 +4,6 @@ import { swapSlice } from './swapSlice'
 
 import { selectSwapIdParamFromRequiredFilter } from '@/state/selectors'
 
-export const selectSwaps = createSelector(swapSlice.selectors.selectSwapsById, swapsById => {
-  return Object.values(swapsById)
-})
-
 export const selectSwapById = createSelector(
   swapSlice.selectors.selectSwapsById,
   selectSwapIdParamFromRequiredFilter,
@@ -15,5 +11,15 @@ export const selectSwapById = createSelector(
     const swap = swapsById[swapId]
     if (!swap) return
     return swap
+  },
+)
+
+export const selectCurrentSwap = createSelector(
+  swapSlice.selectors.selectSwapsById,
+  swapSlice.selectors.selectActiveSwapId,
+  (swapsById, activeSwapId) => {
+    if (!activeSwapId) return undefined
+
+    return swapsById[activeSwapId]
   },
 )

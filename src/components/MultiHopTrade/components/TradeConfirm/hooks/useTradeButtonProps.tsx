@@ -1,8 +1,8 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { v4 as uuid } from 'uuid'
 
 import { getHopExecutionStateButtonTranslation } from '../helpers'
 import { useActiveTradeAllowance } from './useActiveTradeAllowance'
@@ -69,7 +69,7 @@ export const useTradeButtonProps = ({
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
     const swap: Swap = {
-      id: uuidv4(),
+      id: uuid(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
       sellAccountId,
@@ -79,16 +79,19 @@ export const useTradeButtonProps = ({
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       metadata: {
-        lifiRoute: activeQuote.steps[0]?.lifiSpecific?.lifiRoute,
+        lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
+        lifiTools: firstStep?.lifiSpecific?.lifiTools,
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         stepIndex: currentHopIndex,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+        streamingSwapMetadata: undefined,
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
     }
 
     dispatch(swapSlice.actions.upsertSwap(swap))
+    dispatch(swapSlice.actions.setActiveSwapId(swap.id))
 
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
   }, [dispatch, activeQuote, currentHopIndex, sellAccountId])

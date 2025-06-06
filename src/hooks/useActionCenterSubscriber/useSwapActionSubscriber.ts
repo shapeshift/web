@@ -46,24 +46,22 @@ export const useSwapActionSubscriber = () => {
   const {
     state: { isConnected },
   } = useWallet()
-  const currentSwapId = useAppSelector(swapSlice.selectors.selectCurrentSwapId)
-  const previousSwapStatus = usePrevious(
-    currentSwapId ? swapsById[currentSwapId]?.status : undefined,
-  )
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
+  const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
 
   // Create swap and action after user confirmed the intent
   useEffect(() => {
-    if (!currentSwapId) return
+    if (!activeSwapId) return
 
-    const currentSwap = swapsById[currentSwapId]
+    const activeSwap = swapsById[activeSwapId]
 
-    if (!currentSwap) return
+    if (!activeSwap) return
 
-    if (currentSwap.status !== SwapStatus.Pending) return
-    if (previousSwapStatus === currentSwap.status) return
+    if (activeSwap.status !== SwapStatus.Pending) return
+    if (previousSwapStatus === activeSwap.status) return
 
     const existingSwapAction = selectSwapActionBySwapId(store.getState(), {
-      swapId: currentSwap.id,
+      swapId: activeSwap.id,
     })
 
     if (existingSwapAction) return
@@ -77,8 +75,8 @@ export const useSwapActionSubscriber = () => {
         status: ActionStatus.Pending,
         title: translate('notificationCenter.swapTitle', {
           sellAmountAndSymbol: toCrypto(
-            fromBaseUnit(currentSwap.sellAmountCryptoBaseUnit, currentSwap.sellAsset.precision),
-            currentSwap.sellAsset.symbol,
+            fromBaseUnit(activeSwap.sellAmountCryptoBaseUnit, activeSwap.sellAsset.precision),
+            activeSwap.sellAsset.symbol,
             {
               maximumFractionDigits: 8,
               omitDecimalTrailingZeros: true,
@@ -87,8 +85,8 @@ export const useSwapActionSubscriber = () => {
             },
           ),
           buyAmountAndSymbol: toCrypto(
-            fromBaseUnit(currentSwap.buyAmountCryptoBaseUnit, currentSwap.buyAsset.precision),
-            currentSwap.buyAsset.symbol,
+            fromBaseUnit(activeSwap.buyAmountCryptoBaseUnit, activeSwap.buyAsset.precision),
+            activeSwap.buyAsset.symbol,
             {
               maximumFractionDigits: 8,
               omitDecimalTrailingZeros: true,
@@ -98,11 +96,11 @@ export const useSwapActionSubscriber = () => {
           ),
         }),
         swapMetadata: {
-          swapId: currentSwap.id,
+          swapId: activeSwap.id,
         },
       }),
     )
-  }, [dispatch, translate, toCrypto, currentSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, translate, toCrypto, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {

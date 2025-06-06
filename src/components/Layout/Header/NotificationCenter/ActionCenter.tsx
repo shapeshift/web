@@ -82,7 +82,7 @@ export const ActionCenter = memo(() => {
 
             return (
               <SwapActionCard key={action.id} {...action}>
-                <SwapDetails txLink={swap.txLink} />
+                <SwapDetails txLink={swap.txLink} swap={swap} />
               </SwapActionCard>
             )
           }

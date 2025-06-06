@@ -9,7 +9,7 @@ import {
   Stepper,
   StepStatus,
 } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type Polyglot from 'node-polyglot'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +29,6 @@ import {
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from '@/state/slices/limitOrderSlice/selectors'
-import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const collapseStyle = { width: '100%' }

@@ -13,12 +13,14 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import { StreamIcon } from '@/components/Icons/Stream'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
 import type { Action } from '@/state/slices/actionSlice/types'
@@ -49,6 +51,7 @@ export const SwapActionCard = ({
 }: SwapActionCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
+  const translate = useTranslate()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -99,6 +102,7 @@ export const SwapActionCard = ({
                 <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
                 <RawText>{action.type}</RawText>
+                {swap?.isStreaming ? <StreamIcon color='text.success' /> : null}
                 {swap?.swapperName && (
                   <RawText>
                     <HoverTooltip label={swap.swapperName}>

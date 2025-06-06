@@ -12,6 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -29,6 +30,8 @@ import { RawText, Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bn } from '@/lib/bignumber/bignumber'
+import { selectSwapById } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
   selectFirstHopSellAccountId,
   selectSecondHopSellAccountId,
@@ -37,7 +40,7 @@ import {
   selectActiveQuoteErrors,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const erroredStepIndicator = <WarningIcon color='red.500' />
@@ -62,15 +65,20 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const activeTradeId = activeTradeQuote.id
   const stepSource = tradeQuoteFirstHop?.source
 
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectCurrentSwapId)
+  const swapByIdFilter = useMemo(() => {
+    return {
+      swapId: activeSwapId ?? '',
+    }
+  }, [activeSwapId])
+
+  const activeSwap = useAppSelector(state => selectSwapById(state, swapByIdFilter))
+
   const firstHopStreamingProgress = useStreamingProgress({
-    hopIndex: 0,
-    tradeQuoteStep: tradeQuoteFirstHop,
+    swap: activeSwap,
   })
   const secondHopStreamingProgress = useStreamingProgress({
-    hopIndex: 1,
-    // If we don't have a second hop this hook will return undefined anyway. Satisfy the rules of hooks with tradeQuoteFirstHop, which
-    // will always be defined.
-    tradeQuoteStep: tradeQuoteSecondHop ?? tradeQuoteFirstHop,
+    swap: activeSwap,
   })
 
   const isFirstHopBridge = useMemo(

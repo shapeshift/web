@@ -1,10 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { CowSwapQuoteId } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import { TransactionExecutionState } from '../tradeQuoteSlice/types'
 import {
   initialState,
   limitOrderSubmissionInitialState,

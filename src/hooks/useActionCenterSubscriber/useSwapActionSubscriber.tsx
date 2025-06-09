@@ -28,7 +28,7 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -119,8 +119,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
     dispatch(
       actionSlice.actions.upsertAction({
         id: uuidv4(),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: activeSwap.createdAt,
+        updatedAt: activeSwap.updatedAt,
         type: ActionType.Swap,
         status: ActionStatus.Pending,
         title: translate('notificationCenter.swapTitle', {
@@ -388,19 +388,14 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
     return pendingSwapActions
       .map(action => {
         const swapId = action.swapMetadata.swapId
-        if (!swapId) return undefined
 
         const swap = swapsById[swapId]
-
-        if (!swap) return undefined
 
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
           queryFn: () => swapStatusHandler(swap, action),
           refetchInterval: 10000,
-          enabled: Boolean(
-            isSwapAction(action) && action.status === ActionStatus.Pending && isConnected,
-          ),
+          enabled: isConnected,
         }
       })
       .filter((query): query is NonNullable<typeof query> => query !== undefined)

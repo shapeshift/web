@@ -147,7 +147,7 @@ export const mockStore: ReduxState = {
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
       RelaySwapper: false,
-      NotificationCenter: false,
+      ActionCenter: false,
       ThorchainTcy: false,
       ThorchainTcyWidget: false,
       ThorchainTcyActivity: false,

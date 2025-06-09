@@ -1,7 +1,7 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import { ActionStatus, isPendingSwapAction, isSwapAction } from './types'
+import { ActionStatus, isSwapAction } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectSwapIdParamFromFilter } from '@/state/selectors'
@@ -24,7 +24,7 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   },
 )
 
-export const selectInitializedActionsByUpdatedAtDesc = createDeepEqualOutputSelector(
+export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
     return actions.sort((a, b) => b.updatedAt - a.updatedAt)
@@ -41,7 +41,9 @@ export const selectWalletHasPendingActions = createDeepEqualOutputSelector(
 export const selectPendingSwapActions = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
-    return actions.filter(isPendingSwapAction)
+    return actions
+      .filter(action => isSwapAction(action))
+      .filter(action => action.status === ActionStatus.Pending)
   },
 )
 

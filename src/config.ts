@@ -176,7 +176,7 @@ const validators = {
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
-  VITE_FEATURE_NOTIFICATION_CENTER: bool({ default: false }),
+  VITE_FEATURE_ACTION_CENTER: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_TCY: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_TCY_WIDGET: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_TCY_ACTIVITY: bool({ default: false }),

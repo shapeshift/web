@@ -11,18 +11,17 @@ import {
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
+import { SwapDetails } from './Details/SwapDetails'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
-import type { Action } from '@/state/slices/actionSlice/types'
-import { isSwapAction } from '@/state/slices/actionSlice/types'
+import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -30,19 +29,12 @@ dayjs.extend(relativeTime)
 
 const divider = <RawText color='text.subtle'>•</RawText>
 
-const hoverProps = {
-  bg: 'background.button.secondary.hover',
-  cursor: 'pointer',
-}
-
 type SwapActionCardProps = {
   isCollapsable?: boolean
   defaultIsOpen?: boolean
-} & Action &
-  PropsWithChildren
+} & SwapAction
 
 export const SwapActionCard = ({
-  children,
   isCollapsable = true,
   defaultIsOpen = false,
   ...action
@@ -63,9 +55,7 @@ export const SwapActionCard = ({
   }, [action.createdAt])
 
   const swap = useMemo(() => {
-    if (isSwapAction(action)) {
-      return swapsById[action.swapMetadata.swapId]
-    }
+    return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
   const handleClick = useCallback(() => {
@@ -73,6 +63,14 @@ export const SwapActionCard = ({
       onToggle()
     }
   }, [isCollapsable, onToggle])
+
+  const hoverProps = useMemo(
+    () => ({
+      bg: 'background.button.secondary.hover',
+      cursor: swap?.txLink ? 'pointer' : undefined,
+    }),
+    [swap?.txLink],
+  )
 
   return (
     <Stack
@@ -108,7 +106,7 @@ export const SwapActionCard = ({
                 )}
               </HStack>
             </Stack>
-            {isCollapsable && (
+            {isCollapsable && swap?.txLink && (
               <Icon
                 as={isOpen ? ChevronUpIcon : ChevronDownIcon}
                 ml='auto'
@@ -121,7 +119,7 @@ export const SwapActionCard = ({
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4}>
               <CardBody px={0} py={0}>
-                {children}
+                <SwapDetails txLink={swap?.txLink} />
               </CardBody>
             </Card>
           </Collapse>

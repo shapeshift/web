@@ -15,16 +15,14 @@ import { memo, useMemo } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { SwapDetails } from './components/Details/SwapDetails'
 import { SwapActionCard } from './components/SwapActionCard'
 
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
-  selectInitializedActionsByUpdatedAtDesc,
+  selectWalletActionsSorted,
   selectWalletHasPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionType } from '@/state/slices/actionSlice/types'
-import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -38,32 +36,23 @@ export const ActionCenter = memo(() => {
 
   const translate = useTranslate()
 
-  const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
+  const actions = useAppSelector(selectWalletActionsSorted)
 
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
-  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const notificationsCards = useMemo(() => {
-    return actions.map(action => {
-      const swapActionCardDetails = (() => {
+  const notificationsCards = useMemo(
+    () =>
+      actions.map(action => {
         switch (action.type) {
           case ActionType.Swap: {
-            const swap = swapsById[action.swapMetadata.swapId]
-
-            return <SwapDetails txLink={swap.txLink} />
+            return <SwapActionCard key={action.id} {...action} />
           }
           default:
             return null
         }
-      })()
-
-      return (
-        <SwapActionCard key={action.id} {...action}>
-          {swapActionCardDetails}
-        </SwapActionCard>
-      )
-    })
-  }, [actions, swapsById])
+      }),
+    [actions],
+  )
 
   return (
     <>

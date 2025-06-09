@@ -73,7 +73,7 @@ export type Portfolio = {
   wallet: PortfolioWallet
   connectedWallet?: ConnectWallet
   /**
-   * Whether the portfolio has automatically discovered accounts
+   * Whether the portfolio is auto-discovering accounts
    */
   isDiscoveringAccounts: boolean
 }

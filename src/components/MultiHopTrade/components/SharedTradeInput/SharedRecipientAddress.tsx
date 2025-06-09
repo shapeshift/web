@@ -27,6 +27,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import {
   checkIsMetaMaskDesktop,
   useIsSnapInstalled,
@@ -146,9 +147,12 @@ export const SharedRecipientAddress = ({
     formState: { isValidating, isValid },
     setValue: setFormValue,
     handleSubmit: handleFormContextSubmit,
+    trigger,
   } = useFormContext()
 
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+  const debouncedValue = useDebounce(value, 500)
+
   const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
 
   // If we have a valid manual receive address, set it in the form
@@ -252,6 +256,24 @@ export const SharedRecipientAddress = ({
     walletReceiveAddress,
     isWalletReceiveAddressLoading,
   })
+
+  useEffect(() => {
+    if (!debouncedValue) return
+    ;(async () => {
+      try {
+        setFormValue(SendFormFields.Input, debouncedValue)
+
+        const isValidAddress = await trigger(SendFormFields.Input)
+
+        if (isValidAddress) {
+          onSubmit(debouncedValue)
+          setIsRecipientAddressEditing(false)
+        }
+      } catch (error) {
+        console.error('Error validating pasted address:', error)
+      }
+    })()
+  }, [debouncedValue, trigger, onSubmit, setFormValue])
 
   if (isWalletReceiveAddressLoading) {
     return null

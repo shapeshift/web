@@ -69,3 +69,7 @@ export const isSwapAction = (action: Action): action is SwapAction => {
     action.type === ActionType.Swap && action.swapMetadata && 'swapId' in action.swapMetadata,
   )
 }
+
+export const isPendingSwapAction = (action: Action): action is SwapAction => {
+  return Boolean(isSwapAction(action) && action.status === ActionStatus.Pending)
+}

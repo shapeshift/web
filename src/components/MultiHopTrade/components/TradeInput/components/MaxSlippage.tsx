@@ -4,7 +4,7 @@ import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftoss/swapper'
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,

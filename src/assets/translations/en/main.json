@@ -2981,6 +2981,8 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
-    }
+    },
+    "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
+    "swapError": "Swap failed"
   }
 }

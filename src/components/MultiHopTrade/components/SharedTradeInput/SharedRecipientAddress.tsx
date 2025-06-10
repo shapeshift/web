@@ -1,4 +1,4 @@
-import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons'
+import { CloseIcon, EditIcon } from '@chakra-ui/icons'
 import {
   FormControl,
   FormLabel,
@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { FieldValues } from 'react-hook-form'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -27,6 +26,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import {
   checkIsMetaMaskDesktop,
   useIsSnapInstalled,
@@ -38,7 +38,6 @@ import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { middleEllipsis } from '@/lib/utils'
 
 const editIcon = <EditIcon />
-const checkIcon = <CheckIcon />
 const closeIcon = <CloseIcon />
 
 const iconButtonHoverSx = { bg: 'gray.600' }
@@ -145,10 +144,12 @@ export const SharedRecipientAddress = ({
   const {
     formState: { isValidating, isValid },
     setValue: setFormValue,
-    handleSubmit: handleFormContextSubmit,
+    trigger,
   } = useFormContext()
 
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+  const debouncedValue = useDebounce(value, 500)
+
   const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
 
   // If we have a valid manual receive address, set it in the form
@@ -229,21 +230,6 @@ export const SharedRecipientAddress = ({
     setFormValue(SendFormFields.Input, '')
   }, [onReset, setFormValue])
 
-  const handleSubmit = useCallback(
-    (values: FieldValues) => {
-      // We don't need to revalidate here as submit will only be enabled if the form is valid
-      const address = values[SendFormFields.Input].trim()
-      onSubmit(address)
-      setIsRecipientAddressEditing(false)
-    },
-    [onSubmit],
-  )
-
-  const handleFormSubmit = useMemo(
-    () => handleFormContextSubmit(handleSubmit),
-    [handleFormContextSubmit, handleSubmit],
-  )
-
   const shouldForceDisplayManualAddressEntry = useIsManualReceiveAddressRequired({
     shouldForceManualAddressEntry: Boolean(shouldForceManualAddressEntry),
     sellAccountId: sellAssetAccountId,
@@ -252,6 +238,24 @@ export const SharedRecipientAddress = ({
     walletReceiveAddress,
     isWalletReceiveAddressLoading,
   })
+
+  useEffect(() => {
+    if (!debouncedValue) return
+    ;(async () => {
+      try {
+        setFormValue(SendFormFields.Input, debouncedValue)
+
+        const isValidAddress = await trigger(SendFormFields.Input)
+
+        if (isValidAddress) {
+          onSubmit(debouncedValue)
+          setIsRecipientAddressEditing(false)
+        }
+      } catch (error) {
+        console.error('Error validating pasted address:', error)
+      }
+    })()
+  }, [debouncedValue, trigger, onSubmit, setFormValue])
 
   if (isWalletReceiveAddressLoading) {
     return null
@@ -283,19 +287,6 @@ export const SharedRecipientAddress = ({
             justifyContent='flex-end'
             pointerEvents='none'
           >
-            <IconButton
-              pointerEvents='auto'
-              color='green.500'
-              aria-label='Save'
-              isDisabled={!isValid || isValidating || !value?.length}
-              size='xs'
-              onClick={handleFormSubmit}
-              icon={checkIcon}
-              isLoading={isValidating}
-              borderRadius='full'
-              bg='gray.700'
-              _hover={iconButtonHoverSx}
-            />
             <IconButton
               pointerEvents='auto'
               color='red.500'

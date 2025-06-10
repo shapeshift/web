@@ -146,7 +146,7 @@ export const mockStore: ReduxState = {
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
       RelaySwapper: false,
-      NotificationCenter: false,
+      ActionCenter: false,
       ThorchainTcy: false,
       ThorchainTcyWidget: false,
       ThorchainTcyActivity: false,
@@ -205,6 +205,14 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     hydrationMeta: {},
+  },
+  action: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    byId: {},
+    ids: [],
   },
   swap: {
     _persist: {

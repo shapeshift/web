@@ -100,8 +100,7 @@ export const getTradeQuote = async (
           step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       })
 
-      let serviceCommission = parseInt(tradeQuote.affiliateBps)
-      if (serviceCommission < 0) serviceCommission = 0
+      const serviceCommission = parseInt(tradeQuote.affiliateBps)
 
       const maybeSwapResponse = await getChainFlipSwap({
         brokerUrl,

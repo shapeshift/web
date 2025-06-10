@@ -114,8 +114,7 @@ export const getQuoteOrRate = async (
   const sourceAsset = maybeSourceAsset.unwrap()
   const destinationAsset = maybeDestinationAsset.unwrap()
 
-  let serviceCommission = parseInt(commissionBps)
-  if (serviceCommission < 0) serviceCommission = 0
+  const serviceCommission = parseInt(commissionBps)
 
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
     `${brokerUrl}/quotes-native` +

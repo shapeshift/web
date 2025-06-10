@@ -28,7 +28,6 @@ import {
   makeSwapErrorRight,
 } from '../../../utils'
 import {
-  CHAINFLIP_BAAS_COMMISSION,
   CHAINFLIP_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_QUOTE,
@@ -115,8 +114,7 @@ export const getQuoteOrRate = async (
   const sourceAsset = maybeSourceAsset.unwrap()
   const destinationAsset = maybeDestinationAsset.unwrap()
 
-  // Subtract the BaaS fee to end up at the final displayed commissionBps
-  let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION
+  let serviceCommission = parseInt(commissionBps)
   if (serviceCommission < 0) serviceCommission = 0
 
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(

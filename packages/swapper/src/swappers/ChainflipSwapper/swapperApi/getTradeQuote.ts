@@ -16,7 +16,6 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
 import { getQuoteOrRate } from '../utils/getQuoteOrRate'
 import {
   calculateChainflipMinPrice,
@@ -101,7 +100,7 @@ export const getTradeQuote = async (
           step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       })
 
-      let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
+      let serviceCommission = parseInt(tradeQuote.affiliateBps)
       if (serviceCommission < 0) serviceCommission = 0
 
       const maybeSwapResponse = await getChainFlipSwap({

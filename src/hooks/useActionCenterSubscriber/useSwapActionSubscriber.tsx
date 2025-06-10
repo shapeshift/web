@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { useFeatureFlag } from '../useFeatureFlag/useFeatureFlag'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '../useWallet/useWallet'
@@ -41,6 +42,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const toastColor = useColorModeValue('white', 'gray.900')
+  const isActionCenterEnabled = useFeatureFlag('ActionCenter')
 
   const {
     number: { toCrypto },
@@ -267,10 +269,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
                   }),
                 )
 
-                toast({
-                  title: notificationTitle,
-                  status: 'success',
-                })
+                if (isActionCenterEnabled) {
+                  toast({
+                    title: notificationTitle,
+                    status: 'success',
+                  })
+                }
                 return
               }
             }
@@ -297,10 +301,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
               swapId: swap.id,
             })?.title
 
-            toast({
-              title: notificationTitle,
-              status: 'success',
-            })
+            if (isActionCenterEnabled) {
+              toast({
+                title: notificationTitle,
+                status: 'success',
+              })
+            }
 
             return
           }
@@ -344,10 +350,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           }),
         )
 
-        toast({
-          title: notificationTitle,
-          status: 'success',
-        })
+        if (isActionCenterEnabled) {
+          toast({
+            title: notificationTitle,
+            status: 'success',
+          })
+        }
       }
 
       if (status === TxStatus.Failed) {
@@ -368,10 +376,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           }),
         )
 
-        toast({
-          title: translate('notificationCenter.swapError'),
-          status: 'error',
-        })
+        if (isActionCenterEnabled) {
+          toast({
+            title: translate('notificationCenter.swapError'),
+            status: 'error',
+          })
+        }
       }
 
       return {
@@ -380,7 +390,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         buyTxHash,
       }
     },
-    [toCrypto, translate, toast, dispatch],
+    [toCrypto, translate, toast, dispatch, isActionCenterEnabled],
   )
 
   // Update actions status when swap is confirmed or failed

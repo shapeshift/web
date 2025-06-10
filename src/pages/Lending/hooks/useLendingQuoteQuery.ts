@@ -15,7 +15,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
-import { BASE_BPS_POINTS } from '@/lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingOpenQuote } from '@/lib/utils/thorchain/lending'
 import type {
   LendingDepositQuoteResponseSuccess,
@@ -110,7 +110,7 @@ const selectLendingQuoteQuery = memoize(
 
     const quoteInboundAddress = quote.inbound_address
     // TODO: return quote as is once borrow is using useSendThorTx
-    const quoteMemo = assertAndProcessMemo(quote.memo)
+    const quoteMemo = assertAndProcessMemo(quote.memo, THORCHAIN_AFFILIATE_NAME)
     const quoteExpiry = quote.expiry
     const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
     const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)

@@ -24,7 +24,6 @@ export type FeatureFlags = {
   Base: boolean
   Mayachain: boolean
   ThorSwap: boolean
-  ThorSwapStreamingSwaps: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
   SaversVaults: boolean
@@ -127,7 +126,6 @@ const initialState: Preferences = {
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
-    ThorSwapStreamingSwaps: getConfig().VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS,
     SaversVaults: getConfig().VITE_FEATURE_SAVERS_VAULTS,

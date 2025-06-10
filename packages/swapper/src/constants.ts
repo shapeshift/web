@@ -18,6 +18,9 @@ import {
   lifiSwapper,
 } from './swappers/LifiSwapper/LifiSwapper'
 import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
+import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from './swappers/MayachainSwapper'
+import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
+import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
 import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
@@ -58,6 +61,12 @@ export const swappers: Record<
     ...thorchainSwapper,
     ...thorchainApi,
     supportedChainIds: THORCHAIN_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+  [SwapperName.Mayachain]: {
+    ...mayachainSwapper,
+    ...mayachainApi,
+    supportedChainIds: MAYACHAIN_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Zrx]: {
@@ -112,6 +121,7 @@ const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.025' // 2.5%
 const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
+const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
 
@@ -131,6 +141,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Thorchain:
       return DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Mayachain:
+      return DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ArbitrumBridge:
       return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Chainflip:

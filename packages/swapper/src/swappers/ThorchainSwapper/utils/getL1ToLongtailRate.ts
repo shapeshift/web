@@ -5,24 +5,26 @@ import { isFulfilled, isRejected, isResolvedErr } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
+import type { ThorTradeRate } from '../../../thorchain-utils'
+import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeRate } from '../types'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Rate } from './getL1Rate'
 import type { AggregatorContract } from './longTailHelpers'
-import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
+import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 export const getL1ToLongtailRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
   streamingInterval: number,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
   const {
     buyAsset,
@@ -92,11 +94,12 @@ export const getL1ToLongtailRate = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const maybeThorchainRates = await getL1Rate(
+  const maybeThorchainRates = await getL1RateOrQuote<ThorTradeRate>(
     l1Tol1RateInput,
     deps,
     streamingInterval,
     TradeType.L1ToLongTail,
+    swapperName,
   )
 
   if (maybeThorchainRates.isErr()) return Err(maybeThorchainRates.unwrapErr())

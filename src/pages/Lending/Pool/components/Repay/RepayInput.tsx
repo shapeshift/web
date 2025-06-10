@@ -46,6 +46,7 @@ import { toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from '@/lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from '@/pages/Lending/hooks/useLendingCloseQuery'
@@ -392,7 +393,7 @@ export const RepayInput = ({
   const memo = useMemo(() => {
     if (!confirmedQuote) return null
 
-    return assertAndProcessMemo(confirmedQuote.quoteMemo)
+    return assertAndProcessMemo(confirmedQuote.quoteMemo, THORCHAIN_AFFILIATE_NAME)
   }, [confirmedQuote])
 
   const hasEnoughBalanceForTx = useMemo(() => {

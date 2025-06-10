@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { MidgardPoolResponse } from '@shapeshiftoss/swapper'
-import { poolAssetIdToAssetId, thorchainSellSupportedChainIds } from '@shapeshiftoss/swapper'
+import { poolAssetIdToAssetId, THORCHAIN_SUPPORTED_CHAIN_IDS } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -57,7 +57,7 @@ export const getPool = (
   if (!assetId) return
 
   const chainId = fromAssetId(assetId).chainId
-  if (!thorchainSellSupportedChainIds[chainId]) return
+  if (!THORCHAIN_SUPPORTED_CHAIN_IDS.sell.includes(chainId)) return
 
   const asset = assets[assetId]
   if (!asset) return

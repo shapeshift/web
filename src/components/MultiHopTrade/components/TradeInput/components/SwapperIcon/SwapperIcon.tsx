@@ -8,6 +8,7 @@ import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
 import LiFiIcon from './lifi-icon.png'
+import MayachainIcon from './maya_logo.png'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
 import THORChainIcon from './thorchain-icon.png'
@@ -42,6 +43,8 @@ export const SwapperIcon = ({
         return JupiterIcon
       case SwapperName.Relay:
         return RelayIcon
+      case SwapperName.Mayachain:
+        return MayachainIcon
       case SwapperName.Test:
         return ''
       default:

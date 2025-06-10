@@ -16,8 +16,6 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { LimitOrderDetails } from './components/Details/LimitOrderDetails'
-import { SwapDetails } from './components/Details/SwapDetails'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
@@ -31,8 +29,7 @@ import {
   selectLimitOrderActionByLimitOrderId,
   selectWalletHasPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionType, isLimitOrderAction } from '@/state/slices/actionSlice/types'
-import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { ActionType } from '@/state/slices/actionSlice/types'
 import { store, useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -51,7 +48,6 @@ export const ActionCenter = memo(() => {
   const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
 
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
-  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
   const limitOrders = useLimitOrders()
 
   const handleResetOrderToCancel = useCallback(() => {
@@ -69,7 +65,7 @@ export const ActionCenter = memo(() => {
           limitOrderId: order.order.uid,
         })
 
-        if (!action || !isLimitOrderAction(action)) return acc
+        if (!action) return acc
 
         acc[action.id] = order.order
         return acc
@@ -83,27 +79,20 @@ export const ActionCenter = memo(() => {
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
-            const swap = swapsById[action.swapMetadata.swapId]
-
-            return (
-              <SwapActionCard key={action.id} {...action}>
-                <SwapDetails txLink={swap.txLink} />
-              </SwapActionCard>
-            )
+            return <SwapActionCard key={action.id} {...action} />
           }
           case ActionType.LimitOrder: {
             const order = ordersByActionId?.[action.id]
 
+            if (!order) return null
+
             return (
-              <LimitOrderActionCard key={action.id} {...action}>
-                <LimitOrderDetails
-                  action={action}
-                  order={order}
-                  // We are already memoizing everything here, so we don't need to memoize this function
-                  // eslint-disable-next-line react-memo/require-usememo
-                  onCancelOrder={handleSetOrderToCancel}
-                />
-              </LimitOrderActionCard>
+              <LimitOrderActionCard
+                key={action.id}
+                order={order}
+                action={action}
+                onCancelOrder={handleSetOrderToCancel}
+              />
             )
           }
           default:
@@ -113,7 +102,7 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     })
-  }, [actions, swapsById, ordersByActionId, handleSetOrderToCancel])
+  }, [actions, handleSetOrderToCancel, ordersByActionId])
 
   return (
     <>

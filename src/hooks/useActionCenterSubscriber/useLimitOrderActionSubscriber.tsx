@@ -11,10 +11,10 @@ import {
 } from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
-import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, useMemo } from 'react'
 import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 

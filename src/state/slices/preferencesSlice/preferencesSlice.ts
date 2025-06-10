@@ -77,7 +77,7 @@ export type FeatureFlags = {
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
   RelaySwapper: boolean
-  NotificationCenter: boolean
+  ActionCenter: boolean
   ThorchainTcy: boolean
   ThorchainTcyWidget: boolean
   ThorchainTcyActivity: boolean
@@ -180,7 +180,7 @@ const initialState: Preferences = {
     NewLimitFlow: getConfig().VITE_FEATURE_NEW_LIMIT_FLOW,
     ThorchainSwapperVolatilityAck: getConfig().VITE_FEATURE_THORCHAIN_SWAPPER_ACK,
     RelaySwapper: getConfig().VITE_FEATURE_SWAPPER_RELAY,
-    NotificationCenter: getConfig().VITE_FEATURE_NOTIFICATION_CENTER,
+    ActionCenter: getConfig().VITE_FEATURE_ACTION_CENTER,
     ThorchainTcy: getConfig().VITE_FEATURE_THORCHAIN_TCY,
     ThorchainTcyWidget: getConfig().VITE_FEATURE_THORCHAIN_TCY_WIDGET,
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,

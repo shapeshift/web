@@ -14,12 +14,12 @@ import { RawText } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import type { Action } from '@/state/slices/actionSlice/types'
+import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, isLimitOrderAction } from '@/state/slices/actionSlice/types'
 
 type LimitOrderDetailsProps = {
   order: Order | undefined
-  action: Action
+  action: LimitOrderAction
   onCancelOrder: (order: OrderToCancel) => void
 }
 
@@ -36,7 +36,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
     filledDecimalPercentage,
     expires,
     limitPrice,
-  } = isLimitOrderAction(action) ? action.limitOrderMetadata : {}
+  } = action.limitOrderMetadata
   const status = action.status
 
   const pair = useMemo(() => {

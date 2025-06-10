@@ -9,15 +9,17 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { Order } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
+import { LimitOrderDetails } from './Details/LimitOrderDetails'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { RawText } from '@/components/Text'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 
@@ -33,20 +35,20 @@ const hoverProps = {
 type NotificationCardProps = {
   isCollapsable?: boolean
   defaultIsOpen?: boolean
-} & LimitOrderAction &
-  PropsWithChildren
+  onCancelOrder: (order: OrderToCancel) => void
+  order: Order
+  action: LimitOrderAction
+}
 
 export const LimitOrderActionCard = ({
-  type,
-  status,
-  createdAt,
-  title,
-  children,
   isCollapsable = true,
   defaultIsOpen = false,
-  ...action
+  onCancelOrder,
+  order,
+  action,
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
+  const { createdAt, status, type, title } = action
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -106,7 +108,7 @@ export const LimitOrderActionCard = ({
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4}>
               <CardBody px={0} py={0}>
-                {children}
+                <LimitOrderDetails action={action} order={order} onCancelOrder={onCancelOrder} />
               </CardBody>
             </Card>
           </Collapse>

@@ -522,6 +522,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         return {
           allowanceContract: '',
           relayTransactionMetadata: {
+            from: sendAddress,
             psbt: selectedItem.data.psbt,
             opReturnData: quoteStep.requestId,
             to: relayer,
@@ -535,6 +536,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         return {
           allowanceContract: selectedItem.data?.to ?? '',
           relayTransactionMetadata: {
+            from: sendAddress,
             to: selectedItem.data?.to,
             value: selectedItem.data?.value,
             data: selectedItem.data?.data,
@@ -555,6 +557,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             instructions: selectedItem.data?.instructions?.map(convertSolanaInstruction),
           },
           relayTransactionMetadata: {
+            from: sendAddress,
             relayId: quote.steps[0].requestId,
           },
         }

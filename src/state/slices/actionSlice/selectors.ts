@@ -40,7 +40,7 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   },
 )
 
-export const selectInitializedActionsByUpdatedAtDesc = createDeepEqualOutputSelector(
+export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
     return actions

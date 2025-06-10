@@ -25,8 +25,8 @@ import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitO
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
-  selectInitializedActionsByUpdatedAtDesc,
   selectLimitOrderActionByLimitOrderId,
+  selectWalletActionsSorted,
   selectWalletHasPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionType } from '@/state/slices/actionSlice/types'
@@ -45,7 +45,7 @@ export const ActionCenter = memo(() => {
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
-  const actions = useAppSelector(selectInitializedActionsByUpdatedAtDesc)
+  const actions = useAppSelector(selectWalletActionsSorted)
 
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
   const limitOrders = useLimitOrders()

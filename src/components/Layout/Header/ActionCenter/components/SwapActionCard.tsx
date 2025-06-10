@@ -9,55 +9,42 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo } from 'react'
 
-import type { NotificationStatus, NotificationType } from '../types'
-import { NotificationStatusIcon } from './NotificationStatusIcon'
-import { NotificationStatusTag } from './NotificationStatusTag'
+import { ActionStatusIcon } from './ActionStatusIcon'
+import { ActionStatusTag } from './ActionStatusTag'
+import { SwapDetails } from './Details/SwapDetails'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
+import type { SwapAction } from '@/state/slices/actionSlice/types'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
 
 const divider = <RawText color='text.subtle'>•</RawText>
 
-const hoverProps = {
-  bg: 'background.button.secondary.hover',
-  cursor: 'pointer',
-}
-
-type NotificationCardProps = {
-  type: NotificationType
-  assetId: AssetId
-  secondaryAssetId?: AssetId
-  status: NotificationStatus
-  date: number
-  title: string
+type SwapActionCardProps = {
   isCollapsable?: boolean
   defaultIsOpen?: boolean
-} & PropsWithChildren
+} & SwapAction
 
-export const NotificationCard = ({
-  type,
-  assetId,
-  secondaryAssetId,
-  status,
-  date,
-  title,
-  children,
+export const SwapActionCard = ({
   isCollapsable = true,
   defaultIsOpen = false,
-}: NotificationCardProps) => {
+  ...action
+}: SwapActionCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
+  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs.unix(date)
+    const notificationDate = dayjs(action.createdAt)
     const sevenDaysAgo = now.subtract(7, 'day')
 
     if (notificationDate.isAfter(sevenDaysAgo)) {
@@ -65,13 +52,25 @@ export const NotificationCard = ({
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [date])
+  }, [action.createdAt])
+
+  const swap = useMemo(() => {
+    return swapsById[action.swapMetadata.swapId]
+  }, [action, swapsById])
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {
       onToggle()
     }
   }, [isCollapsable, onToggle])
+
+  const hoverProps = useMemo(
+    () => ({
+      bg: 'background.button.secondary.hover',
+      cursor: swap?.txLink ? 'pointer' : undefined,
+    }),
+    [swap?.txLink],
+  )
 
   return (
     <Stack
@@ -83,20 +82,31 @@ export const NotificationCard = ({
       _hover={isCollapsable ? hoverProps : undefined}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4}>
-        <AssetIconWithBadge assetId={assetId} secondaryAssetId={secondaryAssetId} size='md'>
-          <NotificationStatusIcon status={status} />
+        <AssetIconWithBadge
+          assetId={swap?.sellAsset.assetId}
+          secondaryAssetId={swap?.buyAsset.assetId}
+          size='md'
+        >
+          <ActionStatusIcon status={action.status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>
           <HStack onClick={handleClick}>
             <Stack spacing={1} width='full'>
-              <RawText fontSize='sm'>{title}</RawText>
+              <RawText fontSize='sm'>{action.title}</RawText>
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
-                <NotificationStatusTag status={status} />
+                <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
-                <RawText>{type}</RawText>
+                <RawText>{action.type}</RawText>
+                {swap?.swapperName && (
+                  <RawText>
+                    <HoverTooltip label={swap.swapperName}>
+                      <SwapperIcons swapperName={swap.swapperName} swapSource={undefined} />
+                    </HoverTooltip>
+                  </RawText>
+                )}
               </HStack>
             </Stack>
-            {isCollapsable && (
+            {isCollapsable && swap?.txLink && (
               <Icon
                 as={isOpen ? ChevronUpIcon : ChevronDownIcon}
                 ml='auto'
@@ -109,7 +119,7 @@ export const NotificationCard = ({
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4}>
               <CardBody px={0} py={0}>
-                {children}
+                <SwapDetails txLink={swap?.txLink} />
               </CardBody>
             </Card>
           </Collapse>

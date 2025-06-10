@@ -557,7 +557,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             instructions: selectedItem.data?.instructions?.map(convertSolanaInstruction),
           },
           relayTransactionMetadata: {
-            from: sendAddress,
             relayId: quote.steps[0].requestId,
           },
         }

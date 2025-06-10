@@ -2,13 +2,18 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Link, Text as CText, usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
+import type { Order } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
-import { selectAssetById, selectEvmAccountIds } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectEvmAccountIds,
+  selectLimitOrderActionByLimitOrderId,
+} from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 export const useLimitOrdersQuery = () => {
@@ -90,5 +95,24 @@ export const useLimitOrders = () => {
     })
   }, [limitOrdersQuery.currentData, prevLimitOrdersData, toast, translate])
 
-  return limitOrdersQuery
+  const ordersByActionId = useMemo(() => {
+    return (limitOrdersQuery.data ?? []).reduce(
+      (acc, order) => {
+        const action = selectLimitOrderActionByLimitOrderId(store.getState(), {
+          limitOrderId: order.order.uid,
+        })
+
+        if (!action) return acc
+
+        acc[action.id] = order.order
+        return acc
+      },
+      {} as Record<string, Order>,
+    )
+  }, [limitOrdersQuery.data])
+
+  return {
+    ...limitOrdersQuery,
+    ordersByActionId,
+  }
 }

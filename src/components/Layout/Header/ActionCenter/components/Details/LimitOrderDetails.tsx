@@ -15,10 +15,10 @@ import { TransactionDate } from '@/components/TransactionHistoryRows/Transaction
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, isLimitOrderAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 
 type LimitOrderDetailsProps = {
-  order: Order | undefined
+  order: Order
   action: LimitOrderAction
   onCancelOrder: (order: OrderToCancel) => void
 }
@@ -64,19 +64,17 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   }, [filledDecimalPercentage])
 
   const executionPrice = useMemo(() => {
-    if (!executedBuyAmountCryptoPrecision || !executedSellAmountCryptoPrecision) return '0'
+    if (!executedBuyAmountCryptoPrecision || !executedSellAmountCryptoPrecision) return
     return bn(executedBuyAmountCryptoPrecision).div(executedSellAmountCryptoPrecision).toFixed()
   }, [executedBuyAmountCryptoPrecision, executedSellAmountCryptoPrecision])
 
-  const executionPriceCryptoFormatted = useMemo(
-    () => toCrypto(executionPrice, buyAsset?.symbol ?? ''),
-    [executionPrice, toCrypto, buyAsset],
-  )
+  const executionPriceCryptoFormatted = useMemo(() => {
+    if (!executionPrice) return
+
+    return toCrypto(executionPrice, buyAsset?.symbol ?? '')
+  }, [executionPrice, toCrypto, buyAsset])
 
   const orderToCancel = useMemo(() => {
-    if (!order) return undefined
-    if (!isLimitOrderAction(action)) return undefined
-
     if (order.status !== OrderStatus.OPEN) return undefined
 
     return {
@@ -91,6 +89,11 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
     if (!orderToCancel) return
     onCancelOrder(orderToCancel)
   }, [onCancelOrder, orderToCancel])
+
+  const filledPercentageHuman = useMemo(
+    () => bnOrZero(filledDecimalPercentage).times(100).toNumber(),
+    [filledDecimalPercentage],
+  )
 
   return (
     <Stack gap={4}>
@@ -121,7 +124,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
           </Row.Value>
         </Row>
       ) : null}
-      {executedBuyAmountCryptoBaseUnit && executedSellAmountCryptoBaseUnit ? (
+      {executionPrice ? (
         <Row fontSize='sm'>
           <Row.Label>{translate('notificationCenter.executionPrice')}</Row.Label>
           <Row.Value>
@@ -138,33 +141,26 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
       <Row fontSize='sm'>
         <Row.Label>{translate('notificationCenter.filled')}</Row.Label>
         <Row.Value display='flex' alignItems='center' gap={2}>
-          <Progress
-            width='100px'
-            size='xs'
-            value={bnOrZero(filledDecimalPercentage).times(100).toNumber()}
-            colorScheme='green'
-          />
+          <Progress width='100px' size='xs' value={filledPercentageHuman} colorScheme='green' />
           <RawText>{formattedFilled}</RawText>
         </Row.Value>
       </Row>
-      {order && (
-        <ButtonGroup width='full' size='sm'>
-          <Button
-            as={Link}
-            href={`https://explorer.cow.fi/orders/${order.uid}`}
-            isExternal
-            width='full'
-          >
-            {translate('notificationCenter.viewOrder')}
-            <ExternalLinkIcon ml='2' />
+      <ButtonGroup width='full' size='sm'>
+        <Button
+          as={Link}
+          href={`https://explorer.cow.fi/orders/${order.uid}`}
+          isExternal
+          width='full'
+        >
+          {translate('notificationCenter.viewOrder')}
+          <ExternalLinkIcon ml='2' />
+        </Button>
+        {status === ActionStatus.Open && (
+          <Button width='full' onClick={handleCancelOrder}>
+            {translate('notificationCenter.cancelOrder')}
           </Button>
-          {status === ActionStatus.Open && (
-            <Button width='full' onClick={handleCancelOrder}>
-              {translate('notificationCenter.cancelOrder')}
-            </Button>
-          )}
-        </ButtonGroup>
-      )}
+        )}
+      </ButtonGroup>
     </Stack>
   )
 }

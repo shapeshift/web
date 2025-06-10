@@ -11,8 +11,7 @@ import {
   IconButton,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { Order } from '@shapeshiftoss/types'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
@@ -25,12 +24,11 @@ import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitO
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
-  selectLimitOrderActionByLimitOrderId,
   selectWalletActionsSorted,
   selectWalletHasPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionType } from '@/state/slices/actionSlice/types'
-import { store, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -48,31 +46,7 @@ export const ActionCenter = memo(() => {
   const actions = useAppSelector(selectWalletActionsSorted)
 
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
-  const limitOrders = useLimitOrders()
-
-  const handleResetOrderToCancel = useCallback(() => {
-    setOrderToCancel(undefined)
-  }, [])
-
-  const handleSetOrderToCancel = useCallback((orderToCancel: OrderToCancel) => {
-    setOrderToCancel(orderToCancel)
-  }, [])
-
-  const ordersByActionId = useMemo(() => {
-    return limitOrders.data?.reduce(
-      (acc, order) => {
-        const action = selectLimitOrderActionByLimitOrderId(store.getState(), {
-          limitOrderId: order.order.uid,
-        })
-
-        if (!action) return acc
-
-        acc[action.id] = order.order
-        return acc
-      },
-      {} as Record<string, Order>,
-    )
-  }, [limitOrders])
+  const { ordersByActionId } = useLimitOrders()
 
   const actionsCards = useMemo(() => {
     return actions.map(action => {
@@ -82,7 +56,7 @@ export const ActionCenter = memo(() => {
             return <SwapActionCard key={action.id} {...action} />
           }
           case ActionType.LimitOrder: {
-            const order = ordersByActionId?.[action.id]
+            const order = ordersByActionId[action.id]
 
             if (!order) return null
 
@@ -91,7 +65,7 @@ export const ActionCenter = memo(() => {
                 key={action.id}
                 order={order}
                 action={action}
-                onCancelOrder={handleSetOrderToCancel}
+                onCancelOrder={setOrderToCancel}
               />
             )
           }
@@ -102,7 +76,7 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     })
-  }, [actions, handleSetOrderToCancel, ordersByActionId])
+  }, [actions, ordersByActionId])
 
   return (
     <>
@@ -155,10 +129,7 @@ export const ActionCenter = memo(() => {
           </Box>
         </DrawerContent>
       </Drawer>
-      <CancelLimitOrder
-        orderToCancel={orderToCancel}
-        resetOrderToCancel={handleResetOrderToCancel}
-      />
+      <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
     </>
   )
 })

@@ -222,6 +222,8 @@ export const useLimitOrderActionSubscriber = ({
       })
 
       if (action && action.type === ActionType.LimitOrder) {
+        if (action.limitOrderMetadata.limitOrderId) return
+
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,

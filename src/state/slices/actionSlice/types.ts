@@ -74,11 +74,7 @@ export const isSwapAction = (action: Action): action is SwapAction => {
 }
 
 export const isLimitOrderAction = (action: Action): action is LimitOrderAction => {
-  return Boolean(
-    action.type === ActionType.LimitOrder &&
-      action.limitOrderMetadata &&
-      'cowSwapQuoteId' in action.limitOrderMetadata,
-  )
+  return Boolean(action.type === ActionType.LimitOrder && action.limitOrderMetadata)
 }
 
 export const isPendingSwapAction = (action: Action): action is SwapAction => {

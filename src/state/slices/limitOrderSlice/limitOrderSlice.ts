@@ -273,11 +273,11 @@ export const limitOrderSlice = createSlice({
       },
     ),
     setLimitOrderId: create.reducer(
-      (state, action: PayloadAction<{ id: CowSwapQuoteId; orderId: string }>) => {
+      (state, action: PayloadAction<{ cowSwapQuoteId: CowSwapQuoteId; orderId: string }>) => {
         const { orderId } = action.payload
         const draftOrderSubmission = makeOrderSubmissionDraft(
           state.orderSubmission,
-          action.payload.id,
+          action.payload.cowSwapQuoteId,
         )
         draftOrderSubmission.limitOrder.orderId = orderId
       },

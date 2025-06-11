@@ -1,5 +1,5 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, ButtonGroup, Flex } from '@chakra-ui/react'
+import { Button, ButtonGroup, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo } from 'react'
 
@@ -13,6 +13,9 @@ export const QuoteSortSelector: FC = memo(() => {
   const currentSortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
   const quoteSortOptions = useQuoteSortOptions()
+
+  const buttonBorderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+  const buttonTextColor = useColorModeValue('black', 'white')
 
   return (
     <>
@@ -30,12 +33,12 @@ export const QuoteSortSelector: FC = memo(() => {
         {quoteSortOptions.map(buttonConf => (
           <Button
             key={buttonConf.value}
-            color='white'
+            color={buttonTextColor}
             fontWeight='medium'
             h={10}
             px={4}
             border='1px solid'
-            borderColor='whiteAlpha.50'
+            borderColor={buttonBorderColor}
             isActive={currentSortOption === buttonConf.value}
             onClick={buttonConf.handleClick}
           >

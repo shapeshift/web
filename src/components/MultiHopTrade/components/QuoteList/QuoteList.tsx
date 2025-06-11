@@ -14,6 +14,7 @@ import {
   MenuList,
   MenuOptionGroup,
   Text,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -45,6 +46,8 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
     [currentSortOption, quoteSortOptions],
   )
 
+  const sortByTextColor = useColorModeValue('blackAlpha.500', 'whiteAlpha.500')
+
   return (
     <Card {...cardProps}>
       <CardHeader px={4} pt={4} display='flex' alignItems='center' justifyContent='space-between'>
@@ -53,7 +56,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
           <Heading fontSize='md'>{translate('trade.availableSwappers')}</Heading>
         </Flex>
         <Flex alignItems='center' gap={2}>
-          <Text color='whiteAlpha.500' fontWeight='normal' fontSize='sm'>
+          <Text color={sortByTextColor} fontWeight='normal' fontSize='sm'>
             {translate('common.sortBy')}
           </Text>
           <Menu>

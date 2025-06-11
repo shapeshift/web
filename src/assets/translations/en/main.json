@@ -2930,6 +2930,7 @@
   },
   "chainAdapters": {
     "errors": {
+      "getChainInfo": "Failed to retrieve chain details",
       "unsupportedAddress": "Address %{address} not supported.",
       "unsupportedChain": "Wallet does not support %{chain}.",
       "ledgerAppOpenCancelled": "Ledger app open cancelled.",

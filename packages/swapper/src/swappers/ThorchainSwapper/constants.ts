@@ -2,17 +2,21 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 
 import type { SupportedChainIds, SwapSource } from '../../types'
 import { SwapperName } from '../../types'
-import { assetIdToPoolAssetIdMap } from './utils/poolAssetHelpers/poolAssetHelpers'
+import { assetIdToThorPoolAssetIdMap } from './utils/poolAssetHelpers/poolAssetHelpers'
 
-export const THOR_PRECISION = 8
+export const THORCHAIN_PRECISION = 8
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 
 export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: [
-    ...new Set(Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId)),
+    ...new Set(
+      Object.keys(assetIdToThorPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId),
+    ),
   ],
   buy: [
-    ...new Set(Object.keys(assetIdToPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId)),
+    ...new Set(
+      Object.keys(assetIdToThorPoolAssetIdMap).map(assetId => fromAssetId(assetId).chainId),
+    ),
   ],
 }
 

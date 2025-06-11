@@ -10,15 +10,25 @@ import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
 import * as arbitrumBridge from '../../parser/arbitrumBridge'
 import * as erc20 from '../../parser/erc20'
+import * as mayachain from '../../parser/mayachain'
 import * as rfox from '../../parser/rfox'
 import * as zrx from '../../parser/zrx'
 
+export interface TransactionParserArgs extends BaseTransactionParserArgs {
+  mayaMidgardUrl: string
+}
+
 export class TransactionParser extends BaseTransactionParser<Tx> {
-  constructor(args: BaseTransactionParserArgs) {
+  constructor(args: TransactionParserArgs) {
     super(args)
 
     this.registerParsers([
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
+      new mayachain.Parser({
+        chainId: this.chainId,
+        rpcUrl: args.rpcUrl,
+        midgardUrl: args.mayaMidgardUrl,
+      }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
       new rfox.Parser({
         proxyContract: RFOX_PROXY_CONTRACT,

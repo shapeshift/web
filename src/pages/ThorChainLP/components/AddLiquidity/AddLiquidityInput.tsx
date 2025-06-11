@@ -21,8 +21,8 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
-  assetIdToPoolAssetId,
-  poolAssetIdToAssetId,
+  assetIdToThorPoolAssetId,
+  thorPoolAssetIdToAssetId,
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -283,7 +283,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     if (!pools?.length) return
 
-    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
+    const assetId = thorPoolAssetIdToAssetId(poolAssetId ?? '')
 
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
@@ -510,7 +510,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const thorchainNotationPoolAssetId = useMemo(() => {
     if (!poolAsset) return undefined
-    return assetIdToPoolAssetId({
+    return assetIdToThorPoolAssetId({
       assetId: poolAsset.assetId,
     })
   }, [poolAsset])

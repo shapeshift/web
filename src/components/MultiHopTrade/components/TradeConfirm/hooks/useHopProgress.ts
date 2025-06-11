@@ -19,6 +19,27 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 type SwapperProgressMap = Record<string, number>
 type SwapperProgressMaps = Partial<Record<SwapperName, SwapperProgressMap>>
 
+const thorSwapperProgressMap = {
+  // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Inbound observed'
+  '': 7,
+  [ThorchainStatusMessage.InboundObservingPending]: 15,
+  [ThorchainStatusMessage.InboundObserved]: 22,
+  [ThorchainStatusMessage.InboundConfirmationPending]: 29,
+  [ThorchainStatusMessage.InboundConfirmationCounted]: 36,
+  [ThorchainStatusMessage.InboundFinalizationPending]: 43,
+  [ThorchainStatusMessage.InboundFinalized]: 50,
+  [ThorchainStatusMessage.SwapPending]: 57,
+  [ThorchainStatusMessage.SwapCompleteAwaitingOutbound]: 64,
+  [ThorchainStatusMessage.SwapCompleteAwaitingDestination]: 71,
+  // We can't map this guy as it's actually dynamic
+  // [ThorchainStatusMessage.OutboundDelayTimeRemaining]: 85,
+  [ThorchainStatusMessage.OutboundDelayPending]: 85,
+  [ThorchainStatusMessage.OutboundScheduled]: 92,
+  [ThorchainStatusMessage.OutboundSigned]: 100,
+}
+
+const mayaSwapperProgressMap = thorSwapperProgressMap
+
 const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
   [SwapperName.Chainflip]: {
     // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Waiting for deposit'
@@ -32,24 +53,8 @@ const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
     [ChainflipStatusMessage.SwapComplete]: 100,
     [ChainflipStatusMessage.SwapFailed]: 100,
   },
-  [SwapperName.Thorchain]: {
-    // Polling will take a few renders for fetch to succeed and its status message reflected, so nilish effectively means 'Inbound observed'
-    '': 7,
-    [ThorchainStatusMessage.InboundObservingPending]: 15,
-    [ThorchainStatusMessage.InboundObserved]: 22,
-    [ThorchainStatusMessage.InboundConfirmationPending]: 29,
-    [ThorchainStatusMessage.InboundConfirmationCounted]: 36,
-    [ThorchainStatusMessage.InboundFinalizationPending]: 43,
-    [ThorchainStatusMessage.InboundFinalized]: 50,
-    [ThorchainStatusMessage.SwapPending]: 57,
-    [ThorchainStatusMessage.SwapCompleteAwaitingOutbound]: 64,
-    [ThorchainStatusMessage.SwapCompleteAwaitingDestination]: 71,
-    // We can't map this guy as it's actually dynamic
-    // [ThorchainStatusMessage.OutboundDelayTimeRemaining]: 85,
-    [ThorchainStatusMessage.OutboundDelayPending]: 85,
-    [ThorchainStatusMessage.OutboundScheduled]: 92,
-    [ThorchainStatusMessage.OutboundSigned]: 100,
-  },
+  [SwapperName.Thorchain]: thorSwapperProgressMap,
+  [SwapperName.Mayachain]: mayaSwapperProgressMap,
   [SwapperName.LIFI]: {
     '': 16,
     [LifiStatusMessage.BridgeWaitingForConfirmations]: 33,

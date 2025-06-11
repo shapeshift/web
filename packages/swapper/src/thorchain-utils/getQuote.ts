@@ -64,7 +64,7 @@ export const getQuote = async (
 
   // All pool amounts are native precision regardless of token precision
   const sellAmountCryptoThorBaseUnit = bn(
-    toBaseUnit(sellAmountCryptoPrecision, getNativePrecision(swapperName)),
+    toBaseUnit(sellAmountCryptoPrecision, getNativePrecision(sellAsset.assetId, swapperName)),
   )
 
   // The swap endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix

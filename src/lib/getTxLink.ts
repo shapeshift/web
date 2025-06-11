@@ -5,6 +5,7 @@ import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_SWAP_SOURCE,
+  MAYACHAIN_STREAM_SWAP_SOURCE,
   SwapperName,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
@@ -12,6 +13,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Dex } from '@shapeshiftoss/unchained-client'
+import { mayachain, thorchain } from '@shapeshiftoss/utils'
 
 type GetTxBaseUrl = {
   stepSource?: Dex | SwapSource
@@ -53,12 +55,15 @@ export const getTxBaseUrl = ({
     case THORCHAIN_STREAM_SWAP_SOURCE:
     case THORCHAIN_LONGTAIL_SWAP_SOURCE:
     case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
-      return 'https://viewblock.io/thorchain/tx/'
+      return thorchain.explorerTxLink
     case SwapperName.Chainflip:
     case CHAINFLIP_BOOST_SWAP_SOURCE:
     case CHAINFLIP_DCA_SWAP_SOURCE:
     case CHAINFLIP_DCA_BOOST_SWAP_SOURCE:
       return 'https://scan.chainflip.io/swaps/'
+    case SwapperName.Mayachain:
+    case MAYACHAIN_STREAM_SWAP_SOURCE:
+      return mayachain.explorerTxLink
     default:
       return defaultExplorerBaseUrl
   }
@@ -85,6 +90,8 @@ export const getTxLink = ({
       case THORCHAIN_STREAM_SWAP_SOURCE:
       case THORCHAIN_LONGTAIL_SWAP_SOURCE:
       case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
+      case SwapperName.Mayachain:
+      case MAYACHAIN_STREAM_SWAP_SOURCE:
         return `${baseUrl}${id.replace(/^0x/, '')}`
       case SwapperName.Chainflip:
       case CHAINFLIP_BOOST_SWAP_SOURCE:
@@ -116,6 +123,8 @@ export const getTxLink = ({
     case THORCHAIN_STREAM_SWAP_SOURCE:
     case THORCHAIN_LONGTAIL_SWAP_SOURCE:
     case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
+    case SwapperName.Mayachain:
+    case MAYACHAIN_STREAM_SWAP_SOURCE:
       return `${baseUrl}${(maybeSafeTx?.transaction?.transactionHash ?? '').replace(/^0x/, '')}`
     default:
       return `${baseUrl}${maybeSafeTx?.transaction?.transactionHash ?? ''}`

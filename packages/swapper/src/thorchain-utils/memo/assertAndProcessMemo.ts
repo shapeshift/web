@@ -62,18 +62,18 @@ function assertMemoHasAction(action: string | undefined, memo: string): asserts 
 const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   assertMemoHasLimit(limit, memo)
 
-  const maybeStreamingSwap = limit.match(/\//g)
-  const [lim, interval, quantity] = limit.split('/')
+  const parts = limit.split('/')
+  const [lim, interval, quantity] = parts
 
-  if (maybeStreamingSwap) {
-    if (!(lim && interval && quantity && maybeStreamingSwap.length === 3))
+  if (parts.length > 1) {
+    if (!(lim && interval && quantity && parts.length === 3))
       throw new Error(`invalid streaming parameters in memo: ${memo}`)
-    if (!bn(lim).isInteger()) throw new Error(`limit must be an integer in memo: ${memo}`)
-    if (!bn(interval).isInteger()) throw new Error(`interval is required in memo: ${memo}`)
-    if (!bn(quantity).isInteger()) throw new Error(`quantity is required in memo: ${memo}`)
+    if (!bn(lim).gte(0)) throw new Error(`limit must be >= 0 in memo: ${memo}`)
+    if (!bn(interval).gte(0)) throw new Error(`interval must be >= 0 in memo: ${memo}`)
+    if (!bn(quantity).gte(0)) throw new Error(`quantity must be >= 0 in memo: ${memo}`)
+  } else {
+    if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
   }
-
-  if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
 }
 
 const assertIsValidFinalAssetLimit = (finalAssetLimit: string | undefined, memo: string) => {
@@ -141,7 +141,9 @@ export const assertAndProcessMemo = (memo: string, affiliate: string): string =>
         return ''
       })()
 
-      return `${_action}:${asset}:${destAddr}:${limit}:${affiliate}:${fee || 0}${maybeSwapOutParts}`
+      return `${_action}:${asset}:${destAddr}:${limit}:${affiliate}:${
+        affiliate ? fee || 0 : ''
+      }${maybeSwapOutParts}`
     }
     case 'add':
     case '+':

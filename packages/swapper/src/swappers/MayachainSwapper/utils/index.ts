@@ -6,7 +6,7 @@ import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
-import { assetIdToPoolAssetId } from './poolAssetHelpers/poolAssetHelpers'
+import { assetIdToMayaPoolAssetId } from './poolAssetHelpers/poolAssetHelpers'
 
 export const assertValidTrade = ({
   buyAsset,
@@ -35,7 +35,7 @@ export const assertValidTrade = ({
     )
   }
 
-  if (!assetIdToPoolAssetId({ assetId: buyAsset.assetId })) {
+  if (!assetIdToMayaPoolAssetId({ assetId: buyAsset.assetId })) {
     return Err(
       makeSwapErrorRight({
         message: `[MayachainSwapper: assertValidTrade] - unsupported buy asset`,
@@ -45,7 +45,7 @@ export const assertValidTrade = ({
     )
   }
 
-  if (!assetIdToPoolAssetId({ assetId: sellAsset.assetId })) {
+  if (!assetIdToMayaPoolAssetId({ assetId: sellAsset.assetId })) {
     return Err(
       makeSwapErrorRight({
         message: `[MayachainSwapper: assertValidTrade] - unsupported sell asset`,

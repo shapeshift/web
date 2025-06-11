@@ -1,22 +1,24 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { mayachainAssetId, mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 
 import {
+  assetIdToMayaPoolAssetId,
+  CACAO_PRECISION,
   isCacao,
-  MAYA_PRECISION,
   MAYACHAIN_AFFILIATE_NAME,
+  MAYACHAIN_PRECISION,
   MAYACHAIN_STREAM_SWAP_SOURCE,
 } from '../swappers/MayachainSwapper'
-import * as mayachain from '../swappers/MayachainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
+  assetIdToThorPoolAssetId,
   isRune,
-  THOR_PRECISION,
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
+  THORCHAIN_PRECISION,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '../swappers/ThorchainSwapper'
-import * as thorchain from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { SwapperConfig, SwapSource, TradeQuote, TradeRate } from '../types'
 import { SwapperName } from '../types'
 import type { ThorTradeQuote, ThorTradeRate } from './types'
@@ -34,6 +36,17 @@ export * from './getPoolDetails'
 export * as cosmossdk from './cosmossdk'
 export * as evm from './evm'
 export * as utxo from './utxo'
+
+export const getChainIdBySwapper = (swapperName: SwapperName) => {
+  switch (swapperName) {
+    case SwapperName.Thorchain:
+      return thorchainChainId
+    case SwapperName.Mayachain:
+      return mayachainChainId
+    default:
+      throw new Error(`Invalid swapper: ${swapperName}`)
+  }
+}
 
 export const isThorTradeRate = (quote: TradeRate | undefined): quote is ThorTradeRate =>
   !!quote && 'tradeType' in quote && 'vault' in quote
@@ -74,12 +87,12 @@ export const isNativeAsset = (assetId: AssetId, swapperName: SwapperName) => {
   }
 }
 
-export const getNativePrecision = (swapperName: SwapperName) => {
+export const getNativePrecision = (assetId: AssetId, swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
-      return THOR_PRECISION
+      return THORCHAIN_PRECISION
     case SwapperName.Mayachain:
-      return MAYA_PRECISION
+      return assetId === mayachainAssetId ? CACAO_PRECISION : MAYACHAIN_PRECISION
     default:
       throw new Error(`Invalid swapper: ${swapperName}`)
   }
@@ -116,9 +129,9 @@ export const getPoolAssetId = ({
 }) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
-      return thorchain.assetIdToPoolAssetId({ assetId })
+      return assetIdToThorPoolAssetId({ assetId })
     case SwapperName.Mayachain:
-      return mayachain.assetIdToPoolAssetId({ assetId })
+      return assetIdToMayaPoolAssetId({ assetId })
     default:
       throw new Error(`Invalid swapper: ${swapperName}`)
   }

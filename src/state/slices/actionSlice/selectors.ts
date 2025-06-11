@@ -94,17 +94,6 @@ export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutput
   },
 )
 
-export const selectLimitOrderActionByLimitOrderId = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
-  selectLimitOrderIdParamFromFilter,
-  (actions, limitOrderId) => {
-    return actions.find(
-      action =>
-        isLimitOrderAction(action) && action.limitOrderMetadata.limitOrderId === limitOrderId,
-    )
-  },
-)
-
 export const selectLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActions,
   selectCowSwapQuoteIdParamFromRequiredFilter,

@@ -8,14 +8,11 @@ import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { isLimitOrderAction } from '@/state/slices/actionSlice/types'
-import {
-  selectAssetById,
-  selectEvmAccountIds,
-  selectLimitOrderActionByLimitOrderId,
-} from '@/state/slices/selectors'
+import { selectAssetById, selectEvmAccountIds } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 export const useLimitOrdersQuery = () => {
@@ -34,6 +31,7 @@ export const useLimitOrders = () => {
   const translate = useTranslate()
   const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
   const actions = useAppSelector(actionSlice.selectors.selectActions)
+  const isActionCenterEnabled = useFeatureFlag('ActionCenter')
 
   useEffect(() => {
     if (!prevLimitOrdersData || !limitOrdersQuery.currentData) return
@@ -80,23 +78,25 @@ export const useLimitOrders = () => {
         ],
       )
 
-      toast({
-        title: translate('limitOrder.limitOrderFilled'),
-        description: (
-          <Box>
-            <CText mb={2}>{translate(assetToAssetTranslation)}</CText>
-            <Link href={`https://explorer.cow.fi/orders/${order.uid}`} isExternal>
-              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-            </Link>
-          </Box>
-        ),
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-        position: 'top-right',
-      })
+      if (!isActionCenterEnabled) {
+        toast({
+          title: translate('limitOrder.limitOrderFilled'),
+          description: (
+            <Box>
+              <CText mb={2}>{translate(assetToAssetTranslation)}</CText>
+              <Link href={`https://explorer.cow.fi/orders/${order.uid}`} isExternal>
+                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+              </Link>
+            </Box>
+          ),
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right',
+        })
+      }
     })
-  }, [limitOrdersQuery.currentData, prevLimitOrdersData, toast, translate])
+  }, [limitOrdersQuery.currentData, prevLimitOrdersData, toast, translate, isActionCenterEnabled])
 
   const ordersByActionId = useMemo(() => {
     return (limitOrdersQuery.data ?? []).reduce<Record<string, Order>>((acc, order) => {

@@ -63,7 +63,7 @@ export const useLimitOrderActionSubscriber = ({
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
-  const quoteId = useAppSelector(selectActiveQuoteId)
+  const activeQuoteId = useAppSelector(selectActiveQuoteId)
   const { currentData: ordersResponse } = useLimitOrdersQuery()
   const toast = useToast({
     render: ({ title, status, description, onClose }) => {
@@ -113,8 +113,10 @@ export const useLimitOrderActionSubscriber = ({
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   const orderSubmissionMetadataFilter = useMemo(() => {
-    return { cowSwapQuoteId: quoteId ?? 0 }
-  }, [quoteId])
+    // Sounds dangerous but it's actually safe because it would return an undefined order
+    // and so will all the logic will early return
+    return { cowSwapQuoteId: activeQuoteId ?? 0 }
+  }, [activeQuoteId])
 
   const limitOrderSubmissionMetadata = useSelectorWithArgs(
     selectLimitOrderSubmissionMetadata,
@@ -130,7 +132,7 @@ export const useLimitOrderActionSubscriber = ({
     if (!limitOrderSubmissionMetadata) return
     if (!sellAsset) return
     if (!buyAsset) return
-    if (!quoteId) return
+    if (!activeQuoteId) return
     if (!activeQuote) return
 
     const accountId = activeQuote.params.accountId
@@ -141,7 +143,7 @@ export const useLimitOrderActionSubscriber = ({
       previousLimitOrderState !== LimitOrderSubmissionState.AwaitingLimitOrderSubmission
     ) {
       const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
-        cowSwapQuoteId: quoteId,
+        cowSwapQuoteId: activeQuoteId,
       })
 
       if (action) return
@@ -176,7 +178,7 @@ export const useLimitOrderActionSubscriber = ({
             ),
           }),
           limitOrderMetadata: {
-            cowSwapQuoteId: quoteId,
+            cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
             sellAsset,
@@ -204,21 +206,21 @@ export const useLimitOrderActionSubscriber = ({
     sellAmountCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
     quoteExpirationTimestamp,
-    quoteId,
+    activeQuoteId,
     limitPrice,
   ])
 
   // Update action with cowswap order id so we can resolve action and executed limit orders later
   useEffect(() => {
     if (!limitOrderSubmissionMetadata) return
-    if (!quoteId) return
+    if (!activeQuoteId) return
 
     if (
       limitOrderSubmissionMetadata.limitOrder.orderId &&
       previousLimitOrderId !== limitOrderSubmissionMetadata.limitOrder.orderId
     ) {
       const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
-        cowSwapQuoteId: quoteId,
+        cowSwapQuoteId: activeQuoteId,
       })
 
       if (action && action.type === ActionType.LimitOrder) {
@@ -236,7 +238,7 @@ export const useLimitOrderActionSubscriber = ({
         )
       }
     }
-  }, [dispatch, limitOrderSubmissionMetadata, previousLimitOrderId, quoteId])
+  }, [dispatch, limitOrderSubmissionMetadata, previousLimitOrderId, activeQuoteId])
 
   // Update limit order action status when limit order is filled, cancelled or expired
   useEffect(() => {

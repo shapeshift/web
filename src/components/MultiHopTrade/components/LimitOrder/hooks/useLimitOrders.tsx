@@ -9,6 +9,8 @@ import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { isLimitOrderAction } from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectEvmAccountIds,
@@ -31,6 +33,7 @@ export const useLimitOrders = () => {
   const toast = useToast()
   const translate = useTranslate()
   const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
+  const actions = useAppSelector(actionSlice.selectors.selectActions)
 
   useEffect(() => {
     if (!prevLimitOrdersData || !limitOrdersQuery.currentData) return
@@ -96,20 +99,18 @@ export const useLimitOrders = () => {
   }, [limitOrdersQuery.currentData, prevLimitOrdersData, toast, translate])
 
   const ordersByActionId = useMemo(() => {
-    return (limitOrdersQuery.data ?? []).reduce(
-      (acc, order) => {
-        const action = selectLimitOrderActionByLimitOrderId(store.getState(), {
-          limitOrderId: order.order.uid,
-        })
+    return (limitOrdersQuery.data ?? []).reduce<Record<string, Order>>((acc, order) => {
+      const action = actions.find(
+        action =>
+          isLimitOrderAction(action) && action.limitOrderMetadata?.limitOrderId === order.order.uid,
+      )
 
-        if (!action) return acc
+      if (!action) return acc
 
-        acc[action.id] = order.order
-        return acc
-      },
-      {} as Record<string, Order>,
-    )
-  }, [limitOrdersQuery.data])
+      acc[action.id] = order.order
+      return acc
+    }, {})
+  }, [limitOrdersQuery.data, actions])
 
   return {
     ...limitOrdersQuery,

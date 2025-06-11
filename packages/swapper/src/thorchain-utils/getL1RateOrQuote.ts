@@ -102,6 +102,9 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     assertGetCosmosSdkChainAdapter,
   } = deps
 
+  // "NativePrecision" is intended to indicate the base unit precision of the asset
+  // for the corresponding swapper network (THORChain or MAYAChain)
+  // (CACAO = 10, everything else = 8)
   const sellAssetNativePrecision = getNativePrecision(sellAsset.assetId, swapperName)
   const buyAssetNativePrecision = getNativePrecision(buyAsset.assetId, swapperName)
 

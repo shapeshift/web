@@ -12,7 +12,6 @@ import {
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectCowSwapQuoteIdParamFromRequiredFilter,
-  selectLimitOrderIdParamFromFilter,
   selectSwapIdParamFromFilter,
 } from '@/state/selectors'
 

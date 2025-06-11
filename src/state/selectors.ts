@@ -59,7 +59,6 @@ type ParamFilter = Partial<{
   quoteId: string
   cowSwapQuoteId: number
   swapId: string
-  limitOrderId: string
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -99,7 +98,6 @@ export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('o
 export const selectParserParamFromFilter = selectParamFromFilter('parser')
 export const selectMemoParamFromFilter = selectParamFromFilter('memo')
 export const selectSwapIdParamFromFilter = selectParamFromFilter('swapId')
-export const selectLimitOrderIdParamFromFilter = selectParamFromFilter('limitOrderId')
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')
 export const selectQuoteIdParamFromRequiredFilter = selectRequiredParamFromFilter('quoteId')

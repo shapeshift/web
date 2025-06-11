@@ -2978,6 +2978,6 @@
     },
     "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
     "swapError": "Swap failed",
-    "limitOrderTitle": "%{buyAmountAndSymbol} → %{sellAmountAndSymbol}"
+    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
   }
 }

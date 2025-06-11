@@ -255,6 +255,15 @@ export const useLimitOrderActionSubscriber = ({
 
       if (!updatedLimitOrder || !isLimitOrderAction(updatedLimitOrder)) return
 
+      const executedSellAmountCryptoPrecision = fromBaseUnit(
+        order.order.executedSellAmount,
+        updatedLimitOrder.limitOrderMetadata.sellAsset.precision,
+      )
+      const executedBuyAmountCryptoPrecision = fromBaseUnit(
+        order.order.executedBuyAmount,
+        updatedLimitOrder.limitOrderMetadata.buyAsset.precision,
+      )
+
       const action = actions.find(
         action =>
           isLimitOrderAction(action) && action.limitOrderMetadata?.limitOrderId === order.order.uid,
@@ -288,9 +297,9 @@ export const useLimitOrderActionSubscriber = ({
           ...[
             'limitOrder.assetToAsset',
             {
-              sellAmount: order.order.executedSellAmount,
+              sellAmount: executedSellAmountCryptoPrecision,
               sellAsset: updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
-              buyAmount: order.order.executedBuyAmount,
+              buyAmount: executedBuyAmountCryptoPrecision,
               buyAsset: updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
             },
           ],
@@ -316,9 +325,39 @@ export const useLimitOrderActionSubscriber = ({
       }
 
       if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
+        const actionUpdatedTitle = translate('notificationCenter.limitOrderTitle', {
+          sellAmountAndSymbol: toCrypto(
+            fromBaseUnit(
+              order.order.executedSellAmount,
+              updatedLimitOrder.limitOrderMetadata.sellAsset.precision,
+            ),
+            updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
+            {
+              maximumFractionDigits: 8,
+              omitDecimalTrailingZeros: true,
+              abbreviated: true,
+              truncateLargeNumbers: true,
+            },
+          ),
+          buyAmountAndSymbol: toCrypto(
+            fromBaseUnit(
+              order.order.executedBuyAmount,
+              updatedLimitOrder.limitOrderMetadata.buyAsset.precision,
+            ),
+            updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
+            {
+              maximumFractionDigits: 8,
+              omitDecimalTrailingZeros: true,
+              abbreviated: true,
+              truncateLargeNumbers: true,
+            },
+          ),
+        })
+
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
+            title: actionUpdatedTitle,
             limitOrderMetadata: {
               ...action.limitOrderMetadata,
               executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
@@ -335,21 +374,9 @@ export const useLimitOrderActionSubscriber = ({
           ...[
             'limitOrder.assetToAsset',
             {
-              sellAmount: toCrypto(
-                fromBaseUnit(
-                  order.order.executedSellAmount,
-                  updatedLimitOrder.limitOrderMetadata.sellAsset.precision,
-                ),
-                updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
-              ),
+              sellAmount: executedSellAmountCryptoPrecision,
               sellAsset: updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
-              buyAmount: toCrypto(
-                fromBaseUnit(
-                  order.order.executedBuyAmount,
-                  updatedLimitOrder.limitOrderMetadata.buyAsset.precision,
-                ),
-                updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
-              ),
+              buyAmount: executedBuyAmountCryptoPrecision,
               buyAsset: updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
             },
           ],

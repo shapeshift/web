@@ -34,7 +34,13 @@ import { makeSwapErrorRight } from '../utils'
 import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
-import { addLimitToMemo, getAffiliate, getNativePrecision, getSwapSource } from './index'
+import {
+  addLimitToMemo,
+  assertAndProcessMemo,
+  getAffiliate,
+  getNativePrecision,
+  getSwapSource,
+} from './index'
 import type {
   ThorEvmTradeQuote,
   ThorEvmTradeRate,
@@ -96,7 +102,12 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     assertGetCosmosSdkChainAdapter,
   } = deps
 
-  const nativePrecision = getNativePrecision(swapperName)
+  // "NativePrecision" is intended to indicate the base unit precision of the asset
+  // for the corresponding swapper network (THORChain or MAYAChain)
+  // (CACAO = 10, everything else = 8)
+  const sellAssetNativePrecision = getNativePrecision(sellAsset.assetId, swapperName)
+  const buyAssetNativePrecision = getNativePrecision(buyAsset.assetId, swapperName)
+
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
   const slippageTolerancePercentageDecimal =
@@ -131,7 +142,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   const recommendedMinimumCryptoBaseUnit = swapQuote.recommended_min_amount_in
     ? convertPrecision({
         value: swapQuote.recommended_min_amount_in,
-        inputExponent: nativePrecision,
+        inputExponent: sellAssetNativePrecision,
         outputExponent: sellAsset.precision,
       }).toFixed()
     : '0'
@@ -169,7 +180,9 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
     const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
     // all pool amounts are native precision regardless of token precision
-    const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, nativePrecision))
+    const sellAmountCryptoThorBaseUnit = bn(
+      toBaseUnit(sellAmountCryptoPrecision, buyAssetNativePrecision),
+    )
 
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
   }
@@ -179,7 +192,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       quote.fees.total,
     )
     return toBaseUnit(
-      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, nativePrecision),
+      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, buyAssetNativePrecision),
       buyAsset.precision,
     )
   }
@@ -196,7 +209,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
     const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
       value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-      inputExponent: nativePrecision,
+      inputExponent: buyAssetNativePrecision,
       outputExponent: buyAsset.precision,
     })
 
@@ -220,7 +233,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
     // always use auto stream quote memo (0 limit = 5bps - 50bps, sometimes up to 100bps)
     // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-    if (route.isStreaming) return route.quote.memo
+    if (route.isStreaming) return assertAndProcessMemo(route.quote.memo, getAffiliate(swapperName))
 
     const limitWithManualSlippage = getLimitWithManualSlippage({
       expectedAmountOutThorBaseUnit: route.expectedAmountOutThorBaseUnit,
@@ -245,7 +258,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   }: MakeThorTradeInput<U>): T => {
     const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
       value: route.expectedAmountOutThorBaseUnit,
-      inputExponent: nativePrecision,
+      inputExponent: buyAssetNativePrecision,
       outputExponent: buyAsset.precision,
     }).toFixed()
 

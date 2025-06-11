@@ -6,7 +6,7 @@ import { midgard } from './queries/midgard'
 import { mutations } from './queries/mutations'
 import { opportunities } from './queries/opportunities'
 import { swapper } from './queries/swapper'
-import { thornode } from './queries/thornode'
+import { mayanode, thornode } from './queries/thornode'
 
 import { thorchainLp } from '@/pages/ThorChainLP/queries/queries'
 
@@ -17,6 +17,7 @@ export const reactQueries = mergeQueryKeys(
   mutations,
   opportunities,
   thorchainLp,
-  thornode,
   swapper,
+  thornode,
+  mayanode,
 )

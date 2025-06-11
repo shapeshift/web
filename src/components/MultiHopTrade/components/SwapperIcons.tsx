@@ -1,6 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import {
+  MAYACHAIN_STREAM_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
@@ -19,7 +20,9 @@ type SwapperIconsProps = {
 export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => {
   const isStreaming =
     swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
-    swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
+    swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE ||
+    swapSource === MAYACHAIN_STREAM_SWAP_SOURCE
+
   return (
     <AnimatePresence>
       {isStreaming && (

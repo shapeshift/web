@@ -1,7 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -47,9 +47,9 @@ export const getMaybeThorchainLendingOpenQuote = async ({
     asset: collateralAsset,
   })
 
-  const from_asset = assetIdToPoolAssetId({ assetId: collateralAssetId })
+  const from_asset = assetIdToThorPoolAssetId({ assetId: collateralAssetId })
   if (!from_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
-  const to_asset = assetIdToPoolAssetId({ assetId: receiveAssetId })
+  const to_asset = assetIdToThorPoolAssetId({ assetId: receiveAssetId })
   if (!to_asset) return Err(`Pool asset not found for assetId ${receiveAssetId}`)
 
   const { VITE_THORCHAIN_NODE_URL } = getConfig()
@@ -92,9 +92,9 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   if (!repaymentAsset) return Err(`Asset not found for assetId ${repaymentAsset}`)
   const repayBps = convertDecimalPercentageToBasisPoints(bn(repaymentPercent).div(100).toNumber())
 
-  const from_asset = assetIdToPoolAssetId({ assetId: repaymentAssetId })
+  const from_asset = assetIdToThorPoolAssetId({ assetId: repaymentAssetId })
   if (!from_asset) return Err(`Pool asset not found for assetId ${repaymentAssetId}`)
-  const to_asset = assetIdToPoolAssetId({ assetId: collateralAssetId })
+  const to_asset = assetIdToThorPoolAssetId({ assetId: collateralAssetId })
   if (!to_asset) return Err(`Pool asset not found for assetId ${collateralAssetId}`)
 
   const { VITE_THORCHAIN_NODE_URL } = getConfig()
@@ -123,7 +123,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
 export const getAllThorchainLendingPositions = async (
   assetId: AssetId,
 ): Promise<BorrowersResponseSuccess> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId })
 
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
@@ -146,7 +146,7 @@ export const getThorchainLendingPosition = async ({
   if (!accountId) return null
 
   const address = fromAccountId(accountId).account
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId })
 
   const accountPosition = await (async () => {
     if (!isUtxoChainId(fromAssetId(assetId).chainId))
@@ -180,7 +180,7 @@ export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePo
     throw new Error('THORChain node URL is not configured')
   }
 
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId })
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
   const { data } = await axios.get<ThornodePoolResponse>(

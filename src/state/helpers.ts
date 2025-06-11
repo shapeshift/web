@@ -36,7 +36,7 @@ export const getEnabledSwappers = (
     Cowswap,
     JupiterSwap,
     RelaySwapper,
-    Mayachain,
+    MayaSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -65,7 +65,7 @@ export const getEnabledSwappers = (
     [SwapperName.Relay]:
       RelaySwapper && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
     [SwapperName.Mayachain]:
-      Mayachain && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
+      MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
     [SwapperName.Test]: false,
   }
 }

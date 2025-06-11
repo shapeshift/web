@@ -3,11 +3,11 @@ import assert from 'assert'
 // The THORChain aggregators expects two numbers at the end which are used at exponents in the contract
 // see _parseAmountOutMin in https://dashboard.tenderly.co/tx/mainnet/0xe16c61c114c5815555ec4342af390a1695d1cce431a8ff479bcc7d63f3d0b46a?trace=0.2.10
 // 7759345496513 => 775934549650000000000000
-export const AGGREGATOR_EXPONENT_LENGTH = 2
+const AGGREGATOR_EXPONENT_LENGTH = 2
 
 // THORChain uses `big.ParseFloat` with `0` as a precision, resulting in a precision of 18 without the integer part
 // https://gitlab.com/thorchain/thornode/-/blob/v1.131.0/x/thorchain/memo/memo_parser.go#L190
-export const THORCHAIN_PARSER_MAXIMUM_PRECISION = 18
+const THORCHAIN_PARSER_MAXIMUM_PRECISION = 18
 
 export const getShortenedFinalAssetLimit = ({
   maxMemoSize,

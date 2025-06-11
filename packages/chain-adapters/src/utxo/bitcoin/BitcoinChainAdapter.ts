@@ -5,7 +5,7 @@ import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapterDisplayName } from '../../types'
-import type { ChainAdapterArgs } from '../UtxoBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../UtxoBaseAdapter'
 import { UtxoBaseAdapter } from '../UtxoBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.BitcoinMainnet]
@@ -15,6 +15,10 @@ const SUPPORTED_ACCOUNT_TYPES = [
   UtxoAccountType.SegwitP2sh,
   UtxoAccountType.P2pkh,
 ]
+
+export interface ChainAdapterArgs extends BaseChainAdapterArgs {
+  mayaMidgardUrl: string
+}
 
 export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinMainnet> {
   public static readonly defaultUtxoAccountType = UtxoAccountType.SegwitNative
@@ -33,7 +37,8 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinMainnet> 
       parser: new unchained.bitcoin.TransactionParser({
         assetId: btcAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
-        midgardUrl: args.midgardUrl,
+        thorMidgardUrl: args.thorMidgardUrl,
+        mayaMidgardUrl: args.mayaMidgardUrl,
       }),
       supportedAccountTypes: SUPPORTED_ACCOUNT_TYPES,
       supportedChainIds: SUPPORTED_CHAIN_IDS,

@@ -11,12 +11,17 @@ import {
   IconButton,
   useDisclosure,
 } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
+import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
+import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
+import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
   selectWalletActionsSorted,
@@ -33,26 +38,45 @@ export const ActionCenter = memo(() => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   useSwapActionSubscriber({ onDrawerOpen: onOpen })
+  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen })
 
   const translate = useTranslate()
+  const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
   const actions = useAppSelector(selectWalletActionsSorted)
 
   const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
+  const { ordersByActionId } = useLimitOrders()
 
-  const notificationsCards = useMemo(
-    () =>
-      actions.map(action => {
+  const actionsCards = useMemo(() => {
+    return actions.map(action => {
+      const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
             return <SwapActionCard key={action.id} {...action} />
           }
+          case ActionType.LimitOrder: {
+            const order = ordersByActionId[action.id]
+
+            if (!order) return null
+
+            return (
+              <LimitOrderActionCard
+                key={action.id}
+                order={order}
+                action={action}
+                onCancelOrder={setOrderToCancel}
+              />
+            )
+          }
           default:
             return null
         }
-      }),
-    [actions],
-  )
+      })()
+
+      return actionsCards
+    })
+  }, [actions, ordersByActionId])
 
   return (
     <>
@@ -100,11 +124,12 @@ export const ActionCenter = memo(() => {
               height='calc(100vh - 70px - env(safe-area-inset-top))'
               className='scroll-container'
             >
-              {notificationsCards}
+              {actionsCards}
             </Box>
           </Box>
         </DrawerContent>
       </Drawer>
+      <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
     </>
   )
 })

@@ -1,4 +1,5 @@
-import type { Asset, OrderId } from '@shapeshiftoss/types'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 
@@ -10,6 +11,7 @@ export enum ActionType {
 }
 
 export enum ActionStatus {
+  Idle = 'Idle',
   Pending = 'Pending',
   Complete = 'Complete',
   Failed = 'Failed',
@@ -25,7 +27,7 @@ type ActionSwapMetadata = {
 }
 
 type ActionLimitOrderMetadata = {
-  quoteId: string
+  cowSwapQuoteId: CowSwapQuoteId
   limitOrderId?: OrderId
   sellAmountCryptoBaseUnit: string
   buyAmountCryptoBaseUnit: string
@@ -36,6 +38,7 @@ type ActionLimitOrderMetadata = {
   executedBuyAmountCryptoBaseUnit?: string
   executedSellAmountCryptoBaseUnit?: string
   filledDecimalPercentage?: string
+  accountId: AccountId
 }
 
 export type BaseAction = {
@@ -68,6 +71,10 @@ export const isSwapAction = (action: Action): action is SwapAction => {
   return Boolean(
     action.type === ActionType.Swap && action.swapMetadata && 'swapId' in action.swapMetadata,
   )
+}
+
+export const isLimitOrderAction = (action: Action): action is LimitOrderAction => {
+  return Boolean(action.type === ActionType.LimitOrder && action.limitOrderMetadata)
 }
 
 export const isPendingSwapAction = (action: Action): action is SwapAction => {

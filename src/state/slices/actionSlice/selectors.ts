@@ -1,10 +1,19 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import { ActionStatus, isPendingSwapAction, isSwapAction } from './types'
+import {
+  ActionStatus,
+  ActionType,
+  isLimitOrderAction,
+  isPendingSwapAction,
+  isSwapAction,
+} from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
-import { selectSwapIdParamFromFilter } from '@/state/selectors'
+import {
+  selectCowSwapQuoteIdParamFromRequiredFilter,
+  selectSwapIdParamFromFilter,
+} from '@/state/selectors'
 
 export const selectWalletActions = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActions,
@@ -12,14 +21,20 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   swapSlice.selectors.selectSwapsById,
   (actions, enabledWalletAccountIds, swapsById) => {
     return actions.filter(action => {
-      if (!isSwapAction(action)) return action
+      if (isSwapAction(action)) {
+        const swapId = action.swapMetadata.swapId
+        const relatedSwap = swapsById[swapId]
 
-      const swapId = action.swapMetadata.swapId
-      const relatedSwap = swapsById[swapId]
+        if (!relatedSwap?.sellAccountId) return false
 
-      if (!relatedSwap?.sellAccountId) return false
+        return enabledWalletAccountIds.includes(relatedSwap.sellAccountId)
+      }
 
-      return enabledWalletAccountIds.includes(relatedSwap.sellAccountId)
+      if (isLimitOrderAction(action)) {
+        return enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId)
+      }
+
+      return action
     })
   },
 )
@@ -27,7 +42,9 @@ export const selectWalletActions = createDeepEqualOutputSelector(
 export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
-    return actions.sort((a, b) => b.updatedAt - a.updatedAt)
+    return actions
+      .filter(action => action.status !== ActionStatus.Idle)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
   },
 )
 
@@ -58,5 +75,31 @@ export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
     if (!actionId) return
 
     return actionsById[actionId]
+  },
+)
+
+export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      action =>
+        action.status === ActionStatus.Open &&
+        action.type === ActionType.LimitOrder &&
+        ((action.limitOrderMetadata.accountId &&
+          enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId)) ||
+          !action.limitOrderMetadata.accountId),
+    )
+  },
+)
+
+export const selectLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActions,
+  selectCowSwapQuoteIdParamFromRequiredFilter,
+  (actions, cowSwapQuoteId) => {
+    return actions.find(
+      action =>
+        isLimitOrderAction(action) && action.limitOrderMetadata.cowSwapQuoteId === cowSwapQuoteId,
+    )
   },
 )

@@ -11624,7 +11624,6 @@ __metadata:
     "@types/react-virtualized-auto-sizer": ^1.0.1
     "@types/react-window": ^1.8.5
     "@types/readline-sync": ^1.4.4
-    "@types/reselect-tools": ^0.0.0
     "@types/semver": ^7.3.10
     "@types/ssri": ^7.1.1
     "@types/uuid": ^9.0.5
@@ -11742,7 +11741,6 @@ __metadata:
     readline-sync: ^1.4.10
     redux-persist: ^6.0.0
     reselect: ^5.1.1
-    reselect-tools: ^0.0.7
     resize-observer-polyfill: ^1.5.1
     retry-axios: ^2.6.0
     scroll-into-view-if-needed: ^3.0.10
@@ -13606,15 +13604,6 @@ __metadata:
   version: 1.4.8
   resolution: "@types/readline-sync@npm:1.4.8"
   checksum: 9d69fe944d6a26fb1f6a08d205cb9f6107379570ad0b2081df613ccc7414caa026be9307343afcdd3c93b16939ce2e4a76187c33082301a5c7a2bd5d4a7759ee
-  languageName: node
-  linkType: hard
-
-"@types/reselect-tools@npm:^0.0.0":
-  version: 0.0.0
-  resolution: "@types/reselect-tools@npm:0.0.0"
-  dependencies:
-    reselect: ^4.0.0
-  checksum: 22b410cc28f0665a02645278fa82f97a1ca5937bd3f89fe512350f681bf91ae0185a96b49905b8937f0e567bb8553a7b0638204d588f45ef509afda96fa68a71
   languageName: node
   linkType: hard
 
@@ -30712,23 +30701,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"reselect-tools@npm:^0.0.7":
-  version: 0.0.7
-  resolution: "reselect-tools@npm:0.0.7"
-  dependencies:
-    reselect: 4.0.0
-  checksum: 26f0c0b65a8a17d00d618db41484baa1526f69da9cb602a63f7fbbad76cbe5e578e79069f3dc73093d89fa832ae69ba21a85b411e00614a2dbef20868702ea35
-  languageName: node
-  linkType: hard
-
-"reselect@npm:4.0.0":
-  version: 4.0.0
-  resolution: "reselect@npm:4.0.0"
-  checksum: ac7dfc9ef2cdb42b6fc87a856f3ce904c2e4363a2bc1e6fb7eea5f78902a6f506e4388e6509752984877c6dbfe501100c076671d334799eb5a1bfe9936cb2c12
-  languageName: node
-  linkType: hard
-
-"reselect@npm:^4.0.0, reselect@npm:^4.1.5":
+"reselect@npm:^4.1.5":
   version: 4.1.8
   resolution: "reselect@npm:4.1.8"
   checksum: a4ac87cedab198769a29be92bc221c32da76cfdad6911eda67b4d3e7136dca86208c3b210e31632eae31ebd2cded18596f0dd230d3ccc9e978df22f233b5583e

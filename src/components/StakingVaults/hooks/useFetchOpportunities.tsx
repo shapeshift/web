@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { knownChainIds } from '@/constants/chains'
@@ -24,6 +24,11 @@ export const useFetchOpportunities = () => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
 
+  const [progress, setProgress] = useState<{ loadedChains: number; totalChainCount: number }>({
+    loadedChains: 0,
+    totalChainCount: 0,
+  })
+
   const { isLoading: isPortalsUniV2PoolAssetIdsLoading } =
     useGetPortalsUniV2PoolAssetIdsQuery(undefined)
 
@@ -34,6 +39,7 @@ export const useFetchOpportunities = () => {
       portfolioAssetIds,
       portfolioAccounts,
       knownChainIds,
+      setProgress,
     ),
     enabled:
       !isConnected || Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
@@ -47,8 +53,9 @@ export const useFetchOpportunities = () => {
     () => ({
       isLoading:
         isLoading || portfolioLoadingStatus === 'loading' || isPortalsUniV2PoolAssetIdsLoading,
+      progress,
     }),
-    [isLoading, isPortalsUniV2PoolAssetIdsLoading, portfolioLoadingStatus],
+    [isLoading, isPortalsUniV2PoolAssetIdsLoading, portfolioLoadingStatus, progress],
   )
 
   return result

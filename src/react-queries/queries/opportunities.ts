@@ -58,6 +58,7 @@ export const opportunities = createQueryKeys('opportunities', {
     portfolioAssetIds: AssetId[],
     portfolioAccounts: Record<AccountId, PortfolioAccount>,
     requestedChainIds: ChainId[],
+    onProgress?: (progress: { loadedChains: number; totalChainCount: number }) => void,
   ) => {
     return {
       queryKey: [
@@ -65,10 +66,15 @@ export const opportunities = createQueryKeys('opportunities', {
         { requestedAccountIds, requestedChainIds, portfolioAssetIds, portfolioAccounts },
       ],
       queryFn: async () => {
+        let loadedChains = 0
+        const totalChainCount =
+          requestedAccountIds.length > 0 ? requestedAccountIds.length : requestedChainIds.length
+
         // We don't have any AccountIds here, but still need to fetch opportunities meta
         if (!requestedAccountIds?.length) {
           await Promise.all(
             requestedChainIds.map(async chainId => {
+              onProgress?.({ loadedChains: ++loadedChains, totalChainCount })
               await fetchAll({ dispatch, accountId: undefined, chainId })
             }),
           )
@@ -78,6 +84,7 @@ export const opportunities = createQueryKeys('opportunities', {
           requestedAccountIds.map(async accountId => {
             const { chainId } = fromAccountId(accountId)
             await fetchAll({ dispatch, accountId, chainId })
+            onProgress?.({ loadedChains: ++loadedChains, totalChainCount })
           }),
         )
 

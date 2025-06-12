@@ -18,6 +18,7 @@ export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBasePa
 
 export type RelayTransactionMetadata = {
   to?: string
+  from?: string
   value?: string
   data?: string
   gasLimit?: string

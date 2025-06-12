@@ -11,6 +11,7 @@ import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import {
+  clearActionMigrations,
   clearAssetsMigrations,
   clearMarketDataMigrations,
   clearOpportunitiesMigrations,
@@ -20,6 +21,8 @@ import {
   clearTxHistoryMigrations,
   localWalletMigrations,
 } from './migrations'
+import { actionSlice } from './slices/actionSlice/actionSlice'
+import type { ActionState } from './slices/actionSlice/types'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -118,6 +121,13 @@ const limitOrderApiPersistConfig = {
   version: 0,
 }
 
+const actionPersistConfig = {
+  key: 'action',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearActionMigrations).map(Number)),
+  migrate: createMigrate(clearActionMigrations, { debug: false }),
+}
+
 const swapPersistConfig = {
   key: 'swap',
   storage: localforage,
@@ -143,6 +153,7 @@ export const sliceReducers = {
     localWalletSlicePersistConfig,
     localWalletSlice.reducer,
   ),
+  action: persistReducer<ActionState>(actionPersistConfig, actionSlice.reducer),
 }
 
 export const apiSlices = {
@@ -175,6 +186,7 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
+  [actionSlice.reducerPath]: persistReducer(actionPersistConfig, actionSlice.reducer),
   [swapSlice.reducerPath]: persistReducer(swapPersistConfig, swapSlice.reducer),
 }
 

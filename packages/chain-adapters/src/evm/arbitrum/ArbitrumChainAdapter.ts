@@ -5,11 +5,15 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapterDisplayName } from '../../types'
-import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ArbitrumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.ArbitrumMainnet
+
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.arbitrum.V1Api> {
+  mayaMidgardUrl: string
+}
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.ArbitrumMainnet> {
   public static readonly rootBip44Params: RootBip44Params = {
@@ -18,7 +22,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.ArbitrumMainnet> 
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs<unchained.arbitrum.V1Api>) {
+  constructor(args: ChainAdapterArgs) {
     super({
       assetId: arbitrumAssetId,
       chainId: DEFAULT_CHAIN_ID,
@@ -29,6 +33,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.ArbitrumMainnet> 
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
         api: args.providers.http,
+        mayaMidgardUrl: args.mayaMidgardUrl,
       }),
       ...args,
     })

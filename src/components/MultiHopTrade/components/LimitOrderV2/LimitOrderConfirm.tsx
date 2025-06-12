@@ -48,9 +48,8 @@ import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/sto
 export const LimitOrderConfirm = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
-    limitOrderSlice.actions,
-  )
+  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed, setLimitOrderId } =
+    useActions(limitOrderSlice.actions)
   const {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
@@ -310,16 +309,17 @@ export const LimitOrderConfirm = () => {
         const result = await placeLimitOrder({ quoteId, wallet })
 
         // Exit if the request failed.
-        if (
-          (result as { error: unknown }).error ||
-          !result ||
-          !(result as { data: unknown }).data
-        ) {
+        if (result.error || !result || !result.data) {
           setLimitOrderTxFailed(quoteId)
           return
         }
 
         setLimitOrderTxComplete(quoteId)
+
+        setLimitOrderId({
+          cowSwapQuoteId: quoteId,
+          orderId: result.data,
+        })
 
         // refetch the orders list for this account
         const accountId = activeQuote?.params.accountId
@@ -368,6 +368,7 @@ export const LimitOrderConfirm = () => {
     sellAsset,
     setLimitOrderTxComplete,
     setLimitOrderTxFailed,
+    setLimitOrderId,
     wallet,
     walletDispatch,
   ])

@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
-import { assetIdToPoolAssetId, thorService } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId, thorService } from '@shapeshiftoss/swapper'
 
 import { fromThorBaseUnit } from '..'
 import { THOR_PRECISION } from '../constants'
@@ -111,7 +111,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
   assetAmountThorBaseUnit: string
   runeAmountThorBaseUnit: string
 }) => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId })
 
   const poolResult = await thorService.get<ThornodePoolResponse>(
     `${thornodeUrl}/thorchain/pool/${poolAssetId}`,
@@ -154,7 +154,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   runeAmountThorBaseUnit: string
   assetAmountThorBaseUnit: string
 }) => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const poolAssetId = assetIdToThorPoolAssetId({ assetId })
 
   const poolResult = await thorService.get<ThornodePoolResponse>(
     `${thornodeUrl}/thorchain/pool/${poolAssetId}`,

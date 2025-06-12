@@ -2,9 +2,10 @@ import { Divider, Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
 import {
+  MAYACHAIN_STREAM_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftoss/swapper'
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
@@ -48,7 +49,8 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   const isUnknownAutoSlippage = useMemo(
     () =>
       swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
-      swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+      swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE ||
+      swapSource === MAYACHAIN_STREAM_SWAP_SOURCE,
     [swapSource],
   )
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)

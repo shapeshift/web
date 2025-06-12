@@ -1,4 +1,5 @@
-import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { getDaemonUrl } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -24,10 +25,13 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 
 const getThorchainStreamingSwap = async (
   sellTxHash: string,
+  swapperName: SwapperName,
 ): Promise<ThornodeStreamingSwapResponseSuccess | undefined> => {
+  const daemonUrl = getDaemonUrl(getConfig(), swapperName)
   const thorTxHash = sellTxHash.replace(/^0x/, '')
+
   const { data: streamingSwapData } = await axios.get<ThornodeStreamingSwapResponse>(
-    `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/swap/streaming/${thorTxHash}`,
+    `${daemonUrl}/swap/streaming/${thorTxHash}`,
   )
 
   if (!streamingSwapData) return
@@ -60,10 +64,12 @@ const getStreamingSwapMetadata = (
 export const useThorStreamingProgress = ({
   hopIndex,
   confirmedTradeId,
+  swapperName,
 }: {
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   confirmedTradeId: TradeQuote['id']
+  swapperName: SwapperName
 }): {
   isComplete: boolean
   attemptedSwapCount: number
@@ -91,7 +97,7 @@ export const useThorStreamingProgress = ({
 
     poll({
       fn: async () => {
-        const updatedStreamingSwapData = await getThorchainStreamingSwap(sellTxHash)
+        const updatedStreamingSwapData = await getThorchainStreamingSwap(sellTxHash, swapperName)
 
         // no payload at all - must be a failed request - return
         if (!updatedStreamingSwapData) return
@@ -147,7 +153,7 @@ export const useThorStreamingProgress = ({
 
     // stop polling on dismount
     return cancelPolling
-  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId])
+  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId, swapperName])
 
   const result = useMemo(() => {
     const numSuccessfulSwaps =

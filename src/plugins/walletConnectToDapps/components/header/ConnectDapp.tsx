@@ -9,7 +9,6 @@ import { isSome } from '@/lib/utils'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
-const widthProp = { base: 'full', md: 'auto' }
 const walletConnectIcon = <WalletConnectIcon />
 const chevronRightIcon = <ChevronRightIcon />
 
@@ -30,7 +29,6 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
           leftIcon={walletConnectIcon}
           rightIcon={chevronRightIcon}
           onClick={handleOpen}
-          width={widthProp}
           {...buttonProps}
         >
           {hasSessions

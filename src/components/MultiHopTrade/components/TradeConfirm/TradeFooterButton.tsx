@@ -81,7 +81,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   })
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
-  const activeSwapId = useAppSelector(swapSlice.selectors.selectCurrentSwapId)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const swapByIdFilter = useMemo(() => {
     return {
       swapId: activeSwapId ?? '',
@@ -165,7 +165,12 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const tradeWarnings: JSX.Element | null = useMemo(() => {
     const isSlowSwapper =
       swapperName &&
-      [SwapperName.Thorchain, SwapperName.CowSwap, SwapperName.LIFI].includes(swapperName)
+      [
+        SwapperName.Thorchain,
+        SwapperName.CowSwap,
+        SwapperName.LIFI,
+        SwapperName.Mayachain,
+      ].includes(swapperName)
 
     const isTxHistorySupportedForChain =
       lastHopBuyAsset && chainSupportsTxHistory(lastHopBuyAsset.chainId)

@@ -65,7 +65,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const activeTradeId = activeTradeQuote.id
   const stepSource = tradeQuoteFirstHop?.source
 
-  const activeSwapId = useAppSelector(swapSlice.selectors.selectCurrentSwapId)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const swapByIdFilter = useMemo(() => {
     return {
       swapId: activeSwapId ?? '',

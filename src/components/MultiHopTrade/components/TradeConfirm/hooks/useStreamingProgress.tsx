@@ -1,5 +1,6 @@
 import type { Swap } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { useMemo } from 'react'
 
 import { useChainflipStreamingProgress } from './useChainflipStreamingProgress'
 import { useThorStreamingProgress } from './useThorStreamingProgress'
@@ -10,7 +11,6 @@ type UseStreamingProgressProps = {
 
 export const useStreamingProgress = ({ swap }: UseStreamingProgressProps) => {
   const isStreamingSwap = swap?.isStreaming || false
-  const isThorchainSwap = swap?.swapperName === SwapperName.Thorchain
   const confirmedSwapId = swap?.id
 
   const streamingProgressArgs = {
@@ -18,11 +18,34 @@ export const useStreamingProgress = ({ swap }: UseStreamingProgressProps) => {
     confirmedSwapId,
   }
 
-  const thorchainStreamingProgress = useThorStreamingProgress(streamingProgressArgs)
-  const chainflipStreamingProgress = useChainflipStreamingProgress(streamingProgressArgs)
-  const streamingProgress = isThorchainSwap
-    ? thorchainStreamingProgress
-    : chainflipStreamingProgress
+  const currentSwapperName = useMemo(() => {
+    if (swap) {
+      return swap.swapperName
+    }
+  }, [swap])
 
-  return isStreamingSwap ? streamingProgress : undefined
+  const thorchainStreamingProgress = useThorStreamingProgress({
+    ...streamingProgressArgs,
+    swapperName: SwapperName.Thorchain,
+  })
+
+  const mayachainStreamingProgress = useThorStreamingProgress({
+    ...streamingProgressArgs,
+    swapperName: SwapperName.Mayachain,
+  })
+
+  const chainflipStreamingProgress = useChainflipStreamingProgress(streamingProgressArgs)
+
+  if (!isStreamingSwap) return
+
+  switch (currentSwapperName) {
+    case SwapperName.Thorchain:
+      return thorchainStreamingProgress
+    case SwapperName.Mayachain:
+      return mayachainStreamingProgress
+    case SwapperName.Chainflip:
+      return chainflipStreamingProgress
+    default:
+      throw new Error(`Invalid swapper: ${currentSwapperName}`)
+  }
 }

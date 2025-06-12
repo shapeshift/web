@@ -732,6 +732,13 @@
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"
       },
+      "mayachain": {
+        "out": "Outbound Received",
+        "refund": "Refund",
+        "swapOut": "Swap Received",
+        "swap": "Trade",
+        "swapRefund": "Swap Refund"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Unstake",
@@ -2979,6 +2986,6 @@
     },
     "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
     "swapError": "Swap failed",
-    "limitOrderTitle": "%{buyAmountAndSymbol} → %{sellAmountAndSymbol}"
+    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
   }
 }

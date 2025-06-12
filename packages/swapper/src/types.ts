@@ -40,10 +40,10 @@ export type SwapperConfig = {
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
   VITE_MAYACHAIN_NODE_URL: string
-  VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
   VITE_THORCHAIN_MIDGARD_URL: string
+  VITE_MAYACHAIN_MIDGARD_URL: string
   VITE_UNCHAINED_BITCOIN_HTTP_URL: string
   VITE_UNCHAINED_DOGECOIN_HTTP_URL: string
   VITE_UNCHAINED_LITECOIN_HTTP_URL: string
@@ -64,6 +64,7 @@ export type SwapperConfig = {
 
 export enum SwapperName {
   Thorchain = 'THORChain',
+  Mayachain = 'MAYAChain',
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
@@ -119,7 +120,6 @@ export enum TradeQuoteError {
 }
 
 export type UtxoFeeData = {
-  byteCount: string
   satsPerByte: string
 }
 
@@ -513,12 +513,6 @@ export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
 export type ExecuteTradeArgs = {
   senderAddress: string
   receiverAddress: string
-  txToSign: UnsignedTx
-  wallet: HDWallet
-  chainId: ChainId
-}
-
-export type ExecuteTradeArgs2 = {
   txToSign: UnsignedTx
   wallet: HDWallet
   chainId: ChainId

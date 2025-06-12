@@ -8,13 +8,13 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
+import { ActionCenter } from './ActionCenter/ActionCenter'
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
 import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
-import { ActionCenter } from './NotificationCenter/ActionCenter'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -75,7 +75,7 @@ export const Header = memo(() => {
   }, [scrollY])
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const isNotificationCenterEnabled = useFeatureFlag('NotificationCenter')
+  const isActionCenterEnabled = useFeatureFlag('ActionCenter')
 
   /**
    * FOR DEVELOPERS:
@@ -213,7 +213,7 @@ export const Header = memo(() => {
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
-              {isConnected && isNotificationCenterEnabled && <ActionCenter />}
+              {isConnected && isActionCenterEnabled && <ActionCenter />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

@@ -11,26 +11,28 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import type { ThorTradeQuote } from '../../../thorchain-utils'
+import { getAffiliate, getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
+import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote } from '../types'
-import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
+import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo/addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Quote } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
-import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
+import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getL1ToLongtailQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     buyAsset,
@@ -101,11 +103,12 @@ export const getL1ToLongtailQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const maybeThorchainQuotes = await getL1Quote(
+  const maybeThorchainQuotes = await getL1RateOrQuote<ThorTradeQuote>(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
     TradeType.L1ToLongTail,
+    swapperName,
   )
 
   if (maybeThorchainQuotes.isErr()) return Err(maybeThorchainQuotes.unwrapErr())
@@ -151,10 +154,11 @@ export const getL1ToLongtailQuote = async (
         finalAssetAmountOut: quotedAmountOut.toString(),
         slippageBps: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??
-            getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
+            getDefaultSlippageDecimalPercentageForSwapper(swapperName),
         ).toString(),
         quotedMemo: quote.memo,
         longtailTokens,
+        affiliate: getAffiliate(swapperName),
       })
 
       return Ok({

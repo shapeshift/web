@@ -78,6 +78,7 @@ export const cowApi: SwapperApi = {
     )
 
     const { id, quote } = cowswapQuoteResponse
+
     // Note: While CowSwap returns us a quote, and we have slippageBips and `partnerFee.bps` in the appData, this isn't enough.
     // For the min out to actually to be reliable, the final message to be signed needs to have slippage and fee bps deducted.
     // This actually matches what CoW uses as a minimum for a given quote - failure to do so means orders may take forever to be filled, or never be filled at all.

@@ -11,10 +11,10 @@ import {
 } from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
-import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, useMemo } from 'react'
 import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 
@@ -38,7 +38,6 @@ import {
 } from '@/state/slices/limitOrderSlice/selectors'
 import {
   selectLimitOrderActionByCowSwapQuoteId,
-  selectLimitOrderActionByLimitOrderId,
   selectOpenLimitOrderActionsFilteredByWallet,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
@@ -63,7 +62,7 @@ export const useLimitOrderActionSubscriber = ({
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
-  const quoteId = useAppSelector(selectActiveQuoteId)
+  const activeQuoteId = useAppSelector(selectActiveQuoteId)
   const { currentData: ordersResponse } = useLimitOrdersQuery()
   const toast = useToast({
     render: ({ title, status, description, onClose }) => {
@@ -113,8 +112,10 @@ export const useLimitOrderActionSubscriber = ({
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   const orderSubmissionMetadataFilter = useMemo(() => {
-    return { cowSwapQuoteId: quoteId ?? 0 }
-  }, [quoteId])
+    // Sounds dangerous but it's actually safe because it would return an undefined order
+    // and so will all the logic will early return
+    return { cowSwapQuoteId: activeQuoteId ?? 0 }
+  }, [activeQuoteId])
 
   const limitOrderSubmissionMetadata = useSelectorWithArgs(
     selectLimitOrderSubmissionMetadata,
@@ -124,13 +125,14 @@ export const useLimitOrderActionSubscriber = ({
   const previousLimitOrderState = usePrevious(limitOrderSubmissionMetadata?.state)
   const previousLimitOrderId = usePrevious(limitOrderSubmissionMetadata?.limitOrder.orderId)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
+  const actions = useAppSelector(actionSlice.selectors.selectActions)
 
   // Create action after user confirmed the intent of placing a limit order
   useEffect(() => {
     if (!limitOrderSubmissionMetadata) return
     if (!sellAsset) return
     if (!buyAsset) return
-    if (!quoteId) return
+    if (!activeQuoteId) return
     if (!activeQuote) return
 
     const accountId = activeQuote.params.accountId
@@ -141,7 +143,7 @@ export const useLimitOrderActionSubscriber = ({
       previousLimitOrderState !== LimitOrderSubmissionState.AwaitingLimitOrderSubmission
     ) {
       const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
-        cowSwapQuoteId: quoteId,
+        cowSwapQuoteId: activeQuoteId,
       })
 
       if (action) return
@@ -176,7 +178,7 @@ export const useLimitOrderActionSubscriber = ({
             ),
           }),
           limitOrderMetadata: {
-            cowSwapQuoteId: quoteId,
+            cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
             sellAsset,
@@ -204,24 +206,27 @@ export const useLimitOrderActionSubscriber = ({
     sellAmountCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
     quoteExpirationTimestamp,
-    quoteId,
+    activeQuoteId,
     limitPrice,
   ])
 
   // Update action with cowswap order id so we can resolve action and executed limit orders later
   useEffect(() => {
     if (!limitOrderSubmissionMetadata) return
-    if (!quoteId) return
+    if (!activeQuoteId) return
 
     if (
       limitOrderSubmissionMetadata.limitOrder.orderId &&
       previousLimitOrderId !== limitOrderSubmissionMetadata.limitOrder.orderId
     ) {
-      const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
-        cowSwapQuoteId: quoteId,
-      })
+      const action = actions.find(
+        action =>
+          isLimitOrderAction(action) && action.limitOrderMetadata?.cowSwapQuoteId === activeQuoteId,
+      )
 
       if (action && action.type === ActionType.LimitOrder) {
+        if (action.limitOrderMetadata.limitOrderId) return
+
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -234,7 +239,7 @@ export const useLimitOrderActionSubscriber = ({
         )
       }
     }
-  }, [dispatch, limitOrderSubmissionMetadata, previousLimitOrderId, quoteId])
+  }, [dispatch, limitOrderSubmissionMetadata, previousLimitOrderId, activeQuoteId, actions])
 
   // Update limit order action status when limit order is filled, cancelled or expired
   useEffect(() => {
@@ -250,11 +255,21 @@ export const useLimitOrderActionSubscriber = ({
 
       if (!updatedLimitOrder || !isLimitOrderAction(updatedLimitOrder)) return
 
-      const action = selectLimitOrderActionByLimitOrderId(store.getState(), {
-        limitOrderId: order.order.uid,
-      })
+      const executedSellAmountCryptoPrecision = fromBaseUnit(
+        order.order.executedSellAmount,
+        updatedLimitOrder.limitOrderMetadata.sellAsset.precision,
+      )
+      const executedBuyAmountCryptoPrecision = fromBaseUnit(
+        order.order.executedBuyAmount,
+        updatedLimitOrder.limitOrderMetadata.buyAsset.precision,
+      )
 
-      if (!action || action.type !== ActionType.LimitOrder) return
+      const action = actions.find(
+        action =>
+          isLimitOrderAction(action) && action.limitOrderMetadata?.limitOrderId === order.order.uid,
+      )
+
+      if (!action || !isLimitOrderAction(action)) return
 
       // Partially filled orders
       if (
@@ -282,9 +297,9 @@ export const useLimitOrderActionSubscriber = ({
           ...[
             'limitOrder.assetToAsset',
             {
-              sellAmount: order.order.executedSellAmount,
+              sellAmount: executedSellAmountCryptoPrecision,
               sellAsset: updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
-              buyAmount: order.order.executedBuyAmount,
+              buyAmount: executedBuyAmountCryptoPrecision,
               buyAsset: updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
             },
           ],
@@ -309,10 +324,40 @@ export const useLimitOrderActionSubscriber = ({
         return
       }
 
-      if (order.order.status === OrderStatus.FULFILLED) {
+      if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
+        const actionUpdatedTitle = translate('notificationCenter.limitOrderTitle', {
+          sellAmountAndSymbol: toCrypto(
+            fromBaseUnit(
+              order.order.executedSellAmount,
+              updatedLimitOrder.limitOrderMetadata.sellAsset.precision,
+            ),
+            updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
+            {
+              maximumFractionDigits: 8,
+              omitDecimalTrailingZeros: true,
+              abbreviated: true,
+              truncateLargeNumbers: true,
+            },
+          ),
+          buyAmountAndSymbol: toCrypto(
+            fromBaseUnit(
+              order.order.executedBuyAmount,
+              updatedLimitOrder.limitOrderMetadata.buyAsset.precision,
+            ),
+            updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
+            {
+              maximumFractionDigits: 8,
+              omitDecimalTrailingZeros: true,
+              abbreviated: true,
+              truncateLargeNumbers: true,
+            },
+          ),
+        })
+
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
+            title: actionUpdatedTitle,
             limitOrderMetadata: {
               ...action.limitOrderMetadata,
               executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
@@ -329,9 +374,9 @@ export const useLimitOrderActionSubscriber = ({
           ...[
             'limitOrder.assetToAsset',
             {
-              sellAmount: order.order.executedSellAmount,
+              sellAmount: executedSellAmountCryptoPrecision,
               sellAsset: updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
-              buyAmount: order.order.executedBuyAmount,
+              buyAmount: executedBuyAmountCryptoPrecision,
               buyAsset: updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
             },
           ],
@@ -356,7 +401,10 @@ export const useLimitOrderActionSubscriber = ({
         return
       }
 
-      if (order.order.status === OrderStatus.CANCELLED) {
+      if (
+        order.order.status === OrderStatus.CANCELLED &&
+        action.status !== ActionStatus.Cancelled
+      ) {
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -373,7 +421,7 @@ export const useLimitOrderActionSubscriber = ({
         return
       }
 
-      if (order.order.status === OrderStatus.EXPIRED) {
+      if (order.order.status === OrderStatus.EXPIRED && action.status !== ActionStatus.Expired) {
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -390,5 +438,14 @@ export const useLimitOrderActionSubscriber = ({
         return
       }
     })
-  }, [ordersResponse, limitOrderSubmissionMetadata, dispatch, toast, openLimitOrders, translate])
+  }, [
+    ordersResponse,
+    limitOrderSubmissionMetadata,
+    dispatch,
+    toast,
+    openLimitOrders,
+    translate,
+    actions,
+    toCrypto,
+  ])
 }

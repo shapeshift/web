@@ -24,7 +24,6 @@ export type FeatureFlags = {
   Base: boolean
   Mayachain: boolean
   ThorSwap: boolean
-  ThorSwapStreamingSwaps: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
   SaversVaults: boolean
@@ -77,10 +76,11 @@ export type FeatureFlags = {
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
   RelaySwapper: boolean
-  NotificationCenter: boolean
+  ActionCenter: boolean
   ThorchainTcy: boolean
   ThorchainTcyWidget: boolean
   ThorchainTcyActivity: boolean
+  MayaSwap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -127,7 +127,6 @@ const initialState: Preferences = {
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
-    ThorSwapStreamingSwaps: getConfig().VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS,
     SaversVaults: getConfig().VITE_FEATURE_SAVERS_VAULTS,
@@ -180,10 +179,11 @@ const initialState: Preferences = {
     NewLimitFlow: getConfig().VITE_FEATURE_NEW_LIMIT_FLOW,
     ThorchainSwapperVolatilityAck: getConfig().VITE_FEATURE_THORCHAIN_SWAPPER_ACK,
     RelaySwapper: getConfig().VITE_FEATURE_SWAPPER_RELAY,
-    NotificationCenter: getConfig().VITE_FEATURE_NOTIFICATION_CENTER,
+    ActionCenter: getConfig().VITE_FEATURE_ACTION_CENTER,
     ThorchainTcy: getConfig().VITE_FEATURE_THORCHAIN_TCY,
     ThorchainTcyWidget: getConfig().VITE_FEATURE_THORCHAIN_TCY_WIDGET,
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
+    MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

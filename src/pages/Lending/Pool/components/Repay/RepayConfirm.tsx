@@ -48,6 +48,7 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { waitForThorchainUpdate } from '@/lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from '@/lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from '@/pages/Lending/hooks/useLendingCloseQuery'
@@ -250,7 +251,7 @@ export const RepayConfirm = ({
   const memo = useMemo(() => {
     if (!confirmedQuote) return null
 
-    return assertAndProcessMemo(confirmedQuote.quoteMemo)
+    return assertAndProcessMemo(confirmedQuote.quoteMemo, THORCHAIN_AFFILIATE_NAME)
   }, [confirmedQuote])
 
   const {

@@ -22,7 +22,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectHopExecutionMetadata,
@@ -71,7 +71,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     activeTradeId,
   })
   const activeQuote = useAppSelector(selectActiveQuote)
-  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
   const receiveAddress = activeQuote?.receiveAddress
 
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -261,19 +261,19 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
           </Row.Value>
         </Row>
         <RecipientAddressRow
-          explorerAddressLink={sellAsset.explorerAddressLink}
+          explorerAddressLink={buyAsset.explorerAddressLink}
           recipientAddress={receiveAddress ?? ''}
         />
       </Stack>
     )
   }, [
+    buyAsset,
     feeAsset?.symbol,
     isActiveSwapperQuoteLoading,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
-    sellAsset.explorerAddressLink,
     receiveAddress,
   ])
 

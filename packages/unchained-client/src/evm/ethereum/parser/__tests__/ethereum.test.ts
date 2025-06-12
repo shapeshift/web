@@ -28,6 +28,7 @@ import foxyClaimWithdraw from './mockData/foxyClaimWithdraw'
 import foxyInstantUnstake from './mockData/foxyInstantUnstake'
 import foxyStake from './mockData/foxyStake'
 import foxyUnstake from './mockData/foxyUnstake'
+import mayachainSwapToken from './mockData/mayachainSwapToken'
 import multiSigSendEth from './mockData/multiSigSendEth'
 import thorchainLoanOpenEth from './mockData/thorchainLoanOpenEth'
 import thorchainLoanOpenOutboundEth from './mockData/thorchainLoanOpenOutboundEth'
@@ -126,7 +127,8 @@ const makeTxParser = vi.fn(
       api: (await getApi) as unknown as Api,
       assetId: ethAssetId,
       chainId: ethChainId,
-      midgardUrl: '',
+      thorMidgardUrl: 'thor',
+      mayaMidgardUrl: 'maya',
       rpcUrl: '',
     }),
 )
@@ -1892,6 +1894,47 @@ describe('parseTx', () => {
           },
         ],
         data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+  })
+
+  describe('mayachain', () => {
+    it.skip('should be able to parse token swap', async () => {
+      const { tx } = mayachainSwapToken
+      const address = '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C'
+      const memo = '=:r:thor10prpfj07j6a7rvtd5tfqhdzp8xsypzatfrc2v5:290451724::'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        fee: {
+          assetId: ethAssetId,
+          value: tx.fee,
+        },
+        transfers: [
+          {
+            assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            components: [{ value: '5000625' }],
+            from: address,
+            to: tx.to,
+            totalValue: '5000625',
+            type: TransferType.Send,
+            token: usdcToken,
+          },
+        ],
+        data: { parser: 'mayachain', memo, method: 'swap', swap: { type: 'Standard' } },
+        trade: { dexName: Dex.Maya, memo, type: TradeType.Swap },
       }
 
       const txParser = await makeTxParser()

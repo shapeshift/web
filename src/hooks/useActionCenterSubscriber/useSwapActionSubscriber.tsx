@@ -1,4 +1,4 @@
-import { Box, Flex, Icon, Text, useColorModeValue, usePrevious, useToast } from '@chakra-ui/react'
+import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Swap } from '@shapeshiftoss/swapper'
@@ -8,13 +8,13 @@ import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
-import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '../useWallet/useWallet'
 
+import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getTxLink } from '@/lib/getTxLink'
@@ -40,53 +40,28 @@ type UseSwapActionSubscriberProps = {
 export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const toastColor = useColorModeValue('white', 'gray.900')
 
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
 
   const toast = useToast({
-    render: ({ title, status, description, onClose }) => {
+    render: ({ title, status, description, onClose, ...props }) => {
       const handleClick = () => {
         onClose()
         onDrawerOpen()
       }
 
-      const toastSx = {
-        '&:hover': {
-          cursor: 'pointer',
-          background: status === 'success' ? 'green.300' : 'red.300',
-        },
-      }
-
       return (
-        <Flex
-          // We can't memo this because onClose prop comes from the render props
+        <SwapNotification
           // eslint-disable-next-line react-memo/require-usememo
-          onClick={handleClick}
-          background={status === 'success' ? 'green.500' : 'red.500'}
-          color='white'
-          px={4}
-          py={2}
-          borderRadius='md'
-          // eslint-disable-next-line react-memo/require-usememo
-          sx={toastSx}
-        >
-          <Box py={1} me={2}>
-            {status === 'success' ? (
-              <Icon color={toastColor} as={TbCircleCheckFilled} height='20px' width='20px' />
-            ) : (
-              <Icon color={toastColor} as={TbCircleXFilled} height='20px' width='20px' />
-            )}
-          </Box>
-          <Box>
-            <Text fontWeight='bold' color={toastColor}>
-              {title}
-            </Text>
-            <Text color={toastColor}>{description}</Text>
-          </Box>
-        </Flex>
+          handleClick={handleClick}
+          status={status}
+          title={title}
+          description={description}
+          onClose={onClose}
+          {...props}
+        />
       )
     },
   })
@@ -223,6 +198,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
                   swapSlice.actions.upsertSwap({
                     ...swap,
                     buyAmountCryptoBaseUnit: receiveTransfer.value,
+                    txLink,
                   }),
                 )
 
@@ -268,86 +244,19 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
                 )
 
                 toast({
-                  title: notificationTitle,
+                  title: translate('notificationCenter.swapSuccess'),
                   status: 'success',
+                  id: swap.id,
+                  position: 'top-right',
                 })
                 return
               }
             }
           } catch (error) {
             console.error('Failed to fetch transaction details:', error)
-
-            dispatch(
-              actionSlice.actions.upsertAction({
-                ...action,
-                swapMetadata: {
-                  swapId: swap.id,
-                },
-                status: ActionStatus.Complete,
-              }),
-            )
-            dispatch(
-              swapSlice.actions.upsertSwap({
-                ...swap,
-                status: SwapStatus.Success,
-              }),
-            )
-
-            const notificationTitle = selectSwapActionBySwapId(store.getState(), {
-              swapId: swap.id,
-            })?.title
-
-            toast({
-              title: notificationTitle,
-              status: 'success',
-            })
-
             return
           }
         }
-
-        const notificationTitle = translate('notificationCenter.swapTitle', {
-          sellAmountAndSymbol: toCrypto(
-            fromBaseUnit(swap.sellAmountCryptoBaseUnit, swapSellAsset.precision),
-            swapSellAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-          buyAmountAndSymbol: toCrypto(
-            fromBaseUnit(swap.buyAmountCryptoBaseUnit, swapBuyAsset.precision),
-            swapBuyAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-        })
-        dispatch(
-          actionSlice.actions.upsertAction({
-            ...action,
-            swapMetadata: {
-              swapId: swap.id,
-            },
-            status: ActionStatus.Complete,
-          }),
-        )
-        dispatch(
-          swapSlice.actions.upsertSwap({
-            ...swap,
-            status: SwapStatus.Success,
-          }),
-        )
-
-        toast({
-          title: notificationTitle,
-          status: 'success',
-        })
       }
 
       if (status === TxStatus.Failed) {
@@ -371,6 +280,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         toast({
           title: translate('notificationCenter.swapError'),
           status: 'error',
+          id: swap.id,
+          position: 'top-right',
         })
       }
 

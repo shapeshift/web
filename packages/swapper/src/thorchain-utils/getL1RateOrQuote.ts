@@ -170,10 +170,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
   const perRouteValues = [getRouteValues(swapQuote, false)]
 
-  if (
-    streamingSwapQuote &&
-    swapQuote.expected_amount_out !== streamingSwapQuote.expected_amount_out
-  ) {
+  if (streamingSwapQuote) {
     perRouteValues.push(getRouteValues(streamingSwapQuote, true))
   }
 

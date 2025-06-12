@@ -1,6 +1,5 @@
 import type { Swap } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useMemo } from 'react'
 
 import { useChainflipStreamingProgress } from './useChainflipStreamingProgress'
 import { useThorStreamingProgress } from './useThorStreamingProgress'
@@ -12,17 +11,12 @@ type UseStreamingProgressProps = {
 export const useStreamingProgress = ({ swap }: UseStreamingProgressProps) => {
   const isStreamingSwap = swap?.isStreaming || false
   const confirmedSwapId = swap?.id
+  const currentSwapperName = swap?.swapperName
 
   const streamingProgressArgs = {
     swap,
     confirmedSwapId,
   }
-
-  const currentSwapperName = useMemo(() => {
-    if (swap) {
-      return swap.swapperName
-    }
-  }, [swap])
 
   const thorchainStreamingProgress = useThorStreamingProgress({
     ...streamingProgressArgs,

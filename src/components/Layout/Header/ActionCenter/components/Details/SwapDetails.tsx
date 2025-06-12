@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Link, Progress, Stack } from '@chakra-ui/react'
 import type { Swap } from '@shapeshiftoss/swapper'
+import { SwapStatus } from '@shapeshiftoss/swapper'
 import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -19,11 +20,29 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, swap }) => {
 
   const streamingProgress = useStreamingProgress({ swap })
 
-  const { numSuccessfulSwaps, totalSwapCount } = streamingProgress ?? {}
+  const {
+    numSuccessfulSwaps: thorchainNumSuccessfulSwaps,
+    totalSwapCount: thorchainTotalSwapCount,
+    isComplete: isThorchainStreamingComplete,
+  } = streamingProgress ?? {}
+
+  const isComplete = isThorchainStreamingComplete || swap.status === SwapStatus.Success
+
+  const totalSwapCount = useMemo(() => {
+    return thorchainTotalSwapCount === 0 ? 1 : thorchainTotalSwapCount
+  }, [thorchainTotalSwapCount])
+
+  const numSuccessfulSwaps = useMemo(() => {
+    if (thorchainNumSuccessfulSwaps === 0 && isComplete) return 1
+
+    return thorchainNumSuccessfulSwaps
+  }, [isComplete, thorchainNumSuccessfulSwaps])
 
   const progress = useMemo(() => {
-    return bnOrZero(numSuccessfulSwaps).div(bnOrZero(totalSwapCount)).multipliedBy(100).toNumber()
-  }, [numSuccessfulSwaps, totalSwapCount])
+    return isComplete
+      ? 100
+      : bnOrZero(numSuccessfulSwaps).div(bnOrZero(totalSwapCount)).multipliedBy(100).toNumber()
+  }, [numSuccessfulSwaps, totalSwapCount, isComplete])
 
   return (
     <Stack gap={4}>
@@ -35,7 +54,7 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, swap }) => {
               width='100px'
               size='xs'
               value={progress}
-              colorScheme={progress === 100 ? 'green' : 'blue'}
+              colorScheme={isComplete ? 'green' : 'blue'}
             />
             <RawText>
               ({numSuccessfulSwaps}/{totalSwapCount})

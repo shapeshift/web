@@ -29,8 +29,9 @@ import {
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
-import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseSwapActionSubscriberProps = {
@@ -137,7 +138,9 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       const swapper = maybeSwapper
 
       if (!swap.sellAccountId) return
+      if (!swap.buyAccountId) return
       if (!swap.sellTxHash) return
+      if (!swap.receiveAddress) return
 
       const { status, message, buyTxHash } = await swapper.checkTradeStatus({
         txHash: swap.sellTxHash,
@@ -158,20 +161,34 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       const swapSellAsset = swap.sellAsset
       const swapBuyAsset = swap.buyAsset
 
+      const txId = serializeTxIndex(swap.buyAccountId, buyTxHash, swap.receiveAddress)
+
       if (status === TxStatus.Confirmed) {
         const accountId = swap.sellAccountId
-        const adapter = getChainAdapterManager().get(swap.sellAsset.chainId)
+        const tx = await (async () => {
+          const txFromTxHistory = selectTxById(store.getState(), txId)
+          if (txFromTxHistory) return txFromTxHistory
 
-        if (adapter) {
+          const adapter = getChainAdapterManager().get(swap.sellAsset.chainId)
+
+          if (!adapter) return
+
+          const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
+            txid: buyTxHash,
+          })
+
+          const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
+
+          return parsedTx
+        })()
+
+        const feeAsset = selectFeeAssetByChainId(
+          store.getState(),
+          tx?.chainId ?? swapBuyAsset.chainId,
+        )
+
+        if (tx) {
           try {
-            const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
-              txid: buyTxHash,
-            })
-
-            const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
-
-            const feeAsset = selectFeeAssetByChainId(store.getState(), parsedTx?.chainId ?? '')
-
             const maybeSafeTx = await fetchSafeTransactionInfo({
               accountId,
               safeTxHash: buyTxHash,
@@ -179,29 +196,21 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
             })
 
             const txLink = getTxLink({
-              stepSource: parsedTx.trade?.dexName,
+              stepSource: tx.trade?.dexName,
               defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
               txId: tx.txid,
               maybeSafeTx,
               accountId,
             })
 
-            if (parsedTx.transfers?.length) {
-              const receiveTransfer = parsedTx.transfers.find(
+            if (tx.transfers?.length) {
+              const receiveTransfer = tx.transfers.find(
                 transfer =>
                   transfer.type === TransferType.Receive &&
                   transfer.assetId === swapBuyAsset.assetId,
               )
 
               if (receiveTransfer?.value) {
-                dispatch(
-                  swapSlice.actions.upsertSwap({
-                    ...swap,
-                    buyAmountCryptoBaseUnit: receiveTransfer.value,
-                    txLink,
-                  }),
-                )
-
                 const notificationTitle = translate('notificationCenter.swapTitle', {
                   sellAmountAndSymbol: toCrypto(
                     fromBaseUnit(swap.sellAmountCryptoBaseUnit, swapSellAsset.precision),
@@ -239,6 +248,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
                   swapSlice.actions.upsertSwap({
                     ...swap,
                     status: SwapStatus.Success,
+                    buyAmountCryptoBaseUnit: receiveTransfer.value,
                     txLink,
                   }),
                 )
@@ -257,6 +267,37 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
             return
           }
         }
+
+        const maybeSafeTx = await fetchSafeTransactionInfo({
+          accountId,
+          safeTxHash: buyTxHash,
+          fetchIsSmartContractAddressQuery,
+        })
+
+        const txLink = getTxLink({
+          defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+          txId: buyTxHash,
+          maybeSafeTx,
+          accountId,
+        })
+
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...action,
+            swapMetadata: {
+              swapId: swap.id,
+            },
+            status: ActionStatus.Complete,
+          }),
+        )
+        dispatch(
+          swapSlice.actions.upsertSwap({
+            ...swap,
+            status: SwapStatus.Success,
+            txLink,
+          }),
+        )
+        return
       }
 
       if (status === TxStatus.Failed) {

@@ -78,6 +78,12 @@ export const SwapNotification = ({ handleClick, status, title, id }: SwapNotific
 
           {swap.swapperName && (
             <Flex alignItems='center' gap={1}>
+              {swap.isStreaming && (
+                <HStack spacing={1} justifyContent='center'>
+                  <Icon as={StreamIcon} color='blue.500' boxSize={3} />
+                </HStack>
+              )}
+
               <SwapperIcon size='xs' swapperName={swap.swapperName} />
             </Flex>
           )}
@@ -116,12 +122,6 @@ export const SwapNotification = ({ handleClick, status, title, id }: SwapNotific
             </Stack>
           </HStack>
         </HStack>
-
-        {swap.isStreaming && (
-          <HStack spacing={1} justifyContent='center'>
-            <Icon as={StreamIcon} color='blue.400' boxSize={3} />
-          </HStack>
-        )}
       </Stack>
     </Box>
   )

@@ -12,7 +12,10 @@ import { useGetTradeQuotes } from '@/components/MultiHopTrade/hooks/useGetTradeQ
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { assertUnreachable } from '@/lib/utils'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
-import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
+} from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
@@ -62,6 +65,7 @@ export const useTradeButtonProps = ({
   })
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
@@ -73,11 +77,13 @@ export const useTradeButtonProps = ({
       createdAt: Date.now(),
       updatedAt: Date.now(),
       sellAccountId,
+      buyAccountId,
       swapperName: activeQuote.swapperName,
       sellAsset: firstStep.sellAsset,
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      receiveAddress: activeQuote.receiveAddress,
       metadata: {
         lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
         lifiTools: firstStep?.lifiSpecific?.lifiTools,
@@ -94,7 +100,7 @@ export const useTradeButtonProps = ({
     dispatch(swapSlice.actions.setActiveSwapId(swap.id))
 
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [dispatch, activeQuote, currentHopIndex, sellAccountId])
+  }, [dispatch, activeQuote, currentHopIndex, sellAccountId, buyAccountId])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {

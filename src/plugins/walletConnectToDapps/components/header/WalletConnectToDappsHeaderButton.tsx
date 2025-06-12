@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { AvatarGroup, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
+import { AvatarGroup, Box, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
 import type { FC } from 'react'
 import { memo, useMemo } from 'react'
@@ -10,6 +10,7 @@ import { WalletConnectButtons } from './ConnectDapp'
 import { DappAvatar } from './DappAvatar'
 
 import { RawText } from '@/components/Text'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isSome, trimWithEndEllipsis } from '@/lib/utils'
 import { DappHeaderMenuSummary } from '@/plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
@@ -82,22 +83,24 @@ const WalletConnectV2ConnectedButton = memo(() => {
         textAlign='left'
         flexShrink='none'
       >
-        {sessions.length > 1 ? (
-          <WalletConnectV2ConnectedButtonText
-            title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
-              count: sessions.length,
-            })}
-            subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
-          />
-        ) : (
-          <WalletConnectV2ConnectedButtonText
-            title={trimWithEndEllipsis(mostRecentSession?.peer.metadata.name, 16)}
-            subTitle={trimWithEndEllipsis(
-              mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, ''),
-              18,
-            )}
-          />
-        )}
+        <Box overflow='hidden'>
+          {sessions.length > 1 ? (
+            <WalletConnectV2ConnectedButtonText
+              title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
+                count: sessions.length,
+              })}
+              subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
+            />
+          ) : (
+            <WalletConnectV2ConnectedButtonText
+              title={trimWithEndEllipsis(mostRecentSession?.peer.metadata.name, 16)}
+              subTitle={trimWithEndEllipsis(
+                mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, ''),
+                18,
+              )}
+            />
+          )}
+        </Box>
       </MenuButton>
       <MenuList
         zIndex='banner'

@@ -1,4 +1,8 @@
-import type { SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type {
+  StreamingSwapFailedSwap,
+  StreamingSwapMetadata,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import { getDaemonUrl } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
@@ -7,12 +11,8 @@ import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSucces
 
 import { getConfig } from '@/config'
 import { usePoll } from '@/hooks/usePoll/usePoll'
-import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import type {
-  StreamingSwapFailedSwap,
-  StreamingSwapMetadata,
-} from '@/state/slices/tradeQuoteSlice/types'
+import { selectSwapById } from '@/state/slices/swapSlice/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
@@ -62,38 +62,33 @@ const getStreamingSwapMetadata = (
 }
 
 export const useThorStreamingProgress = ({
-  hopIndex,
-  confirmedTradeId,
+  confirmedSwapId,
   swapperName,
 }: {
-  tradeQuoteStep: TradeQuoteStep
-  hopIndex: number
-  confirmedTradeId: TradeQuote['id']
+  confirmedSwapId: string | undefined
   swapperName: SwapperName
 }): {
   isComplete: boolean
   attemptedSwapCount: number
   totalSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
+  numSuccessfulSwaps: number
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>(undefined)
   const { poll, cancelPolling } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
-  const hopExecutionMetadataFilter = useMemo(() => {
-    return {
-      tradeId: confirmedTradeId,
-      hopIndex,
-    }
-  }, [confirmedTradeId, hopIndex])
+  const swapByIdFilter = useMemo(() => ({ swapId: confirmedSwapId ?? '' }), [confirmedSwapId])
+  const swap = useAppSelector(state => selectSwapById(state, swapByIdFilter))
 
-  const {
-    swap: { sellTxHash, streamingSwap: streamingSwapMeta },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
+  const { sellTxHash, metadata } = swap ?? {}
+  const { streamingSwapMetadata } = metadata ?? {}
 
   useEffect(() => {
     // don't start polling until we have a tx
     if (!sellTxHash) return
+    if (!swap) return
+    if (!swap.isStreaming) return
 
     poll({
       fn: async () => {
@@ -122,10 +117,12 @@ export const useThorStreamingProgress = ({
           streamingSwapDataRef.current = completedStreamingSwapData
 
           dispatch(
-            tradeQuoteSlice.actions.setStreamingSwapMeta({
-              hopIndex,
-              streamingSwapMetadata: getStreamingSwapMetadata(completedStreamingSwapData),
-              id: confirmedTradeId,
+            swapSlice.actions.upsertSwap({
+              ...swap,
+              metadata: {
+                ...swap.metadata,
+                streamingSwapMetadata: getStreamingSwapMetadata(completedStreamingSwapData),
+              },
             }),
           )
 
@@ -135,10 +132,12 @@ export const useThorStreamingProgress = ({
         // data to update - update
         streamingSwapDataRef.current = updatedStreamingSwapData
         dispatch(
-          tradeQuoteSlice.actions.setStreamingSwapMeta({
-            hopIndex,
-            streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
-            id: confirmedTradeId,
+          swapSlice.actions.upsertSwap({
+            ...swap,
+            metadata: {
+              ...swap.metadata,
+              streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
+            },
           }),
         )
         return updatedStreamingSwapData
@@ -153,20 +152,23 @@ export const useThorStreamingProgress = ({
 
     // stop polling on dismount
     return cancelPolling
-  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId, swapperName])
+  }, [cancelPolling, dispatch, poll, sellTxHash, swap, swapperName])
 
   const result = useMemo(() => {
     const numSuccessfulSwaps =
-      (streamingSwapMeta?.attemptedSwapCount ?? 0) - (streamingSwapMeta?.failedSwaps?.length ?? 0)
+      (streamingSwapMetadata?.attemptedSwapCount ?? 0) -
+      (streamingSwapMetadata?.failedSwaps?.length ?? 0)
 
     const isComplete =
-      streamingSwapMeta !== undefined && numSuccessfulSwaps >= streamingSwapMeta.totalSwapCount
+      streamingSwapMetadata !== undefined &&
+      numSuccessfulSwaps >= streamingSwapMetadata.totalSwapCount
 
     return {
       isComplete,
-      ...(streamingSwapMeta ?? DEFAULT_STREAMING_SWAP_METADATA),
+      ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
+      numSuccessfulSwaps,
     }
-  }, [streamingSwapMeta])
+  }, [streamingSwapMetadata])
 
   return result
 }

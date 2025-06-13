@@ -19,6 +19,7 @@ import { SwapDetails } from './Details/SwapDetails'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
+import { StreamIcon } from '@/components/Icons/Stream'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
@@ -97,6 +98,7 @@ export const SwapActionCard = ({
                 <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
                 <RawText>{action.type}</RawText>
+                {swap?.isStreaming ? <StreamIcon color='text.success' /> : null}
                 {swap?.swapperName && (
                   <RawText>
                     <HoverTooltip label={swap.swapperName}>
@@ -119,7 +121,7 @@ export const SwapActionCard = ({
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4}>
               <CardBody px={0} py={0}>
-                <SwapDetails txLink={swap?.txLink} />
+                <SwapDetails txLink={swap?.txLink} swap={swap} />
               </CardBody>
             </Card>
           </Collapse>

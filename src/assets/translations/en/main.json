@@ -2968,6 +2968,7 @@
     "expires": "Expires",
     "filled": "Filled",
     "swap": "Swap",
+    "streaming": "Streaming",
     "claim": "Claim",
     "protocol": "Protocol",
     "streamingStatus": "Streaming Status",

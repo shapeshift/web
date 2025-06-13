@@ -1,29 +1,21 @@
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { Swap } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 
 import { useChainflipStreamingProgress } from './useChainflipStreamingProgress'
 import { useThorStreamingProgress } from './useThorStreamingProgress'
 
-import {
-  selectActiveQuote,
-  selectActiveSwapperName,
-} from '@/state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from '@/state/store'
-
 type UseStreamingProgressProps = {
-  hopIndex: number
-  tradeQuoteStep: TradeQuoteStep
+  swap: Swap | undefined
 }
 
-export const useStreamingProgress = ({ hopIndex, tradeQuoteStep }: UseStreamingProgressProps) => {
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const currentSwapperName = useAppSelector(selectActiveSwapperName)
-  const isStreamingSwap = activeQuote?.isStreaming || false
+export const useStreamingProgress = ({ swap }: UseStreamingProgressProps) => {
+  const isStreamingSwap = swap?.isStreaming || false
+  const confirmedSwapId = swap?.id
+  const currentSwapperName = swap?.swapperName
 
   const streamingProgressArgs = {
-    tradeQuoteStep,
-    hopIndex,
-    confirmedTradeId: activeQuote?.id ?? '',
+    swap,
+    confirmedSwapId,
   }
 
   const thorchainStreamingProgress = useThorStreamingProgress({

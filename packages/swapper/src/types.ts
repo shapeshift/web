@@ -28,6 +28,7 @@ import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
+import type Polyglot from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
@@ -384,6 +385,8 @@ export type Swap = {
   buyAsset: Asset
   status: SwapStatus
   sellTxHash?: string
+  buyTxHash?: string
+  statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId | undefined
   buyAccountId: AccountId | undefined
   swapperName: SwapperName

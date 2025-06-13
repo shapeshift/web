@@ -2,10 +2,17 @@ import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Swap } from '@shapeshiftoss/swapper'
-import { fetchSafeTransactionInfo, swappers, SwapStatus } from '@shapeshiftoss/swapper'
+import {
+  fetchSafeTransactionInfo,
+  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
+  SwapperName,
+  swappers,
+  SwapStatus,
+  TRADE_POLL_INTERVAL_MILLISECONDS,
+} from '@shapeshiftoss/swapper'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { useQueries, useQueryClient } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -31,8 +38,6 @@ import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
-import { selectConfirmedTradeExecutionState } from '@/state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseSwapActionSubscriberProps = {
@@ -77,18 +82,6 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
-  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-  const queryClient = useQueryClient()
-
-  // If the action polling is a bit off compared with the active trade status screen, we need to invalidate the action query
-  // so we instantly update the action status to match the trade status
-  useEffect(() => {
-    if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
-      queryClient.invalidateQueries({
-        queryKey: ['action', activeSwapId],
-      })
-    }
-  }, [confirmedTradeExecutionState, queryClient, activeSwapId])
 
   // Create swap and action after user confirmed the intent
   useEffect(() => {
@@ -268,6 +261,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
                     ...swap,
                     status: SwapStatus.Success,
                     buyAmountCryptoBaseUnit: receiveTransfer.value,
+                    statusMessage: message,
+                    buyTxHash,
                     txLink,
                   }),
                 )
@@ -311,6 +306,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           swapSlice.actions.upsertSwap({
             ...swap,
             status: SwapStatus.Success,
+            statusMessage: message,
+            buyTxHash,
             txLink,
           }),
         )
@@ -337,6 +334,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           swapSlice.actions.upsertSwap({
             ...swap,
             status: SwapStatus.Failed,
+            statusMessage: message,
+            buyTxHash,
           }),
         )
 
@@ -344,6 +343,16 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           status: 'error',
           id: swap.id,
         })
+      }
+
+      if (status === TxStatus.Pending || status === TxStatus.Unknown) {
+        dispatch(
+          swapSlice.actions.upsertSwap({
+            ...swap,
+            statusMessage: message,
+            buyTxHash,
+          }),
+        )
       }
 
       return {
@@ -366,8 +375,11 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
           queryFn: () => swapStatusHandler(swap, action),
-          refetchInterval: 10000,
-          enabled: isConnected,
+          refetchInterval:
+            swap.swapperName === SwapperName.LIFI
+              ? LIFI_TRADE_POLL_INTERVAL_MILLISECONDS
+              : TRADE_POLL_INTERVAL_MILLISECONDS,
+          enabled: isConnected && swap.status === SwapStatus.Pending,
         }
       })
       .filter((query): query is NonNullable<typeof query> => query !== undefined)

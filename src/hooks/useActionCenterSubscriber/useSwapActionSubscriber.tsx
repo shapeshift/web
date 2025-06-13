@@ -5,7 +5,7 @@ import type { Swap } from '@shapeshiftoss/swapper'
 import { fetchSafeTransactionInfo, swappers, SwapStatus } from '@shapeshiftoss/swapper'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -31,6 +31,8 @@ import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { selectConfirmedTradeExecutionState } from '@/state/slices/tradeQuoteSlice/selectors'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -65,6 +67,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         />
       )
     },
+    duration: null,
+    position: 'bottom-right',
   })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
@@ -74,6 +78,18 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const queryClient = useQueryClient()
+
+  // If the action polling is a bit off compared with the active trade status screen, we need to invalidate the action query
+  // so we instantly update the action status to match the trade status
+  useEffect(() => {
+    if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
+      queryClient.invalidateQueries({
+        queryKey: ['action', activeSwapId],
+      })
+    }
+  }, [confirmedTradeExecutionState, queryClient, activeSwapId])
 
   // Create swap and action after user confirmed the intent
   useEffect(() => {
@@ -254,10 +270,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
                 )
 
                 toast({
-                  title: translate('notificationCenter.swapSuccess'),
                   status: 'success',
                   id: swap.id,
-                  position: 'top-right',
                 })
                 return
               }
@@ -299,10 +313,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         )
 
         toast({
-          title: translate('notificationCenter.swapSuccess'),
           status: 'success',
           id: swap.id,
-          position: 'top-right',
         })
         return
       }
@@ -326,10 +338,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         )
 
         toast({
-          title: translate('notificationCenter.swapError'),
           status: 'error',
           id: swap.id,
-          position: 'top-right',
         })
       }
 

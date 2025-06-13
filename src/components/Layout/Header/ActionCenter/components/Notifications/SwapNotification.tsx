@@ -1,4 +1,5 @@
-import { Box, Flex, HStack, Icon, Stack, Text, useColorModeValue } from '@chakra-ui/react'
+import { CloseIcon } from '@chakra-ui/icons'
+import { Box, Button, Flex, HStack, Icon, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
@@ -15,7 +16,11 @@ type SwapNotificationProps = {
   handleClick: () => void
 } & RenderProps
 
-export const SwapNotification = ({ handleClick, status, title, id }: SwapNotificationProps) => {
+const toastHoverProps = {
+  transform: 'scale(1.02)',
+}
+
+export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotificationProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const swap = useMemo(() => {
@@ -23,18 +28,7 @@ export const SwapNotification = ({ handleClick, status, title, id }: SwapNotific
     return swapsById[id]
   }, [id, swapsById])
 
-  const bgColor = useColorModeValue(
-    status === 'success' ? 'green.50' : 'red.50',
-    status === 'success' ? 'green.900' : 'red.900',
-  )
-
-  const borderColor = useColorModeValue(
-    status === 'success' ? 'green.200' : 'red.200',
-    status === 'success' ? 'green.600' : 'red.600',
-  )
-
   const iconColor = status === 'success' ? 'green.500' : 'red.500'
-  const textColor = useColorModeValue('gray.800', 'white')
 
   const sellAmount = useMemo(() => {
     if (!swap) return ''
@@ -49,80 +43,85 @@ export const SwapNotification = ({ handleClick, status, title, id }: SwapNotific
   if (!swap) return null
 
   return (
-    <Box
-      onClick={handleClick}
-      cursor='pointer'
-      bg={bgColor}
-      border='1px solid'
-      borderColor={borderColor}
-      borderRadius='xl'
-      p={4}
-      boxShadow='lg'
-      transition='all 0.2s'
-      width='100%'
-      maxWidth='400px'
-    >
-      <Stack spacing={3}>
-        {/* Header with status and swapper */}
-        <Flex alignItems='center' justifyContent='space-between'>
-          <HStack spacing={2}>
-            <Icon
-              as={status === 'success' ? TbCircleCheckFilled : TbCircleXFilled}
-              color={iconColor}
-              boxSize={5}
-            />
-            <Text fontSize='sm' fontWeight='semibold' color={textColor}>
-              {title}
-            </Text>
-          </HStack>
+    <Box position='relative' _hover={toastHoverProps} transition='all 0.2s'>
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={onClose}
+        position='absolute'
+        top={'14px'}
+        right={1}
+        zIndex={1}
+      >
+        <Icon as={CloseIcon} boxSize={'10px'} />
+      </Button>
+      <Box
+        onClick={handleClick}
+        cursor='pointer'
+        p={3}
+        px={2}
+        boxShadow='lg'
+        width='100%'
+        bg='background.surface.overlay.base'
+        borderRadius='lg'
+        position='relative'
+      >
+        <Stack spacing={3}>
+          <Flex alignItems='center' justifyContent='space-between' pe={6}>
+            <HStack spacing={2}>
+              <Icon
+                as={status === 'success' ? TbCircleCheckFilled : TbCircleXFilled}
+                color={iconColor}
+                boxSize={7}
+              />
 
-          {swap.swapperName && (
-            <Flex alignItems='center' gap={1}>
-              {swap.isStreaming && (
-                <HStack spacing={1} justifyContent='center'>
-                  <Icon as={StreamIcon} color='blue.500' boxSize={3} />
+              <HStack spacing={3} alignItems='center' justifyContent='center' mx='2'>
+                <HStack spacing={2}>
+                  <AssetIcon assetId={swap.sellAsset.assetId} size='xs' />
+                  <Stack spacing={0}>
+                    <Amount.Crypto
+                      value={sellAmount}
+                      symbol={swap.sellAsset.symbol}
+                      fontSize='sm'
+                      fontWeight='semibold'
+                      maximumFractionDigits={6}
+                      omitDecimalTrailingZeros
+                    />
+                  </Stack>
                 </HStack>
-              )}
 
-              <SwapperIcon size='xs' swapperName={swap.swapperName} />
-            </Flex>
-          )}
-        </Flex>
+                <Icon as={TbArrowRight} color='text.subtle' boxSize={4} />
 
-        <HStack spacing={3} alignItems='center' justifyContent='center'>
-          <HStack spacing={2}>
-            <AssetIcon assetId={swap.sellAsset.assetId} size='sm' />
-            <Stack spacing={0}>
-              <Amount.Crypto
-                value={sellAmount}
-                symbol={swap.sellAsset.symbol}
-                fontSize='sm'
-                fontWeight='semibold'
-                color={textColor}
-                maximumFractionDigits={6}
-                omitDecimalTrailingZeros
-              />
-            </Stack>
-          </HStack>
+                <HStack spacing={2}>
+                  <AssetIcon assetId={swap.buyAsset.assetId} size='xs' />
+                  <Stack spacing={0}>
+                    <Amount.Crypto
+                      value={buyAmount}
+                      symbol={swap.buyAsset.symbol}
+                      fontSize='sm'
+                      fontWeight='semibold'
+                      maximumFractionDigits={6}
+                      omitDecimalTrailingZeros
+                    />
+                  </Stack>
+                </HStack>
+              </HStack>
+            </HStack>
 
-          <Icon as={TbArrowRight} color='text.subtle' boxSize={4} />
+            {swap.swapperName && (
+              <Flex alignItems='center' gap={1}>
+                {swap.isStreaming && (
+                  <HStack spacing={1} justifyContent='center'>
+                    <Icon as={StreamIcon} color='blue.500' boxSize={3} />
+                  </HStack>
+                )}
 
-          <HStack spacing={2}>
-            <AssetIcon assetId={swap.buyAsset.assetId} size='sm' />
-            <Stack spacing={0}>
-              <Amount.Crypto
-                value={buyAmount}
-                symbol={swap.buyAsset.symbol}
-                fontSize='sm'
-                fontWeight='semibold'
-                color={textColor}
-                maximumFractionDigits={6}
-                omitDecimalTrailingZeros
-              />
-            </Stack>
-          </HStack>
-        </HStack>
-      </Stack>
+                <SwapperIcon size='xs' swapperName={swap.swapperName} />
+              </Flex>
+            )}
+          </Flex>
+        </Stack>
+      </Box>
     </Box>
   )
 }

@@ -88,6 +88,7 @@ export const useThorStreamingProgress = ({
     // don't start polling until we have a tx
     if (!sellTxHash) return
     if (!swap) return
+    if (!swap.isStreaming) return
 
     poll({
       fn: async () => {

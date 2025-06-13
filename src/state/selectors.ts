@@ -59,7 +59,6 @@ type ParamFilter = Partial<{
   quoteId: string
   cowSwapQuoteId: number
   swapId: string
-  limitOrderId: string
 }>
 
 type ParamFilterKey = keyof ParamFilter

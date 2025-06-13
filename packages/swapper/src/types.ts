@@ -386,7 +386,6 @@ export type Swap = {
   sellTxHash?: string
   sellAccountId: AccountId | undefined
   buyAccountId: AccountId | undefined
-  receiveAddress: string | undefined
   swapperName: SwapperName
   sellAmountCryptoBaseUnit: string
   buyAmountCryptoBaseUnit: string

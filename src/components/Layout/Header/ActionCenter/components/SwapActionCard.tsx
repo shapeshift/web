@@ -36,7 +36,6 @@ type SwapActionCardProps = {
 }
 
 export const SwapActionCard = ({ action }: SwapActionCardProps) => {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const formattedDate = useMemo(() => {
@@ -54,6 +53,8 @@ export const SwapActionCard = ({ action }: SwapActionCardProps) => {
   const swap = useMemo(() => {
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
+
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: swap.isStreaming })
 
   const hoverProps = useMemo(
     () => ({

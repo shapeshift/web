@@ -112,7 +112,7 @@ export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotif
               <Flex alignItems='center' gap={1}>
                 {swap.isStreaming && (
                   <HStack spacing={1} justifyContent='center'>
-                    <Icon as={StreamIcon} color='blue.500' boxSize={3} />
+                    <Icon as={StreamIcon} color={iconColor} boxSize={5} me={2} />
                   </HStack>
                 )}
 

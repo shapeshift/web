@@ -18,7 +18,7 @@ import { SwapNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getTxLink } from '@/lib/getTxLink'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetCosmosSdkChainAdapter, isCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -29,11 +29,10 @@ import {
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
-import { selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecutionState } from '@/state/slices/tradeQuoteSlice/selectors'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseSwapActionSubscriberProps = {
@@ -156,7 +155,6 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       if (!swap.sellAccountId) return
       if (!swap.buyAccountId) return
       if (!swap.sellTxHash) return
-      if (!swap.receiveAddress) return
 
       const { status, message, buyTxHash } = await swapper.checkTradeStatus({
         txHash: swap.sellTxHash,
@@ -177,15 +175,20 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       const swapSellAsset = swap.sellAsset
       const swapBuyAsset = swap.buyAsset
 
-      const txId = serializeTxIndex(swap.buyAccountId, buyTxHash, swap.receiveAddress)
-
       if (status === TxStatus.Confirmed) {
-        const accountId = swap.sellAccountId
+        const accountId = swap.buyAccountId
         const tx = await (async () => {
-          const txFromTxHistory = selectTxById(store.getState(), txId)
-          if (txFromTxHistory) return txFromTxHistory
+          const adapter = getChainAdapterManager().get(swap.buyAsset.chainId)
 
-          const adapter = getChainAdapterManager().get(swap.sellAsset.chainId)
+          if (isCosmosSdkChainAdapter(adapter)) {
+            const tx = await adapter.httpProvider.getTx({
+              txid: buyTxHash,
+            })
+
+            const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
+
+            return parsedTx
+          }
 
           if (!adapter) return
 
@@ -214,7 +217,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
             const txLink = getTxLink({
               stepSource: tx.trade?.dexName,
               defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-              txId: tx.txid,
+              txId: buyTxHash,
               maybeSafeTx,
               accountId,
             })

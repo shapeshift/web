@@ -83,7 +83,6 @@ export const useTradeButtonProps = ({
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      receiveAddress: activeQuote.receiveAddress,
       metadata: {
         lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
         lifiTools: firstStep?.lifiSpecific?.lifiTools,

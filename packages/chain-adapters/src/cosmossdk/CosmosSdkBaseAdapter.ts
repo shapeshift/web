@@ -452,4 +452,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       })),
     }
   }
+
+  get httpProvider(): unchained.cosmossdk.Api {
+    return this.providers.http
+  }
 }

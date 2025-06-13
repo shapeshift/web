@@ -189,6 +189,9 @@ export const portfolio = createSlice({
         draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
       },
     ),
+    setIsDiscoveringAccounts: create.reducer((draftState, { payload }: { payload: boolean }) => {
+      draftState.isDiscoveringAccounts = payload
+    }),
   }),
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
   selectors: {
@@ -203,6 +206,7 @@ export const portfolio = createSlice({
     selectWalletIds: state => state.wallet.ids,
     selectAccountBalancesById: state => state.accountBalances.byId,
     selectEnabledAccountIds: state => state.enabledAccountIds,
+    selectIsDiscoveringAccounts: state => state.isDiscoveringAccounts,
   },
 })
 

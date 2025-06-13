@@ -24,6 +24,7 @@ export const useAccountsFetchQuery = () => {
   const { isSnapInstalled } = useIsSnapInstalled()
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   const { deviceId, wallet } = useWallet().state
+  const isDiscoveringAccounts = useAppSelector(portfolio.selectors.selectIsDiscoveringAccounts)
 
   const hasManagedAccounts = useMemo(() => {
     // MM without snap doesn't allow account management - if the user just installed the snap, we
@@ -32,9 +33,17 @@ export const useAccountsFetchQuery = () => {
     if (previousIsSnapInstalled === false && isSnapInstalled === true) {
       return false
     }
+
+    if (isDiscoveringAccounts) return false
+
     // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
     return enabledWalletAccountIds.length > 0
-  }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
+  }, [
+    isSnapInstalled,
+    previousIsSnapInstalled,
+    enabledWalletAccountIds.length,
+    isDiscoveringAccounts,
+  ])
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
@@ -176,6 +185,8 @@ export const useAccountsFetchQuery = () => {
       await Promise.allSettled(accountNumberAccountIdsPromises)
       chainIds = chainIdsWithActivity
     }
+
+    dispatch(portfolio.actions.setIsDiscoveringAccounts(false))
 
     return null
   }, [dispatch, isSnapInstalled, supportedChains, wallet])

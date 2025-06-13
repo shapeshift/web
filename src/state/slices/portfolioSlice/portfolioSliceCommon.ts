@@ -72,10 +72,15 @@ export type Portfolio = {
    */
   wallet: PortfolioWallet
   connectedWallet?: ConnectWallet
+  /**
+   * Whether the portfolio is auto-discovering accounts
+   */
+  isDiscoveringAccounts: boolean
 }
 
 export const initialState: Portfolio = {
   isAccountMetadataLoadingByAccountId: {},
+  isDiscoveringAccounts: true,
   accounts: {
     byId: {},
     ids: [],

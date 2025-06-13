@@ -53,7 +53,7 @@ export const ActionCenter = memo(() => {
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
-            return <SwapActionCard key={action.id} {...action} />
+            return <SwapActionCard key={action.id} action={action} />
           }
           case ActionType.LimitOrder: {
             const order = ordersByActionId[action.id]

@@ -19,6 +19,7 @@ import {
   SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
+  txStatusBySwapStatus,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { EventEmitter } from 'node:events'
@@ -120,6 +121,27 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
+          if (getConfig().VITE_FEATURE_ACTION_CENTER) {
+            const swap = selectCurrentSwap(store.getState())
+
+            if (!swap) return
+
+            const payload: StatusArgs = {
+              stepIndex,
+              status: txStatusBySwapStatus[swap.status],
+              message: swap.statusMessage,
+              buyTxHash: swap.buyTxHash,
+            }
+            this.emitter.emit(TradeExecutionEvent.Status, payload)
+
+            if (swap.status === SwapStatus.Success)
+              this.emitter.emit(TradeExecutionEvent.Success, payload)
+            if (swap.status === SwapStatus.Failed)
+              this.emitter.emit(TradeExecutionEvent.Fail, payload)
+
+            return txStatusBySwapStatus[swap.status]
+          }
+
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
             txHash: sellTxHash,
             chainId,

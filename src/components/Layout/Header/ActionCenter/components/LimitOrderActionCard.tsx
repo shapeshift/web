@@ -42,7 +42,7 @@ type NotificationCardProps = {
 
 export const LimitOrderActionCard = ({
   isCollapsable = true,
-  defaultIsOpen = false,
+  defaultIsOpen = true,
   onCancelOrder,
   order,
   action,

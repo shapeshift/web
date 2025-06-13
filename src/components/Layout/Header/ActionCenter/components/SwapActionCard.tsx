@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardBody,
@@ -6,6 +6,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Link,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -31,16 +32,10 @@ dayjs.extend(relativeTime)
 const divider = <RawText color='text.subtle'>•</RawText>
 
 type SwapActionCardProps = {
-  isCollapsable?: boolean
-  defaultIsOpen?: boolean
-} & SwapAction
+  action: SwapAction
+}
 
-export const SwapActionCard = ({
-  isCollapsable = true,
-  defaultIsOpen = false,
-  ...action
-}: SwapActionCardProps) => {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
+export const SwapActionCard = ({ action }: SwapActionCardProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const formattedDate = useMemo(() => {
@@ -59,19 +54,22 @@ export const SwapActionCard = ({
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
-  const handleClick = useCallback(() => {
-    if (isCollapsable) {
-      onToggle()
-    }
-  }, [isCollapsable, onToggle])
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: swap.isStreaming })
 
   const hoverProps = useMemo(
     () => ({
-      bg: 'background.button.secondary.hover',
-      cursor: swap?.txLink ? 'pointer' : undefined,
+      bg: swap?.txLink ? 'background.button.secondary.hover' : 'transparent',
+      cursor: swap?.txLink ? 'pointer' : 'default',
+      textDecoration: 'none',
     }),
     [swap?.txLink],
   )
+
+  const handleClick = useCallback(() => {
+    if (swap.isStreaming) {
+      onToggle()
+    }
+  }, [onToggle, swap.isStreaming])
 
   return (
     <Stack
@@ -80,7 +78,10 @@ export const SwapActionCard = ({
       borderRadius='lg'
       transitionProperty='common'
       transitionDuration='fast'
-      _hover={isCollapsable ? hoverProps : undefined}
+      as={Link}
+      href={swap?.txLink && !swap.isStreaming ? swap.txLink : undefined}
+      isExternal
+      _hover={hoverProps}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4}>
         <AssetIconWithBadge
@@ -108,15 +109,7 @@ export const SwapActionCard = ({
                 )}
               </HStack>
             </Stack>
-            {isCollapsable && swap?.txLink && (
-              <Icon
-                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-                ml='auto'
-                my='auto'
-                fontSize='xl'
-                color='text.subtle'
-              />
-            )}
+            {!swap.isStreaming && <Icon as={ExternalLinkIcon} ml='auto' my='auto' fontSize='sm' />}
           </HStack>
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4}>

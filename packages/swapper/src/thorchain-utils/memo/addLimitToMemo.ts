@@ -10,6 +10,7 @@ type AddLimitToMemoArgs = {
    * The limit/minout to be added to the memo. Must be in THOR base unit, or problems.
    */
   limit: string
+  affilate: string
 }
 
 /**
@@ -17,7 +18,7 @@ type AddLimitToMemoArgs = {
  * This is made to be composable, do one thing, and do it well.
  * If you need to handle slippage concerns, this should be done beforehand, with addLimitToMemo/assertAndProcessMemo being the final steps.
  */
-export const addLimitToMemo = ({ memo, limit }: AddLimitToMemoArgs) => {
+export const addLimitToMemo = ({ memo, limit, affilate: _affiliate }: AddLimitToMemoArgs) => {
   const memoParts = memo.split(MEMO_PART_DELIMITER)
   const [action] = memoParts
 
@@ -66,5 +67,5 @@ export const addLimitToMemo = ({ memo, limit }: AddLimitToMemoArgs) => {
       throw new Error(`unsupported memo: ${memo}`)
   }
 
-  return assertAndProcessMemo(updatedMemo)
+  return assertAndProcessMemo(updatedMemo, _affiliate)
 }

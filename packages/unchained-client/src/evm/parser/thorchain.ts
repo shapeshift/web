@@ -33,9 +33,10 @@ interface SupportedFunctions {
 
 export class Parser implements SubParser<Tx> {
   private readonly chainId: ChainId
-  private readonly thorchainParser: ThorchainParser
   private readonly abiInterface: ethers.Interface
   private readonly supportedFunctions: SupportedFunctions
+
+  protected parser: ThorchainParser<'thorchain' | 'mayachain'>
 
   constructor(args: ParserArgs) {
     this.abiInterface = new ethers.Interface(routerAbi)
@@ -65,7 +66,7 @@ export class Parser implements SubParser<Tx> {
       transferOutAndCallSigHash,
       swapInSigHash,
     }
-    this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
+    this.parser = new ThorchainParser({ midgardUrl: args.midgardUrl })
     this.chainId = args.chainId
   }
 
@@ -95,7 +96,7 @@ export class Parser implements SubParser<Tx> {
     if (!memo) return
 
     try {
-      return await this.thorchainParser.parse(memo)
+      return await this.parser.parse(memo)
     } catch (err) {
       console.error(`failed to parse tx: ${tx.txid} on ${this.chainId}: ${err}`)
     }

@@ -1,10 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { CowSwapQuoteId } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import { TransactionExecutionState } from '../tradeQuoteSlice/types'
 import {
   initialState,
   limitOrderSubmissionInitialState,
@@ -270,6 +270,16 @@ export const limitOrderSlice = createSlice({
           action.payload.id,
         )
         draftOrderSubmission.limitOrder.txHash = txHash
+      },
+    ),
+    setLimitOrderId: create.reducer(
+      (state, action: PayloadAction<{ cowSwapQuoteId: CowSwapQuoteId; orderId: string }>) => {
+        const { orderId } = action.payload
+        const draftOrderSubmission = makeOrderSubmissionDraft(
+          state.orderSubmission,
+          action.payload.cowSwapQuoteId,
+        )
+        draftOrderSubmission.limitOrder.orderId = orderId
       },
     ),
   }),

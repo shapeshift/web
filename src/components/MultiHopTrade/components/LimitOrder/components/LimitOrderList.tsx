@@ -344,10 +344,6 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     setOrderToCancel(order)
   }, [])
 
-  const handleResetOrderToCancel = useCallback(() => {
-    setOrderToCancel(undefined)
-  }, [])
-
   return (
     <Card {...cardProps}>
       {onBack && (
@@ -406,10 +402,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           </TabPanels>
         </CardBody>
       </Tabs>
-      <CancelLimitOrder
-        orderToCancel={orderToCancel}
-        resetOrderToCancel={handleResetOrderToCancel}
-      />
+      <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
     </Card>
   )
 }

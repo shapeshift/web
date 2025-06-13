@@ -1,12 +1,7 @@
-import { TradeQuoteError } from '@shapeshiftoss/swapper'
+import { TradeQuoteError, TransactionExecutionState } from '@shapeshiftoss/swapper'
 
 import type { TradeQuoteSliceState } from './types'
-import {
-  HopExecutionState,
-  QuoteSortOption,
-  TradeExecutionState,
-  TransactionExecutionState,
-} from './types'
+import { HopExecutionState, QuoteSortOption, TradeExecutionState } from './types'
 
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 

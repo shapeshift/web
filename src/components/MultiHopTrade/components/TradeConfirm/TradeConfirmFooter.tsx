@@ -1,5 +1,6 @@
 import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 
@@ -27,7 +28,7 @@ import {
   selectHopExecutionMetadata,
   selectIsActiveSwapperQuoteLoading,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type TradeConfirmFooterProps = {

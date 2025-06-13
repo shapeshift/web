@@ -1,4 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type {
   CowSwapQuoteId,
   OrderQuoteResponse,
@@ -7,7 +8,7 @@ import type {
 } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import type { ApprovalExecutionMetadata, TransactionExecutionState } from '../tradeQuoteSlice/types'
+import type { ApprovalExecutionMetadata } from '../tradeQuoteSlice/types'
 import type { LimitOrderSubmissionState } from './constants'
 
 import type { LimitOrderQuoteParams } from '@/state/apis/limit-orders/limitOrderApi'
@@ -16,6 +17,7 @@ export type LimitOrderTransactionMetadata = {
   state: TransactionExecutionState
   txHash?: string
   message?: string | [string, InterpolationOptions]
+  orderId?: string
 }
 
 export type LimitOrderSubmissionMetadata = {

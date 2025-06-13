@@ -1,6 +1,7 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -25,10 +26,7 @@ import {
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import {
-  TradeExecutionState,
-  TransactionExecutionState,
-} from '@/state/slices/tradeQuoteSlice/types'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const collapseStyle = { width: '100%' }

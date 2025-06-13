@@ -1,4 +1,5 @@
 import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -42,15 +43,13 @@ import {
   selectActiveQuoteSellAsset,
   selectLimitOrderSubmissionMetadata,
 } from '@/state/slices/limitOrderSlice/selectors'
-import { TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const LimitOrderConfirm = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed } = useActions(
-    limitOrderSlice.actions,
-  )
+  const { confirmSubmit, setLimitOrderTxComplete, setLimitOrderTxFailed, setLimitOrderId } =
+    useActions(limitOrderSlice.actions)
   const {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
@@ -310,16 +309,17 @@ export const LimitOrderConfirm = () => {
         const result = await placeLimitOrder({ quoteId, wallet })
 
         // Exit if the request failed.
-        if (
-          (result as { error: unknown }).error ||
-          !result ||
-          !(result as { data: unknown }).data
-        ) {
+        if (result.error || !result || !result.data) {
           setLimitOrderTxFailed(quoteId)
           return
         }
 
         setLimitOrderTxComplete(quoteId)
+
+        setLimitOrderId({
+          cowSwapQuoteId: quoteId,
+          orderId: result.data,
+        })
 
         // refetch the orders list for this account
         const accountId = activeQuote?.params.accountId
@@ -368,6 +368,7 @@ export const LimitOrderConfirm = () => {
     sellAsset,
     setLimitOrderTxComplete,
     setLimitOrderTxFailed,
+    setLimitOrderId,
     wallet,
     walletDispatch,
   ])

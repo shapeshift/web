@@ -1,6 +1,6 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
 import type { getInboundAddressDataForChain, InboundAddressResponse } from '@shapeshiftoss/swapper'
-import { SwapperName, ThorchainChain } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
@@ -17,7 +17,7 @@ vi.mock('@/lib/utils/thorchain/getInboundAddressDataForChain.ts', async importAc
 
 const mockInboundAddressDataBase = {
   address: 'bc1q7sxlrlqmlyrzkr4pstkzg2jnhhcre4ly9gtsk6',
-  chain: ThorchainChain.BTC,
+  chain: 'BTC',
   chain_lp_actions_paused: false,
   chain_trading_paused: false,
   dust_threshold: '10000',

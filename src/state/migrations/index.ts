@@ -1,5 +1,6 @@
 import type { MigrationManifest } from 'redux-persist'
 
+import { clearAction } from './clearAction'
 import { clearAssets } from './clearAssets'
 import { clearLocalWallet } from './clearLocalWallet'
 import { clearMarketData } from './clearMarketData'
@@ -12,6 +13,7 @@ export const clearTxHistoryMigrations = {
   0: clearTxHistory,
   1: clearTxHistory,
   2: clearTxHistory,
+  3: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearOpportunitiesMigrations = {
@@ -136,6 +138,11 @@ export const clearAssetsMigrations = {
   99: clearAssets,
   100: clearAssets,
   101: clearAssets,
+  102: clearAssets,
+  103: clearAssets,
+  104: clearAssets,
+  105: clearAssets,
+  106: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {
@@ -145,6 +152,10 @@ export const clearMarketDataMigrations = {
 
 export const clearSnapshotMigrations = {
   0: clearSnapshot,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearActionMigrations = {
+  0: clearAction,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearSwapsMigrations = {

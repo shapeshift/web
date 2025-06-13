@@ -337,7 +337,8 @@ export const TradeInput = ({
         return setShouldShowArbitrumBridgeAcknowledgement(true)
       if (
         isThorchainSwapperVolatilityAckEnabled &&
-        activeQuote?.swapperName === SwapperName.Thorchain
+        (activeQuote?.swapperName === SwapperName.Thorchain ||
+          activeQuote?.swapperName === SwapperName.Mayachain)
       ) {
         return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
       }
@@ -367,25 +368,27 @@ export const TradeInput = ({
   )
 
   const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
+  const isMayaSwapEnabled = useFeatureFlag('MayaSwap')
+
   const assetFilterPredicate = useCallback(
     (assetId: AssetId) => {
       const { chainId } = fromAssetId(assetId)
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
-      if (chainId === KnownChainIds.MayachainMainnet) return false
+      if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 
       return true
     },
-    [isSolanaSwapperEnabled],
+    [isSolanaSwapperEnabled, isMayaSwapEnabled],
   )
 
   const chainIdFilterPredicate = useCallback(
     (chainId: ChainId) => {
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
-      if (chainId === KnownChainIds.MayachainMainnet) return false
+      if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 
       return true
     },
-    [isSolanaSwapperEnabled],
+    [isSolanaSwapperEnabled, isMayaSwapEnabled],
   )
 
   const setSelectedBuyAssetChainId = useCallback(

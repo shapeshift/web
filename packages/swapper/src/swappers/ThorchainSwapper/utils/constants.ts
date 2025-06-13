@@ -1,11 +1,6 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { Token } from '@uniswap/sdk-core'
 
-export const THOR_EVM_GAS_LIMIT = '100000' // for sends of eth / erc20 into thorchain router
-export const THORCHAIN_FIXED_PRECISION = 8 // limit values are precision 8 regardless of the chain
-export const THORCHAIN_AFFILIATE_NAME = 'ss'
-export const MEMO_PART_DELIMITER = ':'
-
 export const WETH_TOKEN = new Token(
   Number(CHAIN_REFERENCE.EthereumMainnet),
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',

@@ -9,10 +9,11 @@ import { Amount } from '@/components/Amount/Amount'
 import { useFetchOpportunities } from '@/components/StakingVaults/hooks/useFetchOpportunities'
 import { Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import {
   selectClaimableRewards,
   selectEarnBalancesUserCurrencyAmountFull,
-  selectIsPortfolioLoading,
+  selectPortfolioAccounts,
   selectPortfolioTotalUserCurrencyBalance,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -33,8 +34,9 @@ type WalletBalanceProps = {
 }
 export const WalletBalance: React.FC<WalletBalanceProps> = memo(
   ({ label = 'defi.netWorth', alignItems }) => {
-    const { isLoading: isOpportunitiesLoading, progress } = useFetchOpportunities()
-    const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
+    const { isFetching: isAccountsMetadataFetching } = useAccountsFetchQuery()
+    const { isLoading: isOpportunitiesLoading, opportunityAccountIdsFetched } =
+      useFetchOpportunities()
     const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
     const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
       selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
@@ -46,6 +48,12 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
       selectPortfolioTotalUserCurrencyBalance,
     )
 
+    const walletAccounts = useAppSelector(selectPortfolioAccounts)
+
+    const walletOpportunityAccountIds = useMemo(
+      () => opportunityAccountIdsFetched.filter(id => walletAccounts[id] !== undefined),
+      [opportunityAccountIdsFetched, walletAccounts],
+    )
     const translate = useTranslate()
 
     const netWorth = useMemo(
@@ -66,13 +74,12 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
         <Flex gap={2}>
           <Text fontWeight='medium' translation={label} color='text.subtle' />
 
-          {(isOpportunitiesLoading || isPortfolioLoading) && (
+          {(isOpportunitiesLoading || isAccountsMetadataFetching) && (
             <TooltipWithTouch
-              label={
-                isOpportunitiesLoading
-                  ? translate('defi.loadingWalletChains', progress)
-                  : translate('defi.loadingPortfolio')
-              }
+              label={translate('defi.loadingAccounts', {
+                portfolioAccountsLoaded: Object.keys(walletAccounts).length,
+                opportunityAccountsLoaded: walletOpportunityAccountIds.length,
+              })}
             >
               <Spinner color='blue.500' size='sm' />
             </TooltipWithTouch>

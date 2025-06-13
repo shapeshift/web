@@ -53,6 +53,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
           size='xs'
           value={progress}
           colorScheme={isComplete ? 'green' : 'blue'}
+          isAnimated
         />
         <RawText>
           ({numSuccessfulSwaps}/{totalSwapCount})

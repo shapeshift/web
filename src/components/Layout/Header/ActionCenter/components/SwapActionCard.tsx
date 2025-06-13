@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardBody,
@@ -109,15 +109,6 @@ export const SwapActionCard = ({ action }: SwapActionCardProps) => {
                 )}
               </HStack>
             </Stack>
-            {swap.isStreaming && (
-              <Icon
-                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-                ml='auto'
-                my='auto'
-                fontSize='xl'
-                color='text.subtle'
-              />
-            )}
             {!swap.isStreaming && <Icon as={ExternalLinkIcon} ml='auto' my='auto' fontSize='sm' />}
           </HStack>
           <Collapse in={isOpen}>

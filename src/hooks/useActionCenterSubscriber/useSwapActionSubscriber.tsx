@@ -297,6 +297,13 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
             txLink,
           }),
         )
+
+        toast({
+          title: translate('notificationCenter.swapSuccess'),
+          status: 'success',
+          id: swap.id,
+          position: 'top-right',
+        })
         return
       }
 

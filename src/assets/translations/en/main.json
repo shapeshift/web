@@ -847,12 +847,15 @@
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
     "sort": {
-      "sortBy": "Sort By",
+      "sortBy": "Sort Quotes By",
       "auto": "Auto",
       "bestRate": "Best Rate",
+      "bestRateTooltip": "The default, maximizes your final amount received. Shows quotes with the highest net amount you'll receive after all fees and gas costs.",
       "lowestGas": "Lowest Gas",
+      "lowestGasTooltip": "Best for minimizing transaction costs.  Shows quotes ordered by gas fees from lowest to highest.",
       "fastest": "Fastest",
-      "info": "Choose how to sort available quotes"
+      "fastestTooltip": "Best for urgent trades. Shows quotes with quickest results, using estimated response times.",
+      "info": "Select how you would like your quotes sorted."
     },
     "from": "From",
     "to": "To",

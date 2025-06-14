@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { knownChainIds } from '@/constants/chains'
@@ -24,6 +24,16 @@ export const useFetchOpportunities = () => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
 
+  const [opportunityAccountIdsFetched, setOpportunityAccountIdsFetched] = useState<
+    Record<string, true>
+  >({})
+
+  const onAccountLoad = useCallback(
+    (accountId: string): void =>
+      setOpportunityAccountIdsFetched(prev => ({ ...prev, [accountId]: true })),
+    [],
+  )
+
   const { isLoading: isPortalsUniV2PoolAssetIdsLoading } =
     useGetPortalsUniV2PoolAssetIdsQuery(undefined)
 
@@ -34,6 +44,7 @@ export const useFetchOpportunities = () => {
       portfolioAssetIds,
       portfolioAccounts,
       knownChainIds,
+      onAccountLoad,
     ),
     enabled:
       !isConnected || Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
@@ -47,8 +58,14 @@ export const useFetchOpportunities = () => {
     () => ({
       isLoading:
         isLoading || portfolioLoadingStatus === 'loading' || isPortalsUniV2PoolAssetIdsLoading,
+      opportunityAccountIdsFetched: Object.keys(opportunityAccountIdsFetched),
     }),
-    [isLoading, isPortalsUniV2PoolAssetIdsLoading, portfolioLoadingStatus],
+    [
+      isLoading,
+      isPortalsUniV2PoolAssetIdsLoading,
+      portfolioLoadingStatus,
+      opportunityAccountIdsFetched,
+    ],
   )
 
   return result

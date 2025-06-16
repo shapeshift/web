@@ -197,13 +197,9 @@ export const createOnRamperUrl = async ({
 
   if (action === FiatRampAction.Sell) {
     // Note: selling via OnRamper does not allow selecting the currency, their api currently does not support it
-    params.set('initScreen', 'sell')
-    params.set('supportSell', 'true')
-    params.set('isAddressEditable', 'true')
+    params.set('mode', 'sell')
   } else {
     params.set('onlyCryptos', onRamperSymbols.join(','))
-    params.set('supportSell', 'false')
-    params.set('isAddressEditable', 'false')
   }
   params.set('language', language)
   params.set('defaultFiat', fiatCurrency)

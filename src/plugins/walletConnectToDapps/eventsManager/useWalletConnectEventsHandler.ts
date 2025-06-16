@@ -1,5 +1,5 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { IWalletKit, WalletKitTypes } from '@reown/walletkit'
+import type { WalletKitTypes } from '@reown/walletkit'
 import { useCallback } from 'react'
 
 import type {

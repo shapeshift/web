@@ -1,7 +1,7 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
 import type { PairingJsonRpcTypes, SignClientTypes } from '@walletconnect/types'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { useWalletConnectEventsHandler } from '@/plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsHandler'
 import type {
@@ -38,59 +38,71 @@ export const useWalletConnectEventsManager = (
   const signClientEvents = useMemo(() => state.web3wallet?.engine.signClient.events, [state])
   const pairingEvents = useMemo(() => state.core?.pairing.events, [state])
 
-  const sessionRequestListener = (request: SignClientTypes.EventArguments['session_request']) => {
-    // In theory, this should work if we moved this to handleSessionRequest.
-    // In effect, after 2ish hours of debugging, couldn't manage to make it work there
-    // Most likely related to `state.web3wallet` closure and a race condition where the reference of `web3wallet` in useWalletConnectEventsHandler()
-    // is 1/2 renders stale, since this is a callback
-    if (request.params.request.method === EIP155_SigningMethod.GET_CAPABILITIES) {
-      state.web3wallet?.respondSessionRequest({
-        topic: request.topic,
-        response: formatJsonRpcResult(request.id, {
-          capabilities: {
-            eth_sendTransaction: true,
-            eth_signTransaction: true,
-            eth_sign: true,
-            personal_sign: true,
-            eth_signTypedData: true,
-            eth_signTypedData_v3: true,
-            eth_signTypedData_v4: true,
-            wallet_addEthereumChain: true,
-            wallet_switchEthereumChain: true,
-          },
-        }),
-      })
-    }
+  const sessionRequestListener = useCallback(
+    (request: SignClientTypes.EventArguments['session_request']) => {
+      // In theory, this should work if we moved this to handleSessionRequest.
+      // In effect, after 2ish hours of debugging, couldn't manage to make it work there
+      // Most likely related to `state.web3wallet` closure and a race condition where the reference of `web3wallet` in useWalletConnectEventsHandler()
+      // is 1/2 renders stale, since this is a callback
+      if (request.params.request.method === EIP155_SigningMethod.GET_CAPABILITIES) {
+        state.web3wallet?.respondSessionRequest({
+          topic: request.topic,
+          response: formatJsonRpcResult(request.id, {
+            capabilities: {
+              eth_sendTransaction: true,
+              eth_signTransaction: true,
+              eth_sign: true,
+              personal_sign: true,
+              eth_signTypedData: true,
+              eth_signTypedData_v3: true,
+              eth_signTypedData_v4: true,
+              wallet_addEthereumChain: true,
+              wallet_switchEthereumChain: true,
+            },
+          }),
+        })
+      }
 
-    isSupportedSessionRequest(request) && handleSessionRequest(request)
-  }
+      isSupportedSessionRequest(request) && handleSessionRequest(request)
+    },
+    [handleSessionRequest, state.web3wallet],
+  )
 
-  const sessionDeleteListener = ({ topic }: SignClientTypes.EventArguments['session_delete']) => {
-    dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
-  }
+  const sessionDeleteListener = useCallback(
+    ({ topic }: SignClientTypes.EventArguments['session_delete']) => {
+      dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
+    },
+    [dispatch],
+  )
 
-  const sessionUpdateListener = ({
-    topic,
-    params,
-  }: SignClientTypes.EventArguments['session_update']) => {
-    dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: { ...params, topic } })
-  }
+  const sessionUpdateListener = useCallback(
+    ({ topic, params }: SignClientTypes.EventArguments['session_update']) => {
+      dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: { ...params, topic } })
+    },
+    [dispatch],
+  )
 
-  const sessionPingListener = () => {
+  const sessionPingListener = useCallback(() => {
     // We don't handle session pings... yet?
-  }
+  }, [])
 
-  const pairingPingListener = () => {
+  const pairingPingListener = useCallback(() => {
     // We don't handle pairing pings... yet?
-  }
+  }, [])
 
-  const pairingDeleteListener = ({ topic }: PairingEvent) => {
-    dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
-  }
+  const pairingDeleteListener = useCallback(
+    ({ topic }: PairingEvent) => {
+      dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
+    },
+    [dispatch],
+  )
 
-  const pairingExpireListener = ({ topic }: PairingEvent) => {
-    dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
-  }
+  const pairingExpireListener = useCallback(
+    ({ topic }: PairingEvent) => {
+      dispatch({ type: WalletConnectActionType.DELETE_SESSION, payload: { topic } })
+    },
+    [dispatch],
+  )
 
   // Set up WalletConnect event listeners
   useEffect(() => {
@@ -137,5 +149,6 @@ export const useWalletConnectEventsManager = (
     sessionPingListener,
     sessionRequestListener,
     sessionUpdateListener,
+    pairingPingListener,
   ])
 }

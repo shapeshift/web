@@ -139,13 +139,6 @@ export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
   }
 }
 
-type WalletGetCapabilitiesRequest = {
-  method: EIP155_SigningMethod.GET_CAPABILITIES
-  topic: string
-  id: number
-  params: any
-}
-
 type WalletAddEthereumChainCallRequest = {
   method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
   params: TransactionParams[]
@@ -233,7 +226,6 @@ export type WalletConnectRequest =
   | EthPersonalSignCallRequest
   | EthSignTypedDataCallRequest
   | EthSendTransactionCallRequest
-  | WalletGetCapabilitiesRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
 

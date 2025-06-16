@@ -5,6 +5,7 @@ import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
 import * as arbitrumBridge from '../../parser/arbitrumBridge'
 import * as erc20 from '../../parser/erc20'
+import * as mayachain from '../../parser/mayachain'
 import * as thorchain from '../../parser/thorchain'
 import * as zrx from '../../parser/zrx'
 import * as cowswap from './cowswap'
@@ -13,7 +14,8 @@ import * as uniV2 from './uniV2'
 import * as weth from './weth'
 
 export interface TransactionParserArgs extends BaseTransactionParserArgs {
-  midgardUrl: string
+  thorMidgardUrl: string
+  mayaMidgardUrl: string
 }
 
 export class TransactionParser extends BaseTransactionParser<Tx> {
@@ -26,10 +28,15 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new foxy.Parser(),
       new weth.Parser({ chainId: this.chainId, provider: this.provider }),
       new uniV2.Parser({ chainId: this.chainId, provider: this.provider }),
+      new mayachain.Parser({
+        chainId: this.chainId,
+        rpcUrl: args.rpcUrl,
+        midgardUrl: args.mayaMidgardUrl,
+      }),
       new thorchain.Parser({
         chainId: this.chainId,
         rpcUrl: args.rpcUrl,
-        midgardUrl: args.midgardUrl,
+        midgardUrl: args.thorMidgardUrl,
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
       new cowswap.Parser(),

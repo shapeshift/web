@@ -1,7 +1,5 @@
 import { bn } from '@shapeshiftoss/utils'
 
-import { THORCHAIN_AFFILIATE_NAME } from '../../swappers/ThorchainSwapper/utils/constants'
-
 function assertMemoHasPool(pool: string | undefined, memo: string): asserts pool is string {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
 }
@@ -64,18 +62,18 @@ function assertMemoHasAction(action: string | undefined, memo: string): asserts 
 const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   assertMemoHasLimit(limit, memo)
 
-  const maybeStreamingSwap = limit.match(/\//g)
-  const [lim, interval, quantity] = limit.split('/')
+  const parts = limit.split('/')
+  const [lim, interval, quantity] = parts
 
-  if (maybeStreamingSwap) {
-    if (!(lim && interval && quantity && maybeStreamingSwap.length === 3))
+  if (parts.length > 1) {
+    if (!(lim && interval && quantity && parts.length === 3))
       throw new Error(`invalid streaming parameters in memo: ${memo}`)
-    if (!bn(lim).isInteger()) throw new Error(`limit must be an integer in memo: ${memo}`)
-    if (!bn(interval).isInteger()) throw new Error(`interval is required in memo: ${memo}`)
-    if (!bn(quantity).isInteger()) throw new Error(`quantity is required in memo: ${memo}`)
+    if (!bn(lim).gte(0)) throw new Error(`limit must be >= 0 in memo: ${memo}`)
+    if (!bn(interval).gte(0)) throw new Error(`interval must be >= 0 in memo: ${memo}`)
+    if (!bn(quantity).gte(0)) throw new Error(`quantity must be >= 0 in memo: ${memo}`)
+  } else {
+    if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
   }
-
-  if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
 }
 
 const assertIsValidFinalAssetLimit = (finalAssetLimit: string | undefined, memo: string) => {
@@ -104,7 +102,7 @@ function assertIsValidBasisPoints(
 /**
  * asserts memo is valid and processes the memo to ensure our affiliate code is always present
  */
-export const assertAndProcessMemo = (memo: string): string => {
+export const assertAndProcessMemo = (memo: string, affiliate: string): string => {
   const [action] = memo.split(':')
 
   assertMemoHasAction(action, memo)
@@ -143,8 +141,8 @@ export const assertAndProcessMemo = (memo: string): string => {
         return ''
       })()
 
-      return `${_action}:${asset}:${destAddr}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${
-        fee || 0
+      return `${_action}:${asset}:${destAddr}:${limit}:${affiliate}:${
+        affiliate ? fee || 0 : ''
       }${maybeSwapOutParts}`
     }
     case 'add':
@@ -157,13 +155,13 @@ export const assertAndProcessMemo = (memo: string): string => {
       // Add Liquidity - ADD:POOL:PAIREDADDR:AFFILIATE:FEE
       if (pool.includes('.')) {
         if (maybePairedAddr) assertMemoHasPairedAddr(maybePairedAddr, memo)
-        return `${_action}:${pool}:${maybePairedAddr ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
+        return `${_action}:${pool}:${maybePairedAddr ?? ''}:${affiliate}:${fee || 0}`
       }
 
       // Deposit Savers - ADD:POOL::AFFILIATE:FEE
       if (pool.includes('/')) {
         if (maybePairedAddr) throw new Error('paired address is not supported for saver deposit')
-        return `${_action}:${pool}::${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
+        return `${_action}:${pool}::${affiliate}:${fee || 0}`
       }
 
       throw new Error(`invalid pool in memo: ${memo}`)
@@ -180,14 +178,14 @@ export const assertAndProcessMemo = (memo: string): string => {
       if (pool.includes('.')) {
         if (maybeAsset) assertMemoHasAsset(maybeAsset, memo)
         assertIsValidBasisPoints(basisPoints, memo)
-        return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
+        return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}:${affiliate}:0`
       }
 
       // Withdraw Savers - WITHDRAW:POOL:BASISPOINTS
       if (pool.includes('/')) {
         if (maybeAsset) throw new Error('asset is not supported for savers withdraw')
         assertIsValidBasisPoints(basisPoints, memo)
-        return `${_action}:${pool}:${basisPoints}::${THORCHAIN_AFFILIATE_NAME}:0`
+        return `${_action}:${pool}:${basisPoints}::${affiliate}:0`
       }
 
       throw new Error(`invalid pool in memo: ${memo}`)
@@ -200,9 +198,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
 
-      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
-        fee || 0
-      }`
+      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${affiliate}:${fee || 0}`
     }
     // LOAN-:ASSET:DESTADDR:MINOUT
     case '$-':
@@ -212,7 +208,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
 
-      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
+      return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${affiliate}:0`
     }
     case 'pool+': {
       return memo
@@ -223,7 +219,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertIsValidBasisPoints(basisPoints, memo)
 
-      return `${_action}:${basisPoints}:${THORCHAIN_AFFILIATE_NAME}:0`
+      return `${_action}:${basisPoints}:${affiliate}:0`
     }
     case 'tcy': {
       // TCY:CLAIMADDR

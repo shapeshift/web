@@ -13,6 +13,7 @@ import {
   isThorTradeQuote,
   SwapperName,
   swappers,
+  TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -53,7 +54,7 @@ import {
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type MixPanelQuoteMeta = {

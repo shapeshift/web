@@ -26,6 +26,8 @@ import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
+import { selectSwapById } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
@@ -79,9 +81,17 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   })
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
+  const swapByIdFilter = useMemo(() => {
+    return {
+      swapId: activeSwapId ?? '',
+    }
+  }, [activeSwapId])
+
+  const activeSwap = useAppSelector(state => selectSwapById(state, swapByIdFilter))
+
   const streamingProgress = useStreamingProgress({
-    tradeQuoteStep,
-    hopIndex: currentHopIndex,
+    swap: activeSwap,
   })
 
   const isPermit2 = useMemo(() => {
@@ -155,7 +165,12 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const tradeWarnings: JSX.Element | null = useMemo(() => {
     const isSlowSwapper =
       swapperName &&
-      [SwapperName.Thorchain, SwapperName.CowSwap, SwapperName.LIFI].includes(swapperName)
+      [
+        SwapperName.Thorchain,
+        SwapperName.CowSwap,
+        SwapperName.LIFI,
+        SwapperName.Mayachain,
+      ].includes(swapperName)
 
     const isTxHistorySupportedForChain =
       lastHopBuyAsset && chainSupportsTxHistory(lastHopBuyAsset.chainId)

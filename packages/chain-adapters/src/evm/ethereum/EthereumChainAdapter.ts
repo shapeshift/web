@@ -13,7 +13,8 @@ const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
 
 export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.ethereum.V1Api> {
-  midgardUrl: string
+  thorMidgardUrl: string
+  mayaMidgardUrl: string
 }
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> {
@@ -33,7 +34,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
         api: args.providers.http,
-        midgardUrl: args.midgardUrl,
+        thorMidgardUrl: args.thorMidgardUrl,
+        mayaMidgardUrl: args.mayaMidgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

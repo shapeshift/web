@@ -1,23 +1,13 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type {
-  HopProgress,
-  QuoteSortOption,
-  StreamingSwapMetadata,
-  TradeExecutionMetadata,
-} from './types'
-import {
-  AllowanceKey,
-  HopExecutionState,
-  HopKey,
-  TradeExecutionState,
-  TransactionExecutionState,
-} from './types'
+import type { HopProgress, QuoteSortOption, TradeExecutionMetadata } from './types'
+import { AllowanceKey, HopExecutionState, HopKey, TradeExecutionState } from './types'
 
 import type { ApiQuote } from '@/state/apis/swapper/types'
 
@@ -387,46 +377,6 @@ export const tradeQuoteSlice = createSlice({
         const { hopIndex, buyTxHash } = action.payload
         const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
         state.tradeExecution[action.payload.id][key].swap.buyTxHash = buyTxHash
-      },
-    ),
-    setStreamingSwapMeta: create.reducer(
-      (
-        state,
-        action: PayloadAction<{
-          hopIndex: number
-          streamingSwapMetadata: StreamingSwapMetadata
-          id: TradeQuote['id']
-        }>,
-      ) => {
-        const { hopIndex, streamingSwapMetadata, id } = action.payload
-        const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-        // Break race condition updating streaming swap state after trade completes
-        if (state.tradeExecution[id][key].swap.state === TransactionExecutionState.Complete) {
-          return
-        }
-        state.tradeExecution[id][key].swap.streamingSwap = streamingSwapMetadata
-      },
-    ),
-    setStreamingSwapMetaComplete: create.reducer(
-      (
-        state,
-        action: PayloadAction<{
-          hopIndex: number
-          id: TradeQuote['id']
-        }>,
-      ) => {
-        const { hopIndex, id } = action.payload
-        const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-        const existingState = state.tradeExecution[id][key].swap.streamingSwap
-
-        // not a streaming swap, or no metadata to update (e.g in the case of very small streams which
-        // never have a streaming state reported by the api)
-        if (!existingState) return
-
-        state.tradeExecution[id][key].swap.streamingSwap = {
-          ...existingState,
-          attemptedSwapCount: existingState?.totalSwapCount ?? 0,
-        }
       },
     ),
     updateTradeQuoteDisplayCache: create.reducer(

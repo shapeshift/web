@@ -1,6 +1,11 @@
-import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type {
+  SwapExecutionMetadata,
+  SwapperName,
+  TradeQuote,
+  TradeRate,
+  TransactionExecutionState,
+} from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import type { ApiQuote } from '@/state/apis/swapper/types'
 
@@ -15,13 +20,6 @@ export type TradeQuoteSliceState = {
   tradeQuoteDisplayCache: ApiQuote[]
   isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
   sortOption: QuoteSortOption // the selected quote sorting option
-}
-
-export enum TransactionExecutionState {
-  AwaitingConfirmation = 'AwaitingConfirmation',
-  Pending = 'Pending',
-  Complete = 'Complete',
-  Failed = 'Failed',
 }
 
 export enum HopExecutionState {
@@ -57,30 +55,11 @@ export enum AllowanceKey {
   AllowanceApproval = 'allowanceApproval',
 }
 
-export type StreamingSwapFailedSwap = {
-  reason: string
-  swapIndex: number
-}
-
-export type StreamingSwapMetadata = {
-  attemptedSwapCount: number
-  totalSwapCount: number
-  failedSwaps: StreamingSwapFailedSwap[]
-}
-
 export type ApprovalExecutionMetadata = {
   state: TransactionExecutionState
   txHash?: string
   isInitiallyRequired: boolean | undefined
   isRequired?: boolean
-}
-
-export type SwapExecutionMetadata = {
-  state: TransactionExecutionState
-  sellTxHash?: string
-  buyTxHash?: string
-  streamingSwap?: StreamingSwapMetadata
-  message?: string | [string, InterpolationOptions]
 }
 
 export type HopProgress = {

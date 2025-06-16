@@ -1,5 +1,6 @@
 import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 
@@ -21,13 +22,13 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectHopExecutionMetadata,
   selectIsActiveSwapperQuoteLoading,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type TradeConfirmFooterProps = {
@@ -70,7 +71,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     activeTradeId,
   })
   const activeQuote = useAppSelector(selectActiveQuote)
-  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
   const receiveAddress = activeQuote?.receiveAddress
 
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -260,19 +261,19 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
           </Row.Value>
         </Row>
         <RecipientAddressRow
-          explorerAddressLink={sellAsset.explorerAddressLink}
+          explorerAddressLink={buyAsset.explorerAddressLink}
           recipientAddress={receiveAddress ?? ''}
         />
       </Stack>
     )
   }, [
+    buyAsset,
     feeAsset?.symbol,
     isActiveSwapperQuoteLoading,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
-    sellAsset.explorerAddressLink,
     receiveAddress,
   ])
 

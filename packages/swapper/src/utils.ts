@@ -18,7 +18,6 @@ import type {
   SolanaTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
-  SwapperName,
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
@@ -97,7 +96,7 @@ interface ProxyConstructor {
 }
 declare var Proxy: ProxyConstructor
 
-export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperName: SwapperName) =>
+export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance) =>
   new Proxy<
     AxiosInstance,
     {

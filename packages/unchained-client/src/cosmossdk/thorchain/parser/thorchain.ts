@@ -6,10 +6,11 @@ export interface ParserArgs {
 }
 
 export class Parser implements SubParser<Tx> {
-  private readonly thorchainParser: ThorchainParser
+  protected parser: ThorchainParser<'thorchain' | 'mayachain'>
+  protected parserName: 'thorchain' | 'mayachain' = 'thorchain'
 
   constructor(args: ParserArgs) {
-    this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
+    this.parser = new ThorchainParser({ midgardUrl: args.midgardUrl })
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -19,11 +20,11 @@ export class Parser implements SubParser<Tx> {
     const outboundMemoEvent = Object.values(tx.events).find(event => !!event['outbound']?.['memo'])
     const outboundMemo = outboundMemoEvent?.['outbound']?.['memo']
 
-    const memo = messageMemo || outboundMemo
+    const memo = messageMemo || outboundMemo || tx.memo
 
     if (!memo) return
 
-    const txSpecific = await this.thorchainParser.parse(memo)
+    const txSpecific = await this.parser.parse(memo)
 
     // special case for native thorchain transactions
     const outboundEventIndex = tx.messages.find(msg => msg.type === 'outbound')?.index
@@ -48,7 +49,7 @@ export class Parser implements SubParser<Tx> {
 
           // generic fallback metadata if the thorchain parser didn't return any
           const method = !!refundEvent ? 'refund' : 'out'
-          return { data: { parser: 'thorchain', memo: outboundEvent['memo'], method } }
+          return { data: { parser: this.parserName, memo: outboundEvent['memo'], method } }
         }
       }
     }

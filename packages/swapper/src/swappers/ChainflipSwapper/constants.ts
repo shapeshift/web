@@ -19,7 +19,6 @@ import { ChainflipNetwork } from './types'
 
 export const CHAINFLIP_REGULAR_QUOTE = 'regular' as const
 export const CHAINFLIP_DCA_QUOTE = 'dca' as const
-export const CHAINFLIP_BAAS_COMMISSION = 5
 
 export const ChainflipSupportedChainIds = [
   KnownChainIds.EthereumMainnet,

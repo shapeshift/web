@@ -89,7 +89,8 @@ describe('EthereumChainAdapter', () => {
           ws: {} as unchained.ws.Client<unchained.ethereum.Tx>,
         },
         rpcUrl: '',
-        midgardUrl: '',
+        thorMidgardUrl: '',
+        mayaMidgardUrl: '',
       },
       overrideArgs,
     )

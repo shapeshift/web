@@ -40,10 +40,10 @@ export type SwapperConfig = {
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
   VITE_MAYACHAIN_NODE_URL: string
-  VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
   VITE_THORCHAIN_MIDGARD_URL: string
+  VITE_MAYACHAIN_MIDGARD_URL: string
   VITE_UNCHAINED_BITCOIN_HTTP_URL: string
   VITE_UNCHAINED_DOGECOIN_HTTP_URL: string
   VITE_UNCHAINED_LITECOIN_HTTP_URL: string
@@ -64,6 +64,7 @@ export type SwapperConfig = {
 
 export enum SwapperName {
   Thorchain = 'THORChain',
+  Mayachain = 'MAYAChain',
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
@@ -119,7 +120,6 @@ export enum TradeQuoteError {
 }
 
 export type UtxoFeeData = {
-  byteCount: string
   satsPerByte: string
 }
 
@@ -334,12 +334,39 @@ export type LifiTools = {
   exchanges: string[] | undefined
 }
 
+export type StreamingSwapFailedSwap = {
+  reason: string
+  swapIndex: number
+}
+
+export type StreamingSwapMetadata = {
+  attemptedSwapCount: number
+  totalSwapCount: number
+  failedSwaps: StreamingSwapFailedSwap[]
+}
+
+export enum TransactionExecutionState {
+  AwaitingConfirmation = 'AwaitingConfirmation',
+  Pending = 'Pending',
+  Complete = 'Complete',
+  Failed = 'Failed',
+}
+
+export type SwapExecutionMetadata = {
+  state: TransactionExecutionState
+  sellTxHash?: string
+  buyTxHash?: string
+  streamingSwap?: StreamingSwapMetadata
+  message?: string | [string, InterpolationOptions]
+}
+
 export type SwapperSpecificMetadata = {
   lifiRoute: Route | undefined
   lifiTools: LifiTools | undefined
   chainflipSwapId: number | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   relayTransactionMetadata: RelayTransactionMetadata | undefined
+  streamingSwapMetadata: StreamingSwapMetadata | undefined
 }
 
 export enum SwapStatus {
@@ -363,6 +390,7 @@ export type Swap = {
   buyAmountCryptoBaseUnit: string
   txLink?: string
   metadata: SwapperSpecificMetadata
+  isStreaming?: boolean
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -485,12 +513,6 @@ export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
 export type ExecuteTradeArgs = {
   senderAddress: string
   receiverAddress: string
-  txToSign: UnsignedTx
-  wallet: HDWallet
-  chainId: ChainId
-}
-
-export type ExecuteTradeArgs2 = {
   txToSign: UnsignedTx
   wallet: HDWallet
   chainId: ChainId

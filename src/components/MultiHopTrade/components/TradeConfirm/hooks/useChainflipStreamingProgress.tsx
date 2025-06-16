@@ -3,6 +3,7 @@ import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
 } from '@shapeshiftoss/swapper'
+import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo } from 'react'
 
@@ -109,6 +110,8 @@ export const useChainflipStreamingProgress = ({
     if (!sellTxHash) return
     if (!swap) return
     if (!swap.isStreaming) return
+    if (swap.status !== SwapStatus.Pending) return
+    if (swap.swapperName !== SwapperName.Chainflip) return
 
     poll({
       fn: async () => {

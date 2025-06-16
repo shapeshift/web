@@ -24,11 +24,10 @@ import { useWallet } from '../useWallet/useWallet'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
-import { assertGetCosmosSdkChainAdapter, isCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
+import { isCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   selectPendingSwapActions,
@@ -149,18 +148,20 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       if (!swap.buyAccountId) return
       if (!swap.sellTxHash) return
 
-      const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-        txHash: swap.sellTxHash,
-        chainId: swap.sellAsset.chainId,
-        accountId: swap.sellAccountId,
-        stepIndex: swap.metadata.stepIndex,
-        swap,
-        config: getConfig(),
-        assertGetEvmChainAdapter,
-        assertGetUtxoChainAdapter,
-        assertGetCosmosSdkChainAdapter,
-        assertGetSolanaChainAdapter,
-        fetchIsSmartContractAddressQuery,
+      const { status, message, buyTxHash } = await queryClient.fetchQuery({
+        queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
+        queryFn: () =>
+          fetchTradeStatus({
+            swapper,
+            sellTxHash: swap.sellTxHash ?? '',
+            chainId: swap.sellAsset.chainId,
+            accountId: swap.sellAccountId ?? '',
+            updatedSwap: swap,
+            stepIndex: swap.metadata.stepIndex,
+            config: getConfig(),
+          }),
+        staleTime: 10000,
+        gcTime: 10000,
       })
 
       if (!buyTxHash) return

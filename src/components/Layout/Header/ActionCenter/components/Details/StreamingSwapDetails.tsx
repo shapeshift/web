@@ -14,33 +14,43 @@ type StreamingSwapDetailsProps = {
 }
 
 export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap }) => {
+  useStreamingProgress({ swap })
   const translate = useTranslate()
-
-  const streamingProgress = useStreamingProgress({ swap })
-
   const {
-    numSuccessfulSwaps: thorchainNumSuccessfulSwaps,
-    totalSwapCount: thorchainTotalSwapCount,
-    isComplete: isThorchainStreamingComplete,
-  } = streamingProgress ?? {}
+    attemptedSwapCount,
+    totalSwapCount: streamingTotalSwapCount,
+    failedSwaps,
+  } = swap.metadata.streamingSwapMetadata ?? {}
 
-  const isComplete = isThorchainStreamingComplete || swap.status === SwapStatus.Success
+  const streamingNumSuccessfulSwaps = useMemo(() => {
+    return (attemptedSwapCount ?? 0) - (failedSwaps?.length ?? 0)
+  }, [attemptedSwapCount, failedSwaps])
 
-  const totalSwapCount = useMemo(() => {
-    return thorchainTotalSwapCount === 0 ? 1 : thorchainTotalSwapCount
-  }, [thorchainTotalSwapCount])
+  const isSwapStreamingComplete =
+    streamingTotalSwapCount !== undefined && streamingNumSuccessfulSwaps >= streamingTotalSwapCount
+
+  const isComplete = isSwapStreamingComplete || swap.status === SwapStatus.Success
 
   const numSuccessfulSwaps = useMemo(() => {
-    if (thorchainNumSuccessfulSwaps === 0 && isComplete) return 1
+    if (streamingNumSuccessfulSwaps === 0 && isComplete) return 1
 
-    return thorchainNumSuccessfulSwaps
-  }, [isComplete, thorchainNumSuccessfulSwaps])
+    return streamingNumSuccessfulSwaps
+  }, [isComplete, streamingNumSuccessfulSwaps])
 
   const progress = useMemo(() => {
     return isComplete
       ? 100
-      : bnOrZero(numSuccessfulSwaps).div(bnOrZero(totalSwapCount)).multipliedBy(100).toNumber()
-  }, [numSuccessfulSwaps, totalSwapCount, isComplete])
+      : bnOrZero(numSuccessfulSwaps)
+          .div(bnOrZero(streamingTotalSwapCount))
+          .multipliedBy(100)
+          .toNumber()
+  }, [numSuccessfulSwaps, streamingTotalSwapCount, isComplete])
+
+  const maxSwapCount = useMemo(() => {
+    if (swap.status === SwapStatus.Success) return numSuccessfulSwaps
+
+    return streamingTotalSwapCount ?? 1
+  }, [streamingTotalSwapCount, numSuccessfulSwaps, swap.status])
 
   if (!swap.isStreaming) return null
 
@@ -56,7 +66,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
           isAnimated
         />
         <RawText>
-          ({numSuccessfulSwaps}/{totalSwapCount})
+          ({numSuccessfulSwaps}/{maxSwapCount})
         </RawText>
       </Row.Value>
     </Row>

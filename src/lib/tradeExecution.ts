@@ -7,6 +7,8 @@ import type {
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
+  SupportedTradeQuoteStepIndex,
+  Swap,
   Swapper,
   SwapperApi,
   TradeExecutionEventMap,
@@ -19,7 +21,6 @@ import {
   SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
-  txStatusBySwapStatus,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { EventEmitter } from 'node:events'
@@ -30,12 +31,52 @@ import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
 import { selectCurrentSwap } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
+
+export const tradeStatusQueryKey = (swapId: string, sellTxHash: string) => [
+  'tradeStatus',
+  swapId,
+  sellTxHash,
+]
+
+export const fetchTradeStatus = async ({
+  swapper,
+  sellTxHash,
+  chainId,
+  accountId,
+  updatedSwap,
+  stepIndex,
+}: {
+  swapper: Swapper & SwapperApi
+  sellTxHash: string
+  chainId: string
+  accountId: string
+  updatedSwap: Swap
+  stepIndex: SupportedTradeQuoteStepIndex
+  config: ReturnType<typeof getConfig>
+}) => {
+  const { status, message, buyTxHash } = await swapper.checkTradeStatus({
+    txHash: sellTxHash,
+    chainId,
+    accountId,
+    swap: updatedSwap,
+    stepIndex,
+    config: getConfig(),
+    assertGetEvmChainAdapter,
+    assertGetUtxoChainAdapter,
+    assertGetCosmosSdkChainAdapter,
+    assertGetSolanaChainAdapter,
+    fetchIsSmartContractAddressQuery,
+  })
+
+  return { status, message, buyTxHash }
+}
 
 export class TradeExecution {
   private emitter = new EventEmitter()
@@ -121,39 +162,20 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
-          if (getConfig().VITE_FEATURE_ACTION_CENTER) {
-            const swap = selectCurrentSwap(store.getState())
-
-            if (!swap) return
-
-            const payload: StatusArgs = {
-              stepIndex,
-              status: txStatusBySwapStatus[swap.status],
-              message: swap.statusMessage,
-              buyTxHash: swap.buyTxHash,
-            }
-            this.emitter.emit(TradeExecutionEvent.Status, payload)
-
-            if (swap.status === SwapStatus.Success)
-              this.emitter.emit(TradeExecutionEvent.Success, payload)
-            if (swap.status === SwapStatus.Failed)
-              this.emitter.emit(TradeExecutionEvent.Fail, payload)
-
-            return txStatusBySwapStatus[swap.status]
-          }
-
-          const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-            txHash: sellTxHash,
-            chainId,
-            accountId,
-            swap: updatedSwap,
-            stepIndex,
-            config: getConfig(),
-            assertGetEvmChainAdapter,
-            assertGetUtxoChainAdapter,
-            assertGetCosmosSdkChainAdapter,
-            assertGetSolanaChainAdapter,
-            fetchIsSmartContractAddressQuery,
+          const { status, message, buyTxHash } = await queryClient.fetchQuery({
+            queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
+            queryFn: () =>
+              fetchTradeStatus({
+                swapper,
+                sellTxHash: updatedSwap.sellTxHash,
+                chainId: updatedSwap.sellAsset.chainId,
+                accountId: accountId ?? '',
+                updatedSwap,
+                stepIndex,
+                config: getConfig(),
+              }),
+            staleTime: 10000,
+            gcTime: 10000,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

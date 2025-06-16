@@ -3,7 +3,7 @@ import type {
   StreamingSwapMetadata,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import { getDaemonUrl } from '@shapeshiftoss/swapper'
+import { getDaemonUrl, SwapStatus } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -89,6 +89,8 @@ export const useThorStreamingProgress = ({
     if (!sellTxHash) return
     if (!swap) return
     if (!swap.isStreaming) return
+    if (swap.status !== SwapStatus.Pending) return
+    if (swap.swapperName !== swapperName) return
 
     poll({
       fn: async () => {

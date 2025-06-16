@@ -18,6 +18,7 @@ export enum EIP155_SigningMethod {
   // So just assume this is supported so we don't error in case a dApp is trying to add a chain
   WALLET_ADD_ETHEREUM_CHAIN = 'wallet_addEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
+  GET_CAPABILITIES = 'wallet_getCapabilities',
 }
 
 export enum CosmosSigningMethod {
@@ -138,6 +139,13 @@ export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
   }
 }
 
+type WalletGetCapabilitiesRequest = {
+  method: EIP155_SigningMethod.GET_CAPABILITIES
+  topic: string
+  id: number
+  params: any
+}
+
 type WalletAddEthereumChainCallRequest = {
   method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
   params: TransactionParams[]
@@ -225,6 +233,7 @@ export type WalletConnectRequest =
   | EthPersonalSignCallRequest
   | EthSignTypedDataCallRequest
   | EthSendTransactionCallRequest
+  | WalletGetCapabilitiesRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
 

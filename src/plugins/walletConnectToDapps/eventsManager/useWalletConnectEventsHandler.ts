@@ -39,7 +39,14 @@ export const useWalletConnectEventsHandler = (
     async (requestEvent: SupportedSessionRequest) => {
       const { topic, params } = requestEvent
       const { request } = params
-      const requestSession = web3wallet?.engine.signClient.session.get(topic)
+      const requestSession = (() => {
+        try {
+          web3wallet?.engine.signClient.session.get(topic)
+        } catch (error) {
+          console.error('Failed to get session for topic:', topic, error)
+          return undefined
+        }
+      })()
 
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:

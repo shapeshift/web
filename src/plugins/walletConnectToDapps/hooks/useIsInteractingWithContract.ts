@@ -1,7 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { getEthersProvider } from '@shapeshiftoss/contracts'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import type { Address } from 'viem'
+import { useBytecode } from 'wagmi'
 
 export const useIsInteractingWithContract = ({
   evmChainId,
@@ -10,17 +11,12 @@ export const useIsInteractingWithContract = ({
   evmChainId: ChainId | undefined
   address: string | undefined
 }): boolean | null => {
-  const [isInteractingWithContract, setIsInteractingWithContract] = useState<boolean | null>(null)
-  useEffect(() => {
-    ;(async () => {
-      const result =
-        evmChainId && address
-          ? await getEthersProvider(evmChainId as EvmChainId).getCode(address)
-          : undefined
-      // this util function returns '0x' if the recipient address is not a contract address
-      setIsInteractingWithContract(result ? result !== '0x' : null)
-    })()
-  }, [address, evmChainId])
+  const { data: bytecode } = useBytecode({
+    address: address as Address,
+    // @ts-ignore we can't narrow this proper
+    chainId: fromChainId(evmChainId as EvmChainId).chainReference,
+    enabled: evmChainId && address,
+  })
 
-  return isInteractingWithContract
+  return bytecode !== undefined ? true : null
 }

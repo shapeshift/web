@@ -2985,6 +2985,7 @@
       "unknown": "Unknown"
     },
     "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
-    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
+    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
+    "pendingTransactions": "%{count} Pending(s)"
   }
 }

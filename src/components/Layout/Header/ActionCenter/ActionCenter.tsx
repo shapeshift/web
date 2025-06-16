@@ -1,6 +1,7 @@
 import {
   Box,
-  Circle,
+  Button,
+  CircularProgress,
   Drawer,
   DrawerCloseButton,
   DrawerContent,
@@ -25,7 +26,7 @@ import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
   selectWalletActionsSorted,
-  selectWalletHasPendingActions,
+  selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionType } from '@/state/slices/actionSlice/types'
 import { useAppSelector } from '@/state/store'
@@ -45,7 +46,7 @@ export const ActionCenter = memo(() => {
 
   const actions = useAppSelector(selectWalletActionsSorted)
 
-  const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
+  const pendingActions = useAppSelector(selectWalletPendingActions)
   const { ordersByActionId } = useLimitOrders()
 
   const actionsCards = useMemo(() => {
@@ -78,28 +79,41 @@ export const ActionCenter = memo(() => {
     })
   }, [actions, ordersByActionId])
 
-  return (
-    <>
+  const actionCenterButton = useMemo(() => {
+    if (pendingActions?.length > 0) {
+      return (
+        <Button
+          onClick={onOpen}
+          aria-label={translate('notificationCenter.pendingTransactions', {
+            count: pendingActions.length,
+          })}
+        >
+          <CircularProgress
+            size='16px'
+            thickness='16px'
+            trackColor='whiteAlpha.700'
+            color='blue.500'
+            isIndeterminate
+            me={2}
+          />
+          {translate('notificationCenter.pendingTransactions', { count: pendingActions.length })}
+        </Button>
+      )
+    }
+    return (
       <Box position='relative'>
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
           onClick={onOpen}
         />
-        <Circle
-          position='absolute'
-          size='10px'
-          fontSize='12px'
-          fontWeight='bold'
-          bg='blue.500'
-          color='white'
-          top='-0.2em'
-          right='-0.2em'
-          opacity={hasPendingActions ? 1 : 0}
-          transitionProperty='common'
-          transitionDuration='normal'
-        />
       </Box>
+    )
+  }, [onOpen, translate, pendingActions])
+
+  return (
+    <>
+      <Box position='relative'>{actionCenterButton}</Box>
       <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
 

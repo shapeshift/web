@@ -1,5 +1,5 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { WalletKitTypes } from '@reown/walletkit'
+import type { IWalletKit, WalletKitTypes } from '@reown/walletkit'
 import { useCallback } from 'react'
 
 import type {
@@ -39,14 +39,17 @@ export const useWalletConnectEventsHandler = (
     async (requestEvent: SupportedSessionRequest) => {
       const { topic, params } = requestEvent
       const { request } = params
-      const requestSession = (() => {
+      const getRequestSession = () => {
         try {
-          web3wallet?.engine.signClient.session.get(topic)
+          const allSessions = web3wallet?.engine.signClient.session.getAll()
+          // We should be able to do web3wallet?.engine.signClient.session.get(topic) here, but this always return undefined, another day in closures-land
+          const session = allSessions?.find(s => s.topic === topic)
+          return session
         } catch (error) {
           console.error('Failed to get session for topic:', topic, error)
           return undefined
         }
-      })()
+      }
 
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
@@ -55,7 +58,7 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SignEIP155MessageConfirmation,
-              data: { requestEvent, requestSession },
+              data: { requestEvent, requestSession: getRequestSession() },
             },
           })
 
@@ -66,7 +69,7 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SignEIP155MessageConfirmation,
-              data: { requestEvent, requestSession },
+              data: { requestEvent, requestSession: getRequestSession() },
             },
           })
 
@@ -75,7 +78,7 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SendEIP155TransactionConfirmation,
-              data: { requestEvent, requestSession },
+              data: { requestEvent, requestSession: getRequestSession() },
             },
           })
         case EIP155_SigningMethod.ETH_SIGN_TRANSACTION:
@@ -83,7 +86,7 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SignEIP155TransactionConfirmation,
-              data: { requestEvent, requestSession },
+              data: { requestEvent, requestSession: getRequestSession() },
             },
           })
 
@@ -102,7 +105,7 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SendCosmosTransactionConfirmation,
-              data: { requestEvent, requestSession },
+              data: { requestEvent, requestSession: getRequestSession() },
             },
           })
 

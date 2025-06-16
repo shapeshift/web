@@ -36,8 +36,6 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
 
   const [state, dispatch] = useReducer(walletConnectReducer, initialState)
 
-  console.log({ state })
-
   useEffect(() => {
     ;(async () => {
       const core = getWalletConnectCore()

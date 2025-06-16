@@ -47,19 +47,7 @@ export const useWalletConnectEventsManager = (
       if (request.params.request.method === EIP155_SigningMethod.GET_CAPABILITIES) {
         state.web3wallet?.respondSessionRequest({
           topic: request.topic,
-          response: formatJsonRpcResult(request.id, {
-            capabilities: {
-              eth_sendTransaction: true,
-              eth_signTransaction: true,
-              eth_sign: true,
-              personal_sign: true,
-              eth_signTypedData: true,
-              eth_signTypedData_v3: true,
-              eth_signTypedData_v4: true,
-              wallet_addEthereumChain: true,
-              wallet_switchEthereumChain: true,
-            },
-          }),
+          response: formatJsonRpcResult(request.id, {}),
         })
       }
 

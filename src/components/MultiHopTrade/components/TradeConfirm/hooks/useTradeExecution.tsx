@@ -7,7 +7,6 @@ import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/sw
 import {
   getHopByIndex,
   isExecutableTradeQuote,
-  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
   SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
@@ -151,10 +150,6 @@ export const useTradeExecution = (
       }
 
       const execution = new TradeExecution()
-
-      if (swapperName === SwapperName.LIFI) {
-        execution.setPollInterval(LIFI_TRADE_POLL_INTERVAL_MILLISECONDS)
-      }
 
       let txHashReceived: boolean = false
 

@@ -2,8 +2,6 @@ import { usePrevious, useToast } from '@chakra-ui/react'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
-  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
-  SwapperName,
   swappers,
   SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
@@ -235,10 +233,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
           queryFn: () => swapStatusHandler(swap, action),
-          refetchInterval:
-            swap.swapperName === SwapperName.LIFI
-              ? LIFI_TRADE_POLL_INTERVAL_MILLISECONDS
-              : TRADE_POLL_INTERVAL_MILLISECONDS,
+          refetchInterval: TRADE_POLL_INTERVAL_MILLISECONDS,
           enabled: isConnected && swap.status === SwapStatus.Pending,
         }
       })

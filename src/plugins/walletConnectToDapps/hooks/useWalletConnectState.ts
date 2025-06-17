@@ -1,7 +1,6 @@
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
-import { useIsInteractingWithContract } from '@/plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
+import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import {
   isEthSignParams,
   isSignRequest,
@@ -57,11 +56,14 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 
-  const isEvmChain = chainId && fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm
-  const isInteractingWithContract = useIsInteractingWithContract({
-    evmChainId: isEvmChain ? chainId : undefined,
-    address,
-  })
+  const { data: _isInteractingWithContract } = useIsSmartContractAddress(
+    address ?? '',
+    chainId ?? '',
+  )
+
+  // use null as loading state of sorts
+  const isInteractingWithContract =
+    _isInteractingWithContract !== undefined ? _isInteractingWithContract : null
 
   const message =
     request && (isSignRequest(request) || isSignTypedRequest(request))

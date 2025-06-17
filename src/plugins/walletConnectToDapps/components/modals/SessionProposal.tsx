@@ -184,21 +184,21 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const handleConnectAccountIds = useCallback(
       async (_selectedAccountIds: AccountId[]) => {
+        // First check if proposal is still valid
+        const pendingProposals = web3wallet.getPendingSessionProposals()
+        const isProposalValid = Object.values(pendingProposals).some(
+          pendingProposal => pendingProposal.id === proposal.id,
+        )
+
+        if (!isProposalValid) {
+          return
+        }
+
         const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
           requiredNamespaces,
           optionalNamespaces,
           _selectedAccountIds,
         )
-
-        // exit if the proposal was not found - likely duplicate call rerendering shenanigans
-        const pendingProposals = web3wallet.getPendingSessionProposals()
-        if (
-          !Object.values(pendingProposals).some(
-            pendingProposal => pendingProposal.id === proposal.id,
-          )
-        ) {
-          return
-        }
 
         setIsLoading(true)
 

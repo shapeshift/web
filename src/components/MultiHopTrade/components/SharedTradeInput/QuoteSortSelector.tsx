@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, FormControl, InputGroup, Stack } from '@chakra-ui/react'
+import { Box, Flex, FormControl, InputGroup, Radio, RadioGroup, Stack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -33,19 +33,6 @@ export const QuoteSortSelector: FC = memo(() => {
     }
   }, [currentSortOption])
 
-  const sortTypeTranslation = useMemo(() => {
-    switch (currentSortType) {
-      case SortType.BestRate:
-        return translate('trade.sort.bestRate')
-      case SortType.LowestGas:
-        return translate('trade.sort.lowestGas')
-      case SortType.Fastest:
-        return translate('trade.sort.fastest')
-      default:
-        return ''
-    }
-  }, [currentSortType, translate])
-
   const handleSortTypeChange = useCallback(
     (sortType: SortType) => {
       const sortOption: QuoteSortOption = (() => {
@@ -64,21 +51,6 @@ export const QuoteSortSelector: FC = memo(() => {
     [dispatch],
   )
 
-  const handleBestRateSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.BestRate),
-    [handleSortTypeChange],
-  )
-
-  const handleLowestGasSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.LowestGas),
-    [handleSortTypeChange],
-  )
-
-  const handleFastestSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.Fastest),
-    [handleSortTypeChange],
-  )
-
   return (
     <>
       <Row>
@@ -87,53 +59,84 @@ export const QuoteSortSelector: FC = memo(() => {
             <Text translation='trade.sort.sortBy' />
           </HelperTooltip>
         </Row.Label>
-        <Row.Value>{sortTypeTranslation}</Row.Value>
       </Row>
       <Row py={2} gap={2} mt={2}>
         <FormControl>
           <InputGroup variant='filled' width='full'>
-            <Stack
-              bg='background.input.base'
-              px={1}
-              py={1}
-              borderRadius='xl'
-              width='100%'
-              direction='column'
-            >
-              <Button
-                onClick={handleBestRateSortTypeChange}
-                isActive={currentSortType === SortType.BestRate}
-                variant='ghost'
+            <RadioGroup value={currentSortType} onChange={handleSortTypeChange} width='100%'>
+              <Stack
+                bg='transparent'
+                px={1}
+                py={1}
+                borderRadius='xl'
+                borderColor='border.base'
+                borderWidth={1}
                 width='100%'
-                justifyContent='flex-start'
-                fontSize='sm'
-                fontWeight='normal'
+                direction='column'
+                spacing={2}
               >
-                {translate('trade.sort.bestRate')}
-              </Button>
-              <Button
-                onClick={handleLowestGasSortTypeChange}
-                isActive={currentSortType === SortType.LowestGas}
-                variant='ghost'
-                width='100%'
-                justifyContent='flex-start'
-                fontSize='sm'
-                fontWeight='normal'
-              >
-                {translate('trade.sort.lowestGas')}
-              </Button>
-              <Button
-                onClick={handleFastestSortTypeChange}
-                isActive={currentSortType === SortType.Fastest}
-                variant='ghost'
-                width='100%'
-                justifyContent='flex-start'
-                fontSize='sm'
-                fontWeight='normal'
-              >
-                {translate('trade.sort.fastest')}
-              </Button>
-            </Stack>
+                <Flex
+                  as='label'
+                  align='center'
+                  justify='space-between'
+                  width='100%'
+                  px={2}
+                  py={2}
+                  borderRadius='lg'
+                  cursor='pointer'
+                  htmlFor='sort-best-rate'
+                  bg={currentSortType === SortType.BestRate ? 'gray.700' : 'transparent'}
+                >
+                  <Box fontSize='sm'>{translate('trade.sort.bestRate')}</Box>
+                  <Radio
+                    id='sort-best-rate'
+                    value={SortType.BestRate}
+                    isChecked={currentSortType === SortType.BestRate}
+                    pointerEvents='none'
+                  />
+                </Flex>
+                <Flex
+                  as='label'
+                  align='center'
+                  justify='space-between'
+                  width='100%'
+                  px={2}
+                  py={2}
+                  borderRadius='lg'
+                  cursor='pointer'
+                  htmlFor='sort-lowest-gas'
+                  bg={currentSortType === SortType.LowestGas ? 'gray.700' : 'transparent'}
+                >
+                  <Box fontSize='sm'>{translate('trade.sort.lowestGas')}</Box>
+                  <Radio
+                    id='sort-lowest-gas'
+                    value={SortType.LowestGas}
+                    isChecked={currentSortType === SortType.LowestGas}
+                    pointerEvents='none'
+                  />
+                </Flex>
+                <Flex
+                  as='label'
+                  align='center'
+                  justify='space-between'
+                  width='100%'
+                  px={2}
+                  py={2}
+                  borderRadius='lg'
+                  cursor='pointer'
+                  htmlFor='sort-fastest'
+                  bg={currentSortType === SortType.Fastest ? 'gray.700' : 'transparent'}
+                >
+                  <Box fontSize='sm'>{translate('trade.sort.fastest')}</Box>
+                  <Radio
+                    id='sort-fastest'
+                    value={SortType.Fastest}
+                    isChecked={currentSortType === SortType.Fastest}
+                    pointerEvents='none'
+                  />
+                </Flex>
+              </Stack>
+            </RadioGroup>
           </InputGroup>
         </FormControl>
       </Row>

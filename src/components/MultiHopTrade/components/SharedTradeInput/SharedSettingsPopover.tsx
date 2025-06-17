@@ -198,7 +198,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 </Row.Value>
               )}
             </Row>
-            {isHighSlippage && (
+            {isHighSlippage && slippageType === SlippageType.Custom && (
               <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
                 <AlertIcon />
                 <AlertDescription lineHeight='1.5'>
@@ -206,7 +206,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 </AlertDescription>
               </Alert>
             )}
-            {isLowSlippage && (
+            {isLowSlippage && slippageType === SlippageType.Custom && (
               <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
                 <AlertIcon />
                 <AlertDescription lineHeight='1.5'>

@@ -48,23 +48,23 @@ export const tradeStatusQueryKey = (swapId: string, sellTxHash: string) => [
 export const fetchTradeStatus = async ({
   swapper,
   sellTxHash,
-  chainId,
-  accountId,
+  sellAssetChainId,
+  sellAssetAccountId,
   updatedSwap,
   stepIndex,
 }: {
   swapper: Swapper & SwapperApi
   sellTxHash: string
-  chainId: string
-  accountId: string
+  sellAssetChainId: string
+  sellAssetAccountId: string
   updatedSwap: Swap
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
   const { status, message, buyTxHash } = await swapper.checkTradeStatus({
     txHash: sellTxHash,
-    chainId,
-    accountId,
+    chainId: sellAssetChainId,
+    accountId: sellAssetAccountId,
     swap: updatedSwap,
     stepIndex,
     config: getConfig(),
@@ -168,14 +168,14 @@ export class TradeExecution {
               fetchTradeStatus({
                 swapper,
                 sellTxHash: updatedSwap.sellTxHash,
-                chainId: updatedSwap.sellAsset.chainId,
-                accountId: accountId ?? '',
+                sellAssetChainId: updatedSwap.sellAsset.chainId,
+                sellAssetAccountId: accountId ?? '',
                 updatedSwap,
                 stepIndex,
                 config: getConfig(),
               }),
-            staleTime: 10000,
-            gcTime: 10000,
+            staleTime: this.pollInterval,
+            gcTime: this.pollInterval,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

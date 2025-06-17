@@ -29,6 +29,7 @@ import {
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionType } from '@/state/slices/actionSlice/types'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -48,13 +49,18 @@ export const ActionCenter = memo(() => {
 
   const pendingActions = useAppSelector(selectWalletPendingActions)
   const { ordersByActionId } = useLimitOrders()
+  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const actionsCards = useMemo(() => {
     return actions.map(action => {
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
-            return <SwapActionCard key={action.id} action={action} />
+            const swap = swapsById[action.swapMetadata.swapId]
+
+            return (
+              <SwapActionCard key={action.id} action={action} isCollapsable={swap.isStreaming} />
+            )
           }
           case ActionType.LimitOrder: {
             const order = ordersByActionId[action.id]
@@ -77,7 +83,7 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     })
-  }, [actions, ordersByActionId])
+  }, [actions, ordersByActionId, swapsById])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions?.length > 0) {

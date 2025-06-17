@@ -23,7 +23,7 @@ import type {
   TradeRate,
   TradeStatus,
 } from './types'
-import { SwapStatus, TradeQuoteError } from './types'
+import { TradeQuoteError } from './types'
 
 export const makeSwapErrorRight = ({
   details,
@@ -331,11 +331,4 @@ export const checkSolanaSwapStatus = async ({
     console.error(e)
     return createDefaultStatusResponse(txHash)
   }
-}
-
-export const txStatusBySwapStatus: Record<SwapStatus, TxStatus> = {
-  [SwapStatus.Idle]: TxStatus.Unknown,
-  [SwapStatus.Pending]: TxStatus.Pending,
-  [SwapStatus.Success]: TxStatus.Confirmed,
-  [SwapStatus.Failed]: TxStatus.Failed,
 }

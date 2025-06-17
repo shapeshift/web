@@ -1,6 +1,4 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -10,24 +8,20 @@ import {
   SwapStatus,
   TRADE_POLL_INTERVAL_MILLISECONDS,
 } from '@shapeshiftoss/swapper'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
-import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '../useWallet/useWallet'
 
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
-import { isCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   selectPendingSwapActions,
@@ -46,10 +40,6 @@ type UseSwapActionSubscriberProps = {
 export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
 
   const toast = useToast({
     render: ({ title, status, description, onClose, ...props }) => {
@@ -106,34 +96,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         updatedAt: activeSwap.updatedAt,
         type: ActionType.Swap,
         status: ActionStatus.Pending,
-        title: translate('notificationCenter.swapTitle', {
-          sellAmountAndSymbol: toCrypto(
-            fromBaseUnit(activeSwap.sellAmountCryptoBaseUnit, activeSwap.sellAsset.precision),
-            activeSwap.sellAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-          buyAmountAndSymbol: toCrypto(
-            fromBaseUnit(activeSwap.buyAmountCryptoBaseUnit, activeSwap.buyAsset.precision),
-            activeSwap.buyAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-        }),
         swapMetadata: {
           swapId: activeSwap.id,
         },
       }),
     )
-  }, [dispatch, translate, toCrypto, activeSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {
@@ -154,8 +122,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           fetchTradeStatus({
             swapper,
             sellTxHash: swap.sellTxHash ?? '',
-            chainId: swap.sellAsset.chainId,
-            accountId: swap.sellAccountId ?? '',
+            sellAssetChainId: swap.sellAsset.chainId,
+            sellAssetAccountId: swap.sellAccountId ?? '',
             updatedSwap: swap,
             stepIndex: swap.metadata.stepIndex,
             config: getConfig(),
@@ -166,120 +134,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
 
       if (!buyTxHash) return
 
-      const swapSellAsset = swap.sellAsset
       const swapBuyAsset = swap.buyAsset
 
       if (status === TxStatus.Confirmed) {
         const accountId = swap.buyAccountId
-        const tx = await (async () => {
-          const adapter = getChainAdapterManager().get(swap.buyAsset.chainId)
 
-          if (isCosmosSdkChainAdapter(adapter)) {
-            const tx = await adapter.httpProvider.getTx({
-              txid: buyTxHash,
-            })
-
-            const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
-
-            return parsedTx
-          }
-
-          if (!adapter) return
-
-          const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
-            txid: buyTxHash,
-          })
-
-          const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
-
-          return parsedTx
-        })()
-
-        const feeAsset = selectFeeAssetByChainId(
-          store.getState(),
-          tx?.chainId ?? swapBuyAsset.chainId,
-        )
-
-        if (tx) {
-          try {
-            const maybeSafeTx = await fetchSafeTransactionInfo({
-              accountId,
-              safeTxHash: buyTxHash,
-              fetchIsSmartContractAddressQuery,
-            })
-
-            const txLink = getTxLink({
-              stepSource: tx.trade?.dexName,
-              defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-              txId: buyTxHash,
-              maybeSafeTx,
-              accountId,
-            })
-
-            if (tx.transfers?.length) {
-              const receiveTransfer = tx.transfers.find(
-                transfer =>
-                  transfer.type === TransferType.Receive &&
-                  transfer.assetId === swapBuyAsset.assetId,
-              )
-
-              if (receiveTransfer?.value) {
-                const notificationTitle = translate('notificationCenter.swapTitle', {
-                  sellAmountAndSymbol: toCrypto(
-                    fromBaseUnit(swap.sellAmountCryptoBaseUnit, swapSellAsset.precision),
-                    swapSellAsset.symbol,
-                    {
-                      maximumFractionDigits: 8,
-                      omitDecimalTrailingZeros: true,
-                      abbreviated: true,
-                      truncateLargeNumbers: true,
-                    },
-                  ),
-                  buyAmountAndSymbol: toCrypto(
-                    fromBaseUnit(receiveTransfer.value, swapBuyAsset.precision),
-                    swapBuyAsset.symbol,
-                    {
-                      maximumFractionDigits: 8,
-                      omitDecimalTrailingZeros: true,
-                      abbreviated: true,
-                      truncateLargeNumbers: true,
-                    },
-                  ),
-                })
-
-                dispatch(
-                  actionSlice.actions.upsertAction({
-                    ...action,
-                    title: notificationTitle,
-                    swapMetadata: {
-                      swapId: swap.id,
-                    },
-                    status: ActionStatus.Complete,
-                  }),
-                )
-                dispatch(
-                  swapSlice.actions.upsertSwap({
-                    ...swap,
-                    status: SwapStatus.Success,
-                    buyAmountCryptoBaseUnit: receiveTransfer.value,
-                    statusMessage: message,
-                    buyTxHash,
-                    txLink,
-                  }),
-                )
-
-                toast({
-                  status: 'success',
-                  id: swap.id,
-                })
-                return
-              }
-            }
-          } catch (error) {
-            console.error('Failed to fetch transaction details:', error)
-            return
-          }
-        }
+        const feeAsset = selectFeeAssetByChainId(store.getState(), swapBuyAsset.chainId)
 
         const maybeSafeTx = await fetchSafeTransactionInfo({
           accountId,
@@ -324,7 +184,6 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
-            title: translate('notificationCenter.swapTitle'),
             status: ActionStatus.Failed,
             swapMetadata: {
               swapId: swap.id,
@@ -362,7 +221,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         buyTxHash,
       }
     },
-    [toCrypto, translate, toast, dispatch],
+    [dispatch, toast],
   )
 
   // Update actions status when swap is confirmed or failed

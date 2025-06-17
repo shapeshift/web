@@ -14,43 +14,28 @@ type StreamingSwapDetailsProps = {
 }
 
 export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap }) => {
-  useStreamingProgress({ swap })
+  const streamingSwapData = useStreamingProgress({ swap })
+
+  const { totalSwapCount: streamingTotalSwapCount, successfulSwapCount } = streamingSwapData ?? {}
+
   const translate = useTranslate()
-  const {
-    attemptedSwapCount,
-    totalSwapCount: streamingTotalSwapCount,
-    failedSwaps,
-  } = swap.metadata.streamingSwapMetadata ?? {}
 
-  const streamingNumSuccessfulSwaps = useMemo(() => {
-    return (attemptedSwapCount ?? 0) - (failedSwaps?.length ?? 0)
-  }, [attemptedSwapCount, failedSwaps])
-
-  const isSwapStreamingComplete =
-    streamingTotalSwapCount !== undefined && streamingNumSuccessfulSwaps >= streamingTotalSwapCount
-
-  const isComplete = isSwapStreamingComplete || swap.status === SwapStatus.Success
-
-  const numSuccessfulSwaps = useMemo(() => {
-    if (streamingNumSuccessfulSwaps === 0 && isComplete) return 1
-
-    return streamingNumSuccessfulSwaps
-  }, [isComplete, streamingNumSuccessfulSwaps])
+  const isSwapComplete = swap.status === SwapStatus.Success
 
   const progress = useMemo(() => {
-    return isComplete
+    return isSwapComplete
       ? 100
-      : bnOrZero(numSuccessfulSwaps)
+      : bnOrZero(successfulSwapCount)
           .div(bnOrZero(streamingTotalSwapCount))
           .multipliedBy(100)
           .toNumber()
-  }, [numSuccessfulSwaps, streamingTotalSwapCount, isComplete])
+  }, [successfulSwapCount, streamingTotalSwapCount, isSwapComplete])
 
   const maxSwapCount = useMemo(() => {
-    if (swap.status === SwapStatus.Success) return numSuccessfulSwaps
+    if (swap.status === SwapStatus.Success) return successfulSwapCount
 
     return streamingTotalSwapCount ?? 1
-  }, [streamingTotalSwapCount, numSuccessfulSwaps, swap.status])
+  }, [streamingTotalSwapCount, successfulSwapCount, swap.status])
 
   if (!swap.isStreaming) return null
 
@@ -62,12 +47,12 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
           width='100px'
           size='xs'
           value={progress}
-          colorScheme={isComplete ? 'green' : 'blue'}
+          colorScheme={isSwapComplete ? 'green' : 'blue'}
           isAnimated={true}
-          hasStripe={isComplete ? false : true}
+          hasStripe={isSwapComplete ? false : true}
         />
         <RawText>
-          ({numSuccessfulSwaps}/{maxSwapCount})
+          ({successfulSwapCount}/{maxSwapCount})
         </RawText>
       </Row.Value>
     </Row>

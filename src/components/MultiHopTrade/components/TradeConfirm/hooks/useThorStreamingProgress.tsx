@@ -21,6 +21,7 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
   totalSwapCount: 0,
   failedSwaps: [],
+  successfulSwapCount: 0,
 }
 
 const getThorchainStreamingSwap = async (
@@ -54,10 +55,13 @@ const getStreamingSwapMetadata = (
       }),
     ) ?? []
 
+  const successfulSwapCount = (data.count ?? 0) - (failedSwaps.length ?? 0)
+
   return {
     totalSwapCount: data.quantity ?? 0,
     attemptedSwapCount: data.count ?? 0,
     failedSwaps,
+    successfulSwapCount,
   }
 }
 
@@ -72,7 +76,7 @@ export const useThorStreamingProgress = ({
   attemptedSwapCount: number
   totalSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  numSuccessfulSwaps: number
+  successfulSwapCount: number
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>(undefined)
@@ -133,7 +137,6 @@ export const useThorStreamingProgress = ({
               return completedStreamingSwapData
             }
 
-            // data to update - update
             streamingSwapDataRef.current = updatedStreamingSwapData
             dispatch(
               swapSlice.actions.upsertSwap({
@@ -151,18 +154,13 @@ export const useThorStreamingProgress = ({
   })
 
   const result = useMemo(() => {
-    const numSuccessfulSwaps =
-      (streamingSwapMetadata?.attemptedSwapCount ?? 0) -
-      (streamingSwapMetadata?.failedSwaps?.length ?? 0)
-
     const isComplete =
       streamingSwapMetadata !== undefined &&
-      numSuccessfulSwaps >= streamingSwapMetadata.totalSwapCount
+      streamingSwapMetadata.successfulSwapCount >= streamingSwapMetadata.totalSwapCount
 
     return {
       isComplete,
       ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
-      numSuccessfulSwaps,
     }
   }, [streamingSwapMetadata])
 

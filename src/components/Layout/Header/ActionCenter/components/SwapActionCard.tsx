@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardBody,
@@ -13,6 +13,7 @@ import {
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
@@ -22,6 +23,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
@@ -32,10 +34,15 @@ const divider = <RawText color='text.subtle'>•</RawText>
 
 type SwapActionCardProps = {
   action: SwapAction
+  isCollapsable?: boolean
 }
 
-export const SwapActionCard = ({ action }: SwapActionCardProps) => {
+export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCardProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
+  const translate = useTranslate()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -65,10 +72,34 @@ export const SwapActionCard = ({ action }: SwapActionCardProps) => {
   )
 
   const handleClick = useCallback(() => {
-    if (swap.isStreaming) {
+    if (isCollapsable) {
       onToggle()
     }
-  }, [onToggle, swap.isStreaming])
+  }, [onToggle, isCollapsable])
+
+  const title = useMemo(() => {
+    return translate('notificationCenter.swapTitle', {
+      sellAmountAndSymbol: toCrypto(swap.expectedSellAmountCryptoPrecision, swap.sellAsset.symbol, {
+        maximumFractionDigits: 8,
+        omitDecimalTrailingZeros: true,
+        abbreviated: true,
+        truncateLargeNumbers: true,
+      }),
+      buyAmountAndSymbol: toCrypto(swap.expectedBuyAmountCryptoPrecision, swap.buyAsset.symbol, {
+        maximumFractionDigits: 8,
+        omitDecimalTrailingZeros: true,
+        abbreviated: true,
+        truncateLargeNumbers: true,
+      }),
+    })
+  }, [
+    swap.expectedSellAmountCryptoPrecision,
+    swap.expectedBuyAmountCryptoPrecision,
+    swap.sellAsset.symbol,
+    swap.buyAsset.symbol,
+    translate,
+    toCrypto,
+  ])
 
   return (
     <Stack
@@ -78,7 +109,7 @@ export const SwapActionCard = ({ action }: SwapActionCardProps) => {
       transitionProperty='common'
       transitionDuration='fast'
       as={Link}
-      href={swap?.txLink && !swap.isStreaming ? swap.txLink : undefined}
+      href={swap?.txLink && !swap.isStreaming && !isCollapsable ? swap.txLink : undefined}
       isExternal
       _hover={hoverProps}
     >
@@ -93,7 +124,7 @@ export const SwapActionCard = ({ action }: SwapActionCardProps) => {
         <Stack spacing={0} width='full'>
           <HStack onClick={handleClick}>
             <Stack spacing={1} width='full'>
-              <RawText fontSize='sm'>{action.title}</RawText>
+              <RawText fontSize='sm'>{title}</RawText>
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
                 <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
@@ -107,8 +138,17 @@ export const SwapActionCard = ({ action }: SwapActionCardProps) => {
                 )}
               </HStack>
             </Stack>
-            {!swap.isStreaming && swap.txLink && (
+            {!isCollapsable && swap.txLink && (
               <Icon as={ExternalLinkIcon} ml='auto' my='auto' fontSize='sm' />
+            )}
+            {isCollapsable && (
+              <Icon
+                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+                ml='auto'
+                my='auto'
+                fontSize='xl'
+                color='text.subtle'
+              />
             )}
           </HStack>
           <Collapse in={isOpen}>

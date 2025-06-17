@@ -21,6 +21,7 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
   totalSwapCount: 0,
   failedSwaps: [],
+  successfulSwapCount: 0,
 }
 
 const getChainflipStreamingSwap = async (
@@ -78,6 +79,7 @@ const getStreamingSwapMetadata = (
     totalSwapCount: data.executedChunks + data.remainingChunks,
     attemptedSwapCount: data.executedChunks ?? 0,
     failedSwaps,
+    successfulSwapCount: data.executedChunks ?? 0,
   }
 }
 
@@ -90,7 +92,7 @@ export const useChainflipStreamingProgress = ({
   attemptedSwapCount: number
   totalSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  numSuccessfulSwaps: number
+  successfulSwapCount: number
 } => {
   const dispatch = useAppDispatch()
   const swapIdFilter = useMemo(() => {
@@ -135,18 +137,13 @@ export const useChainflipStreamingProgress = ({
   })
 
   const result = useMemo(() => {
-    const numSuccessfulSwaps =
-      (streamingSwapMetadata?.attemptedSwapCount ?? 0) -
-      (streamingSwapMetadata?.failedSwaps?.length ?? 0)
-
     const isComplete =
       streamingSwapMetadata !== undefined &&
-      numSuccessfulSwaps >= streamingSwapMetadata.totalSwapCount
+      streamingSwapMetadata.successfulSwapCount >= streamingSwapMetadata.totalSwapCount
 
     return {
       isComplete,
       ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
-      numSuccessfulSwaps,
     }
   }, [streamingSwapMetadata])
 

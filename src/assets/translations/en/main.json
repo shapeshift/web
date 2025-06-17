@@ -2986,6 +2986,6 @@
     },
     "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
     "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
-    "pendingTransactions": "%{count} Pending(s)"
+    "pendingTransactions": "%{count} Pending"
   }
 }

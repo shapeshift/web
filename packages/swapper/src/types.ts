@@ -344,6 +344,7 @@ export type StreamingSwapMetadata = {
   attemptedSwapCount: number
   totalSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
+  successfulSwapCount: number
 }
 
 export enum TransactionExecutionState {
@@ -390,8 +391,10 @@ export type Swap = {
   sellAccountId: AccountId | undefined
   buyAccountId: AccountId | undefined
   swapperName: SwapperName
-  sellAmountCryptoBaseUnit: string
-  buyAmountCryptoBaseUnit: string
+  expectedSellAmountCryptoBaseUnit: string
+  expectedBuyAmountCryptoBaseUnit: string
+  expectedSellAmountCryptoPrecision: string
+  expectedBuyAmountCryptoPrecision: string
   txLink?: string
   metadata: SwapperSpecificMetadata
   isStreaming?: boolean

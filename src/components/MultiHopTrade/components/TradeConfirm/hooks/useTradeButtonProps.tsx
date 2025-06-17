@@ -1,5 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -81,8 +82,16 @@ export const useTradeButtonProps = ({
       swapperName: activeQuote.swapperName,
       sellAsset: firstStep.sellAsset,
       buyAsset: lastStep.buyAsset,
-      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      expectedSellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      expectedSellAmountCryptoPrecision: fromBaseUnit(
+        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        firstStep.sellAsset.precision,
+      ),
+      expectedBuyAmountCryptoPrecision: fromBaseUnit(
+        lastStep.buyAmountAfterFeesCryptoBaseUnit,
+        lastStep.buyAsset.precision,
+      ),
       metadata: {
         lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
         lifiTools: firstStep?.lifiSpecific?.lifiTools,

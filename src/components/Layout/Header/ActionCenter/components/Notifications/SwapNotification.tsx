@@ -1,7 +1,6 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Icon, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { TbArrowRight, TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 
@@ -29,16 +28,6 @@ export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotif
   }, [id, swapsById])
 
   const iconColor = status === 'success' ? 'green.500' : 'red.500'
-
-  const sellAmount = useMemo(() => {
-    if (!swap) return ''
-    return fromBaseUnit(swap.sellAmountCryptoBaseUnit, swap.sellAsset.precision)
-  }, [swap])
-
-  const buyAmount = useMemo(() => {
-    if (!swap) return ''
-    return fromBaseUnit(swap.buyAmountCryptoBaseUnit, swap.buyAsset.precision)
-  }, [swap])
 
   if (!swap) return null
 
@@ -80,7 +69,7 @@ export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotif
                   <AssetIcon assetId={swap.sellAsset.assetId} size='xs' />
                   <Stack spacing={0}>
                     <Amount.Crypto
-                      value={sellAmount}
+                      value={swap.expectedSellAmountCryptoPrecision}
                       symbol={swap.sellAsset.symbol}
                       fontSize='sm'
                       fontWeight='semibold'
@@ -96,7 +85,7 @@ export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotif
                   <AssetIcon assetId={swap.buyAsset.assetId} size='xs' />
                   <Stack spacing={0}>
                     <Amount.Crypto
-                      value={buyAmount}
+                      value={swap.expectedBuyAmountCryptoPrecision}
                       symbol={swap.buyAsset.symbol}
                       fontSize='sm'
                       fontWeight='semibold'

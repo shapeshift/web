@@ -10,9 +10,11 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
@@ -21,6 +23,7 @@ import { LimitOrderDetails } from './Details/LimitOrderDetails'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -48,7 +51,12 @@ export const LimitOrderActionCard = ({
   action,
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
-  const { createdAt, status, type, title } = action
+  const { createdAt, status, type } = action
+  const translate = useTranslate()
+
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -67,6 +75,34 @@ export const LimitOrderActionCard = ({
       onToggle()
     }
   }, [isCollapsable, onToggle])
+
+  const title = useMemo(() => {
+    const { sellAmountCryptoBaseUnit, buyAmountCryptoBaseUnit, sellAsset, buyAsset } =
+      action.limitOrderMetadata
+
+    return translate('notificationCenter.limitOrderTitle', {
+      sellAmountAndSymbol: toCrypto(
+        fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
+        sellAsset.symbol,
+        {
+          maximumFractionDigits: 8,
+          omitDecimalTrailingZeros: true,
+          abbreviated: true,
+          truncateLargeNumbers: true,
+        },
+      ),
+      buyAmountAndSymbol: toCrypto(
+        fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
+        buyAsset.symbol,
+        {
+          maximumFractionDigits: 8,
+          omitDecimalTrailingZeros: true,
+          abbreviated: true,
+          truncateLargeNumbers: true,
+        },
+      ),
+    })
+  }, [action, toCrypto, translate])
 
   return (
     <Stack

@@ -43,7 +43,6 @@ export const getEvmData = async ({ config, step, tradeQuote, swapperName }: GetE
         config,
         longtailData,
         slippageTolerancePercentageDecimal,
-        router,
         vault,
         swapperName,
       })
@@ -82,7 +81,6 @@ export const getEvmData = async ({ config, step, tradeQuote, swapperName }: GetE
         config,
         longtailData,
         slippageTolerancePercentageDecimal,
-        router: aggregator,
         vault: tcVault,
         swapperName,
       })
@@ -119,7 +117,6 @@ export const getEvmData = async ({ config, step, tradeQuote, swapperName }: GetE
         config,
         longtailData,
         slippageTolerancePercentageDecimal,
-        router,
         vault,
         swapperName,
       })

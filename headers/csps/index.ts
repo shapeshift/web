@@ -27,7 +27,6 @@ import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
 import { csp as zeroX } from './defi/swappers/0x'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
-import { csp as lifi } from './defi/swappers/Lifi'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
@@ -96,7 +95,6 @@ export const csps = [
   safe,
   zeroX,
   cowSwap,
-  lifi,
   oneInch,
   portals,
   thor,

@@ -12,12 +12,6 @@ import { cowApi } from './swappers/CowSwapper/endpoints'
 import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
 import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
 import { JUPITER_SUPPORTED_CHAIN_IDS } from './swappers/JupiterSwapper/utils/constants'
-import { lifiApi } from './swappers/LifiSwapper/endpoints'
-import {
-  LIFI_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  lifiSwapper,
-} from './swappers/LifiSwapper/LifiSwapper'
-import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
 import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from './swappers/MayachainSwapper'
 import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
 import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
@@ -51,12 +45,6 @@ export const swappers: Record<
   | (SwapperApi & Swapper & { supportedChainIds: SupportedChainIds; pollingInterval: number })
   | undefined
 > = {
-  [SwapperName.LIFI]: {
-    ...lifiSwapper,
-    ...lifiApi,
-    supportedChainIds: LIFI_SUPPORTED_CHAIN_IDS,
-    pollingInterval: LIFI_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  },
   [SwapperName.Thorchain]: {
     ...thorchainSwapper,
     ...thorchainApi,
@@ -119,7 +107,6 @@ export const swappers: Record<
 const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
 const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.025' // 2.5%
-const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
@@ -133,8 +120,6 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.Zrx:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
-    case SwapperName.LIFI:
-      return DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.CowSwap:
       return DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Portals:

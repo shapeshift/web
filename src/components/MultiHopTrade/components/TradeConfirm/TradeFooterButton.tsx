@@ -165,12 +165,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const tradeWarnings: JSX.Element | null = useMemo(() => {
     const isSlowSwapper =
       swapperName &&
-      [
-        SwapperName.Thorchain,
-        SwapperName.CowSwap,
-        SwapperName.LIFI,
-        SwapperName.Mayachain,
-      ].includes(swapperName)
+      [SwapperName.Thorchain, SwapperName.CowSwap, SwapperName.Mayachain].includes(swapperName)
 
     const isTxHistorySupportedForChain =
       lastHopBuyAsset && chainSupportsTxHistory(lastHopBuyAsset.chainId)
@@ -202,12 +197,6 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
                 })}
               </AlertDescription>
             </Stack>
-          </Alert>
-        )}
-        {swapperName === SwapperName.LIFI && (
-          <Alert status='warning' size='sm'>
-            <AlertIcon />
-            <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
           </Alert>
         )}
         {isFeeRatioOverThreshold && (

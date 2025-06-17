@@ -60,7 +60,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: swap.isStreaming })
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isCollapsable })
 
   const hoverProps = useMemo(
     () => ({

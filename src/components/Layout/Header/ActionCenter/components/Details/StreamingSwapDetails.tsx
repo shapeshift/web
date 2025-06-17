@@ -23,12 +23,13 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
   const isSwapComplete = swap.status === SwapStatus.Success
 
   const progress = useMemo(() => {
-    return isSwapComplete
-      ? 100
-      : bnOrZero(successfulSwapCount)
-          .div(bnOrZero(streamingTotalSwapCount))
-          .multipliedBy(100)
-          .toNumber()
+    if (isSwapComplete) return 100
+    if (!streamingTotalSwapCount) return 0
+
+    return bnOrZero(successfulSwapCount)
+      .div(bnOrZero(streamingTotalSwapCount))
+      .multipliedBy(100)
+      .toNumber()
   }, [successfulSwapCount, streamingTotalSwapCount, isSwapComplete])
 
   const maxSwapCount = useMemo(() => {
@@ -40,7 +41,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
   if (!swap.isStreaming) return null
 
   return (
-    <Row fontSize='sm'>
+    <Row fontSize='sm' alignItems='center'>
       <Row.Label>{translate('notificationCenter.streamingStatus')}</Row.Label>
       <Row.Value display='flex' alignItems='center' gap={2}>
         <Progress

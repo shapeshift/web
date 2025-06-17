@@ -59,7 +59,13 @@ export const ActionCenter = memo(() => {
             const swap = swapsById[action.swapMetadata.swapId]
 
             return (
-              <SwapActionCard key={action.id} action={action} isCollapsable={swap.isStreaming} />
+              <SwapActionCard
+                key={action.id}
+                action={action}
+                isCollapsable={Boolean(
+                  swap.isStreaming && swap.metadata.streamingSwapMetadata?.totalSwapCount,
+                )}
+              />
             )
           }
           case ActionType.LimitOrder: {

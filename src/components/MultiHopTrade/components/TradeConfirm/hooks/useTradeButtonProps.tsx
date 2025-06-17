@@ -79,8 +79,6 @@ export const useTradeButtonProps = ({
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       metadata: {
-        lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
-        lifiTools: firstStep?.lifiSpecific?.lifiTools,
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         stepIndex: currentHopIndex,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,

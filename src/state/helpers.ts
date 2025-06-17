@@ -7,7 +7,6 @@ import { assertUnreachable } from '@/lib/utils'
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
-    case SwapperName.LIFI:
     case SwapperName.Chainflip:
     case SwapperName.Jupiter:
     case SwapperName.Relay:
@@ -29,7 +28,6 @@ export const getEnabledSwappers = (
   {
     ChainflipSwap,
     PortalsSwap,
-    LifiSwap,
     ThorSwap,
     ZrxSwap,
     ArbitrumBridge,
@@ -42,8 +40,6 @@ export const getEnabledSwappers = (
   isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
   return {
-    [SwapperName.LIFI]:
-      LifiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.LIFI)),
     [SwapperName.Thorchain]:
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
     [SwapperName.Zrx]:

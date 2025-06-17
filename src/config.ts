@@ -71,7 +71,6 @@ const validators = {
   VITE_MTPELERIN_REFERRAL_CODE: str(),
   VITE_MTPELERIN_INTEGRATION_KEY: str(),
   VITE_FRIENDLY_CAPTCHA_SITE_KEY: str(),
-  VITE_FEATURE_LIFI_SWAP: bool({ default: false }),
   VITE_FEATURE_COWSWAP: bool({ default: false }),
   VITE_FEATURE_OPTIMISM: bool({ default: false }),
   VITE_FEATURE_BNBSMARTCHAIN: bool({ default: false }),

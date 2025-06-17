@@ -152,7 +152,6 @@ export class TradeExecution {
         status: SwapStatus.Pending,
         metadata: {
           ...swap.metadata,
-          lifiRoute: tradeQuote.steps[0]?.lifiSpecific?.lifiRoute,
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
           stepIndex,

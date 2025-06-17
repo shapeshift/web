@@ -1,5 +1,4 @@
 import type { QuoteResponse } from '@jup-ag/api'
-import type { Route } from '@lifi/sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -69,7 +68,6 @@ export enum SwapperName {
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
-  LIFI = 'LI.FI',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
   Chainflip = 'Chainflip',
@@ -307,10 +305,6 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
-  lifiSpecific?: {
-    lifiTools: LifiTools | undefined
-    lifiRoute: Route | undefined
-  }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
 
@@ -328,11 +322,6 @@ type TradeQuoteBase = {
   isLongtail?: boolean
   quoteOrRate: 'quote' | 'rate'
   swapperName: SwapperName // The swapper that generated this quote/rate
-}
-
-export type LifiTools = {
-  bridges: string[] | undefined
-  exchanges: string[] | undefined
 }
 
 export type StreamingSwapFailedSwap = {
@@ -363,8 +352,6 @@ export type SwapExecutionMetadata = {
 }
 
 export type SwapperSpecificMetadata = {
-  lifiRoute: Route | undefined
-  lifiTools: LifiTools | undefined
   chainflipSwapId: number | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   relayTransactionMetadata: RelayTransactionMetadata | undefined

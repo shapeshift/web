@@ -89,8 +89,6 @@ export const useTradeButtonProps = ({
         lastStep.buyAsset.precision,
       ),
       metadata: {
-        lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
-        lifiTools: firstStep?.lifiSpecific?.lifiTools,
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         stepIndex: currentHopIndex,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,

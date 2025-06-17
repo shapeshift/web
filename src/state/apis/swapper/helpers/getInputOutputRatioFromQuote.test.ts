@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { assertUnreachable } from '@/lib/utils'
 import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import { cowQuote, lifiQuote, thorQuote, zrxQuote } from '@/state/apis/swapper/helpers/testData'
+import { cowQuote, thorQuote, zrxQuote } from '@/state/apis/swapper/helpers/testData'
 import type { ReduxState } from '@/state/reducer'
 import { ethereum } from '@/test/mocks/assets'
 import { mockMarketData } from '@/test/mocks/marketData'
@@ -68,19 +68,6 @@ vi.mock('@/state/slices/marketDataSlice/marketDataSlice', async importActual => 
 })
 
 describe('getInputOutputRatioFromQuote', () => {
-  it('should return correct ratio for a Lifi quote', () => {
-    const mockState = {
-      ...mockStore,
-    }
-    const ratio = getInputOutputRatioFromQuote({
-      state: mockState,
-      quote: lifiQuote,
-      swapperName: SwapperName.LIFI,
-    })
-
-    expect(ratio).toBe(0.5835608776853983)
-  })
-
   it('should return correct ratio for a CoW quote', () => {
     const mockState = {
       ...mockStore,

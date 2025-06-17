@@ -103,7 +103,6 @@ export const mockStore: ReduxState = {
       SaversVaultsDeposit: false,
       SaversVaultsWithdraw: false,
       Mixpanel: false,
-      LifiSwap: false,
       DynamicLpAssets: false,
       ReadOnlyAssets: false,
       Chatwoot: false,

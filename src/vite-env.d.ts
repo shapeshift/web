@@ -56,7 +56,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_CHAINFLIP_SWAP: string
   readonly VITE_FEATURE_CHAINFLIP_SWAP_DCA: string
   readonly VITE_FEATURE_COWSWAP: string
-  readonly VITE_FEATURE_LIFI_SWAP: string
   readonly VITE_FEATURE_THOR_SWAP: string
   readonly VITE_FEATURE_ZRX_SWAP: string
   readonly VITE_FEATURE_JUPITER_SWAP: string

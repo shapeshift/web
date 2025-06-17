@@ -389,7 +389,7 @@ export type Swap = {
   buyTxHash?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId | undefined
-  buyAccountId: AccountId | undefined
+  receiveAddress: string | undefined
   swapperName: SwapperName
   expectedSellAmountCryptoBaseUnit: string
   expectedBuyAmountCryptoBaseUnit: string

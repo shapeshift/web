@@ -113,8 +113,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       const swapper = maybeSwapper
 
       if (!swap.sellAccountId) return
-      if (!swap.buyAccountId) return
       if (!swap.sellTxHash) return
+      if (!swap.receiveAddress) return
 
       const { status, message, buyTxHash } = await queryClient.fetchQuery({
         queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
@@ -137,12 +137,11 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
       const swapBuyAsset = swap.buyAsset
 
       if (status === TxStatus.Confirmed) {
-        const accountId = swap.buyAccountId
-
         const feeAsset = selectFeeAssetByChainId(store.getState(), swapBuyAsset.chainId)
 
         const maybeSafeTx = await fetchSafeTransactionInfo({
-          accountId,
+          address: swap.receiveAddress,
+          chainId: swapBuyAsset.chainId,
           safeTxHash: buyTxHash,
           fetchIsSmartContractAddressQuery,
         })
@@ -151,7 +150,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
           txId: buyTxHash,
           maybeSafeTx,
-          accountId,
+          address: swap.receiveAddress,
+          chainId: swapBuyAsset.chainId,
         })
 
         dispatch(

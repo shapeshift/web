@@ -1,5 +1,6 @@
 import { Link } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -35,7 +36,8 @@ export const TxLabel = ({
   const txLink = getTxLink({
     defaultExplorerBaseUrl: explorerBaseUrl,
     maybeSafeTx,
-    accountId,
+    address: fromAccountId(accountId).account,
+    chainId: fromAccountId(accountId).chainId,
     stepSource,
     ...(isBuyTxHash ? { txId: txHash } : { tradeId: txHash }),
     maybeChainflipSwapId,

@@ -148,6 +148,7 @@ export class TradeExecution {
       const updatedSwap = {
         ...swap,
         sellTxHash,
+        receiveAddress: tradeQuote.receiveAddress,
         status: SwapStatus.Pending,
         metadata: {
           ...swap.metadata,

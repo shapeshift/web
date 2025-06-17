@@ -197,7 +197,8 @@ export const checkSafeTransactionStatus = async ({
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<TradeStatus | undefined> => {
   const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
-    accountId,
+    address: accountId ? fromAccountId(accountId).account : undefined,
+    chainId,
     fetchIsSmartContractAddressQuery,
     safeTxHash: txHash,
   })

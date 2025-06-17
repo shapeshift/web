@@ -1,4 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { THOR_ROUTER_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Address } from 'viem'
@@ -19,12 +20,10 @@ export const getCallDataFromQuote = async ({
   config,
   longtailData,
   slippageTolerancePercentageDecimal,
-  router,
   vault,
   swapperName,
 }: Pick<
   ThorEvmTradeQuote,
-  | 'router'
   | 'vault'
   | 'aggregator'
   | 'data'
@@ -54,7 +53,8 @@ export const getCallDataFromQuote = async ({
         'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
       )
 
-      const tcRouter = router as Address
+      // Long-tails are only supported on mainnet
+      const tcRouter = THOR_ROUTER_CONTRACT_MAINNET as Address
       const tcVault = vault as Address
       const token = fromAssetId(sellAsset.assetId).assetReference as Address
       const amount = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)

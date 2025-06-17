@@ -47,8 +47,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
     })()
   }, [])
 
-  const isInitialized = !!state.core && !!state.web3wallet
-  useWalletConnectEventsManager(isInitialized, state.web3wallet, dispatch, state.core)
+  useWalletConnectEventsManager(state, dispatch)
 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()

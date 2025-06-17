@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, FormControl, InputGroup } from '@chakra-ui/react'
+import { Box, Button, ButtonGroup, FormControl, InputGroup, Stack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -90,41 +90,52 @@ export const QuoteSortSelector: FC = memo(() => {
         <Row.Value>{sortTypeTranslation}</Row.Value>
       </Row>
       <Row py={2} gap={2} mt={2}>
-        <Row.Value>
-          <FormControl>
-            <InputGroup variant='filled'>
-              <ButtonGroup
-                size='sm'
-                bg='background.input.base'
-                px={1}
-                py={1}
-                borderRadius='xl'
+        <FormControl>
+          <InputGroup variant='filled' width='full'>
+            <Stack
+              bg='background.input.base'
+              px={1}
+              py={1}
+              borderRadius='xl'
+              width='100%'
+              direction='column'
+            >
+              <Button
+                onClick={handleBestRateSortTypeChange}
+                isActive={currentSortType === SortType.BestRate}
                 variant='ghost'
-                isAttached
-                width='full'
+                width='100%'
+                justifyContent='flex-start'
+                fontSize='sm'
+                fontWeight='normal'
               >
-                <Button
-                  onClick={handleBestRateSortTypeChange}
-                  isActive={currentSortType === SortType.BestRate}
-                >
-                  {translate('trade.sort.bestRate')}
-                </Button>
-                <Button
-                  onClick={handleLowestGasSortTypeChange}
-                  isActive={currentSortType === SortType.LowestGas}
-                >
-                  {translate('trade.sort.lowestGas')}
-                </Button>
-                <Button
-                  onClick={handleFastestSortTypeChange}
-                  isActive={currentSortType === SortType.Fastest}
-                >
-                  {translate('trade.sort.fastest')}
-                </Button>
-              </ButtonGroup>
-            </InputGroup>
-          </FormControl>
-        </Row.Value>
+                {translate('trade.sort.bestRate')}
+              </Button>
+              <Button
+                onClick={handleLowestGasSortTypeChange}
+                isActive={currentSortType === SortType.LowestGas}
+                variant='ghost'
+                width='100%'
+                justifyContent='flex-start'
+                fontSize='sm'
+                fontWeight='normal'
+              >
+                {translate('trade.sort.lowestGas')}
+              </Button>
+              <Button
+                onClick={handleFastestSortTypeChange}
+                isActive={currentSortType === SortType.Fastest}
+                variant='ghost'
+                width='100%'
+                justifyContent='flex-start'
+                fontSize='sm'
+                fontWeight='normal'
+              >
+                {translate('trade.sort.fastest')}
+              </Button>
+            </Stack>
+          </InputGroup>
+        </FormControl>
       </Row>
     </>
   )

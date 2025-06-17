@@ -216,7 +216,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
             )}
 
             {enableSortBy && (
-              <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4}>
+              <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4} width='full'>
                 <QuoteSortSelector />
               </Box>
             )}

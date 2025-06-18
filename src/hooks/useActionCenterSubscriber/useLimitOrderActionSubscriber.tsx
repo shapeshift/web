@@ -155,28 +155,6 @@ export const useLimitOrderActionSubscriber = ({
           status: ActionStatus.Idle,
           createdAt: Date.now(),
           updatedAt: Date.now(),
-          title: translate('notificationCenter.limitOrderTitle', {
-            sellAmountAndSymbol: toCrypto(
-              fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
-              sellAsset.symbol,
-              {
-                maximumFractionDigits: 8,
-                omitDecimalTrailingZeros: true,
-                abbreviated: true,
-                truncateLargeNumbers: true,
-              },
-            ),
-            buyAmountAndSymbol: toCrypto(
-              fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
-              buyAsset.symbol,
-              {
-                maximumFractionDigits: 8,
-                omitDecimalTrailingZeros: true,
-                abbreviated: true,
-                truncateLargeNumbers: true,
-              },
-            ),
-          }),
           limitOrderMetadata: {
             cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
@@ -325,39 +303,9 @@ export const useLimitOrderActionSubscriber = ({
       }
 
       if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
-        const actionUpdatedTitle = translate('notificationCenter.limitOrderTitle', {
-          sellAmountAndSymbol: toCrypto(
-            fromBaseUnit(
-              order.order.executedSellAmount,
-              updatedLimitOrder.limitOrderMetadata.sellAsset.precision,
-            ),
-            updatedLimitOrder.limitOrderMetadata.sellAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-          buyAmountAndSymbol: toCrypto(
-            fromBaseUnit(
-              order.order.executedBuyAmount,
-              updatedLimitOrder.limitOrderMetadata.buyAsset.precision,
-            ),
-            updatedLimitOrder.limitOrderMetadata.buyAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-        })
-
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
-            title: actionUpdatedTitle,
             limitOrderMetadata: {
               ...action.limitOrderMetadata,
               executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
@@ -412,8 +360,9 @@ export const useLimitOrderActionSubscriber = ({
           }),
         )
 
+        // @TODO: replace title by the notification UI product prepared
         toast({
-          title: updatedLimitOrder.title,
+          title: translate('notificationCenter.orderCancelled'),
           status: 'error',
           position: 'top-right',
         })
@@ -429,8 +378,9 @@ export const useLimitOrderActionSubscriber = ({
           }),
         )
 
+        // @TODO: replace title by the notification UI product prepared
         toast({
-          title: updatedLimitOrder.title,
+          title: translate('notificationCenter.orderExpired'),
           status: 'error',
           position: 'top-right',
         })

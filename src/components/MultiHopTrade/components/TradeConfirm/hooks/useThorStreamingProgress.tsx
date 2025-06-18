@@ -1,16 +1,17 @@
 import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
+  Swap,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import { getDaemonUrl } from '@shapeshiftoss/swapper'
+import { getDaemonUrl, SwapStatus } from '@shapeshiftoss/swapper'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import type { ThornodeStreamingSwapResponse, ThornodeStreamingSwapResponseSuccess } from '../types'
 
 import { getConfig } from '@/config'
-import { usePoll } from '@/hooks/usePoll/usePoll'
 import { selectSwapById } from '@/state/slices/swapSlice/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -19,7 +20,7 @@ const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
-  totalSwapCount: 0,
+  maxSwapCount: 0,
   failedSwaps: [],
 }
 
@@ -45,6 +46,7 @@ const getThorchainStreamingSwap = async (
 
 const getStreamingSwapMetadata = (
   data: ThornodeStreamingSwapResponseSuccess,
+  swap: Swap,
 ): StreamingSwapMetadata => {
   const failedSwaps: StreamingSwapFailedSwap[] =
     data.failed_swaps?.map(
@@ -55,7 +57,7 @@ const getStreamingSwapMetadata = (
     ) ?? []
 
   return {
-    totalSwapCount: data.quantity ?? 0,
+    maxSwapCount: data.quantity ?? swap.metadata?.streamingSwapMetadata?.maxSwapCount ?? 0,
     attemptedSwapCount: data.count ?? 0,
     failedSwaps,
   }
@@ -68,15 +70,12 @@ export const useThorStreamingProgress = ({
   confirmedSwapId: string | undefined
   swapperName: SwapperName
 }): {
-  isComplete: boolean
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  numSuccessfulSwaps: number
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>(undefined)
-  const { poll, cancelPolling } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
   const swapByIdFilter = useMemo(() => ({ swapId: confirmedSwapId ?? '' }), [confirmedSwapId])
   const swap = useAppSelector(state => selectSwapById(state, swapByIdFilter))
@@ -84,89 +83,81 @@ export const useThorStreamingProgress = ({
   const { sellTxHash, metadata } = swap ?? {}
   const { streamingSwapMetadata } = metadata ?? {}
 
-  useEffect(() => {
-    // don't start polling until we have a tx
-    if (!sellTxHash) return
-    if (!swap) return
-    if (!swap.isStreaming) return
+  useQuery({
+    queryKey: ['streamingSwapData', confirmedSwapId, swapperName],
+    queryFn:
+      swap &&
+      swap.swapperName === swapperName &&
+      sellTxHash &&
+      swap.isStreaming &&
+      swap.status === SwapStatus.Pending &&
+      confirmedSwapId
+        ? async () => {
+            const updatedStreamingSwapData = await getThorchainStreamingSwap(
+              sellTxHash,
+              swapperName,
+            )
 
-    poll({
-      fn: async () => {
-        const updatedStreamingSwapData = await getThorchainStreamingSwap(sellTxHash, swapperName)
+            // no payload at all - must be a failed request - return
+            if (!updatedStreamingSwapData) return
 
-        // no payload at all - must be a failed request - return
-        if (!updatedStreamingSwapData) return
+            // We don't have a quantity in the streaming swap data, and we never have.
+            if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
+              // This is a special case where it _is_ a streaming swap, but it's one of the following cases:
+              // - optimized over a single block, and so doesn't actually stream.
+              // - the streaming swap metadata isn't ready yet
+              //
+              // In both cases its simpler to exit and not render the progress bar.
+              return
+            }
 
-        // We don't have a quantity in the streaming swap data, and we never have.
-        if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
-          // This is a special case where it _is_ a streaming swap, but it's one of the following cases:
-          // - optimized over a single block, and so doesn't actually stream.
-          // - the streaming swap metadata isn't ready yet
-          //
-          // In both cases its simpler to exit and not render the progress bar.
-          return
-        }
+            // thornode returns a default empty response once the streaming is complete
+            // set the count to the quantity so UI can display completed status
+            if (streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
+              const completedStreamingSwapData: ThornodeStreamingSwapResponseSuccess = {
+                ...streamingSwapDataRef.current,
+                count: streamingSwapDataRef.current.quantity,
+              }
+              streamingSwapDataRef.current = completedStreamingSwapData
 
-        // thornode returns a default empty response once the streaming is complete
-        // set the count to the quantity so UI can display completed status
-        if (streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
-          const completedStreamingSwapData: ThornodeStreamingSwapResponseSuccess = {
-            ...streamingSwapDataRef.current,
-            count: streamingSwapDataRef.current.quantity,
+              dispatch(
+                swapSlice.actions.upsertSwap({
+                  ...swap,
+                  metadata: {
+                    ...swap.metadata,
+                    streamingSwapMetadata: {
+                      ...(swap.metadata?.streamingSwapMetadata ?? {}),
+                      ...getStreamingSwapMetadata(completedStreamingSwapData, swap),
+                    },
+                  },
+                }),
+              )
+
+              return completedStreamingSwapData
+            }
+
+            streamingSwapDataRef.current = updatedStreamingSwapData
+            dispatch(
+              swapSlice.actions.upsertSwap({
+                ...swap,
+                metadata: {
+                  ...swap.metadata,
+                  streamingSwapMetadata: {
+                    ...(swap.metadata?.streamingSwapMetadata ?? {}),
+                    ...getStreamingSwapMetadata(updatedStreamingSwapData, swap),
+                  },
+                },
+              }),
+            )
+            return updatedStreamingSwapData
           }
-          streamingSwapDataRef.current = completedStreamingSwapData
-
-          dispatch(
-            swapSlice.actions.upsertSwap({
-              ...swap,
-              metadata: {
-                ...swap.metadata,
-                streamingSwapMetadata: getStreamingSwapMetadata(completedStreamingSwapData),
-              },
-            }),
-          )
-
-          return completedStreamingSwapData
-        }
-
-        // data to update - update
-        streamingSwapDataRef.current = updatedStreamingSwapData
-        dispatch(
-          swapSlice.actions.upsertSwap({
-            ...swap,
-            metadata: {
-              ...swap.metadata,
-              streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
-            },
-          }),
-        )
-        return updatedStreamingSwapData
-      },
-      validate: streamingSwapData => {
-        if (!streamingSwapData || !streamingSwapData.quantity) return false
-        return streamingSwapData.count === streamingSwapData.quantity
-      },
-      interval: POLL_INTERVAL_MILLISECONDS,
-      maxAttempts: Infinity,
-    })
-
-    // stop polling on dismount
-    return cancelPolling
-  }, [cancelPolling, dispatch, poll, sellTxHash, swap, swapperName])
+        : skipToken,
+    refetchInterval: POLL_INTERVAL_MILLISECONDS,
+  })
 
   const result = useMemo(() => {
-    const numSuccessfulSwaps =
-      (streamingSwapMetadata?.attemptedSwapCount ?? 0) -
-      (streamingSwapMetadata?.failedSwaps?.length ?? 0)
-
-    const isComplete =
-      streamingSwapMetadata !== undefined &&
-      numSuccessfulSwaps >= streamingSwapMetadata.totalSwapCount
-
     return {
-      isComplete,
       ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
-      numSuccessfulSwaps,
     }
   }, [streamingSwapMetadata])
 

@@ -201,11 +201,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const txLink = useMemo(() => {
     if (!feeAsset) return
     if (!txid) return
+    if (!accountId) return
 
     return getTxLink({
       txId: txid,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
       maybeSafeTx,
     })
   }, [accountId, feeAsset, maybeSafeTx, txid])

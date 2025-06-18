@@ -1,4 +1,5 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
@@ -145,7 +146,8 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
       getTxLink({
         txId,
         defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
-        accountId: confirmedQuote.stakingAssetAccountId,
+        address: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+        chainId: fromAccountId(confirmedQuote.stakingAssetAccountId).chainId,
         maybeSafeTx,
       }),
     [confirmedQuote.stakingAssetAccountId, maybeSafeTx, stakingAsset?.explorerTxLink, txId],

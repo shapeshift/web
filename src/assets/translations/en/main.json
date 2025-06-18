@@ -491,6 +491,7 @@
     "eligibleOpportunities": "Eligible Opportunities",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
+    "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts (updated %{opportunityAccountsLoaded} with current positions)",
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",
@@ -2982,8 +2983,10 @@
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
     },
-    "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
-    "swapError": "Swap failed",
-    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} Pending",
+    "orderCancelled": "Order Cancelled",
+    "orderExpired": "Order Expired"
   }
 }

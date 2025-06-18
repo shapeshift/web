@@ -58,6 +58,7 @@ export const opportunities = createQueryKeys('opportunities', {
     portfolioAssetIds: AssetId[],
     portfolioAccounts: Record<AccountId, PortfolioAccount>,
     requestedChainIds: ChainId[],
+    onAccountLoad?: (accountId: AccountId) => void,
   ) => {
     return {
       queryKey: [
@@ -78,6 +79,7 @@ export const opportunities = createQueryKeys('opportunities', {
           requestedAccountIds.map(async accountId => {
             const { chainId } = fromAccountId(accountId)
             await fetchAll({ dispatch, accountId, chainId })
+            onAccountLoad?.(accountId)
           }),
         )
 

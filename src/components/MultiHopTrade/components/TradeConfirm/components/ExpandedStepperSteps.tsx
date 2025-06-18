@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -368,12 +368,16 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
             <RawText>{firstHopActionTitleText}</RawText>
-            {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
+            {firstHopStreamingProgress && firstHopStreamingProgress.maxSwapCount > 0 && (
               <Tag
                 minWidth='auto'
-                colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
+                // This is not really the best way to do this, but it's the best way to do it for now
+                // The swap won't be complete if it's a multi hop, but for now we don't have any swapper supporting streaming multi hops
+                // We would require to get the state of the streaming swap of the current hop but in reality it's not so easy as
+                // the streaming can contain less chunks than the max chunks
+                colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
               >
-                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
+                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.maxSwapCount}`}
               </Tag>
             )}
           </HStack>
@@ -412,6 +416,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     stepSource,
     activeTradeQuote.swapperName,
     tradeQuoteFirstHop,
+    activeSwap?.status,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -479,12 +484,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
             <RawText>{lastHopActionTitleText}</RawText>
-            {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
+            {secondHopStreamingProgress && secondHopStreamingProgress.maxSwapCount > 0 && (
               <Tag
                 minWidth='auto'
-                colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
+                colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
               >
-                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
+                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.maxSwapCount}`}
               </Tag>
             )}
           </HStack>
@@ -522,6 +527,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     stepSource,
     activeTradeQuote.swapperName,
     tradeQuoteSecondHop,
+    activeSwap?.status,
   ])
 
   return (

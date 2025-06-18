@@ -10,9 +10,11 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
@@ -42,13 +44,14 @@ type NotificationCardProps = {
 
 export const LimitOrderActionCard = ({
   isCollapsable = true,
-  defaultIsOpen = false,
+  defaultIsOpen = true,
   onCancelOrder,
   order,
   action,
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
-  const { createdAt, status, type, title } = action
+  const { createdAt, status, type } = action
+  const translate = useTranslate()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -67,6 +70,18 @@ export const LimitOrderActionCard = ({
       onToggle()
     }
   }, [isCollapsable, onToggle])
+
+  const title = useMemo(() => {
+    const { sellAmountCryptoBaseUnit, buyAmountCryptoBaseUnit, sellAsset, buyAsset } =
+      action.limitOrderMetadata
+
+    return translate('notificationCenter.limitOrderTitle', {
+      sellAmount: fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
+      sellSymbol: sellAsset.symbol,
+      buyAmount: fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
+      buySymbol: buyAsset.symbol,
+    })
+  }, [action, translate])
 
   return (
     <Stack

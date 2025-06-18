@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { Card } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
@@ -164,7 +164,8 @@ export const Status: React.FC = () => {
     return getTxLink({
       txId: txHash,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
       maybeSafeTx,
     })
   }, [accountId, feeAsset, maybeSafeTx, txHash])

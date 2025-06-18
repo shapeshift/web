@@ -8,7 +8,6 @@ export type CollapsibleQuoteListProps = {
   isOpen: boolean
   width: string | number
   height: string | number
-  isLoading: boolean
   ml: CardProps['ml']
 }
 
@@ -16,7 +15,6 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
   isOpen,
   width,
   height,
-  isLoading,
   ml,
 }) => {
   const cardProps: CardProps = useMemo(
@@ -29,7 +27,7 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
 
   return (
     <HorizontalCollapse isOpen={isOpen} width={width} height={height}>
-      <QuoteList cardProps={cardProps} isLoading={isLoading} />
+      <QuoteList cardProps={cardProps} />
     </HorizontalCollapse>
   )
 }

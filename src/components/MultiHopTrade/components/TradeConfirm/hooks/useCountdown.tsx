@@ -1,64 +1,59 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const useCountdown = (
   initialTimeMs: number,
-  autoStart = false,
   onCompleted?: () => void,
 ): {
   timeRemainingMs: number
   start: () => void
   reset: () => void
 } => {
-  const id = useRef<NodeJS.Timeout | null>(null)
   const [timeRemainingMs, setTimeRemainingMs] = useState(initialTimeMs)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const onCompletedRef = useRef(onCompleted)
 
-  const handleDecrement = useCallback(() => {
-    setTimeRemainingMs(time => {
-      if (time - 1000 <= 0) {
-        if (id.current) {
-          clearInterval(id.current)
-          id.current = null
-        }
-        onCompleted?.()
-
-        return 0
-      }
-
-      return time - 1000
-    })
-  }, [onCompleted])
-
-  useEffect(() => {
-    return () => {
-      if (id.current) clearInterval(id.current)
-    }
-  }, [handleDecrement])
+  // Keep callback fresh without triggering effects
+  onCompletedRef.current = onCompleted
 
   const start = useCallback((): void => {
-    if (id.current) return
-    id.current = setInterval(handleDecrement, 1000)
-  }, [handleDecrement])
+    if (intervalRef.current) return // Already running
 
-  const reset = useCallback(() => {
-    if (id.current) {
-      clearInterval(id.current)
-      id.current = null
+    intervalRef.current = setInterval(() => {
+      setTimeRemainingMs(prev => {
+        const newTime = prev - 1000
+
+        if (newTime <= 0) {
+          clearInterval(intervalRef.current ?? undefined)
+          intervalRef.current = null
+          onCompletedRef.current?.()
+          return 0
+        }
+
+        return newTime
+      })
+    }, 1000)
+  }, [])
+
+  const reset = useCallback((): void => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
     }
     setTimeRemainingMs(initialTimeMs)
   }, [initialTimeMs])
 
+  // Cleanup on unmount
   useEffect(() => {
-    if (autoStart) start()
-  }, [autoStart, start])
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
 
-  const result = useMemo(
-    () => ({
-      timeRemainingMs,
-      start,
-      reset,
-    }),
-    [reset, start, timeRemainingMs],
-  )
-
-  return result
+  return {
+    timeRemainingMs,
+    start,
+    reset,
+  }
 }

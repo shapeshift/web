@@ -16,29 +16,40 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL } from 'packages/swapper/src/constants'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { CountdownSpinner } from '../TradeInput/components/TradeQuotes/components/CountdownSpinner'
 import { TradeQuotes } from '../TradeInput/components/TradeQuotes/TradeQuotes'
 import { BackButton } from '../WithBackButton'
 
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { useQuoteSortOptions } from '@/state/slices/tradeQuoteSlice/hooks'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 const chevronDownIcon = <ChevronDownIcon />
 
 type QuoteListProps = {
   onBack?: () => void
-  isLoading: boolean
   cardProps?: CardProps
 }
 
-export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardProps }) => {
+export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
   const translate = useTranslate()
 
   const currentSortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
+  const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+
+  const dispatch = useAppDispatch()
 
   const quoteSortOptions = useQuoteSortOptions()
+
+  const showRefreshSpinner = Object.values(isTradeQuoteApiQueryPending).some(isPending => isPending)
+  const handleRefreshQuotes = useCallback((): void => {
+    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+  }, [dispatch])
 
   const selectedSortOption = useMemo(
     (): { label: string } | undefined =>
@@ -81,10 +92,15 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
               </MenuOptionGroup>
             </MenuList>
           </Menu>
+          <CountdownSpinner
+            isLoading={showRefreshSpinner}
+            initialTimeMs={DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL}
+            onComplete={handleRefreshQuotes}
+          />
         </Flex>
       </CardHeader>
       <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>
-        <TradeQuotes isLoading={isLoading} onBack={onBack} />
+        <TradeQuotes onBack={onBack} />
       </CardBody>
     </Card>
   )

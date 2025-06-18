@@ -26,7 +26,7 @@ export const useFetchOpportunities = () => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
 
   const [opportunityAccountIdsFetched, setOpportunityAccountIdsFetched] = useState<
-    Record<string, true>
+    Record<AccountId, true>
   >({})
 
   const onAccountLoad = useCallback(

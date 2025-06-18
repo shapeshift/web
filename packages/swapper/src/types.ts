@@ -305,6 +305,9 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  thorchainSpecific?: {
+    maxStreamingQuantity?: number
+  }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
 
@@ -331,9 +334,8 @@ export type StreamingSwapFailedSwap = {
 
 export type StreamingSwapMetadata = {
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  successfulSwapCount: number
 }
 
 export enum TransactionExecutionState {
@@ -378,9 +380,9 @@ export type Swap = {
   sellAccountId: AccountId | undefined
   receiveAddress: string | undefined
   swapperName: SwapperName
-  expectedSellAmountCryptoBaseUnit: string
+  sellAmountCryptoBaseUnit: string
   expectedBuyAmountCryptoBaseUnit: string
-  expectedSellAmountCryptoPrecision: string
+  sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
   metadata: SwapperSpecificMetadata
@@ -515,7 +517,7 @@ export type ExecuteTradeArgs = {
 export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
-  accountId: AccountId | undefined
+  address: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
   swap: Swap | undefined

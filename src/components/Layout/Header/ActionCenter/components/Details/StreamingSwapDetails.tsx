@@ -16,7 +16,7 @@ type StreamingSwapDetailsProps = {
 export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap }) => {
   const streamingSwapData = useStreamingProgress({ swap })
 
-  const { totalSwapCount: streamingTotalSwapCount, successfulSwapCount } = streamingSwapData ?? {}
+  const { maxSwapCount: streamingTotalSwapCount, attemptedSwapCount } = streamingSwapData ?? {}
 
   const translate = useTranslate()
 
@@ -26,17 +26,17 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
     if (isSwapComplete) return 100
     if (!streamingTotalSwapCount) return 0
 
-    return bnOrZero(successfulSwapCount)
+    return bnOrZero(attemptedSwapCount)
       .div(bnOrZero(streamingTotalSwapCount))
       .multipliedBy(100)
       .toNumber()
-  }, [successfulSwapCount, streamingTotalSwapCount, isSwapComplete])
+  }, [attemptedSwapCount, streamingTotalSwapCount, isSwapComplete])
 
   const maxSwapCount = useMemo(() => {
-    if (swap.status === SwapStatus.Success) return successfulSwapCount
+    if (swap.status === SwapStatus.Success) return attemptedSwapCount
 
-    return streamingTotalSwapCount ?? 1
-  }, [streamingTotalSwapCount, successfulSwapCount, swap.status])
+    return streamingTotalSwapCount
+  }, [streamingTotalSwapCount, attemptedSwapCount, swap.status])
 
   if (!swap.isStreaming) return null
 
@@ -53,7 +53,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
           hasStripe={isSwapComplete ? false : true}
         />
         <RawText>
-          ({successfulSwapCount}/{maxSwapCount})
+          ({attemptedSwapCount}/{maxSwapCount})
         </RawText>
       </Row.Value>
     </Row>

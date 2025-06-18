@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -19,7 +20,7 @@ import {
   isExecutableTradeQuote,
   swappers,
   SwapStatus,
-  TRADE_POLL_INTERVAL_MILLISECONDS,
+  TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -49,23 +50,23 @@ export const fetchTradeStatus = async ({
   swapper,
   sellTxHash,
   sellAssetChainId,
-  sellAssetAccountId,
-  updatedSwap,
+  address,
+  swap,
   stepIndex,
 }: {
   swapper: Swapper & SwapperApi
   sellTxHash: string
   sellAssetChainId: string
-  sellAssetAccountId: string
-  updatedSwap: Swap
+  address: string | undefined
+  swap: Swap
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
   const { status, message, buyTxHash } = await swapper.checkTradeStatus({
     txHash: sellTxHash,
     chainId: sellAssetChainId,
-    accountId: sellAssetAccountId,
-    swap: updatedSwap,
+    address,
+    swap,
     stepIndex,
     config: getConfig(),
     assertGetEvmChainAdapter,
@@ -80,7 +81,7 @@ export const fetchTradeStatus = async ({
 
 export class TradeExecution {
   private emitter = new EventEmitter()
-  private pollInterval = TRADE_POLL_INTERVAL_MILLISECONDS
+  private pollInterval = TRADE_STATUS_POLL_INTERVAL_MILLISECONDS
 
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
     this.emitter.on(eventName, callback)
@@ -169,8 +170,8 @@ export class TradeExecution {
                 swapper,
                 sellTxHash: updatedSwap.sellTxHash,
                 sellAssetChainId: updatedSwap.sellAsset.chainId,
-                sellAssetAccountId: accountId ?? '',
-                updatedSwap,
+                address: accountId ? fromAccountId(accountId).account : undefined,
+                swap: updatedSwap,
                 stepIndex,
                 config: getConfig(),
               }),

@@ -1,6 +1,7 @@
 import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
+  Swap,
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import { getDaemonUrl, SwapStatus } from '@shapeshiftoss/swapper'
@@ -19,9 +20,8 @@ const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
-  totalSwapCount: 0,
+  maxSwapCount: 0,
   failedSwaps: [],
-  successfulSwapCount: 0,
 }
 
 const getThorchainStreamingSwap = async (
@@ -46,6 +46,7 @@ const getThorchainStreamingSwap = async (
 
 const getStreamingSwapMetadata = (
   data: ThornodeStreamingSwapResponseSuccess,
+  swap: Swap,
 ): StreamingSwapMetadata => {
   const failedSwaps: StreamingSwapFailedSwap[] =
     data.failed_swaps?.map(
@@ -55,13 +56,10 @@ const getStreamingSwapMetadata = (
       }),
     ) ?? []
 
-  const successfulSwapCount = (data.count ?? 0) - (failedSwaps.length ?? 0)
-
   return {
-    totalSwapCount: data.quantity ?? 0,
+    maxSwapCount: data.quantity ?? swap.metadata?.streamingSwapMetadata?.maxSwapCount ?? 0,
     attemptedSwapCount: data.count ?? 0,
     failedSwaps,
-    successfulSwapCount,
   }
 }
 
@@ -72,11 +70,9 @@ export const useThorStreamingProgress = ({
   confirmedSwapId: string | undefined
   swapperName: SwapperName
 }): {
-  isComplete: boolean
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  successfulSwapCount: number
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>(undefined)
@@ -129,7 +125,10 @@ export const useThorStreamingProgress = ({
                   ...swap,
                   metadata: {
                     ...swap.metadata,
-                    streamingSwapMetadata: getStreamingSwapMetadata(completedStreamingSwapData),
+                    streamingSwapMetadata: {
+                      ...(swap.metadata?.streamingSwapMetadata ?? {}),
+                      ...getStreamingSwapMetadata(completedStreamingSwapData, swap),
+                    },
                   },
                 }),
               )
@@ -143,7 +142,10 @@ export const useThorStreamingProgress = ({
                 ...swap,
                 metadata: {
                   ...swap.metadata,
-                  streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
+                  streamingSwapMetadata: {
+                    ...(swap.metadata?.streamingSwapMetadata ?? {}),
+                    ...getStreamingSwapMetadata(updatedStreamingSwapData, swap),
+                  },
                 },
               }),
             )
@@ -154,12 +156,7 @@ export const useThorStreamingProgress = ({
   })
 
   const result = useMemo(() => {
-    const isComplete =
-      streamingSwapMetadata !== undefined &&
-      streamingSwapMetadata.successfulSwapCount >= streamingSwapMetadata.totalSwapCount
-
     return {
-      isComplete,
       ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
     }
   }, [streamingSwapMetadata])

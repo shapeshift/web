@@ -23,7 +23,6 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
@@ -40,9 +39,6 @@ type SwapActionCardProps = {
 export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCardProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
   const translate = useTranslate()
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -79,26 +75,17 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   const title = useMemo(() => {
     return translate('notificationCenter.swapTitle', {
-      sellAmountAndSymbol: toCrypto(swap.expectedSellAmountCryptoPrecision, swap.sellAsset.symbol, {
-        maximumFractionDigits: 8,
-        omitDecimalTrailingZeros: true,
-        abbreviated: true,
-        truncateLargeNumbers: true,
-      }),
-      buyAmountAndSymbol: toCrypto(swap.expectedBuyAmountCryptoPrecision, swap.buyAsset.symbol, {
-        maximumFractionDigits: 8,
-        omitDecimalTrailingZeros: true,
-        abbreviated: true,
-        truncateLargeNumbers: true,
-      }),
+      sellAmount: swap.sellAmountCryptoPrecision,
+      sellSymbol: swap.sellAsset.symbol,
+      buyAmount: swap.expectedBuyAmountCryptoPrecision,
+      buySymbol: swap.buyAsset.symbol,
     })
   }, [
-    swap.expectedSellAmountCryptoPrecision,
+    swap.sellAmountCryptoPrecision,
     swap.expectedBuyAmountCryptoPrecision,
     swap.sellAsset.symbol,
     swap.buyAsset.symbol,
     translate,
-    toCrypto,
   ])
 
   return (

@@ -23,7 +23,6 @@ import { LimitOrderDetails } from './Details/LimitOrderDetails'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { RawText } from '@/components/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -54,10 +53,6 @@ export const LimitOrderActionCard = ({
   const { createdAt, status, type } = action
   const translate = useTranslate()
 
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
-
   const formattedDate = useMemo(() => {
     const now = dayjs()
     const notificationDate = dayjs(createdAt)
@@ -81,28 +76,12 @@ export const LimitOrderActionCard = ({
       action.limitOrderMetadata
 
     return translate('notificationCenter.limitOrderTitle', {
-      sellAmountAndSymbol: toCrypto(
-        fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
-        sellAsset.symbol,
-        {
-          maximumFractionDigits: 8,
-          omitDecimalTrailingZeros: true,
-          abbreviated: true,
-          truncateLargeNumbers: true,
-        },
-      ),
-      buyAmountAndSymbol: toCrypto(
-        fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
-        buyAsset.symbol,
-        {
-          maximumFractionDigits: 8,
-          omitDecimalTrailingZeros: true,
-          abbreviated: true,
-          truncateLargeNumbers: true,
-        },
-      ),
+      sellAmount: fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
+      sellSymbol: sellAsset.symbol,
+      buyAmount: fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
+      buySymbol: buyAsset.symbol,
     })
-  }, [action, toCrypto, translate])
+  }, [action, translate])
 
   return (
     <Stack

@@ -13,19 +13,25 @@ import { useAppSelector } from '@/state/store'
 
 type SwapNotificationProps = {
   handleClick: () => void
+  swapId: string
 } & RenderProps
 
 const toastHoverProps = {
   transform: 'scale(1.02)',
 }
 
-export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotificationProps) => {
+export const SwapNotification = ({
+  handleClick,
+  status,
+  swapId,
+  onClose,
+}: SwapNotificationProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const swap = useMemo(() => {
-    if (!id) return undefined
-    return swapsById[id]
-  }, [id, swapsById])
+    if (!swapId) return undefined
+    return swapsById[swapId]
+  }, [swapId, swapsById])
 
   const iconColor = status === 'success' ? 'green.500' : 'red.500'
 
@@ -69,7 +75,7 @@ export const SwapNotification = ({ handleClick, status, id, onClose }: SwapNotif
                   <AssetIcon assetId={swap.sellAsset.assetId} size='xs' />
                   <Stack spacing={0}>
                     <Amount.Crypto
-                      value={swap.expectedSellAmountCryptoPrecision}
+                      value={swap.sellAmountCryptoPrecision}
                       symbol={swap.sellAsset.symbol}
                       fontSize='sm'
                       fontWeight='semibold'

@@ -1,10 +1,11 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
   swappers,
   SwapStatus,
-  TRADE_POLL_INTERVAL_MILLISECONDS,
+  TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
@@ -40,24 +41,6 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
   const translate = useTranslate()
 
   const toast = useToast({
-    render: ({ title, status, description, onClose, ...props }) => {
-      const handleClick = () => {
-        onClose()
-        onDrawerOpen()
-      }
-
-      return (
-        <SwapNotification
-          // eslint-disable-next-line react-memo/require-usememo
-          handleClick={handleClick}
-          status={status}
-          title={title}
-          description={description}
-          onClose={onClose}
-          {...props}
-        />
-      )
-    },
     duration: null,
     position: 'bottom-right',
   })
@@ -110,7 +93,6 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
 
       const swapper = maybeSwapper
 
-      if (!swap.sellAccountId) return
       if (!swap.sellTxHash) return
       if (!swap.receiveAddress) return
 
@@ -121,8 +103,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
             swapper,
             sellTxHash: swap.sellTxHash ?? '',
             sellAssetChainId: swap.sellAsset.chainId,
-            sellAssetAccountId: swap.sellAccountId ?? '',
-            updatedSwap: swap,
+            address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
+            swap,
             stepIndex: swap.metadata.stepIndex,
             config: getConfig(),
           }),
@@ -173,7 +155,25 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
 
         toast({
           status: 'success',
-          id: swap.id,
+          render: ({ title, status, description, onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              onDrawerOpen()
+            }
+
+            return (
+              <SwapNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                swapId={swap.id}
+                status={status}
+                title={title}
+                description={description}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
         })
         return
       }
@@ -199,7 +199,25 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
 
         toast({
           status: 'error',
-          id: swap.id,
+          render: ({ title, status, description, onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              onDrawerOpen()
+            }
+
+            return (
+              <SwapNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                swapId={swap.id}
+                status={status}
+                title={title}
+                description={description}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
         })
       }
 
@@ -219,7 +237,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         buyTxHash,
       }
     },
-    [dispatch, toast],
+    [dispatch, toast, onDrawerOpen],
   )
 
   // Update actions status when swap is confirmed or failed
@@ -233,7 +251,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
           queryFn: () => swapStatusHandler(swap, action),
-          refetchInterval: TRADE_POLL_INTERVAL_MILLISECONDS,
+          refetchInterval: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
           enabled: isConnected && swap.status === SwapStatus.Pending,
         }
       })

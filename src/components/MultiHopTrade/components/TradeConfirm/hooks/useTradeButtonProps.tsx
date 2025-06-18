@@ -78,9 +78,9 @@ export const useTradeButtonProps = ({
       swapperName: activeQuote.swapperName,
       sellAsset: firstStep.sellAsset,
       buyAsset: lastStep.buyAsset,
-      expectedSellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      expectedSellAmountCryptoPrecision: fromBaseUnit(
+      sellAmountCryptoPrecision: fromBaseUnit(
         firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
         firstStep.sellAsset.precision,
       ),
@@ -92,7 +92,11 @@ export const useTradeButtonProps = ({
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         stepIndex: currentHopIndex,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-        streamingSwapMetadata: undefined,
+        streamingSwapMetadata: {
+          maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
+          attemptedSwapCount: 0,
+          failedSwaps: [],
+        },
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,

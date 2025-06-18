@@ -15,7 +15,7 @@ type CheckTradeStatusInputExtended = CheckTradeStatusInput & {
 export const checkTradeStatus = async ({
   txHash,
   chainId,
-  accountId,
+  address,
   fetchIsSmartContractAddressQuery,
   assertGetEvmChainAdapter,
   url,
@@ -26,7 +26,7 @@ export const checkTradeStatus = async ({
       txHash,
       chainId,
       assertGetEvmChainAdapter,
-      accountId,
+      address,
       fetchIsSmartContractAddressQuery,
     })
 

@@ -19,9 +19,8 @@ const POLL_INTERVAL_MILLISECONDS = 5_000 // 5 seconds
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
-  totalSwapCount: 0,
+  maxSwapCount: 0,
   failedSwaps: [],
-  successfulSwapCount: 0,
 }
 
 const getChainflipStreamingSwap = async (
@@ -76,10 +75,9 @@ const getStreamingSwapMetadata = (
   const failedSwaps: StreamingSwapFailedSwap[] = []
 
   return {
-    totalSwapCount: data.executedChunks + data.remainingChunks,
+    maxSwapCount: data.executedChunks + data.remainingChunks,
     attemptedSwapCount: data.executedChunks ?? 0,
     failedSwaps,
-    successfulSwapCount: data.executedChunks ?? 0,
   }
 }
 
@@ -88,11 +86,9 @@ export const useChainflipStreamingProgress = ({
 }: {
   confirmedSwapId: string | undefined
 }): {
-  isComplete: boolean
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  successfulSwapCount: number
 } => {
   const dispatch = useAppDispatch()
   const swapIdFilter = useMemo(() => {
@@ -137,12 +133,7 @@ export const useChainflipStreamingProgress = ({
   })
 
   const result = useMemo(() => {
-    const isComplete =
-      streamingSwapMetadata !== undefined &&
-      streamingSwapMetadata.successfulSwapCount >= streamingSwapMetadata.totalSwapCount
-
     return {
-      isComplete,
       ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
     }
   }, [streamingSwapMetadata])

@@ -63,7 +63,7 @@ export const ActionCenter = memo(() => {
                 key={action.id}
                 action={action}
                 isCollapsable={Boolean(
-                  swap.isStreaming && swap.metadata.streamingSwapMetadata?.totalSwapCount,
+                  swap.isStreaming && swap.metadata.streamingSwapMetadata?.maxSwapCount,
                 )}
               />
             )
@@ -92,7 +92,7 @@ export const ActionCenter = memo(() => {
   }, [actions, ordersByActionId, swapsById])
 
   const actionCenterButton = useMemo(() => {
-    if (pendingActions?.length > 0) {
+    if (pendingActions.length) {
       return (
         <Button
           onClick={onOpen}

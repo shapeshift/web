@@ -292,6 +292,9 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
           accountNumber,
           allowanceContract,
           feeData,
+          thorchainSpecific: {
+            maxStreamingQuantity: route.quote.max_streaming_quantity,
+          },
         },
       ],
     } as T

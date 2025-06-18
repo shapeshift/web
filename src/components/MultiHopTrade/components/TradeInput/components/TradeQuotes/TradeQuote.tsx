@@ -1,9 +1,19 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Circle, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import {
+  Circle,
+  Flex,
+  Skeleton,
+  Tag,
+  TagLeftIcon,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import { memo, useCallback, useMemo } from 'react'
+import type { IconType } from 'react-icons'
+import { TbClockHour3, TbGasStation, TbRosetteDiscountCheckFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { TradeQuoteCard } from './components/TradeQuoteCard'
@@ -42,6 +52,17 @@ const WarningCircle: FC = () => (
     <WarningIcon color='text.error' boxSize={4} />
   </Circle>
 )
+
+type QuoteBadgeProps = { icon: IconType; label?: string }
+const QuoteBadge: FC<QuoteBadgeProps> = ({ icon, label }) => {
+  const badgeBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+  return (
+    <Tag gap={1.5} padding={2} rounded='full' backgroundColor={badgeBg}>
+      {label}
+      <TagLeftIcon as={icon} color='green.500' margin={0} />
+    </Tag>
+  )
+}
 
 type TradeQuoteProps = {
   isActive: boolean
@@ -192,16 +213,37 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [errors, hasAmountWithPositiveReceive, isAmountEntered, quote, translate])
 
     const tags: JSX.Element | undefined = useMemo(() => {
+      const tagArr = []
+      const useLabel = !(isBest && isFastest && isLowestGas)
       if (isBest) {
-        return (
-          <Tag size='sm' colorScheme='green'>
-            {translate('common.best')}
-          </Tag>
+        tagArr.push(
+          <QuoteBadge
+            icon={TbRosetteDiscountCheckFilled}
+            label={useLabel && translate('trade.quoteBadge.best')}
+          />,
         )
       }
-    }, [translate, isBest])
 
-    console.log({ isBest, isFastest, isLowestGas, errors })
+      if (isFastest) {
+        tagArr.push(
+          <QuoteBadge
+            icon={TbClockHour3}
+            label={useLabel && translate('trade.quoteBadge.fastest')}
+          />,
+        )
+      }
+
+      if (isLowestGas) {
+        tagArr.push(
+          <QuoteBadge
+            icon={TbGasStation}
+            label={useLabel && translate('trade.quoteBadge.lowestGas')}
+          />,
+        )
+      }
+
+      return <>{tagArr}</>
+    }, [isBest, isFastest, isLowestGas, translate])
 
     const isDisabled = !quote || isLoading
     const showSwapperError = ![
@@ -283,12 +325,12 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const headerContent = useMemo(() => {
       return (
-        <Flex gap={2} alignItems='center'>
-          <Skeleton isLoaded={!isLoading}>
+        <Skeleton isLoaded={!isLoading}>
+          <Flex gap={2} alignItems='center'>
             {errorCircle}
             {tags}
-          </Skeleton>
-        </Flex>
+          </Flex>
+        </Skeleton>
       )
     }, [isLoading, errorCircle, tags])
 

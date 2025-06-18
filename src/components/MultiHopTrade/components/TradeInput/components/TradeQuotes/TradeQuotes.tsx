@@ -25,6 +25,7 @@ import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selector
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { getBestQuotesByCategory } from '@/state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -71,6 +72,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   )
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
+  const bestQuotesByCategory = useMemo(
+    () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
+    [availableTradeQuotesDisplayCache],
+  )
+
   const shouldUseComisSansMs = useMemo(() => {
     return buyAsset?.assetId === dogeAssetId || sellAsset?.assetId === dogeAssetId
   }, [buyAsset?.assetId, sellAsset?.assetId])
@@ -99,9 +105,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
       return []
     }
 
-    console.log({ availableTradeQuotesDisplayCache })
-
-    return availableTradeQuotesDisplayCache.map((quoteData, i) => {
+    return availableTradeQuotesDisplayCache.map(quoteData => {
       const { id, errors } = quoteData
 
       const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
@@ -111,9 +115,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
           <TradeQuote
             isActive={isActive}
             isLoading={isQuoteLoading(quoteData)}
-            isBest={i === 0 && errors.length === 0}
-            isFastest
-            isLowestGas
+            isBest={bestQuotesByCategory.isBest === quoteData.id && errors.length === 0}
+            isFastest={bestQuotesByCategory.isFastest === quoteData.id && errors.length === 0}
+            isLowestGas={bestQuotesByCategory.isLowestGas === quoteData.id && errors.length === 0}
             key={id}
             quoteData={quoteData}
             bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
@@ -127,8 +131,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     availableTradeQuotesDisplayCache,
     activeQuoteMeta,
     isQuoteLoading,
-    onBack,
+    bestQuotesByCategory,
     bestTotalReceiveAmountCryptoPrecision,
+    onBack,
   ])
 
   const unavailableQuotes = useMemo(() => {

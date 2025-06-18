@@ -4,7 +4,7 @@ import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertPrecision } from '@shapeshiftoss/utils'
 import { Err, Ok } from '@sniptt/monads'
-import { getAddress } from 'viem'
+import { getAddress, isAddressEqual } from 'viem'
 
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
@@ -160,7 +160,10 @@ export const calculateBuyAmountBeforeFeesCryptoBaseUnit = ({
   // The integrator fee is set to the buy asset, but paranoia
   if (
     fees.integratorFee !== null &&
-    fees.integratorFee.token !== assetIdToZrxToken(buyAsset.assetId)
+    !isAddressEqual(
+      getAddress(fees.integratorFee.token),
+      getAddress(assetIdToZrxToken(buyAsset.assetId)),
+    )
   ) {
     return Err(
       makeSwapErrorRight({

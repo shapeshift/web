@@ -166,7 +166,8 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
       defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
       txId: tx.txid,
       maybeSafeTx,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
   }, [tx, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
 
@@ -244,7 +245,8 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
       defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
       txId: data.txid,
       maybeSafeTx,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
   }, [data, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
 

@@ -1,4 +1,3 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 
@@ -19,16 +18,13 @@ const nilSafeTransctionInfo: SafeTxInfo = {
 
 export const fetchSafeTransactionInfo = async ({
   safeTxHash,
-  accountId,
+  address,
+  chainId,
   fetchIsSmartContractAddressQuery,
 }: FetchSafeTransactionArgs): Promise<SafeTxInfo> => {
-  const chainId = accountId ? fromAccountId(accountId).chainId : ''
-  if (!accountId || !chainId || !isEvmChainId(chainId)) return nilSafeTransctionInfo
+  if (!address || !chainId || !isEvmChainId(chainId)) return nilSafeTransctionInfo
 
-  const isSmartContractAddress = await fetchIsSmartContractAddressQuery(
-    fromAccountId(accountId).account,
-    chainId,
-  )
+  const isSmartContractAddress = await fetchIsSmartContractAddressQuery(address, chainId)
 
   if (!isSmartContractAddress) {
     // Assume any smart contract address is a SAFE, and by extension, any non-smart contract address is not

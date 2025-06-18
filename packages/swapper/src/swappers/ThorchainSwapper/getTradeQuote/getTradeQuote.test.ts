@@ -89,6 +89,9 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
         accountNumber: 0,
+        thorchainSpecific: {
+          maxStreamingQuantity: undefined,
+        },
       },
     ],
   },
@@ -129,6 +132,9 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
         accountNumber: 0,
+        thorchainSpecific: {
+          maxStreamingQuantity: undefined,
+        },
       },
     ],
   },

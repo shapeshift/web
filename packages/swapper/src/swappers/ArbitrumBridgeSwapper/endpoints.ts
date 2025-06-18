@@ -223,14 +223,14 @@ export const arbitrumBridgeApi: SwapperApi = {
     txHash,
     chainId,
     assertGetEvmChainAdapter,
-    accountId,
+    address,
     fetchIsSmartContractAddressQuery,
   }) => {
     const swapTxStatus = await checkEvmSwapStatus({
       txHash,
       chainId,
       assertGetEvmChainAdapter,
-      accountId,
+      address,
       fetchIsSmartContractAddressQuery,
     })
     const isWithdraw = chainId === arbitrumChainId
@@ -291,7 +291,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       txHash: maybeBuyTxHash,
       chainId: arbitrumChainId,
       assertGetEvmChainAdapter,
-      accountId,
+      address,
       fetchIsSmartContractAddressQuery,
     })
 

@@ -123,14 +123,8 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
       [handleSlippageTypeChange],
     )
 
-    const isHighSlippage = useMemo(
-      () => slippageAmount && bnOrZero(slippageAmount).gt(1),
-      [slippageAmount],
-    )
-    const isLowSlippage = useMemo(
-      () => slippageAmount && bnOrZero(slippageAmount).lt(0.05),
-      [slippageAmount],
-    )
+    const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
+    const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
 
     if (!isAdvancedSlippageEnabled) return null
 
@@ -150,7 +144,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
             </PopoverTrigger>
           </Box>
         </Tooltip>
-        <PopoverContent width='auto' maxWidth='md'>
+        <PopoverContent>
           <PopoverBody>
             <Row>
               <Row.Label>
@@ -188,7 +182,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
               {slippageType === SlippageType.Custom && (
                 <Row.Value>
                   <FormControl isInvalid={isInvalid}>
-                    <InputGroup variant='filled' maxWidth='100px'>
+                    <InputGroup variant='filled'>
                       <Input
                         placeholder={slippageAmount}
                         value={slippageAmount}
@@ -204,7 +198,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 </Row.Value>
               )}
             </Row>
-            {isHighSlippage && (
+            {isHighSlippage && slippageType === SlippageType.Custom && (
               <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
                 <AlertIcon />
                 <AlertDescription lineHeight='1.5'>
@@ -212,7 +206,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 </AlertDescription>
               </Alert>
             )}
-            {isLowSlippage && (
+            {isLowSlippage && slippageType === SlippageType.Custom && (
               <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
                 <AlertIcon />
                 <AlertDescription lineHeight='1.5'>
@@ -222,7 +216,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
             )}
 
             {enableSortBy && (
-              <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4}>
+              <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4} width='full'>
                 <QuoteSortSelector />
               </Box>
             )}

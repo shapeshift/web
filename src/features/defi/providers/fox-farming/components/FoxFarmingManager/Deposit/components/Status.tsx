@@ -221,11 +221,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const txLink = useMemo(() => {
     if (!feeAsset) return
     if (!state?.txid) return
+    if (!accountId) return
 
     return getTxLink({
       txId: state?.txid ?? undefined,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
       maybeSafeTx,
     })
   }, [accountId, feeAsset, maybeSafeTx, state?.txid])

@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Link } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
@@ -114,7 +115,8 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
       maybeSafeTx,
       tradeId: txHash,
-      accountId: activeQuote.params.accountId,
+      address: fromAccountId(activeQuote.params.accountId).account,
+      chainId: fromAccountId(activeQuote.params.accountId).chainId,
     })
   }, [activeQuote.params.accountId, feeAsset, maybeSafeTx, txHash])
 

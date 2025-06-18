@@ -411,7 +411,8 @@ export const useSendThorTx = ({
     const maybeSafeTx = await fetchSafeTransactionInfo({
       safeTxHash: _txId,
       fetchIsSmartContractAddressQuery,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
 
     const _txIdLink = getTxLink({
@@ -419,7 +420,8 @@ export const useSendThorTx = ({
       txId: _txId ?? '',
       stepSource: SwapperName.Thorchain,
       maybeSafeTx,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
 
     // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet

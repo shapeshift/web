@@ -169,7 +169,7 @@ export const relayApi: SwapperApi = {
     swap,
     txHash,
     chainId,
-    accountId,
+    address,
     config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
@@ -178,7 +178,7 @@ export const relayApi: SwapperApi = {
       txHash,
       chainId,
       assertGetEvmChainAdapter,
-      accountId,
+      address,
       fetchIsSmartContractAddressQuery,
     })
 

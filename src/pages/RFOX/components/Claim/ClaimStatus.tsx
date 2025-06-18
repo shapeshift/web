@@ -1,5 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
@@ -142,7 +143,8 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
       getTxLink({
         txId,
         defaultExplorerBaseUrl: claimAsset?.explorerTxLink ?? '',
-        accountId,
+        address: fromAccountId(accountId).account,
+        chainId: fromAccountId(accountId).chainId,
         maybeSafeTx,
       }),
     [accountId, claimAsset?.explorerTxLink, maybeSafeTx, txId],

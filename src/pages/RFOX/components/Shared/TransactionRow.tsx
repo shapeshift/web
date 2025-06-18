@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { JSX } from 'react'
@@ -61,12 +61,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const txIdLink = useMemo(() => {
     if (!(asset && txId)) return
+    if (!accountId) return
+
     return getTxLink({
       defaultExplorerBaseUrl: asset.explorerTxLink,
       tradeId: txId,
       stepSource: SwapperName.ArbitrumBridge,
       maybeSafeTx,
-      accountId: accountId ?? undefined,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
   }, [accountId, asset, maybeSafeTx, txId])
 

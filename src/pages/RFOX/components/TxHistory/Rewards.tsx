@@ -103,7 +103,8 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         txId,
         // This can't be a SAFE Tx - it's a reward distribution on RUNE
         maybeSafeTx: undefined,
-        accountId: undefined,
+        address: undefined,
+        chainId: undefined,
       })
 
       return {

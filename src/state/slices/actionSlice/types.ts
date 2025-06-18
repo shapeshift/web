@@ -47,7 +47,6 @@ export type BaseAction = {
   status: ActionStatus
   createdAt: number
   updatedAt: number
-  title: string
 }
 
 export type SwapAction = BaseAction & {

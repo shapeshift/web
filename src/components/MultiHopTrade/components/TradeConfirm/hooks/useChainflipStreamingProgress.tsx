@@ -3,13 +3,14 @@ import type {
   StreamingSwapFailedSwap,
   StreamingSwapMetadata,
 } from '@shapeshiftoss/swapper'
+import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import type { ChainflipStreamingSwapResponseSuccess } from '../types'
 
 import { getConfig } from '@/config'
-import { usePoll } from '@/hooks/usePoll/usePoll'
 import { selectSwapById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -18,7 +19,7 @@ const POLL_INTERVAL_MILLISECONDS = 5_000 // 5 seconds
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
-  totalSwapCount: 0,
+  maxSwapCount: 0,
   failedSwaps: [],
 }
 
@@ -74,7 +75,7 @@ const getStreamingSwapMetadata = (
   const failedSwaps: StreamingSwapFailedSwap[] = []
 
   return {
-    totalSwapCount: data.executedChunks + data.remainingChunks,
+    maxSwapCount: data.executedChunks + data.remainingChunks,
     attemptedSwapCount: data.executedChunks ?? 0,
     failedSwaps,
   }
@@ -85,13 +86,10 @@ export const useChainflipStreamingProgress = ({
 }: {
   confirmedSwapId: string | undefined
 }): {
-  isComplete: boolean
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
-  numSuccessfulSwaps: number
 } => {
-  const { poll, cancelPolling } = usePoll<ChainflipStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
   const swapIdFilter = useMemo(() => {
     return {
@@ -104,56 +102,39 @@ export const useChainflipStreamingProgress = ({
   const { sellTxHash, metadata } = swap ?? {}
   const { streamingSwapMetadata, chainflipSwapId } = metadata ?? {}
 
-  useEffect(() => {
-    // don't start polling until we have a tx
-    if (!sellTxHash) return
-    if (!swap) return
-    if (!swap.isStreaming) return
+  useQuery({
+    queryKey: ['streamingSwapData', chainflipSwapId, SwapperName.Chainflip],
+    queryFn:
+      chainflipSwapId &&
+      swap &&
+      swap.swapperName === SwapperName.Chainflip &&
+      sellTxHash &&
+      swap.status === SwapStatus.Pending
+        ? async () => {
+            const updatedStreamingSwapData = await getChainflipStreamingSwap(chainflipSwapId)
 
-    poll({
-      fn: async () => {
-        const updatedStreamingSwapData = await getChainflipStreamingSwap(chainflipSwapId)
+            // no payload at all - must be a failed request - return
+            if (!updatedStreamingSwapData) return
 
-        // no payload at all - must be a failed request - return
-        if (!updatedStreamingSwapData) return
+            dispatch(
+              swapSlice.actions.upsertSwap({
+                ...swap,
+                metadata: {
+                  ...swap.metadata,
+                  streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
+                },
+              }),
+            )
 
-        // data to update - update
-        dispatch(
-          swapSlice.actions.upsertSwap({
-            ...swap,
-            metadata: {
-              ...swap.metadata,
-              streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
-            },
-          }),
-        )
-        return updatedStreamingSwapData
-      },
-      validate: streamingSwapData => {
-        if (!streamingSwapData) return false
-        return streamingSwapData.remainingChunks === 0
-      },
-      interval: POLL_INTERVAL_MILLISECONDS,
-      maxAttempts: Infinity,
-    })
-
-    // stop polling on dismount
-    return cancelPolling
-  }, [cancelPolling, dispatch, poll, chainflipSwapId, sellTxHash, swap])
+            return updatedStreamingSwapData
+          }
+        : skipToken,
+    refetchInterval: POLL_INTERVAL_MILLISECONDS,
+  })
 
   const result = useMemo(() => {
-    const numSuccessfulSwaps =
-      (streamingSwapMetadata?.attemptedSwapCount ?? 0) -
-      (streamingSwapMetadata?.failedSwaps?.length ?? 0)
-
-    const isComplete =
-      streamingSwapMetadata !== undefined &&
-      numSuccessfulSwaps >= streamingSwapMetadata.totalSwapCount
-
     return {
-      isComplete,
       ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
-      numSuccessfulSwaps,
     }
   }, [streamingSwapMetadata])
 

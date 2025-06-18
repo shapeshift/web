@@ -288,7 +288,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
               txHash: l1TxHash,
               chainId: sellAsset.chainId,
               stepIndex: 0,
-              accountId: confirmedQuote.sellAssetAccountId,
+              address: fromAccountId(confirmedQuote.sellAssetAccountId).account,
               swap: undefined,
               ...swapperDeps,
             })

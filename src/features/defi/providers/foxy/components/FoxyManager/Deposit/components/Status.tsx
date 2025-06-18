@@ -1,6 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -110,11 +111,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const txLink = useMemo(() => {
     if (!feeAsset) return
     if (!state?.txid) return
+    if (!accountId) return
 
     return getTxLink({
       txId: state?.txid ?? undefined,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
       maybeSafeTx,
     })
   }, [accountId, feeAsset, maybeSafeTx, state?.txid])

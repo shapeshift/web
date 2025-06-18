@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Tooltip, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Tooltip, useDisclosure } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -31,9 +31,11 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
           onClick={handleOpen}
           {...buttonProps}
         >
-          {hasSessions
-            ? translate('plugins.walletConnectToDapps.header.connectAnotherDapp')
-            : translate('plugins.walletConnectToDapps.header.connectDapp')}
+          <Box overflow='hidden' textOverflow='ellipsis'>
+            {hasSessions
+              ? translate('plugins.walletConnectToDapps.header.connectAnotherDapp')
+              : translate('plugins.walletConnectToDapps.header.connectDapp')}
+          </Box>
         </Button>
       </Tooltip>
       <ConnectModal isOpen={isOpen} onClose={handleClose} />

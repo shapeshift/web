@@ -11,7 +11,7 @@ import { DappAvatar } from './DappAvatar'
 
 import { RawText } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { isSome, trimWithEndEllipsis } from '@/lib/utils'
+import { isSome } from '@/lib/utils'
 import { DappHeaderMenuSummary } from '@/plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
@@ -28,10 +28,10 @@ const WalletConnectV2ConnectedButtonText = ({
 }) => {
   return (
     <>
-      <RawText pr={paddingProp} fontSize='sm'>
+      <RawText pr={paddingProp} fontSize='sm' overflow='hidden' textOverflow='ellipsis'>
         {title}
       </RawText>
-      <RawText fontSize='xs' color='text.subtle'>
+      <RawText fontSize='xs' color='text.subtle' overflow='hidden' textOverflow='ellipsis'>
         {subTitle}
       </RawText>
     </>
@@ -90,11 +90,8 @@ const WalletConnectV2ConnectedButton = memo(() => {
           />
         ) : (
           <WalletConnectV2ConnectedButtonText
-            title={trimWithEndEllipsis(mostRecentSession?.peer.metadata.name, 16)}
-            subTitle={trimWithEndEllipsis(
-              mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, ''),
-              18,
-            )}
+            title={mostRecentSession?.peer.metadata.name ?? ''}
+            subTitle={mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, '') ?? ''}
           />
         )}
       </MenuButton>

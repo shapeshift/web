@@ -64,6 +64,8 @@ export const getTxBaseUrl = ({
     case SwapperName.Mayachain:
     case MAYACHAIN_STREAM_SWAP_SOURCE:
       return mayachain.explorerTxLink
+    case SwapperName.Relay:
+      return 'https://relay.link/transaction/'
     default:
       return defaultExplorerBaseUrl
   }

@@ -25,7 +25,6 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
-import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -185,11 +184,6 @@ export const useGetTradeRates = () => {
       },
     ],
     queryFn: async () => {
-      // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-      // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-      // That effectively means we'll unsubscribe to queries, considering them stale
-      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
-
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions
       // and losing sync on loading state etc.

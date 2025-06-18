@@ -87,7 +87,7 @@
     "@metaplex-foundation/js": "^0.20.1",
     "@react-spring/web": "^9.7.4",
     "@reduxjs/toolkit": "^2.6.1",
-    "@reown/walletkit": "^1.2.4",
+    "@reown/walletkit": "^1.2.6",
     "@sentry-internal/browser-utils": "^8.26.0",
     "@sentry/react": "^8.26.0",
     "@shapeshiftoss/caip": "workspace:^",

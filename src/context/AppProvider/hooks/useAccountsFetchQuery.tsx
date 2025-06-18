@@ -32,7 +32,12 @@ export const useAccountsFetchQuery = () => {
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
       supportedChains.filter(chainId =>
-        walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: false }),
+        walletSupportsChain({
+          chainId,
+          wallet,
+          isSnapInstalled,
+          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+        }),
       ),
     )
 
@@ -115,7 +120,7 @@ export const useAccountsFetchQuery = () => {
             })
           })()
 
-          // If account has no activity and it's not account 0, stop checking this chain
+          // don't add accounts with no activity past account 0
           if (accountNumber > 0 && !hasChainActivity) {
             chainIdsWithActivity.delete(accountChainId)
             delete accountMetadataByAccountId[accountId]

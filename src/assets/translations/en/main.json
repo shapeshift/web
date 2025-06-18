@@ -848,12 +848,12 @@
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
     "sort": {
-      "sortBy": "Sort By",
+      "sortBy": "Sort Quotes By",
       "auto": "Auto",
       "bestRate": "Best Rate",
       "lowestGas": "Lowest Gas",
       "fastest": "Fastest",
-      "info": "Choose how to sort available quotes"
+      "info": "Select how you would like your quotes sorted."
     },
     "from": "From",
     "to": "To",

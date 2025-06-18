@@ -141,7 +141,7 @@ export const useAccountsFetchQuery = () => {
             // handle utxo chains with multiple account types per account
             chainIdsWithActivity.add(chainId)
 
-            // Only dispatch updates for newly fetched accounts which doesn't had activity
+            // Only dispatch updates for newly fetched accounts which didn't have activity or didn't exist yet in the store
             if (!existingAccounts[accountId]?.hasActivity) {
               dispatch(portfolio.actions.upsertPortfolio(account))
               const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(

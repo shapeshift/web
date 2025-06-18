@@ -1,131 +1,51 @@
-import { Button, ButtonGroup, FormControl, InputGroup } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { Button, ButtonGroup, Flex } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { memo, useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { memo } from 'react'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
-import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
+import { useQuoteSortOptions } from '@/state/slices/tradeQuoteSlice/hooks'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from '@/state/store'
-
-enum SortType {
-  BestRate = 'BestRate',
-  LowestGas = 'LowestGas',
-  Fastest = 'Fastest',
-}
+import { useAppSelector } from '@/state/store'
 
 export const QuoteSortSelector: FC = memo(() => {
-  const dispatch = useAppDispatch()
-  const translate = useTranslate()
   const currentSortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
-  const currentSortType = useMemo(() => {
-    switch (currentSortOption) {
-      case QuoteSortOption.LOWEST_GAS:
-        return SortType.LowestGas
-      case QuoteSortOption.FASTEST:
-        return SortType.Fastest
-      case QuoteSortOption.BEST_RATE:
-      default:
-        return SortType.BestRate
-    }
-  }, [currentSortOption])
-
-  const sortTypeTranslation = useMemo(() => {
-    switch (currentSortType) {
-      case SortType.BestRate:
-        return translate('trade.sort.bestRate')
-      case SortType.LowestGas:
-        return translate('trade.sort.lowestGas')
-      case SortType.Fastest:
-        return translate('trade.sort.fastest')
-      default:
-        return ''
-    }
-  }, [currentSortType, translate])
-
-  const handleSortTypeChange = useCallback(
-    (sortType: SortType) => {
-      const sortOption: QuoteSortOption = (() => {
-        switch (sortType) {
-          case SortType.LowestGas:
-            return QuoteSortOption.LOWEST_GAS
-          case SortType.Fastest:
-            return QuoteSortOption.FASTEST
-          case SortType.BestRate:
-          default:
-            return QuoteSortOption.BEST_RATE
-        }
-      })()
-      dispatch(tradeQuoteSlice.actions.setSortOption(sortOption))
-    },
-    [dispatch],
-  )
-
-  const handleBestRateSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.BestRate),
-    [handleSortTypeChange],
-  )
-
-  const handleLowestGasSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.LowestGas),
-    [handleSortTypeChange],
-  )
-
-  const handleFastestSortTypeChange = useCallback(
-    () => handleSortTypeChange(SortType.Fastest),
-    [handleSortTypeChange],
-  )
+  const quoteSortOptions = useQuoteSortOptions()
 
   return (
     <>
-      <Row>
-        <Row.Label>
-          <HelperTooltip label={translate('trade.sort.info')}>
-            <Text translation='trade.sort.sortBy' />
-          </HelperTooltip>
-        </Row.Label>
-        <Row.Value>{sortTypeTranslation}</Row.Value>
-      </Row>
-      <Row py={2} gap={2} mt={2}>
-        <Row.Value>
-          <FormControl>
-            <InputGroup variant='filled'>
-              <ButtonGroup
-                size='sm'
-                bg='background.input.base'
-                px={1}
-                py={1}
-                borderRadius='xl'
-                variant='ghost'
-                isAttached
-                width='full'
-              >
-                <Button
-                  onClick={handleBestRateSortTypeChange}
-                  isActive={currentSortType === SortType.BestRate}
-                >
-                  {translate('trade.sort.bestRate')}
-                </Button>
-                <Button
-                  onClick={handleLowestGasSortTypeChange}
-                  isActive={currentSortType === SortType.LowestGas}
-                >
-                  {translate('trade.sort.lowestGas')}
-                </Button>
-                <Button
-                  onClick={handleFastestSortTypeChange}
-                  isActive={currentSortType === SortType.Fastest}
-                >
-                  {translate('trade.sort.fastest')}
-                </Button>
-              </ButtonGroup>
-            </InputGroup>
-          </FormControl>
-        </Row.Value>
-      </Row>
+      <Text translation='trade.sort.sortBy' />
+      <Text translation='trade.sort.info' fontWeight='medium' fontSize='xs' color='text.subtle' />
+      <ButtonGroup
+        mt={6}
+        size='sm'
+        borderRadius='xl'
+        variant='ghost'
+        isAttached
+        orientation='vertical'
+        width='full'
+      >
+        {quoteSortOptions.map(buttonConf => (
+          <Button
+            key={buttonConf.value}
+            color='white'
+            fontWeight='medium'
+            h={10}
+            px={4}
+            border='1px solid'
+            borderColor='whiteAlpha.50'
+            isActive={currentSortOption === buttonConf.value}
+            onClick={buttonConf.handleClick}
+          >
+            <Flex width='full' justify='space-between'>
+              <HelperTooltip label={buttonConf.tooltip}>{buttonConf.label}</HelperTooltip>
+              {currentSortOption === buttonConf.value && <CheckCircleIcon color='blue.200' />}
+            </Flex>
+          </Button>
+        ))}
+      </ButtonGroup>
     </>
   )
 })

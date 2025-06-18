@@ -1,11 +1,10 @@
-import { usePrevious } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -14,27 +13,15 @@ import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSup
 import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
-import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useAccountsFetchQuery = () => {
   const dispatch = useAppDispatch()
-  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const { supportedChains } = usePlugins()
   const { isSnapInstalled } = useIsSnapInstalled()
-  const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   const { deviceId, wallet } = useWallet().state
-
-  const hasManagedAccounts = useMemo(() => {
-    // MM without snap doesn't allow account management - if the user just installed the snap, we
-    // know they don't have managed accounts. NOTE - the values we're comparing here are
-    // `boolean | null`, so explicit comparison is needed!
-    if (previousIsSnapInstalled === false && isSnapInstalled === true) {
-      return false
-    }
-    // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
-    return enabledWalletAccountIds.length > 0
-  }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
+  // Get existing accounts from the store
+  const existingAccounts = useAppSelector(state => state.portfolio.accounts.byId)
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
@@ -43,7 +30,7 @@ export const useAccountsFetchQuery = () => {
           chainId,
           wallet,
           isSnapInstalled,
-          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+          checkConnectedAccountIds: false,
         })
       }),
     )
@@ -56,6 +43,7 @@ export const useAccountsFetchQuery = () => {
     const accountMetadataByAccountId: AccountMetadataById = {}
     const isMultiAccountWallet = wallet.supportsBip44Accounts()
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+
     for (let accountNumber = 0; chainIds.size > 0; accountNumber++) {
       if (
         accountNumber > 0 &&
@@ -106,6 +94,12 @@ export const useAccountsFetchQuery = () => {
       ).map(async accountIds => {
         const results = await Promise.allSettled(
           accountIds.map(async id => {
+            // If account exists in store and had activity, skip fetching
+            if (existingAccounts[id] && existingAccounts[id].hasActivity) {
+              const portfolioState = portfolio.selectors.selectPortfolio(store.getState())
+              return { data: portfolioState }
+            }
+            // If not in store, fetch it
             const result = await dispatch(
               getAccount.initiate({ accountId: id, upsertOnFetch: true }),
             )
@@ -139,7 +133,7 @@ export const useAccountsFetchQuery = () => {
                 return account.accounts.byId[accountId].hasActivity
               })
 
-          // don't add accounts with no activity past account 0
+          // If account has no activity and it's not account 0, stop checking this chain
           if (accountNumber > 0 && !accountNumberHasChainActivity) {
             chainIdsWithActivity.delete(chainId)
             delete accountMetadataByAccountId[accountId]
@@ -147,26 +141,31 @@ export const useAccountsFetchQuery = () => {
             // handle utxo chains with multiple account types per account
             chainIdsWithActivity.add(chainId)
 
-            dispatch(portfolio.actions.upsertPortfolio(account))
-            const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(
-              (acc, [accountId, metadata]) => {
-                const { chainId: _chainId } = fromAccountId(accountId)
-                if (chainId === _chainId) {
-                  acc[accountId] = metadata
-                }
-                return acc
-              },
-              {} as AccountMetadataById,
-            )
-            for (const accountId of Object.keys(chainIdAccountMetadata)) {
-              dispatch(portfolio.actions.enableAccountId(accountId))
+            // Only dispatch updates for newly fetched accounts which doesn't had activity
+            if (!existingAccounts[accountId]?.hasActivity) {
+              dispatch(portfolio.actions.upsertPortfolio(account))
+              const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(
+                (acc, [accountId, metadata]) => {
+                  const { chainId: _chainId } = fromAccountId(accountId)
+                  if (chainId === _chainId) {
+                    acc[accountId] = metadata
+                  }
+                  return acc
+                },
+                {} as AccountMetadataById,
+              )
+
+              for (const accountId of Object.keys(chainIdAccountMetadata)) {
+                dispatch(portfolio.actions.enableAccountId(accountId))
+              }
+
+              dispatch(
+                portfolio.actions.upsertAccountMetadata({
+                  accountMetadataByAccountId: chainIdAccountMetadata,
+                  walletId,
+                }),
+              )
             }
-            dispatch(
-              portfolio.actions.upsertAccountMetadata({
-                accountMetadataByAccountId: chainIdAccountMetadata,
-                walletId,
-              }),
-            )
           }
         })
 
@@ -178,7 +177,7 @@ export const useAccountsFetchQuery = () => {
     }
 
     return null
-  }, [dispatch, isSnapInstalled, supportedChains, wallet])
+  }, [dispatch, isSnapInstalled, supportedChains, wallet, existingAccounts])
 
   const query = useQuery({
     queryKey: [
@@ -189,7 +188,7 @@ export const useAccountsFetchQuery = () => {
         isSnapInstalled,
       },
     ],
-    queryFn: wallet && deviceId && !hasManagedAccounts ? queryFn : skipToken,
+    queryFn: wallet && deviceId ? queryFn : skipToken,
     staleTime: Infinity,
     gcTime: Infinity,
   })

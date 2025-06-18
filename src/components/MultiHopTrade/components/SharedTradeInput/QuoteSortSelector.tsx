@@ -29,21 +29,21 @@ export const QuoteSortSelector: FC = memo(() => {
         orientation='vertical'
         width='full'
       >
-        {quoteSortOptions.map(buttonConf => (
+        {quoteSortOptions.map(quoteSortOpt => (
           <Button
-            key={buttonConf.value}
+            key={quoteSortOpt.value}
             color={buttonTextColor}
             fontWeight='medium'
             h={10}
             px={4}
             border='1px solid'
             borderColor={buttonBorderColor}
-            isActive={currentSortOption === buttonConf.value}
-            onClick={buttonConf.handleClick}
+            isActive={currentSortOption === quoteSortOpt.value}
+            onClick={quoteSortOpt.handleClick}
           >
-            <Flex width='full' justify='space-between'>
-              {buttonConf.label}
-              {currentSortOption === buttonConf.value && <CheckCircleIcon color='blue.200' />}
+            <Flex width='full' justify='space-between' alignItems='center'>
+              {quoteSortOpt.label}
+              {currentSortOption === quoteSortOpt.value && <CheckCircleIcon color='blue.200' />}
             </Flex>
           </Button>
         ))}

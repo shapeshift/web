@@ -69,9 +69,13 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
               </Box>
 
               <MenuOptionGroup type='radio' value={currentSortOption}>
-                {quoteSortOptions.map(opt => (
-                  <MenuItemOption value={opt.value} onClick={opt.handleClick} fontSize='sm'>
-                    {opt.label}
+                {quoteSortOptions.map(quoteSortOpt => (
+                  <MenuItemOption
+                    value={quoteSortOpt.value}
+                    onClick={quoteSortOpt.handleClick}
+                    fontSize='sm'
+                  >
+                    {quoteSortOpt.label}
                   </MenuItemOption>
                 ))}
               </MenuOptionGroup>

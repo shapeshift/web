@@ -12,172 +12,147 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
 import { isUtxoChainId } from '@/lib/utils/utxo'
-import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import {
+  portfolio as portfolioSlice,
+  portfolioApi,
+} from '@/state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectPortfolioAccounts } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+
+const { getAccount } = portfolioApi.endpoints
 
 export const useAccountsFetchQuery = () => {
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { deviceId, wallet } = useWallet().state
-  // Get existing accounts from the store
-  const existingAccounts = useAppSelector(state => state.portfolio.accounts.byId)
+  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
-      supportedChains.filter(chainId => {
-        return walletSupportsChain({
-          chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: false,
-        })
-      }),
+      supportedChains.filter(chainId =>
+        walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: false }),
+      ),
     )
-    if (!chainIds.size) return null
 
+    if (!chainIds.size) return null
     if (!wallet || isLedger(wallet)) return null
 
     const walletId = await wallet.getDeviceID()
-
-    const accountMetadataByAccountId: AccountMetadataById = {}
     const isMultiAccountWallet = wallet.supportsBip44Accounts()
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+    const currentPortfolio = portfolioSlice.selectors.selectPortfolio(store.getState())
 
+    const accountMetadataByAccountId: AccountMetadataById = {}
     for (let accountNumber = 0; chainIds.size > 0; accountNumber++) {
-      if (
-        accountNumber > 0 &&
+      if (accountNumber > 0) {
         // only some wallets support multi account
-        (!isMultiAccountWallet ||
-          // MM without snaps does not support non-EVM chains, hence no multi-account
-          // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
-          (isMetaMaskMultichainWallet && !isSnapInstalled))
-      )
-        break
+        if (!isMultiAccountWallet) break
 
-      const input = {
+        // MM without snaps does not support non-EVM chains, hence no multi-account
+        // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
+        if (isMetaMaskMultichainWallet && !isSnapInstalled) break
+      }
+
+      const accountIdsAndMetadata = await deriveAccountIdsAndMetadata({
         accountNumber,
         chainIds: Array.from(chainIds),
         wallet,
         isSnapInstalled: Boolean(isSnapInstalled),
-      }
-      const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
-      const accountIds = Object.keys(accountIdsAndMetadata)
+      })
 
       Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
-      const { getAccount } = portfolioApi.endpoints
+      const accountIdsByChainId = Object.keys(accountIdsAndMetadata).reduce(
+        (acc, accountId) => {
+          const { chainId } = fromAccountId(accountId)
 
-      const accountNumberAccountIdsByChainId = (
-        _accountIds: AccountId[],
-      ): Record<ChainId, AccountId[]> => {
-        return _accountIds.reduce(
-          (acc, _accountId) => {
-            const { chainId } = fromAccountId(_accountId)
+          if (!acc[chainId]) acc[chainId] = []
+          acc[chainId].push(accountId)
 
-            if (!acc[chainId]) {
-              acc[chainId] = []
-            }
-            acc[chainId].push(_accountId)
+          return acc
+        },
+        {} as Record<ChainId, AccountId[]>,
+      )
 
-            return acc
-          },
-          {} as Record<ChainId, AccountId[]>,
-        )
-      }
-
-      let chainIdsWithActivity: Set<ChainId> = new Set()
-      // This allows every run of AccountIds per chain/accountNumber to run in parallel vs. all sequentally, so
-      // we can run each item (usually one AccountId, except UTXOs which may contain many because of many scriptTypes) 's side effects immediately
-      const accountNumberAccountIdsPromises = Object.values(
-        accountNumberAccountIdsByChainId(accountIds),
-      ).map(async accountIds => {
-        const results = await Promise.allSettled(
-          accountIds.map(async id => {
+      const chainIdsWithActivity = new Set<ChainId>()
+      const accountPromises = Object.values(accountIdsByChainId).map(async accountIds => {
+        const portfolioResults = await Promise.allSettled(
+          accountIds.map(async accountId => {
             // If account exists in store and had activity, skip fetching
-            if (existingAccounts[id] && existingAccounts[id].hasActivity) {
-              const portfolioState = portfolio.selectors.selectPortfolio(store.getState())
-              return { data: portfolioState }
-            }
+            if (portfolioAccounts[accountId]?.hasActivity) return currentPortfolio
+
             // If not in store, fetch it
-            const result = await dispatch(
-              getAccount.initiate({ accountId: id, upsertOnFetch: true }),
-            )
-            return result
+            const { data } = await dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }))
+
+            return data
           }),
         )
 
-        results.forEach((res, idx) => {
-          if (res.status === 'rejected') return
+        const portfolios = portfolioResults
+          .filter(
+            (result): result is PromiseFulfilledResult<Portfolio> =>
+              result.status === 'fulfilled' && Boolean(result.value),
+          )
+          .map(result => result.value)
 
-          const { data: account } = res.value
-          if (!account) return
+        portfolios.forEach((portfolio, i) => {
+          const accountId = accountIds[i]
+          const accountChainId = fromAccountId(accountId).chainId
 
-          const accountId = accountIds[idx]
-          const { chainId } = fromAccountId(accountId)
+          const hasChainActivity = (() => {
+            if (!isUtxoChainId(accountChainId)) {
+              return portfolio.accounts.byId[accountId].hasActivity
+            }
 
-          const { hasActivity } = account.accounts.byId[accountId]
-
-          const accountNumberHasChainActivity = !isUtxoChainId(chainId)
-            ? hasActivity
-            : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
-              // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
-              // being upserted for BTC and LTC
-              results.some((res, _idx) => {
-                if (res.status === 'rejected') return false
-                const { data: account } = res.value
-                if (!account) return false
-                const accountId = accountIds[_idx]
-                const { chainId: _chainId } = fromAccountId(accountId)
-                if (chainId !== _chainId) return false
-                return account.accounts.byId[accountId].hasActivity
-              })
+            // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+            // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes being upserted
+            return portfolios.some((portfolio, i) => {
+              const accountId = accountIds[i]
+              if (fromAccountId(accountId).chainId !== accountChainId) return false
+              return portfolio.accounts.byId[accountId].hasActivity
+            })
+          })()
 
           // If account has no activity and it's not account 0, stop checking this chain
-          if (accountNumber > 0 && !accountNumberHasChainActivity) {
-            chainIdsWithActivity.delete(chainId)
+          if (accountNumber > 0 && !hasChainActivity) {
+            chainIdsWithActivity.delete(accountChainId)
             delete accountMetadataByAccountId[accountId]
           } else {
-            // handle utxo chains with multiple account types per account
-            chainIdsWithActivity.add(chainId)
+            chainIdsWithActivity.add(accountChainId)
 
             // Only dispatch updates for newly fetched accounts which didn't have activity or didn't exist yet in the store
-            if (!existingAccounts[accountId]?.hasActivity) {
-              dispatch(portfolio.actions.upsertPortfolio(account))
-              const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(
-                (acc, [accountId, metadata]) => {
-                  const { chainId: _chainId } = fromAccountId(accountId)
-                  if (chainId === _chainId) {
-                    acc[accountId] = metadata
-                  }
-                  return acc
-                },
-                {} as AccountMetadataById,
+            if (!portfolioAccounts[accountId]?.hasActivity) {
+              dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+
+              accountIds.forEach(accountId => {
+                dispatch(portfolioSlice.actions.enableAccountId(accountId))
+              })
+
+              const _accountMetadataByAccountId = Object.fromEntries(
+                Object.entries(accountMetadataByAccountId).filter(([accountId]) =>
+                  accountIds.includes(accountId),
+                ),
               )
 
-              for (const accountId of Object.keys(chainIdAccountMetadata)) {
-                dispatch(portfolio.actions.enableAccountId(accountId))
-              }
-
               dispatch(
-                portfolio.actions.upsertAccountMetadata({
-                  accountMetadataByAccountId: chainIdAccountMetadata,
+                portfolioSlice.actions.upsertAccountMetadata({
+                  accountMetadataByAccountId: _accountMetadataByAccountId,
                   walletId,
                 }),
               )
             }
           }
         })
-
-        return results
       })
 
-      await Promise.allSettled(accountNumberAccountIdsPromises)
+      await Promise.allSettled(accountPromises)
       chainIds = chainIdsWithActivity
     }
 
     return null
-  }, [dispatch, isSnapInstalled, supportedChains, wallet, existingAccounts])
+  }, [dispatch, isSnapInstalled, supportedChains, wallet, portfolioAccounts])
 
   const query = useQuery({
     queryKey: [

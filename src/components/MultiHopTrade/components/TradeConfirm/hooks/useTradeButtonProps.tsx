@@ -1,5 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -73,16 +74,29 @@ export const useTradeButtonProps = ({
       createdAt: Date.now(),
       updatedAt: Date.now(),
       sellAccountId,
+      receiveAddress: activeQuote.receiveAddress,
       swapperName: activeQuote.swapperName,
       sellAsset: firstStep.sellAsset,
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountCryptoPrecision: fromBaseUnit(
+        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        firstStep.sellAsset.precision,
+      ),
+      expectedBuyAmountCryptoPrecision: fromBaseUnit(
+        lastStep.buyAmountAfterFeesCryptoBaseUnit,
+        lastStep.buyAsset.precision,
+      ),
       metadata: {
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         stepIndex: currentHopIndex,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-        streamingSwapMetadata: undefined,
+        streamingSwapMetadata: {
+          maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
+          attemptedSwapCount: 0,
+          failedSwaps: [],
+        },
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,

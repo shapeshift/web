@@ -160,6 +160,7 @@ export const clearSnapshotMigrations = {
 
 export const clearActionMigrations = {
   0: clearAction,
+  1: clearAction,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearSwapsMigrations = {

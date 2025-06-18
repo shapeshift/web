@@ -2983,8 +2983,10 @@
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
     },
-    "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
-    "swapError": "Swap failed",
-    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} Pending",
+    "orderCancelled": "Order Cancelled",
+    "orderExpired": "Order Expired"
   }
 }

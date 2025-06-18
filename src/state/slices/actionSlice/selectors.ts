@@ -48,10 +48,10 @@ export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletHasPendingActions = createDeepEqualOutputSelector(
+export const selectWalletPendingActions = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
-    return actions.filter(action => action.status === ActionStatus.Pending).length > 0
+    return actions.filter(action => action.status === ActionStatus.Pending)
   },
 )
 

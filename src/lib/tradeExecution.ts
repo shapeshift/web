@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -7,6 +8,8 @@ import type {
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
+  SupportedTradeQuoteStepIndex,
+  Swap,
   Swapper,
   SwapperApi,
   TradeExecutionEventMap,
@@ -17,7 +20,7 @@ import {
   isExecutableTradeQuote,
   swappers,
   SwapStatus,
-  TRADE_POLL_INTERVAL_MILLISECONDS,
+  TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -29,6 +32,7 @@ import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
 import { selectCurrentSwap } from '@/state/slices/selectors'
@@ -36,9 +40,48 @@ import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
 
+export const tradeStatusQueryKey = (swapId: string, sellTxHash: string) => [
+  'tradeStatus',
+  swapId,
+  sellTxHash,
+]
+
+export const fetchTradeStatus = async ({
+  swapper,
+  sellTxHash,
+  sellAssetChainId,
+  address,
+  swap,
+  stepIndex,
+}: {
+  swapper: Swapper & SwapperApi
+  sellTxHash: string
+  sellAssetChainId: string
+  address: string | undefined
+  swap: Swap
+  stepIndex: SupportedTradeQuoteStepIndex
+  config: ReturnType<typeof getConfig>
+}) => {
+  const { status, message, buyTxHash } = await swapper.checkTradeStatus({
+    txHash: sellTxHash,
+    chainId: sellAssetChainId,
+    address,
+    swap,
+    stepIndex,
+    config: getConfig(),
+    assertGetEvmChainAdapter,
+    assertGetUtxoChainAdapter,
+    assertGetCosmosSdkChainAdapter,
+    assertGetSolanaChainAdapter,
+    fetchIsSmartContractAddressQuery,
+  })
+
+  return { status, message, buyTxHash }
+}
+
 export class TradeExecution {
   private emitter = new EventEmitter()
-  private pollInterval = TRADE_POLL_INTERVAL_MILLISECONDS
+  private pollInterval = TRADE_STATUS_POLL_INTERVAL_MILLISECONDS
 
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
     this.emitter.on(eventName, callback)
@@ -106,6 +149,7 @@ export class TradeExecution {
       const updatedSwap = {
         ...swap,
         sellTxHash,
+        receiveAddress: tradeQuote.receiveAddress,
         status: SwapStatus.Pending,
         metadata: {
           ...swap.metadata,
@@ -119,18 +163,20 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
-          const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-            txHash: sellTxHash,
-            chainId,
-            accountId,
-            swap: updatedSwap,
-            stepIndex,
-            config: getConfig(),
-            assertGetEvmChainAdapter,
-            assertGetUtxoChainAdapter,
-            assertGetCosmosSdkChainAdapter,
-            assertGetSolanaChainAdapter,
-            fetchIsSmartContractAddressQuery,
+          const { status, message, buyTxHash } = await queryClient.fetchQuery({
+            queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
+            queryFn: () =>
+              fetchTradeStatus({
+                swapper,
+                sellTxHash: updatedSwap.sellTxHash,
+                sellAssetChainId: updatedSwap.sellAsset.chainId,
+                address: accountId ? fromAccountId(accountId).account : undefined,
+                swap: updatedSwap,
+                stepIndex,
+                config: getConfig(),
+              }),
+            staleTime: this.pollInterval,
+            gcTime: this.pollInterval,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

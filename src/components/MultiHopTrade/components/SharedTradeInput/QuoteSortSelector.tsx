@@ -3,7 +3,6 @@ import { Button, ButtonGroup, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo } from 'react'
 
-import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Text } from '@/components/Text'
 import { useQuoteSortOptions } from '@/state/slices/tradeQuoteSlice/hooks'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -43,7 +42,7 @@ export const QuoteSortSelector: FC = memo(() => {
             onClick={buttonConf.handleClick}
           >
             <Flex width='full' justify='space-between'>
-              <HelperTooltip label={buttonConf.tooltip}>{buttonConf.label}</HelperTooltip>
+              {buttonConf.label}
               {currentSortOption === buttonConf.value && <CheckCircleIcon color='blue.200' />}
             </Flex>
           </Button>

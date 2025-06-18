@@ -13,7 +13,6 @@ export const useQuoteSortOptions = () => {
   const quoteSortOptions = useMemo(
     () => [
       {
-        tooltip: translate('trade.sort.fastestTooltip'),
         label: translate('trade.sort.fastest'),
         value: QuoteSortOption.FASTEST,
         handleClick: (): void => {
@@ -21,7 +20,6 @@ export const useQuoteSortOptions = () => {
         },
       },
       {
-        tooltip: translate('trade.sort.bestRateTooltip'),
         label: translate('trade.sort.bestRate'),
         value: QuoteSortOption.BEST_RATE,
         handleClick: (): void => {
@@ -29,7 +27,6 @@ export const useQuoteSortOptions = () => {
         },
       },
       {
-        tooltip: translate('trade.sort.bestRateTooltip'),
         label: translate('trade.sort.lowestGas'),
         value: QuoteSortOption.LOWEST_GAS,
         handleClick: (): void => {

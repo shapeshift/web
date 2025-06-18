@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { tcyAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, tcyAssetId } from '@shapeshiftoss/caip'
 import { SwapperName, THORCHAIN_PRECISION } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQuery } from '@tanstack/react-query'
@@ -69,7 +69,8 @@ export const ReusableStatus = ({
       getTxLink({
         txId,
         defaultExplorerBaseUrl: tcyAsset?.explorerTxLink ?? '',
-        accountId,
+        address: fromAccountId(accountId).account,
+        chainId: fromAccountId(accountId).chainId,
         maybeSafeTx,
         stepSource: SwapperName.Thorchain,
       }),

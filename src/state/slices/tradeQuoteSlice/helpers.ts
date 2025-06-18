@@ -238,12 +238,80 @@ export const sortTradeQuotes = (
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>>,
   sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
 ): ApiQuote[] => {
+  console.log('SORT TRADE QUOTES')
+  console.log({ tradeQuotes, sortOption })
   const allQuotes = Object.values(tradeQuotes)
     .filter(isSome)
     .map(swapperQuotes => Object.values(swapperQuotes))
     .flat()
 
   return sortApiQuotes(allQuotes, sortOption)
+}
+
+const getBestRateScore = (quote: ApiQuote): BigNumber => {
+  if (!quote.quote?.steps?.length) return bn(0)
+  const lastStep = quote.quote.steps[quote.quote.steps.length - 1]
+  return bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
+}
+
+const getFastestScore = (quote: ApiQuote): number => {
+  if (!quote.quote?.steps?.length) return Number.MAX_SAFE_INTEGER
+
+  if (quote.quote.steps.every(step => step.estimatedExecutionTimeMs === undefined)) {
+    return Number.MAX_SAFE_INTEGER
+  }
+
+  return quote.quote.steps.reduce((total, step) => {
+    return total + (step.estimatedExecutionTimeMs ?? 0)
+  }, 0)
+}
+
+const getLowestGasScore = (quote: ApiQuote): BigNumber => {
+  return getNetworkFeeUserCurrency(quote.quote)
+}
+
+export const getBestQuotesByCategory = (quotes: ApiQuote[]) => {
+  if (!quotes.length) {
+    return { best: undefined, fastest: undefined, lowestGas: undefined }
+  }
+
+  let bestRateQuote = quotes[0]
+  let fastestQuote = quotes[0]
+  let lowestGasQuote = quotes[0]
+
+  let bestRateScore = getBestRateScore(bestRateQuote)
+  let fastestScore = getFastestScore(fastestQuote)
+  let lowestGasScore = getLowestGasScore(lowestGasQuote)
+
+  for (const quote of quotes) {
+    const rateScore = getBestRateScore(quote)
+    const timeScore = getFastestScore(quote)
+    const gasScore = getLowestGasScore(quote)
+
+    // Best rate: highest buyAmountAfterFeesCryptoBaseUnit
+    if (rateScore.gt(bestRateScore)) {
+      bestRateScore = rateScore
+      bestRateQuote = quote
+    }
+
+    // Fastest: lowest execution time
+    if (timeScore < fastestScore) {
+      fastestScore = timeScore
+      fastestQuote = quote
+    }
+
+    // Lowest gas: lowest network fee
+    if (gasScore.lt(lowestGasScore)) {
+      lowestGasScore = gasScore
+      lowestGasQuote = quote
+    }
+  }
+
+  return {
+    best: bestRateQuote.swapperName,
+    fastest: fastestQuote.swapperName,
+    lowestGas: lowestGasQuote.swapperName,
+  }
 }
 
 export const getActiveQuoteMetaOrDefault = (

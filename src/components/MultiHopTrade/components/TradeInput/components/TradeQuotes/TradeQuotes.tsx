@@ -99,6 +99,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
       return []
     }
 
+    console.log({ availableTradeQuotesDisplayCache })
+
     return availableTradeQuotesDisplayCache.map((quoteData, i) => {
       const { id, errors } = quoteData
 
@@ -110,6 +112,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
             isActive={isActive}
             isLoading={isQuoteLoading(quoteData)}
             isBest={i === 0 && errors.length === 0}
+            isFastest
+            isLowestGas
             key={id}
             quoteData={quoteData}
             bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
@@ -137,7 +141,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <TradeQuote
           isActive={false}
           isLoading={isQuoteLoading(quoteData)}
-          isBest={false}
           key={quoteData.id}
           quoteData={quoteData}
           bestTotalReceiveAmountCryptoPrecision={undefined}

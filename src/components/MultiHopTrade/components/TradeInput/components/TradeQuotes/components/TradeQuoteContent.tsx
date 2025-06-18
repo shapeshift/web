@@ -17,7 +17,7 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 export type TradeQuoteContentProps = {
   isLoading: boolean
   buyAsset: Asset
-  isBest: boolean
+  isBest?: boolean
   numHops: number
   totalReceiveAmountFiatUserCurrency: string | undefined
   hasAmountWithPositiveReceive: boolean

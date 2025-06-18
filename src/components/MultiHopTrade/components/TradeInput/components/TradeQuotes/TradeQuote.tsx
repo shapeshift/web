@@ -45,7 +45,9 @@ const WarningCircle: FC = () => (
 
 type TradeQuoteProps = {
   isActive: boolean
-  isBest: boolean
+  isBest?: boolean
+  isFastest?: boolean
+  isLowestGas?: boolean
   quoteData: ApiQuote
   bestTotalReceiveAmountCryptoPrecision: string | undefined
   isLoading: boolean
@@ -53,7 +55,16 @@ type TradeQuoteProps = {
 }
 
 export const TradeQuote: FC<TradeQuoteProps> = memo(
-  ({ isActive, isBest, quoteData, bestTotalReceiveAmountCryptoPrecision, isLoading, onBack }) => {
+  ({
+    isActive,
+    isBest,
+    isFastest,
+    isLowestGas,
+    quoteData,
+    bestTotalReceiveAmountCryptoPrecision,
+    isLoading,
+    onBack,
+  }) => {
     const { quote, errors, inputOutputRatio, swapperName } = quoteData
     const dispatch = useAppDispatch()
     const translate = useTranslate()
@@ -159,7 +170,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       const error = errors?.[0]
       const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
-      if (!quote && error !== undefined) {
+      if (quote && error !== undefined) {
         const translationParams = getQuoteErrorTranslation(error ?? defaultError)
         const tooltipLabel = translate(
           ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
@@ -180,7 +191,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       }
     }, [errors, hasAmountWithPositiveReceive, isAmountEntered, quote, translate])
 
-    const tag: JSX.Element | undefined = useMemo(() => {
+    const tags: JSX.Element | undefined = useMemo(() => {
       if (isBest) {
         return (
           <Tag size='sm' colorScheme='green'>
@@ -189,6 +200,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         )
       }
     }, [translate, isBest])
+
+    console.log({ isBest, isFastest, isLowestGas, errors })
 
     const isDisabled = !quote || isLoading
     const showSwapperError = ![
@@ -273,11 +286,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         <Flex gap={2} alignItems='center'>
           <Skeleton isLoaded={!isLoading}>
             {errorCircle}
-            {tag}
+            {tags}
           </Skeleton>
         </Flex>
       )
-    }, [isLoading, errorCircle, tag])
+    }, [isLoading, errorCircle, tags])
 
     const bodyContent = useMemo(() => {
       return quote ? (

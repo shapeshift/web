@@ -3,7 +3,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isThorTradeRate,
   SwapperName,
   swappers,
@@ -227,8 +226,6 @@ export const useGetTradeRates = () => {
         swapperName,
         tradeQuoteOrRateInput: tradeRateInput ?? skipToken,
         skip: !shouldRefetchTradeQuotes,
-        pollingInterval:
-          swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
     [shouldRefetchTradeQuotes, tradeRateInput],

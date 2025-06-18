@@ -41,7 +41,6 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const MotionBox = motion(Box)
 
 type TradeQuotesProps = {
-  isLoading: boolean
   onBack?: () => void
 }
 
@@ -52,7 +51,7 @@ const motionBoxProps = {
   transition: { type: 'spring', stiffness: 100, damping: 20 },
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack }) => {
+export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const dispatch = useAppDispatch()
 
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
@@ -63,7 +62,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
   const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
   const loadingSwappers = useAppSelector(selectLoadingSwappers)
-  const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
   const translate = useTranslate()
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -86,19 +84,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
       }),
     )
   }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes, sortOption])
-
-  const isQuoteRefetching = useCallback(
-    (quoteData: ApiQuote) => {
-      const { swapperName } = quoteData
-
-      return (
-        isLoading ||
-        isTradeQuoteApiQueryPending[quoteData.swapperName] ||
-        !isSwapperQuoteAvailable[swapperName]
-      )
-    },
-    [isLoading, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable],
-  )
 
   const isQuoteLoading = useCallback(
     (quoteData: ApiQuote) => {
@@ -124,12 +109,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
           <TradeQuote
             isActive={isActive}
             isLoading={isQuoteLoading(quoteData)}
-            isRefetching={isQuoteRefetching(quoteData)}
             isBest={i === 0 && errors.length === 0}
             key={id}
             quoteData={quoteData}
             bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
-            bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
             onBack={onBack}
           />
         </MotionBox>
@@ -137,10 +120,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     })
   }, [
     isTradeQuoteRequestAborted,
-    bestQuoteData?.inputOutputRatio,
     availableTradeQuotesDisplayCache,
     activeQuoteMeta,
-    isQuoteRefetching,
     isQuoteLoading,
     onBack,
     bestTotalReceiveAmountCryptoPrecision,
@@ -156,24 +137,15 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         <TradeQuote
           isActive={false}
           isLoading={isQuoteLoading(quoteData)}
-          isRefetching={isQuoteRefetching(quoteData)}
           isBest={false}
           key={quoteData.id}
           quoteData={quoteData}
           bestTotalReceiveAmountCryptoPrecision={undefined}
-          bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
           onBack={onBack}
         />
       )
     })
-  }, [
-    isTradeQuoteRequestAborted,
-    bestQuoteData?.inputOutputRatio,
-    unavailableTradeQuotesDisplayCache,
-    isQuoteRefetching,
-    isQuoteLoading,
-    onBack,
-  ])
+  }, [isTradeQuoteRequestAborted, unavailableTradeQuotesDisplayCache, isQuoteLoading, onBack])
 
   const unavailableQuotesLength = useMemo(
     () =>
@@ -211,14 +183,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
           <TradeQuote
             isActive={false}
             isLoading={true}
-            isRefetching={false}
             isBest={false}
             key={id}
             // eslint doesn't understand useMemo not possible to use inside map
             // eslint-disable-next-line react-memo/require-usememo
             quoteData={quoteData}
             bestTotalReceiveAmountCryptoPrecision={undefined}
-            bestInputOutputRatio={undefined}
             onBack={onBack}
           />
         </MotionBox>

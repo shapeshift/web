@@ -1,43 +1,40 @@
 import { useMediaQuery } from '@chakra-ui/react'
-import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
-import { useMemo } from 'react'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL } from '@shapeshiftoss/swapper'
+import { useCallback } from 'react'
 
 import { SettingsPopover } from '../../SettingsPopover'
 import { CountdownSpinner } from './TradeQuotes/components/CountdownSpinner'
 
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
-import {
-  selectActiveQuote,
-  selectActiveSwapperName,
-} from '@/state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { swapperApi } from '@/state/apis/swapper/swapperApi'
+import { selectActiveQuote } from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 type TradeSettingsMenuProps = {
   isCompact: boolean | undefined
-  isLoading: boolean
 }
 
-export const TradeSettingsMenu = ({ isCompact, isLoading }: TradeSettingsMenuProps) => {
+export const TradeSettingsMenu = ({ isCompact }: TradeSettingsMenuProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const activeQuote = useAppSelector(selectActiveQuote)
-  const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
 
-  const pollingInterval = useMemo(() => {
-    if (!activeSwapperName) return DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-    return swappers[activeSwapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-  }, [activeSwapperName])
+  const dispatch = useAppDispatch()
 
-  const isRefetching = useMemo(
-    () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
-    [activeSwapperName, isTradeQuoteApiQueryPending],
-  )
+  const showRefreshSpinner = Object.values(isTradeQuoteApiQueryPending).some(isPending => isPending)
+  const handleRefreshQuotes = useCallback((): void => {
+    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+  }, [dispatch])
 
   return (
     <>
       {activeQuote && (isCompact || isSmallerThanXl) && (
-        <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
+        <CountdownSpinner
+          isLoading={showRefreshSpinner}
+          initialTimeMs={DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL}
+          onComplete={handleRefreshQuotes}
+        />
       )}
       <SettingsPopover />
     </>

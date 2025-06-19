@@ -62,11 +62,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   const hoverProps = useMemo(
     () => ({
-      bg: swap?.txLink ? 'background.button.secondary.hover' : 'transparent',
-      cursor: swap?.txLink ? 'pointer' : 'default',
+      bg: swap?.txLink || isCollapsable ? 'background.button.secondary.hover' : 'transparent',
+      cursor: swap?.txLink || isCollapsable ? 'pointer' : 'default',
       textDecoration: 'none',
     }),
-    [swap?.txLink],
+    [swap?.txLink, isCollapsable],
   )
 
   const handleClick = useCallback(() => {

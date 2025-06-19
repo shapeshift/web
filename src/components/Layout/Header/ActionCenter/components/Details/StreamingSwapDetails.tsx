@@ -52,9 +52,11 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
           isAnimated={true}
           hasStripe={isSwapComplete ? false : true}
         />
-        <RawText>
-          ({attemptedSwapCount}/{maxSwapCount})
-        </RawText>
+        {maxSwapCount ? (
+          <RawText>
+            ({attemptedSwapCount}/{maxSwapCount})
+          </RawText>
+        ) : null}
       </Row.Value>
     </Row>
   )

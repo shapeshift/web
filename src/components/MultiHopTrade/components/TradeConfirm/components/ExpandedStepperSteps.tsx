@@ -368,18 +368,21 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
             <RawText>{firstHopActionTitleText}</RawText>
-            {firstHopStreamingProgress && firstHopStreamingProgress.maxSwapCount > 0 && (
-              <Tag
-                minWidth='auto'
-                // This is not really the best way to do this, but it's the best way to do it for now
-                // The swap won't be complete if it's a multi hop, but for now we don't have any swapper supporting streaming multi hops
-                // We would require to get the state of the streaming swap of the current hop but in reality it's not so easy as
-                // the streaming can contain less chunks than the max chunks
-                colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
-              >
-                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.maxSwapCount}`}
-              </Tag>
-            )}
+            {firstHopStreamingProgress &&
+              firstHopStreamingProgress.maxSwapCount > 0 &&
+              (firstHopStreamingProgress.attemptedSwapCount > 0 ||
+                activeSwap?.status !== SwapStatus.Success) && (
+                <Tag
+                  minWidth='auto'
+                  // This is not really the best way to do this, but it's the best way to do it for now
+                  // The swap won't be complete if it's a multi hop, but for now we don't have any swapper supporting streaming multi hops
+                  // We would require to get the state of the streaming swap of the current hop but in reality it's not so easy as
+                  // the streaming can contain less chunks than the max chunks
+                  colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
+                >
+                  {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.maxSwapCount}`}
+                </Tag>
+              )}
           </HStack>
           {tradeQuoteFirstHop && firstHopSellAccountId && (
             <VStack>
@@ -484,14 +487,17 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
             <RawText>{lastHopActionTitleText}</RawText>
-            {secondHopStreamingProgress && secondHopStreamingProgress.maxSwapCount > 0 && (
-              <Tag
-                minWidth='auto'
-                colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
-              >
-                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.maxSwapCount}`}
-              </Tag>
-            )}
+            {secondHopStreamingProgress &&
+              secondHopStreamingProgress.maxSwapCount > 0 &&
+              (secondHopStreamingProgress.attemptedSwapCount > 0 ||
+                activeSwap?.status !== SwapStatus.Success) && (
+                <Tag
+                  minWidth='auto'
+                  colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
+                >
+                  {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.maxSwapCount}`}
+                </Tag>
+              )}
           </HStack>
           {tradeQuoteSecondHop && lastHopSellAccountId && (
             <VStack>

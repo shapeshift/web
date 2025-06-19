@@ -10951,11 +10951,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@8.15.0, @shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
+"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
   languageName: unknown
   linkType: soft
+
+"@shapeshiftoss/caip@npm:8.15.0":
+  version: 8.15.0
+  resolution: "@shapeshiftoss/caip@npm:8.15.0"
+  peerDependencies:
+    "@shapeshiftoss/types": ^8.1.0
+  checksum: d9cde4e0fac3a2dbebd5054d7a985e6a828b9028b9914cbbfbd293ff59cf48b195b425b620decfc54988cf2bf3a8a59a3809475f26af264b77034136736aa4e4
+  languageName: node
+  linkType: hard
 
 "@shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
   version: 0.0.0-use.local

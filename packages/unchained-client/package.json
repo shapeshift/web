@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/unchained-client",
-  "version": "10.14.0",
+  "version": "10.14.3",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "main": "dist/index.js",

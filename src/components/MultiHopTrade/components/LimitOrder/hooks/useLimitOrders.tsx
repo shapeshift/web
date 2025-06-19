@@ -10,9 +10,8 @@ import { useTranslate } from 'react-polyglot'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { isLimitOrderAction } from '@/state/slices/actionSlice/types'
-import { selectAssetById, selectEvmAccountIds } from '@/state/slices/selectors'
+import { selectActions, selectAssetById, selectEvmAccountIds } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 export const useLimitOrdersQuery = () => {
@@ -30,7 +29,7 @@ export const useLimitOrders = () => {
   const toast = useToast()
   const translate = useTranslate()
   const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
-  const actions = useAppSelector(actionSlice.selectors.selectActions)
+  const actions = useAppSelector(selectActions)
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
 
   useEffect(() => {

@@ -10,20 +10,22 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 import { LimitOrderDetails } from './Details/LimitOrderDetails'
 
+import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { RawText } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
+import { Text } from '@/components/Text/Text'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 
@@ -51,7 +53,6 @@ export const LimitOrderActionCard = ({
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
   const { createdAt, status, type } = action
-  const translate = useTranslate()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -71,17 +72,71 @@ export const LimitOrderActionCard = ({
     }
   }, [isCollapsable, onToggle])
 
-  const title = useMemo(() => {
-    const { sellAmountCryptoBaseUnit, buyAmountCryptoBaseUnit, sellAsset, buyAsset } =
-      action.limitOrderMetadata
+  const limitOrderActionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
+    if (!action) return
 
-    return translate('notificationCenter.limitOrderTitle', {
-      sellAmount: fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
-      sellSymbol: sellAsset.symbol,
-      buyAmount: fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
-      buySymbol: buyAsset.symbol,
-    })
-  }, [action, translate])
+    if (action.status === ActionStatus.Complete) {
+      return {
+        sellAmountAndSymbol: (
+          <Amount.Crypto
+            value={action.limitOrderMetadata.executedSellAmountCryptoPrecision}
+            symbol={action.limitOrderMetadata.sellAsset.symbol}
+            fontSize='sm'
+            fontWeight='bold'
+            maximumFractionDigits={6}
+            omitDecimalTrailingZeros
+            display='inline'
+          />
+        ),
+        buyAmountAndSymbol: (
+          <Amount.Crypto
+            value={action.limitOrderMetadata.executedBuyAmountCryptoPrecision}
+            symbol={action.limitOrderMetadata.buyAsset.symbol}
+            fontSize='sm'
+            fontWeight='bold'
+            maximumFractionDigits={6}
+            omitDecimalTrailingZeros
+            display='inline'
+          />
+        ),
+      }
+    }
+
+    return {
+      sellAmountAndSymbol: (
+        <Amount.Crypto
+          value={action.limitOrderMetadata.sellAmountCryptoPrecision}
+          symbol={action.limitOrderMetadata.sellAsset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={6}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+      buyAmountAndSymbol: (
+        <Amount.Crypto
+          value={action.limitOrderMetadata.buyAmountCryptoPrecision}
+          symbol={action.limitOrderMetadata.buyAsset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={6}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+    }
+  }, [action])
+
+  const limitOrderTitleTranslation = useMemo(() => {
+    if (!action) return 'notificationCenter.limitOrder.processing'
+    if (action.status === ActionStatus.Open) return 'notificationCenter.limitOrder.placed'
+    if (action.status === ActionStatus.Complete) return 'notificationCenter.limitOrder.complete'
+    if (action.status === ActionStatus.Expired) return 'notificationCenter.limitOrder.expired'
+    if (action.status === ActionStatus.Cancelled) return 'notificationCenter.limitOrder.cancelled'
+
+    return 'notificationCenter.limitOrder.placed'
+  }, [action])
 
   return (
     <Stack
@@ -103,7 +158,11 @@ export const LimitOrderActionCard = ({
         <Stack spacing={0} width='full'>
           <HStack onClick={handleClick}>
             <Stack spacing={1} width='full'>
-              <RawText fontSize='sm'>{title}</RawText>
+              <Text
+                fontSize='sm'
+                translation={limitOrderTitleTranslation}
+                components={limitOrderActionTranslationComponents}
+              />
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
                 <ActionStatusTag status={status} />
                 <RawText>{formattedDate}</RawText>

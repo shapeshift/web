@@ -185,7 +185,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
               py={4}
               width='full'
             >
-              <Row fontSize='sm' flex={1}>
+              <Row fontSize='sm' flex={1} maxW='65%'>
                 <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
                   <Stack
                     width='full'

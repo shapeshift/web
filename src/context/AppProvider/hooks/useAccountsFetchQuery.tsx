@@ -32,12 +32,7 @@ export const useAccountsFetchQuery = () => {
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
       supportedChains.filter(chainId =>
-        walletSupportsChain({
-          chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
-        }),
+        walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: false }),
       ),
     )
 
@@ -135,15 +130,13 @@ export const useAccountsFetchQuery = () => {
                 dispatch(portfolioSlice.actions.enableAccountId(accountId))
               })
 
-              const _accountMetadataByAccountId = Object.fromEntries(
-                Object.entries(accountMetadataByAccountId).filter(([accountId]) =>
-                  accountIds.includes(accountId),
-                ),
-              )
-
               dispatch(
                 portfolioSlice.actions.upsertAccountMetadata({
-                  accountMetadataByAccountId: _accountMetadataByAccountId,
+                  accountMetadataByAccountId: Object.fromEntries(
+                    Object.entries(accountMetadataByAccountId).filter(([accountId]) =>
+                      accountIds.includes(accountId),
+                    ),
+                  ),
                   walletId,
                 }),
               )

@@ -150,7 +150,7 @@ export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNot
                 <ActionStatusIcon status={action?.status} />
               </AssetIconWithBadge>
 
-              <Box>
+              <Box ml={2}>
                 <Text
                   flex={1}
                   fontSize='sm'

@@ -138,7 +138,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
                 <ActionStatusIcon status={action?.status} />
               </AssetIconWithBadge>
 
-              <Box>
+              <Box ml={2}>
                 <Text
                   flex={1}
                   fontSize='sm'

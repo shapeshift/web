@@ -27,6 +27,7 @@ import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
+import type Polyglot from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
@@ -304,6 +305,9 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  thorchainSpecific?: {
+    maxStreamingQuantity?: number
+  }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
 
@@ -330,7 +334,7 @@ export type StreamingSwapFailedSwap = {
 
 export type StreamingSwapMetadata = {
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
 }
 
@@ -371,10 +375,15 @@ export type Swap = {
   buyAsset: Asset
   status: SwapStatus
   sellTxHash?: string
+  buyTxHash?: string
+  statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId | undefined
+  receiveAddress: string | undefined
   swapperName: SwapperName
   sellAmountCryptoBaseUnit: string
-  buyAmountCryptoBaseUnit: string
+  expectedBuyAmountCryptoBaseUnit: string
+  sellAmountCryptoPrecision: string
+  expectedBuyAmountCryptoPrecision: string
   txLink?: string
   metadata: SwapperSpecificMetadata
   isStreaming?: boolean
@@ -508,7 +517,7 @@ export type ExecuteTradeArgs = {
 export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
-  accountId: AccountId | undefined
+  address: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
   swap: Swap | undefined

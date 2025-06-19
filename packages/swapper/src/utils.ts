@@ -1,5 +1,5 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, solanaChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { solanaChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, SignTx, solana } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
@@ -184,20 +184,21 @@ export const createDefaultStatusResponse = (buyTxHash?: string) => ({
 })
 
 export const checkSafeTransactionStatus = async ({
-  accountId,
+  address,
   txHash,
   chainId,
   assertGetEvmChainAdapter,
   fetchIsSmartContractAddressQuery,
 }: {
-  accountId: AccountId | undefined
+  address: string | undefined
   txHash: string
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<TradeStatus | undefined> => {
   const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
-    accountId,
+    address,
+    chainId,
     fetchIsSmartContractAddressQuery,
     safeTxHash: txHash,
   })
@@ -236,19 +237,19 @@ export const checkSafeTransactionStatus = async ({
 export const checkEvmSwapStatus = async ({
   txHash,
   chainId,
-  accountId,
+  address,
   assertGetEvmChainAdapter,
   fetchIsSmartContractAddressQuery,
 }: {
   txHash: string
-  accountId: AccountId | undefined
+  address: string | undefined
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<TradeStatus> => {
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
-      accountId,
+      address,
       txHash,
       fetchIsSmartContractAddressQuery,
       chainId,
@@ -307,20 +308,19 @@ export const getExecutableTradeStep = (
 
 export const checkSolanaSwapStatus = async ({
   txHash,
-  accountId,
+  address,
   assertGetSolanaChainAdapter,
 }: {
   txHash: string
-  accountId: AccountId | undefined
+  address: string | undefined
   assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
 }): Promise<TradeStatus> => {
   try {
-    if (!accountId) throw new Error('Missing accountId')
+    if (!address) throw new Error('Missing address')
 
-    const account = fromAccountId(accountId).account
     const adapter = assertGetSolanaChainAdapter(solanaChainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
-    const status = await adapter.getTxStatus(tx, account)
+    const status = await adapter.getTxStatus(tx, address)
 
     return {
       status,

@@ -1,4 +1,5 @@
 import { Button, CardBody, CardFooter, Link } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
@@ -79,7 +80,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       txId: claimTxHash,
       defaultExplorerBaseUrl: activeClaim.destinationExplorerTxLink,
       maybeSafeTx,
-      accountId: activeClaim.accountId,
+      address: fromAccountId(activeClaim.accountId).account,
+      chainId: fromAccountId(activeClaim.accountId).chainId,
     })
   }, [activeClaim.accountId, activeClaim.destinationExplorerTxLink, claimTxHash, maybeSafeTx])
 

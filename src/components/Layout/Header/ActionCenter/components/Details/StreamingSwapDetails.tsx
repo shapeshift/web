@@ -33,6 +33,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
   }, [attemptedSwapCount, streamingTotalSwapCount, isSwapComplete])
 
   const maxSwapCount = useMemo(() => {
+    if (streamingTotalSwapCount === 1) return
     if (swap.status === SwapStatus.Success) return attemptedSwapCount
 
     return streamingTotalSwapCount

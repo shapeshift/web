@@ -363,9 +363,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [stepSource, translate])
 
   const firstHopActionTitle = useMemo(() => {
+    // Never display streaming steps if the max swap count is 1 as the expected max swap number can be 1 then 0 because
+    // not considered as a streaming swap after the execution but a regular swap
     const shouldDisplayStreamingSteps =
       firstHopStreamingProgress &&
-      firstHopStreamingProgress.maxSwapCount > 0 &&
+      firstHopStreamingProgress.maxSwapCount > 1 &&
       (firstHopStreamingProgress.attemptedSwapCount > 0 ||
         activeSwap?.status !== SwapStatus.Success)
 
@@ -485,9 +487,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const lastHopActionTitle = useMemo(() => {
+    // Never display streaming steps if the max swap count is 1 as the expected max swap number can be 1 then 0 because
+    // not considered as a streaming swap after the execution but a regular swap
     const shouldDisplayStreamingSteps =
       secondHopStreamingProgress &&
-      secondHopStreamingProgress.maxSwapCount > 0 &&
+      secondHopStreamingProgress.maxSwapCount > 1 &&
       (secondHopStreamingProgress.attemptedSwapCount > 0 ||
         activeSwap?.status !== SwapStatus.Success)
 

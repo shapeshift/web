@@ -14,7 +14,6 @@ import {
   MenuList,
   MenuOptionGroup,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL } from 'packages/swapper/src/constants'
 import { useCallback, useMemo } from 'react'
@@ -57,8 +56,6 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
     [currentSortOption, quoteSortOptions],
   )
 
-  const sortByTextColor = useColorModeValue('blackAlpha.500', 'whiteAlpha.500')
-
   return (
     <Card {...cardProps}>
       <CardHeader px={4} pt={4} display='flex' alignItems='center' justifyContent='space-between'>
@@ -67,7 +64,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
           <Heading fontSize='md'>{translate('trade.availableSwappers')}</Heading>
         </Flex>
         <Flex alignItems='center' gap={2}>
-          <Text color={sortByTextColor} fontWeight='normal' fontSize='sm'>
+          <Text color='text.subtle' fontWeight='normal' fontSize='sm'>
             {translate('common.sortBy')}
           </Text>
           <Menu>

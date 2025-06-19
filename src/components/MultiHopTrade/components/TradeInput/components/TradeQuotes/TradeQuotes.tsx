@@ -28,7 +28,6 @@ import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeI
 import { getBestQuotesByCategory } from '@/state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,
-  selectBuyAmountAfterFeesCryptoPrecision,
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
@@ -67,9 +66,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
-  const bestTotalReceiveAmountCryptoPrecision = useAppSelector(
-    selectBuyAmountAfterFeesCryptoPrecision,
-  )
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
   const bestQuotesByCategory = useMemo(
@@ -120,7 +116,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
             isLowestGas={bestQuotesByCategory.isLowestGas === quoteData.id && errors.length === 0}
             key={id}
             quoteData={quoteData}
-            bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
             onBack={onBack}
           />
         </MotionBox>
@@ -132,7 +127,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     activeQuoteMeta,
     isQuoteLoading,
     bestQuotesByCategory,
-    bestTotalReceiveAmountCryptoPrecision,
     onBack,
   ])
 
@@ -148,7 +142,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
           isLoading={isQuoteLoading(quoteData)}
           key={quoteData.id}
           quoteData={quoteData}
-          bestTotalReceiveAmountCryptoPrecision={undefined}
           onBack={onBack}
         />
       )
@@ -191,12 +184,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
           <TradeQuote
             isActive={false}
             isLoading={true}
-            isBest={false}
             key={id}
             // eslint doesn't understand useMemo not possible to use inside map
             // eslint-disable-next-line react-memo/require-usememo
             quoteData={quoteData}
-            bestTotalReceiveAmountCryptoPrecision={undefined}
             onBack={onBack}
           />
         </MotionBox>

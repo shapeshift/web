@@ -87,6 +87,28 @@ const getNetworkFeeUserCurrency = (quote: TradeQuote | TradeRate | undefined): B
   )
 }
 
+// NOTE: don't pull this from the slice - we're not displaying the active quote here
+export function getNetworkFeeUserCurrencyPrecision(quote: TradeQuote | TradeRate | undefined) {
+  if (!quote) return
+  const state = store.getState()
+  const getFeeAsset = (assetId: AssetId) => {
+    const feeAsset = selectFeeAssetById(state, assetId)
+    if (feeAsset === undefined) {
+      throw Error(`missing fee asset for assetId ${assetId}`)
+    }
+    return feeAsset
+  }
+  const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
+    selectMarketDataByFilter(state, {
+      assetId: feeAssetId,
+    })?.price
+
+  return getTotalNetworkFeeUserCurrencyPrecision(
+    quote,
+    getFeeAsset,
+    getFeeAssetUserCurrencyRate,
+  )?.toString()
+}
 /**
  * Computes the total receive amount across all hops after protocol fees are deducted
  * @param quote The trade quote
@@ -294,3 +316,13 @@ export const getActiveQuoteMetaOrDefault = (
   const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
   return activeQuoteMeta ?? defaultQuoteMeta
 }
+
+export const checkHasAmountWithPositiveReceive = (
+  isAmountEntered: boolean,
+  hasNegativeRatio: boolean,
+  isTradingWithoutMarketData: boolean,
+  totalReceiveAmountCrypto: string,
+) =>
+  isAmountEntered &&
+  (!hasNegativeRatio || isTradingWithoutMarketData) &&
+  bnOrZero(totalReceiveAmountCrypto).isGreaterThan(0)

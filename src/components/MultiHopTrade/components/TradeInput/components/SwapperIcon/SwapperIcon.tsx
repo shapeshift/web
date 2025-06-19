@@ -13,13 +13,16 @@ import RelayIcon from './relay-icon.svg'
 import THORChainIcon from './thorchain-icon.png'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { assertUnreachable } from '@/lib/utils'
 
 export const SwapperIcon = ({
   swapperName,
+  withTooltip,
   size = 'xs',
 }: {
   swapperName: SwapperName
+  withTooltip?: boolean
   size?: AvatarProps['size']
 }) => {
   const icon = useMemo(() => {
@@ -49,5 +52,11 @@ export const SwapperIcon = ({
     }
   }, [swapperName])
 
-  return <LazyLoadAvatar size={size} src={icon} />
+  return withTooltip ? (
+    <TooltipWithTouch label={swapperName}>
+      <LazyLoadAvatar size={size} src={icon} />
+    </TooltipWithTouch>
+  ) : (
+    <LazyLoadAvatar size={size} src={icon} />
+  )
 }

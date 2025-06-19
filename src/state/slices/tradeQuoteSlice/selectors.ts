@@ -478,6 +478,15 @@ export const selectBuyAmountBeforeFeesCryptoPrecision = createSelector(
   },
 )
 
+export const selectBuyAmountBeforeFeesUserCurrency = createSelector(
+  selectBuyAmountBeforeFeesCryptoPrecision,
+  selectInputBuyAssetUserCurrencyRate,
+  (buyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
+    if (!buyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
+    return bn(buyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
+  },
+)
+
 export const selectBuyAmountAfterFeesUserCurrency = createSelector(
   selectBuyAmountAfterFeesCryptoPrecision,
   selectInputBuyAssetUserCurrencyRate,

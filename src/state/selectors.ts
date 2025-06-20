@@ -6,7 +6,7 @@ import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
+import type { TxMetadata as ThorTxMetadata } from '@shapeshiftoss/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 
 import type { ReduxState } from './reducer'

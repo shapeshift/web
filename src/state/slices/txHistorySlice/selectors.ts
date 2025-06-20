@@ -11,7 +11,7 @@ import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
-import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
+import type { TxMetadata as ThorTxMetadata } from '@shapeshiftoss/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 

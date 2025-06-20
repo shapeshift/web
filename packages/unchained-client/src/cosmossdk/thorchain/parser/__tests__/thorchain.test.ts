@@ -1,6 +1,6 @@
 import { tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Fee } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
@@ -50,6 +50,10 @@ const txParser = new TransactionParser({
 })
 
 describe('parseTx', () => {
+  beforeEach(() => {
+    mocks.get.mockReset()
+  })
+
   it('should be able to parse a standard send tx', async () => {
     const { tx, txNoFee, txWithFee } = standard
     const address = 'thor1n9cuafe8trfhw2e8gt7794zv9hfwk6gfmzllzc'
@@ -126,6 +130,9 @@ describe('parseTx', () => {
     const address = 'thor166n4w5039meulfa3p6ydg60ve6ueac7tlt0jws'
     const memo = 'SWAP:avax/avax:thor166n4w5039meulfa3p6ydg60ve6ueac7tlt0jws:5142676147'
 
+    // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
+    mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
+
     const expected: ParsedTx = {
       txid: tx.txid,
       blockHash: tx.blockHash,
@@ -163,7 +170,7 @@ describe('parseTx', () => {
     const address = 'thor1f6l25d5zech60d036e57t3vkqh3gs7qsrsp08w'
     const memo = 'OUT:0BB1C342AA5C5834F51BB77FFBA8462BB025274357683A68B07C55536AD6E5D5'
 
-    mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+    mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -197,7 +204,7 @@ describe('parseTx', () => {
     const address = 'thor155aucsw0n50lpdk6cx55cp2qz5txeedru56zml'
     const memo = 'REFUND:6628AF59FE3F1B783F4A85E51069574CF895FBCCB2F3246CE8392900EFE3A189'
 
-    mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+    mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -230,6 +237,9 @@ describe('parseTx', () => {
     const { tx } = thorchainStreamingSwap
     const address = 'thor197ssrutuncwptemfh3kxnwqm0hgpxery479tp0'
     const memo = '=:ETH.ETH:0xC7aF182e65EA4Bda6A455872FE4FDa5Df39C69D1:0/1/0:te:0'
+
+    // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
+    mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -268,7 +278,7 @@ describe('parseTx', () => {
     const address = 'thor1jgrk28l7fq3gat2nmu3qv580mz043r2fmhxq8e'
     const memo = 'OUT:CC07D5BC49E769EAC4373AE3E02D5670D7F08FACE2F50E895CE32F8B6336A341'
 
-    mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+    mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -302,7 +312,7 @@ describe('parseTx', () => {
     const address = 'thor14d84esehyv8w3g9mz9kuafzl65gdd6ns647q7q'
     const memo = 'REFUND:96E69FB82E08FE735306493ED5EAF0DB7AC36AE71A180649929FB76ADF6F52DD'
 
-    mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+    mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -335,6 +345,9 @@ describe('parseTx', () => {
     const { tx } = thorchainLpDeposit
     const address = 'thor1h69n79u4ykwjc5z7m68yncc83vuky8t4t69rlh'
     const memo = '+:BSC.BNB:0x8e247cba845e3565f0c0707e4de049043e29c34e:wr:100'
+
+    // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
+    mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -371,6 +384,9 @@ describe('parseTx', () => {
     const { tx } = thorchainLpWithdraw
     const address = 'thor1ekfgmlss3sjedv207ehcdrh89h4e7tlsf45v58'
     const memo = '-:BNB.BTCB-1de:10000'
+
+    // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
+    mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
     const expected: ParsedTx = {
       txid: tx.txid,
@@ -460,7 +476,7 @@ describe('parseTx', () => {
     const address = 'thor1cv2cefslwelng58ngql7w6q479tyyal2fl6kwy'
     const memo = 'OUT:D272D82280D6AF4257E26DD4A568E33DE15FB1AFA0330B9591892FB2994848B3'
 
-    mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+    mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
     const expected: ParsedTx = {
       txid: tx.txid,

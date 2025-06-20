@@ -1,29 +1,51 @@
-import type { BaseTxMetadata, StandardTx } from '../types'
 import { Dex } from '../types'
-import type { Swap } from './thorchain'
-import { Parser as ThorchainParser } from './thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from './thorchain'
+import type { ActionsResponse, TxSpecific } from './thormaya'
+import { getAffiliateName, Parser as ThorMayaParser } from './thormaya'
 
-export interface TxMetadata extends BaseTxMetadata {
-  parser: 'mayachain'
-  memo: string
-  swap?: Swap
-}
+export type * from './thormaya'
 
-export interface ParsedTx extends StandardTx {
-  data?: TxMetadata
-}
+export const MAYACHAIN_AFFILIATE_NAME = 'ssmaya'
 
-export type TxSpecific = Partial<Pick<ParsedTx, 'data' | 'trade' | 'transfers'>>
+export const mayachainSupportedActions = [
+  'swap',
+  '=',
+  's',
+  'add',
+  '+',
+  'a',
+  'withdraw',
+  '-',
+  'wd',
+  'out',
+  'refund',
+]
 
 export interface ParserArgs {
   midgardUrl: string
 }
 
-export class Parser extends ThorchainParser<'mayachain'> {
+export class Parser extends ThorMayaParser {
   constructor(args: ParserArgs) {
-    super(args)
+    super({ ...args, dexName: Dex.Maya, parserName: 'mayachain' })
+  }
 
-    this.dexName = Dex.Maya
-    this.parserName = 'mayachain'
+  async parse(memo: string, txid: string): Promise<TxSpecific | undefined> {
+    const [action] = memo.split(':')
+    const affiliateName = getAffiliateName(memo)
+
+    // affiliate name is for thorchain
+    if (affiliateName === THORCHAIN_AFFILIATE_NAME) return
+
+    // action is not supported by mayachain
+    if (!mayachainSupportedActions.includes(action.toLowerCase())) return
+
+    // unknown affiliate name with no actions returned by mayachain midgard
+    if (affiliateName !== MAYACHAIN_AFFILIATE_NAME) {
+      const { data } = await this.axiosMidgard.get<ActionsResponse>(`/actions?txid=${txid}`)
+      if (!data.actions.length) return
+    }
+
+    return this._parse(memo)
   }
 }

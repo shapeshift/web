@@ -1,39 +1,39 @@
-import * as myzod from 'myzod'
+import type { Infer } from 'myzod'
 import * as z from 'myzod'
 
 import { makeSwapErrorRight, TradeQuoteError } from '../../../api'
 
-export const SupportedChainListResponseValidator = myzod.object({
-  errno: myzod.number(),
-  message: myzod.string(),
-  data: myzod.array(myzod.number()),
+export const SupportedChainListResponseValidator = z.object({
+  errno: z.number(),
+  message: z.string(),
+  data: z.array(z.number()),
 })
 
-export type SupportedChainListResponse = myzod.Infer<typeof SupportedChainListResponseValidator>
+export type SupportedChainListResponse = Infer<typeof SupportedChainListResponseValidator>
 
-export const FindTokenResponseValidator = myzod.object({
-  errno: myzod.number(),
-  message: myzod.string(),
-  data: myzod.array(
-    myzod.object({
-      id: myzod.number(),
-      chainId: myzod.number(),
-      address: myzod.string(),
-      blockchainNetwork: myzod.string(),
-      coingeckoId: myzod.string(),
-      decimals: myzod.number(),
-      image: myzod.string(),
-      name: myzod.string(),
-      rank: myzod.number(),
-      symbol: myzod.string(),
-      tokenSecurity: myzod.null(),
-      usdprice: myzod.number(),
-      usedIniframe: myzod.number(),
+export const FindTokenResponseValidator = z.object({
+  errno: z.number(),
+  message: z.string(),
+  data: z.array(
+    z.object({
+      id: z.number(),
+      chainId: z.number(),
+      address: z.string(),
+      blockchainNetwork: z.string(),
+      coingeckoId: z.string(),
+      decimals: z.number(),
+      image: z.string(),
+      name: z.string(),
+      rank: z.number(),
+      symbol: z.string(),
+      tokenSecurity: z.null(),
+      usdprice: z.number(),
+      usedIniframe: z.number(),
     }),
   ),
 })
 
-export type FindTokenResponse = myzod.Infer<typeof FindTokenResponseValidator>
+export type FindTokenResponse = Infer<typeof FindTokenResponseValidator>
 
 export const RouteResponseValidator = z.union([
   z.object({
@@ -68,7 +68,7 @@ export const RouteResponseValidator = z.union([
   }),
 ])
 
-export type RouteResponse = myzod.Infer<typeof RouteResponseValidator>
+export type RouteResponse = Infer<typeof RouteResponseValidator>
 
 export const BuildTxResponseValidator = z.union([
   z.object({
@@ -80,8 +80,8 @@ export const BuildTxResponseValidator = z.union([
         data: z.string(),
         value: z.string(),
         chainId: z.string(),
-        method: z.string().optional(),
-        args: z.array(z.object({ type: z.string(), value: z.unknown() })).optional(),
+        method: z.string(),
+        args: z.array(z.object({ type: z.string(), value: z.unknown() })),
       }),
     ),
   }),
@@ -91,4 +91,4 @@ export const BuildTxResponseValidator = z.union([
   }),
 ])
 
-export type BuildTxResponse = myzod.Infer<typeof BuildTxResponseValidator>
+export type BuildTxResponse = Infer<typeof BuildTxResponseValidator>

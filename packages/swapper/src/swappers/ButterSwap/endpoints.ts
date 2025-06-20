@@ -3,8 +3,14 @@ import { Err, Ok } from '@sniptt/monads'
 import { TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
 import { butterService } from './utils/butterSwapService'
-import type { FindTokenResponse, RouteResponse, SupportedChainListResponse } from './validators'
+import type {
+  BuildTxResponse,
+  FindTokenResponse,
+  RouteResponse,
+  SupportedChainListResponse,
+} from './validators'
 import {
+  BuildTxResponseValidator,
   FindTokenResponseValidator,
   RouteResponseValidator,
   SupportedChainListResponseValidator,
@@ -94,6 +100,39 @@ export const getRoute = (
             return Err(
               makeSwapErrorRight({
                 message: '[getRoute]',
+                cause: e,
+                code: TradeQuoteError.QueryFailed,
+              }),
+            )
+          }
+        }),
+    )
+}
+
+export const getBuildTx = (hash: string, slippage: string, from: string, receiver: string) => {
+  return butterService
+    .get<BuildTxResponse>('/swap', {
+      params: { hash, slippage, from, receiver },
+    })
+    .then(res =>
+      res
+        .map(res => res.data)
+        .andThen(data => {
+          try {
+            const parsedData = BuildTxResponseValidator.parse(data)
+            if (parsedData.errno > 0) {
+              return Err(
+                makeSwapErrorRight({
+                  message: `[getBuildTx] ${parsedData.message}`,
+                  code: TradeQuoteError.QueryFailed,
+                }),
+              )
+            }
+            return Ok(parsedData)
+          } catch (e) {
+            return Err(
+              makeSwapErrorRight({
+                message: '[getBuildTx]',
                 cause: e,
                 code: TradeQuoteError.QueryFailed,
               }),

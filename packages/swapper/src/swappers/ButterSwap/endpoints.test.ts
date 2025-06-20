@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { findToken, getBuildTx, getRoute, getSupportedChainList } from './endpoints'
-import type { FindTokenResponse, SupportedChainListResponse } from './validators'
+import type { BuildTxResponse, FindTokenResponse, SupportedChainListResponse } from './validators'
 
 vi.setConfig({ testTimeout: 10000 })
 
@@ -47,8 +47,17 @@ describe('endpoints', () => {
 
   describe('getBuildTx', () => {
     it('should return a buildTx payload from the real API', async () => {
-      // This will be a placeholder test until we can get a successful route
-      expect(true).toBe(false)
+      expect.assertions(1)
+      const hash = '0xf0aba09e5aaf9b1301feeeef44a2525a783fd64c86485959a60010ca215a3337'
+      const slippage = '150'
+      const from = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
+      const receiver = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
+      const result = await getBuildTx(hash, slippage, from, receiver)
+      if (result.isErr()) {
+        throw result.unwrapErr()
+      } else {
+        expect(result.unwrap().errno).toBe(0)
+      }
     })
   })
 })

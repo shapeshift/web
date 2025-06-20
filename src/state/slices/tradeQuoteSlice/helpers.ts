@@ -197,7 +197,7 @@ const sortApiQuotes = (
           },
           // Then sort by the actual fee amount in user currency
           (quote: ApiQuote) => {
-            return getNetworkFeeUserCurrency(quote.quote)
+            return getNetworkFeeUserCurrency(quote.quote).toNumber()
           },
         ]
       case QuoteSortOption.BEST_RATE:
@@ -211,7 +211,7 @@ const sortApiQuotes = (
             const lastStep = steps[steps.length - 1]
 
             // Use buyAmountAfterFeesCryptoBaseUnit which should match the displayed amount
-            const buyAmount = bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
+            const buyAmount = bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit).toNumber()
 
             return buyAmount
           },

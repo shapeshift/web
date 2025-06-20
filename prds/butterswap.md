@@ -23,3 +23,25 @@ The integration will require implementing the following endpoints from the Butte
 To ensure type safety and data integrity, we will use the existing `myzod` library to create schema validators for the JSON responses from each of the ButterSwap API endpoints.
 
 These validators will be used to parse the incoming data and confirm that it matches the structure and types outlined in the ButterSwap API documentation before it is used within the application.
+
+## 4. API Service
+
+To handle all communication with the ButterSwap API endpoints, we will create a dedicated service file at `packages/swapper/src/swappers/ButterSwap/utils/butterSwapService.ts`.
+
+This service will be constructed using the existing `makeSwapperAxiosServiceMonadic` helper function. This ensures that all API calls are wrapped in a monadic interface (`ResultAsync`), providing robust and consistent error handling across the application.
+
+The service will also leverage the `createCache` utility to cache responses from the ButterSwap API where appropriate, improving performance and reducing redundant network requests. This approach follows the established pattern seen in other swappers like `ChainflipSwapper` and `CowSwapper`.
+
+## 5. Development Methodology
+
+To ensure accuracy and efficiency, we will follow a Test-Driven Development (TDD) approach that leverages real API responses to build our validators. The process for implementing each new endpoint will be as follows:
+
+1. **Write a Failing Test**: Create a new integration test for the target endpoint. This test will initially fail because the validator is not yet correctly defined.
+2. **Log the Raw Response**: Temporarily add a `console.log` statement to the endpoint's implementation within the `catch` block of the response promise. This will capture and display the raw JSON response from the ButterSwap API when the validation fails.
+3. **Run the Test**: Execute the failing test. The raw response will be printed to the console.
+4. **Create the Validator**: Using the logged response as a reference, create or update the `myzod` validator to accurately match the structure and data types of the API response.
+5. **Remove Logging**: Once the validator is corrected, remove the temporary `console.log` statement from the endpoint implementation.
+6. **Verify Tests Pass**: Rerun the tests to confirm that they now pass with the correct validator.
+7. **Clean Up**: Remove any temporary logging from the test file itself.
+
+This iterative process ensures that our validators are always in sync with the actual data returned by the live API, minimizing runtime errors and increasing the reliability of the integration.

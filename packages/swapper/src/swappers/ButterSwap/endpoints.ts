@@ -2,10 +2,17 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import * as z from 'myzod'
 
-import type { SwapErrorRight } from '../../types'
-import { TradeQuoteError } from '../../types'
+import type {
+  CommonTradeQuoteInput,
+  SwapErrorRight,
+  SwapperApi,
+  SwapperDeps,
+  TradeQuote,
+} from '../../types'
+import { SwapperName, TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
 import { butterService } from './utils/butterSwapService'
+import { chainIdToButterSwapChainId } from './utils/helpers'
 import type {
   BuildTxResponse,
   FindTokenResponse,
@@ -209,4 +216,85 @@ export function isRouteAndSwapSuccess(
   response: RouteAndSwapResponse,
 ): response is Extract<RouteAndSwapResponse, { errno: 0 }> {
   return response.errno === 0
+}
+
+export const butterSwapApi: SwapperApi = {
+  getTradeQuote: async (input: CommonTradeQuoteInput, deps: SwapperDeps) => {
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+      receiveAddress,
+      slippageTolerancePercentageDecimal,
+    } = input
+    const { assertGetChainAdapter: getChainAdapter } = deps
+    const sellChainId = getChainAdapter(sellAsset.chainId).getChainId()
+    const buyChainId = getChainAdapter(buyAsset.chainId).getChainId()
+    const fromChainId = chainIdToButterSwapChainId(sellChainId)
+    const toChainId = chainIdToButterSwapChainId(buyChainId)
+    if (!fromChainId || !toChainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] Unsupported chainId',
+          code: TradeQuoteError.UnsupportedChain,
+        }),
+      )
+    }
+    const result = await getRoute(
+      fromChainId,
+      sellAsset.assetId,
+      toChainId,
+      buyAsset.assetId,
+      amount,
+    )
+    if (result.isErr()) return Err(result.unwrapErr())
+    const routeResponse = result.unwrap()
+    if (!isRouteSuccess(routeResponse)) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[getTradeQuote] ${routeResponse.message}`,
+          code: TradeQuoteError.QueryFailed,
+        }),
+      )
+    }
+    const route = routeResponse.data[0]
+    const tradeQuote: TradeQuote = {
+      id: route.hash,
+      rate: route.srcChain.totalAmountOut,
+      receiveAddress,
+      affiliateBps: '0',
+      isStreaming: false,
+      quoteOrRate: 'quote',
+      swapperName: SwapperName.ButterSwap,
+      slippageTolerancePercentageDecimal,
+      steps: [
+        {
+          buyAmountBeforeFeesCryptoBaseUnit: '0',
+          buyAmountAfterFeesCryptoBaseUnit: '0',
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+          feeData: {
+            networkFeeCryptoBaseUnit: '0',
+            protocolFees: {},
+          },
+          rate: route.srcChain.totalAmountOut,
+          source: SwapperName.ButterSwap,
+          buyAsset,
+          sellAsset,
+          accountNumber: 0,
+          allowanceContract: '0x0',
+          estimatedExecutionTimeMs: route.timeEstimated,
+        },
+      ],
+    }
+    return Ok([tradeQuote])
+  },
+  checkTradeStatus: () => {
+    throw new Error('checkTradeStatus Not implemented')
+  },
+  getTradeRate: () => {
+    throw new Error('getTradeRate Not implemented')
+  },
+  getUnsignedTx: () => {
+    throw new Error('getUnsignedTx Not implemented')
+  },
 }

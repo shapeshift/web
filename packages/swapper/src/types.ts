@@ -73,6 +73,7 @@ export enum SwapperName {
   Chainflip = 'Chainflip',
   Jupiter = 'Jupiter',
   Relay = 'Relay',
+  ButterSwap = 'ButterSwap',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

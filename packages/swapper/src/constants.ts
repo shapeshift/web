@@ -30,6 +30,9 @@ import { zrxSwapper } from './swappers/ZrxSwapper/ZrxSwapper'
 import type { SupportedChainIds, Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
+import { butterSwapper } from './swappers/ButterSwap/ButterSwap'
+import { butterSwapApi } from './swappers/ButterSwap/endpoints'
+import { BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS } from './swappers/ButterSwap/utils/constants'
 
 export const DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const QUOTE_TIMEOUT_MS = 60_000
@@ -100,6 +103,12 @@ export const swappers: Record<
     supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
+  [SwapperName.ButterSwap]: {
+    ...butterSwapper,
+    ...butterSwapApi,
+    supportedChainIds: BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -136,6 +145,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Jupiter')
     case SwapperName.Relay:
       throw new Error('Default slippage not supported by Relay')
+    case SwapperName.ButterSwap:
+      return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

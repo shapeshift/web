@@ -136,9 +136,15 @@ export const BuildTxResponseValidator = z.union([BuildTxSuccessResponseValidator
 
 export type BuildTxResponse = Infer<typeof BuildTxResponseValidator>
 
+const TxParamValidator = z.object({
+  errno: z.number(),
+  message: z.string(),
+  data: z.array(BuildTxSuccessItemValidator),
+})
+
 const RouteAndSwapSuccessItemValidator = z.object({
   route: RouteSuccessItemValidator,
-  txParam: BuildTxSuccessItemValidator,
+  txParam: TxParamValidator,
 })
 
 export const RouteAndSwapResponseValidator = z.union([

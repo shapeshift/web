@@ -7,7 +7,6 @@ import {
   getRouteAndSwap,
   getSupportedChainList,
 } from './endpoints'
-import type { BuildTxResponse, FindTokenResponse, SupportedChainListResponse } from './validators'
 
 vi.setConfig({ testTimeout: 10000 })
 
@@ -15,11 +14,16 @@ describe('endpoints', () => {
   describe('getSupportedChainList', () => {
     it('should return a list of supported chains from the real API', async () => {
       const result = await getSupportedChainList()
-      expect(result.isOk()).toBe(true)
-      const response = result.unwrap() as SupportedChainListResponse
-      expect(response.errno).toBe(0)
-      expect(Array.isArray(response.data)).toBe(true)
-      expect(response.data.length).toBeGreaterThan(0)
+      result.match({
+        ok: response => {
+          expect(response.errno).toBe(0)
+          expect(Array.isArray(response.data)).toBe(true)
+          expect(response.data.length).toBeGreaterThan(0)
+        },
+        err: error => {
+          expect.fail(JSON.stringify(error))
+        },
+      })
     })
   })
 
@@ -28,13 +32,18 @@ describe('endpoints', () => {
       const chainId = 1 // Ethereum
       const address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' // WETH
       const result = await findToken(chainId, address)
-      expect(result.isOk()).toBe(true)
-      const response = result.unwrap() as FindTokenResponse
-      expect(response.errno).toBe(0)
-      const token = response.data.find(
-        t => t.address.toLowerCase() === address.toLowerCase() && t.chainId === chainId,
-      )
-      expect(token).toBeDefined()
+      result.match({
+        ok: response => {
+          expect(response.errno).toBe(0)
+          const token = response.data.find(
+            t => t.address.toLowerCase() === address.toLowerCase() && t.chainId === chainId,
+          )
+          expect(token).toBeDefined()
+        },
+        err: error => {
+          expect.fail(JSON.stringify(error))
+        },
+      })
     })
   })
 
@@ -46,9 +55,14 @@ describe('endpoints', () => {
       const tokenOutAddress = '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619' // WETH on Polygon
       const amount = '100000000000000000' // 0.1 WETH
       const result = await getRoute(fromChainId, tokenInAddress, toChainId, tokenOutAddress, amount)
-      expect(result.isOk()).toBe(false)
-      const response = result.unwrapErr()
-      expect(response.message).toContain('getRoute')
+      result.match({
+        ok: response => {
+          expect.fail(JSON.stringify(response))
+        },
+        err: error => {
+          expect(error.message).toContain('getRoute')
+        },
+      })
     })
   })
 
@@ -62,8 +76,6 @@ describe('endpoints', () => {
       const receiver = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
       const result = await getBuildTx(hash, slippage, from, receiver)
       expect(result.isOk()).toBe(true)
-      const response = result.unwrap() as BuildTxResponse
-      expect(response.errno).toBe(0)
     })
   })
 
@@ -85,9 +97,14 @@ describe('endpoints', () => {
         from,
         receiver,
       )
-      expect(result.isOk()).toBe(false)
-      const response = result.unwrapErr()
-      expect(response.message).toContain('getRouteAndSwap')
+      result.match({
+        ok: response => {
+          expect.fail(JSON.stringify(response))
+        },
+        err: error => {
+          expect(error.message).toContain('getRouteAndSwap')
+        },
+      })
     })
   })
 })

@@ -7,7 +7,6 @@ import {
   getRouteAndSwap,
   getSupportedChainList,
 } from './endpoints'
-import type { RouteResponseSuccess } from './types'
 
 vi.setConfig({ testTimeout: 10000 })
 
@@ -60,7 +59,8 @@ describe('endpoints', () => {
         ok: response => {
           console.log('getRoute result:', JSON.stringify(response, null, 2))
           expect(response.errno).toBe(0)
-          const route = (response as RouteResponseSuccess).data[0]
+          const route = (response as any).data[0]
+          console.log('route:', JSON.stringify(route, null, 2))
           expect(route).toBeDefined()
           expect(route).toHaveProperty('hash')
         },
@@ -94,7 +94,7 @@ describe('endpoints', () => {
 
       await routeResult.match({
         ok: async routeResponse => {
-          const route = (routeResponse as RouteResponseSuccess).data[0]
+          const route = (routeResponse as any).data[0]
           expect(route).toBeDefined()
           const hash = route.hash
           const slippage = '150'
@@ -105,7 +105,7 @@ describe('endpoints', () => {
           buildTxResult.match({
             ok: buildTxResponse => {
               expect(buildTxResponse.errno).toBe(0)
-              const txData = buildTxResponse.data[0]
+              const txData = (buildTxResponse as any).data[0]
               expect(txData).toBeDefined()
               expect(txData.data).not.toBe('')
             },
@@ -114,9 +114,10 @@ describe('endpoints', () => {
             },
           })
         },
-        err: error => {
+        err: async error => {
           // This can happen due to lack of liquidity, which is a valid but unpredictable API response
           console.warn(`getRoute failed, skipping getBuildTx test: ${error.message}`)
+          await Promise.resolve()
         },
       })
     })

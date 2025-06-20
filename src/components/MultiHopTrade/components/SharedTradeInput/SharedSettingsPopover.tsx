@@ -22,6 +22,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 
+import { QuoteDisplaySelector } from './QuoteDisplaySelector'
 import { QuoteSortSelector } from './QuoteSortSelector'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -220,6 +221,9 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
                 <QuoteSortSelector />
               </Box>
             )}
+            <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4} width='full'>
+              <QuoteDisplaySelector />
+            </Box>
           </PopoverBody>
         </PopoverContent>
       </Popover>

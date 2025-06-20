@@ -220,8 +220,8 @@ export const TradeInput = ({
   }, [translate])
 
   const headerRightContent = useMemo(() => {
-    return <TradeSettingsMenu isLoading={isLoading} isCompact={isCompact} />
-  }, [isCompact, isLoading])
+    return <TradeSettingsMenu isCompact={isCompact} />
+  }, [isCompact])
 
   // Master effect syncing URL with state - note this is only done at trade input time
   // That's the only place we want things to be in sync, other routes should be a redirect

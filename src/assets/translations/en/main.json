@@ -847,6 +847,11 @@
       "warning": "High slippage tolerances can result in unfavorable trades.",
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
+    "quoteBadge": {
+      "best": "Best Rate",
+      "fastest": "Fastest",
+      "lowestGas": "Lowest Gas"
+    },
     "sort": {
       "sortBy": "Sort Quotes By",
       "auto": "Auto",
@@ -854,6 +859,10 @@
       "lowestGas": "Lowest Gas",
       "fastest": "Fastest",
       "info": "Select how you would like your quotes sorted."
+    },
+    "quoteDisplay": {
+      "title": "Quote Display",
+      "info": "Select how much information you’d like displayed on your quotes."
     },
     "from": "From",
     "to": "To",
@@ -1042,8 +1051,11 @@
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
-      "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
-      "slippage": "Slippage: %{slippageFormatted}"
+      "cantSetSlippage": "We were unable to set your custom slippage for this swapper.",
+      "gas": "The gas to complete this swappers transaction.",
+      "priceImpact": "The price impact on the route for this swap.",
+      "slippage": "This is the slippage on this quote.",
+      "timeEstimate": "This is the estimated time for this swap to complete."
     },
     "awaitingPermit2Approval": "Awaiting token transfer",
     "awaitingSwap": "Awaiting swap via %{swapperName}",

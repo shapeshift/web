@@ -87,6 +87,28 @@ const getNetworkFeeUserCurrency = (quote: TradeQuote | TradeRate | undefined): B
   )
 }
 
+// NOTE: don't pull this from the slice - we're not displaying the active quote here
+export function getNetworkFeeUserCurrencyPrecision(quote: TradeQuote | TradeRate | undefined) {
+  if (!quote) return
+  const state = store.getState()
+  const getFeeAsset = (assetId: AssetId) => {
+    const feeAsset = selectFeeAssetById(state, assetId)
+    if (feeAsset === undefined) {
+      throw Error(`missing fee asset for assetId ${assetId}`)
+    }
+    return feeAsset
+  }
+  const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
+    selectMarketDataByFilter(state, {
+      assetId: feeAssetId,
+    })?.price
+
+  return getTotalNetworkFeeUserCurrencyPrecision(
+    quote,
+    getFeeAsset,
+    getFeeAssetUserCurrencyRate,
+  )?.toString()
+}
 /**
  * Computes the total receive amount across all hops after protocol fees are deducted
  * @param quote The trade quote
@@ -152,37 +174,18 @@ const sortApiQuotes = (
   unorderedQuotes: ApiQuote[],
   sortOption: QuoteSortOption = QuoteSortOption.BEST_RATE,
 ): ApiQuote[] => {
-  // Custom sorting function rather than an orderBy iteratee to keep my sanity, since this didn't play too well with it
-  if (sortOption === QuoteSortOption.FASTEST) {
-    const sorted = [...unorderedQuotes].sort((a, b) => {
-      const getExecutionTime = (quote: ApiQuote) => {
-        if (!quote.quote?.steps?.length) return undefined
-
-        // Note, we *need* this and don't want to sum to 0. undefined and 0 have two v. diff meanings
-        if (quote.quote.steps.every(step => step.estimatedExecutionTimeMs === undefined)) {
-          return undefined
-        }
-
-        return quote.quote.steps.reduce((total, step) => {
-          // Opt chain to keep tsc happy, we already know it will be defined after the above check
-          return total + (step.estimatedExecutionTimeMs ?? 0)
-        }, 0)
-      }
-
-      const aTime = getExecutionTime(a)
-      const bTime = getExecutionTime(b)
-
-      if (aTime === undefined && bTime === undefined) return 0
-      if (aTime === undefined) return 1 // Push undefined to last, we don't know the ETA here
-      if (bTime === undefined) return -1 // Keep defined ETA above undefined
-
-      // Number compare is safe since we're dealing with unix timestamps
-      return aTime - bTime
-    })
-    return sorted
-  }
   const iteratees: ((quote: ApiQuote) => any)[] = (() => {
     switch (sortOption) {
+      case QuoteSortOption.FASTEST:
+        return [
+          // Presort by un/available execution times
+          (quote: ApiQuote) => {
+            const score = getFastestScore(quote)
+            return score === Number.MAX_SAFE_INTEGER ? true : false
+          },
+          // Then sort by the actual execution time
+          (quote: ApiQuote) => getFastestScore(quote),
+        ]
       case QuoteSortOption.LOWEST_GAS:
         return [
           // Presort by un/available network fees
@@ -196,31 +199,17 @@ const sortApiQuotes = (
             return false
           },
           // Then sort by the actual fee amount in user currency
-          (quote: ApiQuote) => {
-            return getNetworkFeeUserCurrency(quote.quote)
-          },
+          (quote: ApiQuote) => getLowestGasScore(quote),
         ]
       case QuoteSortOption.BEST_RATE:
       default:
-        return [
-          (quote: ApiQuote) => {
-            if (!quote.quote?.steps?.length) return bn(0)
-
-            // Get the last step for multi-hop trades
-            const steps = quote.quote.steps
-            const lastStep = steps[steps.length - 1]
-
-            // Use buyAmountAfterFeesCryptoBaseUnit which should match the displayed amount
-            const buyAmount = bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
-
-            return buyAmount
-          },
-        ]
+        return [(quote: ApiQuote) => getBestRateScore(quote)]
     }
   })()
 
   const sortOrders: ('asc' | 'desc')[] = (() => {
     switch (sortOption) {
+      case QuoteSortOption.FASTEST:
       case QuoteSortOption.LOWEST_GAS:
         return ['asc', 'asc'] // Lowest to highest network fees
       case QuoteSortOption.BEST_RATE:
@@ -246,6 +235,72 @@ export const sortTradeQuotes = (
   return sortApiQuotes(allQuotes, sortOption)
 }
 
+const getBestRateScore = (quote: ApiQuote): BigNumber => {
+  if (!quote.quote?.steps?.length) return bn(0)
+  const lastStep = quote.quote.steps[quote.quote.steps.length - 1]
+  return bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
+}
+
+const getFastestScore = (quote: ApiQuote): number => {
+  if (!quote.quote?.steps?.length) return Number.MAX_SAFE_INTEGER
+
+  if (quote.quote.steps.every(step => step.estimatedExecutionTimeMs === undefined)) {
+    return Number.MAX_SAFE_INTEGER
+  }
+
+  return quote.quote.steps.reduce((total, step) => {
+    return total + (step.estimatedExecutionTimeMs ?? 0)
+  }, 0)
+}
+
+const getLowestGasScore = (quote: ApiQuote): BigNumber => {
+  return getNetworkFeeUserCurrency(quote.quote)
+}
+
+export const getBestQuotesByCategory = (quotes: ApiQuote[]) => {
+  if (!quotes.length) {
+    return { best: undefined, fastest: undefined, lowestGas: undefined }
+  }
+
+  let bestRateQuote = quotes[0]
+  let fastestQuote = quotes[0]
+  let lowestGasQuote = quotes[0]
+
+  let bestRateScore = getBestRateScore(bestRateQuote)
+  let fastestScore = getFastestScore(fastestQuote)
+  let lowestGasScore = getLowestGasScore(lowestGasQuote)
+
+  for (const quote of quotes) {
+    const rateScore = getBestRateScore(quote)
+    const timeScore = getFastestScore(quote)
+    const gasScore = getLowestGasScore(quote)
+
+    // Best rate: highest buyAmountAfterFeesCryptoBaseUnit
+    if (rateScore.gt(bestRateScore)) {
+      bestRateScore = rateScore
+      bestRateQuote = quote
+    }
+
+    // Fastest: lowest execution time
+    if (timeScore < fastestScore) {
+      fastestScore = timeScore
+      fastestQuote = quote
+    }
+
+    // Lowest gas: lowest network fee
+    if (gasScore.lt(lowestGasScore)) {
+      lowestGasScore = gasScore
+      lowestGasQuote = quote
+    }
+  }
+
+  return {
+    isBest: bestRateQuote.id,
+    isFastest: fastestQuote.id,
+    isLowestGas: lowestGasQuote.id,
+  }
+}
+
 export const getActiveQuoteMetaOrDefault = (
   activeQuoteMeta: ActiveQuoteMeta | undefined,
   sortedQuotes: ApiQuote[],
@@ -261,3 +316,13 @@ export const getActiveQuoteMetaOrDefault = (
   const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
   return activeQuoteMeta ?? defaultQuoteMeta
 }
+
+export const checkHasAmountWithPositiveReceive = (
+  isAmountEntered: boolean,
+  hasNegativeRatio: boolean,
+  isTradingWithoutMarketData: boolean,
+  totalReceiveAmountCrypto: string,
+) =>
+  isAmountEntered &&
+  (!hasNegativeRatio || isTradingWithoutMarketData) &&
+  bnOrZero(totalReceiveAmountCrypto).isGreaterThan(0)

@@ -9,7 +9,7 @@ import {
   isBuildTxSuccess,
   isRouteAndSwapSuccess,
   isRouteSuccess,
-} from './endpoints'
+} from './xhr'
 
 vi.setConfig({ testTimeout: 10000 })
 

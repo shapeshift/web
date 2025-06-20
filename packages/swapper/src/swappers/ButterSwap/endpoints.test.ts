@@ -60,19 +60,16 @@ describe('endpoints', () => {
       const result = await getRoute(fromChainId, tokenInAddress, toChainId, tokenOutAddress, amount)
       result.match({
         ok: response => {
-          console.log('getRoute result:', JSON.stringify(response, null, 2))
           expect(isRouteSuccess(response)).toBe(true)
           if (!isRouteSuccess(response)) {
             expect.fail(`Unexpected errno in ok branch: ${response.errno}`)
             return
           }
           const route = response.data[0]
-          console.log('route:', JSON.stringify(route, null, 2))
           expect(route).toBeDefined()
           expect(route).toHaveProperty('hash')
         },
         err: error => {
-          console.error('getRoute failed:', error.message)
           if (!error.message.includes('Insufficient Liquidity')) {
             expect.fail(error.message)
           }
@@ -173,7 +170,6 @@ describe('endpoints', () => {
           expect(isRouteAndSwapSuccess(response)).toBe(true)
         },
         err: error => {
-          console.error(error)
           expect.fail(error.message)
         },
       })

@@ -1,10 +1,11 @@
 import type { Infer } from 'myzod'
 import * as z from 'myzod'
 
-const ErrorValidator = z.object({
-  errno: z.number().withPredicate(n => n > 0),
+// Generic error validator for non-zero errno
+export const ErrorValidator = z.object({
+  errno: z.number(),
   message: z.string(),
-  maxAmount: z.string().optional(),
+  data: z.unknown().optional(),
 })
 
 const TokenValidator = z.object({
@@ -15,26 +16,56 @@ const TokenValidator = z.object({
   icon: z.string(),
 })
 
-const RouteSuccessItemValidator = z.object({
-  diff: z.string(),
-  bridgeFee: z.object({
-    amount: z.string(),
-    affiliate: z.object({
-      amount: z.string(),
-      list: z.array(z.unknown()),
-      data: z.string(),
+const RouteChainValidator = z.object({
+  chainId: z.string(),
+  tokenIn: TokenValidator,
+  tokenOut: TokenValidator,
+  totalAmountIn: z.string(),
+  totalAmountOut: z.string(),
+  totalAmountOutUSD: z.string().optional(),
+  route: z.array(
+    z.object({
+      amountIn: z.string(),
+      amountOut: z.string(),
+      dexName: z.string(),
+      path: z.array(z.unknown()),
+      extra: z.string(),
     }),
-  }),
+  ),
+  bridge: z.string().optional(),
+})
+
+const AffiliateValidator = z.object({
+  amount: z.string(),
+  list: z.array(z.unknown()),
+  data: z.string(),
+})
+
+export const BridgeFeeValidator = z.object({
+  amount: z.string(),
+  affiliate: AffiliateValidator,
+  symbol: z.string().optional(),
+  address: z.string().optional(),
+  chainId: z.number().optional(),
+  in: z.number().optional(),
+  out: z.number().optional(),
+})
+
+export const RouteSuccessItemValidator = z.object({
+  diff: z.string(),
+  bridgeFee: BridgeFeeValidator,
   tradeType: z.number(),
   gasFee: z.object({
     amount: z.string(),
     symbol: z.string(),
     inUSD: z.string(),
   }),
-  swapFee: z.object({
-    nativeFee: z.string(),
-    tokenFee: z.string(),
-  }),
+  swapFee: z
+    .object({
+      nativeFee: z.string(),
+      tokenFee: z.string(),
+    })
+    .optional(),
   feeConfig: z.object({
     feeType: z.number(),
     referrer: z.string(),
@@ -47,41 +78,87 @@ const RouteSuccessItemValidator = z.object({
   entrance: z.string(),
   timestamp: z.number(),
   hasLiquidity: z.boolean(),
-  srcChain: z.object({
-    chainId: z.string(),
-    tokenIn: TokenValidator,
-    tokenOut: TokenValidator,
-    totalAmountIn: z.string(),
-    totalAmountOut: z.string(),
-    totalAmountOutUSD: z.string(),
-    route: z.array(
-      z.object({
-        amountIn: z.string(),
-        amountOut: z.string(),
-        dexName: z.string(),
-        path: z.array(z.unknown()),
-        extra: z.string(),
-      }),
-    ),
-    bridge: z.string(),
-  }),
-  totalAmountInUSD: z.string(),
-  totalAmountOutUSD: z.string(),
-  contract: z.string(),
-  minAmountOut: z.object({
-    amount: z.string(),
-    symbol: z.string(),
-  }),
+  srcChain: RouteChainValidator,
+  bridgeChain: RouteChainValidator.optional(),
+  dstChain: RouteChainValidator.optional(),
+  totalAmountInUSD: z.string().optional(),
+  totalAmountOutUSD: z.string().optional(),
+  contract: z.string().optional(),
+  minAmountOut: z
+    .object({
+      amount: z.string(),
+      symbol: z.string(),
+    })
+    .optional(),
+  bridge: z.string().optional(),
 })
+
+const RouteSuccessResponseValidator = z.object({
+  errno: z.literal(0),
+  message: z.string(),
+  data: z.array(RouteSuccessItemValidator),
+})
+
+export const RouteResponseValidator = z.union([RouteSuccessResponseValidator, ErrorValidator])
+
+export type RouteResponse = Infer<typeof RouteResponseValidator>
 
 const BuildTxSuccessItemValidator = z.object({
   to: z.string(),
   data: z.string(),
   value: z.string(),
   chainId: z.string(),
-  method: z.string(),
-  args: z.array(z.object({ type: z.string(), value: z.unknown() })),
+  method: z.string().optional(),
+  args: z.array(z.object({ type: z.string(), value: z.unknown() })).optional(),
 })
+
+const BuildTxSuccessResponseValidator = z.object({
+  errno: z.literal(0),
+  message: z.string(),
+  data: z.array(BuildTxSuccessItemValidator),
+})
+
+export const BuildTxResponseValidator = z.union([BuildTxSuccessResponseValidator, ErrorValidator])
+
+export type BuildTxResponse = Infer<typeof BuildTxResponseValidator>
+
+const TxParamArgValidator = z.object({
+  type: z.string(),
+  value: z.string(),
+})
+
+const TxParamDataValidator = z.object({
+  to: z.string(),
+  data: z.string(),
+  value: z.string(),
+  chainId: z.string(),
+  method: z.string(),
+  args: z.array(TxParamArgValidator),
+})
+
+const TxParamValidator = z.object({
+  errno: z.number(),
+  message: z.string(),
+  data: z.array(TxParamDataValidator),
+})
+
+const RouteAndSwapDataValidator = z.object({
+  route: RouteSuccessItemValidator,
+  txParam: TxParamValidator,
+})
+
+const RouteAndSwapSuccessResponseValidator = z.object({
+  errno: z.literal(0),
+  message: z.string(),
+  data: z.array(RouteAndSwapDataValidator),
+})
+
+export const RouteAndSwapResponseValidator = z.union([
+  RouteAndSwapSuccessResponseValidator,
+  ErrorValidator,
+])
+
+export type RouteAndSwapResponse = Infer<typeof RouteAndSwapResponseValidator>
 
 export const SupportedChainListResponseValidator = z.object({
   errno: z.number(),
@@ -114,46 +191,3 @@ export const FindTokenResponseValidator = z.object({
 })
 
 export type FindTokenResponse = Infer<typeof FindTokenResponseValidator>
-
-export const RouteResponseValidator = z.union([
-  z.object({
-    errno: z.literal(0),
-    message: z.literal('success'),
-    data: z.array(RouteSuccessItemValidator),
-  }),
-  ErrorValidator,
-])
-
-export type RouteResponse = Infer<typeof RouteResponseValidator>
-
-const BuildTxSuccessResponseValidator = z.object({
-  errno: z.literal(0),
-  message: z.literal('success'),
-  data: z.array(BuildTxSuccessItemValidator),
-})
-
-export const BuildTxResponseValidator = z.union([BuildTxSuccessResponseValidator, ErrorValidator])
-
-export type BuildTxResponse = Infer<typeof BuildTxResponseValidator>
-
-const TxParamValidator = z.object({
-  errno: z.number(),
-  message: z.string(),
-  data: z.array(BuildTxSuccessItemValidator),
-})
-
-const RouteAndSwapSuccessItemValidator = z.object({
-  route: RouteSuccessItemValidator,
-  txParam: TxParamValidator,
-})
-
-export const RouteAndSwapResponseValidator = z.union([
-  z.object({
-    errno: z.literal(0),
-    message: z.literal('success'),
-    data: z.array(RouteAndSwapSuccessItemValidator),
-  }),
-  ErrorValidator,
-])
-
-export type RouteAndSwapResponse = Infer<typeof RouteAndSwapResponseValidator>

@@ -91,7 +91,7 @@ export const getRoute = async (
 
   try {
     const parsedData = RouteResponseValidator.parse(data)
-    if (parsedData.errno > 0) {
+    if (!isRouteSuccess(parsedData)) {
       return Err(
         makeSwapErrorRight({
           message: `[getRoute] ${parsedData.message}`,
@@ -127,7 +127,7 @@ export const getBuildTx = async (
 
   try {
     const parsedData = BuildTxResponseValidator.parse(data)
-    if (parsedData.errno > 0) {
+    if (!isBuildTxSuccess(parsedData)) {
       return Err(
         makeSwapErrorRight({
           message: `[getBuildTx] ${parsedData.message}`,
@@ -155,6 +155,7 @@ export const getRouteAndSwap = async (
   amount: string,
   from: string,
   receiver: string,
+  slippage: string,
 ): ButterSwapPromise<RouteAndSwapResponse> => {
   const result = await butterService.get<RouteAndSwapResponse>('/routeAndSwap', {
     params: {
@@ -164,7 +165,7 @@ export const getRouteAndSwap = async (
       tokenOutAddress,
       amount,
       type: 'exactIn',
-      slippage: '150', // 1.5%
+      slippage,
       entrance: 'Butter+',
       from,
       receiver,
@@ -177,7 +178,7 @@ export const getRouteAndSwap = async (
 
   try {
     const parsedData = RouteAndSwapResponseValidator.parse(data)
-    if ('errno' in parsedData && parsedData.errno > 0) {
+    if (!isRouteAndSwapSuccess(parsedData)) {
       return Err(
         makeSwapErrorRight({
           message: `[getRouteAndSwap] ${parsedData.message}`,
@@ -195,4 +196,22 @@ export const getRouteAndSwap = async (
       }),
     )
   }
+}
+
+export function isRouteSuccess(
+  response: RouteResponse,
+): response is Extract<RouteResponse, { errno: 0 }> {
+  return response.errno === 0
+}
+
+export function isBuildTxSuccess(
+  response: BuildTxResponse,
+): response is Extract<BuildTxResponse, { errno: 0 }> {
+  return response.errno === 0
+}
+
+export function isRouteAndSwapSuccess(
+  response: RouteAndSwapResponse,
+): response is Extract<RouteAndSwapResponse, { errno: 0 }> {
+  return response.errno === 0
 }

@@ -29,6 +29,7 @@ import {
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
@@ -37,7 +38,6 @@ import {
   getBuyAmountAfterFeesCryptoPrecision,
   getNetworkFeeUserCurrencyPrecision,
 } from '@/state/slices/tradeQuoteSlice/helpers'
-import { selectBuyAmountBeforeFeesUserCurrency } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -50,7 +50,6 @@ export const TradeQuoteAdvanced: FC<TradeQuoteProps> = memo(
 
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
-    const buyAmountBeforeFeesPrecision = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
 
     const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -66,6 +65,7 @@ export const TradeQuoteAdvanced: FC<TradeQuoteProps> = memo(
     )
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+    const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
 
     const networkFeeUserCurrencyPrecision = useMemo(
       () => getNetworkFeeUserCurrencyPrecision(quote),
@@ -152,7 +152,7 @@ export const TradeQuoteAdvanced: FC<TradeQuoteProps> = memo(
               cryptoAmount={totalReceiveAmountCryptoPrecision}
               buyAsset={buyAsset}
               buyAssetMarketData={buyAssetMarketData}
-              buyAmountBeforeFees={buyAmountBeforeFeesPrecision}
+              sellAmountUserCurrency={sellAmountUserCurrency}
             />
             <TradeQuoteCardMeta>
               <TradeQuoteCardMetaGas

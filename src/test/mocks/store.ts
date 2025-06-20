@@ -6,7 +6,11 @@ import {
   LimitPriceMode,
   PriceDirection,
 } from '@/state/slices/limitOrderInputSlice/constants'
-import { CurrencyFormats, HomeMarketView } from '@/state/slices/preferencesSlice/preferencesSlice'
+import {
+  CurrencyFormats,
+  HomeMarketView,
+  QuoteDisplayOption,
+} from '@/state/slices/preferencesSlice/preferencesSlice'
 import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -161,6 +165,7 @@ export const mockStore: ReduxState = {
     showSnapsModal: true,
     snapInstalled: false,
     watchedAssets: [],
+    quoteDisplayOption: QuoteDisplayOption.Basic,
     selectedHomeView: HomeMarketView.TopAssets,
     // the following object is required by redux-persist
     _persist: {

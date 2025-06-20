@@ -160,8 +160,8 @@ export type TradeQuoteCardValueProps = FlexProps & {
   cryptoAmount: string
   buyAsset: Asset
   buyAssetMarketData?: MarketData
-  buyAmountBeforeFees?: string
   isTradingWithoutMarketData: boolean
+  sellAmountUserCurrency?: string
 }
 export const TradeQuoteCardValue: React.FC<TradeQuoteCardValueProps> = ({
   isLoading,
@@ -170,10 +170,10 @@ export const TradeQuoteCardValue: React.FC<TradeQuoteCardValueProps> = ({
   isTradingWithoutMarketData,
   buyAssetMarketData,
   buyAsset,
-  buyAmountBeforeFees,
+  sellAmountUserCurrency,
   ...rest
 }) => {
-  const fiatReceivedAmount = useMemo(
+  const buyAmountUserCurrency = useMemo(
     () =>
       isTradingWithoutMarketData
         ? undefined
@@ -183,11 +183,11 @@ export const TradeQuoteCardValue: React.FC<TradeQuoteCardValueProps> = ({
     [buyAssetMarketData?.price, cryptoAmount, isTradingWithoutMarketData],
   )
 
-  const fiatDiffAmount = useMemo((): number => {
-    if (buyAmountBeforeFees === undefined || fiatReceivedAmount === undefined) return 0
+  const diffAmountUserCurrency = useMemo((): number => {
+    if (sellAmountUserCurrency === undefined || buyAmountUserCurrency === undefined) return 0
 
-    return bn(fiatReceivedAmount).minus(buyAmountBeforeFees).toNumber()
-  }, [buyAmountBeforeFees, fiatReceivedAmount])
+    return bn(buyAmountUserCurrency).minus(sellAmountUserCurrency).toNumber()
+  }, [buyAmountUserCurrency, sellAmountUserCurrency])
 
   return (
     <Flex flexDir='column' gap={1} {...rest}>
@@ -202,12 +202,12 @@ export const TradeQuoteCardValue: React.FC<TradeQuoteCardValueProps> = ({
       </Skeleton>
       <Skeleton isLoaded={!isLoading}>
         <Flex gap={1}>
-          {fiatReceivedAmount ? (
-            <Amount.Fiat color='text.subtle' value={fiatReceivedAmount} prefix='≈' />
+          {buyAmountUserCurrency ? (
+            <Amount.Fiat color='text.subtle' value={buyAmountUserCurrency} prefix='≈' />
           ) : null}
-          {fiatDiffAmount !== 0 ? (
+          {diffAmountUserCurrency !== 0 ? (
             <Flex color='text.subtle'>
-              (<Amount.Fiat value={fiatDiffAmount} />)
+              (<Amount.Fiat value={diffAmountUserCurrency} />)
             </Flex>
           ) : null}
         </Flex>
@@ -380,7 +380,7 @@ export const TradeQuoteCardMetaTimeEstimate: React.FC<TradeQuoteCardMetaTimeEsti
   ...rest
 }) => {
   const translate = useTranslate()
-  const totalEstimatedExecutionTimeMs = useMemo(() => {
+  const estimatedTime = useMemo(() => {
     if (quoteSteps.every(step => step.estimatedExecutionTimeMs === undefined)) return
 
     return quoteSteps.reduce((acc, step) => {
@@ -395,7 +395,11 @@ export const TradeQuoteCardMetaTimeEstimate: React.FC<TradeQuoteCardMetaTimeEsti
       icon={TbClockHour3}
       {...rest}
     >
-      {totalEstimatedExecutionTimeMs ? prettyMilliseconds(totalEstimatedExecutionTimeMs) : '-'}
+      {estimatedTime !== undefined
+        ? estimatedTime === 0
+          ? '0s'
+          : prettyMilliseconds(estimatedTime)
+        : '-'}
     </TradeQuoteCardMetaItem>
   )
 }

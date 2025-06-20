@@ -6,6 +6,8 @@ import {
   getRoute,
   getRouteAndSwap,
   getSupportedChainList,
+  isBuildTxSuccess,
+  isRouteSuccess,
 } from './endpoints'
 
 vi.setConfig({ testTimeout: 10000 })
@@ -58,16 +60,18 @@ describe('endpoints', () => {
       result.match({
         ok: response => {
           console.log('getRoute result:', JSON.stringify(response, null, 2))
-          expect(response.errno).toBe(0)
-          const route = (response as any).data[0]
+          expect(isRouteSuccess(response)).toBe(true)
+          if (!isRouteSuccess(response)) {
+            expect.fail(`Unexpected errno in ok branch: ${response.errno}`)
+            return
+          }
+          const route = response.data[0]
           console.log('route:', JSON.stringify(route, null, 2))
           expect(route).toBeDefined()
           expect(route).toHaveProperty('hash')
         },
         err: error => {
           console.error('getRoute failed:', error.message)
-          // This can happen due to lack of liquidity, which is a valid but unpredictable API response
-          // For a stable test, we accept this but will fail on other errors.
           if (!error.message.includes('Insufficient Liquidity')) {
             expect.fail(error.message)
           }
@@ -94,7 +98,12 @@ describe('endpoints', () => {
 
       await routeResult.match({
         ok: async routeResponse => {
-          const route = (routeResponse as any).data[0]
+          expect(isRouteSuccess(routeResponse)).toBe(true)
+          if (!isRouteSuccess(routeResponse)) {
+            expect.fail(`getRoute failed in getBuildTx test: ${routeResponse.errno}`)
+            return
+          }
+          const route = routeResponse.data[0]
           expect(route).toBeDefined()
           const hash = route.hash
           const slippage = '150'
@@ -104,10 +113,7 @@ describe('endpoints', () => {
           const buildTxResult = await getBuildTx(hash, slippage, from, receiver)
           buildTxResult.match({
             ok: buildTxResponse => {
-              expect(buildTxResponse.errno).toBe(0)
-              const txData = (buildTxResponse as any).data[0]
-              expect(txData).toBeDefined()
-              expect(txData.data).not.toBe('')
+              expect(isBuildTxSuccess(buildTxResponse)).toBe(true)
             },
             err: error => {
               expect.fail(`getBuildTx failed for a valid hash: ${error.message}`)

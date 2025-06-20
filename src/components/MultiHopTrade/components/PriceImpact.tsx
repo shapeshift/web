@@ -15,7 +15,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ color, priceImpactPercentage
   const translate = useTranslate()
 
   const tooltipBody = useCallback(
-    () => <RawText>{translate('trade.tooltip.priceImpact')}</RawText>,
+    () => <RawText>{translate('trade.tooltip.inputOutputDifference')}</RawText>,
     [translate],
   )
 

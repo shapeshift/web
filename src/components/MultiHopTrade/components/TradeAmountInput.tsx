@@ -12,6 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, JSX, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
@@ -36,7 +37,6 @@ import {
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
-import { selectActiveQuote } from '@/state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from '@/state/store'
 import { colors } from '@/theme/colors'
 
@@ -121,6 +121,7 @@ export type TradeAmountInputProps = {
   isFiat?: boolean
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
   placeholder?: string
+  activeQuote?: TradeQuote | TradeRate | undefined
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -165,6 +166,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     hideAmounts,
     layout = 'stacked',
     isFiat,
+    activeQuote,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
   }) => {
     const {
@@ -206,9 +208,16 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [cryptoAmount, cryptoAmountIntegerCount],
     )
 
-    const activeQuote = useAppSelector(selectActiveQuote)
-
     const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
+
+    // Only display price impact if we have one, for buy side only
+    const shouldDisplayPriceImpact = useMemo(
+      () =>
+        priceImpactPercentageAbsolute &&
+        activeQuote &&
+        assetId !== activeQuote?.steps[0].sellAsset.assetId,
+      [activeQuote, assetId, priceImpactPercentageAbsolute],
+    )
 
     const handleOnChange = useCallback(() => {
       // onChange will send us the formatted value
@@ -407,7 +416,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>
-                {priceImpactPercentageAbsolute && (
+                {shouldDisplayPriceImpact && (
                   <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
                     <Flex>
                       <Skeleton isLoaded={!showFiatSkeleton}>
@@ -416,7 +425,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                           prefix='('
                           suffix=')'
                           color={priceImpactColor ?? 'text.subtle'}
-                          value={priceImpactPercentageAbsolute.div(100).times(-1).toString()}
+                          value={priceImpactPercentageAbsolute?.div(100).times(-1).toString()}
                         />
                       </Skeleton>
                     </Flex>

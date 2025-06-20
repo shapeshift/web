@@ -480,7 +480,7 @@ export const TradeInput = ({
           onAccountIdChange={setBuyAssetAccountId}
           formControlProps={formControlProps}
           labelPostFix={buyTradeAssetSelect}
-          inputOutputDifferenceDecimalPercentage={inputOutputDifferenceDecimalPercentage}
+          activeQuote={activeQuote}
         />
       </SharedTradeInputBody>
     )

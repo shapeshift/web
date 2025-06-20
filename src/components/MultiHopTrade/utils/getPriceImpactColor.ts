@@ -1,20 +1,18 @@
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
-const ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW: string = '1' // 1%
-const ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM: string = '3' // 3%
-const ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH: string = '5' // 5%
-const ALLOWED_PRICE_IMPACT_PERCENTAGE_EXPERT: string = '15' // 15%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW = 1 // 1%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM = 5 // 5%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH = 15 // 10%
 
 const IMPACT_TIERS = [
-  ALLOWED_PRICE_IMPACT_PERCENTAGE_EXPERT,
   ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH,
   ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM,
   ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW,
 ]
 
-type WarningSeverity = 0 | 1 | 2 | 3 | 4
+type WarningSeverity = 0 | 1 | 2
 
-const warningSeverity = (priceImpactPercentage: string | undefined): WarningSeverity => {
+const getWarningSeverity = (priceImpactPercentage: string | undefined): WarningSeverity => {
   if (!priceImpactPercentage) return 0
   // This function is used to calculate the Severity level for % changes in USD value and Price Impact.
   // Price Impact is always an absolute value (conceptually always negative, but represented in code with a positive value)
@@ -33,10 +31,10 @@ const warningSeverity = (priceImpactPercentage: string | undefined): WarningSeve
 export const getPriceImpactColor = (priceImpactPercentage: string) => {
   if (bnOrZero(priceImpactPercentage).lte(0)) return 'text.success'
 
-  const severity = warningSeverity(priceImpactPercentage)
+  const severity = getWarningSeverity(priceImpactPercentage)
 
   if (severity < 1) return 'text.subtle'
-  if (severity < 3) return 'text.warning'
+  if (severity < 2) return 'text.warning'
 
   return 'text.error'
 }

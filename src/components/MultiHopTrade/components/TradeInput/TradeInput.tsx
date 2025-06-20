@@ -480,7 +480,7 @@ export const TradeInput = ({
           onAccountIdChange={setBuyAssetAccountId}
           formControlProps={formControlProps}
           labelPostFix={buyTradeAssetSelect}
-          inputOutputDifferenceDecimalPercentage={inputOutputDifferenceDecimalPercentage}
+          activeQuote={activeQuote}
         />
       </SharedTradeInputBody>
     )
@@ -510,6 +510,7 @@ export const TradeInput = ({
     setSellAssetAccountId,
     selectedSellAssetChainId,
     setSelectedSellAssetChainId,
+    activeQuote,
   ])
 
   const footerContent = useMemo(() => {

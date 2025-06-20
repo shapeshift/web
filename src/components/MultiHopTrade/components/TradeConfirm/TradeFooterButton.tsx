@@ -14,6 +14,7 @@ import type { FC, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM } from '../../utils/getPriceImpactColor'
 import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
 import { isPermit2Hop } from './helpers'
 import { useStreamingProgress } from './hooks/useStreamingProgress'
@@ -69,7 +70,11 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { isModeratePriceImpact, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
+  const { priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
+  const isModeratePriceImpact = priceImpactPercentageAbsolute?.gte(
+    ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM,
+  )
+
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
     tradeId: activeQuote?.id ?? '',
     hopIndex: 0,

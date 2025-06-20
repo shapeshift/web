@@ -13,7 +13,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { RawText, Text } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean
@@ -77,7 +76,7 @@ export const TradeQuoteContent = ({
 
   const priceImpactTooltipText = useMemo(
     () => translate('trade.tooltip.inputOutputDifference'),
-    [priceImpactPercentageAbsolute, translate],
+    [translate],
   )
 
   const eta = useMemo(() => {

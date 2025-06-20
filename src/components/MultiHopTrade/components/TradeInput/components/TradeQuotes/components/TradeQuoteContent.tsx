@@ -75,12 +75,8 @@ export const TradeQuoteContent = ({
     [priceImpactPercentageAbsolute],
   )
 
-  console.log({ priceImpactPercentageAbsolute: priceImpactPercentageAbsolute?.toFixed() })
   const priceImpactTooltipText = useMemo(
-    () =>
-      translate('trade.tooltip.priceImpactLabel', {
-        priceImpactPercentage: bnOrZero(priceImpactPercentageAbsolute).times(-1).toFixed(2),
-      }),
+    () => translate('trade.tooltip.inputOutputDifference'),
     [priceImpactPercentageAbsolute, translate],
   )
 

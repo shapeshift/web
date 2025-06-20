@@ -31,12 +31,16 @@ type ActionLimitOrderMetadata = {
   limitOrderId?: OrderId
   sellAmountCryptoBaseUnit: string
   buyAmountCryptoBaseUnit: string
+  sellAmountCryptoPrecision: string
+  buyAmountCryptoPrecision: string
   sellAsset: Asset
   buyAsset: Asset
   limitPrice: LimitPriceByDirection
   expires: number | undefined
   executedBuyAmountCryptoBaseUnit?: string
   executedSellAmountCryptoBaseUnit?: string
+  executedBuyAmountCryptoPrecision?: string
+  executedSellAmountCryptoPrecision?: string
   filledDecimalPercentage?: string
   accountId: AccountId
 }

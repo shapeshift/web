@@ -1,9 +1,4 @@
-import {
-  ChakraProvider,
-  ColorModeScript,
-  createLocalStorageManager,
-  createStandaloneToast,
-} from '@chakra-ui/react'
+import { ChakraProvider, ColorModeScript, createLocalStorageManager } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -43,7 +38,6 @@ const manager = createLocalStorageManager('ss-theme')
 const splashScreen = <SplashScreen />
 
 export function AppProviders({ children }: ProvidersProps) {
-  const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback(
     (
       error: Error,
@@ -64,13 +58,12 @@ export function AppProviders({ children }: ProvidersProps) {
             <PluginProvider>
               <ColorModeScript storageKey='ss-theme' />
               <ChatwootWidget />
-              <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-                <ToastContainer />
-                <PersistGate loading={splashScreen} persistor={persistor}>
-                  <HashRouter basename='/'>
-                    <ScrollToTop />
-                    <BrowserRouterProvider>
-                      <I18nProvider>
+              <I18nProvider>
+                <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+                  <PersistGate loading={splashScreen} persistor={persistor}>
+                    <HashRouter basename='/'>
+                      <ScrollToTop />
+                      <BrowserRouterProvider>
                         <WalletProvider>
                           <KeepKeyProvider>
                             <WalletConnectV2Provider>
@@ -86,11 +79,11 @@ export function AppProviders({ children }: ProvidersProps) {
                             </WalletConnectV2Provider>
                           </KeepKeyProvider>
                         </WalletProvider>
-                      </I18nProvider>
-                    </BrowserRouterProvider>
-                  </HashRouter>
-                </PersistGate>
-              </ChakraProvider>
+                      </BrowserRouterProvider>
+                    </HashRouter>
+                  </PersistGate>
+                </ChakraProvider>
+              </I18nProvider>
             </PluginProvider>
           </QueryClientProvider>
         </WagmiProvider>

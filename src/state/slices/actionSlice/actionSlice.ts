@@ -28,6 +28,5 @@ export const actionSlice = createSlice({
   selectors: {
     selectActionsById: state => state.byId,
     selectActionIds: state => state.ids,
-    selectActions: state => state.ids.map(id => state.byId[id]),
   },
 })

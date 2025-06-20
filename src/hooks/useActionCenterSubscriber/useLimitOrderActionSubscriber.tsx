@@ -35,10 +35,12 @@ import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/st
 
 type UseLimitOrderActionSubscriberProps = {
   onDrawerOpen: () => void
+  isDrawerOpen: boolean
 }
 
 export const useLimitOrderActionSubscriber = ({
   onDrawerOpen,
+  isDrawerOpen,
 }: UseLimitOrderActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -75,7 +77,14 @@ export const useLimitOrderActionSubscriber = ({
   const previousLimitOrderState = usePrevious(limitOrderSubmissionMetadata?.state)
   const previousLimitOrderId = usePrevious(limitOrderSubmissionMetadata?.limitOrder.orderId)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
+
   const actions = useAppSelector(selectActions)
+
+  useEffect(() => {
+    if (isDrawerOpen) {
+      toast.closeAll()
+    }
+  }, [isDrawerOpen, toast])
 
   // Create action after user confirmed the intent of placing a limit order
   useEffect(() => {

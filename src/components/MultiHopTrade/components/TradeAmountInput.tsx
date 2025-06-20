@@ -210,8 +210,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
 
-    console.log({ priceImpactPercentageAbsolute })
-
     const handleOnChange = useCallback(() => {
       // onChange will send us the formatted value
       // To get around this we need to get the value from the onChange using a ref

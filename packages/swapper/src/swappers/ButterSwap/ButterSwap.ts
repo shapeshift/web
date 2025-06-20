@@ -1,7 +1,13 @@
 import type { Swapper } from '../../types'
+import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
 import { BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS } from './utils/constants'
 
 export const butterSwapper: Swapper = {
+  executeEvmTransaction,
+  executeSolanaTransaction,
+  executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
+  },
   filterAssetIdsBySellable: assets => {
     return Promise.resolve(
       assets

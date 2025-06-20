@@ -53,6 +53,7 @@ This iterative process ensures that our validators are always in sync with the a
 To ensure interoperability between ShapeShift's internal `ChainId` format and the numeric chain IDs used by ButterSwap, a dedicated mapping utility has been created at `packages/swapper/src/swappers/ButterSwap/utils/helpers.ts`.
 
 This file provides two key functions:
+
 * `chainIdToButterSwapChainId(chainId: ChainId): number | undefined`: Converts a ShapeShift `ChainId` to a ButterSwap numeric ID.
 * `butterSwapChainIdToChainId(butterSwapChainId: number): ChainId | undefined`: Converts a ButterSwap numeric ID to a ShapeShift `ChainId`.
 

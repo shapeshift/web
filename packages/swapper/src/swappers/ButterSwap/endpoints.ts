@@ -1,5 +1,6 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import * as z from 'myzod'
 
 import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
@@ -27,18 +28,18 @@ export const getSupportedChainList = async (): ButterSwapPromise<SupportedChainL
 
   if (result.isErr()) return Err(result.unwrapErr())
 
-  try {
-    const parsedData = SupportedChainListResponseValidator.parse(result.unwrap().data)
-    return Ok(parsedData)
-  } catch (e) {
+  const data = result.unwrap().data
+  const validation = SupportedChainListResponseValidator.try(data)
+  if (validation instanceof z.ValidationError) {
     return Err(
       makeSwapErrorRight({
         message: '[getSupportedChainList]',
-        cause: e,
+        cause: validation,
         code: TradeQuoteError.QueryFailed,
       }),
     )
   }
+  return Ok(validation)
 }
 
 export const findToken = async (
@@ -51,18 +52,18 @@ export const findToken = async (
 
   if (result.isErr()) return Err(result.unwrapErr())
 
-  try {
-    const parsedData = FindTokenResponseValidator.parse(result.unwrap().data)
-    return Ok(parsedData)
-  } catch (e) {
+  const data = result.unwrap().data
+  const validation = FindTokenResponseValidator.try(data)
+  if (validation instanceof z.ValidationError) {
     return Err(
       makeSwapErrorRight({
         message: '[findToken]',
-        cause: e,
+        cause: validation,
         code: TradeQuoteError.QueryFailed,
       }),
     )
   }
+  return Ok(validation)
 }
 
 export const getRoute = async (
@@ -88,27 +89,25 @@ export const getRoute = async (
   if (result.isErr()) return Err(result.unwrapErr())
 
   const data = result.unwrap().data
-
-  try {
-    const parsedData = RouteResponseValidator.parse(data)
-    if (!isRouteSuccess(parsedData)) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[getRoute] ${parsedData.message}`,
-          code: TradeQuoteError.QueryFailed,
-        }),
-      )
-    }
-    return Ok(parsedData)
-  } catch (e) {
+  const validation = RouteResponseValidator.try(data)
+  if (validation instanceof z.ValidationError) {
     return Err(
       makeSwapErrorRight({
         message: '[getRoute]',
-        cause: e,
+        cause: validation,
         code: TradeQuoteError.QueryFailed,
       }),
     )
   }
+  if (!isRouteSuccess(validation)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getRoute] ${validation.message}`,
+        code: TradeQuoteError.QueryFailed,
+      }),
+    )
+  }
+  return Ok(validation)
 }
 
 export const getBuildTx = async (
@@ -124,27 +123,25 @@ export const getBuildTx = async (
   if (result.isErr()) return Err(result.unwrapErr())
 
   const data = result.unwrap().data
-
-  try {
-    const parsedData = BuildTxResponseValidator.parse(data)
-    if (!isBuildTxSuccess(parsedData)) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[getBuildTx] ${parsedData.message}`,
-          code: TradeQuoteError.QueryFailed,
-        }),
-      )
-    }
-    return Ok(parsedData)
-  } catch (e) {
+  const validation = BuildTxResponseValidator.try(data)
+  if (validation instanceof z.ValidationError) {
     return Err(
       makeSwapErrorRight({
         message: '[getBuildTx]',
-        cause: e,
+        cause: validation,
         code: TradeQuoteError.QueryFailed,
       }),
     )
   }
+  if (!isBuildTxSuccess(validation)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getBuildTx] ${validation.message}`,
+        code: TradeQuoteError.QueryFailed,
+      }),
+    )
+  }
+  return Ok(validation)
 }
 
 export const getRouteAndSwap = async (
@@ -175,27 +172,25 @@ export const getRouteAndSwap = async (
   if (result.isErr()) return Err(result.unwrapErr())
 
   const data = result.unwrap().data
-
-  try {
-    const parsedData = RouteAndSwapResponseValidator.parse(data)
-    if (!isRouteAndSwapSuccess(parsedData)) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[getRouteAndSwap] ${parsedData.message}`,
-          code: TradeQuoteError.QueryFailed,
-        }),
-      )
-    }
-    return Ok(parsedData)
-  } catch (e) {
+  const validation = RouteAndSwapResponseValidator.try(data)
+  if (validation instanceof z.ValidationError) {
     return Err(
       makeSwapErrorRight({
         message: '[getRouteAndSwap]',
-        cause: e,
+        cause: validation,
         code: TradeQuoteError.QueryFailed,
       }),
     )
   }
+  if (!isRouteAndSwapSuccess(validation)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getRouteAndSwap] ${validation.message}`,
+        code: TradeQuoteError.QueryFailed,
+      }),
+    )
+  }
+  return Ok(validation)
 }
 
 export function isRouteSuccess(

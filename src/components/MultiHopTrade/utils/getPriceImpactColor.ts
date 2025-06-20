@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW: string = '1' // 1%
@@ -32,15 +30,13 @@ const warningSeverity = (priceImpactPercentage: string | undefined): WarningSeve
   return 0
 }
 
-export const usePriceImpactColor = (priceImpactPercentage?: string) => {
-  const priceImpactColor = useMemo(() => {
-    if (!priceImpactPercentage) return undefined
-    if (bnOrZero(priceImpactPercentage).isLessThan(0)) return 'text.success'
-    const severity = warningSeverity(priceImpactPercentage)
-    if (severity < 1) return 'text.subtle'
-    if (severity < 3) return 'text.warning'
-    return 'text.error'
-  }, [priceImpactPercentage])
+export const getPriceImpactColor = (priceImpactPercentage: string) => {
+  if (bnOrZero(priceImpactPercentage).lte(0)) return 'text.success'
 
-  return priceImpactColor
+  const severity = warningSeverity(priceImpactPercentage)
+
+  if (severity < 1) return 'text.subtle'
+  if (severity < 3) return 'text.warning'
+
+  return 'text.error'
 }

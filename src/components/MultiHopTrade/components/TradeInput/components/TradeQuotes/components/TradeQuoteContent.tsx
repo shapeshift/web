@@ -13,6 +13,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { RawText, Text } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean
@@ -44,12 +45,7 @@ export const TradeQuoteContent = ({
   tradeQuote,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
-  const {
-    isModeratePriceImpact,
-    isHighPriceImpact,
-    priceImpactPercentageAbsolute,
-    isPositivePriceImpact,
-  } = usePriceImpact(tradeQuote)
+  const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(tradeQuote)
 
   const {
     number: { toPercent },
@@ -74,38 +70,19 @@ export const TradeQuoteContent = ({
     })
   }, [buyAsset, translate])
 
-  const priceImpactColor = useMemo(() => {
-    switch (true) {
-      case isHighPriceImpact:
-        return 'text.error'
-      case isModeratePriceImpact:
-        return 'text.warning'
-      case isPositivePriceImpact:
-        return 'text.success'
-      default:
-        return undefined
-    }
-  }, [isHighPriceImpact, isModeratePriceImpact, isPositivePriceImpact])
-
   const priceImpactDecimalPercentage = useMemo(
     () => priceImpactPercentageAbsolute?.div(100),
     [priceImpactPercentageAbsolute],
   )
 
-  const priceImpactTooltipText = useMemo(() => {
-    if (!priceImpactPercentageAbsolute) return
-
-    const defaultText = translate('trade.tooltip.priceImpactLabel', {
-      priceImpactPercentage: priceImpactPercentageAbsolute.toFixed(2),
-    })
-    switch (true) {
-      case isHighPriceImpact:
-      case isModeratePriceImpact:
-        return `${defaultText}. ${translate('trade.tooltip.priceImpact')}`
-      default:
-        return defaultText
-    }
-  }, [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentageAbsolute, translate])
+  console.log({ priceImpactPercentageAbsolute: priceImpactPercentageAbsolute?.toFixed() })
+  const priceImpactTooltipText = useMemo(
+    () =>
+      translate('trade.tooltip.priceImpactLabel', {
+        priceImpactPercentage: bnOrZero(priceImpactPercentageAbsolute).times(-1).toFixed(2),
+      }),
+    [priceImpactPercentageAbsolute, translate],
+  )
 
   const eta = useMemo(() => {
     if (totalEstimatedExecutionTimeMs === undefined) return null
@@ -193,7 +170,7 @@ export const TradeQuoteContent = ({
                     <MdOfflineBolt />
                   </RawText>
                   <Amount.Percent
-                    value={priceImpactDecimalPercentage.toNumber()}
+                    value={priceImpactDecimalPercentage.times(-1).toString()}
                     color={priceImpactColor}
                   />
                 </Flex>

@@ -21,7 +21,7 @@ import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
-import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
+import { usePriceImpact } from '../hooks/quoteValidation/usePriceImpact'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
@@ -36,6 +36,7 @@ import {
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
+import { selectActiveQuote } from '@/state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from '@/state/store'
 import { colors } from '@/theme/colors'
 
@@ -119,7 +120,6 @@ export type TradeAmountInputProps = {
   isAccountSelectionHidden?: boolean
   isFiat?: boolean
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
-  inputOutputDifferenceDecimalPercentage?: string
   placeholder?: string
 } & PropsWithChildren
 
@@ -166,7 +166,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     layout = 'stacked',
     isFiat,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
-    inputOutputDifferenceDecimalPercentage: inputOutputDifferencePercentage,
   }) => {
     const {
       number: { localeParts },
@@ -206,6 +205,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           : bnOrZero(cryptoAmount).toFixed(3),
       [cryptoAmount, cryptoAmountIntegerCount],
     )
+
+    const activeQuote = useAppSelector(selectActiveQuote)
+
+    const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
+
+    console.log({ priceImpactPercentageAbsolute })
 
     const handleOnChange = useCallback(() => {
       // onChange will send us the formatted value
@@ -321,10 +326,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
-    const priceImpactColor = usePriceImpactColor(
-      bnOrZero(inputOutputDifferencePercentage).times(100).toString(),
-    )
-
     return (
       <FormControl
         borderWidth={1}
@@ -408,7 +409,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>
-                {inputOutputDifferencePercentage && (
+                {priceImpactPercentageAbsolute && (
                   <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
                     <Flex>
                       <Skeleton isLoaded={!showFiatSkeleton}>
@@ -417,7 +418,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                           prefix='('
                           suffix=')'
                           color={priceImpactColor ?? 'text.subtle'}
-                          value={bnOrZero(inputOutputDifferencePercentage).times(-1).toString()}
+                          value={priceImpactPercentageAbsolute.div(100).times(-1).toString()}
                         />
                       </Skeleton>
                     </Flex>

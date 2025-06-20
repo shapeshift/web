@@ -510,6 +510,7 @@ export const TradeInput = ({
     setSellAssetAccountId,
     selectedSellAssetChainId,
     setSelectedSellAssetChainId,
+    activeQuote,
   ])
 
   const footerContent = useMemo(() => {

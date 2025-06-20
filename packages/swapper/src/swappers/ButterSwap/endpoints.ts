@@ -6,12 +6,14 @@ import { butterService } from './utils/butterSwapService'
 import type {
   BuildTxResponse,
   FindTokenResponse,
+  RouteAndSwapResponse,
   RouteResponse,
   SupportedChainListResponse,
 } from './validators'
 import {
   BuildTxResponseValidator,
   FindTokenResponseValidator,
+  RouteAndSwapResponseValidator,
   RouteResponseValidator,
   SupportedChainListResponseValidator,
 } from './validators'
@@ -133,6 +135,58 @@ export const getBuildTx = (hash: string, slippage: string, from: string, receive
             return Err(
               makeSwapErrorRight({
                 message: '[getBuildTx]',
+                cause: e,
+                code: TradeQuoteError.QueryFailed,
+              }),
+            )
+          }
+        }),
+    )
+}
+
+export const getRouteAndSwap = (
+  fromChainId: number,
+  tokenInAddress: string,
+  toChainId: number,
+  tokenOutAddress: string,
+  amount: string,
+  from: string,
+  receiver: string,
+) => {
+  return butterService
+    .get<RouteAndSwapResponse>('/routeAndSwap', {
+      params: {
+        fromChainId,
+        tokenInAddress,
+        toChainId,
+        tokenOutAddress,
+        amount,
+        type: 'exactIn',
+        slippage: '150', // 1.5%
+        entrance: 'Butter+',
+        from,
+        receiver,
+      },
+    })
+    .then(res =>
+      res
+        .map(res => res.data)
+        .andThen(data => {
+          try {
+            const parsedData = RouteAndSwapResponseValidator.parse(data)
+            if ('errno' in parsedData && parsedData.errno > 0) {
+              return Err(
+                makeSwapErrorRight({
+                  message: `[getRouteAndSwap] ${parsedData.message}`,
+                  code: TradeQuoteError.QueryFailed,
+                }),
+              )
+            }
+            return Ok(parsedData)
+          } catch (e) {
+            return Err(
+              makeSwapErrorRight({
+                message: '[getRouteAndSwap]',
                 cause: e,
                 code: TradeQuoteError.QueryFailed,
               }),

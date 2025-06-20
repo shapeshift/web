@@ -36,12 +36,14 @@ The service will also leverage the `createCache` utility to cache responses from
 
 To ensure accuracy and efficiency, we will follow a Test-Driven Development (TDD) approach that leverages real API responses to build our validators. The process for implementing each new endpoint will be as follows:
 
-1. **Write a Failing Test**: Create a new integration test for the target endpoint. This test will initially fail because the validator is not yet correctly defined.
-2. **Log the Raw Response**: Temporarily add a `console.log` statement to the endpoint's implementation within the `catch` block of the response promise. This will capture and display the raw JSON response from the ButterSwap API when the validation fails.
-3. **Run the Test**: Execute the failing test. The raw response will be printed to the console.
-4. **Create the Validator**: Using the logged response as a reference, create or update the `myzod` validator to accurately match the structure and data types of the API response.
-5. **Remove Logging**: Once the validator is corrected, remove the temporary `console.log` statement from the endpoint implementation.
-6. **Verify Tests Pass**: Rerun the tests to confirm that they now pass with the correct validator.
-7. **Clean Up**: Remove any temporary logging from the test file itself.
+1. **Test with `curl`**: Use `curl` on the command line to interact with the live API endpoint. This allows for rapid testing of different parameters to find a valid request that returns a successful response.
+2. **Write a Failing Test**: Once a valid `curl` command is established, create a new integration test for the target endpoint in the test suite. This test will initially fail because the validator is not yet correctly defined.
+3. **Log the Raw Response**: Temporarily add a `console.log` statement to the endpoint's implementation within the `catch` block of the response promise. This will capture and display the raw JSON response from the ButterSwap API when the validation fails.
+4. **Run the Test**: Execute the failing test. The raw response will be printed to the console.
+5. **Create the Validator**: Using the logged response as a reference, create or update the `myzod` validator to accurately match the structure and data types of the API response.
+6. **Implement the Endpoint**: Write the full implementation for the endpoint, using the newly created validator to parse the response.
+7. **Remove Logging**: Once the validator is corrected, remove the temporary `console.log` statement from the endpoint implementation.
+8. **Verify Tests Pass**: Rerun the tests to confirm that they now pass with the correct validator.
+9. **Clean Up**: Remove any temporary logging from the test file itself.
 
 This iterative process ensures that our validators are always in sync with the actual data returned by the live API, minimizing runtime errors and increasing the reliability of the integration.

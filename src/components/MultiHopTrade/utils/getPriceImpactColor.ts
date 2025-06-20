@@ -2,7 +2,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW = 1 // 1%
 export const ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM = 5 // 5%
-export const ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH = 15 // 10%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH = 10 // 10%
 
 const IMPACT_TIERS = [
   ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH,
@@ -10,7 +10,7 @@ const IMPACT_TIERS = [
   ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW,
 ]
 
-type WarningSeverity = 0 | 1 | 2
+type WarningSeverity = 0 | 1 | 2 | 3
 
 const getWarningSeverity = (priceImpactPercentage: string | undefined): WarningSeverity => {
   if (!priceImpactPercentage) return 0
@@ -33,8 +33,8 @@ export const getPriceImpactColor = (priceImpactPercentage: string) => {
 
   const severity = getWarningSeverity(priceImpactPercentage)
 
-  if (severity < 1) return 'text.subtle'
-  if (severity < 2) return 'text.warning'
+  if (severity < 2) return 'text.subtle'
+  if (severity < 3) return 'text.warning'
 
   return 'text.error'
 }

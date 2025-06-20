@@ -53,6 +53,7 @@ const RouteSuccessItemValidator = z.object({
     tokenOut: TokenValidator,
     totalAmountIn: z.string(),
     totalAmountOut: z.string(),
+    totalAmountOutUSD: z.string(),
     route: z.array(
       z.object({
         amountIn: z.string(),

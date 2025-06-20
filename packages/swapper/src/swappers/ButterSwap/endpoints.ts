@@ -101,7 +101,6 @@ export const getRoute = async (
     }
     return Ok(parsedData)
   } catch (e) {
-    console.error('ButterSwap getRoute raw response:', JSON.stringify(data, null, 2))
     return Err(
       makeSwapErrorRight({
         message: '[getRoute]',

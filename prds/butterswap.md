@@ -58,3 +58,36 @@ This file provides two key functions:
 * `butterSwapChainIdToChainId(butterSwapChainId: number): ChainId | undefined`: Converts a ButterSwap numeric ID to a ShapeShift `ChainId`.
 
 This utility centralizes the mapping logic, making it easy to maintain and use throughout the ButterSwap swapper implementation.
+
+## 7. To-Do List
+
+### Get Trade Rate
+
+* [ ] Handle slippage
+* [ ] Populate fee data
+  * [ ] `networkFeeCryptoBaseUnit`
+  * [ ] `protocolFees`
+* [ ] Implement `allowanceContract`
+* [ ] Double-check input `amount` calculation (re: shifting)
+
+### Get Trade Quote
+
+* [ ] Handle affiliate BPS (basis points)
+* [ ] Populate `steps` section correctly
+  * [ ] `buyAmountBeforeFeesCryptoBaseUnit`
+  * [ ] `buyAmountAfterFeesCryptoBaseUnit`
+* [ ] Check `sellAmountIncludingProtocolFeesCryptoBaseUnit`
+* [ ] Populate `feeData` object
+  * [ ] `networkFeeCryptoBaseUnit`
+  * [ ] `protocolFees`
+* [ ] Check `rate` is correct
+* [ ] Update `allowanceContract`
+* [ ] Update `estimatedExecutionTimeMs`
+
+### Common
+
+* [ ] Extract minimum slippage
+
+### CheckTradeStatus
+
+* [ ] Implement `CheckTradeStatus` function

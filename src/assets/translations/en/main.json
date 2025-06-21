@@ -1052,7 +1052,7 @@
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We were unable to set your custom slippage for this swapper.",
-      "gas": "The gas to complete this swappers transaction.",
+      "gas": "The gas to complete this swapper's transaction.",
       "priceImpact": "The price impact on the route for this swap.",
       "slippage": "This is the slippage on this quote.",
       "timeEstimate": "This is the estimated time for this swap to complete."

@@ -1,4 +1,5 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -6,15 +7,12 @@ import { describe, expect, it, vi } from 'vitest'
 import type { GetTradeRateInput, SwapperDeps } from '../../../types'
 import { ROUTE_QUOTE } from '../../../utils/test-data/butter/routeQuote'
 import { USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import { butterService } from '../utils/butterSwapService'
 import { getTradeRate } from './getTradeRate'
-
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-}))
 
 vi.mock('../utils/butterSwapService', () => ({
   butterService: {
-    get: mocks.get,
+    get: vi.fn(),
   },
 }))
 
@@ -37,22 +35,23 @@ describe('getTradeRate', () => {
     const input: GetTradeRateInput = {
       sellAsset: WETH,
       buyAsset: USDC_MAINNET,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: bn(1).shiftedBy(18).toString(),
       affiliateBps: '0',
       allowMultiHop: true,
       receiveAddress: '0x123',
       accountNumber: undefined,
       quoteOrRate: 'rate',
       chainId: KnownChainIds.EthereumMainnet,
-      supportsEIP1559: false,
+      supportsEIP1559: false, // TODO - upstream type bug? this is a literal false in the type def
     }
 
-    mocks.get.mockResolvedValue(Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse<any>))
-
+    vi.mocked(butterService.get).mockResolvedValue(
+      Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse),
+    )
     const result = await getTradeRate(input, deps)
 
     expect(result.isOk()).toBe(true)
     const tradeRate = result.unwrap()
-    expect(tradeRate[0].rate).toBe('385.349221488530478387')
+    expect(tradeRate[0].rate).toBe('2298.70840740740740740741')
   })
 })

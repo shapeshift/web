@@ -17,6 +17,7 @@ export const getTradeQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
     receiveAddress,
     slippageTolerancePercentageDecimal,
+    accountNumber,
   } = input
 
   // Map ShapeShift chain IDs to ButterSwap numeric chain IDs
@@ -79,7 +80,7 @@ export const getTradeQuote = async (
         source: SwapperName.ButterSwap,
         buyAsset,
         sellAsset,
-        accountNumber: 0, // TODO: Map actual value if available
+        accountNumber,
         allowanceContract: '0x0',
         estimatedExecutionTimeMs: route.timeEstimated,
       },

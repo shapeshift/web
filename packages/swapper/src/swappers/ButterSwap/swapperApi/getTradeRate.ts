@@ -1,3 +1,4 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -13,7 +14,14 @@ export const getTradeRate = async (
   input: GetTradeRateInput,
   _deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { sellAsset, buyAsset, affiliateBps } = input
+  const {
+    sellAsset,
+    buyAsset,
+    affiliateBps,
+    accountNumber,
+    receiveAddress,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  } = input
 
   const fromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
   const toChainId = chainIdToButterSwapChainId(buyAsset.chainId)
@@ -27,10 +35,14 @@ export const getTradeRate = async (
     )
   }
 
-  // Use one full unit of the sell asset to get a rate
-  const amount = bn(1).shiftedBy(sellAsset.precision).toString()
+  const amount = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit)
+    .shiftedBy(-sellAsset.precision)
+    .toString()
 
-  const result = await getRoute(fromChainId, sellAsset.assetId, toChainId, buyAsset.assetId, amount)
+  const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
+  const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
+
+  const result = await getRoute(fromChainId, sellAssetAddress, toChainId, buyAssetAddress, amount)
 
   if (result.isErr()) return Err(result.unwrapErr())
   const routeResponse = result.unwrap()
@@ -54,22 +66,22 @@ export const getTradeRate = async (
     )
   }
 
-  const rate = bnOrZero(route.srcChain.totalAmountOut).shiftedBy(-buyAsset.precision).toString()
+  const rate = bnOrZero(route.srcChain.totalAmountOut).div(route.srcChain.totalAmountIn).toString()
 
   const tradeRate: TradeRate = {
     id: uuid(),
     rate,
     swapperName: SwapperName.ButterSwap,
-    receiveAddress: undefined,
+    receiveAddress,
     affiliateBps: affiliateBps ?? '0',
     slippageTolerancePercentageDecimal: undefined,
     quoteOrRate: 'rate',
     steps: [
       {
         rate,
-        buyAmountBeforeFeesCryptoBaseUnit: '0', // Not available from this endpoint
-        buyAmountAfterFeesCryptoBaseUnit: '0', // Not available from this endpoint
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+        buyAmountBeforeFeesCryptoBaseUnit: '0', // TODO: Not available from this endpoint
+        buyAmountAfterFeesCryptoBaseUnit: '0', // TODO: Not available from this endpoint
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
         feeData: {
           networkFeeCryptoBaseUnit: undefined,
           protocolFees: {},
@@ -77,9 +89,9 @@ export const getTradeRate = async (
         source: SwapperName.ButterSwap,
         buyAsset,
         sellAsset,
-        accountNumber: undefined,
-        allowanceContract: '0x0',
-        estimatedExecutionTimeMs: route.timeEstimated,
+        accountNumber,
+        allowanceContract: '0x0', // TODO: implement
+        estimatedExecutionTimeMs: route.timeEstimated * 1000, // butterswap returns in seconds
       },
     ],
   }

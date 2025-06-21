@@ -63,10 +63,9 @@ This utility centralizes the mapping logic, making it easy to maintain and use t
 
 ### Get Trade Rate
 
-* [ ] Handle slippage
+* [x] Handle slippage
 * [ ] Populate fee data
   * [ ] `networkFeeCryptoBaseUnit`
-  * [ ] `protocolFees`
 * [ ] Implement `allowanceContract`
 * [ ] Double-check input `amount` calculation (re: shifting)
 
@@ -86,7 +85,7 @@ This utility centralizes the mapping logic, making it easy to maintain and use t
 
 ### Common
 
-* [ ] Extract minimum slippage
+* [x] Extract minimum slippage
 
 ### CheckTradeStatus
 

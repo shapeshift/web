@@ -1,6 +1,9 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -32,8 +35,22 @@ export const getTradeQuote = async (
     )
   }
 
+  const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
+  const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
+  const slippageDecimal =
+    slippageTolerancePercentageDecimal ??
+    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
+  const slippage = bn(slippageDecimal).times(10000).toString()
+
   // Call ButterSwap API via service
-  const result = await getRoute(fromChainId, sellAsset.assetId, toChainId, buyAsset.assetId, amount)
+  const result = await getRoute(
+    fromChainId,
+    sellAssetAddress,
+    toChainId,
+    buyAssetAddress,
+    amount,
+    slippage,
+  )
 
   if (result.isErr()) return Err(result.unwrapErr())
   const routeResponse = result.unwrap()
@@ -66,7 +83,7 @@ export const getTradeQuote = async (
     isStreaming: false,
     quoteOrRate: 'quote',
     swapperName: SwapperName.ButterSwap,
-    slippageTolerancePercentageDecimal,
+    slippageTolerancePercentageDecimal: slippageDecimal,
     steps: [
       {
         buyAmountBeforeFeesCryptoBaseUnit: '0', // TODO: Map actual value

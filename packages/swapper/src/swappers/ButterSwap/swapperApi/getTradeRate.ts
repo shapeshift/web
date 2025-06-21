@@ -4,6 +4,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -42,7 +43,19 @@ export const getTradeRate = async (
   const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
   const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
 
-  const result = await getRoute(fromChainId, sellAssetAddress, toChainId, buyAssetAddress, amount)
+  const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
+    SwapperName.ButterSwap,
+  )
+  const slippage = bn(slippageTolerancePercentageDecimal).times(10000).toString()
+
+  const result = await getRoute(
+    fromChainId,
+    sellAssetAddress,
+    toChainId,
+    buyAssetAddress,
+    amount,
+    slippage,
+  )
 
   if (result.isErr()) return Err(result.unwrapErr())
   const routeResponse = result.unwrap()
@@ -74,7 +87,7 @@ export const getTradeRate = async (
     swapperName: SwapperName.ButterSwap,
     receiveAddress,
     affiliateBps: affiliateBps ?? '0',
-    slippageTolerancePercentageDecimal: undefined,
+    slippageTolerancePercentageDecimal,
     quoteOrRate: 'rate',
     steps: [
       {

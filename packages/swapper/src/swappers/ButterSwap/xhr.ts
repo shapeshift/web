@@ -81,6 +81,7 @@ export const getRoute = async (
   toChainId: number,
   tokenOutAddress: string,
   amount: string,
+  slippage: string,
 ): ButterSwapPromise<RouteResponse> => {
   const result = await butterService.get<RouteResponse>('/route', {
     params: {
@@ -90,7 +91,7 @@ export const getRoute = async (
       tokenOutAddress,
       amount,
       type: 'exactIn',
-      slippage: '150', // 1.5%
+      slippage,
       entrance: 'Butter+',
     },
   })

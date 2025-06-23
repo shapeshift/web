@@ -113,16 +113,16 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   }, [testState])
 
   const handleSubmit = useCallback(() => {
+    if (!hasChosenWords) return
+
     if (!isCorrect) {
       navigate(BackupPassphraseRoutes.WordsError)
       return
     }
 
-    if (isCorrect) {
-      navigate(BackupPassphraseRoutes.Success)
-      setTimeout(() => revoker.revoke(), 250)
-    }
-  }, [isCorrect, navigate, revoker])
+    navigate(BackupPassphraseRoutes.Success)
+    setTimeout(() => revoker.revoke(), 250)
+  }, [hasChosenWords, isCorrect, navigate, revoker])
 
   const handleSkip = useCallback(() => {
     navigate(BackupPassphraseRoutes.Skip)

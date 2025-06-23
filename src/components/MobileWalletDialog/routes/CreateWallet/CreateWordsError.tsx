@@ -30,7 +30,7 @@ export const CreateWordsError = ({ onClose }: CreateWordsErrorProps) => {
   const handleReviewPhrase = useCallback(() => {
     if (!location.state?.vault) return
 
-    navigate(MobileWalletDialogRoutes.KeepSafe, { state: { vault: location.state?.vault } })
+    navigate(MobileWalletDialogRoutes.CreateBackup, { state: { vault: location.state?.vault } })
   }, [navigate, location.state?.vault])
 
   return (

@@ -376,7 +376,6 @@ describe('parseTx', () => {
       const address = 'cosmos1dnssyzyhnja28zdww2ffa6fcxaxwanguf7nmq7'
       const memo = 'SWAP:THOR.RUNE:thor166n4w5039meulfa3p6ydg60ve6ueac7tlt0jws:30984116284'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -484,7 +483,6 @@ describe('parseTx', () => {
       const address = 'cosmos1nz22stv03fcp29563jrgu2v56hd92l96wwystz'
       const memo = '=:BNB.BNB:bnb1e75f8rzqlsrm3qepv4qh2ytp07ad6625at8nzg:0/1/0:te:0'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -628,7 +626,6 @@ describe('parseTx', () => {
       const address = 'cosmos1g7ufueqz24luzcj0d5h8u3452vv4l4d9fz0fdn'
       const memo = '-:GAIA/ATOM:10000'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -771,7 +768,6 @@ describe('parseTx', () => {
       const address = 'cosmos18377m4dkzz9exa6yctph0fu9ygsexgjvfy893w'
       const memo = '-:GAIA.ATOM:10000'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {

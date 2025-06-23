@@ -149,7 +149,7 @@ export const getAffiliateName = (memo: string): string => {
       return affiliateName
     }
     case 'pool-': {
-      // RUNEPOOL:BASISPOINTS:AFFILIATE:FEE
+      // POOL-:BASISPOINTS:AFFILIATE:FEE
       const [, , affilateName] = memo.split(':')
       return affilateName
     }

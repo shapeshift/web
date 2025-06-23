@@ -5,8 +5,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { TxMetadata as ThorTxMetadata } from '@shapeshiftoss/unchained-client/src/parser/thorchain'
+import type { common, TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
 
 import type { ReduxState } from './reducer'
@@ -53,7 +52,7 @@ type ParamFilter = Partial<{
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
   parser: TxMetadata['parser']
-  memo: ThorTxMetadata['memo']
+  memo: common.thormaya.TxMetadata['memo']
   hopIndex: number
   tradeId: TradeQuote['id']
   quoteId: string

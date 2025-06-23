@@ -428,7 +428,6 @@ describe('parseTx', () => {
       const address = '0xCeb660E7623E8f8312B3379Df747c35f2217b595'
       const memo = 'SWAP:THOR.RUNE:thor19f3dsgetxzssvdmqnplfep5fe42fsrvq9u87ax:'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -469,7 +468,6 @@ describe('parseTx', () => {
       const address = '0xA2d3301900e429D29179d3c5c7Cd8d813E8Fbba5'
       const memo = '=:b:3GsSTWcQfbEpMQW4nJ6oPr1UhQZZCS74KD:7415381:t:30'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -580,7 +578,6 @@ describe('parseTx', () => {
       const address = '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E'
       const memo = 'SWAP:THOR.RUNE:thor1hhjupkzy3t6ccelhz7qw8epyx4rm8a06nlm5ce:110928642111'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -699,7 +696,6 @@ describe('parseTx', () => {
       const address = '0xb3305D7Ba0A76b519926E2e203A3cBF80DbA555d'
       const memo = '=:LTC.LTC:ltc1q7k2yhdsacqv6v4rfpp3dzqx538z05qkmcajwg4:0/1/0:ti:70'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -810,7 +806,6 @@ describe('parseTx', () => {
       const address = '0xaFEA60C8BfE8D27f95F3e27F84ED6AB2FE409d39'
       const memo = '=:GAIA.ATOM:cosmos1ggd2pw5stl9cx4svme4ak59ynsqtam3q8ephqx:0/1/0:ti:70'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -966,7 +961,6 @@ describe('parseTx', () => {
       const address = '0x2e3E405055d7781cB49716726001AaC26d3F6FC8'
       const memo = '-:ETH/ETH:5000'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -1114,7 +1108,6 @@ describe('parseTx', () => {
       const address = '0x44F87741f17b0fd8079C258F833708a15205BF72'
       const memo = '-:ETH/USDT-ec7:9900'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -1226,7 +1219,6 @@ describe('parseTx', () => {
       const address = '0xAA07f696a5Eb1C3195B353625be29737419931aD'
       const memo = '+:ETH.ETH::t:0'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -1266,7 +1258,6 @@ describe('parseTx', () => {
       const address = '0xAA07f696a5Eb1C3195B353625be29737419931aD'
       const memo = '-:ETH.ETH:10000'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -1376,7 +1367,6 @@ describe('parseTx', () => {
       const address = '0xc1a256a031A8D2938e1fa6782cf4a7411f5F0d73'
       const memo = '+:ETH.USDT::wr:100'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
@@ -1417,7 +1407,6 @@ describe('parseTx', () => {
       const address = '0xc1a256a031A8D2938e1fa6782cf4a7411f5F0d73'
       const memo = '-:ETH.USDT:10000'
 
-      // mock actions response to ensure transaction is detected as thorchain instead of maybe mayachain
       mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {

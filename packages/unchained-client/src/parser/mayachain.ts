@@ -34,15 +34,17 @@ export class Parser extends ThorMayaParser {
     const [action] = memo.split(':')
     const affiliateName = getAffiliateName(memo)
 
-    // affiliate name is for thorchain
+    // affiliate name is for thorchain, not mayachain
     if (affiliateName === THORCHAIN_AFFILIATE_NAME) return
 
     // action is not supported by mayachain
     if (!mayachainSupportedActions.includes(action.toLowerCase())) return
 
-    // unknown affiliate name with no actions returned by mayachain midgard
+    // unknown affiliate name
     if (affiliateName !== MAYACHAIN_AFFILIATE_NAME) {
       const { data } = await this.axiosMidgard.get<ActionsResponse>(`/actions?txid=${txid}`)
+      // no actions returned by midgard means the transaction did not use mayachain or has not been indexed yet,
+      // we can't reliably parse in either case...
       if (!data.actions.length) return
     }
 

@@ -99,16 +99,15 @@ export const NativeTestPhrase = () => {
   }, [testState])
 
   const handleSubmit = useCallback(() => {
+    if (!hasChosenWords) return
+
     if (!isCorrect) {
       navigate(NativeWalletRoutes.WordsError, { state: { vault }, replace: true })
       return
     }
 
-    if (isCorrect) {
-      handleBackupComplete()
-      return
-    }
-  }, [isCorrect, handleBackupComplete, navigate, vault])
+    handleBackupComplete()
+  }, [hasChosenWords, isCorrect, handleBackupComplete, navigate, vault])
 
   const handleSkip = useCallback(() => {
     navigate(NativeWalletRoutes.SkipConfirm, { state: { vault }, replace: true })

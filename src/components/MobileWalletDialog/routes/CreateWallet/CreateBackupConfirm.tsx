@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { MobileWalletDialogRoutes } from '../../types'
+import { getRandomIndicesIndexes, getRandomWords } from '../../utils'
 
 import { CarouselDots } from '@/components/CarouselDots/CarouselDots'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -21,24 +22,6 @@ import {
 import { SlideTransition } from '@/components/SlideTransition'
 
 const TEST_COUNT_REQUIRED = 3
-
-function getRandomIndices(length: number, count: number): number[] {
-  const indices = Array.from({ length }, (_, i) => i)
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[indices[i], indices[j]] = [indices[j], indices[i]]
-  }
-  return indices.slice(0, count)
-}
-
-function getRandomWords(words: string[], exclude: string, count: number): string[] {
-  const filtered = words.filter(w => w !== exclude)
-  for (let i = filtered.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[filtered[i], filtered[j]] = [filtered[j], filtered[i]]
-  }
-  return filtered.slice(0, count)
-}
 
 export const CreateBackupConfirm = () => {
   const navigate = useNavigate()
@@ -56,7 +39,7 @@ export const CreateBackupConfirm = () => {
 
   useEffect(() => {
     if (words.length > 0) {
-      setTargetIndices(getRandomIndices(words.length, TEST_COUNT_REQUIRED))
+      setTargetIndices(getRandomIndicesIndexes(words.length, TEST_COUNT_REQUIRED))
     }
   }, [words])
 

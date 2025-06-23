@@ -1262,7 +1262,8 @@
         "enterPassword": "Enter your password to continue",
         "testTitle": "Verify Your Secret Recovery Phrase",
         "title": "Confirm Backup",
-        "description": "Complete this quick test to confirm you’ve saved everything correctly.",
+        "description": "Please tap the correct answer to seed phrases below.",
+        "wordNumber": "Word #%{number}",
         "confirm": {
           "title": "Backup wallet",
           "body": "Before you forget your wallet, would you like to back up your secret recovery phrase?",
@@ -1276,6 +1277,17 @@
         "success": {
           "title": "Success",
           "description": "You have backed up your wallet. Remember to store your Secret Recovery Phrase somewhere safe."
+        },
+        "error": {
+          "title": "Incorrect",
+          "description": "One or more of the selected words were incorrect.",
+          "reviewPhrase": "Review Secret Recovery Phrase"
+        },
+        "skip": {
+          "title": "Are you sure you want to skip?",
+          "description": "Skipping the backup means you won't be able to recover your wallet if you lose access to your device.",
+          "confirmQuestion": "Have you already saved your seed phrase somewhere safe?",
+          "confirmCta": "Yes, I’ve backed it up"
         }
       }
     },

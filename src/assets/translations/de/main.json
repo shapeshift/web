@@ -840,12 +840,10 @@
       "lowSlippage": "Eine gesetzte Marktabweichung unter 0,05 % kann zu einer fehlgeschlagenen Transaktion führen."
     },
     "sort": {
-      "sortBy": "Sortieren nach",
       "auto": "Auto",
       "bestRate": "Bester Preis",
       "lowestGas": "Niedrigste Gaskosten",
-      "fastest": "Am schnellsten",
-      "info": "Wählen Sie, wie die verfügbaren Angebote sortiert werden sollen"
+      "fastest": "Am schnellsten"
     },
     "from": "von",
     "to": "zu",

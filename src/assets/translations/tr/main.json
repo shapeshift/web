@@ -840,12 +840,10 @@
       "lowSlippage": "%0,05'in altındaki kayma işlemin başarısız olmasına neden olabilir."
     },
     "sort": {
-      "sortBy": "Göre sırala",
       "auto": "Otomatik",
       "bestRate": "En İyi Oran",
       "lowestGas": "En Düşük Gaz",
-      "fastest": "En hızlı",
-      "info": "Mevcut tekliflerin nasıl sıralanacağını seçin"
+      "fastest": "En hızlı"
     },
     "from": "'dan",
     "to": "'a",

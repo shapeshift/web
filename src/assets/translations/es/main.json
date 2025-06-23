@@ -840,12 +840,10 @@
       "lowSlippage": "Deslizamiento menor a 0,05 % puede provocar una transacción  fallida."
     },
     "sort": {
-      "sortBy": "Ordenar Por",
       "auto": "Auto",
       "bestRate": "Mejor Tarifa",
       "lowestGas": "Menor Gas",
-      "fastest": "Más Rápido",
-      "info": "Elija cómo ordenar las cotizaciones disponibles"
+      "fastest": "Más Rápido"
     },
     "from": "De",
     "to": "A",

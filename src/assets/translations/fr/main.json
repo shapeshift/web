@@ -840,12 +840,10 @@
       "lowSlippage": "Un glissement/slippage inférieur à 0,05 % peut faire échouer la transaction."
     },
     "sort": {
-      "sortBy": "Trier par",
       "auto": "Auto",
       "bestRate": "Meilleur tarif",
       "lowestGas": "Carburant le plus bas",
-      "fastest": "Le plus rapide",
-      "info": "Choisissez comment trier les devis disponibles"
+      "fastest": "Le plus rapide"
     },
     "from": "De",
     "to": "À",

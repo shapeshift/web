@@ -840,12 +840,10 @@
       "lowSlippage": "滑点低于 0.05% 可能会导致交易失败。"
     },
     "sort": {
-      "sortBy": "排序方式",
       "auto": "自动",
       "bestRate": "最佳费率",
       "lowestGas": "最低 Gas",
-      "fastest": "最快",
-      "info": "选择如何对可用报价进行排序"
+      "fastest": "最快"
     },
     "from": "从",
     "to": "到",

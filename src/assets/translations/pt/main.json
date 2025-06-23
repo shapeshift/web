@@ -840,12 +840,10 @@
       "lowSlippage": "Slippage abaixo de 0,05% pode resultar em falha na transação."
     },
     "sort": {
-      "sortBy": "Filtrar por",
       "auto": "Automático",
       "bestRate": "Melhor Taxa",
       "lowestGas": "Menor Gas",
-      "fastest": "Mais Rápido",
-      "info": "Escolha como filtrar "
+      "fastest": "Mais Rápido"
     },
     "from": "De",
     "to": "Para",

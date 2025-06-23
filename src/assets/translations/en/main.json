@@ -2981,6 +2981,18 @@
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
     },
+    "swap": {
+      "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
+      "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
+      "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
+      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+    },
+    "limitOrder": {
+      "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",
+      "complete": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was successfully filled.",
+      "cancelled": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was cancelled.",
+      "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
+    },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",

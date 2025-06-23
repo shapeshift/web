@@ -26,7 +26,6 @@ import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
-import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
@@ -146,9 +145,6 @@ export const TradeInput = ({
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
-
-  const inputOutputDifferenceDecimalPercentage =
-    useInputOutputDifferenceDecimalPercentage(activeQuote)
 
   const {
     manualReceiveAddress,

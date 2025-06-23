@@ -1,8 +1,7 @@
-import { Box, Button, Flex, Icon, Text as CText, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, Text as CText, VStack } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
 import { uniq } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -21,36 +20,33 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 
-const makeOrdinalSuffix = (n: number) => {
-  return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
+const TEST_COUNT_REQUIRED = 3
+
+function getRandomIndices(length: number, count: number): number[] {
+  const indices = Array.from({ length }, (_, i) => i)
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[indices[i], indices[j]] = [indices[j], indices[i]]
+  }
+  return indices.slice(0, count)
 }
 
-const TEST_COUNT_REQUIRED = 3
+function getRandomWords(words: string[], exclude: string, count: number): string[] {
+  const filtered = words.filter(w => w !== exclude)
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[filtered[i], filtered[j]] = [filtered[j], filtered[i]]
+  }
+  return filtered.slice(0, count)
+}
 
 export const CreateBackupConfirm = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const translate = useTranslate()
-  const borderColor = useColorModeValue('gray.100', 'gray.700')
-  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null)
-  const [testWords, setTestWords] = useState<string[]>([])
-
-  const backgroundDottedSx = useMemo(
-    () => ({
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      borderWidth: 1,
-      borderStyle: 'dashed',
-      borderColor,
-      borderRadius: 'xl',
-      mask: 'linear-gradient(to bottom, black 20%, transparent 100%)',
-      WebkitMask: 'linear-gradient(to bottom, black 20%, transparent 100%)',
-    }),
-    [borderColor],
+  const [targetIndices, setTargetIndices] = useState<number[]>([])
+  const [selections, setSelections] = useState<(string | null)[]>(
+    Array(TEST_COUNT_REQUIRED).fill(null),
   )
 
   const words = useMemo(() => {
@@ -58,65 +54,69 @@ export const CreateBackupConfirm = () => {
     return location.state.vault.getWords() ?? []
   }, [location.state?.vault])
 
-  const randomWordIndices = useMemo(() => {
-    const indices = Array.from({ length: words.length }, (_, i) => i)
-    return indices.sort(() => Math.random() - 0.5).slice(0, 12)
-  }, [words.length])
-
-  const generateTestWords = useCallback((targetWord: string) => {
-    let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
-    const otherWords = randomWords
-      .filter(word => word !== targetWord)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-
-    const allWords = [...otherWords, targetWord] as string[]
-    return allWords.sort(() => Math.random() - 0.5)
-  }, [])
-
   useEffect(() => {
-    if (selectedWordIndex === null && words.length > 0) {
-      setSelectedWordIndex(0)
-      const targetWord = words[randomWordIndices[0]]
-      setTestWords(generateTestWords(targetWord ?? ''))
+    if (words.length > 0) {
+      setTargetIndices(getRandomIndices(words.length, TEST_COUNT_REQUIRED))
     }
-  }, [selectedWordIndex, words, randomWordIndices, generateTestWords])
+  }, [words])
 
-  const handleWordClick = useCallback(
-    (word: string) => {
-      const currentWordIndex = randomWordIndices[selectedWordIndex ?? 0]
-      if (words[currentWordIndex] === word) {
-        if ((selectedWordIndex ?? 0) + 1 >= TEST_COUNT_REQUIRED) {
-          navigate(MobileWalletDialogRoutes.CreateBackupSuccess, {
-            state: { vault: location.state?.vault },
-          })
-          return
-        }
+  const options = useMemo(() => {
+    return targetIndices.map(idx => {
+      const correct = words[idx]
+      const distractors = getRandomWords(bip39.wordlists.english, correct, 2)
+      return uniq([correct, ...distractors]).sort(() => Math.random() - 0.5)
+    })
+  }, [targetIndices, words])
 
-        setSelectedWordIndex(prev => {
-          const next = (prev ?? -1) + 1
-          const targetWord = words[randomWordIndices[next]]
-          setTestWords(generateTestWords(targetWord ?? ''))
-          return next
-        })
-      } else {
-        const targetWord = words[currentWordIndex]
-        setTestWords(generateTestWords(targetWord ?? ''))
-      }
-    },
-    [
-      randomWordIndices,
-      selectedWordIndex,
-      words,
-      generateTestWords,
-      navigate,
-      location.state?.vault,
-    ],
-  )
+  const isCorrect = useMemo(() => {
+    return selections.every((word, i) => word === words[targetIndices[i]])
+  }, [selections, words, targetIndices])
+
+  const handleSelect = (line: number, word: string) => {
+    setSelections(prev => {
+      const next = [...prev]
+      next[line] = word
+      return next
+    })
+  }
+
+  const hasChosenWords = useMemo(() => {
+    return selections.length >= 3 && selections.every(word => word !== null)
+  }, [selections])
+
+  const handleSubmit = useCallback(() => {
+    if (!isCorrect && hasChosenWords) {
+      navigate(MobileWalletDialogRoutes.CreateWordsError, {
+        state: { vault: location.state?.vault },
+      })
+      return
+    }
+
+    if (isCorrect) {
+      navigate(MobileWalletDialogRoutes.CreateBackupSuccess, {
+        state: { vault: location.state?.vault },
+      })
+    }
+  }, [hasChosenWords, navigate, location.state?.vault, isCorrect])
+
+  const handleSkip = useCallback(() => {
+    navigate(MobileWalletDialogRoutes.CreateSkipConfirm, {
+      state: { vault: location.state?.vault },
+    })
+  }, [navigate, location.state?.vault])
 
   const handleBack = useCallback(() => {
     navigate(MobileWalletDialogRoutes.CreateBackup, { state: { vault: location.state?.vault } })
   }, [navigate, location.state?.vault])
+
+  const getActiveBackground = useCallback(
+    (index: number, word: string) => {
+      return {
+        bg: selections[index] === word ? 'blue.500' : undefined,
+      }
+    },
+    [selections],
+  )
 
   return (
     <SlideTransition>
@@ -144,87 +144,50 @@ export const CreateBackupConfirm = () => {
             </CText>
           </Box>
 
-          <Box borderRadius='xl' p={6} position='relative' pb={4}>
-            <CText
-              textAlign='center'
-              position='absolute'
-              pointerEvents='none'
-              zIndex='1'
-              top='0'
-              left='50%'
-              transform='translateX(-50%) translateY(-50%)'
-              background='background.surface.base'
-              px={2}
-              width='max-content'
-            >
-              {translate('walletProvider.shapeShift.testPhrase.body')}{' '}
-              {selectedWordIndex !== null && (
-                <Box as='span' color='blue.500' fontWeight='bold'>
-                  {translate(
-                    `walletProvider.shapeShift.testPhrase.${
-                      randomWordIndices[selectedWordIndex] + 1
-                    }${makeOrdinalSuffix(randomWordIndices[selectedWordIndex] + 1)}`,
-                  )}
-                </Box>
-              )}{' '}
-              {translate('walletProvider.shapeShift.testPhrase.body2')}?
-            </CText>
-
-            <Box
-              width='100%'
-              height='100%'
-              position='absolute'
-              borderRadius='xl'
-              pointerEvents='none'
-              left='0'
-              top='0'
-              _before={backgroundDottedSx}
-            />
-            <Flex wrap='wrap' justify='center' gap={2}>
-              {testWords.map((word, index) => (
-                <Button
-                  key={`${word}-${index}`}
-                  variant='solid'
-                  size='md'
-                  // eslint-disable-next-line react-memo/require-usememo
-                  onClick={() => handleWordClick(word)}
-                  colorScheme='gray'
-                  px={4}
-                  py={2}
-                  height='auto'
-                  borderRadius='lg'
-                >
-                  {word}
-                </Button>
-              ))}
-            </Flex>
-          </Box>
+          {options.map((opts, i) => (
+            <Box>
+              <CText display='block' mb={2} fontWeight='bold' fontSize='lg'>
+                {translate('modals.shapeShift.backupPassphrase.wordNumber', {
+                  number: targetIndices[i] + 1,
+                })}
+              </CText>
+              <Flex key={i} justify='center' gap={2}>
+                {opts.map(word => (
+                  <Button
+                    key={word}
+                    variant={'solid'}
+                    colorScheme={selections[i] === word ? 'blue' : 'gray'}
+                    bg={getActiveBackground(i, word).bg}
+                    _hover={getActiveBackground(i, word)}
+                    // We can't memo this as it contains parameters
+                    // eslint-disable-next-line react-memo/require-usememo
+                    onClick={() => handleSelect(i, word)}
+                    px={4}
+                    py={2}
+                    borderRadius='lg'
+                    width='33%'
+                  >
+                    {word}
+                  </Button>
+                ))}
+              </Flex>
+            </Box>
+          ))}
         </VStack>
       </DialogBody>
-      <DialogFooter>
-        <Flex justifyContent='center' mx='auto'>
-          <Flex gap={2} justify='center'>
-            {Array.from({ length: TEST_COUNT_REQUIRED }).map((_, index) => (
-              <Box
-                key={index}
-                w='16px'
-                h='16px'
-                borderRadius='full'
-                bg={index < (selectedWordIndex ?? 0) ? 'blue.500' : 'transparent'}
-                borderWidth={1}
-                borderStyle='dashed'
-                borderColor={borderColor}
-                display='flex'
-                alignItems='center'
-                justifyContent='center'
-              >
-                {index < (selectedWordIndex ?? 0) && (
-                  <Icon as={FaCheck} boxSize='8px' color='white' />
-                )}
-              </Box>
-            ))}
-          </Flex>
-        </Flex>
+      <DialogFooter flexDirection='column' gap={2} mt={14}>
+        <Button
+          colorScheme='blue'
+          onClick={handleSubmit}
+          isDisabled={!hasChosenWords}
+          width='100%'
+          size='lg'
+        >
+          {translate('common.continue')}
+        </Button>
+        <Button onClick={handleSkip} width='100%' variant='ghost' size='lg'>
+          {translate('common.skip')}
+        </Button>
       </DialogFooter>
     </SlideTransition>
   )

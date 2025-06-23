@@ -2,7 +2,6 @@ import { CloseIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { SwapStatus } from '@shapeshiftoss/swapper'
-import dayjs from 'dayjs'
 import { useMemo } from 'react'
 
 import { ActionStatusIcon } from '../ActionStatusIcon'
@@ -87,18 +86,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     return 'notificationCenter.swap.processing'
   }, [swap])
 
-  const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(action?.createdAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
-  }, [action?.createdAt])
-
   if (!swap) return null
 
   return (
@@ -146,15 +133,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
                   translation={swapTitleTranslation}
                   components={swapNotificationTranslationComponents}
                 />
-                <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
-                  <RawText>{formattedDate}</RawText>
-
-                  {swap.swapperName && (
-                    <RawText fontSize='xs'>
-                      <SwapperIcons swapperName={swap.swapperName} swapSource={undefined} />
-                    </RawText>
-                  )}
-                </HStack>
               </Box>
             </HStack>
           </Flex>

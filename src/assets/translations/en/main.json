@@ -2984,7 +2984,7 @@
       "unknown": "Unknown"
     },
     "swap": {
-      "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is still being processed.",
+      "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."

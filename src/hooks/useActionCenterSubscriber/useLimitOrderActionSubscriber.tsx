@@ -10,7 +10,7 @@ import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
 import { useLimitOrdersQuery } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType, isLimitOrderAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import {
   selectBuyAmountCryptoBaseUnit,
@@ -27,8 +27,8 @@ import {
   selectLimitOrderSubmissionMetadata,
 } from '@/state/slices/limitOrderSlice/selectors'
 import {
-  selectActions,
   selectLimitOrderActionByCowSwapQuoteId,
+  selectLimitOrderActionsByWallet,
   selectOpenLimitOrderActionsFilteredByWallet,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
@@ -78,7 +78,7 @@ export const useLimitOrderActionSubscriber = ({
   const previousLimitOrderId = usePrevious(limitOrderSubmissionMetadata?.limitOrder.orderId)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
 
-  const actions = useAppSelector(selectActions)
+  const actions = useAppSelector(selectLimitOrderActionsByWallet)
 
   useEffect(() => {
     if (isDrawerOpen) {
@@ -159,8 +159,7 @@ export const useLimitOrderActionSubscriber = ({
       previousLimitOrderId !== limitOrderSubmissionMetadata.limitOrder.orderId
     ) {
       const action = actions.find(
-        action =>
-          isLimitOrderAction(action) && action.limitOrderMetadata?.cowSwapQuoteId === activeQuoteId,
+        action => action.limitOrderMetadata?.cowSwapQuoteId === activeQuoteId,
       )
 
       if (action && action.type === ActionType.LimitOrder) {
@@ -206,14 +205,13 @@ export const useLimitOrderActionSubscriber = ({
           order.order.status !== OrderStatus.OPEN,
       )
 
-      if (!updatedLimitOrder || !isLimitOrderAction(updatedLimitOrder)) return
+      if (!updatedLimitOrder) return
 
       const action = actions.find(
-        action =>
-          isLimitOrderAction(action) && action.limitOrderMetadata?.limitOrderId === order.order.uid,
+        action => action.limitOrderMetadata?.limitOrderId === order.order.uid,
       )
 
-      if (!action || !isLimitOrderAction(action)) return
+      if (!action) return
 
       // Partially filled orders
       if (

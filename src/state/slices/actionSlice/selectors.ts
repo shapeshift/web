@@ -1,6 +1,7 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
+import type { LimitOrderAction } from './types'
 import {
   ActionStatus,
   ActionType,
@@ -108,6 +109,18 @@ export const selectLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelec
     return actions.find(
       action =>
         isLimitOrderAction(action) && action.limitOrderMetadata.cowSwapQuoteId === cowSwapQuoteId,
+    )
+  },
+)
+
+export const selectLimitOrderActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      (action): action is LimitOrderAction =>
+        isLimitOrderAction(action) &&
+        enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId),
     )
   },
 )

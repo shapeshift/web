@@ -1,7 +1,6 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
-import dayjs from 'dayjs'
 import { useMemo } from 'react'
 
 import { ActionStatusIcon } from '../ActionStatusIcon'
@@ -9,7 +8,7 @@ import { ActionStatusIcon } from '../ActionStatusIcon'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
-import { RawText, Text } from '@/components/Text/Text'
+import { Text } from '@/components/Text/Text'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 
@@ -21,8 +20,6 @@ type SwapNotificationProps = {
 const toastHoverProps = {
   transform: 'translateY(-2px)',
 }
-
-const divider = <RawText color='text.subtle'>•</RawText>
 
 export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNotificationProps) => {
   const crossBgColor = useColorModeValue('gray.850', 'white')
@@ -101,18 +98,6 @@ export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNot
     return 'notificationCenter.limitOrder.placed'
   }, [action])
 
-  const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(action?.updatedAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
-  }, [action?.updatedAt])
-
   return (
     <Box position='relative' _hover={toastHoverProps} transition='all 0.2s'>
       <Button
@@ -158,9 +143,6 @@ export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNot
                   translation={limitOrderTitleTranslation}
                   components={limitOrderNotificationTranslationComponents}
                 />
-                <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
-                  <RawText>{formattedDate}</RawText>
-                </HStack>
               </Box>
             </HStack>
           </Flex>

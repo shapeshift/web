@@ -11,12 +11,12 @@ export const NativeSkipConfirm = () => {
   const { vault } = location.state
 
   const handleConfirm = useCallback(() => {
-    navigate(NativeWalletRoutes.Password, { state: { vault }, replace: true })
+    navigate(NativeWalletRoutes.Password, { state: { vault } })
   }, [navigate, vault])
 
   const handleBack = useCallback(() => {
-    navigate(NativeWalletRoutes.CreateTest, { state: { vault }, replace: true })
-  }, [navigate, vault])
+    navigate(-1)
+  }, [navigate])
 
   return <SkipConfirmModal onConfirm={handleConfirm} onBack={handleBack} />
 }

@@ -1,6 +1,6 @@
 import { Box, Button, Flex, ModalBody, ModalHeader, Text as CText, VStack } from '@chakra-ui/react'
 import { crypto } from '@shapeshiftoss/hdwallet-native'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -65,8 +65,7 @@ export const NativeTestPhrase = () => {
   }, [generateTestState])
 
   const handleBackupComplete = useCallback(() => {
-    vault.seal()
-    navigate('/native/password', { state: { vault }, replace: true })
+    navigate('/native/password', { state: { vault } })
     setTimeout(() => revoker.revoke(), 250)
   }, [navigate, revoker, vault])
 
@@ -83,15 +82,18 @@ export const NativeTestPhrase = () => {
 
   const { data: isCorrect } = useQuery({
     queryKey: ['isCorrect', testState?.selectedWords],
-    queryFn: async () => {
-      if (!testState) return false
-      const mnemonic = await vault.unwrap().get('#mnemonic')
+    queryFn: testState
+      ? async () => {
+          if (!testState) return false
+          const mnemonic = await vault.unwrap().get('#mnemonic')
 
-      const words = mnemonic.split(' ')
+          const words = mnemonic.split(' ')
 
-      return testState.selectedWords.every((word, i) => word === words[testState.targetIndices[i]])
-    },
-    enabled: !!testState,
+          return testState.selectedWords.every(
+            (word, i) => word === words[testState.targetIndices[i]],
+          )
+        }
+      : skipToken,
   })
 
   const hasChosenWords = useMemo(() => {
@@ -102,7 +104,7 @@ export const NativeTestPhrase = () => {
     if (!hasChosenWords) return
 
     if (!isCorrect) {
-      navigate(NativeWalletRoutes.WordsError, { state: { vault }, replace: true })
+      navigate(NativeWalletRoutes.WordsError, { state: { vault } })
       return
     }
 
@@ -110,7 +112,7 @@ export const NativeTestPhrase = () => {
   }, [hasChosenWords, isCorrect, handleBackupComplete, navigate, vault])
 
   const handleSkip = useCallback(() => {
-    navigate(NativeWalletRoutes.SkipConfirm, { state: { vault }, replace: true })
+    navigate(NativeWalletRoutes.SkipConfirm, { state: { vault } })
   }, [navigate, vault])
 
   return !testState ? null : (

@@ -2000,7 +2000,7 @@
       "button": "Continue to confirm",
       "success": {
         "title": "You're in",
-        "description": "You've verified your Secret Recovery Phrase. Be sure to store it securely—this is the only way to recover your wallet.",
+        "description": "You've verified your Secret Recovery Phrase. Be sure to store it securely - this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
     }

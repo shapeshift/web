@@ -11,7 +11,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { crypto } from '@shapeshiftoss/hdwallet-native'
-import { useQuery } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -34,7 +33,7 @@ const TEST_COUNT_REQUIRED = 3
 type TestState = {
   targetIndices: number[]
   options: string[][]
-  selectedWords: (string | null)[]
+  selectedWords: string[]
 }
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -96,17 +95,13 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     })
   }
 
-  const { data: isCorrect } = useQuery({
-    queryKey: ['isCorrect', testState?.selectedWords],
-    queryFn: () => {
-      if (!testState) return false
-      const words = revocableWallet.getWords()
-      if (!words) return false
+  const isCorrect = useMemo(() => {
+    if (!testState) return false
+    const words = revocableWallet.getWords()
+    if (!words) return false
 
-      return testState.selectedWords.every((word, i) => word === words[testState.targetIndices[i]])
-    },
-    enabled: !!testState,
-  })
+    return testState.selectedWords.every((word, i) => word === words[testState.targetIndices[i]])
+  }, [revocableWallet, testState])
 
   const hasChosenWords = useMemo(() => {
     return testState?.selectedWords.every(w => w !== null) ?? false

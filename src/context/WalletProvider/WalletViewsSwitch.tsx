@@ -113,18 +113,16 @@ export const WalletViewsSwitch = () => {
   // When the modal is closed, invalidate the queries for the native wallet
   useEffect(() => {
     return () => {
-      queryClient.invalidateQueries({
+      queryClient.resetQueries({
         queryKey: reactQueries.common.hdwalletNativeVaultsList().queryKey,
       })
-      queryClient.invalidateQueries({
+      queryClient.resetQueries({
         queryKey: ['native-create-vault'],
         exact: false,
-        refetchType: 'all',
       })
-      queryClient.invalidateQueries({
+      queryClient.resetQueries({
         queryKey: ['native-create-words'],
         exact: false,
-        refetchType: 'all',
       })
     }
   }, [queryClient])

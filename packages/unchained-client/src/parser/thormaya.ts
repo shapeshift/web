@@ -77,7 +77,7 @@ interface Actions {
   metadata?: Metadata
   pools: string[]
   status: 'success' | 'pending'
-  type: 'swap' | 'addLiquidity' | 'withdraw' | 'donate' | 'refund' | 'switch'
+  type: 'swap' | 'addLiquidity' | 'withdraw' | 'donate' | 'refund' | 'switch' | 'send'
 }
 
 export interface ActionsResponse {

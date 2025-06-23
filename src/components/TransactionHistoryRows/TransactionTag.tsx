@@ -1,5 +1,6 @@
-import { Tag } from '@chakra-ui/react'
+import { Flex, Tag } from '@chakra-ui/react'
 import type { TransferType } from '@shapeshiftoss/chain-adapters'
+import { Dex } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 
 import type { Transfer, TxDetails } from '@/hooks/useTxDetails/useTxDetails'
@@ -63,15 +64,38 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
       </Tag>
     )
   }
-  if (
-    txData &&
-    (txData.parser === 'thorchain' || txData.parser === 'mayachain') &&
-    txData.swap?.type === 'Streaming'
-  ) {
+  if ((txData && 'swap' in txData) || txDetails.tx.trade) {
+    const dex = (() => {
+      if (txDetails.tx.trade?.dexName) return txDetails.tx.trade.dexName
+
+      switch (txData?.parser) {
+        case 'cowswap':
+          return 'CoW Swap'
+        case 'mayachain':
+          return Dex.Maya
+        case 'thorchain':
+          return Dex.Thor
+        case 'zrx':
+          return '0x'
+        default:
+          return
+      }
+    })()
+
     return (
-      <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
-        {txData.swap.type}
-      </Tag>
+      <Flex gap={2}>
+        {dex && (
+          <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
+            {dex}
+          </Tag>
+        )}
+        {(txData?.parser === 'thorchain' || txData?.parser === 'mayachain') &&
+          txData.swap?.type === 'Streaming' && (
+            <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
+              {txData.swap.type}
+            </Tag>
+          )}
+      </Flex>
     )
   }
   return null

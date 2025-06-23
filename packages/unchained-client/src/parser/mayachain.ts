@@ -42,10 +42,18 @@ export class Parser extends ThorMayaParser {
 
     // unknown affiliate name
     if (affiliateName !== MAYACHAIN_AFFILIATE_NAME) {
-      const { data } = await this.axiosMidgard.get<ActionsResponse>(`/actions?txid=${txid}`)
-      // no actions returned by midgard means the transaction did not use mayachain or has not been indexed yet,
-      // we can't reliably parse in either case...
-      if (!data.actions.length) return
+      const { data } = await this.axiosMidgard.get<ActionsResponse>(
+        `/actions?txid=${txid.replace(/^0x/, '')}`,
+      )
+      if (
+        // no actions returned by midgard means the transaction did not use thorchain or has not been indexed yet,
+        // we can't reliably parse in either case...
+        !data.actions.length ||
+        // send actions are just regular transactions and should not be parsed
+        (data.actions.length === 1 && data.actions[0].type === 'send')
+      ) {
+        return
+      }
     }
 
     return this._parse(memo)

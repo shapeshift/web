@@ -59,11 +59,9 @@ export const TransactionTrade = ({
     transfersByType && transfersByType.Receive && transfersByType.Receive.length > 0
 
   const topLeft = useMemo(() => {
-    const title = !txDetails.tx.trade?.dexName
-      ? translate('transactionRow.swap')
-      : translate('transactionRow.swapWith', { dex: txDetails.tx.trade?.dexName })
+    const title = translate('transactionRow.swap')
     return (
-      <Flex>
+      <Flex gap={2}>
         <RawText>{title}</RawText>
         <TransactionTag txDetails={txDetails} transfersByType={transfersByType} />
       </Flex>

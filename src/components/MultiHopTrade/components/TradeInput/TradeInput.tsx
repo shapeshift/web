@@ -491,7 +491,6 @@ export const TradeInput = ({
     buyAssetAccountId,
     buyTradeAssetSelect,
     hasUserEnteredAmount,
-    inputOutputDifferenceDecimalPercentage,
     isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,

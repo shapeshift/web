@@ -1,3 +1,4 @@
+import type { StyleProps } from '@chakra-ui/react'
 import type { BigNumber } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback } from 'react'
@@ -6,9 +7,9 @@ import { useTranslate } from 'react-polyglot'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 
-interface PriceImpactProps {
+type PriceImpactProps = {
   priceImpactPercentage: BigNumber | undefined
-  color: string
+  color: StyleProps['color']
 }
 
 export const PriceImpact: FC<PriceImpactProps> = ({ color, priceImpactPercentage }) => {

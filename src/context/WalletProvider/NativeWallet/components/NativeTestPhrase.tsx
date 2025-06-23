@@ -125,7 +125,7 @@ export const NativeTestPhrase = () => {
           mb={12}
         />
         <VStack alignItems='stretch'>
-          {testState.options.map((opts, i) => (
+          {testState.options.map((lineWords, i) => (
             <Box key={i} borderRadius='xl' position='relative' mb={4}>
               <CText
                 textAlign='center'
@@ -141,7 +141,7 @@ export const NativeTestPhrase = () => {
               </CText>
 
               <Flex justify='center' gap={2}>
-                {opts.map((word: string, index: number) =>
+                {lineWords.map((word: string, index: number) =>
                   revocable(
                     <Button
                       key={`${word}-${index}`}

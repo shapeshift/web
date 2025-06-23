@@ -8,9 +8,8 @@ import { ActionStatusIcon } from '../ActionStatusIcon'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import type { TextPropTypes } from '@/components/Text/Text'
-import { RawText, Text } from '@/components/Text/Text'
+import { Text } from '@/components/Text/Text'
 import { selectSwapActionBySwapId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
@@ -23,8 +22,6 @@ type SwapNotificationProps = {
 const toastHoverProps = {
   transform: 'translateY(-2px)',
 }
-
-const divider = <RawText color='text.subtle'>•</RawText>
 
 export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificationProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)

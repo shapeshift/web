@@ -58,3 +58,21 @@ export async function decryptFromKeystore(keystore: Keystore, password: string):
 
   return decoder.decode(decrypted)
 }
+
+export function getRandomIndicesIndexes(length: number, count: number): number[] {
+  const indices = Array.from({ length }, (_, i) => i)
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[indices[i], indices[j]] = [indices[j], indices[i]]
+  }
+  return indices.slice(0, count)
+}
+
+export function getRandomWords(words: string[], exclude: string, count: number): string[] {
+  const filtered = words.filter(w => w !== exclude)
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[filtered[i], filtered[j]] = [filtered[j], filtered[i]]
+  }
+  return filtered.slice(0, count)
+}

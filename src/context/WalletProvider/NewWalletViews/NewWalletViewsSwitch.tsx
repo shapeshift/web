@@ -138,6 +138,20 @@ export const NewWalletViewsSwitch = () => {
     // Save the pathname before navigation
     const pathname = location.pathname
 
+    if (
+      locationState?.vault &&
+      (pathname === NativeWalletRoutes.SkipConfirm ||
+        pathname === NativeWalletRoutes.WordsError ||
+        pathname === NativeWalletRoutes.Password)
+    ) {
+      navigate(NativeWalletRoutes.CreateTest, {
+        state: { vault: locationState.vault },
+        replace: true,
+      })
+
+      return
+    }
+
     if (locationState?.vault && pathname === NativeWalletRoutes.CreateTest) {
       navigate(NativeWalletRoutes.Create, {
         state: { vault: locationState.vault },

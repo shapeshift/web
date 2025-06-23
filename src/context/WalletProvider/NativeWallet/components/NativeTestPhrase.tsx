@@ -1,25 +1,15 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  ModalBody,
-  ModalHeader,
-  Text as CText,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, ModalBody, ModalHeader, Text as CText, VStack } from '@chakra-ui/react'
 import { crypto } from '@shapeshiftoss/hdwallet-native'
+import { useQuery } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
-import range from 'lodash/range'
-import shuffle from 'lodash/shuffle'
-import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaCheck } from 'react-icons/fa'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router'
 
+import { NativeWalletRoutes } from '../../types'
+
+import { getRandomIndicesIndexes, getRandomWords } from '@/components/MobileWalletDialog/utils'
 import { Text } from '@/components/Text'
 
 const Revocable = crypto.Isolation.Engines.Default.Revocable
@@ -27,71 +17,40 @@ const revocable = crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 
-export const ordinalSuffix = (n: number) => {
-  return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
-}
-
 type TestState = {
-  targetWordIndex: number
-  randomWords: string[]
-  correctAnswerIndex: number
+  targetIndices: number[]
+  options: string[][]
+  selectedWords: (string | null)[]
 }
 
 export const NativeTestPhrase = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const translate = useTranslate()
-  const borderColor = useColorModeValue('gray.300', 'whiteAlpha.200')
-  const dottedTitleBackground = useColorModeValue('#f7fafc', '#2e3236')
   const [testState, setTestState] = useState<TestState | null>(null)
-  const testCount = useRef(0)
   const [revoker] = useState(new (Revocable(class {}))())
-  const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
-  const isInitiallyShuffled = useRef(false)
-
-  const backgroundDottedSx = useMemo(
-    () => ({
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      borderWidth: 1,
-      borderStyle: 'dashed',
-      borderColor,
-      borderRadius: 'xl',
-      mask: 'linear-gradient(to bottom, black 20%, transparent 100%)',
-      WebkitMask: 'linear-gradient(to bottom, black 20%, transparent 100%)',
-    }),
-    [borderColor],
-  )
 
   const { vault } = location.state
 
-  const shuffleMnemonic = useCallback(async () => {
-    if (testCount.current >= TEST_COUNT_REQUIRED) return
+  const generateTestState = useCallback(async () => {
     try {
       const mnemonic = await vault.unwrap().get('#mnemonic')
       const words = mnemonic.split(' ')
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
-      const targetWordIndex = shuffledNumbers[testCount.current]
-      const targetWord = words[targetWordIndex]
-      randomWords = randomWords.filter(x => x !== targetWord).slice(0, 3)
-      randomWords.push(targetWord)
-      randomWords = shuffle(randomWords)
-      const correctAnswerIndex = randomWords.indexOf(targetWord)
-      // Should never happen because we literally just added the word to the array
-      if (correctAnswerIndex === -1) throw Error("Can't find index of current word in randomWords")
+      const targetIndices = getRandomIndicesIndexes(words.length, TEST_COUNT_REQUIRED)
+      const options = targetIndices.map(idx => {
+        const correct = words[idx]
+        const distractors = getRandomWords(bip39.wordlists.english, correct, 2)
+        return uniq([correct, ...distractors]).sort(() => Math.random() - 0.5)
+      })
 
       setTestState(
         revocable(
           {
-            targetWordIndex,
-            randomWords,
-            correctAnswerIndex,
+            targetIndices,
+            options,
+            selectedWords: [],
           },
           revoker.addRevoker.bind(revoker),
         ),
@@ -99,14 +58,11 @@ export const NativeTestPhrase = () => {
     } catch (e) {
       setError('walletProvider.shapeShift.create.error')
     }
-  }, [setTestState, shuffledNumbers, vault, revoker, testCount])
+  }, [vault, revoker])
 
   useEffect(() => {
-    if (!isInitiallyShuffled.current) {
-      shuffleMnemonic()
-      isInitiallyShuffled.current = true
-    }
-  }, [shuffleMnemonic])
+    generateTestState()
+  }, [generateTestState])
 
   const handleBackupComplete = useCallback(() => {
     vault.seal()
@@ -114,112 +70,117 @@ export const NativeTestPhrase = () => {
     setTimeout(() => revoker.revoke(), 250)
   }, [navigate, revoker, vault])
 
-  const handleClick = (index: number) => {
-    if (index === testState?.correctAnswerIndex) {
-      testCount.current++
+  const handleSelect = (line: number, index: number) => {
+    if (!testState) return
 
-      if (testCount.current >= TEST_COUNT_REQUIRED) {
-        handleBackupComplete()
-      } else {
-        shuffleMnemonic()
-      }
-    } else {
-      shuffleMnemonic()
-    }
+    setTestState(prev => {
+      if (!prev) return prev
+      const next = { ...prev }
+      next.selectedWords[line] = testState.options[line][index]
+      return revocable(next, revoker.addRevoker.bind(revoker))
+    })
   }
+
+  const { data: isCorrect } = useQuery({
+    queryKey: ['isCorrect', testState?.selectedWords],
+    queryFn: async () => {
+      if (!testState) return false
+      const mnemonic = await vault.unwrap().get('#mnemonic')
+
+      const words = mnemonic.split(' ')
+
+      return testState.selectedWords.every((word, i) => word === words[testState.targetIndices[i]])
+    },
+    enabled: !!testState,
+  })
+
+  const hasChosenWords = useMemo(() => {
+    return testState?.selectedWords.length === TEST_COUNT_REQUIRED
+  }, [testState])
+
+  const handleSubmit = useCallback(() => {
+    if (!isCorrect) {
+      navigate(NativeWalletRoutes.WordsError, { state: { vault }, replace: true })
+      return
+    }
+
+    if (isCorrect) {
+      handleBackupComplete()
+      return
+    }
+  }, [isCorrect, handleBackupComplete, navigate, vault])
+
+  const handleSkip = useCallback(() => {
+    navigate(NativeWalletRoutes.SkipConfirm, { state: { vault }, replace: true })
+  }, [navigate, vault])
 
   return !testState ? null : (
     <>
       <ModalHeader>
         <Text translation={'modals.shapeShift.backupPassphrase.title'} />
       </ModalHeader>
-      <ModalBody>
+      <ModalBody width='100%'>
         <Text
           color='text.subtle'
-          translation={'modals.shapeShift.backupPassphrase.description'}
+          translation={'modals.shapeShift.backupPassphrase.desktopDescription'}
           mb={12}
         />
-        <VStack spacing={6} alignItems='stretch'>
-          <Box borderRadius='xl' p={6} position='relative' pb={4}>
-            <CText
-              textAlign='center'
-              position='absolute'
-              pointerEvents='none'
-              zIndex='1'
-              top='0'
-              left='50%'
-              transform='translateX(-50%) translateY(-50%)'
-              px={2}
-              width='max-content'
-              color='text.subtle'
-              bg={dottedTitleBackground}
-            >
-              <Text as='span' translation={'walletProvider.shapeShift.testPhrase.body'} />{' '}
-              <Box as='span' color='blue.500' fontWeight='bold'>
-                {translate(
-                  `walletProvider.shapeShift.testPhrase.${
-                    testState.targetWordIndex + 1
-                  }${ordinalSuffix(testState.targetWordIndex + 1)}`,
+        <VStack alignItems='stretch'>
+          {testState.options.map((opts, i) => (
+            <Box key={i} borderRadius='xl' position='relative' mb={4}>
+              <CText
+                textAlign='center'
+                pointerEvents='none'
+                px={2}
+                width='max-content'
+                fontWeight='bold'
+                mb={2}
+              >
+                {translate('modals.shapeShift.backupPassphrase.wordNumber', {
+                  number: testState.targetIndices[i] + 1,
+                })}
+              </CText>
+
+              <Flex justify='center' gap={2}>
+                {opts.map((word: string, index: number) =>
+                  revocable(
+                    <Button
+                      key={`${word}-${index}`}
+                      variant='solid'
+                      size='md'
+                      colorScheme={testState.selectedWords[i] === word ? 'blue' : 'gray'}
+                      // Can't memo this as it contains parameters
+                      // eslint-disable-next-line react-memo/require-usememo
+                      onClick={() => handleSelect(i, index)}
+                      px={4}
+                      py={2}
+                      height='auto'
+                      borderRadius='lg'
+                      width='33%'
+                    >
+                      {word}
+                    </Button>,
+                    revoker.addRevoker.bind(revoker),
+                  ),
                 )}
-              </Box>
-              <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
-            </CText>
-
-            <Box
-              width='100%'
-              height='100%'
-              position='absolute'
-              borderRadius='xl'
-              pointerEvents='none'
-              left='0'
-              top='0'
-              _before={backgroundDottedSx}
-            />
-
-            <Flex wrap='wrap' justify='center' gap={2}>
-              {testState.randomWords.map((word: string, index: number) =>
-                revocable(
-                  <Button
-                    key={`${word}-${index}`}
-                    variant='solid'
-                    size='md'
-                    colorScheme='gray'
-                    // eslint-disable-next-line react-memo/require-usememo
-                    onClick={() => handleClick(index)}
-                    px={4}
-                    py={2}
-                    height='auto'
-                    borderRadius='lg'
-                  >
-                    {word}
-                  </Button>,
-                  revoker.addRevoker.bind(revoker),
-                ),
-              )}
-            </Flex>
-          </Box>
+              </Flex>
+            </Box>
+          ))}
         </VStack>
 
-        <Flex justifyContent='center' mt={2}>
-          <Flex gap={2} justify='center'>
-            {Array.from({ length: TEST_COUNT_REQUIRED }).map((_, index) => (
-              <Box
-                key={index}
-                w='16px'
-                h='16px'
-                borderRadius='full'
-                bg={index < testCount.current ? 'blue.500' : 'transparent'}
-                borderWidth={1}
-                borderStyle='dashed'
-                borderColor={borderColor}
-                display='flex'
-                alignItems='center'
-                justifyContent='center'
-              >
-                {index < testCount.current && <Icon as={FaCheck} boxSize='8px' color='white' />}
-              </Box>
-            ))}
-          </Flex>
+        <Flex flexDir='column' gap={2} justifyContent='center' mt={6}>
+          <Button
+            colorScheme='blue'
+            onClick={handleSubmit}
+            isDisabled={!hasChosenWords}
+            size='lg'
+            width='100%'
+          >
+            {translate('common.continue')}
+          </Button>
+          <Button onClick={handleSkip} size='lg' width='100%' variant='ghost'>
+            {translate('common.skip')}
+          </Button>
         </Flex>
       </ModalBody>
     </>

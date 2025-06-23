@@ -54,6 +54,9 @@ export const CreateSkipConfirm = ({ onClose }: CreateSkipConfirmProps) => {
               {translate('modals.shapeShift.backupPassphrase.skip.description')}
             </Text>
           </VStack>
+          <Text textAlign='center' fontWeight='bold'>
+            {translate('modals.shapeShift.backupPassphrase.skip.confirmQuestion')}
+          </Text>
         </VStack>
       </DialogBody>
       <DialogFooter flexDirection='column' gap={2} mt={14}>

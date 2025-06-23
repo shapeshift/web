@@ -28,9 +28,7 @@ export const CreateBackupConfirm = () => {
   const location = useLocation()
   const translate = useTranslate()
   const [targetIndices, setTargetIndices] = useState<number[]>([])
-  const [selections, setSelections] = useState<(string | null)[]>(
-    Array(TEST_COUNT_REQUIRED).fill(null),
-  )
+  const [selections, setSelections] = useState<string[]>([])
 
   const words = useMemo(() => {
     if (!location.state?.vault) return []
@@ -64,7 +62,7 @@ export const CreateBackupConfirm = () => {
   }
 
   const hasChosenWords = useMemo(() => {
-    return selections.length >= 3 && selections.every(word => word !== null)
+    return selections.length >= TEST_COUNT_REQUIRED
   }, [selections])
 
   const handleSubmit = useCallback(() => {

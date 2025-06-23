@@ -46,10 +46,10 @@ export const CreateWordsError = ({ onClose }: CreateWordsErrorProps) => {
 
           <VStack spacing={2} mb={10}>
             <Text fontSize='xl' fontWeight='bold'>
-              {translate('walletProvider.manualBackup.success.title')}
+              {translate('modals.shapeShift.backupPassphrase.error.title')}
             </Text>
             <Text color='text.subtle' textAlign='center'>
-              {translate('walletProvider.manualBackup.success.description')}
+              {translate('modals.shapeShift.backupPassphrase.error.description')}
             </Text>
           </VStack>
         </VStack>

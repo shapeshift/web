@@ -54,6 +54,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
           <Amount.Crypto
             prefix={translate('common.send')}
             value={bridgeAmountCryptoPrecision}
+            maximumFractionDigits={2}
             symbol={sellAsset.symbol}
           />
         ),

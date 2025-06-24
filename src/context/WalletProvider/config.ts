@@ -92,6 +92,18 @@ const NativeImportKeystore = lazy(() =>
   })),
 )
 
+const NativeWordsError = lazy(() =>
+  import('./NativeWallet/components/NativeWordsError').then(({ NativeWordsError }) => ({
+    default: NativeWordsError,
+  })),
+)
+
+const NativeSkipConfirm = lazy(() =>
+  import('./NativeWallet/components/NativeSkipConfirm').then(({ NativeSkipConfirm }) => ({
+    default: NativeSkipConfirm,
+  })),
+)
+
 const EnterPassword = lazy(() =>
   import('./NativeWallet/components/EnterPassword').then(({ EnterPassword }) => ({
     default: EnterPassword,
@@ -352,6 +364,8 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: NativeWalletRoutes.CreateTest, component: NativeTestPhrase },
       { path: NativeWalletRoutes.Success, component: NativeSuccess },
       { path: NativeWalletRoutes.EnterPassword, component: EnterPassword },
+      { path: NativeWalletRoutes.WordsError, component: NativeWordsError },
+      { path: NativeWalletRoutes.SkipConfirm, component: NativeSkipConfirm },
     ],
     connectedMenuComponent: NativeMenu,
   },

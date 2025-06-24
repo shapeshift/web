@@ -27,11 +27,7 @@ import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from '@/lib/utils/evm'
+import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { reactQueries } from '@/react-queries'
@@ -255,19 +251,11 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
       const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-      const buildCustomTxInput = await createBuildCustomTxInput({
-        accountNumber: sellAssetAccountNumber,
-        from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+      const txId = await signAndBroadcast({
         adapter,
-        data: unsignedTx.data,
-        value: unsignedTx.value,
-        to: unsignedTx.to,
+        txToSign: unsignedTx,
         wallet,
-      })
-
-      const txId = await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
+        senderAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
 

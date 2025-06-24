@@ -1,10 +1,11 @@
+import { usePrevious } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { skipToken, useQuery } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect } from 'react'
 
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -13,21 +14,37 @@ import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSup
 import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import {
+  portfolio,
   portfolio as portfolioSlice,
   portfolioApi,
 } from '@/state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectPortfolioAccounts } from '@/state/slices/selectors'
+import { selectEnabledWalletAccountIds, selectPortfolioAccounts } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const { getAccount } = portfolioApi.endpoints
 
 export const useAccountsFetchQuery = () => {
   const dispatch = useAppDispatch()
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const { supportedChains } = usePlugins()
   const { isSnapInstalled } = useIsSnapInstalled()
+  const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   const { deviceId, wallet } = useWallet().state
-  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
+  const enabledPortfolioAccounts = useAppSelector(selectPortfolioAccounts)
+  const portfolioAccounts = useAppSelector(portfolio.selectors.selectAccountsById)
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    // If the user install the MM snap or uninstall it, we need to invalidate the query and refetch accounts
+    // This will enable or disable accounts supported by the snap
+    if (previousIsSnapInstalled !== isSnapInstalled) {
+      queryClient.invalidateQueries({
+        queryKey: ['useAccountsFetch'],
+        exact: false,
+      })
+    }
+  }, [isSnapInstalled, previousIsSnapInstalled, queryClient])
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
@@ -86,7 +103,11 @@ export const useAccountsFetchQuery = () => {
         const portfolioResults = await Promise.allSettled(
           accountIds.map(async accountId => {
             // If account exists in store and had activity, skip fetching
-            if (portfolioAccounts[accountId]?.hasActivity) return currentPortfolio
+            if (
+              enabledPortfolioAccounts[accountId]?.hasActivity &&
+              !portfolioAccounts[accountId]?.isManuallyDisabled
+            )
+              return currentPortfolio
 
             // If not in store, fetch it
             const { data } = await dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }))
@@ -128,7 +149,10 @@ export const useAccountsFetchQuery = () => {
             chainIdsWithActivity.add(accountChainId)
 
             // Only dispatch updates for newly fetched accounts which didn't have activity or didn't exist yet in the store
-            if (!portfolioAccounts[accountId]?.hasActivity) {
+            if (
+              !enabledPortfolioAccounts[accountId]?.hasActivity &&
+              !portfolioAccounts[accountId]?.isManuallyDisabled
+            ) {
               dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
 
               accountIds.forEach(accountId => {
@@ -157,7 +181,14 @@ export const useAccountsFetchQuery = () => {
     }
 
     return null
-  }, [dispatch, isSnapInstalled, supportedChains, wallet, portfolioAccounts])
+  }, [
+    dispatch,
+    isSnapInstalled,
+    supportedChains,
+    wallet,
+    enabledPortfolioAccounts,
+    portfolioAccounts,
+  ])
 
   const query = useQuery({
     queryKey: [
@@ -166,6 +197,7 @@ export const useAccountsFetchQuery = () => {
         deviceId,
         supportedChains,
         isSnapInstalled,
+        enabledWalletAccountIds,
       },
     ],
     queryFn: wallet && deviceId ? queryFn : skipToken,

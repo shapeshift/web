@@ -12,13 +12,12 @@ import {
   useMediaQuery,
   useToast,
 } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { KeyManager } from '../KeyManager'
-import type { LocationState } from '../NativeWallet/types'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
@@ -98,10 +97,10 @@ export const NewWalletViewsSwitch = () => {
   // the option which is currently selected by the user (has been clicked), and is *not* related to the current wallet in the store.
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const queryClient = useQueryClient()
 
   const navigate = useNavigate()
   const location = useLocation()
-  const locationState = location.state as LocationState | undefined
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -138,19 +137,7 @@ export const NewWalletViewsSwitch = () => {
     // Save the pathname before navigation
     const pathname = location.pathname
 
-    if (locationState?.vault && pathname === NativeWalletRoutes.CreateTest) {
-      navigate(NativeWalletRoutes.Create, {
-        state: { vault: locationState.vault },
-        replace: true,
-      })
-
-      // Queue navigation in the next tick to ensure state is updated
-      setTimeout(() => {
-        navigate(-1)
-      }, 0)
-    } else {
-      navigate(-1)
-    }
+    navigate(-1)
 
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
@@ -158,7 +145,7 @@ export const NewWalletViewsSwitch = () => {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()
-  }, [cancelWalletRequests, dispatch, navigate, locationState, location.pathname])
+  }, [cancelWalletRequests, dispatch, navigate, location.pathname])
 
   const handleRouteReset = useCallback(() => {
     navigate(INITIAL_WALLET_MODAL_ROUTE, { replace: true })
@@ -225,6 +212,23 @@ export const NewWalletViewsSwitch = () => {
 
     setSelectedWalletId(nativeWalletPendingDeviceId)
   }, [nativeVaultsQuery.data, nativeWalletPendingDeviceId])
+
+  // When the modal is closed, invalidate the queries for the native wallet
+  useEffect(() => {
+    return () => {
+      queryClient.resetQueries({
+        queryKey: reactQueries.common.hdwalletNativeVaultsList().queryKey,
+      })
+      queryClient.resetQueries({
+        queryKey: ['native-create-vault'],
+        exact: false,
+      })
+      queryClient.resetQueries({
+        queryKey: ['native-create-words'],
+        exact: false,
+      })
+    }
+  }, [queryClient])
 
   const sections = useMemo(
     () => (

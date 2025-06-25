@@ -491,6 +491,7 @@
     "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
+    "loadingAccounts": "Cuentas %{portfolioAccountsLoaded} cargadas (%{opportunityAccountsLoaded} actualizadas con las posiciones actuales)",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
     "rewardsBalance": "Balance Recompensas",

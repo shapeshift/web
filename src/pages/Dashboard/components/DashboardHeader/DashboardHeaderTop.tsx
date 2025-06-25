@@ -58,6 +58,8 @@ const searchIcon = <SearchIcon />
 const qrCodeIcon = <FaExpand />
 
 const netWorth = (
+  // react-memo you're drunk, this is outside of component scope
+  // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
     <ProfileAvatar />
     <WalletBalance />

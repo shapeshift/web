@@ -44,12 +44,7 @@ export const TradeQuoteContent = ({
   tradeQuote,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
-  const {
-    isModeratePriceImpact,
-    isHighPriceImpact,
-    priceImpactPercentageAbsolute,
-    isPositivePriceImpact,
-  } = usePriceImpact(tradeQuote)
+  const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(tradeQuote)
 
   const {
     number: { toPercent },
@@ -74,38 +69,15 @@ export const TradeQuoteContent = ({
     })
   }, [buyAsset, translate])
 
-  const priceImpactColor = useMemo(() => {
-    switch (true) {
-      case isHighPriceImpact:
-        return 'text.error'
-      case isModeratePriceImpact:
-        return 'text.warning'
-      case isPositivePriceImpact:
-        return 'text.success'
-      default:
-        return undefined
-    }
-  }, [isHighPriceImpact, isModeratePriceImpact, isPositivePriceImpact])
-
   const priceImpactDecimalPercentage = useMemo(
     () => priceImpactPercentageAbsolute?.div(100),
     [priceImpactPercentageAbsolute],
   )
 
-  const priceImpactTooltipText = useMemo(() => {
-    if (!priceImpactPercentageAbsolute) return
-
-    const defaultText = translate('trade.tooltip.priceImpactLabel', {
-      priceImpactPercentage: priceImpactPercentageAbsolute.toFixed(2),
-    })
-    switch (true) {
-      case isHighPriceImpact:
-      case isModeratePriceImpact:
-        return `${defaultText}. ${translate('trade.tooltip.priceImpact')}`
-      default:
-        return defaultText
-    }
-  }, [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentageAbsolute, translate])
+  const priceImpactTooltipText = useMemo(
+    () => translate('trade.tooltip.inputOutputDifference'),
+    [translate],
+  )
 
   const eta = useMemo(() => {
     if (totalEstimatedExecutionTimeMs === undefined) return null
@@ -193,7 +165,7 @@ export const TradeQuoteContent = ({
                     <MdOfflineBolt />
                   </RawText>
                   <Amount.Percent
-                    value={priceImpactDecimalPercentage.toNumber()}
+                    value={priceImpactDecimalPercentage.times(-1).toString()}
                     color={priceImpactColor}
                   />
                 </Flex>

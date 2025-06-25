@@ -1,5 +1,5 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
-import { Flex, Spinner } from '@chakra-ui/react'
+import { Box, Flex, Spinner } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Property } from 'csstype'
 import { memo, useMemo } from 'react'
@@ -71,8 +71,8 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
 
     return (
       <Flex flexDir={balanceFlexDir} alignItems={alignItems ?? portfolioTextAlignment}>
-        <Flex gap={2}>
-          <Text fontWeight='medium' translation={label} color='text.subtle' />
+        <Box position='relative'>
+          <Text fontWeight='medium' translation={label} color='text.subtle' whiteSpace='nowrap' />
 
           {(isOpportunitiesLoading || isAccountsMetadataFetching) && (
             <TooltipWithTouch
@@ -81,10 +81,10 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
                 opportunityAccountsLoaded: walletOpportunityAccountIds.length,
               })}
             >
-              <Spinner color='blue.500' size='sm' />
+              <Spinner color='blue.500' size='sm' position='absolute' right={-8} top={1} />
             </TooltipWithTouch>
           )}
-        </Flex>
+        </Box>
         <Amount.Fiat
           lineHeight='shorter'
           value={netWorth}

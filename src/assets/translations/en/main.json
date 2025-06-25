@@ -914,8 +914,6 @@
       "changeQuote": "Change quote",
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
-      "priceImpactLabel": "Price impact: %{priceImpactPercentage}%",
-      "priceImpact": "The impact your trade has on the market price of this pool.",
       "priceImpactWarning": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
       "protocol": "This is the protocol where your trade is being routed.",
@@ -1264,7 +1262,9 @@
         "enterPassword": "Enter your password to continue",
         "testTitle": "Verify Your Secret Recovery Phrase",
         "title": "Confirm Backup",
-        "description": "Complete this quick test to confirm you’ve saved everything correctly.",
+        "description": "Please tap the correct answer to seed phrases below.",
+        "desktopDescription": "Complete this quick test to confirm you’ve saved everything correctly.",
+        "wordNumber": "Word #%{number}",
         "confirm": {
           "title": "Backup wallet",
           "body": "Before you forget your wallet, would you like to back up your secret recovery phrase?",
@@ -1278,6 +1278,16 @@
         "success": {
           "title": "Success",
           "description": "You have backed up your wallet. Remember to store your Secret Recovery Phrase somewhere safe."
+        },
+        "error": {
+          "title": "Incorrect",
+          "description": "One or more of the selected words were incorrect.",
+          "reviewPhrase": "Review Secret Recovery Phrase"
+        },
+        "skip": {
+          "title": "Skip this step?",
+          "description": "Skipping the backup means you won't be able to recover your wallet if you lose access to your device.",
+          "confirmCta": "Yes, I’ve saved my seed phrase"
         }
       }
     },
@@ -1852,33 +1862,6 @@
       },
       "testPhrase": {
         "header": "Verify Your Secret Recovery Phrase",
-        "body": "Which of these is the",
-        "1st": "1st",
-        "2nd": "2nd",
-        "3rd": "3rd",
-        "4th": "4th",
-        "5th": "5th",
-        "6th": "6th",
-        "7th": "7th",
-        "8th": "8th",
-        "9th": "9th",
-        "10th": "10th",
-        "11th": "11th",
-        "12th": "12th",
-        "13th": "13th",
-        "14th": "14th",
-        "15th": "15th",
-        "16th": "16th",
-        "17th": "17th",
-        "18th": "18th",
-        "19th": "19th",
-        "20th": "20th",
-        "21th": "21th",
-        "22th": "22th",
-        "23th": "23th",
-        "24th": "24th",
-        "body2": " word",
-        "body3": "in your secret phrase?",
         "button": "Next"
       },
       "rename": {
@@ -2016,8 +1999,8 @@
       "nextStep": "Next you'll be asked to confirm the positions of certain words in your Secret Recovery Phrase.",
       "button": "Continue to confirm",
       "success": {
-        "title": "Backup Confirmed",
-        "description": "You’ve verified your Secret Recovery Phrase. Be sure to store it securely—this is the only way to recover your wallet.",
+        "title": "You're in",
+        "description": "You've verified your Secret Recovery Phrase. Be sure to store it securely - this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
     }
@@ -2966,7 +2949,6 @@
     "limitPrice": "Limit Price",
     "expires": "Expires",
     "filled": "Filled",
-    "swap": "Swap",
     "streaming": "Streaming",
     "claim": "Claim",
     "protocol": "Protocol",

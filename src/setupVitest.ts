@@ -1,8 +1,11 @@
 import 'module-alias/register'
 
+import indexeddb from 'fake-indexeddb'
 import moduleAlias from 'module-alias'
 import path from 'path'
 import { beforeAll, vi } from 'vitest'
+
+globalThis.indexedDB = indexeddb
 
 // Redirect 'ethers' imports to 'ethers5' only for specific modules
 moduleAlias.addAlias('ethers', (fromPath: string) => {

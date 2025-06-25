@@ -491,6 +491,7 @@
     "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
+    "loadingAccounts": "Cuentas %{portfolioAccountsLoaded} cargadas (%{opportunityAccountsLoaded} actualizadas con las posiciones actuales)",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
     "rewardsBalance": "Balance Recompensas",
@@ -732,6 +733,13 @@
         "withdrawNative": "Retirar",
         "withdrawOut": "Retiro Recibido"
       },
+      "mayachain": {
+        "out": "Recibido Saliente",
+        "refund": "Reembolso",
+        "swapOut": "Intercambio Recibido",
+        "swap": "Intercambio",
+        "swapRefund": "Reembolso de Intercambio"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Retirar de Stake",
@@ -840,10 +848,12 @@
       "lowSlippage": "Deslizamiento menor a 0,05 % puede provocar una transacción  fallida."
     },
     "sort": {
+      "sortBy": "Ordenar Cotizaciones por",
       "auto": "Auto",
       "bestRate": "Mejor Tarifa",
       "lowestGas": "Menor Gas",
-      "fastest": "Más Rápido"
+      "fastest": "Más Rápido",
+      "info": "Seleccione cómo desea que se ordenen sus cotizaciones."
     },
     "from": "De",
     "to": "A",
@@ -909,7 +919,6 @@
       "priceImpactWarning": "Un swap de este tamaño puede tener un alto impacto en el precio dada la liquidez actual. Puede haber una gran diferencia entre la cantidad de su token de entrada y lo que recibirá de salida.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
       "protocol": "Este es el protocolo donde se enruta su intercambio.",
-      "protocolLifi": "Este es el protocolo donde se enruta su comercio. LI.FI ejecuta una serie de transacciones intermediarias para obtener la mejor combinación general de precio, seguridad y velocidad.",
       "protocolFee": "Esta es la tarifa cobrada por el protocolo seleccionado para procesar, No es una tarifa cobrada por ShapeShift",
       "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉",
       "manualReceiveAddress": "Esta es la dirección que recibirá los fondos. Se introdujo manualmente, asegúrese que sea correcta.",
@@ -982,7 +991,6 @@
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
-    "lifiWarning": "Esta operación se enruta a través de LI.FI, el cual ejecuta operaciones intermediarias para realizar un intercambio. Si un paso falla, recibirá el token del último paso exitoso en la secuencia.",
     "or": "o",
     "onChainName": "en %{chainName}",
     "unknownGas": "(desconocido)",
@@ -1139,6 +1147,7 @@
       }
     },
     "limitOrderFilled": "Orden limite completada",
+    "limitOrderPartiallyFilled": "Orden Limitada parcialmente completada",
     "assetToAsset": "%{sellAmount} %{sellAsset} a %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -2957,7 +2966,13 @@
     "limitPrice": "Precio Límite",
     "expires": "Caduca",
     "filled": "Completado",
-    "swap": "Intercambiar",
+    "swap": {
+      "processing": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está procesando.",
+      "complete": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha completado.",
+      "failed": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha fallado.",
+      "streaming": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está transmitiendo."
+    },
+    "streaming": "Transmitiendo",
     "claim": "Reclamar",
     "protocol": "Protocolo",
     "streamingStatus": "Estado de Transmisión",
@@ -2972,6 +2987,17 @@
       "pending": "Pendiente",
       "claimAvailable": "Reclamación Disponible",
       "unknown": "Desconocido"
-    }
+    },
+    "limitOrder": {
+      "placed": "Orden limitada colocada para %{sellAmountAndSymbol} a %{buyAmountAndSymbol}",
+      "complete": "Su pedido para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} se completó exitosamente.",
+      "cancelled": "Su orden de compra de %{buyAmountAndSymbol} por %{sellAmountAndSymbol} fue cancelada.",
+      "expired": "Su orden para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} expiró."
+    },
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} Pendiente",
+    "orderCancelled": "Pedido Cancelado",
+    "orderExpired": "Pedido Vencido"
   }
 }

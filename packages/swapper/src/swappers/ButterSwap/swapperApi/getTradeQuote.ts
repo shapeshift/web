@@ -24,9 +24,9 @@ export const getTradeQuote = async (
   } = input
 
   // Map ShapeShift chain IDs to ButterSwap numeric chain IDs
-  const fromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
-  const toChainId = chainIdToButterSwapChainId(buyAsset.chainId)
-  if (!fromChainId || !toChainId) {
+  const butterSwapFromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
+  const butterSwapToChainId = chainIdToButterSwapChainId(buyAsset.chainId)
+  if (!butterSwapFromChainId || !butterSwapToChainId) {
     return Err(
       makeSwapErrorRight({
         message: '[getTradeQuote] Unsupported chainId',
@@ -44,9 +44,9 @@ export const getTradeQuote = async (
 
   // Call ButterSwap API via service
   const result = await getRoute(
-    fromChainId,
+    butterSwapFromChainId,
     sellAssetAddress,
-    toChainId,
+    butterSwapToChainId,
     buyAssetAddress,
     amount,
     slippage,

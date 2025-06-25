@@ -16,13 +16,13 @@ export const ROUTE_QUOTE: RouteResponse = {
       },
       tradeType: 0,
       gasFee: {
-        amount: '0.001333043669759539',
+        amount: '0.001333043669759539', // human units
         symbol: 'ETH',
         inUSD: '3.0629382849310107',
       },
       swapFee: {
-        nativeFee: '0.0',
-        tokenFee: '0.001',
+        nativeFee: '0.0', // human units
+        tokenFee: '0.001', // human units
       },
       feeConfig: {
         feeType: 1,
@@ -52,8 +52,8 @@ export const ROUTE_QUOTE: RouteResponse = {
           symbol: 'USDC',
           icon: 'https://s3.amazonaws.com/map-static-file/mapSwap/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48/logo.png',
         },
-        totalAmountIn: '0.999',
-        totalAmountOut: '2296.409699',
+        totalAmountIn: '0.999', // in human units
+        totalAmountOut: '2296.409699', // in human units
         route: [
           {
             amountIn: '0.999',

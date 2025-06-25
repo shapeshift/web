@@ -80,7 +80,7 @@ export const getRoute = async (
   tokenInAddress: string,
   toChainId: number,
   tokenOutAddress: string,
-  amount: string,
+  amountHumanUnits: string,
   slippage: string,
 ): ButterSwapPromise<RouteResponse> => {
   const result = await butterService.get<RouteResponse>('/route', {
@@ -89,7 +89,7 @@ export const getRoute = async (
       tokenInAddress,
       toChainId,
       tokenOutAddress,
-      amount,
+      amount: amountHumanUnits,
       type: 'exactIn',
       slippage,
       entrance: 'Butter+',

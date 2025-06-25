@@ -60,12 +60,10 @@ export const RouteSuccessItemValidator = z.object({
     symbol: z.string(),
     inUSD: z.string(),
   }),
-  swapFee: z
-    .object({
-      nativeFee: z.string(),
-      tokenFee: z.string(),
-    })
-    .optional(),
+  swapFee: z.object({
+    nativeFee: z.string(),
+    tokenFee: z.string(),
+  }),
   feeConfig: z.object({
     feeType: z.number(),
     referrer: z.string(),

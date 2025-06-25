@@ -5,7 +5,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -19,14 +19,13 @@ import {
   portfolioApi,
 } from '@/state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectEnabledWalletAccountIds, selectPortfolioAccounts } from '@/state/slices/selectors'
+import { selectPortfolioAccounts } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const { getAccount } = portfolioApi.endpoints
 
 export const useAccountsFetchQuery = () => {
   const dispatch = useAppDispatch()
-  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const { supportedChains } = usePlugins()
   const { isSnapInstalled } = useIsSnapInstalled()
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
@@ -35,16 +34,29 @@ export const useAccountsFetchQuery = () => {
   const portfolioAccounts = useAppSelector(portfolio.selectors.selectAccountsById)
   const queryClient = useQueryClient()
 
+  // It feels a bit weird but, if isSnapInstalled is null it means that it's been going through the useIsSnapInstalled hook
+  // If it's undefined, it didn't check anything yet and we absolutely don't want to react on that as it would react even with other type of accounts
+  // And we need to check for the null case because if you come from another wallet than metamask, it is null initially
+  const isSnapStatusUpdated = useMemo(() => {
+    if (previousIsSnapInstalled === null && isSnapInstalled === true) return true
+    if (previousIsSnapInstalled === null && isSnapInstalled === false) return true
+    if (previousIsSnapInstalled === false && isSnapInstalled === true) return true
+    if (previousIsSnapInstalled === true && isSnapInstalled === false) return true
+
+    return false
+  }, [isSnapInstalled, previousIsSnapInstalled])
+
   useEffect(() => {
     // If the user install the MM snap or uninstall it, we need to invalidate the query and refetch accounts
+    // specially handling the case were the user already had a version with or without the snap in cache
     // This will enable or disable accounts supported by the snap
-    if (previousIsSnapInstalled !== isSnapInstalled) {
+    if (isSnapStatusUpdated) {
       queryClient.invalidateQueries({
         queryKey: ['useAccountsFetch'],
         exact: false,
       })
     }
-  }, [isSnapInstalled, previousIsSnapInstalled, queryClient])
+  }, [isSnapInstalled, previousIsSnapInstalled, queryClient, isSnapStatusUpdated])
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
@@ -103,10 +115,7 @@ export const useAccountsFetchQuery = () => {
         const portfolioResults = await Promise.allSettled(
           accountIds.map(async accountId => {
             // If account exists in store and had activity, skip fetching
-            if (
-              enabledPortfolioAccounts[accountId]?.hasActivity &&
-              !portfolioAccounts[accountId]?.isManuallyDisabled
-            )
+            if (enabledPortfolioAccounts[accountId]?.hasActivity && !isSnapStatusUpdated)
               return currentPortfolio
 
             // If not in store, fetch it
@@ -150,8 +159,9 @@ export const useAccountsFetchQuery = () => {
 
             // Only dispatch updates for newly fetched accounts which didn't have activity or didn't exist yet in the store
             if (
-              !enabledPortfolioAccounts[accountId]?.hasActivity &&
-              !portfolioAccounts[accountId]?.isManuallyDisabled
+              (!enabledPortfolioAccounts[accountId]?.hasActivity &&
+                !portfolioAccounts[accountId]) ||
+              isSnapStatusUpdated
             ) {
               dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
 
@@ -188,6 +198,7 @@ export const useAccountsFetchQuery = () => {
     wallet,
     enabledPortfolioAccounts,
     portfolioAccounts,
+    isSnapStatusUpdated,
   ])
 
   const query = useQuery({
@@ -196,8 +207,7 @@ export const useAccountsFetchQuery = () => {
       {
         deviceId,
         supportedChains,
-        isSnapInstalled,
-        enabledWalletAccountIds,
+        isSnapStatusUpdated,
       },
     ],
     queryFn: wallet && deviceId ? queryFn : skipToken,

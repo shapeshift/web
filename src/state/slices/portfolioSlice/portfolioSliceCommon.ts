@@ -7,7 +7,6 @@ export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
   hasActivity?: boolean
-  isManuallyDisabled?: boolean
 }
 
 export type PortfolioAccounts = {

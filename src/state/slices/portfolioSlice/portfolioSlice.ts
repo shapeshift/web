@@ -181,10 +181,8 @@ export const portfolio = createSlice({
         const isEnabled = enabledAccountIdsSet.has(accountId)
 
         if (isEnabled) {
-          draftState.accounts.byId[accountId].isManuallyDisabled = true
           enabledAccountIdsSet.delete(accountId)
         } else {
-          draftState.accounts.byId[accountId].isManuallyDisabled = false
           enabledAccountIdsSet.add(accountId)
         }
 

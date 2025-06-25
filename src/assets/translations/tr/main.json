@@ -491,6 +491,7 @@
     "eligibleOpportunities": "Uygun Fırsatlar",
     "defiBody": "Büyüyen evrende DeFi fırsatlarını keşfedin.",
     "netWorth": "Net Değer",
+    "loadingAccounts": "Yüklenen %{portfolioAccountsLoaded} hesap (güncellenen %{opportunityAccountsLoaded} mevcut pozisyonlarla)",
     "walletBalance": "Cüzdan Bakiyesi",
     "earnBalance": "Kazanç Bakiyesi",
     "rewardsBalance": "Ödül Bakiyesi",
@@ -732,6 +733,13 @@
         "withdrawNative": "Çekim",
         "withdrawOut": "Para Çekme Alındı"
       },
+      "mayachain": {
+        "out": "Giden Alındı",
+        "refund": "İade\n",
+        "swapOut": "Takas Alındı",
+        "swap": "Takas",
+        "swapRefund": "Takas İadesi"
+      },
       "foxy": {
         "stake": "Stake Et",
         "unstake": "Stake Kaldır",
@@ -840,10 +848,12 @@
       "lowSlippage": "%0,05'in altındaki kayma işlemin başarısız olmasına neden olabilir."
     },
     "sort": {
+      "sortBy": "Alıntıları Sırala",
       "auto": "Otomatik",
       "bestRate": "En İyi Oran",
       "lowestGas": "En Düşük Gaz",
-      "fastest": "En hızlı"
+      "fastest": "En hızlı",
+      "info": "Tekliflerinizin nasıl sıralanmasını istediğinizi seçin."
     },
     "from": "'dan",
     "to": "'a",
@@ -909,7 +919,6 @@
       "priceImpactWarning": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın fiyat etkisi yüksek olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
-      "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉",
       "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun.",
@@ -982,7 +991,6 @@
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
-    "lifiWarning": "Bu ticaret, bir takas gerçekleştirmek için bir dizi aracı işlemi yürüten LI.FI aracılığıyla yönlendirilir. Herhangi bir adım başarısız olursa, dizideki son başarılı adımın belirtecini alırsınız.",
     "or": "veya",
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
@@ -1139,6 +1147,7 @@
       }
     },
     "limitOrderFilled": "Limit emri dolduruldu",
+    "limitOrderPartiallyFilled": "Limit emri kısmen dolduruldu",
     "assetToAsset": "%{sellAmount} %{sellAsset} - %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -2957,7 +2966,13 @@
     "limitPrice": "Limit Fiyatı",
     "expires": "Sona Erme",
     "filled": "Dolduruldu",
-    "swap": "Takas",
+    "swap": {
+      "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız işleniyor.",
+      "complete": "%{sellAmountAndSymbol}'u %{buyAmountAndSymbol}'a dönüştürme işleminiz tamamlandı.",
+      "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız başarısız oldu.",
+      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayınlanıyor."
+    },
+    "streaming": "Akış",
     "claim": "Talep",
     "protocol": "Protokol",
     "streamingStatus": "Akış Durumu",
@@ -2972,6 +2987,17 @@
       "pending": "Bekleniyor",
       "claimAvailable": "Talep Mevcut",
       "unknown": "Bilinmeyen"
-    }
+    },
+    "limitOrder": {
+      "placed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasında verilen limit emri",
+      "complete": "%{buyAmountAndSymbol} için %{sellAmountAndSymbol} satın alma emriniz başarıyla gerçekleştirildi.",
+      "cancelled": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz iptal edildi.",
+      "expired": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz sona erdi."
+    },
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} Bekliyor",
+    "orderCancelled": "Sipariş İptal Edildi",
+    "orderExpired": "Sipariş Süresi Doldu"
   }
 }

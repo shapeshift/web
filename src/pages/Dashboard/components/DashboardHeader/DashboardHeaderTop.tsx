@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
@@ -13,7 +13,7 @@ import {
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { FaRegCreditCard } from 'react-icons/fa'
+import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
 import { FiSettings } from 'react-icons/fi'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
@@ -26,6 +26,7 @@ import { WalletBalance } from './WalletBalance'
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -42,12 +43,12 @@ const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
 const moreIcon = isMobileApp ? <FiSettings /> : <IoEllipsisHorizontal />
 
-const ButtonRowDisplay = { base: 'flex', md: 'none' }
+const mobileButtonRowDisplay = { base: 'flex', md: 'none' }
+const desktopButtonGroupDisplay = { base: 'none', md: 'flex' }
 
 const containerPadding = { base: 6, '2xl': 8 }
 const containerGap = { base: 6, md: 6 }
 const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const buttonGroupDisplay = { base: 'none', md: 'flex' }
 
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
@@ -81,6 +82,12 @@ const MobileButton = ({ icon, label, onClick, isDisabled }: MobileButtonProps) =
 
 export const DashboardHeaderTop = memo(() => {
   const { isOpen, onClose, onOpen } = useDisclosure()
+  const {
+    isOpen: isSearchOpen,
+    onClose: onSearchClose,
+    onOpen: onSearchOpen,
+    onToggle: onSearchToggle,
+  } = useDisclosure()
   const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
@@ -119,7 +126,7 @@ export const DashboardHeaderTop = memo(() => {
 
   const mobileButtons = useMemo(
     () => (
-      <Flex mt={4} gap={6} width='100%' justifyContent='center'>
+      <Flex mt={4} gap={6} width='100%' justifyContent='center' display={mobileButtonRowDisplay}>
         <MobileButton
           icon={<SwapIcon boxSize={6} color='blue.200' />}
           label={translate('navBar.tradeShort')}
@@ -187,6 +194,12 @@ export const DashboardHeaderTop = memo(() => {
     ],
   )
 
+  const drawer = useMemo(() => {
+    if (!isMobile) return null
+    if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+    return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
+  }, [isMobile, isOpen, onClose, isMobileApp])
+
   return (
     <>
       <Container
@@ -215,25 +228,36 @@ export const DashboardHeaderTop = memo(() => {
           gap={4}
           flexWrap={'wrap'}
           justifyContent={'center'}
-          display={buttonGroupDisplay}
+          display={desktopButtonGroupDisplay}
         >
-          {!isMobile && desktopButtons}
+          {desktopButtons}
         </Flex>
-        <Flex
-          justifyContent='flex-end'
-          alignItems='flex-start'
-          gridColumn={3}
-          display={ButtonRowDisplay}
-        >
+        <Flex justifyContent='flex-end' gap={2} gridColumn={3} display={mobileButtonRowDisplay}>
+          <IconButton
+            icon={<SearchIcon />}
+            aria-label={translate('common.search')}
+            onClick={onSearchOpen}
+            isRound
+          />
+          <IconButton
+            icon={<FaExpand />}
+            aria-label={translate('modals.send.qrCode')}
+            onClick={handleQrCodeClick}
+            isRound
+          />
           <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
         </Flex>
-        {isMobileApp ? (
-          <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
-        ) : (
-          <DashboardDrawer isOpen={isOpen} onClose={onClose} />
-        )}
       </Container>
-      {isMobile && mobileButtons}
+      {mobileButtons}
+      {drawer}
+      {isMobile && (
+        <GlobalSearchModal
+          isOpen={isSearchOpen}
+          onClose={onSearchClose}
+          onOpen={onSearchOpen}
+          onToggle={onSearchToggle}
+        />
+      )}
     </>
   )
 })

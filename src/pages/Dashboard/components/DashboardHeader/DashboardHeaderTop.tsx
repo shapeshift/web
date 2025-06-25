@@ -48,6 +48,7 @@ const containerGap = { base: 6, md: 6 }
 const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const buttonGroupDisplay = { base: 'none', md: 'flex' }
 
+const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
 
 type MobileButtonProps = {
@@ -117,7 +118,7 @@ export const DashboardHeaderTop = memo(() => {
 
   const mobileButtons = useMemo(
     () => (
-      <Flex mt={4} gap={6}>
+      <Flex mt={4} gap={6} width='100%'>
         <MobileButton
           icon={<SwapIcon boxSize={6} color='blue.200' />}
           label={translate('navBar.tradeShort')}
@@ -198,7 +199,12 @@ export const DashboardHeaderTop = memo(() => {
       justifyContent='space-between'
       gap={containerGap}
     >
-      <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4}>
+      <Flex
+        alignItems='center'
+        flexDir={containerInnerFlexDir}
+        gap={4}
+        gridColumn={profileGridColumn}
+      >
         <ProfileAvatar />
         <WalletBalance />
         {isMobile && mobileButtons}

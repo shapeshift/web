@@ -1,11 +1,18 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import type { PartialRecord } from '@shapeshiftoss/types'
+import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type {
+  GetTradeRateInput,
+  ProtocolFee,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeRate,
+} from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
@@ -81,8 +88,63 @@ export const getTradeRate = async (
 
   const rate = bnOrZero(route.srcChain.totalAmountOut).div(route.srcChain.totalAmountIn).toString()
 
+  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
+  const feeAsset = _deps.assetsById[feeAssetId]
+  if (!feeAsset) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getTradeRate] Fee asset not found for chainId ${sellAsset.chainId}`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
+  const networkFeeCryptoBaseUnit = bnOrZero(route.gasFee?.amount).gt(0)
+    ? toBaseUnit(route.gasFee.amount, feeAsset.precision)
+    : '0'
+
+  const nativeFeeBaseUnit = bnOrZero(route.swapFee.nativeFee).gt(0)
+    ? toBaseUnit(route.swapFee.nativeFee, feeAsset.precision)
+    : '0'
+  const tokenFeeBaseUnit = bnOrZero(route.swapFee.tokenFee).gt(0)
+    ? toBaseUnit(route.swapFee.tokenFee, sellAsset.precision)
+    : '0'
+
+  let protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined = undefined
+  const hasNativeFee = bnOrZero(nativeFeeBaseUnit).gt(0)
+  const hasTokenFee = bnOrZero(tokenFeeBaseUnit).gt(0)
+
+  if (hasNativeFee && hasTokenFee && feeAssetId === sellAsset.assetId) {
+    // If both fees are for the same asset, sum them
+    protocolFees = {
+      [feeAssetId]: {
+        amountCryptoBaseUnit: bnOrZero(nativeFeeBaseUnit).plus(tokenFeeBaseUnit).toString(),
+        requiresBalance: true,
+        asset: feeAsset,
+      },
+    }
+  } else {
+    protocolFees = {}
+    if (hasNativeFee) {
+      protocolFees[feeAssetId] = {
+        amountCryptoBaseUnit: nativeFeeBaseUnit,
+        requiresBalance: true,
+        asset: feeAsset,
+      }
+    }
+    if (hasTokenFee) {
+      protocolFees[sellAsset.assetId] = {
+        amountCryptoBaseUnit: tokenFeeBaseUnit,
+        requiresBalance: true,
+        asset: sellAsset,
+      }
+    }
+    if (Object.keys(protocolFees).length === 0) protocolFees = undefined
+  }
+
   const tradeRate: TradeRate = {
-    id: uuid(),
+    id: route.hash,
     rate,
     swapperName: SwapperName.ButterSwap,
     receiveAddress,
@@ -92,18 +154,24 @@ export const getTradeRate = async (
     steps: [
       {
         rate,
-        buyAmountBeforeFeesCryptoBaseUnit: '0', // TODO: Not available from this endpoint
-        buyAmountAfterFeesCryptoBaseUnit: '0', // TODO: Not available from this endpoint
+        buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
+          route.srcChain.totalAmountOut,
+          buyAsset.precision,
+        ),
+        buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(
+          route.srcChain.totalAmountOut,
+          buyAsset.precision,
+        ),
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         feeData: {
-          networkFeeCryptoBaseUnit: undefined,
-          protocolFees: {},
+          networkFeeCryptoBaseUnit,
+          protocolFees,
         },
         source: SwapperName.ButterSwap,
         buyAsset,
         sellAsset,
         accountNumber,
-        allowanceContract: '0x0', // TODO: implement
+        allowanceContract: route.contract ?? '0x0',
         estimatedExecutionTimeMs: route.timeEstimated * 1000, // butterswap returns in seconds
       },
     ],

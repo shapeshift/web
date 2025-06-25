@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
   Card,
   CardBody,
@@ -6,7 +6,6 @@ import {
   Flex,
   HStack,
   Icon,
-  Link,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -44,7 +43,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs(action.createdAt)
+    const notificationDate = dayjs(action.updatedAt)
     const sevenDaysAgo = now.subtract(7, 'day')
 
     if (notificationDate.isAfter(sevenDaysAgo)) {
@@ -52,21 +51,21 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [action.createdAt])
+  }, [action.updatedAt])
 
   const swap = useMemo(() => {
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isCollapsable })
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: swap?.isStreaming })
 
   const hoverProps = useMemo(
     () => ({
-      bg: swap?.txLink || isCollapsable ? 'background.button.secondary.hover' : 'transparent',
-      cursor: swap?.txLink || isCollapsable ? 'pointer' : 'default',
+      bg: isCollapsable ? 'background.button.secondary.hover' : 'transparent',
+      cursor: isCollapsable ? 'pointer' : 'default',
       textDecoration: 'none',
     }),
-    [swap?.txLink, isCollapsable],
+    [isCollapsable],
   )
 
   const handleClick = useCallback(() => {
@@ -121,9 +120,6 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       borderRadius='lg'
       transitionProperty='common'
       transitionDuration='fast'
-      as={Link}
-      href={swap?.txLink && !swap.isStreaming && !isCollapsable ? swap.txLink : undefined}
-      isExternal
       _hover={hoverProps}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4}>
@@ -155,9 +151,6 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
                 )}
               </HStack>
             </Stack>
-            {!isCollapsable && swap.txLink && (
-              <Icon as={ExternalLinkIcon} ml='auto' my='auto' fontSize='sm' />
-            )}
             {isCollapsable && (
               <Icon
                 as={isOpen ? ChevronUpIcon : ChevronDownIcon}

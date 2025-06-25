@@ -58,8 +58,9 @@ export const useLimitOrderActionSubscriber = ({
   const { currentData: ordersResponse } = useLimitOrdersQuery()
   const toast = useToast({
     position: 'bottom-right',
-    duration: null,
+    duration: isDrawerOpen ? 5000 : null,
   })
+  const previousIsDrawerOpen = usePrevious(isDrawerOpen)
   const openLimitOrders = useAppSelector(selectOpenLimitOrderActionsFilteredByWallet)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
@@ -81,10 +82,10 @@ export const useLimitOrderActionSubscriber = ({
   const actions = useAppSelector(selectLimitOrderActionsByWallet)
 
   useEffect(() => {
-    if (isDrawerOpen) {
+    if (isDrawerOpen && !previousIsDrawerOpen) {
       toast.closeAll()
     }
-  }, [isDrawerOpen, toast])
+  }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
   // Create action after user confirmed the intent of placing a limit order
   useEffect(() => {

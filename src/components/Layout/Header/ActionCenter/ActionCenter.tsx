@@ -62,9 +62,7 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={Boolean(
-                  swap.isStreaming && swap.metadata.streamingSwapMetadata?.maxSwapCount,
-                )}
+                isCollapsable={Boolean(swap?.txLink)}
               />
             )
           }

@@ -43,6 +43,8 @@ export const initialState: TradeQuoteSliceState = {
   tradeQuoteDisplayCache: [],
   isTradeQuoteRequestAborted: false,
   sortOption: QuoteSortOption.BEST_RATE,
+  lastRefreshTime: Date.now(),
+  isRefreshPending: true,
 }
 
 export const SWAPPER_USER_ERRORS = [

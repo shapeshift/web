@@ -9,16 +9,11 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  swappers,
-  TradeQuoteError as SwapperTradeQuoteError,
-} from '@shapeshiftoss/swapper'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { CountdownSpinner } from './components/CountdownSpinner'
 import { TradeQuoteBadges } from './components/TradeQuoteBadges'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
@@ -58,22 +53,12 @@ type TradeQuoteProps = {
   isLowestGas?: boolean
   quoteData: ApiQuote
   isLoading: boolean
-  isRefetching: boolean
   onBack?: () => void
 }
 
 export const TradeQuote: FC<TradeQuoteProps> = memo(
-  ({
-    isActive,
-    isBestRate,
-    isFastest,
-    isLowestGas,
-    quoteData,
-    isLoading,
-    isRefetching,
-    onBack,
-  }) => {
-    const { quote, errors, inputOutputRatio, swapperName } = quoteData
+  ({ isActive, isBestRate, isFastest, isLowestGas, quoteData, isLoading, onBack }) => {
+    const { quote, errors, inputOutputRatio } = quoteData
     const {
       isOpen: isTooltipOpen,
       onToggle: onTooltipToggle,
@@ -122,10 +107,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
-
-    const pollingInterval = useMemo(() => {
-      return swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-    }, [swapperName])
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here
     const networkFeeUserCurrencyPrecision = useMemo(() => {
@@ -270,13 +251,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [quote?.steps])
 
     const headerContent = useMemo(() => {
-      const hasUnsupportedChainError = errors.some(
-        error =>
-          error.error === SwapperTradeQuoteError.UnsupportedChain ||
-          error.error === SwapperTradeQuoteError.CrossChainNotSupported ||
-          error.error === SwapperTradeQuoteError.UnsupportedTradePair,
-      )
-
       return (
         <Flex justifyContent='space-between' alignItems='center' flexGrow={1}>
           {quoteDisplayOption === QuoteDisplayOption.Advanced && quote && (
@@ -294,19 +268,12 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
                   quoteDisplayOption={quoteDisplayOption}
                 />
                 {errorIndicator}
-                {!hasUnsupportedChainError && (
-                  <CountdownSpinner
-                    isLoading={isLoading || isRefetching}
-                    initialTimeMs={pollingInterval}
-                  />
-                )}
               </Flex>
             </Skeleton>
           </Box>
         </Flex>
       )
     }, [
-      errors,
       quoteDisplayOption,
       quote,
       isLoading,
@@ -316,8 +283,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isFastest,
       isLowestGas,
       errorIndicator,
-      isRefetching,
-      pollingInterval,
     ])
 
     const bodyContent = useMemo(() => {

@@ -23,7 +23,6 @@ import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
 
-import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
@@ -37,7 +36,6 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { selectHighestMarketCapFeeAsset } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
@@ -52,6 +50,17 @@ const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: '
 
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
+
+const swapIcon = <SwapIcon boxSize={6} color='blue.200' />
+const buyIcon = (
+  <Box color='blue.200'>
+    <FaRegCreditCard size={24} />
+  </Box>
+)
+const sendIcon = <SendIcon boxSize='6' color='blue.200' />
+const receiveIcon = <ArrowDownIcon boxSize={6} color='blue.200' />
+const searchIcon = <SearchIcon />
+const qrCodeIcon = <FaExpand />
 
 type MobileButtonProps = {
   icon: React.ReactNode
@@ -128,43 +137,31 @@ export const DashboardHeaderTop = memo(() => {
     () => (
       <Flex mt={4} gap={6} width='100%' justifyContent='center' display={mobileButtonRowDisplay}>
         <MobileButton
-          icon={<SwapIcon boxSize={6} color='blue.200' />}
+          icon={swapIcon}
           label={translate('navBar.tradeShort')}
           onClick={handleTradeClick}
         />
         <MobileButton
-          icon={
-            <Box color='blue.200'>
-              <FaRegCreditCard size={24} />
-            </Box>
-          }
+          icon={buyIcon}
           label={translate('fiatRamps.buy')}
           onClick={handleBuyClick}
           isDisabled={!isConnected}
         />
         <MobileButton
-          icon={<SendIcon boxSize='6' color='blue.200' />}
+          icon={sendIcon}
           label={translate('common.send')}
           onClick={handleSendClick}
           isDisabled={!isConnected}
         />
         <MobileButton
-          icon={<ArrowDownIcon boxSize={6} color='blue.200' />}
+          icon={receiveIcon}
           label={translate('common.receive')}
           onClick={handleReceiveClick}
           isDisabled={!isConnected}
         />
       </Flex>
     ),
-    [
-      handleTradeClick,
-      handleBuyClick,
-      handleSendClick,
-      handleReceiveClick,
-      isConnected,
-      translate,
-      defaultAsset,
-    ],
+    [handleTradeClick, handleBuyClick, handleSendClick, handleReceiveClick, isConnected, translate],
   )
 
   const desktopButtons = useMemo(
@@ -196,9 +193,10 @@ export const DashboardHeaderTop = memo(() => {
 
   const drawer = useMemo(() => {
     if (!isMobile) return null
+
     if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
     return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
-  }, [isMobile, isOpen, onClose, isMobileApp])
+  }, [isOpen, onClose])
 
   return (
     <>
@@ -234,13 +232,13 @@ export const DashboardHeaderTop = memo(() => {
         </Flex>
         <Flex justifyContent='flex-end' gap={2} gridColumn={3} display={mobileButtonRowDisplay}>
           <IconButton
-            icon={<SearchIcon />}
+            icon={searchIcon}
             aria-label={translate('common.search')}
             onClick={onSearchOpen}
             isRound
           />
           <IconButton
-            icon={<FaExpand />}
+            icon={qrCodeIcon}
             aria-label={translate('modals.send.qrCode')}
             onClick={handleQrCodeClick}
             isRound

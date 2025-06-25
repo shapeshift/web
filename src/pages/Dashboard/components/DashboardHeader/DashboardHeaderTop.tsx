@@ -30,6 +30,7 @@ import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWallet
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from '@/lib/globals'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { selectHighestMarketCapFeeAsset } from '@/state/slices/selectors'
@@ -39,7 +40,7 @@ const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const moreIcon = isMobile ? <FiSettings /> : <IoEllipsisHorizontal />
+const moreIcon = isMobileApp ? <FiSettings /> : <IoEllipsisHorizontal />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -118,7 +119,7 @@ export const DashboardHeaderTop = memo(() => {
 
   const mobileButtons = useMemo(
     () => (
-      <Flex mt={4} gap={6} width='100%'>
+      <Flex mt={4} gap={6} width='100%' justifyContent='center'>
         <MobileButton
           icon={<SwapIcon boxSize={6} color='blue.200' />}
           label={translate('navBar.tradeShort')}
@@ -187,50 +188,52 @@ export const DashboardHeaderTop = memo(() => {
   )
 
   return (
-    <Container
-      width='full'
-      display='grid'
-      gridTemplateColumns={profileGridTemplate}
-      maxWidth='container.4xl'
-      px={containerPadding}
-      pt={4}
-      pb={4}
-      alignItems='flex-start'
-      justifyContent='space-between'
-      gap={containerGap}
-    >
-      <Flex
-        alignItems='center'
-        flexDir={containerInnerFlexDir}
-        gap={4}
-        gridColumn={profileGridColumn}
-      >
-        <ProfileAvatar />
-        <WalletBalance />
-        {isMobile && mobileButtons}
-      </Flex>
-      <Flex
-        gridColumn={3}
-        gap={4}
-        flexWrap={'wrap'}
-        justifyContent={'center'}
-        display={buttonGroupDisplay}
-      >
-        {!isMobile && desktopButtons}
-      </Flex>
-      <Flex
-        justifyContent='flex-end'
+    <>
+      <Container
+        width='full'
+        display='grid'
+        gridTemplateColumns={profileGridTemplate}
+        maxWidth='container.4xl'
+        px={containerPadding}
+        pt={4}
+        pb={4}
         alignItems='flex-start'
-        gridColumn={3}
-        display={ButtonRowDisplay}
+        justifyContent='space-between'
+        gap={containerGap}
       >
-        <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
-      </Flex>
-      {isMobile ? (
-        <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
-      ) : (
-        <DashboardDrawer isOpen={isOpen} onClose={onClose} />
-      )}
-    </Container>
+        <Flex
+          alignItems='center'
+          flexDir={containerInnerFlexDir}
+          gap={4}
+          gridColumn={profileGridColumn}
+        >
+          <ProfileAvatar />
+          <WalletBalance />
+        </Flex>
+        <Flex
+          gridColumn={3}
+          gap={4}
+          flexWrap={'wrap'}
+          justifyContent={'center'}
+          display={buttonGroupDisplay}
+        >
+          {!isMobile && desktopButtons}
+        </Flex>
+        <Flex
+          justifyContent='flex-end'
+          alignItems='flex-start'
+          gridColumn={3}
+          display={ButtonRowDisplay}
+        >
+          <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
+        </Flex>
+        {isMobileApp ? (
+          <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+        ) : (
+          <DashboardDrawer isOpen={isOpen} onClose={onClose} />
+        )}
+      </Container>
+      {isMobile && mobileButtons}
+    </>
   )
 })

@@ -287,45 +287,24 @@ export const selectIsAssetWithoutMarketData = createSelector(
 
 export const selectAssetsBySearchQuery = createCachedSelector(
   selectAssetsSortedByMarketCap,
-  selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioUserCurrencyBalances,
   marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
-  (
-    sortedAssets: Asset[],
-    portfolioBalancesCryptoBaseUnit,
-    portfolioBalancesUserCurrency,
-    marketDataUsd,
-    searchQuery?: string,
-  ): Asset[] => {
+  (sortedAssets: Asset[], marketDataUsd, searchQuery?: string): Asset[] => {
     if (!searchQuery) return sortedAssets
 
-    const matchedAssets = matchSorter(sortedAssets, searchQuery ?? '', {
-      keys: ['name', 'symbol', 'assetId'],
-      threshold: matchSorter.rankings.CONTAINS,
+    // Filters by low market-cap to avoid spew
+    const filteredAssets = sortedAssets.filter(asset => {
+      const marketCap = marketDataUsd[asset.assetId]?.marketCap
+      return !marketCap || bnOrZero(marketCap).gte(1000)
+    })
+    const matchedAssets = matchSorter(filteredAssets, searchQuery, {
+      keys: [
+        { key: 'name', threshold: matchSorter.rankings.MATCHES },
+        { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
+        { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
+      ],
     })
 
-    const getAssetBalanceCryptoPrecision = (asset: Asset) =>
-      fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
-
-    const getAssetUserCurrencyBalance = (asset: Asset) =>
-      bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
-
-    // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
-    // but we actually can't - this would rug the quadruple-sorting
-    const getAssetMarketCap = (asset: Asset) =>
-      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
-    const getAssetName = (asset: Asset) => asset.name
-
-    return orderBy(
-      Object.values(matchedAssets).filter(isSome),
-      [
-        getAssetUserCurrencyBalance,
-        getAssetMarketCap,
-        getAssetBalanceCryptoPrecision,
-        getAssetName,
-      ],
-      ['desc', 'desc', 'desc', 'asc'],
-    )
+    return matchedAssets
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')

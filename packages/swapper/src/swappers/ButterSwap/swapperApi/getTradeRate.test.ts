@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeRateInput, SwapperDeps } from '../../../types'
 import { ROUTE_QUOTE } from '../../../utils/test-data/butter/routeQuote'
-import { USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { butterService } from '../utils/butterSwapService'
 import { getTradeRate } from './getTradeRate'
 
@@ -19,7 +19,7 @@ vi.mock('../utils/butterSwapService', () => ({
 describe('getTradeRate', () => {
   it('should return a trade rate', async () => {
     const deps: SwapperDeps = {
-      assetsById: {},
+      assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
       assertGetEvmChainAdapter: () => vi.fn() as any,
       assertGetUtxoChainAdapter: () => vi.fn() as any,

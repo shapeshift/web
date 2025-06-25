@@ -1,0 +1,46 @@
+import { CircularProgress } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+
+import {
+  TRADE_QUOTE_REFRESH_INTERVAL_MS,
+  TRADE_QUOTE_TIMER_UPDATE_MS,
+} from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
+import {
+  selectIsRefreshPending,
+  selectLastRefreshTime,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
+
+type QuoteTimerProps = {
+  size?: string | number
+}
+
+export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
+  const lastRefreshTime = useAppSelector(selectLastRefreshTime)
+  const isRefreshPending = useAppSelector(selectIsRefreshPending)
+  const [timeRemaining, setTimeRemaining] = useState(TRADE_QUOTE_REFRESH_INTERVAL_MS)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isRefreshPending) {
+        // During pending state, freeze the timer at 0 (or wherever it was when refresh triggered)
+        setTimeRemaining(TRADE_QUOTE_REFRESH_INTERVAL_MS)
+      } else {
+        const elapsed = Date.now() - lastRefreshTime
+        const remaining = Math.max(0, TRADE_QUOTE_REFRESH_INTERVAL_MS - elapsed)
+        setTimeRemaining(remaining)
+      }
+    }, TRADE_QUOTE_TIMER_UPDATE_MS)
+
+    return () => clearInterval(interval)
+  }, [lastRefreshTime, isRefreshPending])
+
+  return (
+    <CircularProgress
+      size={size}
+      value={isRefreshPending ? TRADE_QUOTE_REFRESH_INTERVAL_MS : timeRemaining}
+      max={TRADE_QUOTE_REFRESH_INTERVAL_MS}
+      isIndeterminate={isRefreshPending}
+    />
+  )
+}

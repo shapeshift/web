@@ -2,12 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
-import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  isThorTradeRate,
-  SwapperName,
-  swappers,
-} from '@shapeshiftoss/swapper'
+import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
@@ -40,10 +35,23 @@ import {
 import {
   selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,
+  selectIsFirstQuoteLoading,
+  selectIsRefreshPending,
+  selectLastRefreshTime,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+
+/**
+ * NOTE: This interval MUST be used consistently in:
+ * - useGetTradeRates (refresh timing logic)
+ * - QuoteTimer component (countdown display)
+ * Changing one without the other will break synchronization!
+ */
+export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
+export const TRADE_QUOTE_TIMER_UPDATE_MS = 100 // How often UI timer updates for smooth display
+const TRADE_QUOTE_CHECK_INTERVAL_MS = 1000 // How often to check if refresh is needed (internal only)
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -157,8 +165,6 @@ export const useGetTradeRates = () => {
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
-  const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
-
   const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
@@ -226,27 +232,74 @@ export const useGetTradeRates = () => {
       return {
         swapperName,
         tradeQuoteOrRateInput: tradeRateInput ?? skipToken,
-        skip: !shouldRefetchTradeQuotes,
-        pollingInterval:
-          swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
-    [shouldRefetchTradeQuotes, tradeRateInput],
+    [tradeRateInput],
   )
 
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
+  const cowSwapQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
+  const arbitrumBridgeQuery = useGetSwapperTradeQuoteOrRate(
+    getTradeQuoteArgs(SwapperName.ArbitrumBridge),
+  )
+  const portalsQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
+  const thorchainQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
+  const zrxQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
+  const chainflipQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
+  const jupiterQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
+  const relayQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
+  const mayachainQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
 
-  // true if any debounce, input or swapper is fetching
-  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const refreshQuotes = useCallback(() => {
+    cowSwapQuery.refetch()
+    arbitrumBridgeQuery.refetch()
+    portalsQuery.refetch()
+    thorchainQuery.refetch()
+    zrxQuery.refetch()
+    chainflipQuery.refetch()
+    jupiterQuery.refetch()
+    relayQuery.refetch()
+    mayachainQuery.refetch()
+  }, [
+    cowSwapQuery,
+    arbitrumBridgeQuery,
+    portalsQuery,
+    thorchainQuery,
+    zrxQuery,
+    chainflipQuery,
+    jupiterQuery,
+    relayQuery,
+    mayachainQuery,
+  ])
+
+  // Polling logic
+  const lastRefreshTime = useAppSelector(selectLastRefreshTime)
+  const isRefreshPending = useAppSelector(selectIsRefreshPending)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - lastRefreshTime
+      // Timer finished, trigger pending until loading done
+      if (elapsed >= TRADE_QUOTE_REFRESH_INTERVAL_MS && !isRefreshPending && hasFocus) {
+        dispatch(tradeQuoteSlice.actions.setIsRefreshPending(true))
+        refreshQuotes()
+      }
+    }, TRADE_QUOTE_CHECK_INTERVAL_MS)
+
+    return () => clearInterval(interval)
+  }, [lastRefreshTime, isRefreshPending, refreshQuotes, dispatch, hasFocus])
+
+  // Watch for loading state changes to detect first response arrival
+  const isFirstQuoteLoading = useAppSelector(selectIsFirstQuoteLoading)
+
+  useEffect(() => {
+    // When pending and loading completes, restart the timer
+    if (isRefreshPending && !isFirstQuoteLoading) {
+      dispatch(tradeQuoteSlice.actions.setLastRefreshTime(Date.now()))
+    }
+  }, [isRefreshPending, dispatch, isFirstQuoteLoading])
+
   const hasTrackedInitialRatesReceived = useRef(false)
+  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {

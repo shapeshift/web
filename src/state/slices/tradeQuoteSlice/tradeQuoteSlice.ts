@@ -29,6 +29,13 @@ export const tradeQuoteSlice = createSlice({
     setIsTradeQuoteRequestAborted: create.reducer((state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
     }),
+    setLastRefreshTime: create.reducer((state, action: PayloadAction<number>) => {
+      state.lastRefreshTime = action.payload
+      state.isRefreshPending = false
+    }),
+    setIsRefreshPending: create.reducer((state, action: PayloadAction<boolean>) => {
+      state.isRefreshPending = action.payload
+    }),
     upsertTradeQuotes: create.reducer(
       (
         state,

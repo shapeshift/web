@@ -9,14 +9,12 @@ import { useAppDispatch } from '@/state/store'
 export type UseGetSwapperTradeQuoteOrRateArgs = {
   swapperName: SwapperName | undefined
   tradeQuoteOrRateInput: GetTradeQuoteInput | GetTradeRateInput | typeof skipToken
-  skip: boolean
-  pollingInterval: number | undefined
+  skip?: boolean
 }
 
 export const useGetSwapperTradeQuoteOrRate = ({
   swapperName,
   tradeQuoteOrRateInput: tradeQuoteInput,
-  pollingInterval,
   skip,
 }: UseGetSwapperTradeQuoteOrRateArgs) => {
   const dispatch = useAppDispatch()
@@ -29,9 +27,8 @@ export const useGetSwapperTradeQuoteOrRate = ({
   const tradeQuoteOptions = useMemo(
     () => ({
       skip,
-      pollingInterval,
     }),
-    [pollingInterval, skip],
+    [skip],
   )
 
   const queryStateRequest = useMemo(() => {
@@ -40,7 +37,7 @@ export const useGetSwapperTradeQuoteOrRate = ({
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [swapperName, tradeQuoteInput])
 
-  useGetTradeQuoteQuery(tradeQuoteRequest, tradeQuoteOptions)
+  const { refetch } = useGetTradeQuoteQuery(tradeQuoteRequest, tradeQuoteOptions)
 
   // skip tokens invalidate loading state of the original useGetTradeQuoteQuery hook
   // so to persist fetching state after an inflight request becomes skipped, we need to
@@ -60,5 +57,5 @@ export const useGetSwapperTradeQuoteOrRate = ({
     )
   }, [swapperName, dispatch, queryStateMeta.data])
 
-  return queryStateMeta
+  return { ...queryStateMeta, refetch }
 }

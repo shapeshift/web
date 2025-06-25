@@ -31,7 +31,6 @@ import type { SupportedChainIds, Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
 
-export const DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const QUOTE_TIMEOUT_MS = 60_000
 export const TRADE_STATUS_POLL_INTERVAL_MILLISECONDS = 5_000
 
@@ -42,63 +41,52 @@ export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
 // PartialRecord not used to ensure exhaustiveness
 export const swappers: Record<
   SwapperName,
-  | (SwapperApi & Swapper & { supportedChainIds: SupportedChainIds; pollingInterval: number })
-  | undefined
+  (SwapperApi & Swapper & { supportedChainIds: SupportedChainIds }) | undefined
 > = {
   [SwapperName.Thorchain]: {
     ...thorchainSwapper,
     ...thorchainApi,
     supportedChainIds: THORCHAIN_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Mayachain]: {
     ...mayachainSwapper,
     ...mayachainApi,
     supportedChainIds: MAYACHAIN_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Zrx]: {
     ...zrxSwapper,
     ...zrxApi,
     supportedChainIds: ZRX_SUPPORTED_CHAIN_IDS,
-
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.CowSwap]: {
     ...cowSwapper,
     ...cowApi,
     supportedChainIds: COW_SWAP_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.ArbitrumBridge]: {
     ...arbitrumBridgeSwapper,
     ...arbitrumBridgeApi,
     supportedChainIds: ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Portals]: {
     ...portalsSwapper,
     ...portalsApi,
     supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Chainflip]: {
     ...chainflipSwapper,
     ...chainflipApi,
     supportedChainIds: CHAINFLIP_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Jupiter]: {
     ...jupiterSwapper,
     ...jupiterApi,
     supportedChainIds: JUPITER_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Relay]: {
     ...relaySwapper,
     ...relayApi,
     supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,
 }

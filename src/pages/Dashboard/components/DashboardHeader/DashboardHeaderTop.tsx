@@ -13,8 +13,7 @@ import {
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
 import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
-import { FiSettings } from 'react-icons/fi'
-import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
+import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -45,7 +44,6 @@ const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const moreIcon = isMobileApp ? <FiSettings /> : <IoEllipsisHorizontal />
 const swapIcon = <SwapIcon boxSize={6} color='blue.200' />
 const buyIcon = (
   <Box color='blue.200'>
@@ -61,7 +59,6 @@ const netWorth = (
   // react-memo you're drunk, this is outside of component scope
   // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
-    <ProfileAvatar />
     <WalletBalance />
   </Flex>
 )
@@ -104,7 +101,7 @@ export const DashboardHeaderTop = memo(() => {
   const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
-    state: { isConnected },
+    state: { walletInfo, isConnected },
   } = useWallet()
 
   const navigate = useNavigate()
@@ -206,52 +203,59 @@ export const DashboardHeaderTop = memo(() => {
   return (
     <>
       <Display.Mobile>
-        <Container
-          width='full'
-          display='grid'
-          gridTemplateColumns={profileGridTemplate}
-          maxWidth='container.4xl'
-          px={containerPadding}
-          pt={4}
-          pb={4}
-          gap={containerGap}
-        >
-          {netWorth}
-          {desktopButtons}
+        <>
           <Flex
-            justifyContent='flex-end'
+            justifyContent='space-between'
+            width='100%'
+            pt={4}
             gap={2}
             gridColumn={3}
             display={mobileButtonRowDisplay}
-            position='absolute'
-            right={1}
-            top={
-              'calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + var(--chakra-space-4))'
-            }
+            px={2}
           >
-            <IconButton
-              icon={searchIcon}
-              aria-label={translate('common.search')}
-              onClick={onSearchOpen}
-              isRound
-            />
-            <IconButton
-              icon={qrCodeIcon}
-              aria-label={translate('modals.send.qrCode')}
-              onClick={handleQrCodeClick}
-              isRound
-            />
-            <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
+            <Flex align='center' onClick={onOpen}>
+              <ProfileAvatar size='md' borderRadius='full' />
+              <Text ml={2} fontWeight='semibold' fontSize='md'>
+                {(walletInfo?.meta?.label || walletInfo?.name) ?? translate('common.connectWallet')}
+              </Text>
+            </Flex>
+            <Flex gap={2}>
+              <IconButton
+                icon={searchIcon}
+                aria-label={translate('common.search')}
+                onClick={onSearchOpen}
+                isRound
+              />
+              <IconButton
+                icon={qrCodeIcon}
+                aria-label={translate('modals.send.qrCode')}
+                onClick={handleQrCodeClick}
+                isRound
+              />
+            </Flex>
           </Flex>
-        </Container>
-        {mobileButtons}
-        {mobileDrawer}
-        <GlobalSearchModal
-          isOpen={isSearchOpen}
-          onClose={onSearchClose}
-          onOpen={onSearchOpen}
-          onToggle={onSearchToggle}
-        />
+          <Container
+            width='100%'
+            display='grid'
+            gridTemplateColumns={profileGridTemplate}
+            maxWidth='container.4xl'
+            px={containerPadding}
+            pt={4}
+            pb={4}
+            gap={containerGap}
+          >
+            {netWorth}
+            {desktopButtons}
+          </Container>
+          {mobileButtons}
+          {mobileDrawer}
+          <GlobalSearchModal
+            isOpen={isSearchOpen}
+            onClose={onSearchClose}
+            onOpen={onSearchOpen}
+            onToggle={onSearchToggle}
+          />
+        </>
       </Display.Mobile>
       <Display.Desktop>
         <Container

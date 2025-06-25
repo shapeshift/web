@@ -30,7 +30,11 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { calculateFeeUsd } from '@/lib/fees/utils'
 import { fromBaseUnit } from '@/lib/math'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
-import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import {
+  QueryStatusExtended,
+  selectIsTradeQuoteApiQueryPending,
+  selectTradeQuoteSwapperToQueryStatus,
+} from '@/state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
 import { TradeQuoteRequestError, TradeQuoteWarning } from '@/state/apis/swapper/types'
 import { getEnabledSwappers } from '@/state/helpers'
@@ -66,6 +70,16 @@ import {
 
 export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
   createSelector(tradeQuoteSlice.selectSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
+
+export const selectLastRefreshTime: Selector<ReduxState, number> = createSelector(
+  tradeQuoteSlice.selectSlice,
+  tradeQuoteSlice => tradeQuoteSlice.lastRefreshTime,
+)
+
+export const selectIsRefreshPending: Selector<ReduxState, boolean> = createSelector(
+  tradeQuoteSlice.selectSlice,
+  tradeQuoteSlice => tradeQuoteSlice.isRefreshPending,
+)
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice.selectSlice,
@@ -628,6 +642,15 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   selectHasUserEnteredAmount,
   (loadingSwappers, hasUserEnteredAmount) => {
     return hasUserEnteredAmount && loadingSwappers.length > 0
+  },
+)
+
+export const selectIsFirstQuoteLoading = createSelector(
+  selectTradeQuoteSwapperToQueryStatus,
+  swapperToQueryStatus => {
+    return !Object.values(swapperToQueryStatus).some(
+      queryStatus => queryStatus === QueryStatusExtended.fulfilledWithQuote,
+    )
   },
 )
 

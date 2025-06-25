@@ -33,8 +33,6 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { selectHighestMarketCapFeeAsset } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 const mobileButtonRowDisplay = { base: 'flex', md: 'none' }
 const desktopButtonGroupDisplay = { base: 'none', md: 'flex' }
@@ -113,8 +111,6 @@ export const DashboardHeaderTop = memo(() => {
   const qrCode = useModal('qrCode')
   const fiatRamps = useModal('fiatRamps')
 
-  const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
-
   const handleQrCodeClick = useCallback(() => {
     qrCode.open({})
   }, [qrCode])
@@ -133,9 +129,8 @@ export const DashboardHeaderTop = memo(() => {
   }, [navigate])
 
   const handleBuyClick = useCallback(() => {
-    if (!defaultAsset) return
-    fiatRamps.open({ assetId: defaultAsset.assetId, fiatRampAction: FiatRampAction.Buy })
-  }, [fiatRamps, defaultAsset])
+    fiatRamps.open({ assetId: undefined, fiatRampAction: FiatRampAction.Buy })
+  }, [fiatRamps])
 
   const mobileButtons = useMemo(
     () => (

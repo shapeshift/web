@@ -2997,6 +2997,7 @@
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} 保留中",
-    "orderCancelled": "注文はキャンセルされました"
+    "orderCancelled": "注文はキャンセルされました",
+    "orderExpired": "注文期限切れ"
   }
 }

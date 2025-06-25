@@ -1,6 +1,15 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Button, Container, Flex, IconButton, Text, useDisclosure, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  IconButton,
+  Text,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -61,7 +70,7 @@ const MobileButton = ({ icon, label, onClick, isDisabled }: MobileButtonProps) =
   >
     <VStack spacing={2} justify='center' align='center'>
       {icon}
-      <Text fontSize='sm' fontWeight='medium'>
+      <Text fontSize='sm' fontWeight='medium' color='blue.200'>
         {label}
       </Text>
     </VStack>
@@ -110,24 +119,28 @@ export const DashboardHeaderTop = memo(() => {
     () => (
       <Flex mt={4} gap={6}>
         <MobileButton
-          icon={<SwapIcon boxSize={6} />}
+          icon={<SwapIcon boxSize={6} color='blue.200' />}
           label={translate('navBar.tradeShort')}
           onClick={handleTradeClick}
         />
         <MobileButton
-          icon={<FaRegCreditCard size={24} />}
+          icon={
+            <Box color='blue.200'>
+              <FaRegCreditCard size={24} />
+            </Box>
+          }
           label={translate('fiatRamps.buy')}
           onClick={handleBuyClick}
           isDisabled={!isConnected}
         />
         <MobileButton
-          icon={<SendIcon boxSize='6' />}
+          icon={<SendIcon boxSize='6' color='blue.200' />}
           label={translate('common.send')}
           onClick={handleSendClick}
           isDisabled={!isConnected}
         />
         <MobileButton
-          icon={<ArrowDownIcon boxSize={6} />}
+          icon={<ArrowDownIcon boxSize={6} color='blue.200' />}
           label={translate('common.receive')}
           onClick={handleReceiveClick}
           isDisabled={!isConnected}

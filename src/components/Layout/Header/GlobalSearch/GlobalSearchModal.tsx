@@ -21,9 +21,7 @@ import { SearchResults } from './SearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
-import { useModal } from '@/hooks/useModal/useModal'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { isSome } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import type { AssetSearchResult } from '@/state/slices/search-selectors'
@@ -52,7 +50,6 @@ export const GlobalSearchModal = memo(
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const mixpanel = getMixPanel()
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
     const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
     const assetResults = results
@@ -114,7 +111,6 @@ export const GlobalSearchModal = memo(
       })
     }, [customAssets, dispatch])
 
-    const send = useModal('send')
     useEffect(() => {
       if (!searchQuery) setActiveIndex(0)
     }, [searchQuery])
@@ -142,7 +138,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [mixpanel, send, searchQuery, onToggle, dispatch, navigate],
+      [onToggle, dispatch, navigate],
     )
 
     const onKeyDown = useCallback(
@@ -183,7 +179,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [activeIndex, handleClick, resultsCount],
+      [activeIndex, handleClick, resultsCount, results],
     )
 
     useUpdateEffect(() => {

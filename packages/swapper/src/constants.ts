@@ -1,35 +1,35 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 
-import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './cowswap-utils/constants'
-import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
-import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
-import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
+// import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './cowswap-utils/constants'
+// import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
+// import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
+// import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
 import { butterSwapper } from './swappers/ButterSwap/ButterSwap'
 import { butterSwapApi } from './swappers/ButterSwap/endpoints'
 import { BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS } from './swappers/ButterSwap/utils/constants'
-import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
-import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
-import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
-import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
-import { cowApi } from './swappers/CowSwapper/endpoints'
-import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
-import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
-import { JUPITER_SUPPORTED_CHAIN_IDS } from './swappers/JupiterSwapper/utils/constants'
-import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from './swappers/MayachainSwapper'
-import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
-import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
-import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
-import { portalsApi } from './swappers/PortalsSwapper/endpoints'
-import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
-import { relaySwapper } from './swappers/RelaySwapper'
-import { RELAY_SUPPORTED_CHAIN_IDS } from './swappers/RelaySwapper/constant'
-import { relayApi } from './swappers/RelaySwapper/endpoints'
-import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
-import { thorchainApi } from './swappers/ThorchainSwapper/endpoints'
-import { thorchainSwapper } from './swappers/ThorchainSwapper/ThorchainSwapper'
-import { zrxApi } from './swappers/ZrxSwapper/endpoints'
-import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
-import { zrxSwapper } from './swappers/ZrxSwapper/ZrxSwapper'
+// import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
+// import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
+// import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
+// import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
+// import { cowApi } from './swappers/CowSwapper/endpoints'
+// import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
+// import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
+// import { JUPITER_SUPPORTED_CHAIN_IDS } from './swappers/JupiterSwapper/utils/constants'
+// import { MAYACHAIN_SUPPORTED_CHAIN_IDS } from './swappers/MayachainSwapper'
+// import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
+// import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
+// import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
+// import { portalsApi } from './swappers/PortalsSwapper/endpoints'
+// import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
+// import { relaySwapper } from './swappers/RelaySwapper'
+// import { RELAY_SUPPORTED_CHAIN_IDS } from './swappers/RelaySwapper/constant'
+// import { relayApi } from './swappers/RelaySwapper/endpoints'
+// import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
+// import { thorchainApi } from './swappers/ThorchainSwapper/endpoints'
+// import { thorchainSwapper } from './swappers/ThorchainSwapper/ThorchainSwapper'
+// import { zrxApi } from './swappers/ZrxSwapper/endpoints'
+// import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
+// import { zrxSwapper } from './swappers/ZrxSwapper/ZrxSwapper'
 import type { SupportedChainIds, Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
@@ -48,6 +48,16 @@ export const swappers: Record<
   | (SwapperApi & Swapper & { supportedChainIds: SupportedChainIds; pollingInterval: number })
   | undefined
 > = {
+  [SwapperName.Thorchain]: undefined,
+  [SwapperName.Mayachain]: undefined,
+  [SwapperName.Zrx]: undefined,
+  [SwapperName.CowSwap]: undefined,
+  [SwapperName.ArbitrumBridge]: undefined,
+  [SwapperName.Portals]: undefined,
+  [SwapperName.Chainflip]: undefined,
+  [SwapperName.Jupiter]: undefined,
+  [SwapperName.Relay]: undefined,
+  /*
   [SwapperName.Thorchain]: {
     ...thorchainSwapper,
     ...thorchainApi,
@@ -64,7 +74,6 @@ export const swappers: Record<
     ...zrxSwapper,
     ...zrxApi,
     supportedChainIds: ZRX_SUPPORTED_CHAIN_IDS,
-
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.CowSwap]: {
@@ -103,6 +112,7 @@ export const swappers: Record<
     supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
+  */
   [SwapperName.ButterSwap]: {
     ...butterSwapper,
     ...butterSwapApi,

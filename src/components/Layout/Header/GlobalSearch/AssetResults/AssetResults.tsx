@@ -6,9 +6,7 @@ import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { AssetResult } from './AssetResult'
 
-import type { AssetSearchResult } from '@/state/slices/search-selectors'
-
-export const AssetResults: React.FC<GlobalSearchResultsProps<AssetSearchResult>> = ({
+export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
   results,
   activeIndex,
   onClick,

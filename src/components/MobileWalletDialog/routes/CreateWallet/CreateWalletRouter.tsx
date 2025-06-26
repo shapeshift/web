@@ -5,8 +5,10 @@ import { Route, Switch } from 'wouter'
 
 import { ManualBackup } from '../ManualBackup/ManualBackup'
 import { CreateBackupConfirm } from './CreateBackupConfirm'
+import { CreateSkipConfirm } from './CreateSkipConfirm'
 import { CreateSuccess } from './CreateSuccess'
 import { CreateWallet } from './CreateWallet'
+import { CreateWordsError } from './CreateWordsError'
 import { KeepSafe } from './KeepSafe'
 
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
@@ -54,13 +56,18 @@ const CreateWalletRoutes = ({ onClose, defaultRoute }: CreateWalletRouterProps) 
     [defaultRoute, handleRedirectToHome, onClose],
   )
 
+  const createWordsError = useMemo(() => <CreateWordsError onClose={onClose} />, [onClose])
+  const createSkipConfirm = useMemo(() => <CreateSkipConfirm onClose={onClose} />, [onClose])
+
   return (
     <Switch location={location.pathname}>
       <Route path={MobileWalletDialogRoutes.CreateBackupSuccess}>{createSuccess}</Route>
       <Route path={MobileWalletDialogRoutes.CreateBackupConfirm}>{createBackupConfirm}</Route>
       <Route path={MobileWalletDialogRoutes.CreateBackup}>{manualBackup}</Route>
+      <Route path={MobileWalletDialogRoutes.CreateWordsError}>{createWordsError}</Route>
       <Route path={MobileWalletDialogRoutes.KeepSafe}>{keepSafe}</Route>
       <Route path={MobileWalletDialogRoutes.Create}>{createWallet}</Route>
+      <Route path={MobileWalletDialogRoutes.CreateSkipConfirm}>{createSkipConfirm}</Route>
       <Route path='/'>{createRedirect}</Route>
     </Switch>
   )

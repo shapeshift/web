@@ -34,14 +34,18 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseSwapActionSubscriberProps = {
   onDrawerOpen: () => void
+  isDrawerOpen: boolean
 }
 
-export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscriberProps) => {
+export const useSwapActionSubscriber = ({
+  onDrawerOpen,
+  isDrawerOpen,
+}: UseSwapActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
   const toast = useToast({
-    duration: null,
+    duration: isDrawerOpen ? 5000 : null,
     position: 'bottom-right',
   })
 
@@ -52,6 +56,13 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
+  const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+
+  useEffect(() => {
+    if (isDrawerOpen && !previousIsDrawerOpen) {
+      toast.closeAll()
+    }
+  }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
   // Create swap and action after user confirmed the intent
   useEffect(() => {

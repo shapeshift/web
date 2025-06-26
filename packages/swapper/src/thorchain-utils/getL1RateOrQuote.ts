@@ -372,17 +372,17 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             // This is a rate without a wallet connected, so we can't get fees
             if (!xpub) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
 
-            const { average } = await sellAdapter.getFeeData({
+            const { fast } = await sellAdapter.getFeeData({
               to: vault,
               value: sellAmountCryptoBaseUnit,
               chainSpecific: { pubkey: xpub, opReturnData: memo },
             })
 
             return {
-              networkFeeCryptoBaseUnit: average.txFee,
+              networkFeeCryptoBaseUnit: fast.txFee,
               protocolFees,
               chainSpecific: {
-                satsPerByte: average.chainSpecific.satoshiPerByte,
+                satsPerByte: fast.chainSpecific.satoshiPerByte,
               },
             }
           })()

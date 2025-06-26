@@ -70,13 +70,13 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
 
       switch (txData?.parser) {
         case 'cowswap':
-          return 'CoW Swap'
+          return Dex.CowSwap
         case 'mayachain':
           return Dex.Maya
         case 'thorchain':
           return Dex.Thor
         case 'zrx':
-          return '0x'
+          return Dex.Zrx
         default:
           return
       }

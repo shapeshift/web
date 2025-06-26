@@ -192,6 +192,7 @@ export const portfolio = createSlice({
   }),
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
   selectors: {
+    selectPortfolio: state => state,
     selectAccountsById: state => state.accounts.byId,
     selectAccountMetadataById: state => state.accountMetadata.byId,
     selectIsAccountMetadataLoadingByAccountId: state => state.isAccountMetadataLoadingByAccountId,

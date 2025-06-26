@@ -491,6 +491,7 @@
     "eligibleOpportunities": "符合条件的机会",
     "defiBody": "探索不断增长的 DeFi 机会。",
     "netWorth": "净值",
+    "loadingAccounts": "已加载 %{portfolioAccountsLoaded} 个账户 (更新了 %{opportunityAccountsLoaded} 个账户的当前持仓)",
     "walletBalance": "钱包余额",
     "earnBalance": "赚取余额",
     "rewardsBalance": "奖励余额",
@@ -732,6 +733,13 @@
         "withdrawNative": "提现",
         "withdrawOut": "已收到提现"
       },
+      "mayachain": {
+        "out": "出金请求已收到",
+        "refund": "退款",
+        "swapOut": "交换已收到",
+        "swap": "交易",
+        "swapRefund": "交换退款"
+      },
       "foxy": {
         "stake": "质押",
         "unstake": "取消质押",
@@ -840,12 +848,12 @@
       "lowSlippage": "滑点低于 0.05% 可能会导致交易失败。"
     },
     "sort": {
-      "sortBy": "排序方式",
+      "sortBy": "报价排序方式",
       "auto": "自动",
       "bestRate": "最佳费率",
       "lowestGas": "最低 Gas",
       "fastest": "最快",
-      "info": "选择如何对可用报价进行排序"
+      "info": "选择您的报价排序方式。"
     },
     "from": "从",
     "to": "到",
@@ -911,7 +919,6 @@
       "priceImpactWarning": "考虑到池中当前的流动性，这种规模的交换可能会有很高的价格影响。您的输入代币与您将收到的输出代币之间可能会有巨大差异。",
       "minerFee": "这是在区块链上处理交易的费用，这不是 ShapeShift 收取的费用。",
       "protocol": "这是你的交易路径的协议。",
-      "protocolLifi": "这是你的交易路径的协议。 LI.FI 在幕后执行一系列中间交易，以获得价格、安全性和速度的最佳整体组合。",
       "protocolFee": "交易费用是选择的协议收取的，不是 ShapeShift 收取的",
       "shapeshiftFee": "ShapeShift 不会增加交易费用 🎉",
       "manualReceiveAddress": "这是你接收资金的地址。已手动输入，请确保正确。",
@@ -984,7 +991,6 @@
     },
     "swappingComingSoonForWallet": "%{walletName} 的兑换即将推出",
     "recentTrades": "最近的交易",
-    "lifiWarning": "此交易通过 LI.FI 路由，执行一系列中介交易来完成交换。如果任何步骤失败，您将收到序列中最后成功步骤所产生的代币。",
     "or": "或者",
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
@@ -1141,6 +1147,7 @@
       }
     },
     "limitOrderFilled": "限价订单已完成",
+    "limitOrderPartiallyFilled": "限价订单已部分成交",
     "assetToAsset": "%{sellAmount} %{sellAsset} 交换到 %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -2959,7 +2966,13 @@
     "limitPrice": "限价",
     "expires": "到期时间",
     "filled": "已成交",
-    "swap": "交换",
+    "swap": {
+      "processing": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在处理中。",
+      "complete": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已完成。",
+      "failed": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已失败。",
+      "streaming": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在流式执行中。"
+    },
+    "streaming": "流式交换中",
     "claim": "领取",
     "protocol": "协议",
     "streamingStatus": "流式传输状态",
@@ -2974,6 +2987,17 @@
       "pending": "待处理",
       "claimAvailable": "可领取",
       "unknown": "未知"
-    }
+    },
+    "limitOrder": {
+      "placed": "以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单",
+      "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已成交。",
+      "cancelled": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已取消。",
+      "expired": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已过期。"
+    },
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} 待处理中",
+    "orderCancelled": "订单已取消",
+    "orderExpired": "订单已过期"
   }
 }

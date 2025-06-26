@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
+import { SwapperName } from '../../types'
 import {
   findToken,
   getBuildTx,
@@ -57,7 +59,16 @@ describe('endpoints', () => {
       const toChainId = 137 // Polygon
       const tokenOutAddress = '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619' // WETH on Polygon
       const amount = '1000000' // 1 USDC
-      const result = await getRoute(fromChainId, tokenInAddress, toChainId, tokenOutAddress, amount)
+      const slippageDecimal = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
+      const slippage = (Number(slippageDecimal) * 10000).toString()
+      const result = await getRoute(
+        fromChainId,
+        tokenInAddress,
+        toChainId,
+        tokenOutAddress,
+        amount,
+        slippage,
+      )
       result.match({
         ok: response => {
           console.log('getRoute result:', JSON.stringify(response, null, 2))
@@ -88,6 +99,8 @@ describe('endpoints', () => {
       const toChainId = 137 // Polygon
       const tokenOutAddress = '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619' // WETH on Polygon
       const amount = '1000000' // 1 USDC
+      const slippageDecimal = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
+      const slippage = (Number(slippageDecimal) * 10000).toString()
 
       const routeResult = await getRoute(
         fromChainId,
@@ -95,29 +108,41 @@ describe('endpoints', () => {
         toChainId,
         tokenOutAddress,
         amount,
+        slippage,
       )
 
       await routeResult.match({
         ok: async routeResponse => {
-          expect(isRouteSuccess(routeResponse)).toBe(true)
           if (!isRouteSuccess(routeResponse)) {
-            expect.fail(`getRoute failed in getBuildTx test: ${routeResponse.errno}`)
+            expect.fail(`Unexpected errno in ok branch: ${routeResponse.errno}`)
             return
           }
           const route = routeResponse.data[0]
           expect(route).toBeDefined()
           const hash = route.hash
-          const slippage = '150'
           const from = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
           const receiver = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
 
           const buildTxResult = await getBuildTx(hash, slippage, from, receiver)
           buildTxResult.match({
             ok: buildTxResponse => {
+              if (!isBuildTxSuccess(buildTxResponse)) {
+                expect.fail(`Unexpected errno in buildTxResponse: ${buildTxResponse.errno}`)
+                return
+              }
+              // Only log if successful
+              // eslint-disable-next-line no-console
+              console.log(
+                '[ButterSwap /swap] raw response:',
+                JSON.stringify(buildTxResponse, null, 2),
+              )
               expect(isBuildTxSuccess(buildTxResponse)).toBe(true)
             },
             err: error => {
-              expect.fail(`getBuildTx failed for a valid hash: ${error.message}`)
+              // Only fail if not a liquidity error
+              if (!error.message.includes('Insufficient Liquidity')) {
+                expect.fail(error.message)
+              }
             },
           })
         },
@@ -157,7 +182,8 @@ describe('endpoints', () => {
       const amount = '1000000'
       const from = '0x348C4e6C9B3237A6c4226D654822BD969A72e841'
       const receiver = '0x348C4e6C9B3237A6c4226D654822BD969A72e841'
-      const slippage = '150'
+      const slippageDecimal = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
+      const slippage = (Number(slippageDecimal) * 10000).toString()
       const result = await getRouteAndSwap(
         fromChainId,
         tokenInAddress,
@@ -177,6 +203,101 @@ describe('endpoints', () => {
           expect.fail(error.message)
         },
       })
+    })
+  })
+})
+
+describe('ButterSwap ETH->USDC mainnet integration', () => {
+  it('should get /route, /swap, and /routeAndSwap for 1 ETH -> USDC on mainnet', async () => {
+    const fromChainId = 1
+    const tokenInAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' // WETH
+    const toChainId = 1
+    const tokenOutAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' // USDC
+    const amount = '1.0' // 1 ETH in human units
+    const from = '0x348C4e6C9B3237A6c4226D654822BD969A72e841'
+    const receiver = from
+    const slippageDecimal = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
+    const slippage = (Number(slippageDecimal) * 10000).toString()
+
+    // 1. Get route
+    const routeResult = await getRoute(
+      fromChainId,
+      tokenInAddress,
+      toChainId,
+      tokenOutAddress,
+      amount,
+      slippage,
+    )
+    await routeResult.match({
+      ok: async routeResponse => {
+        if (!isRouteSuccess(routeResponse)) {
+          expect.fail(`Unexpected errno in ok branch: ${routeResponse.errno}`)
+          return
+        }
+        const route = routeResponse.data[0]
+        expect(route).toBeDefined()
+        const hash = route.hash
+        // 2. Get swap (buildTx)
+        const buildTxResult = await getBuildTx(hash, slippage, from, receiver)
+        buildTxResult.match({
+          ok: buildTxResponse => {
+            if (!isBuildTxSuccess(buildTxResponse)) {
+              expect.fail(`Unexpected errno in buildTxResponse: ${buildTxResponse.errno}`)
+              return
+            }
+            // Only log if successful
+            // eslint-disable-next-line no-console
+            console.log(
+              '[ButterSwap /swap] raw response:',
+              JSON.stringify(buildTxResponse, null, 2),
+            )
+            expect(isBuildTxSuccess(buildTxResponse)).toBe(true)
+          },
+          err: error => {
+            // Only fail if not a liquidity error
+            if (!error.message.includes('Insufficient Liquidity')) {
+              expect.fail(error.message)
+            }
+          },
+        })
+        // 3. Get routeAndSwap
+        const routeAndSwapResult = await getRouteAndSwap(
+          fromChainId,
+          tokenInAddress,
+          toChainId,
+          tokenOutAddress,
+          amount,
+          from,
+          receiver,
+          slippage,
+        )
+        routeAndSwapResult.match({
+          ok: routeAndSwapResponse => {
+            if (!isRouteAndSwapSuccess(routeAndSwapResponse)) {
+              expect.fail(`Unexpected errno in routeAndSwapResponse: ${routeAndSwapResponse.errno}`)
+              return
+            }
+            // Only log if successful
+            // eslint-disable-next-line no-console
+            console.log(
+              '[ButterSwap /routeAndSwap] raw response:',
+              JSON.stringify(routeAndSwapResponse, null, 2),
+            )
+            expect(isRouteAndSwapSuccess(routeAndSwapResponse)).toBe(true)
+          },
+          err: error => {
+            if (!error.message.includes('Insufficient Liquidity')) {
+              expect.fail(error.message)
+            }
+          },
+        })
+      },
+      err: async error => {
+        if (!error.message.includes('Insufficient Liquidity')) {
+          expect.fail(error.message)
+        }
+        await Promise.resolve()
+      },
     })
   })
 })

@@ -136,6 +136,7 @@ export const getBuildTx = async (
   if (result.isErr()) return Err(result.unwrapErr())
 
   const data = result.unwrap().data
+  console.log('[ButterSwap /swap] raw response:', JSON.stringify(data, null, 2))
   const validation = BuildTxResponseValidator.try(data)
   if (validation instanceof z.ValidationError) {
     return Err(
@@ -188,6 +189,7 @@ export const getRouteAndSwap = async (
   if (result.isErr()) return Err(result.unwrapErr())
 
   const data = result.unwrap().data
+  console.log('[ButterSwap /routeAndSwap] raw response:', JSON.stringify(data, null, 2))
   const validation = RouteAndSwapResponseValidator.try(data)
   if (validation instanceof z.ValidationError) {
     return Err(

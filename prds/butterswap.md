@@ -64,24 +64,24 @@ This utility centralizes the mapping logic, making it easy to maintain and use t
 ### Get Trade Rate
 
 * [x] Handle slippage
-* [ ] Populate fee data
-  * [ ] `networkFeeCryptoBaseUnit`
-* [ ] Implement `allowanceContract`
-* [ ] Double-check input `amount` calculation (re: shifting)
+* [x] Populate fee data
+  * [x] `networkFeeCryptoBaseUnit`
+* [x] Implement `allowanceContract`
+* [x] Double-check input `amount` calculation (re: shifting)
 
 ### Get Trade Quote
 
-* [ ] Handle affiliate BPS (basis points)
-* [ ] Populate `steps` section correctly
-  * [ ] `buyAmountBeforeFeesCryptoBaseUnit`
-  * [ ] `buyAmountAfterFeesCryptoBaseUnit`
-* [ ] Check `sellAmountIncludingProtocolFeesCryptoBaseUnit`
-* [ ] Populate `feeData` object
-  * [ ] `networkFeeCryptoBaseUnit`
-  * [ ] `protocolFees`
-* [ ] Check `rate` is correct
-* [ ] Update `allowanceContract`
-* [ ] Update `estimatedExecutionTimeMs`
+* [x] Handle affiliate BPS (basis points)
+* [x] Populate `steps` section correctly
+  * [x] `buyAmountBeforeFeesCryptoBaseUnit`
+  * [x] `buyAmountAfterFeesCryptoBaseUnit`
+* [x] Check `sellAmountIncludingProtocolFeesCryptoBaseUnit`
+* [x] Populate `feeData` object
+  * [x] `networkFeeCryptoBaseUnit`
+  * [x] `protocolFees`
+* [x] Check `rate` is correct
+* [x] Update `allowanceContract`
+* [x] Update `estimatedExecutionTimeMs`
 
 ### Common
 
@@ -90,3 +90,10 @@ This utility centralizes the mapping logic, making it easy to maintain and use t
 ### CheckTradeStatus
 
 * [ ] Implement `CheckTradeStatus` function
+
+# Developer Workflow Notes
+
+* Always use `yarn vitest run <path-to-test-file> -t "<test name>"` to run ButterSwap integration tests in run mode for the specific file and test you are working on.
+
+  Example:
+  yarn vitest run packages/swapper/src/swappers/ButterSwap/xhr.test.ts -t "ButterSwap ETH->USDC mainnet integration"

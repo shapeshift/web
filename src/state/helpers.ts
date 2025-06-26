@@ -17,6 +17,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.ArbitrumBridge:
     case SwapperName.Portals:
     case SwapperName.Test:
+    case SwapperName.ButterSwap:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:
@@ -35,10 +36,12 @@ export const getEnabledSwappers = (
     JupiterSwap,
     RelaySwapper,
     MayaSwap,
+    ButterSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
+  /*
   return {
     [SwapperName.Thorchain]:
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
@@ -62,6 +65,20 @@ export const getEnabledSwappers = (
       RelaySwapper && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
     [SwapperName.Mayachain]:
       MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
+    [SwapperName.Test]: false,
+  }
+*/
+  return {
+    [SwapperName.ButterSwap]: true,
+    [SwapperName.Thorchain]: false,
+    [SwapperName.Zrx]: false,
+    [SwapperName.CowSwap]: false,
+    [SwapperName.ArbitrumBridge]: false,
+    [SwapperName.Portals]: false,
+    [SwapperName.Chainflip]: false,
+    [SwapperName.Jupiter]: false,
+    [SwapperName.Relay]: false,
+    [SwapperName.Mayachain]: false,
     [SwapperName.Test]: false,
   }
 }

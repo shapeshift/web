@@ -111,82 +111,86 @@ export const useAccountsFetchQuery = () => {
       )
 
       const chainIdsWithActivity = new Set<ChainId>()
-      const accountPromises = Object.values(accountIdsByChainId).map(async accountIds => {
-        const portfolioResults = await Promise.allSettled(
-          accountIds.map(async accountId => {
-            // If account exists in store and had activity, skip fetching
-            if (enabledPortfolioAccounts[accountId]?.hasActivity && !isSnapStatusUpdated)
-              return currentPortfolio
+      const accountNumberAccountIdsPromises = Object.values(accountIdsByChainId).map(
+        async accountIds => {
+          const portfolioResults = await Promise.allSettled(
+            accountIds.map(async accountId => {
+              // If account exists in store and had activity, skip fetching
+              if (enabledPortfolioAccounts[accountId]?.hasActivity && !isSnapStatusUpdated)
+                return currentPortfolio
 
-            // If not in store, fetch it
-            const { data } = await dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }))
+              // If not in store, fetch it
+              const { data } = await dispatch(
+                getAccount.initiate({ accountId, upsertOnFetch: true }),
+              )
 
-            return data
-          }),
-        )
-
-        const portfolios = portfolioResults
-          .filter(
-            (result): result is PromiseFulfilledResult<Portfolio> =>
-              result.status === 'fulfilled' && Boolean(result.value),
+              return data
+            }),
           )
-          .map(result => result.value)
 
-        portfolios.forEach((portfolio, i) => {
-          const accountId = accountIds[i]
-          const accountChainId = fromAccountId(accountId).chainId
+          const portfolios = portfolioResults
+            .filter(
+              (result): result is PromiseFulfilledResult<Portfolio> =>
+                result.status === 'fulfilled' && Boolean(result.value),
+            )
+            .map(result => result.value)
 
-          const hasChainActivity = (() => {
-            if (!isUtxoChainId(accountChainId)) {
-              return portfolio.accounts.byId[accountId].hasActivity
-            }
+          portfolios.forEach((portfolio, i) => {
+            const accountId = accountIds[i]
+            const accountChainId = fromAccountId(accountId).chainId
 
-            // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
-            // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes being upserted
-            return portfolios.some((portfolio, i) => {
-              const accountId = accountIds[i]
-              if (fromAccountId(accountId).chainId !== accountChainId) return false
-              return portfolio.accounts.byId[accountId].hasActivity
-            })
-          })()
+            const accountNumberHasChainActivity = (() => {
+              if (!isUtxoChainId(accountChainId)) {
+                return portfolio.accounts.byId[accountId].hasActivity
+              }
 
-          // don't add accounts with no activity past account 0
-          if (accountNumber > 0 && !hasChainActivity) {
-            chainIdsWithActivity.delete(accountChainId)
-            delete accountMetadataByAccountId[accountId]
-          } else {
-            chainIdsWithActivity.add(accountChainId)
-
-            // Only dispatch updates for newly fetched accounts which didn't have activity or didn't exist yet in the store
-            if (
-              (!enabledPortfolioAccounts[accountId]?.hasActivity &&
-                !portfolioAccounts[accountId]) ||
-              isSnapStatusUpdated
-            ) {
-              dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-
-              accountIds.forEach(accountId => {
-                dispatch(portfolioSlice.actions.enableAccountId(accountId))
+              // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+              // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes being upserted
+              return portfolios.some((portfolio, i) => {
+                const accountId = accountIds[i]
+                if (fromAccountId(accountId).chainId !== accountChainId) return false
+                return portfolio.accounts.byId[accountId].hasActivity
               })
+            })()
 
-              const _accountMetadataByAccountId = Object.fromEntries(
-                Object.entries(accountMetadataByAccountId).filter(([accountId]) =>
-                  accountIds.includes(accountId),
-                ),
-              )
+            // don't add accounts with no activity past account 0
+            if (accountNumber > 0 && !accountNumberHasChainActivity) {
+              chainIdsWithActivity.delete(accountChainId)
+              delete accountMetadataByAccountId[accountId]
+            } else {
+              chainIdsWithActivity.add(accountChainId)
 
-              dispatch(
-                portfolioSlice.actions.upsertAccountMetadata({
-                  accountMetadataByAccountId: _accountMetadataByAccountId,
-                  walletId,
-                }),
-              )
+              // Only dispatch updates for newly fetched accounts which didn't have activity or didn't exist yet in the store
+              if (
+                (!enabledPortfolioAccounts[accountId]?.hasActivity &&
+                  !portfolioAccounts[accountId]) ||
+                isSnapStatusUpdated
+              ) {
+                dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+
+                accountIds.forEach(accountId => {
+                  dispatch(portfolioSlice.actions.enableAccountId(accountId))
+                })
+
+                const _accountMetadataByAccountId = Object.fromEntries(
+                  Object.entries(accountMetadataByAccountId).filter(([accountId]) =>
+                    accountIds.includes(accountId),
+                  ),
+                )
+
+                dispatch(
+                  portfolioSlice.actions.upsertAccountMetadata({
+                    accountMetadataByAccountId: _accountMetadataByAccountId,
+                    walletId,
+                  }),
+                )
+              }
             }
-          }
-        })
-      })
+          })
+        },
+      )
 
-      await Promise.allSettled(accountPromises)
+      await Promise.allSettled(accountNumberAccountIdsPromises)
       chainIds = chainIdsWithActivity
     }
 

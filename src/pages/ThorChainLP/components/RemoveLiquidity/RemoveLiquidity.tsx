@@ -120,7 +120,7 @@ export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
       navigate(RemoveLiquidityRoutePaths.Confirm)
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote as Record<string, unknown>)
     }
-  }, [confirmedQuote, mixpanel])
+  }, [confirmedQuote, mixpanel, navigate])
 
   const handleBack = useCallback(() => {
     window.history.back()

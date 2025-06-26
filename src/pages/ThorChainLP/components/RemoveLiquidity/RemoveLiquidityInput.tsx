@@ -1128,7 +1128,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           size='lg'
           colorScheme={errorCopy ? 'red' : 'blue'}
           onClick={handleSubmit}
-          isDisabled={false}
+          isDisabled={
+            !confirmedQuote ||
+            (isEstimatedPoolAssetFeesDataError && opportunityType === AsymSide.Asset) ||
+            (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
+            !validInputAmount ||
+            isSweepNeededLoading ||
+            Boolean(errorCopy)
+          }
           isLoading={
             isTradingActiveLoading ||
             isChainHaltedFetching ||

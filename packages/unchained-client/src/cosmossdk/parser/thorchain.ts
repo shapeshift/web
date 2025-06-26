@@ -1,19 +1,12 @@
-import { Parser as ThorchainParser } from '../../parser/thorchain'
-import type { SubParser, Tx, TxSpecific } from '../parser'
+import * as thorchain from '../../parser/thorchain'
+import * as thormaya from './thormaya'
 
 export interface ParserArgs {
   midgardUrl: string
 }
 
-export class Parser implements SubParser<Tx> {
-  private readonly thorchainParser: ThorchainParser
-
+export class Parser extends thormaya.Parser {
   constructor(args: ParserArgs) {
-    this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
-  }
-
-  async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (!tx.memo) return
-    return await this.thorchainParser.parse(tx.memo)
+    super({ parser: new thorchain.Parser({ midgardUrl: args.midgardUrl }) })
   }
 }

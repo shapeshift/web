@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Divider,
   FormControl,
   IconButton,
   Input,
@@ -22,6 +23,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 
+import { QuoteDisplaySelector } from './QuoteDisplaySelector'
 import { QuoteSortSelector } from './QuoteSortSelector'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -145,8 +147,8 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
           </Box>
         </Tooltip>
         <PopoverContent>
-          <PopoverBody>
-            <Row>
+          <PopoverBody px={0} py={4}>
+            <Row px={4}>
               <Row.Label>
                 <HelperTooltip label={translate('trade.slippageInfo')}>
                   <Text translation='trade.slippage.maxSlippage' />
@@ -154,7 +156,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
               </Row.Label>
               <Row.Value>{slippageType === SlippageType.Auto && 'Auto'}</Row.Value>
             </Row>
-            <Row py={2} gap={2} mt={2}>
+            <Row px={4} py={2} gap={2} mt={2}>
               <Row.Value>
                 <ButtonGroup
                   size='sm'
@@ -199,7 +201,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
               )}
             </Row>
             {isHighSlippage && slippageType === SlippageType.Custom && (
-              <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
+              <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={4} py={0}>
                 <AlertIcon />
                 <AlertDescription lineHeight='1.5'>
                   {translate('trade.slippage.warning')}
@@ -207,7 +209,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
               </Alert>
             )}
             {isLowSlippage && slippageType === SlippageType.Custom && (
-              <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
+              <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={4} py={0}>
                 <AlertIcon />
                 <AlertDescription lineHeight='1.5'>
                   {translate('trade.slippage.lowSlippage')}
@@ -215,11 +217,16 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
               </Alert>
             )}
 
+            <Divider mt={4} />
+
             {enableSortBy && (
-              <Box mt={4} borderTop='1px solid' borderTopColor='border.base' pt={4} width='full'>
+              <Box pt={4} px={4} width='full'>
                 <QuoteSortSelector />
               </Box>
             )}
+            <Box pt={6} px={4} width='full'>
+              <QuoteDisplaySelector />
+            </Box>
           </PopoverBody>
         </PopoverContent>
       </Popover>

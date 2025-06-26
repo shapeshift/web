@@ -2,7 +2,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
+import type { CommonTradeQuoteInput, SwapperDeps, TradeRate } from '../../../types'
 import { ROUTE_QUOTE } from '../../../utils/test-data/butter/routeQuote'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { getTradeQuote } from './getTradeQuote'
@@ -66,7 +66,7 @@ describe('getTradeQuote', () => {
       affiliateBps: '0',
       allowMultiHop: true,
       quoteOrRate: 'quote',
-      originalRate: {} as any, // TODO(gomes): provide a realistic rate here
+      originalRate: {} as TradeRate,
     }
 
     mocks.get.mockResolvedValue(Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse<any>))

@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
+// https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-supportedchainlist#butter-chain-id-explanation
 const BUTTERSWAP_CHAIN_ID_TO_CHAIN_ID: Record<number, KnownChainIds> = {
   1: KnownChainIds.EthereumMainnet,
   137: KnownChainIds.PolygonMainnet,

@@ -48,6 +48,7 @@ type ParamFilter = Partial<{
   queryStatus: QueryStatus
   endpointName: string
   searchQuery: string
+  limit: number
   txStatus: TxStatus
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
@@ -91,6 +92,7 @@ export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProv
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
+export const selectLimitParamFromFilter = selectParamFromFilter('limit')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')

@@ -49,7 +49,6 @@ export const setupQuote = () => {
     allowMultiHop: false,
     slippageTolerancePercentageDecimal: '0.002',
     quoteOrRate: 'quote',
-    originalRate: {} as TradeRate,
   }
 
   return { quoteInput, tradeQuote, buyAsset, sellAsset }

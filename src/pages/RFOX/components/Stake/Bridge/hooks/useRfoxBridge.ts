@@ -147,7 +147,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       accountNumber: sellAssetAccountNumber,
       hasWallet: Boolean(walletInfo?.deviceId),
       quoteOrRate: 'quote' as const,
-      originalRate: {} as TradeRate,
     }),
     [
       buyAsset,

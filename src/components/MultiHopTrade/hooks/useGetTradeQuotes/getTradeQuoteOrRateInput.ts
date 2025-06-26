@@ -19,7 +19,6 @@ export type GetTradeQuoteOrRateInputArgs = {
   slippageTolerancePercentageDecimal?: string
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
-  originalRate?: TradeRate
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
@@ -39,7 +38,6 @@ export const getTradeQuoteOrRateInput = async ({
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
-  originalRate,
   affiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
@@ -59,7 +57,6 @@ export const getTradeQuoteOrRateInput = async ({
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'quote',
-          originalRate,
         }
       : {
           sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
@@ -69,7 +66,6 @@ export const getTradeQuoteOrRateInput = async ({
           sellAsset,
           buyAsset,
           receiveAddress,
-          originalRate,
           accountNumber: sellAccountNumber,
           affiliateBps,
           allowMultiHop,

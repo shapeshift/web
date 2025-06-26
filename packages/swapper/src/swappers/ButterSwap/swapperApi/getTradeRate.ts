@@ -15,6 +15,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { ZERO_ADDRESS } from '../utils/constants'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
 import { getRoute, isRouteSuccess } from '../xhr'
 
@@ -47,8 +48,15 @@ export const getTradeRate = async (
     .shiftedBy(-sellAsset.precision)
     .toString()
 
-  const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
-  const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
+  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
+  const sellAssetIsNative = sellAsset.assetId === feeAssetId
+  const buyAssetIsNative = buyAsset.assetId === chainIdToFeeAssetId(buyAsset.chainId)
+
+  const { assetReference: sellAssetAddressRaw } = fromAssetId(sellAsset.assetId)
+  const { assetReference: buyAssetAddressRaw } = fromAssetId(buyAsset.assetId)
+
+  const sellAssetAddress = sellAssetIsNative ? ZERO_ADDRESS : sellAssetAddressRaw
+  const buyAssetAddress = buyAssetIsNative ? ZERO_ADDRESS : buyAssetAddressRaw
 
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,
@@ -88,7 +96,6 @@ export const getTradeRate = async (
 
   const rate = bnOrZero(route.srcChain.totalAmountOut).div(route.srcChain.totalAmountIn).toString()
 
-  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
   const feeAsset = _deps.assetsById[feeAssetId]
   if (!feeAsset) {
     return Err(

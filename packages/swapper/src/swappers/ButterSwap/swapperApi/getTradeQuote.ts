@@ -13,7 +13,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS } from '../utils/constants'
+import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, ZERO_ADDRESS } from '../utils/constants'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
 import { getBuildTx, getRoute, isBuildTxSuccess, isRouteSuccess } from '../xhr'
 
@@ -42,8 +42,15 @@ export const getTradeQuote = async (
     )
   }
 
-  const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
-  const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
+  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
+  const sellAssetIsNative = sellAsset.assetId === feeAssetId
+  const buyAssetIsNative = buyAsset.assetId === chainIdToFeeAssetId(buyAsset.chainId)
+
+  const { assetReference: sellAssetAddressRaw } = fromAssetId(sellAsset.assetId)
+  const { assetReference: buyAssetAddressRaw } = fromAssetId(buyAsset.assetId)
+
+  const sellAssetAddress = sellAssetIsNative ? ZERO_ADDRESS : sellAssetAddressRaw
+  const buyAssetAddress = buyAssetIsNative ? ZERO_ADDRESS : buyAssetAddressRaw
   const slippageDecimal =
     slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
@@ -108,7 +115,6 @@ export const getTradeQuote = async (
   }
 
   // Fee asset for network/protocol fees
-  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
   const feeAsset = _deps.assetsById[feeAssetId]
   if (!feeAsset) {
     return Err(

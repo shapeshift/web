@@ -4,6 +4,7 @@ import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text/Text'
 
 type EmptyStateProps = {
@@ -15,7 +16,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onClose }) => {
   const translate = useTranslate()
 
   const handleStartSwappingClick = useCallback(() => {
-    navigate('/trade')
+    navigate(TradeRoutePaths.Input)
     onClose()
   }, [navigate, onClose])
 

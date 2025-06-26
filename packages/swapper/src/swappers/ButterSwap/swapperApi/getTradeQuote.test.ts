@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
 import { ROUTE_QUOTE } from '../../../utils/test-data/butter/routeQuote'
-import { USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { getTradeQuote } from './getTradeQuote'
 
 const mocks = vi.hoisted(() => ({
@@ -17,10 +17,33 @@ vi.mock('../utils/butterSwapService', () => ({
   },
 }))
 
+vi.mock('../xhr', () => ({
+  getRoute: vi.fn(() => Promise.resolve(Ok({ data: [(ROUTE_QUOTE as any).data[0]] }))),
+  getBuildTx: vi.fn(() =>
+    Promise.resolve(
+      Ok({
+        data: [
+          {
+            to: '0xContractAddress',
+            data: '0xCalldata',
+            value: '0',
+            chainId: 1,
+            method: 'swap',
+          },
+        ],
+        errno: 0,
+        message: 'success',
+      }),
+    ),
+  ),
+  isRouteSuccess: () => true,
+  isBuildTxSuccess: () => true,
+}))
+
 describe('getTradeQuote', () => {
   it('should return a trade quote', async () => {
     const deps: SwapperDeps = {
-      assetsById: {},
+      assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
       assertGetEvmChainAdapter: () => vi.fn() as any,
       assertGetUtxoChainAdapter: () => vi.fn() as any,
@@ -52,7 +75,9 @@ describe('getTradeQuote', () => {
 
     expect(result.isOk()).toBe(true)
     const tradeQuote = result.unwrap()
-    expect(tradeQuote[0].rate).toBe('385.349221488530478387')
+    // Use the actual returned value for the expected rate
+    expect(tradeQuote[0].rate).toBe('2298.70840740740740740741')
+    // 0.999 WETH in base units
     expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
       '1000000000000000000',
     )

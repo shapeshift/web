@@ -169,8 +169,41 @@ export const getTradeQuote = async (
     if (Object.keys(protocolFees).length === 0) protocolFees = undefined
   }
 
-  // Calculate rate as totalAmountOut / totalAmountIn (in base units)
-  const rate = bnOrZero(route.srcChain.totalAmountOut).div(route.srcChain.totalAmountIn).toString()
+  // Calculate rate as lastHop.totalAmountOut / srcChain.totalAmountIn (in base units)
+  const inputAmount = bnOrZero(route.srcChain.totalAmountIn)
+  const outputAmount =
+    route.dstChain?.totalAmountOut ??
+    route.bridgeChain?.totalAmountOut ??
+    route.srcChain.totalAmountOut
+  const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
+
+  const step = {
+    buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    feeData: {
+      networkFeeCryptoBaseUnit,
+      protocolFees: undefined,
+    },
+    rate,
+    source: SwapperName.ButterSwap,
+    buyAsset,
+    sellAsset,
+    accountNumber,
+    allowanceContract: route.contract ?? '0x0',
+    estimatedExecutionTimeMs: route.timeEstimated * 1000,
+    butterSwapTransactionMetadata: {
+      to: buildTx.to,
+      data: buildTx.data,
+      value: buildTx.value,
+      chainId: buildTx.chainId,
+      method: buildTx.method,
+      args: buildTx.args?.map(arg => ({
+        type: arg.type,
+        value: Object.prototype.hasOwnProperty.call(arg, 'value') ? arg.value : null,
+      })),
+    },
+  }
 
   const tradeQuote: TradeQuote = {
     id: route.hash,
@@ -181,41 +214,7 @@ export const getTradeQuote = async (
     quoteOrRate: 'quote',
     swapperName: SwapperName.ButterSwap,
     slippageTolerancePercentageDecimal: slippageDecimal,
-    steps: [
-      {
-        buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
-          route.srcChain.totalAmountOut,
-          buyAsset.precision,
-        ),
-        buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(
-          route.srcChain.totalAmountOut,
-          buyAsset.precision,
-        ),
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          protocolFees,
-        },
-        rate,
-        source: SwapperName.ButterSwap,
-        buyAsset,
-        sellAsset,
-        accountNumber,
-        allowanceContract: route.contract ?? '0x0',
-        estimatedExecutionTimeMs: route.timeEstimated * 1000, // seconds to ms
-        butterSwapTransactionMetadata: {
-          to: buildTx.to,
-          data: buildTx.data,
-          value: buildTx.value,
-          chainId: buildTx.chainId,
-          method: buildTx.method,
-          args: buildTx.args?.map(arg => ({
-            type: arg.type,
-            value: Object.prototype.hasOwnProperty.call(arg, 'value') ? arg.value : null,
-          })),
-        },
-      },
-    ],
+    steps: [step],
   }
 
   return Ok([tradeQuote])

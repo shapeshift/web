@@ -25,12 +25,6 @@ export const butterSwapApi: SwapperApi = {
     const { accountNumber } = step
     if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
     const { to, value, data } = butterSwapTransactionMetadata
-    if (to === undefined || value === undefined || data === undefined) {
-      const undefinedRequiredValues = [to, value, data].filter(v => v === undefined)
-      throw new Error('undefined required values in swap step', {
-        cause: { undefinedRequiredValues },
-      })
-    }
     // Convert value from hex to decimal string if needed
     let valueToUse = value
     if (typeof valueToUse === 'string' && valueToUse.startsWith('0x')) {

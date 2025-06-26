@@ -7,7 +7,6 @@ import type {
   GetEvmTradeQuoteInputWithWallet,
   SwapErrorRight,
   TradeQuote,
-  TradeRate,
 } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi, getTradeQuoteWithWallet } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'

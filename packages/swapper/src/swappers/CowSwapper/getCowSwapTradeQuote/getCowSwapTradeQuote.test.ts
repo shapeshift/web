@@ -8,7 +8,7 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
 } from '../../../cowswap-utils/constants'
-import type { GetTradeQuoteInput, SwapperConfig, TradeQuote, TradeRate } from '../../../types'
+import type { GetTradeQuoteInput, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   ETH,

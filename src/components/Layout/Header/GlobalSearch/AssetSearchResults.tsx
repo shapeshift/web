@@ -1,27 +1,27 @@
 import { List } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import { memo, useMemo } from 'react'
 import MultiRef from 'react-multi-ref'
 
 import { AssetResults } from './AssetResults/AssetResults'
 
 import { SearchEmpty } from '@/components/StakingVaults/SearchEmpty'
-import type { AssetSearchResult, AssetSearchResults } from '@/state/slices/search-selectors'
 
-export type SearchResultsProps = {
-  assetResults: AssetSearchResults
+export type AssetSearchResultsProps = {
+  results: Asset[]
   activeIndex: number
   searchQuery: string
   isSearching: boolean
-  onClickResult: (item: AssetSearchResult) => void
+  onClickResult: (item: Asset) => void
 }
 
-export const SearchResults = memo(
-  ({ assetResults, activeIndex, searchQuery, isSearching, onClickResult }: SearchResultsProps) => {
+export const AssetSearchResults = memo(
+  ({ results, activeIndex, searchQuery, isSearching, onClickResult }: AssetSearchResultsProps) => {
     const menuNodes = useMemo(() => new MultiRef<number, HTMLElement>(), [])
 
     const noResults = useMemo(() => {
-      return !assetResults.length
-    }, [assetResults.length])
+      return !results.length
+    }, [results.length])
 
     if (isSearching && noResults) {
       return <SearchEmpty searchQuery={searchQuery} />
@@ -31,7 +31,7 @@ export const SearchResults = memo(
       <List>
         <AssetResults
           onClick={onClickResult}
-          results={assetResults}
+          results={results}
           activeIndex={activeIndex}
           startingIndex={0}
           searchQuery={searchQuery}

@@ -26,9 +26,19 @@ export const getTradeQuote = async (
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
     receiveAddress,
+    sendAddress,
     slippageTolerancePercentageDecimal,
     accountNumber,
   } = input
+
+  if (!sendAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getTradeQuote] sendAddress is required for ButterSwap',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
 
   // Map ShapeShift chain IDs to ButterSwap numeric chain IDs
   const butterSwapFromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
@@ -91,9 +101,10 @@ export const getTradeQuote = async (
   const buildTxResult = await getBuildTx(
     route.hash,
     slippage,
-    receiveAddress, // from
-    receiveAddress, // receiver
+    sendAddress, // from (source chain address)
+    receiveAddress, // receiver (destination chain address)
   )
+
   if (buildTxResult.isErr()) return Err(buildTxResult.unwrapErr())
   const buildTxResponse = buildTxResult.unwrap()
   if (!isBuildTxSuccess(buildTxResponse)) {

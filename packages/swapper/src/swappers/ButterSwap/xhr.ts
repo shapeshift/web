@@ -15,8 +15,7 @@ import type {
   SupportedChainListResponse,
 } from './validators'
 import {
-  BridgeInfoNullResponseValidator,
-  BridgeInfoResponseValidator,
+  BridgeInfoApiResponseValidator,
   BuildTxResponseValidator,
   FindTokenResponseValidator,
   RouteAndSwapResponseValidator,
@@ -240,17 +239,26 @@ export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | und
     const result = await butterHistoryService.get<any>('/api/queryBridgeInfoBySourceHash', {
       params: { hash },
     })
-    if (result.isErr()) throw result.unwrapErr()
+    if (result.isErr()) {
+      console.debug('ButterSwap getBridgeInfoBySourceHash: result isErr', result.unwrapErr())
+      throw result.unwrapErr()
+    }
     const data = result.unwrap().data
-    // Per docs, info is under data.info
-    const info = data?.info
-    // Handle the null info case directly
-    if (data && data.code === 200 && data.data && data.data.info === null) return undefined
-    const validation = BridgeInfoResponseValidator.try(data)
-    if (!info || typeof info !== 'object') return undefined
-    if (validation instanceof z.ValidationError) return undefined
-    return validation
+    console.debug('ButterSwap getBridgeInfoBySourceHash: API response', data)
+    const validation = BridgeInfoApiResponseValidator.try(data)
+    console.debug('ButterSwap getBridgeInfoBySourceHash: validation', validation)
+    if (validation instanceof z.ValidationError) {
+      console.debug('ButterSwap getBridgeInfoBySourceHash: validation error', validation)
+      return undefined
+    }
+    if (validation.data.info === null) {
+      console.debug('ButterSwap getBridgeInfoBySourceHash: info is null')
+      return undefined
+    }
+    console.debug('ButterSwap getBridgeInfoBySourceHash: returning info', validation.data.info)
+    return validation.data.info
   } catch (e) {
+    console.debug('ButterSwap getBridgeInfoBySourceHash: caught error', e)
     return undefined
   }
 }

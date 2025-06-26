@@ -57,7 +57,15 @@ describe('endpoints', () => {
       const toChainId = 137 // Polygon
       const tokenOutAddress = '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619' // WETH on Polygon
       const amount = '1000000' // 1 USDC
-      const result = await getRoute(fromChainId, tokenInAddress, toChainId, tokenOutAddress, amount)
+      const slippage = '150'
+      const result = await getRoute(
+        fromChainId,
+        tokenInAddress,
+        toChainId,
+        tokenOutAddress,
+        amount,
+        slippage,
+      )
       result.match({
         ok: response => {
           expect(isRouteSuccess(response)).toBe(true)
@@ -86,12 +94,14 @@ describe('endpoints', () => {
       const tokenOutAddress = '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619' // WETH on Polygon
       const amount = '1000000' // 1 USDC
 
+      const slippage = '150'
       const routeResult = await getRoute(
         fromChainId,
         tokenInAddress,
         toChainId,
         tokenOutAddress,
         amount,
+        slippage,
       )
 
       await routeResult.match({
@@ -104,7 +114,6 @@ describe('endpoints', () => {
           const route = routeResponse.data[0]
           expect(route).toBeDefined()
           const hash = route.hash
-          const slippage = '150'
           const from = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
           const receiver = '0x2D4C407BBe49438ED859fe965b140dcF1aaB71a9'
 

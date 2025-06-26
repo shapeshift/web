@@ -2965,6 +2965,11 @@
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
     },
+    "emptyState": {
+      "title": "Welcome to ShapeShift",
+      "body1": "This is your action center.",
+      "body2": "Find transactions in progress here."
+    },
     "swap": {
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",

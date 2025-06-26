@@ -53,8 +53,12 @@ const buyIcon = (
 )
 const sendIcon = <SendIcon boxSize='6' color='blue.200' />
 const receiveIcon = <ArrowDownIcon boxSize={6} color='blue.200' />
-const searchIcon = <SearchIcon />
-const qrCodeIcon = <FaExpand />
+const searchIcon = <SearchIcon color='blue.200' />
+const qrCodeIcon = (
+  <Box color='blue.200'>
+    <FaExpand />
+  </Box>
+)
 
 const netWorth = (
   // react-memo you're drunk, this is outside of component scope

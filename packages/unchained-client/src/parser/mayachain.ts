@@ -46,7 +46,7 @@ export class Parser extends ThorMayaParser {
         `/actions?txid=${txid.replace(/^0x/, '')}`,
       )
       if (
-        // no actions returned by midgard means the transaction did not use thorchain or has not been indexed yet,
+        // no actions returned by midgard means the transaction did not use mayachain or has not been indexed yet,
         // we can't reliably parse in either case...
         !data.actions.length ||
         // send actions are just regular transactions and should not be parsed

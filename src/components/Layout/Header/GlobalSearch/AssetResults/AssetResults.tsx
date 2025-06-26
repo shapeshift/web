@@ -36,7 +36,7 @@ export const AssetResults: React.FC<AssetResultsProps> = ({
         ref={menuNodes.ref(index)}
       />
     ))
-  }, [activeIndex, menuNodes, onClick, results, startingIndex])
+  }, [activeIndex, menuNodes, results, startingIndex])
 
   if (searchQuery && !results.length) return null
   return (

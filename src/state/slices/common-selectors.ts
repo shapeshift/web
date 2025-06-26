@@ -292,7 +292,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,
   (sortedAssets, marketDataUsd, searchQuery, limit): Asset[] => {
-    if (!searchQuery) return sortedAssets
+    if (!searchQuery) return sortedAssets.slice(0, limit)
 
     // Filters by low market-cap to avoid spew
     const filteredAssets = sortedAssets.filter(asset => {

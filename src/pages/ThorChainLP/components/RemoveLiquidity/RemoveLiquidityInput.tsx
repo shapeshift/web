@@ -31,7 +31,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useLocation } from 'wouter'
+import { useNavigate } from 'react-router-dom'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -112,7 +112,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   poolAssetId,
 }) => {
   const mixpanel = getMixPanel()
-  const [, setLocation] = useLocation()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -326,9 +326,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     setPositionRuneAccountId(_positionRuneAccountId)
   }, [opportunityId, userLpData])
 
-  const handleBackClick = useCallback(() => {
-    setLocation('/pools')
-  }, [setLocation])
+  const handleBack = useCallback(() => {
+    navigate('/pools')
+  }, [navigate])
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {
@@ -551,17 +551,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (headerComponent) return headerComponent
     return (
       <CardHeader display='flex' alignItems='center' justifyContent='space-between'>
-        <IconButton
-          onClick={handleBackClick}
-          variant='ghost'
-          icon={backIcon}
-          aria-label='go back'
-        />
+        <IconButton onClick={handleBack} variant='ghost' icon={backIcon} aria-label='go back' />
         {translate('pools.addLiquidity')}
         <SlippagePopover />
       </CardHeader>
     )
-  }, [backIcon, handleBackClick, headerComponent, translate])
+  }, [backIcon, handleBack, headerComponent, translate])
 
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
@@ -739,7 +734,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (!mixpanel) return
     if (!confirmedQuote) return
-    if (isSweepNeeded) return setLocation(RemoveLiquidityRoutePaths.Sweep)
+    if (isSweepNeeded) return navigate(RemoveLiquidityRoutePaths.Sweep)
 
     if (confirmedQuote.positionStatus?.incomplete) {
       mixpanel.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote)
@@ -747,8 +742,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
-    setLocation(RemoveLiquidityRoutePaths.Confirm)
-  }, [confirmedQuote, setLocation, mixpanel, isSweepNeeded])
+    navigate(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, navigate, mixpanel, isSweepNeeded])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && withdrawType)) return null
@@ -1133,14 +1128,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           size='lg'
           colorScheme={errorCopy ? 'red' : 'blue'}
           onClick={handleSubmit}
-          isDisabled={
-            !confirmedQuote ||
-            (isEstimatedPoolAssetFeesDataError && opportunityType === AsymSide.Asset) ||
-            (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
-            !validInputAmount ||
-            isSweepNeededLoading ||
-            Boolean(errorCopy)
-          }
+          isDisabled={false}
           isLoading={
             isTradingActiveLoading ||
             isChainHaltedFetching ||

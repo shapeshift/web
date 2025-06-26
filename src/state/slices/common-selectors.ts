@@ -26,6 +26,7 @@ import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
+  selectLimitParamFromFilter,
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
 
@@ -289,7 +290,8 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   selectAssetsSortedByMarketCap,
   marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
-  (sortedAssets: Asset[], marketDataUsd, searchQuery?: string): Asset[] => {
+  selectLimitParamFromFilter,
+  (sortedAssets, marketDataUsd, searchQuery, limit): Asset[] => {
     if (!searchQuery) return sortedAssets
 
     // Filters by low market-cap to avoid spew
@@ -305,6 +307,6 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       ],
     })
 
-    return matchedAssets
+    return limit ? matchedAssets.slice(0, limit) : matchedAssets
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')

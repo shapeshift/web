@@ -1,5 +1,6 @@
 import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 
 import { ResultButton } from '../ResultButton'
@@ -9,8 +10,6 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
-import type { AssetSearchResult } from '@/state/slices/search-selectors'
-import { GlobalSearchResultType } from '@/state/slices/search-selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -22,7 +21,7 @@ type AssetResultProps = {
   assetId: AssetId
   index: number
   activeIndex?: number
-  onClick: (arg: AssetSearchResult) => void
+  onClick: (arg: Asset) => void
 }
 
 export const AssetResult = forwardRef<AssetResultProps, 'div'>(
@@ -36,8 +35,10 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
     const fiatBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
     const handleSearchResultAssetTypeClick = useCallback(() => {
-      onClick({ type: GlobalSearchResultType.Asset, id: assetId })
-    }, [assetId, onClick])
+      if (!asset) return
+
+      onClick(asset)
+    }, [asset, onClick])
 
     if (!asset) return null
     return (

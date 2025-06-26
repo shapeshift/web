@@ -1,12 +1,22 @@
 import { List } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
+import type MultiRef from 'react-multi-ref'
 import { useTranslate } from 'react-polyglot'
 
 import { ListItemSection } from '../ListItemSection'
-import type { GlobalSearchResultsProps } from '../types'
 import { AssetResult } from './AssetResult'
 
-export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
+export type AssetResultsProps = {
+  results: Asset[]
+  activeIndex?: number
+  startingIndex: number
+  onClick: (arg: Asset) => void
+  searchQuery?: string
+  menuNodes: MultiRef<number, HTMLElement>
+}
+
+export const AssetResults: React.FC<AssetResultsProps> = ({
   results,
   activeIndex,
   onClick,
@@ -21,7 +31,7 @@ export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
         key={`result-assets-${index}`}
         index={index + startingIndex}
         activeIndex={activeIndex}
-        assetId={item.id}
+        assetId={item.assetId}
         onClick={onClick}
         ref={menuNodes.ref(index)}
       />

@@ -30,11 +30,7 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { calculateFeeUsd } from '@/lib/fees/utils'
 import { fromBaseUnit } from '@/lib/math'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
-import {
-  QueryStatusExtended,
-  selectIsTradeQuoteApiQueryPending,
-  selectTradeQuoteSwapperToQueryStatus,
-} from '@/state/apis/swapper/selectors'
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
 import { TradeQuoteRequestError, TradeQuoteWarning } from '@/state/apis/swapper/types'
 import { getEnabledSwappers } from '@/state/helpers'
@@ -76,9 +72,14 @@ export const selectLastRefreshTime: Selector<ReduxState, number> = createSelecto
   tradeQuoteSlice => tradeQuoteSlice.lastRefreshTime,
 )
 
+export const selectRefreshPendingUntil: Selector<ReduxState, number | null> = createSelector(
+  tradeQuoteSlice.selectSlice,
+  tradeQuoteSlice => tradeQuoteSlice.refreshPendingUntil,
+)
+
 export const selectIsRefreshPending: Selector<ReduxState, boolean> = createSelector(
   tradeQuoteSlice.selectSlice,
-  tradeQuoteSlice => tradeQuoteSlice.isRefreshPending,
+  tradeQuoteSlice => tradeQuoteSlice.refreshPendingUntil !== null,
 )
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
@@ -645,12 +646,12 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   },
 )
 
-export const selectIsFirstQuoteLoading = createSelector(
-  selectTradeQuoteSwapperToQueryStatus,
-  swapperToQueryStatus => {
-    return !Object.values(swapperToQueryStatus).some(
-      queryStatus => queryStatus === QueryStatusExtended.fulfilledWithQuote,
-    )
+export const selectShouldBlockQuoteRefresh = createSelector(
+  selectIsTradeQuoteApiQueryPending,
+  selectHasUserEnteredAmount,
+  (isApiQueryPending, hasUserEnteredAmount) => {
+    const pendingArr = Object.values(isApiQueryPending)
+    return pendingArr.length === 0 || pendingArr.some(pending => pending) || !hasUserEnteredAmount
   },
 )
 

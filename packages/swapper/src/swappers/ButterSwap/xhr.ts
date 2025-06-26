@@ -5,6 +5,7 @@ import * as z from 'myzod'
 import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
+import { butterHistoryService } from './utils/butterSwapHistoryService'
 import { butterService } from './utils/butterSwapService'
 import type {
   BuildTxResponse,
@@ -14,6 +15,7 @@ import type {
   SupportedChainListResponse,
 } from './validators'
 import {
+  BridgeInfoNullResponseValidator,
   BridgeInfoResponseValidator,
   BuildTxResponseValidator,
   FindTokenResponseValidator,
@@ -233,17 +235,21 @@ export function isRouteAndSwapSuccess(
 /**
  * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-swap-data/get-swap-history-by-source-hash
  */
-export const getBridgeInfoBySourceHash = async (sourceHash: string): Promise<any | undefined> => {
+export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | undefined> => {
   try {
-    const result = await butterService.get<any>('/api/queryBridgeInfoBySourceHash', {
-      params: { sourceHash },
+    const result = await butterHistoryService.get<any>('/api/queryBridgeInfoBySourceHash', {
+      params: { hash },
     })
     if (result.isErr()) throw result.unwrapErr()
     const data = result.unwrap().data
+    // Per docs, info is under data.info
+    const info = data?.info
+    // Handle the null info case directly
+    if (data && data.code === 200 && data.data && data.data.info === null) return undefined
     const validation = BridgeInfoResponseValidator.try(data)
+    if (!info || typeof info !== 'object') return undefined
     if (validation instanceof z.ValidationError) return undefined
-    if ('errno' in validation && validation.errno !== 0) return undefined
-    return Array.isArray(validation) ? validation[0] : validation
+    return validation
   } catch (e) {
     return undefined
   }

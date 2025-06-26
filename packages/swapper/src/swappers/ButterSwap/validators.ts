@@ -204,10 +204,18 @@ export const BridgeInfoValidator = z.object({
   updateTime: z.number(),
 })
 
+// Validator for ButterSwap history API: { code: 200, message: 'success', data: { info: null } }
+export const BridgeInfoNullResponseValidator = z.object({
+  code: z.number(),
+  message: z.string(),
+  data: z.object({ info: z.null() }),
+})
+
 export const BridgeInfoResponseValidator = z.union([
   BridgeInfoValidator,
   z.array(BridgeInfoValidator),
   ErrorValidator,
+  BridgeInfoNullResponseValidator,
 ])
 
 export type BridgeInfo = Infer<typeof BridgeInfoValidator>

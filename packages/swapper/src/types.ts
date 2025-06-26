@@ -310,6 +310,15 @@ export type TradeQuoteStep = {
     maxStreamingQuantity?: number
   }
   relayTransactionMetadata?: RelayTransactionMetadata
+  // ButterSwap-specific executable transaction metadata
+  butterSwapTransactionMetadata?: {
+    to: string
+    data: string
+    value: string
+    chainId: string
+    method?: string
+    args?: { type: string; value: unknown }[]
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

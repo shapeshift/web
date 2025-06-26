@@ -30,3 +30,5 @@ export const BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
     btcChainId,
   ],
 }
+
+export const DEFAULT_BUTTERSWAP_AFFILIATE_BPS = 50

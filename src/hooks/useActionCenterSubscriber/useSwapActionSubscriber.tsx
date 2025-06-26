@@ -1,27 +1,26 @@
-import { Box, Flex, Icon, Text, useColorModeValue, usePrevious, useToast } from '@chakra-ui/react'
+import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Swap } from '@shapeshiftoss/swapper'
-import { fetchSafeTransactionInfo, swappers, SwapStatus } from '@shapeshiftoss/swapper'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import {
+  fetchSafeTransactionInfo,
+  swappers,
+  SwapStatus,
+  TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
+} from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
-import { TbCircleCheckFilled, TbCircleXFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
-import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '../useWallet/useWallet'
 
+import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   selectPendingSwapActions,
@@ -35,60 +34,19 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseSwapActionSubscriberProps = {
   onDrawerOpen: () => void
+  isDrawerOpen: boolean
 }
 
-export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscriberProps) => {
+export const useSwapActionSubscriber = ({
+  onDrawerOpen,
+  isDrawerOpen,
+}: UseSwapActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const toastColor = useColorModeValue('white', 'gray.900')
-
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
 
   const toast = useToast({
-    render: ({ title, status, description, onClose }) => {
-      const handleClick = () => {
-        onClose()
-        onDrawerOpen()
-      }
-
-      const toastSx = {
-        '&:hover': {
-          cursor: 'pointer',
-          background: status === 'success' ? 'green.300' : 'red.300',
-        },
-      }
-
-      return (
-        <Flex
-          // We can't memo this because onClose prop comes from the render props
-          // eslint-disable-next-line react-memo/require-usememo
-          onClick={handleClick}
-          background={status === 'success' ? 'green.500' : 'red.500'}
-          color='white'
-          px={4}
-          py={2}
-          borderRadius='md'
-          // eslint-disable-next-line react-memo/require-usememo
-          sx={toastSx}
-        >
-          <Box py={1} me={2}>
-            {status === 'success' ? (
-              <Icon color={toastColor} as={TbCircleCheckFilled} height='20px' width='20px' />
-            ) : (
-              <Icon color={toastColor} as={TbCircleXFilled} height='20px' width='20px' />
-            )}
-          </Box>
-          <Box>
-            <Text fontWeight='bold' color={toastColor}>
-              {title}
-            </Text>
-            <Text color={toastColor}>{description}</Text>
-          </Box>
-        </Flex>
-      )
-    },
+    duration: isDrawerOpen ? 5000 : null,
+    position: 'bottom-right',
   })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
@@ -98,6 +56,13 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
+  const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+
+  useEffect(() => {
+    if (isDrawerOpen && !previousIsDrawerOpen) {
+      toast.closeAll()
+    }
+  }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
   // Create swap and action after user confirmed the intent
   useEffect(() => {
@@ -123,34 +88,12 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         updatedAt: activeSwap.updatedAt,
         type: ActionType.Swap,
         status: ActionStatus.Pending,
-        title: translate('notificationCenter.swapTitle', {
-          sellAmountAndSymbol: toCrypto(
-            fromBaseUnit(activeSwap.sellAmountCryptoBaseUnit, activeSwap.sellAsset.precision),
-            activeSwap.sellAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-          buyAmountAndSymbol: toCrypto(
-            fromBaseUnit(activeSwap.buyAmountCryptoBaseUnit, activeSwap.buyAsset.precision),
-            activeSwap.buyAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-        }),
         swapMetadata: {
           swapId: activeSwap.id,
         },
       }),
     )
-  }, [dispatch, translate, toCrypto, activeSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {
@@ -161,173 +104,47 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
 
       const swapper = maybeSwapper
 
-      if (!swap.sellAccountId) return
       if (!swap.sellTxHash) return
+      if (!swap.receiveAddress) return
 
-      const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-        txHash: swap.sellTxHash,
-        chainId: swap.sellAsset.chainId,
-        accountId: swap.sellAccountId,
-        stepIndex: swap.metadata.stepIndex,
-        swap,
-        config: getConfig(),
-        assertGetEvmChainAdapter,
-        assertGetUtxoChainAdapter,
-        assertGetCosmosSdkChainAdapter,
-        assertGetSolanaChainAdapter,
-        fetchIsSmartContractAddressQuery,
+      const { status, message, buyTxHash } = await queryClient.fetchQuery({
+        queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
+        queryFn: () =>
+          fetchTradeStatus({
+            swapper,
+            sellTxHash: swap.sellTxHash ?? '',
+            sellAssetChainId: swap.sellAsset.chainId,
+            address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
+            swap,
+            stepIndex: swap.metadata.stepIndex,
+            config: getConfig(),
+          }),
+        staleTime: 10000,
+        gcTime: 10000,
       })
 
       if (!buyTxHash) return
 
-      const swapSellAsset = swap.sellAsset
       const swapBuyAsset = swap.buyAsset
 
       if (status === TxStatus.Confirmed) {
-        const accountId = swap.sellAccountId
-        const adapter = getChainAdapterManager().get(swap.sellAsset.chainId)
+        const feeAsset = selectFeeAssetByChainId(store.getState(), swapBuyAsset.chainId)
 
-        if (adapter) {
-          try {
-            const tx = await (adapter as EvmChainAdapter).httpProvider.getTransaction({
-              txid: buyTxHash,
-            })
-
-            const parsedTx = await adapter.parseTx(tx, fromAccountId(accountId).account)
-
-            const feeAsset = selectFeeAssetByChainId(store.getState(), parsedTx?.chainId ?? '')
-
-            const maybeSafeTx = await fetchSafeTransactionInfo({
-              accountId,
-              safeTxHash: buyTxHash,
-              fetchIsSmartContractAddressQuery,
-            })
-
-            const txLink = getTxLink({
-              stepSource: parsedTx.trade?.dexName,
-              defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-              txId: tx.txid,
-              maybeSafeTx,
-              accountId,
-            })
-
-            if (parsedTx.transfers?.length) {
-              const receiveTransfer = parsedTx.transfers.find(
-                transfer =>
-                  transfer.type === TransferType.Receive &&
-                  transfer.assetId === swapBuyAsset.assetId,
-              )
-
-              if (receiveTransfer?.value) {
-                dispatch(
-                  swapSlice.actions.upsertSwap({
-                    ...swap,
-                    buyAmountCryptoBaseUnit: receiveTransfer.value,
-                  }),
-                )
-
-                const notificationTitle = translate('notificationCenter.swapTitle', {
-                  sellAmountAndSymbol: toCrypto(
-                    fromBaseUnit(swap.sellAmountCryptoBaseUnit, swapSellAsset.precision),
-                    swapSellAsset.symbol,
-                    {
-                      maximumFractionDigits: 8,
-                      omitDecimalTrailingZeros: true,
-                      abbreviated: true,
-                      truncateLargeNumbers: true,
-                    },
-                  ),
-                  buyAmountAndSymbol: toCrypto(
-                    fromBaseUnit(receiveTransfer.value, swapBuyAsset.precision),
-                    swapBuyAsset.symbol,
-                    {
-                      maximumFractionDigits: 8,
-                      omitDecimalTrailingZeros: true,
-                      abbreviated: true,
-                      truncateLargeNumbers: true,
-                    },
-                  ),
-                })
-
-                dispatch(
-                  actionSlice.actions.upsertAction({
-                    ...action,
-                    title: notificationTitle,
-                    swapMetadata: {
-                      swapId: swap.id,
-                    },
-                    status: ActionStatus.Complete,
-                  }),
-                )
-                dispatch(
-                  swapSlice.actions.upsertSwap({
-                    ...swap,
-                    status: SwapStatus.Success,
-                    txLink,
-                  }),
-                )
-
-                toast({
-                  title: notificationTitle,
-                  status: 'success',
-                })
-                return
-              }
-            }
-          } catch (error) {
-            console.error('Failed to fetch transaction details:', error)
-
-            dispatch(
-              actionSlice.actions.upsertAction({
-                ...action,
-                swapMetadata: {
-                  swapId: swap.id,
-                },
-                status: ActionStatus.Complete,
-              }),
-            )
-            dispatch(
-              swapSlice.actions.upsertSwap({
-                ...swap,
-                status: SwapStatus.Success,
-              }),
-            )
-
-            const notificationTitle = selectSwapActionBySwapId(store.getState(), {
-              swapId: swap.id,
-            })?.title
-
-            toast({
-              title: notificationTitle,
-              status: 'success',
-            })
-
-            return
-          }
-        }
-
-        const notificationTitle = translate('notificationCenter.swapTitle', {
-          sellAmountAndSymbol: toCrypto(
-            fromBaseUnit(swap.sellAmountCryptoBaseUnit, swapSellAsset.precision),
-            swapSellAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
-          buyAmountAndSymbol: toCrypto(
-            fromBaseUnit(swap.buyAmountCryptoBaseUnit, swapBuyAsset.precision),
-            swapBuyAsset.symbol,
-            {
-              maximumFractionDigits: 8,
-              omitDecimalTrailingZeros: true,
-              abbreviated: true,
-              truncateLargeNumbers: true,
-            },
-          ),
+        const maybeSafeTx = await fetchSafeTransactionInfo({
+          address: swap.receiveAddress,
+          chainId: swapBuyAsset.chainId,
+          safeTxHash: buyTxHash,
+          fetchIsSmartContractAddressQuery,
         })
+
+        const txLink = getTxLink({
+          defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+          txId: buyTxHash,
+          maybeSafeTx,
+          address: swap.receiveAddress,
+          chainId: swapBuyAsset.chainId,
+        })
+
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -341,20 +158,41 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           swapSlice.actions.upsertSwap({
             ...swap,
             status: SwapStatus.Success,
+            statusMessage: message,
+            buyTxHash,
+            txLink,
           }),
         )
 
         toast({
-          title: notificationTitle,
           status: 'success',
+          render: ({ title, status, description, onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              onDrawerOpen()
+            }
+
+            return (
+              <SwapNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                swapId={swap.id}
+                status={status}
+                title={title}
+                description={description}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
         })
+        return
       }
 
       if (status === TxStatus.Failed) {
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
-            title: translate('notificationCenter.swapTitle'),
             status: ActionStatus.Failed,
             swapMetadata: {
               swapId: swap.id,
@@ -365,13 +203,43 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
           swapSlice.actions.upsertSwap({
             ...swap,
             status: SwapStatus.Failed,
+            statusMessage: message,
+            buyTxHash,
           }),
         )
 
         toast({
-          title: translate('notificationCenter.swapError'),
           status: 'error',
+          render: ({ title, status, description, onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              onDrawerOpen()
+            }
+
+            return (
+              <SwapNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                swapId={swap.id}
+                status={status}
+                title={title}
+                description={description}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
         })
+      }
+
+      if (status === TxStatus.Pending || status === TxStatus.Unknown) {
+        dispatch(
+          swapSlice.actions.upsertSwap({
+            ...swap,
+            statusMessage: message,
+            buyTxHash,
+          }),
+        )
       }
 
       return {
@@ -380,7 +248,7 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         buyTxHash,
       }
     },
-    [toCrypto, translate, toast, dispatch],
+    [dispatch, toast, onDrawerOpen],
   )
 
   // Update actions status when swap is confirmed or failed
@@ -394,8 +262,8 @@ export const useSwapActionSubscriber = ({ onDrawerOpen }: UseSwapActionSubscribe
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
           queryFn: () => swapStatusHandler(swap, action),
-          refetchInterval: 10000,
-          enabled: isConnected,
+          refetchInterval: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
+          enabled: isConnected && swap.status === SwapStatus.Pending,
         }
       })
       .filter((query): query is NonNullable<typeof query> => query !== undefined)

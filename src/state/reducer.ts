@@ -39,6 +39,7 @@ import type { Portfolio } from './slices/portfolioSlice/portfolioSliceCommon'
 import type { Preferences } from './slices/preferencesSlice/preferencesSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { swapSlice } from './slices/swapSlice/swapSlice'
+import type { SwapState } from './slices/swapSlice/types'
 import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -154,6 +155,7 @@ export const sliceReducers = {
     localWalletSlice.reducer,
   ),
   action: persistReducer<ActionState>(actionPersistConfig, actionSlice.reducer),
+  swap: persistReducer<SwapState>(swapPersistConfig, swapSlice.reducer),
 }
 
 export const apiSlices = {
@@ -186,8 +188,6 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [limitOrderApi.reducerPath]: persistReducer(limitOrderApiPersistConfig, limitOrderApi.reducer),
-  [actionSlice.reducerPath]: persistReducer(actionPersistConfig, actionSlice.reducer),
-  [swapSlice.reducerPath]: persistReducer(swapPersistConfig, swapSlice.reducer),
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

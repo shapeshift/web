@@ -1,6 +1,7 @@
 import {
   Box,
-  Circle,
+  Button,
+  CircularProgress,
   Drawer,
   DrawerCloseButton,
   DrawerContent,
@@ -25,9 +26,10 @@ import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
   selectWalletActionsSorted,
-  selectWalletHasPendingActions,
+  selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionType } from '@/state/slices/actionSlice/types'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -37,23 +39,32 @@ const ActionCenterIcon = <Icon as={TbBellFilled} />
 export const ActionCenter = memo(() => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  useSwapActionSubscriber({ onDrawerOpen: onOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen })
+  useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
   const actions = useAppSelector(selectWalletActionsSorted)
 
-  const hasPendingActions = useAppSelector(selectWalletHasPendingActions)
+  const pendingActions = useAppSelector(selectWalletPendingActions)
   const { ordersByActionId } = useLimitOrders()
+  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const actionsCards = useMemo(() => {
     return actions.map(action => {
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
-            return <SwapActionCard key={action.id} {...action} />
+            const swap = swapsById[action.swapMetadata.swapId]
+
+            return (
+              <SwapActionCard
+                key={action.id}
+                action={action}
+                isCollapsable={Boolean(swap?.txLink)}
+              />
+            )
           }
           case ActionType.LimitOrder: {
             const order = ordersByActionId[action.id]
@@ -76,30 +87,43 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     })
-  }, [actions, ordersByActionId])
+  }, [actions, ordersByActionId, swapsById])
 
-  return (
-    <>
+  const actionCenterButton = useMemo(() => {
+    if (pendingActions.length) {
+      return (
+        <Button
+          onClick={onOpen}
+          aria-label={translate('notificationCenter.pendingTransactions', {
+            count: pendingActions.length,
+          })}
+        >
+          <CircularProgress
+            size='16px'
+            thickness='16px'
+            trackColor='whiteAlpha.700'
+            color='blue.500'
+            isIndeterminate
+            me={2}
+          />
+          {translate('notificationCenter.pendingTransactions', { count: pendingActions.length })}
+        </Button>
+      )
+    }
+    return (
       <Box position='relative'>
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
           onClick={onOpen}
         />
-        <Circle
-          position='absolute'
-          size='10px'
-          fontSize='12px'
-          fontWeight='bold'
-          bg='blue.500'
-          color='white'
-          top='-0.2em'
-          right='-0.2em'
-          opacity={hasPendingActions ? 1 : 0}
-          transitionProperty='common'
-          transitionDuration='normal'
-        />
       </Box>
+    )
+  }, [onOpen, translate, pendingActions])
+
+  return (
+    <>
+      <Box position='relative'>{actionCenterButton}</Box>
       <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
 

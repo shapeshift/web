@@ -99,6 +99,11 @@ export enum HomeMarketView {
   Watchlist = 'Watchlist',
 }
 
+export enum QuoteDisplayOption {
+  Basic = 'basic',
+  Advanced = 'Advanced',
+}
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
@@ -112,6 +117,7 @@ export type Preferences = {
   snapInstalled: boolean
   watchedAssets: AssetId[]
   selectedHomeView: HomeMarketView
+  quoteDisplayOption: QuoteDisplayOption
 }
 
 const initialState: Preferences = {
@@ -194,6 +200,7 @@ const initialState: Preferences = {
   snapInstalled: false,
   watchedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
+  quoteDisplayOption: QuoteDisplayOption.Basic,
 }
 
 export const preferences = createSlice({
@@ -261,6 +268,9 @@ export const preferences = createSlice({
     setHomeMarketView: create.reducer((state, { payload }: { payload: HomeMarketView }) => {
       state.selectedHomeView = payload
     }),
+    setQuoteDisplayOption: create.reducer((state, { payload }: { payload: QuoteDisplayOption }) => {
+      state.quoteDisplayOption = payload
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -274,5 +284,6 @@ export const preferences = createSlice({
     selectShowSnapsModal: state => state.showSnapsModal,
     selectSelectedHomeView: state => state.selectedHomeView,
     selectShowConsentBanner: state => state.showConsentBanner,
+    selectQuoteDisplayOption: state => state.quoteDisplayOption,
   },
 })

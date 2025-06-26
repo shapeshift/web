@@ -114,7 +114,6 @@ export const SharedTradeInputFooter = ({
       py={0}
       position={footerPosition}
       bottom={'var(--mobile-nav-offset)'}
-      zIndex={1}
       bg={footerBgProp}
     >
       <Flex

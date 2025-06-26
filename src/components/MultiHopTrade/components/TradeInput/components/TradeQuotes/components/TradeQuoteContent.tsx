@@ -1,28 +1,27 @@
-import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
+import { CardBody, CardFooter, Flex, Skeleton } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
-import { BsLayers } from 'react-icons/bs'
-import { FaGasPump, FaRegClock } from 'react-icons/fa'
-import { MdOfflineBolt } from 'react-icons/md'
+import { TbBolt, TbClockHour3, TbGasStation } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+
+import { TradeQuoteMetaItem } from './TradeQuoteMetaItem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { RawText, Text } from '@/components/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { Text } from '@/components/Text'
+import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean
   buyAsset: Asset
-  isBest: boolean
-  numHops: number
+  quoteDisplayOption: QuoteDisplayOption
   totalReceiveAmountFiatUserCurrency: string | undefined
   hasAmountWithPositiveReceive: boolean
   totalReceiveAmountCryptoPrecision: string
-  quoteDifferenceDecimalPercentage: number | undefined
+  lossAfterRateAndFeesUserCurrency: number
   networkFeeFiatUserCurrency: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
@@ -32,12 +31,11 @@ export type TradeQuoteContentProps = {
 export const TradeQuoteContent = ({
   isLoading,
   buyAsset,
-  isBest,
-  numHops,
+  quoteDisplayOption,
   totalReceiveAmountFiatUserCurrency,
   hasAmountWithPositiveReceive,
+  lossAfterRateAndFeesUserCurrency,
   totalReceiveAmountCryptoPrecision,
-  quoteDifferenceDecimalPercentage: maybeQuoteDifferenceDecimalPercentage,
   networkFeeFiatUserCurrency,
   totalEstimatedExecutionTimeMs,
   slippage,
@@ -45,29 +43,6 @@ export const TradeQuoteContent = ({
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
   const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(tradeQuote)
-
-  const {
-    number: { toPercent },
-  } = useLocaleFormatter()
-
-  const quoteDifferenceDecimalPercentage = useMemo(() => {
-    if (maybeQuoteDifferenceDecimalPercentage === undefined) return
-    return -maybeQuoteDifferenceDecimalPercentage
-  }, [maybeQuoteDifferenceDecimalPercentage])
-
-  // don't render the percentage difference if the parsed value is 0.00%
-  const shouldRenderPercentageDiff = useMemo(() => {
-    if (quoteDifferenceDecimalPercentage === undefined) return false
-    const formattedNumber = toPercent(quoteDifferenceDecimalPercentage)
-    const parsedValue = parseFloat(formattedNumber)
-    return parsedValue !== 0
-  }, [quoteDifferenceDecimalPercentage, toPercent])
-
-  const percentageDifferenceTooltipText = useMemo(() => {
-    return translate('trade.tooltip.amountPercentageDifference', {
-      buyAssetSymbol: buyAsset.symbol,
-    })
-  }, [buyAsset, translate])
 
   const priceImpactDecimalPercentage = useMemo(
     () => priceImpactPercentageAbsolute?.div(100),
@@ -79,114 +54,83 @@ export const TradeQuoteContent = ({
     [translate],
   )
 
-  const eta = useMemo(() => {
-    if (totalEstimatedExecutionTimeMs === undefined) return null
-
-    return (
-      <Skeleton isLoaded={!isLoading}>
-        <Flex gap={2} alignItems='center'>
-          <RawText color='text.subtle'>
-            <FaRegClock />
-          </RawText>
-          {totalEstimatedExecutionTimeMs === 0
-            ? '0s'
-            : prettyMilliseconds(totalEstimatedExecutionTimeMs)}
-        </Flex>
-      </Skeleton>
-    )
-  }, [totalEstimatedExecutionTimeMs, isLoading])
-
   return (
     <>
       <CardBody py={2} px={4} display='flex' alignItems='center' justifyContent='space-between'>
-        <Flex gap={2} flexDir='column' justifyContent='space-between' alignItems='flex-start'>
-          <Flex gap={2} alignItems='center'>
-            <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto
-                value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-                symbol={buyAsset.symbol}
-                fontSize='xl'
-                lineHeight={1}
-              />
-            </Skeleton>
-            {!isBest && hasAmountWithPositiveReceive && shouldRenderPercentageDiff && (
-              <Skeleton isLoaded={!isLoading}>
-                <Tooltip label={percentageDifferenceTooltipText}>
-                  <Box>
-                    <Amount.Percent
-                      value={quoteDifferenceDecimalPercentage ?? 0}
-                      prefix='('
-                      suffix=')'
-                      autoColor
-                    />
-                  </Box>
-                </Tooltip>
-              </Skeleton>
-            )}
-          </Flex>
+        <Flex flexDir='column' justifyContent='space-between' alignItems='flex-start'>
+          <Skeleton isLoaded={!isLoading}>
+            <Amount.Crypto
+              value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
+              symbol={buyAsset.symbol}
+              fontSize='2xl'
+              fontWeight='medium'
+            />
+          </Skeleton>
           <Skeleton isLoaded={!isLoading}>
             {totalReceiveAmountFiatUserCurrency ? (
-              <Amount.Fiat
-                color='text.subtle'
-                value={totalReceiveAmountFiatUserCurrency}
-                prefix='≈'
-                lineHeight={1}
-              />
+              <Flex gap={1}>
+                <Amount.Fiat
+                  color='text.subtle'
+                  value={totalReceiveAmountFiatUserCurrency}
+                  prefix='≈'
+                  lineHeight={1}
+                />
+                <Amount.Fiat
+                  color='text.subtle'
+                  value={lossAfterRateAndFeesUserCurrency}
+                  prefix='('
+                  suffix=')'
+                  lineHeight={1}
+                />
+              </Flex>
             ) : null}
           </Skeleton>
         </Flex>
       </CardBody>
 
-      <CardFooter px={4} pb={4}>
+      <CardFooter px={4} py={4}>
         <Flex justifyContent='left' alignItems='left' gap={4}>
-          <Skeleton isLoaded={!isLoading}>
-            <Flex gap={2} alignItems='center'>
-              <RawText color='text.subtle'>
-                <FaGasPump />
-              </RawText>
-              {
-                // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-                !networkFeeFiatUserCurrency ? (
-                  <Tooltip label={translate('trade.tooltip.continueSwapping')}>
-                    <Text translation={'trade.unknownGas'} fontSize='sm' />
-                  </Tooltip>
-                ) : (
-                  <Amount.Fiat value={networkFeeFiatUserCurrency} />
-                )
-              }
-            </Flex>
-          </Skeleton>
-
-          {priceImpactDecimalPercentage !== undefined && (
-            <Skeleton isLoaded={!isLoading}>
-              <Tooltip label={priceImpactTooltipText}>
-                <Flex gap={2} alignItems='center'>
-                  <RawText color='text.subtle'>
-                    <MdOfflineBolt />
-                  </RawText>
-                  <Amount.Percent
-                    value={priceImpactDecimalPercentage.times(-1).toString()}
-                    color={priceImpactColor}
-                  />
-                </Flex>
-              </Tooltip>
-            </Skeleton>
-          )}
+          <TradeQuoteMetaItem
+            icon={TbGasStation}
+            isLoading={isLoading}
+            tooltip={
+              !networkFeeFiatUserCurrency
+                ? translate('trade.tooltip.continueSwapping')
+                : translate('trade.quote.gas')
+            }
+          >
+            {networkFeeFiatUserCurrency ? (
+              <Amount.Fiat value={networkFeeFiatUserCurrency} />
+            ) : (
+              <Text translation={'trade.unknownGas'} fontSize='sm' />
+            )}
+          </TradeQuoteMetaItem>
+          {priceImpactDecimalPercentage !== undefined &&
+            quoteDisplayOption === QuoteDisplayOption.Advanced && (
+              <TradeQuoteMetaItem
+                icon={TbBolt}
+                isLoading={isLoading}
+                tooltip={priceImpactTooltipText}
+              >
+                <Amount.Percent
+                  value={priceImpactDecimalPercentage.times(-1).toString()}
+                  color={priceImpactColor}
+                />
+              </TradeQuoteMetaItem>
+            )}
 
           {slippage}
-          {eta}
-          <Skeleton isLoaded={!isLoading}>
-            {numHops > 1 && (
-              <Tooltip label={translate('trade.numHops', { numHops })}>
-                <Flex gap={2} alignItems='center'>
-                  <RawText color='text.subtle'>
-                    <BsLayers />
-                  </RawText>
-                  {numHops ?? ''}
-                </Flex>
-              </Tooltip>
-            )}
-          </Skeleton>
+          {totalEstimatedExecutionTimeMs !== undefined && (
+            <TradeQuoteMetaItem
+              icon={TbClockHour3}
+              isLoading={isLoading}
+              tooltip={translate('trade.quote.timeEstimate')}
+            >
+              {totalEstimatedExecutionTimeMs === 0
+                ? '0s'
+                : prettyMilliseconds(totalEstimatedExecutionTimeMs)}
+            </TradeQuoteMetaItem>
+          )}
         </Flex>
       </CardFooter>
     </>

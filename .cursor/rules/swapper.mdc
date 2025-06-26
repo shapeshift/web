@@ -36,7 +36,7 @@ Type Safety: Use TypeScript with explicit types (e.g., SupportedChainIds).
 Naming: Use camelCase for variables/functions, PascalCase for types/interfaces, kebab-case for filenames.
 File Structure: Adhere to the directory structure above.
 Registry: Register new swappers in packages/swapper/src/constants.ts.
-Reusability: Leverage shared utilities (e.g., executeEvmTransaction, checkEvmSwapStatus).
+Reusability: Leverage shared utilities if applicable (e.g., executeEvmTransaction, checkEvmSwapStatus).
 Error Handling: Validate inputs and log errors for debugging.
 Testing: Write unit tests for swapper methods and API endpoints.
 

@@ -94,7 +94,7 @@ export const ActionCenter = memo(() => {
     if (!maybeActionCards.length) return <EmptyState onClose={onClose} />
 
     return maybeActionCards
-  }, [maybeActionCards])
+  }, [maybeActionCards, onClose])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {

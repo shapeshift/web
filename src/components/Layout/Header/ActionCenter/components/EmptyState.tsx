@@ -6,14 +6,18 @@ import { useNavigate } from 'react-router'
 
 import { Text } from '@/components/Text/Text'
 
-export const EmptyState = ({ onClose }: { onClose: () => void }) => {
+type EmptyStateProps = {
+  onClose: () => void
+}
+
+export const EmptyState: React.FC<EmptyStateProps> = ({ onClose }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleStartSwappingClick = useCallback(() => {
     navigate('/trade')
     onClose()
-  }, [navigate])
+  }, [navigate, onClose])
 
   return (
     <Stack spacing={4} mx={2} borderRadius='lg' transitionProperty='common'>

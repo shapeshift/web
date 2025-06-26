@@ -26,8 +26,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onClose }) => {
         <Flex
           align='center'
           justify='center'
-          minW='45px'
-          minH='45px'
+          minW='35px'
+          minH='35px'
           borderRadius='50%'
           bg='blue.500'
         >

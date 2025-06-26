@@ -12,6 +12,9 @@ import { ClaimRoutePaths } from './types'
 
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
+const cardBorderRadius = { base: '0', md: '2xl' }
+const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
+
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
@@ -52,7 +55,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
 
   return (
     <Stack spacing={0} width='full' maxWidth='500px'>
-      <Card flex={1}>
+      <Card flex={1} borderRadius={cardBorderRadius} bg={cardBgProp}>
         <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
         <Routes>
           <Route

@@ -18,6 +18,7 @@ type TradeAssetSelectBaseProps = {
   isLoading?: boolean
   buttonProps?: ButtonProps
   onlyConnectedChains: boolean
+  showChainDropdown?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
 } & FlexProps
@@ -49,6 +50,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
     assetFilterPredicate,
     chainIdFilterPredicate,
     flexProps,
+    showChainDropdown,
   } = useMemo(() => {
     const {
       onAssetClick,
@@ -61,6 +63,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       buttonProps,
       assetFilterPredicate,
       chainIdFilterPredicate,
+      showChainDropdown = true,
       ...flexProps
     } = props
     return {
@@ -75,6 +78,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       assetFilterPredicate,
       chainIdFilterPredicate,
       flexProps,
+      showChainDropdown,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
@@ -103,19 +107,23 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         isDisabled={Boolean(isReadOnly)}
         rightIcon={rightIcon}
       />
-      <Text flex='0 1 auto' translation='trade.on' color='text.subtle' fontSize='sm' />
-      <StyledAssetChainDropdown
-        assetId={assetId}
-        assetIds={assetIds}
-        onChangeAsset={handleAssetChange}
-        isLoading={isLoading}
-        isDisabled={Boolean(isReadOnly)}
-        buttonProps={buttonProps}
-        rightIcon={rightIcon}
-        onlyConnectedChains={onlyConnectedChains}
-        chainIdFilterPredicate={chainIdFilterPredicate}
-        assetFilterPredicate={assetFilterPredicate}
-      />
+      {showChainDropdown && (
+        <>
+          <Text flex='0 1 auto' translation='trade.on' color='text.subtle' fontSize='sm' />
+          <StyledAssetChainDropdown
+            assetId={assetId}
+            assetIds={assetIds}
+            onChangeAsset={handleAssetChange}
+            isLoading={isLoading}
+            isDisabled={Boolean(isReadOnly)}
+            buttonProps={buttonProps}
+            rightIcon={rightIcon}
+            onlyConnectedChains={onlyConnectedChains}
+            chainIdFilterPredicate={chainIdFilterPredicate}
+            assetFilterPredicate={assetFilterPredicate}
+          />
+        </>
+      )}
     </Flex>
   )
 })

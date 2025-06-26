@@ -1,4 +1,4 @@
-import { CardFooter } from '@chakra-ui/react'
+import { CardFooter, Flex } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -36,6 +36,11 @@ type SharedTradeInputFooterProps = {
   marketRate?: string
   invertRate?: boolean
   noExpand?: boolean
+}
+
+const footerBgProp = {
+  base: 'transparent',
+  md: 'background.surface.raised.accent',
 }
 
 export const SharedTradeInputFooter = ({
@@ -101,14 +106,13 @@ export const SharedTradeInputFooter = ({
   }, [rate, marketRate])
 
   return (
-    <>
-      <CardFooter
+    <CardFooter flexDir='column' px={0} py={0}>
+      <Flex
         borderTopWidth={1}
-        borderColor='border.subtle'
+        borderColor={hasUserEnteredAmount ? 'border.subtle' : 'transparent'}
         flexDir='column'
         gap={4}
-        px={0}
-        py={0}
+        width='full'
       >
         {hasUserEnteredAmount && (
           <RateGasRow
@@ -127,15 +131,17 @@ export const SharedTradeInputFooter = ({
             <ReceiveSummary isLoading={isLoading}>{receiveSummaryDetails}</ReceiveSummary>
           </RateGasRow>
         )}
-      </CardFooter>
-      <CardFooter
+      </Flex>
+      <Flex
         borderTopWidth={1}
         borderColor='border.subtle'
         flexDir='column'
         gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
+        px={4}
+        py={4}
+        bg={footerBgProp}
         borderBottomRadius='xl'
+        width='full'
       >
         {children}
 
@@ -148,11 +154,10 @@ export const SharedTradeInputFooter = ({
           data-test='trade-form-preview-button'
           isDisabled={shouldDisablePreviewButton}
           isValidWallet={true}
-          mx={-2}
         >
           {buttonText}
         </ButtonWalletPredicate>
-      </CardFooter>
-    </>
+      </Flex>
+    </CardFooter>
   )
 }

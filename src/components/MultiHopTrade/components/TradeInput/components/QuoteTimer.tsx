@@ -23,7 +23,7 @@ export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (isRefreshPending) {
-        // During pending state, freeze the timer at 0 (or wherever it was when refresh triggered)
+        // During pending state, set timer to max in anticipation of restart (better animation)
         setTimeRemaining(TRADE_QUOTE_REFRESH_INTERVAL_MS)
       } else {
         const elapsed = Date.now() - lastRefreshTime
@@ -38,7 +38,7 @@ export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
   return (
     <CircularProgress
       size={size}
-      value={isRefreshPending ? TRADE_QUOTE_REFRESH_INTERVAL_MS : timeRemaining}
+      value={timeRemaining}
       max={TRADE_QUOTE_REFRESH_INTERVAL_MS}
       isIndeterminate={isRefreshPending}
     />

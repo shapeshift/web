@@ -33,15 +33,27 @@ export const butterSwapApi: SwapperApi = {
         cause: { undefinedRequiredValues },
       })
     }
+    // Convert value from hex to decimal string if needed
+    let valueToUse = value
+    if (typeof valueToUse === 'string' && valueToUse.startsWith('0x')) {
+      valueToUse = BigInt(valueToUse).toString()
+    }
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+    const feeData = await evm.getFees({
+      adapter,
+      data,
+      to,
+      value: valueToUse,
+      from,
+      supportsEIP1559,
+    })
     // Use the higher of the node or API gas limit if available
     return adapter.buildCustomApiTx({
       accountNumber,
       data,
       from,
       to,
-      value,
+      value: valueToUse,
       ...feeData,
       gasLimit: BigNumber.max(feeData.gasLimit).toFixed(),
     })

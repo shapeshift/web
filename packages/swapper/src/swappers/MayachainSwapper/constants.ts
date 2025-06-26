@@ -6,7 +6,7 @@ import { assetIdToMayaPoolAssetIdMap } from './utils/poolAssetHelpers/poolAssetH
 
 export const CACAO_PRECISION = 10
 export const MAYACHAIN_PRECISION = 8
-export const MAYACHAIN_AFFILIATE_NAME = ''
+export const MAYACHAIN_AFFILIATE_NAME = 'ssmaya'
 
 export const MAYACHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: [

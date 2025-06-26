@@ -293,6 +293,8 @@ export const mockStore: ReduxState = {
     tradeQuoteDisplayCache: [],
     isTradeQuoteRequestAborted: false,
     sortOption: QuoteSortOption.BEST_RATE,
+    lastRefreshTime: 0,
+    refreshPendingUntil: null,
   },
   limitOrder: {
     activeQuote: undefined,

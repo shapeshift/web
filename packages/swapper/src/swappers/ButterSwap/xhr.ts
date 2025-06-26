@@ -14,6 +14,7 @@ import type {
   SupportedChainListResponse,
 } from './validators'
 import {
+  BridgeInfoResponseValidator,
   BuildTxResponseValidator,
   FindTokenResponseValidator,
   RouteAndSwapResponseValidator,
@@ -227,4 +228,23 @@ export function isRouteAndSwapSuccess(
   response: RouteAndSwapResponse,
 ): response is Extract<RouteAndSwapResponse, { errno: 0 }> {
   return response.errno === 0
+}
+
+/**
+ * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-swap-data/get-swap-history-by-source-hash
+ */
+export const getBridgeInfoBySourceHash = async (sourceHash: string): Promise<any | undefined> => {
+  try {
+    const result = await butterService.get<any>('/api/queryBridgeInfoBySourceHash', {
+      params: { sourceHash },
+    })
+    if (result.isErr()) throw result.unwrapErr()
+    const data = result.unwrap().data
+    const validation = BridgeInfoResponseValidator.try(data)
+    if (validation instanceof z.ValidationError) return undefined
+    if ('errno' in validation && validation.errno !== 0) return undefined
+    return Array.isArray(validation) ? validation[0] : validation
+  } catch (e) {
+    return undefined
+  }
 }

@@ -189,3 +189,26 @@ export const FindTokenResponseValidator = z.object({
 })
 
 export type FindTokenResponse = Infer<typeof FindTokenResponseValidator>
+
+export const BridgeInfoValidator = z.object({
+  fromHash: z.string(),
+  toHash: z.string().optional(),
+  state: z.number(),
+  fromChainId: z.number(),
+  toChainId: z.number(),
+  fromToken: z.string(),
+  toToken: z.string(),
+  fromAmount: z.string(),
+  toAmount: z.string(),
+  createTime: z.number(),
+  updateTime: z.number(),
+})
+
+export const BridgeInfoResponseValidator = z.union([
+  BridgeInfoValidator,
+  z.array(BridgeInfoValidator),
+  ErrorValidator,
+])
+
+export type BridgeInfo = Infer<typeof BridgeInfoValidator>
+export type BridgeInfoResponse = Infer<typeof BridgeInfoResponseValidator>

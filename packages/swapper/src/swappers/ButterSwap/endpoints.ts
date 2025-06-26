@@ -5,16 +5,14 @@ import BigNumber from 'bignumber.js'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { checkTradeStatus } from './swapperApi/checkTradeStatus'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 
 export const butterSwapApi: SwapperApi = {
   getTradeQuote,
   getTradeRate,
-  checkTradeStatus: () => {
-    // TODO(gomes): Implement checkTradeStatus
-    throw new Error('checkTradeStatus Not implemented')
-  },
+  checkTradeStatus,
   getUnsignedEvmTransaction: async args => {
     const { from, stepIndex, tradeQuote, supportsEIP1559, assertGetEvmChainAdapter } = args
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')

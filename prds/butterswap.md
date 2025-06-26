@@ -90,6 +90,35 @@ This utility centralizes the mapping logic, making it easy to maintain and use t
 ### CheckTradeStatus
 
 * [ ] Implement `CheckTradeStatus` function
+  * Use the ButterSwap API endpoint `GET /api/queryBridgeInfoBySourceHash` with the source chain transaction hash to determine trade status.
+  * Map the API's `state` field to internal status:
+    * `0`: pending/in progress
+    * `1`: complete/success
+    * `6`: refunded/failed
+  * Use `toHash` from the response as the destination chain transaction hash.
+  * See [ButterSwap API: GET Swap History by Source Hash](https://docs.butternetwork.io/butter-swap-integration/butter-api-for-swap-data/get-swap-history-by-source-hash) for details.
+
+## 8. Rate and Fee Calculation (Implementation Note)
+
+For the purposes of rate calculation and fee display, the ButterSwap swapper only requires the following fields from the ButterSwap API response:
+
+* `gasFee.amount` (in native token): Used to display the network fee to the user.
+* `srcChain.totalAmountIn` and `dstChain.totalAmountOut` (or `srcChain.totalAmountOut` for same-chain): Used to calculate the effective swap rate as `rate = totalAmountOut / totalAmountIn`.
+
+All other fields in the API response are not required for the core swapper logic.
+
+**TODO:** Simplify fee handling in the implementation by only setting `networkFeeCryptoBaseUnit` and setting `protocolFees` as `undefined` in the swapper's feeData.
+
+## 9. Single-Hop vs Multi-Hop (Signature Note)
+
+In the context of ButterSwap, the distinction between single-hop and multi-hop swaps is not about the number of route hops in the API response, but about the number of transaction signatures required from the user.
+
+* Even for multi-hop routes (e.g., cross-chain swaps), the ButterSwap protocol can often execute the entire swap with a single transaction and a single signature from the user.
+* A test swap using the official ButterSwap UI confirmed that only a single signature was required, regardless of the number of hops in the route.
+
+**Note:** A single hop (i.e., a single transaction/signature) may internally consist of multiple steps (route segments or asset swaps), but these are abstracted away from the user and handled within the ButterSwap protocol.
+
+These STEPS are presented to the user as part of a single HOP in the UI, maintaining a simple, single-signature user experience.
 
 # Developer Workflow Notes
 

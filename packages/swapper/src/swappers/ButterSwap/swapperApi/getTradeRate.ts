@@ -1,18 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { PartialRecord } from '@shapeshiftoss/types'
 import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetTradeRateInput,
-  ProtocolFee,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
-} from '../../../types'
+import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { ZERO_ADDRESS } from '../utils/constants'
@@ -94,7 +86,15 @@ export const getTradeRate = async (
     )
   }
 
-  const rate = bnOrZero(route.srcChain.totalAmountOut).div(route.srcChain.totalAmountIn).toString()
+  // Determine input and output for rate calculation
+  const inputAmount = bnOrZero(route.srcChain.totalAmountIn)
+  // Prefer dstChain if present, else bridgeChain, else srcChain
+  const outputAmount =
+    route.dstChain?.totalAmountOut ??
+    route.bridgeChain?.totalAmountOut ??
+    route.srcChain.totalAmountOut
+
+  const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
 
   const feeAsset = _deps.assetsById[feeAssetId]
   if (!feeAsset) {
@@ -111,43 +111,22 @@ export const getTradeRate = async (
     ? toBaseUnit(route.gasFee.amount, feeAsset.precision)
     : '0'
 
-  const nativeFeeBaseUnit = bnOrZero(route.swapFee.nativeFee).gt(0)
-    ? toBaseUnit(route.swapFee.nativeFee, feeAsset.precision)
-    : '0'
-  const tokenFeeBaseUnit = bnOrZero(route.swapFee.tokenFee).gt(0)
-    ? toBaseUnit(route.swapFee.tokenFee, sellAsset.precision)
-    : '0'
-
-  let protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined = undefined
-  const hasNativeFee = bnOrZero(nativeFeeBaseUnit).gt(0)
-  const hasTokenFee = bnOrZero(tokenFeeBaseUnit).gt(0)
-
-  if (hasNativeFee && hasTokenFee && feeAssetId === sellAsset.assetId) {
-    // If both fees are for the same asset, sum them
-    protocolFees = {
-      [feeAssetId]: {
-        amountCryptoBaseUnit: bnOrZero(nativeFeeBaseUnit).plus(tokenFeeBaseUnit).toString(),
-        requiresBalance: true,
-        asset: feeAsset,
-      },
-    }
-  } else {
-    protocolFees = {}
-    if (hasNativeFee) {
-      protocolFees[feeAssetId] = {
-        amountCryptoBaseUnit: nativeFeeBaseUnit,
-        requiresBalance: true,
-        asset: feeAsset,
-      }
-    }
-    if (hasTokenFee) {
-      protocolFees[sellAsset.assetId] = {
-        amountCryptoBaseUnit: tokenFeeBaseUnit,
-        requiresBalance: true,
-        asset: sellAsset,
-      }
-    }
-    if (Object.keys(protocolFees).length === 0) protocolFees = undefined
+  // Always a single step
+  const step = {
+    rate,
+    buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    feeData: {
+      networkFeeCryptoBaseUnit,
+      protocolFees: undefined,
+    },
+    source: SwapperName.ButterSwap,
+    buyAsset,
+    sellAsset,
+    accountNumber,
+    allowanceContract: route.contract ?? '0x0',
+    estimatedExecutionTimeMs: route.timeEstimated * 1000,
   }
 
   const tradeRate: TradeRate = {
@@ -158,30 +137,7 @@ export const getTradeRate = async (
     affiliateBps: affiliateBps ?? '0',
     slippageTolerancePercentageDecimal,
     quoteOrRate: 'rate',
-    steps: [
-      {
-        rate,
-        buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
-          route.srcChain.totalAmountOut,
-          buyAsset.precision,
-        ),
-        buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(
-          route.srcChain.totalAmountOut,
-          buyAsset.precision,
-        ),
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          protocolFees,
-        },
-        source: SwapperName.ButterSwap, // TODO - from step/route
-        buyAsset,
-        sellAsset,
-        accountNumber,
-        allowanceContract: route.contract ?? '0x0',
-        estimatedExecutionTimeMs: route.timeEstimated * 1000, // butterswap returns in seconds
-      },
-    ],
+    steps: [step],
   }
 
   return Ok([tradeRate])

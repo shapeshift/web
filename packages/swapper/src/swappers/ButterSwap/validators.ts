@@ -190,18 +190,48 @@ export const FindTokenResponseValidator = z.object({
 
 export type FindTokenResponse = Infer<typeof FindTokenResponseValidator>
 
+export const ChainInfoValidator = z.object({
+  id: z.number(),
+  chainId: z.string(),
+  chainName: z.string(),
+  scanUrl: z.string(),
+  chainImg: z.string(),
+  mosContract: z.string(),
+  color: z.string().nullable(),
+  nativeCoin: z.string(),
+  nativeDecimal: z.number(),
+})
+
+export const TokenInfoValidator = z.object({
+  id: z.number(),
+  chainId: z.union([z.number(), z.string()]),
+  address: z.string(),
+  name: z.string(),
+  symbol: z.string(),
+  icon: z.string().nullable(),
+  decimal: z.number(),
+  isMainCurrency: z.number(),
+  showSymbol: z.string().optional(),
+})
+
 export const BridgeInfoValidator = z.object({
-  fromHash: z.string(),
-  toHash: z.string().optional(),
+  id: z.number().optional(),
+  fromChain: ChainInfoValidator,
+  toChain: ChainInfoValidator,
+  sourceAddress: z.string(),
+  amount: z.string(),
+  fromToken: TokenInfoValidator,
+  sourceHash: z.string(),
+  toHash: z.string().nullable(),
+  receiveToken: TokenInfoValidator,
+  receiveAmount: z.string(),
+  toAddress: z.string(),
+  destinationToken: TokenInfoValidator.nullable().optional(),
   state: z.number(),
-  fromChainId: z.number(),
-  toChainId: z.number(),
-  fromToken: z.string(),
-  toToken: z.string(),
-  fromAmount: z.string(),
-  toAmount: z.string(),
-  createTime: z.number(),
-  updateTime: z.number(),
+  timestamp: z.string(),
+  timestampLong: z.number(),
+  completeTime: z.string(),
+  completeTimeLong: z.number(),
 })
 
 // Validator for ButterSwap history API: { code: 200, message: 'success', data: { info: null } }
@@ -220,3 +250,27 @@ export const BridgeInfoResponseValidator = z.union([
 
 export type BridgeInfo = Infer<typeof BridgeInfoValidator>
 export type BridgeInfoResponse = Infer<typeof BridgeInfoResponseValidator>
+
+/**
+ * Parses and validates the ButterSwap bridge info API response.
+ * Returns the validated info object or undefined if invalid or not found.
+ */
+export function parseBridgeInfoApiResponse(response: unknown): BridgeInfo | undefined {
+  if (!response || typeof response !== 'object' || response === null) return undefined
+  // @ts-expect-error: dynamic shape
+  const info = response.data?.info
+  if (!info) return undefined
+  const validation = BridgeInfoValidator.try(info)
+  if (validation instanceof z.ValidationError) return undefined
+  return validation
+}
+
+export const BridgeInfoApiResponseValidator = z.object({
+  code: z.number(),
+  message: z.string(),
+  data: z.object({
+    info: z.union([BridgeInfoValidator, z.null()]),
+  }),
+})
+
+export type BridgeInfoApiResponse = Infer<typeof BridgeInfoApiResponseValidator>

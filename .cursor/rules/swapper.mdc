@@ -17,7 +17,7 @@ The Swapper system is built around a central registry and common interfaces, loc
 Core Concepts
 
 Swapper Interface (packages/swapper/src/types.ts): Defines methods for filtering supported assets and executing trades.
-SwapperApi Interface (packages/swapper/src/types.ts): Specifies methods for off-chain API interactions (e.g., trade quotes, status checks).
+SwapperApi Interface (packages/swapper/src/types.ts): Specifies methods for off-chain API interactions (e.g., fetching trade quotes, status checks).
 SwapperName Enum (packages/swapper/src/types.ts): Unique identifier for each swapper.
 Swapper Registry (packages/swapper/src/constants.ts): A Record mapping SwapperName enums to swapper implementations.
 

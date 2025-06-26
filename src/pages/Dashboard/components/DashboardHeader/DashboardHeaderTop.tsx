@@ -40,6 +40,7 @@ const containerGap = { base: 6, md: 6 }
 const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
+const balanceFontSize = '4xl'
 
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
@@ -59,7 +60,7 @@ const netWorth = (
   // react-memo you're drunk, this is outside of component scope
   // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
-    <WalletBalance />
+    <WalletBalance balanceFontSize={balanceFontSize} />
   </Flex>
 )
 

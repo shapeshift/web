@@ -1,5 +1,4 @@
 import { Flex, forwardRef } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 
@@ -11,36 +10,31 @@ import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
 import {
-  selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type AssetResultProps = {
-  assetId: AssetId
+  asset: Asset
   index: number
   activeIndex?: number
   onClick: (arg: Asset) => void
 }
 
 export const AssetResult = forwardRef<AssetResultProps, 'div'>(
-  ({ assetId, index, activeIndex, onClick }, ref) => {
-    const asset = useAppSelector(state => selectAssetById(state, assetId))
+  ({ asset, index, activeIndex, onClick }, ref) => {
     const selected = index === activeIndex
-    const filter = useMemo(() => ({ assetId }), [assetId])
+    const filter = useMemo(() => ({ assetId: asset.assetId }), [asset.assetId])
     const cryptoHumanBalance = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
     )
     const fiatBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
     const handleSearchResultAssetTypeClick = useCallback(() => {
-      if (!asset) return
-
       onClick(asset)
     }, [asset, onClick])
 
-    if (!asset) return null
     return (
       <ResultButton
         ref={ref}

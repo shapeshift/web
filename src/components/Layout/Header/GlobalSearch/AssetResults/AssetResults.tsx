@@ -26,12 +26,12 @@ export const AssetResults: React.FC<AssetResultsProps> = ({
 }) => {
   const translate = useTranslate()
   const renderItems = useMemo(() => {
-    return results.map((item, index) => (
+    return results.map((asset, index) => (
       <AssetResult
         key={`result-assets-${index}`}
         index={index + startingIndex}
         activeIndex={activeIndex}
-        assetId={item.assetId}
+        asset={asset}
         onClick={onClick}
         ref={menuNodes.ref(index)}
       />

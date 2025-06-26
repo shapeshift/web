@@ -4,9 +4,9 @@ import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './cowswap-utils/constants'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
-import { butterSwapper } from './swappers/ButterSwap/ButterSwap'
+import { butterSwap } from './swappers/ButterSwap/ButterSwap'
 import { butterSwapApi } from './swappers/ButterSwap/endpoints'
-import { BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS } from './swappers/ButterSwap/utils/constants'
+import { BUTTERSWAP_SUPPORTED_CHAIN_IDS } from './swappers/ButterSwap/utils/constants'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
 import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
@@ -104,9 +104,9 @@ export const swappers: Record<
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.ButterSwap]: {
-    ...butterSwapper,
+    ...butterSwap,
     ...butterSwapApi,
-    supportedChainIds: BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS,
+    supportedChainIds: BUTTERSWAP_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,

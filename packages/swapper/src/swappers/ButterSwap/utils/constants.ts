@@ -10,7 +10,7 @@ import {
 
 import type { SupportedChainIds } from '../../../types'
 
-export const BUTTER_SWAPPER_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
+export const BUTTERSWAP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: [
     ethChainId,
     arbitrumChainId,

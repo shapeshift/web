@@ -74,8 +74,8 @@ type MobileButtonProps = {
 const MobileButton = ({ icon, label, onClick, isDisabled }: MobileButtonProps) => (
   <Button
     size='md'
-    width='75px'
-    height='75px'
+    width='80px'
+    height='80px'
     bg='rgba(127, 153, 251, 0.2)'
     borderRadius='xl'
     alignItems='center'
@@ -134,7 +134,7 @@ export const DashboardHeaderTop = memo(() => {
 
   const mobileButtons = useMemo(
     () => (
-      <Flex mt={4} gap={6} width='100%' justifyContent='center' display={mobileButtonRowDisplay}>
+      <Flex mt={4} gap={3} width='100%' justifyContent='center' display={mobileButtonRowDisplay}>
         <MobileButton
           icon={swapIcon}
           label={translate('navBar.tradeShort')}
@@ -212,7 +212,7 @@ export const DashboardHeaderTop = memo(() => {
             gap={2}
             gridColumn={3}
             display={mobileButtonRowDisplay}
-            px={2}
+            px={6}
           >
             <Flex align='center' onClick={onOpen}>
               <ProfileAvatar size='md' borderRadius='full' />

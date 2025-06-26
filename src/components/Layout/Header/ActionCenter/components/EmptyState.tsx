@@ -50,7 +50,7 @@ export const EmptyState = ({ onClose }: { onClose: () => void }) => {
             <CardBody px={0} py={0}>
               <Stack gap={4}>
                 <Button colorScheme='blue' width='full' onClick={handleStartSwappingClick}>
-                  {translate('Start Swapping')}
+                  {translate('notificationCenter.emptyState.startSwapping')}
                 </Button>
               </Stack>
             </CardBody>

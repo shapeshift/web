@@ -2968,7 +2968,8 @@
     "emptyState": {
       "title": "Welcome to ShapeShift",
       "body1": "This is your action center.",
-      "body2": "Find transactions in progress here."
+      "body2": "Find transactions in progress here.",
+      "startSwapping": "Start Swapping"
     },
     "swap": {
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",

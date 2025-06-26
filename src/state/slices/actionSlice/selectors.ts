@@ -1,6 +1,7 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
+import type { LimitOrderAction } from './types'
 import {
   ActionStatus,
   ActionType,
@@ -15,8 +16,16 @@ import {
   selectSwapIdParamFromFilter,
 } from '@/state/selectors'
 
+export const selectActions = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  actionSlice.selectors.selectActionIds,
+  (actionsById, actionIds) => {
+    return actionIds.map(id => actionsById[id])
+  },
+)
+
 export const selectWalletActions = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
+  selectActions,
   selectEnabledWalletAccountIds,
   swapSlice.selectors.selectSwapsById,
   (actions, enabledWalletAccountIds, swapsById) => {
@@ -79,7 +88,7 @@ export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
 )
 
 export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
+  selectActions,
   selectEnabledWalletAccountIds,
   (actions, enabledWalletAccountIds) => {
     return actions.filter(
@@ -94,12 +103,24 @@ export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutput
 )
 
 export const selectLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
+  selectActions,
   selectCowSwapQuoteIdParamFromRequiredFilter,
   (actions, cowSwapQuoteId) => {
     return actions.find(
       action =>
         isLimitOrderAction(action) && action.limitOrderMetadata.cowSwapQuoteId === cowSwapQuoteId,
+    )
+  },
+)
+
+export const selectLimitOrderActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      (action): action is LimitOrderAction =>
+        isLimitOrderAction(action) &&
+        enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId),
     )
   },
 )

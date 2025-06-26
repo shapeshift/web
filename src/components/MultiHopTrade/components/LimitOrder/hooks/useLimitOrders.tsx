@@ -10,9 +10,11 @@ import { useTranslate } from 'react-polyglot'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { isLimitOrderAction } from '@/state/slices/actionSlice/types'
-import { selectAssetById, selectEvmAccountIds } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectEvmAccountIds,
+  selectLimitOrderActionsByWallet,
+} from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 export const useLimitOrdersQuery = () => {
@@ -30,7 +32,7 @@ export const useLimitOrders = () => {
   const toast = useToast()
   const translate = useTranslate()
   const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
-  const actions = useAppSelector(actionSlice.selectors.selectActions)
+  const actions = useAppSelector(selectLimitOrderActionsByWallet)
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
 
   useEffect(() => {
@@ -101,8 +103,7 @@ export const useLimitOrders = () => {
   const ordersByActionId = useMemo(() => {
     return (limitOrdersQuery.data ?? []).reduce<Record<string, Order>>((acc, order) => {
       const action = actions.find(
-        action =>
-          isLimitOrderAction(action) && action.limitOrderMetadata?.limitOrderId === order.order.uid,
+        action => action.limitOrderMetadata?.limitOrderId === order.order.uid,
       )
 
       if (!action) return acc

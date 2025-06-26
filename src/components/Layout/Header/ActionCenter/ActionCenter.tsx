@@ -39,8 +39,8 @@ const ActionCenterIcon = <Icon as={TbBellFilled} />
 export const ActionCenter = memo(() => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  useSwapActionSubscriber({ onDrawerOpen: onOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen })
+  useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -62,9 +62,7 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={Boolean(
-                  swap.isStreaming && swap.metadata.streamingSwapMetadata?.maxSwapCount,
-                )}
+                isCollapsable={Boolean(swap?.txLink)}
               />
             )
           }

@@ -41,12 +41,14 @@ export const getLatestThorTxStatusMessage = (
           : ThorchainStatusMessage.InboundFinalizationPending
       }
       case 'swap_status': {
-        const obj = response.stages[key]
-        if (obj === undefined) continue
+        const swapStatusStage = response.stages[key]
+        const inboundFinalizedStage = response.stages.inbound_finalised
+        if (swapStatusStage === undefined || inboundFinalizedStage === undefined) continue
+        if (!inboundFinalizedStage.completed) continue
 
-        return obj.pending
-          ? ThorchainStatusMessage.SwapPending
-          : hasOutboundTx
+        if (swapStatusStage.pending) return ThorchainStatusMessage.SwapPending
+
+        return hasOutboundTx
           ? ThorchainStatusMessage.SwapCompleteAwaitingOutbound
           : ThorchainStatusMessage.SwapCompleteAwaitingDestination
       }

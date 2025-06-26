@@ -9,7 +9,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
-import type { GlobalSearchResult } from '@/state/slices/search-selectors'
+import type { AssetSearchResult } from '@/state/slices/search-selectors'
 import { GlobalSearchResultType } from '@/state/slices/search-selectors'
 import {
   selectAssetById,
@@ -22,7 +22,7 @@ type AssetResultProps = {
   assetId: AssetId
   index: number
   activeIndex?: number
-  onClick: (arg: GlobalSearchResult) => void
+  onClick: (arg: AssetSearchResult) => void
 }
 
 export const AssetResult = forwardRef<AssetResultProps, 'div'>(

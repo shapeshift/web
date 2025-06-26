@@ -41,7 +41,6 @@ export const getEnabledSwappers = (
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
-  /*
   return {
     [SwapperName.Thorchain]:
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
@@ -65,20 +64,8 @@ export const getEnabledSwappers = (
       RelaySwapper && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
     [SwapperName.Mayachain]:
       MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
-    [SwapperName.Test]: false,
-  }
-*/
-  return {
-    [SwapperName.ButterSwap]: true,
-    [SwapperName.Thorchain]: false,
-    [SwapperName.Zrx]: false,
-    [SwapperName.CowSwap]: false,
-    [SwapperName.ArbitrumBridge]: false,
-    [SwapperName.Portals]: false,
-    [SwapperName.Chainflip]: false,
-    [SwapperName.Jupiter]: false,
-    [SwapperName.Relay]: false,
-    [SwapperName.Mayachain]: false,
+    [SwapperName.ButterSwap]:
+      ButterSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ButterSwap)),
     [SwapperName.Test]: false,
   }
 }

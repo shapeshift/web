@@ -23,7 +23,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
-import { isAddress, isHex, toHex } from 'viem'
+import { isAddress, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -665,9 +665,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      if (isHex(input.value)) {
-        throw new Error('value must be a stringified BN, not an hex string')
-      }
       const req = this.buildEstimateGasRequest(input)
 
       const { gasLimit } = await this.providers.http.estimateGas(req)

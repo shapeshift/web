@@ -46,17 +46,17 @@ type NotificationCardProps = {
 
 export const LimitOrderActionCard = ({
   isCollapsable = true,
-  defaultIsOpen = true,
+  defaultIsOpen = false,
   onCancelOrder,
   order,
   action,
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
-  const { createdAt, status, type } = action
+  const { updatedAt, status, type } = action
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs(createdAt)
+    const notificationDate = dayjs(updatedAt)
     const sevenDaysAgo = now.subtract(7, 'day')
 
     if (notificationDate.isAfter(sevenDaysAgo)) {
@@ -64,7 +64,7 @@ export const LimitOrderActionCard = ({
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [createdAt])
+  }, [updatedAt])
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {

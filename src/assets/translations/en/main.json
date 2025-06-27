@@ -655,7 +655,6 @@
     "from": "From",
     "trade": "Trade",
     "swap": "Swap",
-    "swapWith": "Swap with %{dex}",
     "amount": "Amount",
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
@@ -2964,6 +2963,12 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
+    },
+    "emptyState": {
+      "title": "Welcome to ShapeShift",
+      "body1": "This is your action center.",
+      "body2": "Find transactions in progress here.",
+      "startSwapping": "Start Swapping"
     },
     "swap": {
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",

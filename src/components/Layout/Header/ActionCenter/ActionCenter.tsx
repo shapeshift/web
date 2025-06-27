@@ -16,6 +16,7 @@ import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { EmptyState } from './components/EmptyState'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
@@ -51,7 +52,7 @@ export const ActionCenter = memo(() => {
   const { ordersByActionId } = useLimitOrders()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const actionsCards = useMemo(() => {
+  const maybeActionCards = useMemo(() => {
     return actions.map(action => {
       const actionsCards = (() => {
         switch (action.type) {
@@ -62,9 +63,7 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={Boolean(
-                  swap.isStreaming && swap.metadata.streamingSwapMetadata?.maxSwapCount,
-                )}
+                isCollapsable={Boolean(swap?.txLink)}
               />
             )
           }
@@ -90,6 +89,12 @@ export const ActionCenter = memo(() => {
       return actionsCards
     })
   }, [actions, ordersByActionId, swapsById])
+
+  const actionCardsOrEmpty = useMemo(() => {
+    if (!maybeActionCards.length) return <EmptyState onClose={onClose} />
+
+    return maybeActionCards
+  }, [maybeActionCards, onClose])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
@@ -150,7 +155,7 @@ export const ActionCenter = memo(() => {
               height='calc(100vh - 70px - env(safe-area-inset-top))'
               className='scroll-container'
             >
-              {actionsCards}
+              {actionCardsOrEmpty}
             </Box>
           </Box>
         </DrawerContent>

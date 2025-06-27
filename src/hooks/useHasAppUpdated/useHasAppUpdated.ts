@@ -12,6 +12,7 @@ export type Metadata = {
   headShortCommitHash: string
 }
 
+// TODO make the typing better here. If hasUpdated is true then newMetadata is never false
 type HasUpdatedResult = {
   hasUpdated: boolean
   initialMetadata?: Metadata

@@ -41,7 +41,6 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const MotionBox = motion(Box)
 
 type TradeQuotesProps = {
-  isLoading: boolean
   onBack?: () => void
 }
 
@@ -52,7 +51,7 @@ const motionBoxProps = {
   transition: { type: 'spring', stiffness: 100, damping: 20 },
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack }) => {
+export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const dispatch = useAppDispatch()
 
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
@@ -87,19 +86,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     )
   }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes, sortOption])
 
-  const isQuoteRefetching = useCallback(
-    (quoteData: ApiQuote) => {
-      const { swapperName } = quoteData
-
-      return (
-        isLoading ||
-        isTradeQuoteApiQueryPending[quoteData.swapperName] ||
-        !isSwapperQuoteAvailable[swapperName]
-      )
-    },
-    [isLoading, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable],
-  )
-
   const isQuoteLoading = useCallback(
     (quoteData: ApiQuote) => {
       const { isStale } = quoteData
@@ -124,7 +110,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
           <TradeQuote
             isActive={isActive}
             isLoading={isQuoteLoading(quoteData)}
-            isRefetching={isQuoteRefetching(quoteData)}
             isBest={i === 0 && errors.length === 0}
             key={id}
             quoteData={quoteData}
@@ -137,13 +122,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     })
   }, [
     isTradeQuoteRequestAborted,
-    bestQuoteData?.inputOutputRatio,
     availableTradeQuotesDisplayCache,
     activeQuoteMeta,
-    isQuoteRefetching,
     isQuoteLoading,
-    onBack,
     bestTotalReceiveAmountCryptoPrecision,
+    bestQuoteData?.inputOutputRatio,
+    onBack,
   ])
 
   const unavailableQuotes = useMemo(() => {
@@ -156,7 +140,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         <TradeQuote
           isActive={false}
           isLoading={isQuoteLoading(quoteData)}
-          isRefetching={isQuoteRefetching(quoteData)}
           isBest={false}
           key={quoteData.id}
           quoteData={quoteData}
@@ -168,10 +151,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     })
   }, [
     isTradeQuoteRequestAborted,
-    bestQuoteData?.inputOutputRatio,
     unavailableTradeQuotesDisplayCache,
-    isQuoteRefetching,
     isQuoteLoading,
+    bestQuoteData?.inputOutputRatio,
     onBack,
   ])
 
@@ -211,7 +193,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
           <TradeQuote
             isActive={false}
             isLoading={true}
-            isRefetching={false}
             isBest={false}
             key={id}
             // eslint doesn't understand useMemo not possible to use inside map

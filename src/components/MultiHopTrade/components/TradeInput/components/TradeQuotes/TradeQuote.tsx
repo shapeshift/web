@@ -1,17 +1,12 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  swappers,
-  TradeQuoteError as SwapperTradeQuoteError,
-} from '@shapeshiftoss/swapper'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 
-import { CountdownSpinner } from './components/CountdownSpinner'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
 
@@ -50,7 +45,6 @@ type TradeQuoteProps = {
   bestTotalReceiveAmountCryptoPrecision: string | undefined
   bestInputOutputRatio: number | undefined
   isLoading: boolean
-  isRefetching: boolean
   onBack?: () => void
 }
 
@@ -62,7 +56,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     bestTotalReceiveAmountCryptoPrecision,
     bestInputOutputRatio,
     isLoading,
-    isRefetching,
     onBack,
   }) => {
     const { quote, errors, inputOutputRatio, swapperName } = quoteData
@@ -113,10 +106,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-
-    const pollingInterval = useMemo(() => {
-      return swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-    }, [swapperName])
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here
     const networkFeeUserCurrencyPrecision = useMemo(() => {
@@ -364,25 +353,12 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
     const headerContent = useMemo(() => {
-      const hasUnsupportedChainError = errors.some(
-        error =>
-          error.error === SwapperTradeQuoteError.UnsupportedChain ||
-          error.error === SwapperTradeQuoteError.CrossChainNotSupported ||
-          error.error === SwapperTradeQuoteError.UnsupportedTradePair,
-      )
-
       return (
         <Flex gap={2} alignItems='center'>
           <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-          {!hasUnsupportedChainError && (
-            <CountdownSpinner
-              isLoading={isLoading || isRefetching}
-              initialTimeMs={pollingInterval}
-            />
-          )}
         </Flex>
       )
-    }, [isLoading, isRefetching, pollingInterval, tag, errors])
+    }, [isLoading, tag])
 
     const bodyContent = useMemo(() => {
       return quote ? (

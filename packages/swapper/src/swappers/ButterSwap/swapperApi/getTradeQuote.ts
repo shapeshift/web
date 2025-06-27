@@ -2,6 +2,7 @@ import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -13,7 +14,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, ZERO_ADDRESS } from '../utils/constants'
+import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS } from '../utils/constants'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
 import { getBuildTx, getRoute, isBuildTxSuccess, isRouteSuccess } from '../xhr'
 
@@ -63,12 +64,12 @@ export const getTradeQuote = async (
 
   const sellAssetAddress = (() => {
     if (sellAsset.chainId === solanaChainId && sellAssetIsNative) return SOLANA_NATIVE_ADDRESS
-    if (sellAssetIsNative) return ZERO_ADDRESS
+    if (sellAssetIsNative) return zeroAddress
     return sellAssetAddressRaw
   })()
   const buyAssetAddress = (() => {
     if (buyAsset.chainId === solanaChainId && buyAssetIsNative) return SOLANA_NATIVE_ADDRESS
-    if (buyAssetIsNative) return ZERO_ADDRESS
+    if (buyAssetIsNative) return zeroAddress
     return buyAssetAddressRaw
   })()
   const slippageDecimal =

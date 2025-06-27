@@ -217,7 +217,7 @@
     "availableAssets": "Available Assets"
   },
   "updateToast": {
-    "body": "A new version of the app is available",
+    "body": "There is an app update available!",
     "cta": "Reload App",
     "keepKey": {
       "title": "KeepKey Update Available",

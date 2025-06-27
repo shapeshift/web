@@ -2,7 +2,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { CommonTradeQuoteInput, SwapperDeps, TradeRate } from '../../../types'
+import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getButterQuote } from './getTradeQuote'
@@ -66,7 +66,6 @@ describe('getTradeQuote', () => {
       affiliateBps: '0',
       allowMultiHop: true,
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     mocks.get.mockResolvedValue(Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse<any>))
@@ -77,7 +76,7 @@ describe('getTradeQuote', () => {
     const tradeQuote = result.unwrap()
     // Use the actual returned value for the expected rate
     expect(tradeQuote[0].rate).toBe('2298.70840740740740740741')
-    // 0.999 WETH in base units
+    // 1 WETH in base units
     expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
       '1000000000000000000',
     )

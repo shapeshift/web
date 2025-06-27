@@ -314,8 +314,6 @@ export type TradeQuoteStep = {
     to: string
     data: string
     value: string
-    chainId: string
-    method: string
   }
 }
 

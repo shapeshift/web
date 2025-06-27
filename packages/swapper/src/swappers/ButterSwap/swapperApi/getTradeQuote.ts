@@ -166,8 +166,6 @@ export const getButterQuote = async (
       to: buildTx.to,
       data: buildTx.data,
       value: buildTx.value,
-      chainId: buildTx.chainId,
-      method: buildTx.method ?? '',
     },
   }
 

@@ -39,7 +39,7 @@ export const butterSwapApi: SwapperApi = {
       from,
       supportsEIP1559,
     })
-    // Use the higher of the node or API gas limit if available
+
     return adapter.buildCustomApiTx({
       accountNumber,
       data,

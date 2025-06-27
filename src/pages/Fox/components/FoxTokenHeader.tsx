@@ -11,6 +11,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { RewardsIcon } from '@/components/Icons/RewardsIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -51,7 +52,7 @@ export const FoxTokenHeader = () => {
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
 
-  const handleSwapClick = useCallback(() => navigate('/trade'), [navigate])
+  const handleSwapClick = useCallback(() => navigate(TradeRoutePaths.Input), [navigate])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({

@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -66,6 +67,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const emptyPercentOptions: number[] = []
 const formControlProps = {
@@ -93,6 +95,7 @@ export const TradeInput = ({
     dispatch: walletDispatch,
     state: { isConnected, wallet },
   } = useWallet()
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
@@ -415,6 +418,12 @@ export const TradeInput = ({
     [dispatch],
   )
 
+  const assetSelectButtonProps = useMemo(() => {
+    return {
+      maxWidth: isSmallerThanMd ? '100%' : undefined,
+    }
+  }, [isSmallerThanMd])
+
   const buyTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
@@ -424,10 +433,15 @@ export const TradeInput = ({
         onlyConnectedChains={false}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        showChainDropdown={!isSmallerThanMd}
+        buttonProps={assetSelectButtonProps}
+        mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       buyAsset.assetId,
+      isSmallerThanMd,
+      assetSelectButtonProps,
       handleBuyAssetClick,
       setBuyAsset,
       assetFilterPredicate,

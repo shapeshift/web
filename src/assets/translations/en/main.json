@@ -603,6 +603,7 @@
     "explore": "Explore",
     "rewards": "Rewards",
     "trade": "Trade/Bridge",
+    "market": "Market",
     "limitOrder": "Limit Orders",
     "claims": "Claims",
     "tradeShort": "Trade",
@@ -2963,6 +2964,12 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
+    },
+    "emptyState": {
+      "title": "Welcome to ShapeShift",
+      "body1": "This is your action center.",
+      "body2": "Find transactions in progress here.",
+      "startSwapping": "Start Swapping"
     },
     "swap": {
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",

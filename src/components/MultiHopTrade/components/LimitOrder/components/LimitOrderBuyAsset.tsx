@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import React, { memo, useCallback, useMemo, useState } from 'react'
@@ -20,6 +21,7 @@ import {
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const emptyPercentOptions: number[] = []
 const formControlProps = {
@@ -52,6 +54,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     selectedChainId,
     onSelectedChainIdChange,
   }) => {
+    const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
     const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
     const [buyAmount, setBuyAmount] = useState<string | null>(null)
     const translate = useTranslate()
@@ -117,6 +120,12 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
       onSelectedChainIdChange,
     ])
 
+    const assetSelectButtonProps = useMemo(() => {
+      return {
+        maxWidth: isSmallerThanMd ? '100%' : undefined,
+      }
+    }, [isSmallerThanMd])
+
     const tradeAssetSelect = useMemo(
       () => (
         <TradeAssetSelect
@@ -126,6 +135,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
           onlyConnectedChains={false}
           assetFilterPredicate={assetFilterPredicate}
           chainIdFilterPredicate={chainIdFilterPredicate}
+          showChainDropdown={!isSmallerThanMd}
+          buttonProps={assetSelectButtonProps}
         />
       ),
       [
@@ -134,6 +145,8 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
         onSetBuyAsset,
         assetFilterPredicate,
         chainIdFilterPredicate,
+        assetSelectButtonProps,
+        isSmallerThanMd,
       ],
     )
 

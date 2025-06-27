@@ -49,7 +49,12 @@ type RateGasRowProps = {
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
-const rowHover = { bg: 'background.surface.raised.base' }
+const rowHover = {
+  bg: {
+    base: 'transparent',
+    md: 'background.surface.raised.base',
+  },
+}
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
@@ -138,6 +143,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
       )
     }, [rate, buyAsset, sellAsset, shouldInvertRate, handleRateClick, deltaPercentageFormatted])
 
+    const dropdownBg = useMemo(() => {
+      return isOpen ? { base: 'transparent', md: 'background.surface.raised.base' } : 'transparent'
+    }, [isOpen])
+
     switch (true) {
       case isLoading:
         return (
@@ -169,7 +178,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
           <Stack
             fontWeight='medium'
             spacing={0}
-            bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
+            bg={dropdownBg}
             transitionProperty='common'
             transitionDuration='normal'
             fontSize='sm'

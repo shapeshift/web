@@ -5,13 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  CommonTradeQuoteInput,
-  ProtocolFee,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS } from '../utils/constants'
@@ -151,45 +145,6 @@ export const getTradeQuote = async (
   const networkFeeCryptoBaseUnit = bnOrZero(route.gasFee?.amount).gt(0)
     ? toBaseUnit(route.gasFee.amount, feeAsset.precision)
     : '0'
-
-  const nativeFeeBaseUnit = bnOrZero(route.swapFee.nativeFee).gt(0)
-    ? toBaseUnit(route.swapFee.nativeFee, feeAsset.precision)
-    : '0'
-  const tokenFeeBaseUnit = bnOrZero(route.swapFee.tokenFee).gt(0)
-    ? toBaseUnit(route.swapFee.tokenFee, sellAsset.precision)
-    : '0'
-
-  let protocolFees: Record<string, ProtocolFee> | undefined = undefined
-  const hasNativeFee = bnOrZero(nativeFeeBaseUnit).gt(0)
-  const hasTokenFee = bnOrZero(tokenFeeBaseUnit).gt(0)
-
-  if (hasNativeFee && hasTokenFee && feeAssetId === sellAsset.assetId) {
-    // If both fees are for the same asset, sum them
-    protocolFees = {
-      [feeAssetId]: {
-        amountCryptoBaseUnit: bnOrZero(nativeFeeBaseUnit).plus(tokenFeeBaseUnit).toString(),
-        requiresBalance: true,
-        asset: feeAsset,
-      },
-    }
-  } else {
-    protocolFees = {}
-    if (hasNativeFee) {
-      protocolFees[feeAssetId] = {
-        amountCryptoBaseUnit: nativeFeeBaseUnit,
-        requiresBalance: true,
-        asset: feeAsset,
-      }
-    }
-    if (hasTokenFee) {
-      protocolFees[sellAsset.assetId] = {
-        amountCryptoBaseUnit: tokenFeeBaseUnit,
-        requiresBalance: true,
-        asset: sellAsset,
-      }
-    }
-    if (Object.keys(protocolFees).length === 0) protocolFees = undefined
-  }
 
   // Calculate rate as lastHop.totalAmountOut / srcChain.totalAmountIn (in base units)
   // For cross-chain swaps, use dstChain.totalAmountOut (final min amount out)

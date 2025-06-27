@@ -62,7 +62,13 @@ export const SharedTradeInputHeader = ({
   }, [handleChangeTab])
 
   return (
-    <CardHeader px={cardPaddingX} position={cardPosition} top={0} zIndex={1} bg={cardHeaderBgProp}>
+    <CardHeader
+      px={cardPaddingX}
+      position={cardPosition}
+      top={'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'}
+      zIndex={1}
+      bg={cardHeaderBgProp}
+    >
       <Display.Desktop>
         <Flex alignItems='center' justifyContent='space-between'>
           <Flex gap={4}>

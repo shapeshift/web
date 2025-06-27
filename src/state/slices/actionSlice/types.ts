@@ -8,6 +8,7 @@ export enum ActionType {
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
+  AppUpdate = 'AppUpdate'
 }
 
 export enum ActionStatus {

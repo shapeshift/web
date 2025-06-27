@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import stringify from 'fast-json-stable-stringify'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import type { Metadata } from '../useHasAppUpdated/useHasAppUpdated'
 import { useHasAppUpdated } from '../useHasAppUpdated/useHasAppUpdated'
@@ -17,31 +17,36 @@ type UseAppUpdateActionSubscriberProps = {
 
 const getAppUpdateId = (meta: Metadata) => stringify(meta)
 
-const APP_UPDATE_ACTION_ID = 'app-update-2'
-
 export const useAppUpdateActionSubscriber = ({
   isDrawerOpen,
   onDrawerOpen,
 }: UseAppUpdateActionSubscriberProps) => {
   const dispatch = useAppDispatch()
-  const { hasUpdated, newMetadata } = useHasAppUpdated()
+  const { hasUpdated, newMetadata, initialMetadata } = useHasAppUpdated()
+
+  const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
   const toast = useToast({
     position: 'bottom-right',
     duration: isDrawerOpen ? 5000 : null,
   })
 
-  // Check if we already have an app update action to prevent duplicates
-  const existingAction = useAppSelector(state => state.action.byId[APP_UPDATE_ACTION_ID])
+  const currentVersionId = useMemo(
+    () => (initialMetadata ? getAppUpdateId(initialMetadata) : undefined),
+    [initialMetadata],
+  )
 
+  const currentVersionExistingAction = currentVersionId ? actionsById[currentVersionId] : undefined
+
+  // Check for a new version and add an action + pop a toast if there is
   useEffect(() => {
-    if (hasUpdated && !existingAction && newMetadata !== undefined) {
+    if (currentVersionExistingAction === undefined && currentVersionId !== undefined) {
       // Create the app update action
       dispatch(
         actionSlice.actions.upsertAction({
-          id: getAppUpdateId(newMetadata),
+          id: currentVersionId,
           type: ActionType.AppUpdate,
-          status: ActionStatus.Pending,
+          status: ActionStatus.Complete,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           appUpdateMetadata: {},
@@ -52,5 +57,23 @@ export const useAppUpdateActionSubscriber = ({
         render: props => <AppUpdateNotification handleClick={onDrawerOpen} {...props} />,
       })
     }
-  }, [existingAction, dispatch, onDrawerOpen, toast, hasUpdated, newMetadata])
+  }, [
+    dispatch,
+    onDrawerOpen,
+    toast,
+    hasUpdated,
+    newMetadata,
+    currentVersionExistingAction,
+    currentVersionId,
+  ])
+
+  // Delete any app update actions that are not relevant to our current version
+  useEffect(() => {
+    if (currentVersionId === undefined) return
+    Object.values(actionsById).forEach(({ id, type }) => {
+      if (type === ActionType.AppUpdate && id !== currentVersionId) {
+        dispatch(actionSlice.actions.deleteAction(id))
+      }
+    })
+  }, [dispatch, onDrawerOpen, toast, hasUpdated, newMetadata, actionsById, currentVersionId])
 }

@@ -1,6 +1,6 @@
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import { useLocation } from 'wouter'
+import { useNavigate } from 'react-router-dom'
 
 import { ReusableLpConfirm } from '../ReusableLpConfirm'
 import { RemoveLiquidityRoutePaths } from './types'
@@ -14,12 +14,12 @@ type RemoveLiquidityConfirmProps = {
 }
 
 export const RemoveLiquidityConfirm = ({ confirmedQuote }: RemoveLiquidityConfirmProps) => {
-  const [, setLocation] = useLocation()
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
 
   const handleBack = useCallback(() => {
-    setLocation(RemoveLiquidityRoutePaths.Input)
-  }, [setLocation])
+    navigate(RemoveLiquidityRoutePaths.Input)
+  }, [navigate])
 
   const handleConfirm = useCallback(() => {
     if (confirmedQuote.positionStatus?.incomplete) {
@@ -28,8 +28,8 @@ export const RemoveLiquidityConfirm = ({ confirmedQuote }: RemoveLiquidityConfir
       mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote)
     }
 
-    setLocation(RemoveLiquidityRoutePaths.Status)
-  }, [confirmedQuote, setLocation, mixpanel])
+    navigate(RemoveLiquidityRoutePaths.Status)
+  }, [confirmedQuote, navigate, mixpanel])
 
   return (
     <ReusableLpConfirm

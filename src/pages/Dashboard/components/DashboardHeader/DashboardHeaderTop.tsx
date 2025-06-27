@@ -7,6 +7,7 @@ import {
   Flex,
   IconButton,
   Text,
+  useColorModeValue,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -45,17 +46,17 @@ const balanceFontSize = '4xl'
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const swapIcon = <SwapIcon boxSize={6} color='blue.200' />
+const swapIcon = <SwapIcon boxSize={6} />
 const buyIcon = (
-  <Box color='blue.200'>
+  <Box>
     <FaRegCreditCard size={24} />
   </Box>
 )
-const sendIcon = <SendIcon boxSize='6' color='blue.200' />
-const receiveIcon = <ArrowDownIcon boxSize={6} color='blue.200' />
-const searchIcon = <SearchIcon color='blue.200' />
+const sendIcon = <SendIcon boxSize='6' />
+const receiveIcon = <ArrowDownIcon boxSize={6} />
+const searchIcon = <SearchIcon />
 const qrCodeIcon = (
-  <Box color='blue.200'>
+  <Box>
     <FaExpand />
   </Box>
 )
@@ -75,25 +76,31 @@ type MobileActionButtonProps = {
   isDisabled?: boolean
 }
 
-const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionButtonProps) => (
-  <Button
-    size='md'
-    width='80px'
-    height='80px'
-    bg='rgba(127, 153, 251, 0.2)'
-    borderRadius='xl'
-    alignItems='center'
-    onClick={onClick}
-    isDisabled={isDisabled}
-  >
-    <VStack spacing={2} justify='center' align='center'>
-      {icon}
-      <Text fontSize='sm' fontWeight='medium' color='blue.200'>
-        {label}
-      </Text>
-    </VStack>
-  </Button>
-)
+const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionButtonProps) => {
+  const buttonBg = useColorModeValue(undefined, 'rgba(127, 153, 251, 0.2)')
+  const colorScheme = useColorModeValue('blue', undefined)
+
+  return (
+    <Button
+      size='md'
+      width='80px'
+      height='80px'
+      bg={buttonBg}
+      colorScheme={colorScheme}
+      borderRadius='xl'
+      alignItems='center'
+      onClick={onClick}
+      isDisabled={isDisabled}
+    >
+      <VStack spacing={2} justify='center' align='center'>
+        {icon}
+        <Text fontSize='sm' fontWeight='medium'>
+          {label}
+        </Text>
+      </VStack>
+    </Button>
+  )
+}
 
 export const DashboardHeaderTop = memo(() => {
   const { isOpen, onClose, onOpen } = useDisclosure()

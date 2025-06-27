@@ -30,6 +30,7 @@ import { FadeTransition } from '@/components/FadeTransition'
 import { LanguageSelector } from '@/components/LanguageSelector'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { SlideTransitionY } from '@/components/SlideTransitionY'
 import { RawText, Text } from '@/components/Text'
 import { listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
@@ -110,7 +111,7 @@ export const MobileConnect = () => {
       : query?.returnUrl
     if (hasWallet) {
       setIsWaitingForRedirection(false)
-      navigate(path ?? '/trade')
+      navigate(path ?? TradeRoutePaths.Input)
     }
   }, [navigate, hasWallet, query, state, dispatch, setIsWaitingForRedirection])
 

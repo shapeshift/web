@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { GetTradeQuoteInput, TradeQuote, TradeRate } from '../../../types'
+import type { GetTradeQuoteInput, TradeQuote } from '../../../types'
 import { SwapperName } from '../../../types'
 import { FOX_MAINNET, WETH } from './assets'
 
@@ -49,7 +49,6 @@ export const setupQuote = () => {
     allowMultiHop: false,
     slippageTolerancePercentageDecimal: '0.002',
     quoteOrRate: 'quote',
-    originalRate: {} as TradeRate,
   }
 
   return { quoteInput, tradeQuote, buyAsset, sellAsset }

@@ -13,6 +13,11 @@ import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
 const padding = { base: 0, md: 8 }
+const mainPaddingTop = { base: 0, md: '4.5rem' }
+const mainMarginTop = { base: 0, md: '-4.5rem' }
+
+const containerPaddingTop = { base: 0, md: 12 }
+const containerPaddingBottom = { base: 0, md: 12 }
 
 export const TradeTab = memo(() => {
   const translate = useTranslate()
@@ -85,12 +90,12 @@ export const TradeTab = memo(() => {
   )
 
   return (
-    <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
+    <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>
       <SEO title={title} />
       <Flex
-        pt={12}
+        pt={containerPaddingTop}
         px={padding}
-        pb={12}
+        pb={containerPaddingBottom}
         alignItems='flex-start'
         width='full'
         justifyContent='center'

@@ -67,6 +67,8 @@ const tableContainerStyle = {
   minHeight: '300px',
 }
 
+const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
+
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
@@ -345,7 +347,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   }, [])
 
   return (
-    <Card {...cardProps}>
+    <Card bg={cardBgProp} {...cardProps}>
       {onBack && (
         <CardHeader px={4} display='flex' flexDirection='column' pb={0} width='100%'>
           <Flex width='100%' alignItems='center'>

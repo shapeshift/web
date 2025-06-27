@@ -34,6 +34,8 @@ type ReusableConfirmProps = {
   confirmAlert?: JSX.Element | null
 } & PropsWithChildren
 
+const cardFooterBgProp = { base: 'transparent', md: 'background.surface.raised.accent' }
+
 export const ReusableConfirm = ({
   feeAssetId,
   assetId,
@@ -107,7 +109,7 @@ export const ReusableConfirm = ({
           gap={4}
           pb={4}
           px={4}
-          bg='background.surface.raised.accent'
+          bg={cardFooterBgProp}
           borderBottomRadius='lg'
         >
           <Row px={2} fontSize='sm' Tooltipbody={networkFeeTooltipBody}>

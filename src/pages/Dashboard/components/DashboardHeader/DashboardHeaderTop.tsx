@@ -14,6 +14,7 @@ import { WalletBalance } from './WalletBalance'
 
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
@@ -63,7 +64,7 @@ export const DashboardHeaderTop = memo(() => {
   }, [receive])
 
   const handleTradeClick = useCallback(() => {
-    navigate('/trade')
+    navigate(TradeRoutePaths.Input)
   }, [navigate])
 
   return (

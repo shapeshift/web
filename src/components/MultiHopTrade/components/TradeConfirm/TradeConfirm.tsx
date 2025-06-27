@@ -54,7 +54,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
       dispatch(tradeQuoteSlice.actions.clear())
     }
 
-    navigate('/trade')
+    navigate(TradeRoutePaths.Input)
   }, [dispatch, navigate, isTradeComplete])
 
   useEffect(() => {

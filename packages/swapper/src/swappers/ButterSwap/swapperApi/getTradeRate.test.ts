@@ -5,9 +5,9 @@ import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeRateInput, SwapperDeps } from '../../../types'
-import { ROUTE_QUOTE } from '../../../utils/test-data/butter/routeQuote'
 import { BTC, ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
-import ethBtcRoute from '../eth-btc.json'
+import ethBtcRoute from '../test-data/eth-btc.json'
+import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { butterService } from '../utils/butterSwapService'
 import { getTradeRate } from './getTradeRate'
 

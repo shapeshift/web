@@ -3,8 +3,8 @@ import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { CommonTradeQuoteInput, SwapperDeps, TradeRate } from '../../../types'
-import { ROUTE_QUOTE } from '../../../utils/test-data/butter/routeQuote'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getTradeQuote } from './getTradeQuote'
 
 const mocks = vi.hoisted(() => ({

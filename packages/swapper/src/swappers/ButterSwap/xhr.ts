@@ -5,6 +5,7 @@ import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
 import type {
+  BridgeInfo,
   BridgeInfoApiResponse,
   BuildTxResponse,
   FindTokenResponse,
@@ -46,18 +47,18 @@ export const findToken = async (
  */
 export const getRoute = async (
   fromChainId: number,
-  tokenInAddress: string,
+  sellAssetAddress: string,
   toChainId: number,
-  tokenOutAddress: string,
+  buyAssetAddress: string,
   amountHumanUnits: string,
   slippage: string,
   affiliate: string,
 ): ButterSwapPromise<RouteResponse> => {
-  const params: Record<string, any> = {
+  const params = {
     fromChainId,
-    tokenInAddress,
+    tokenInAddress: sellAssetAddress,
     toChainId,
-    tokenOutAddress,
+    tokenOutAddress: buyAssetAddress,
     amount: amountHumanUnits,
     type: 'exactIn',
     slippage,
@@ -164,7 +165,9 @@ export function isRouteAndSwapSuccess(
 /**
  * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-swap-data/get-swap-history-by-source-hash
  */
-export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | undefined> => {
+export const getBridgeInfoBySourceHash = async (
+  hash: string,
+): ButterSwapPromise<BridgeInfo | undefined> => {
   try {
     const result = await butterHistoryService.get<BridgeInfoApiResponse>(
       '/api/queryBridgeInfoBySourceHash',
@@ -177,11 +180,11 @@ export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | und
     }
     const data = result.unwrap().data
     if (!data || !data.data || !data.data.info) {
-      return undefined
+      return Ok(undefined)
     }
-    return data.data.info
+    return Ok(data.data.info)
   } catch (e) {
-    return undefined
+    return Ok(undefined)
   }
 }
 

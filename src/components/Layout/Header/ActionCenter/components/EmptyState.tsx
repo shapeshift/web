@@ -31,7 +31,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onClose }) => {
           borderRadius='50%'
           bg='blue.500'
         >
-          <Icon as={TbBellFilled} boxSize={7} color='white' />
+          <Icon as={TbBellFilled} boxSize={5} color='white' />
         </Flex>
         <Stack spacing={0} width='full'>
           <HStack>

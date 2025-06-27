@@ -68,14 +68,14 @@ const netWorth = (
   </Flex>
 )
 
-type MobileButtonProps = {
+type MobileActionButtonProps = {
   icon: React.ReactNode
   label: string
   onClick: () => void
   isDisabled?: boolean
 }
 
-const MobileButton = ({ icon, label, onClick, isDisabled }: MobileButtonProps) => (
+const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionButtonProps) => (
   <Button
     size='md'
     width='80px'
@@ -139,24 +139,24 @@ export const DashboardHeaderTop = memo(() => {
   const mobileButtons = useMemo(
     () => (
       <Flex mt={4} gap={3} width='100%' justifyContent='center' display={mobileButtonRowDisplay}>
-        <MobileButton
+        <MobileActionButton
           icon={swapIcon}
           label={translate('navBar.tradeShort')}
           onClick={handleTradeClick}
         />
-        <MobileButton
+        <MobileActionButton
           icon={buyIcon}
           label={translate('fiatRamps.buy')}
           onClick={handleBuyClick}
           isDisabled={!isConnected}
         />
-        <MobileButton
+        <MobileActionButton
           icon={sendIcon}
           label={translate('common.send')}
           onClick={handleSendClick}
           isDisabled={!isConnected}
         />
-        <MobileButton
+        <MobileActionButton
           icon={receiveIcon}
           label={translate('common.receive')}
           onClick={handleReceiveClick}

@@ -1,5 +1,5 @@
 import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, chainIdToFeeAssetId, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
@@ -8,19 +8,18 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, getButterSwapAffiliate } from '../utils/constants'
-import { chainIdToButterSwapChainId } from '../utils/helpers'
+import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   butterSwapErrorToTradeQuoteError,
   getBuildTx,
-  getRoute,
+  getButterRoute,
   isBuildTxSuccess,
   isRouteSuccess,
 } from '../xhr'
 
 const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
 
-export const getTradeQuote = async (
+export const getButterQuote = async (
   input: CommonTradeQuoteInput,
   _deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
@@ -32,6 +31,7 @@ export const getTradeQuote = async (
     sendAddress,
     slippageTolerancePercentageDecimal,
     accountNumber,
+    affiliateBps,
   } = input
 
   if (!sendAddress) {
@@ -39,18 +39,6 @@ export const getTradeQuote = async (
       makeSwapErrorRight({
         message: '[getTradeQuote] sendAddress is required for ButterSwap',
         code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  // Map ShapeShift chain IDs to ButterSwap numeric chain IDs
-  const butterSwapFromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
-  const butterSwapToChainId = chainIdToButterSwapChainId(buyAsset.chainId)
-  if (!butterSwapFromChainId || !butterSwapToChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] Unsupported chainId',
-        code: TradeQuoteError.UnsupportedChain,
       }),
     )
   }
@@ -78,15 +66,15 @@ export const getTradeQuote = async (
   const slippage = bn(slippageDecimal).times(10000).toString()
 
   // Call ButterSwap /route API
-  const routeResult = await getRoute(
-    butterSwapFromChainId,
+  const routeResult = await getButterRoute({
+    fromChainId: sellAsset.chainId,
     sellAssetAddress,
-    butterSwapToChainId,
+    toChainId: buyAsset.chainId,
     buyAssetAddress,
-    bn(amount).shiftedBy(-sellAsset.precision).toString(), // convert to human units
+    amountHumanUnits: fromBaseUnit(amount, sellAsset.precision),
     slippage,
-    getButterSwapAffiliate(), // pass affiliate string
-  )
+    affiliate: makeButterSwapAffiliate(affiliateBps),
+  })
 
   if (routeResult.isErr()) return Err(routeResult.unwrapErr())
   const routeResponse = routeResult.unwrap()
@@ -110,12 +98,12 @@ export const getTradeQuote = async (
   }
 
   // Call ButterSwap /swap API to get calldata and contract info
-  const buildTxResult = await getBuildTx(
-    route.hash,
+  const buildTxResult = await getBuildTx({
+    hash: route.hash,
     slippage,
-    sendAddress, // from (source chain address)
-    receiveAddress, // receiver (destination chain address)
-  )
+    from: sendAddress, // from (source chain address)
+    receiver: receiveAddress, // receiver (destination chain address)
+  })
 
   if (buildTxResult.isErr()) return Err(buildTxResult.unwrapErr())
   const buildTxResponse = buildTxResult.unwrap()
@@ -187,7 +175,7 @@ export const getTradeQuote = async (
     id: route.hash,
     rate,
     receiveAddress,
-    affiliateBps: DEFAULT_BUTTERSWAP_AFFILIATE_BPS.toString(),
+    affiliateBps,
     isStreaming: false,
     quoteOrRate: 'quote',
     swapperName: SwapperName.ButterSwap,

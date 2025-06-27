@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { CommonTradeQuoteInput, SwapperDeps, TradeRate } from '../../../types'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
-import { getTradeQuote } from './getTradeQuote'
+import { getButterQuote } from './getTradeQuote'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -71,7 +71,7 @@ describe('getTradeQuote', () => {
 
     mocks.get.mockResolvedValue(Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse<any>))
 
-    const result = await getTradeQuote(input, deps)
+    const result = await getButterQuote(input, deps)
 
     expect(result.isOk()).toBe(true)
     const tradeQuote = result.unwrap()

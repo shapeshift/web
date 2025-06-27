@@ -8,9 +8,8 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { getButterSwapAffiliate } from '../utils/constants'
-import { chainIdToButterSwapChainId } from '../utils/helpers'
-import { butterSwapErrorToTradeQuoteError, getRoute, isRouteSuccess } from '../xhr'
+import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, makeButterSwapAffiliate } from '../utils/constants'
+import { butterSwapErrorToTradeQuoteError, getButterRoute, isRouteSuccess } from '../xhr'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -24,18 +23,6 @@ export const getTradeRate = async (
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
-
-  const fromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
-  const toChainId = chainIdToButterSwapChainId(buyAsset.chainId)
-
-  if (!fromChainId || !toChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeRate] Unsupported chainId',
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
 
   const amount = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit)
     .shiftedBy(-sellAsset.precision)
@@ -56,15 +43,15 @@ export const getTradeRate = async (
   )
   const slippage = bn(slippageTolerancePercentageDecimal).times(10000).toString()
 
-  const result = await getRoute(
-    fromChainId,
+  const result = await getButterRoute({
+    fromChainId: sellAsset.chainId,
     sellAssetAddress,
-    toChainId,
+    toChainId: buyAsset.chainId,
     buyAssetAddress,
-    amount,
+    amountHumanUnits: amount,
     slippage,
-    getButterSwapAffiliate(),
-  )
+    affiliate: makeButterSwapAffiliate(affiliateBps ?? DEFAULT_BUTTERSWAP_AFFILIATE_BPS),
+  })
 
   if (result.isErr()) return Err(result.unwrapErr())
   const routeResponse = result.unwrap()
@@ -98,11 +85,8 @@ export const getTradeRate = async (
 
   // Determine input and output for rate calculation
   const inputAmount = bnOrZero(route.srcChain.totalAmountIn)
-  // Prefer dstChain if present, else bridgeChain, else srcChain
-  const outputAmount =
-    route.dstChain?.totalAmountOut ??
-    route.bridgeChain?.totalAmountOut ??
-    route.srcChain.totalAmountOut
+  // Prefer dstChain if present, else srcChain
+  const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
 
   const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
 
@@ -144,7 +128,7 @@ export const getTradeRate = async (
     rate,
     swapperName: SwapperName.ButterSwap,
     receiveAddress,
-    affiliateBps: affiliateBps ?? '0',
+    affiliateBps,
     slippageTolerancePercentageDecimal,
     quoteOrRate: 'rate',
     steps: [step],

@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -15,6 +16,7 @@ import type {
 } from './types'
 import { butterHistoryService } from './utils/butterSwapHistoryService'
 import { butterService } from './utils/butterSwapService'
+import { chainIdToButterSwapChainId } from './utils/helpers'
 
 type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 
@@ -45,19 +47,39 @@ export const findToken = async (
 /**
  * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-route
  */
-export const getRoute = async (
-  fromChainId: number,
-  sellAssetAddress: string,
-  toChainId: number,
-  buyAssetAddress: string,
-  amountHumanUnits: string,
-  slippage: string,
-  affiliate: string,
-): ButterSwapPromise<RouteResponse> => {
+export interface GetButterRouteArgs {
+  fromChainId: ChainId
+  sellAssetAddress: string
+  toChainId: ChainId
+  buyAssetAddress: string
+  amountHumanUnits: string
+  slippage: string
+  affiliate: string
+}
+
+export const getButterRoute = async ({
+  fromChainId,
+  sellAssetAddress,
+  toChainId,
+  buyAssetAddress,
+  amountHumanUnits,
+  slippage,
+  affiliate,
+}: GetButterRouteArgs): ButterSwapPromise<RouteResponse> => {
+  const butterFromChainId = chainIdToButterSwapChainId(fromChainId)
+  const butterToChainId = chainIdToButterSwapChainId(toChainId)
+  if (!butterFromChainId || !butterToChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getButterRoute] Unsupported chainId',
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
   const params = {
-    fromChainId,
+    fromChainId: butterFromChainId,
     tokenInAddress: sellAssetAddress,
-    toChainId,
+    toChainId: butterToChainId,
     tokenOutAddress: buyAssetAddress,
     amount: amountHumanUnits,
     type: 'exactIn',
@@ -79,15 +101,19 @@ export const getRoute = async (
   return Ok(data)
 }
 
-/**
- * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-swap
- */
-export const getBuildTx = async (
-  hash: string,
-  slippage: string,
-  from: string,
-  receiver: string,
-): ButterSwapPromise<BuildTxResponse> => {
+export type ButterBuildTxArgs = {
+  hash: string
+  slippage: string
+  from: string
+  receiver: string
+}
+
+export const getBuildTx = async ({
+  hash,
+  slippage,
+  from,
+  receiver,
+}: ButterBuildTxArgs): ButterSwapPromise<BuildTxResponse> => {
   const result = await butterService.get<BuildTxResponse>('/swap', {
     params: { hash, slippage, from, receiver },
   })

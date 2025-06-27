@@ -6,11 +6,11 @@ import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSola
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { checkTradeStatus } from './swapperApi/checkTradeStatus'
-import { getTradeQuote } from './swapperApi/getTradeQuote'
+import { getButterQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 
 export const butterSwapApi: SwapperApi = {
-  getTradeQuote,
+  getTradeQuote: getButterQuote,
   getTradeRate,
   checkTradeStatus,
   getUnsignedEvmTransaction: async args => {

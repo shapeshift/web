@@ -1,3 +1,4 @@
+import type { CardFooterProps } from '@chakra-ui/react'
 import { CardFooter, Flex } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -39,9 +40,10 @@ type SharedTradeInputFooterProps = {
 }
 
 const footerBgProp = {
-  base: 'transparent',
-  md: 'background.surface.raised.accent',
+  base: 'background.surface.base',
+  md: 'transparent',
 }
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const SharedTradeInputFooter = ({
   affiliateBps,
@@ -106,7 +108,15 @@ export const SharedTradeInputFooter = ({
   }, [rate, marketRate])
 
   return (
-    <CardFooter flexDir='column' px={0} py={0}>
+    <CardFooter
+      flexDir='column'
+      px={0}
+      py={0}
+      position={footerPosition}
+      bottom={'var(--mobile-nav-offset)'}
+      zIndex={1}
+      bg={footerBgProp}
+    >
       <Flex
         borderTopWidth={1}
         borderColor={hasUserEnteredAmount ? 'border.subtle' : 'transparent'}

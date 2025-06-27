@@ -5,7 +5,6 @@ import {
   CardBody,
   CardFooter,
   Collapse,
-  Divider,
   Flex,
   HStack,
   Icon,
@@ -139,8 +138,8 @@ export const LimitTradeSuccess = ({
   ])
 
   return (
-    <>
-      <CardBody pb={4} px={0}>
+    <Flex flexDir='column' flex='1' minH={0}>
+      <CardBody pb={4} px={0} display='flex' flex='1' flexDir='column'>
         <SlideTransition>
           <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
             <Stack alignItems='center'>
@@ -150,17 +149,11 @@ export const LimitTradeSuccess = ({
             <AmountsLine />
           </Flex>
         </SlideTransition>
-        <Stack gap={4} px={8}>
-          <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-            {translate(buttonTranslation)}
-          </Button>
-        </Stack>
       </CardBody>
-      {summaryTranslation && children && (
-        <>
-          <Divider />
-          <CardFooter flexDir='column' gap={2} px={8}>
-            <SlideTransition>
+      <CardFooter flexDir='column' gap={2} px={4} borderTop='none'>
+        <SlideTransition>
+          {summaryTranslation && children && (
+            <>
               <HStack width='full' justifyContent='space-between'>
                 <Button variant='link' onClick={handleToggle} px={2}>
                   {translate(summaryTranslation)}
@@ -170,10 +163,13 @@ export const LimitTradeSuccess = ({
               <Box>
                 <Collapse in={isOpen}>{children}</Collapse>
               </Box>
-            </SlideTransition>
-          </CardFooter>
-        </>
-      )}
-    </>
+            </>
+          )}
+          <Button mt={2} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
+            {translate(buttonTranslation)}
+          </Button>
+        </SlideTransition>
+      </CardFooter>
+    </Flex>
   )
 }

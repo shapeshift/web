@@ -7,8 +7,6 @@ import { TradeSlideTransition } from '@/components/MultiHopTrade/TradeSlideTrans
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 
-const cardBorderRadius = { base: 'xl' }
-
 type SharedConfirmProps = {
   bodyContent: JSX.Element
   footerContent: JSX.Element | null
@@ -16,6 +14,10 @@ type SharedConfirmProps = {
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
 }
+
+const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
+const cardBorderRadius = { base: '0', md: '2xl' }
+const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
 
 export const SharedConfirm = ({
   bodyContent,
@@ -32,7 +34,8 @@ export const SharedConfirm = ({
         maxWidth='500px'
         variant='dashboard'
         borderColor='border.base'
-        bg='background.surface.raised.base'
+        bg={cardBgProp}
+        minHeight={cardMinHeight}
       >
         <CardHeader px={6} pt={4}>
           <WithBackButton onBack={onBack}>
@@ -41,7 +44,7 @@ export const SharedConfirm = ({
             </Heading>
           </WithBackButton>
         </CardHeader>
-        <CardBody py={0} px={0}>
+        <CardBody py={0} px={0} display='flex' flex='1'>
           {bodyContent}
         </CardBody>
         {footerContent && (

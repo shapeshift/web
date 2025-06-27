@@ -1,3 +1,4 @@
+import type { CardHeaderProps } from '@chakra-ui/react'
 import { Box, CardHeader, Flex, Grid, Heading, useColorModeValue } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useCallback, useState } from 'react'
@@ -22,6 +23,8 @@ const mobileButtonsStyle = {
 }
 
 const cardPaddingX = { base: 2, md: 6 }
+const cardHeaderBgProp = { base: 'background.surface.base', md: 'transparent' }
+const cardPosition: CardHeaderProps['position'] = { base: 'sticky', md: 'static' }
 
 export const SharedTradeInputHeader = ({
   initialTab,
@@ -59,7 +62,7 @@ export const SharedTradeInputHeader = ({
   }, [handleChangeTab])
 
   return (
-    <CardHeader px={cardPaddingX}>
+    <CardHeader px={cardPaddingX} position={cardPosition} top={0} zIndex={1} bg={cardHeaderBgProp}>
       <Display.Desktop>
         <Flex alignItems='center' justifyContent='space-between'>
           <Flex gap={4}>

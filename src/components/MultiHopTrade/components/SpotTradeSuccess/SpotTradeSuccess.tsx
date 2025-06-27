@@ -170,8 +170,8 @@ export const SpotTradeSuccess = ({
   if (!(buyAsset && sellAsset)) return null
 
   return (
-    <>
-      <CardBody pb={4} px={0}>
+    <Flex flexDir='column' flex='1' minH={0}>
+      <CardBody pb={4} px={0} flex='1'>
         <SlideTransition>
           <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
             <Stack alignItems='center'>
@@ -216,6 +216,6 @@ export const SpotTradeSuccess = ({
           </CardFooter>
         </>
       )}
-    </>
+    </Flex>
   )
 }

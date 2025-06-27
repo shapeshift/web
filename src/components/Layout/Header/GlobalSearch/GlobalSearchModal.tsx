@@ -9,33 +9,22 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
-import { fromAssetId, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
-import { SearchResults } from './SearchResults'
+import { AssetSearchResults } from './AssetSearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { useModal } from '@/hooks/useModal/useModal'
-import { parseAddressInput } from '@/lib/address/address'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
-import type { GlobalSearchResult, SendResult } from '@/state/slices/search-selectors'
-import {
-  GlobalSearchResultType,
-  selectGlobalItemsFromFilter,
-} from '@/state/slices/search-selectors'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectAssets, selectAssetsBySearchQuery } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -49,7 +38,6 @@ export const GlobalSearchModal = memo(
     onOpen,
     onToggle,
   }: Pick<UseDisclosureReturn, 'isOpen' | 'onClose' | 'onOpen' | 'onToggle'>) => {
-    const [sendResults, setSendResults] = useState<SendResult[]>([])
     const [activeIndex, setActiveIndex] = useState(0)
     const [searchQuery, setSearchQuery] = useState('')
     const menuRef = useRef<HTMLDivElement>(null)
@@ -57,12 +45,10 @@ export const GlobalSearchModal = memo(
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const mixpanel = getMixPanel()
-    const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
-    const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
-    const [assetResults, txResults] = results
-    const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
-    const resultsCount = flatResults.length
+    const searchFilter = useMemo(() => ({ searchQuery, limit: 10 }), [searchQuery])
+    const results = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
+    const assetResults = results
+    const resultsCount = results.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
     const customTokenSupportedChainIds = useMemo(() => {
@@ -120,7 +106,6 @@ export const GlobalSearchModal = memo(
       })
     }, [customAssets, dispatch])
 
-    const send = useModal('send')
     useEffect(() => {
       if (!searchQuery) setActiveIndex(0)
     }, [searchQuery])
@@ -133,62 +118,15 @@ export const GlobalSearchModal = memo(
       }
     })
 
-    useEffect(() => {
-      if (!searchQuery?.length) return
-
-      setSendResults([])
-      ;(async () => {
-        const parsed = await parseAddressInput({ urlOrAddress: searchQuery })
-        if (parsed) {
-          const { chainId, address, vanityAddress } = parsed
-          const adapter = getChainAdapterManager().get(chainId)
-          if (!adapter) throw new Error(`No adapter found for chainId ${chainId}`)
-
-          // Set the fee AssetId as a default - users can select their preferred token later during the flow
-          setSendResults([
-            {
-              type: GlobalSearchResultType.Send,
-              id: adapter.getFeeAssetId(),
-              address,
-              vanityAddress,
-            },
-          ])
-        }
-      })()
-    }, [searchQuery])
-
     const handleClick = useCallback(
-      (item: GlobalSearchResult) => {
-        switch (item.type) {
-          case GlobalSearchResultType.Send: {
-            // We don't want to pre-select the asset for EVM ChainIds
-            const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
-            mixpanel?.track(MixPanelEvent.SendClick)
-            send.open({ assetId, input: searchQuery })
-            onToggle()
-            break
-          }
-          case GlobalSearchResultType.Asset: {
-            // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
-            dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
-            const url = `/assets/${item.id}`
-            navigate(url)
-            onToggle()
-            break
-          }
-          case GlobalSearchResultType.Transaction: {
-            const path = generatePath('/wallet/activity/transaction/:txId', {
-              txId: item.id,
-            })
-            navigate(path)
-            onToggle()
-            break
-          }
-          default:
-            break
-        }
+      (asset: Asset) => {
+        // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
+        const url = `/assets/${asset.assetId}`
+        navigate(url)
+        onToggle()
       },
-      [mixpanel, send, searchQuery, onToggle, dispatch, navigate],
+      [onToggle, dispatch, navigate],
     )
 
     const onKeyDown = useCallback(
@@ -216,9 +154,8 @@ export const GlobalSearchModal = memo(
           case 'Enter': {
             e.preventDefault()
             e.stopPropagation()
-            const item = flatResults[activeIndex]
+            const item = results[activeIndex]
             if (!item) {
-              setContext('flatResults', { flatResults })
               setContext('activeIndex', { activeIndex })
               captureException(new Error(`No item found for index ${activeIndex}`))
               return
@@ -230,7 +167,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [activeIndex, flatResults, handleClick, resultsCount],
+      [activeIndex, handleClick, resultsCount, results],
     )
 
     useUpdateEffect(() => {
@@ -287,10 +224,8 @@ export const GlobalSearchModal = memo(
             />
           </ModalHeader>
           <ModalBody px={0} ref={menuRef}>
-            <SearchResults
-              assetResults={assetResults}
-              txResults={txResults}
-              sendResults={sendResults}
+            <AssetSearchResults
+              results={assetResults}
               activeIndex={activeIndex}
               searchQuery={searchQuery}
               isSearching={isSearching}

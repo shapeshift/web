@@ -1,27 +1,17 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import * as z from 'myzod'
 
 import type { SwapErrorRight } from '../../types'
-import { TradeQuoteError } from '../../types'
-import { makeSwapErrorRight } from '../../utils'
-import { butterHistoryService } from './utils/butterSwapHistoryService'
-import { butterService } from './utils/butterSwapService'
 import type {
+  BridgeInfoApiResponse,
   BuildTxResponse,
   FindTokenResponse,
   RouteAndSwapResponse,
   RouteResponse,
   SupportedChainListResponse,
-} from './validators'
-import {
-  BridgeInfoApiResponseValidator,
-  BuildTxResponseValidator,
-  FindTokenResponseValidator,
-  RouteAndSwapResponseValidator,
-  RouteResponseValidator,
-  SupportedChainListResponseValidator,
-} from './validators'
+} from './types'
+import { butterHistoryService } from './utils/butterSwapHistoryService'
+import { butterService } from './utils/butterSwapService'
 
 type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 
@@ -30,21 +20,9 @@ type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
  */
 export const getSupportedChainList = async (): ButterSwapPromise<SupportedChainListResponse> => {
   const result = await butterService.get<SupportedChainListResponse>('/supportedChainList')
-
   if (result.isErr()) return Err(result.unwrapErr())
-
-  const data = result.unwrap().data
-  const validation = SupportedChainListResponseValidator.try(data)
-  if (validation instanceof z.ValidationError) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getSupportedChainList]',
-        cause: validation,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  return Ok(validation)
+  // No runtime validation, just return the data
+  return Ok(result.unwrap().data)
 }
 
 /**
@@ -57,21 +35,8 @@ export const findToken = async (
   const result = await butterService.get<FindTokenResponse>('/findToken', {
     params: { chainId, address },
   })
-
   if (result.isErr()) return Err(result.unwrapErr())
-
-  const data = result.unwrap().data
-  const validation = FindTokenResponseValidator.try(data)
-  if (validation instanceof z.ValidationError) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[findToken]',
-        cause: validation,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  return Ok(validation)
+  return Ok(result.unwrap().data)
 }
 
 /**
@@ -97,29 +62,8 @@ export const getRoute = async (
       entrance: 'Butter+',
     },
   })
-
   if (result.isErr()) return Err(result.unwrapErr())
-
-  const data = result.unwrap().data
-  const validation = RouteResponseValidator.try(data)
-  if (validation instanceof z.ValidationError) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getRoute]',
-        cause: validation,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  if (!isRouteSuccess(validation)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getRoute] ${validation.message}`,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  return Ok(validation)
+  return Ok(result.unwrap().data)
 }
 
 /**
@@ -134,30 +78,9 @@ export const getBuildTx = async (
   const result = await butterService.get<BuildTxResponse>('/swap', {
     params: { hash, slippage, from, receiver },
   })
-
   if (result.isErr()) return Err(result.unwrapErr())
-
-  const data = result.unwrap().data
-  console.log('[ButterSwap /swap] raw response:', JSON.stringify(data, null, 2))
-  const validation = BuildTxResponseValidator.try(data)
-  if (validation instanceof z.ValidationError) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getBuildTx]',
-        cause: validation,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  if (!isBuildTxSuccess(validation)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getBuildTx] ${validation.message}`,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  return Ok(validation)
+  console.log('[ButterSwap /swap] raw response:', JSON.stringify(result.unwrap().data, null, 2))
+  return Ok(result.unwrap().data)
 }
 
 /**
@@ -187,48 +110,30 @@ export const getRouteAndSwap = async (
       receiver,
     },
   })
-
   if (result.isErr()) return Err(result.unwrapErr())
-
-  const data = result.unwrap().data
-  console.log('[ButterSwap /routeAndSwap] raw response:', JSON.stringify(data, null, 2))
-  const validation = RouteAndSwapResponseValidator.try(data)
-  if (validation instanceof z.ValidationError) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getRouteAndSwap]',
-        cause: validation,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  if (!isRouteAndSwapSuccess(validation)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getRouteAndSwap] ${validation.message}`,
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
-  }
-  return Ok(validation)
+  console.log(
+    '[ButterSwap /routeAndSwap] raw response:',
+    JSON.stringify(result.unwrap().data, null, 2),
+  )
+  return Ok(result.unwrap().data)
 }
 
 export function isRouteSuccess(
   response: RouteResponse,
 ): response is Extract<RouteResponse, { errno: 0 }> {
-  return response.errno === 0
+  return (response as any).errno === 0
 }
 
 export function isBuildTxSuccess(
   response: BuildTxResponse,
 ): response is Extract<BuildTxResponse, { errno: 0 }> {
-  return response.errno === 0
+  return (response as any).errno === 0
 }
 
 export function isRouteAndSwapSuccess(
   response: RouteAndSwapResponse,
 ): response is Extract<RouteAndSwapResponse, { errno: 0 }> {
-  return response.errno === 0
+  return (response as any).errno === 0
 }
 
 /**
@@ -236,27 +141,24 @@ export function isRouteAndSwapSuccess(
  */
 export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | undefined> => {
   try {
-    const result = await butterHistoryService.get<any>('/api/queryBridgeInfoBySourceHash', {
-      params: { hash },
-    })
+    const result = await butterHistoryService.get<BridgeInfoApiResponse>(
+      '/api/queryBridgeInfoBySourceHash',
+      {
+        params: { hash },
+      },
+    )
     if (result.isErr()) {
       console.debug('ButterSwap getBridgeInfoBySourceHash: result isErr', result.unwrapErr())
       throw result.unwrapErr()
     }
     const data = result.unwrap().data
     console.debug('ButterSwap getBridgeInfoBySourceHash: API response', data)
-    const validation = BridgeInfoApiResponseValidator.try(data)
-    console.debug('ButterSwap getBridgeInfoBySourceHash: validation', validation)
-    if (validation instanceof z.ValidationError) {
-      console.debug('ButterSwap getBridgeInfoBySourceHash: validation error', validation)
+    if (!data || !data.data || !data.data.info) {
+      console.debug('ButterSwap getBridgeInfoBySourceHash: info is null or missing')
       return undefined
     }
-    if (validation.data.info === null) {
-      console.debug('ButterSwap getBridgeInfoBySourceHash: info is null')
-      return undefined
-    }
-    console.debug('ButterSwap getBridgeInfoBySourceHash: returning info', validation.data.info)
-    return validation.data.info
+    console.debug('ButterSwap getBridgeInfoBySourceHash: returning info', data.data.info)
+    return data.data.info
   } catch (e) {
     console.debug('ButterSwap getBridgeInfoBySourceHash: caught error', e)
     return undefined

@@ -1,16 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
-import type {
-  GetTradeRateInput,
-  SwapperConfig,
-  SwapperDeps,
-  ThorEvmTradeQuote,
-} from '@shapeshiftoss/swapper'
+import { solAssetId } from '@shapeshiftoss/caip'
+import type { GetTradeRateInput, SwapperDeps, ThorEvmTradeQuote } from '@shapeshiftoss/swapper'
 import {
   getChainIdBySwapper,
-  getSupportedBuyAssetIds,
-  getSupportedSellAssetIds,
   getTradeQuotes,
   getTradeRates,
   SwapperName,
@@ -41,7 +33,6 @@ import { selectAssets } from '@/state/slices/assetsSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -253,60 +244,6 @@ export const swapperApi = createApi({
       providesTags: (_result, _error, tradeQuoteRequest) => [
         { type: 'TradeQuote' as const, id: tradeQuoteRequest.swapperName },
       ],
-    }),
-    getSupportedAssets: build.query<
-      {
-        supportedSellAssetIds: AssetId[]
-        supportedBuyAssetIds: AssetId[]
-      },
-      { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] }
-    >({
-      queryFn: async (
-        {
-          walletSupportedChainIds,
-          sortedAssetIds,
-        }: { walletSupportedChainIds: ChainId[]; sortedAssetIds: AssetId[] },
-        { getState },
-      ) => {
-        const state = getState() as ReduxState
-
-        const featureFlags = preferences.selectors.selectFeatureFlags(state)
-        const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
-        const assets = selectAssets(state)
-        const sellAsset = selectInputSellAsset(state)
-        const swapperConfig: SwapperConfig = getConfig()
-
-        const supportedSellAssetsSet = await getSupportedSellAssetIds(
-          enabledSwappers,
-          assets,
-          swapperConfig,
-        )
-        const supportedSellAssetIds = sortedAssetIds
-          .filter(assetId => supportedSellAssetsSet.has(assetId))
-          .filter(assetId => {
-            const chainId = fromAssetId(assetId).chainId
-            return walletSupportedChainIds.includes(chainId)
-          })
-
-        const supportedBuyAssetsSet = await getSupportedBuyAssetIds(
-          enabledSwappers,
-          sellAsset,
-          assets,
-          swapperConfig,
-        )
-
-        const supportedBuyAssetIds = sortedAssetIds.filter(assetId =>
-          supportedBuyAssetsSet.has(assetId),
-        )
-
-        return {
-          data: {
-            supportedSellAssetIds,
-            supportedBuyAssetIds,
-          },
-        }
-      },
-      providesTags: [],
     }),
   }),
 })

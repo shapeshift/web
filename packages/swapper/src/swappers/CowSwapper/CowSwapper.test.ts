@@ -5,18 +5,6 @@ import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetUnsignedEvmMessageArgs, SwapperConfig, TradeQuote } from '../../types'
-import {
-  BTC,
-  ETH,
-  ETH_ARBITRUM,
-  FOX_GNOSIS,
-  FOX_MAINNET,
-  USDC_ARBITRUM,
-  WBTC,
-  WETH,
-  XDAI,
-} from '../utils/test-data/assets'
-import { cowSwapper } from './CowSwapper'
 import { cowApi } from './endpoints'
 import { cowService } from './utils/cowService'
 
@@ -76,109 +64,9 @@ vi.mock('@/state/slices/assetsSlice/selectors', async () => {
   }
 })
 
-const ASSETS = [ETH, WBTC, WETH, BTC, FOX_MAINNET, XDAI, ETH_ARBITRUM, USDC_ARBITRUM]
-
 const MOCK_COWSWAP_CONFIG = {
   VITE_COWSWAP_BASE_URL: 'https://api.cow.fi',
 } as SwapperConfig
-
-describe('CowSwapper', () => {
-  describe('filterAssetIdsBySellable', () => {
-    it('returns empty array when called with an empty array', async () => {
-      expect(await cowSwapper.filterAssetIdsBySellable([], MOCK_COWSWAP_CONFIG)).toEqual([])
-    })
-
-    it('returns array filtered out of non erc20 tokens', async () => {
-      expect(await cowSwapper.filterAssetIdsBySellable(ASSETS, MOCK_COWSWAP_CONFIG)).toEqual([
-        WBTC.assetId,
-        WETH.assetId,
-        FOX_MAINNET.assetId,
-        USDC_ARBITRUM.assetId,
-      ])
-    })
-
-    it('returns array filtered out of unsupported tokens', async () => {
-      const assetIds = [FOX_MAINNET, FOX_GNOSIS, USDC_ARBITRUM, BTC]
-
-      expect(await cowSwapper.filterAssetIdsBySellable(assetIds, MOCK_COWSWAP_CONFIG)).toEqual([
-        FOX_MAINNET.assetId,
-        FOX_GNOSIS.assetId,
-        USDC_ARBITRUM.assetId,
-      ])
-    })
-  })
-
-  describe('filterBuyAssetsBySellAssetId', () => {
-    it('returns empty array when called with an empty assetIds array', async () => {
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets: [],
-          sellAsset: WETH,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([])
-    })
-
-    it('returns empty array when called with sellAssetId that is not sellable', async () => {
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets: ASSETS,
-          sellAsset: ETH,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([])
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets: ASSETS,
-          sellAsset: BTC,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([])
-    })
-
-    it('returns array filtered out of non erc20 tokens when called with a sellable sellAssetId', async () => {
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets: ASSETS,
-          sellAsset: WETH,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets: ASSETS,
-          sellAsset: WBTC,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets: ASSETS,
-          sellAsset: FOX_MAINNET,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
-    })
-
-    it('returns array filtered out of unsupported tokens when called with a sellable sellAssetId', async () => {
-      const assets = [FOX_MAINNET, BTC]
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets,
-          sellAsset: WETH,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([FOX_MAINNET.assetId])
-      expect(
-        await cowSwapper.filterBuyAssetsBySellAssetId({
-          assets,
-          sellAsset: FOX_MAINNET,
-          config: MOCK_COWSWAP_CONFIG,
-        }),
-      ).toEqual([])
-    })
-  })
-})
 
 describe('cowApi', () => {
   describe('getUnsignedEvmMessage', () => {

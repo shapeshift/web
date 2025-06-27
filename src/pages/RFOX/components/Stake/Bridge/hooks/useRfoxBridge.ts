@@ -7,7 +7,6 @@ import type {
   GetEvmTradeQuoteInputWithWallet,
   SwapErrorRight,
   TradeQuote,
-  TradeRate,
 } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi, getTradeQuoteWithWallet } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
@@ -147,7 +146,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       accountNumber: sellAssetAccountNumber,
       hasWallet: Boolean(walletInfo?.deviceId),
       quoteOrRate: 'quote' as const,
-      originalRate: {} as TradeRate,
     }),
     [
       buyAsset,

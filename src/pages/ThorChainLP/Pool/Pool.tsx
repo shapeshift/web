@@ -35,6 +35,7 @@ import { Display } from '@/components/Display'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
@@ -142,7 +143,7 @@ export const Pool = () => {
 
   const handleTradeClick = useCallback(() => {
     if (!assetId) return
-    navigate(`/trade/${assetId}`)
+    navigate(`${TradeRoutePaths.Input}/${assetId}`)
   }, [assetId, navigate])
 
   const headerComponent = useMemo(

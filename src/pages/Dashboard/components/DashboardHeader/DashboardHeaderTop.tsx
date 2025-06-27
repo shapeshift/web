@@ -28,6 +28,7 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
 import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
@@ -136,7 +137,7 @@ export const DashboardHeaderTop = memo(() => {
   }, [receive])
 
   const handleTradeClick = useCallback(() => {
-    navigate('/trade')
+    navigate(TradeRoutePaths.Input)
   }, [navigate])
 
   const handleBuyClick = useCallback(() => {

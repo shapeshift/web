@@ -2,8 +2,8 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import type { JSX } from 'react'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter } from 'react-router-dom'
-import { Route, Switch, useLocation } from 'wouter'
+import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { RemoveLiquidityRoutePaths } from './types'
 
@@ -103,32 +103,33 @@ export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   confirmedQuote,
   setConfirmedQuote,
 }) => {
+  const location = useLocation()
   const mixpanel = getMixPanel()
-  const [, setLocation] = useLocation()
+  const navigate = useNavigate()
 
   const handleSweepSeen = useCallback(() => {
     if (!confirmedQuote || !mixpanel) return
 
     if (confirmedQuote.positionStatus?.incomplete) {
-      setLocation(RemoveLiquidityRoutePaths.Status)
+      navigate(RemoveLiquidityRoutePaths.Status)
       mixpanel.track(
         MixPanelEvent.LpIncompleteWithdrawPreview,
         confirmedQuote as Record<string, unknown>,
       )
     } else {
-      setLocation(RemoveLiquidityRoutePaths.Confirm)
+      navigate(RemoveLiquidityRoutePaths.Confirm)
       mixpanel.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote as Record<string, unknown>)
     }
-  }, [confirmedQuote, mixpanel, setLocation])
+  }, [confirmedQuote, mixpanel, navigate])
 
   const handleBack = useCallback(() => {
-    setLocation(RemoveLiquidityRoutePaths.Input)
-  }, [setLocation])
+    window.history.back()
+  }, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        <Switch>
+        <Switch location={location.pathname}>
           <Route path={RemoveLiquidityRoutePaths.Input}>
             <RemoveLiquidityInput
               headerComponent={headerComponent}
@@ -153,16 +154,6 @@ export const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
                 onBack={handleBack}
               />
             )}
-          </Route>
-          <Route>
-            <RemoveLiquidityInput
-              headerComponent={headerComponent}
-              opportunityId={opportunityId}
-              accountId={accountId}
-              poolAssetId={poolAssetId}
-              confirmedQuote={confirmedQuote}
-              setConfirmedQuote={setConfirmedQuote}
-            />
           </Route>
         </Switch>
       </Suspense>

@@ -36,24 +36,12 @@ export const Portfolio = memo(() => {
 
   return (
     <>
-      <Display.Desktop>
-        <Stack spacing={stackSpacing} width='full'>
+      <Stack spacing={stackSpacing} width='full'>
+        <Display.Desktop>
           {shouldRenderChart ? <DashboardChart /> : <DashboardChartSkeleton />}
           <TCYCta />
-          <Card variant='dashboard'>
-            <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
-              <Heading as='h6'>
-                <Text translation='dashboard.portfolio.myAssets' />
-              </Heading>
-            </CardHeader>
-            <CardBody px={cardBodyPx} pt={0} pb={0}>
-              {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
-            </CardBody>
-          </Card>
-        </Stack>
-      </Display.Desktop>
-      <Display.Mobile>
-        <Card variant='dashboard' borderTopWidth={0}>
+        </Display.Desktop>
+        <Card variant='dashboard'>
           <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
             <Heading as='h6'>
               <Text translation='dashboard.portfolio.myAssets' />
@@ -63,7 +51,7 @@ export const Portfolio = memo(() => {
             {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
           </CardBody>
         </Card>
-      </Display.Mobile>
+      </Stack>
     </>
   )
 })

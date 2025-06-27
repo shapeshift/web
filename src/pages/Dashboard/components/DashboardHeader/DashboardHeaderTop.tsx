@@ -146,7 +146,13 @@ export const DashboardHeaderTop = memo(() => {
 
   const mobileButtons = useMemo(
     () => (
-      <Flex mt={4} gap={3} width='100%' justifyContent='center' display={mobileButtonRowDisplay}>
+      <Flex
+        mt={4}
+        px={4}
+        width='100%'
+        justifyContent='space-around'
+        display={mobileButtonRowDisplay}
+      >
         <MobileActionButton
           icon={swapIcon}
           label={translate('navBar.tradeShort')}
@@ -217,36 +223,31 @@ export const DashboardHeaderTop = memo(() => {
     <>
       <Display.Mobile>
         <>
-          <Flex
-            justifyContent='space-between'
-            width='100%'
-            pt={4}
-            gap={2}
-            gridColumn={3}
-            display={mobileButtonRowDisplay}
-            px={4}
-          >
-            <Flex align='center' onClick={onOpen}>
-              <ProfileAvatar size='md' borderRadius='full' />
-              <Text ml={2} fontWeight='semibold' fontSize='md'>
-                {(walletInfo?.meta?.label || walletInfo?.name) ?? translate('common.connectWallet')}
-              </Text>
+          <Container px={6} pt={4}>
+            <Flex justifyContent='space-between' width='100%' display={mobileButtonRowDisplay}>
+              <Flex align='center' onClick={onOpen}>
+                <ProfileAvatar size='md' borderRadius='full' />
+                <Text ml={2} fontWeight='semibold' fontSize='md'>
+                  {(walletInfo?.meta?.label || walletInfo?.name) ??
+                    translate('common.connectWallet')}
+                </Text>
+              </Flex>
+              <Flex gap={2}>
+                <IconButton
+                  icon={searchIcon}
+                  aria-label={translate('common.search')}
+                  onClick={onSearchOpen}
+                  isRound
+                />
+                <IconButton
+                  icon={qrCodeIcon}
+                  aria-label={translate('modals.send.qrCode')}
+                  onClick={handleQrCodeClick}
+                  isRound
+                />
+              </Flex>
             </Flex>
-            <Flex gap={2}>
-              <IconButton
-                icon={searchIcon}
-                aria-label={translate('common.search')}
-                onClick={onSearchOpen}
-                isRound
-              />
-              <IconButton
-                icon={qrCodeIcon}
-                aria-label={translate('modals.send.qrCode')}
-                onClick={handleQrCodeClick}
-                isRound
-              />
-            </Flex>
-          </Flex>
+          </Container>
           <Container
             width='100%'
             display='grid'

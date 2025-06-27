@@ -120,9 +120,48 @@ In the context of ButterSwap, the distinction between single-hop and multi-hop s
 
 These STEPS are presented to the user as part of a single HOP in the UI, maintaining a simple, single-signature user experience.
 
-# Developer Workflow Notes
+## 10. Developer Workflow Notes
 
 * Always use `yarn vitest run <path-to-test-file> -t "<test name>"` to run ButterSwap integration tests in run mode for the specific file and test you are working on.
 
   Example:
   yarn vitest run packages/swapper/src/swappers/ButterSwap/xhr.test.ts -t "ButterSwap ETH->USDC mainnet integration"
+
+## Fee Handling PR Review TODOs
+
+### 1. swapFee.nativeFee vs swapFee.tokenFee
+
+* Reminder: `nativeFee` is the gas fee for the transaction (paid in the native asset, e.g., ETH for Ethereum).
+
+* Reminder: `tokenFee` is a fee in the token being exchanged (likely the buy asset, similar to how CowSwap charges protocol fees in the buy asset).
+* Both fees should not be nonzero at the same time. Example from the API:
+
+```json
+"swapFee": {
+  "nativeFee": "0.0",
+  "tokenFee": "0.00001"
+}
+```
+
+* TODO: Make sure the code does not sum both fees and that logic assumes only one is nonzero at a time.
+
+### 2. Protocol Fees Handling
+
+* Protocol fees should be paid in addition to the swap, not deducted from the output amount.
+
+* TODO: Make sure protocol fees are handled as an additional requirement for the user's balance, not as a downside to the swap amount.
+
+### 3. Affiliate and Fee Rate
+
+* The affiliate string format is `<nickname>[:rate]` (e.g., `butter:50` for a 0.5% affiliate fee).
+
+* If the fee rate is not provided, the default base rate is used.
+* TODO: Make sure the affiliate and fee rate are passed to ButterSwap as required, and that the logic is ready for affiliate integration.
+
+### 4. General Fee Logic
+
+* There was a suggestion to remove a code branch that sums both native and token fees, since both should never be nonzero.
+
+* TODO: Make sure the code does not attempt to sum both fees and that the logic is simplified accordingly.
+
+---

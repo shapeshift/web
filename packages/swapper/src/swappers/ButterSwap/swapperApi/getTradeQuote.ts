@@ -191,11 +191,11 @@ export const getTradeQuote = async (
   }
 
   // Calculate rate as lastHop.totalAmountOut / srcChain.totalAmountIn (in base units)
+  // For cross-chain swaps, use dstChain.totalAmountOut (final min amount out)
+  // For same-chain swaps, use srcChain.totalAmountOut
+  // We do NOT use bridgeChain.totalAmountOut, as it is only an intermediary for cross-chain swaps
   const inputAmount = bnOrZero(route.srcChain.totalAmountIn)
-  const outputAmount =
-    route.dstChain?.totalAmountOut ??
-    route.bridgeChain?.totalAmountOut ??
-    route.srcChain.totalAmountOut
+  const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
   const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
 
   const step = {

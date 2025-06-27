@@ -18,7 +18,7 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const balanceFontSize = { base: '2xl', md: '4xl' }
+const defaultBalanceFontSize = { base: '2xl', md: '4xl' }
 const balanceFlexDir: ResponsiveValue<Property.FlexDirection> = {
   base: 'column-reverse',
   md: 'column',
@@ -31,9 +31,10 @@ const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
 type WalletBalanceProps = {
   label?: string
   alignItems?: FlexProps['alignItems']
+  balanceFontSize?: FlexProps['fontSize']
 }
 export const WalletBalance: React.FC<WalletBalanceProps> = memo(
-  ({ label = 'defi.netWorth', alignItems }) => {
+  ({ label = 'defi.netWorth', alignItems, balanceFontSize }) => {
     const { isFetching: isAccountsMetadataFetching } = useAccountsFetchQuery()
     const { isLoading: isOpportunitiesLoading, opportunityAccountIdsFetched } =
       useFetchOpportunities()
@@ -88,7 +89,7 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
         <Amount.Fiat
           lineHeight='shorter'
           value={netWorth}
-          fontSize={balanceFontSize}
+          fontSize={balanceFontSize ?? defaultBalanceFontSize}
           fontWeight='semibold'
         />
       </Flex>

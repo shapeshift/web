@@ -62,7 +62,7 @@ describe('useHasAppUpdated', () => {
         vi.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
       })
       await vi.waitFor(() => {
-        return expect(result.current).toBe(true)
+        return expect(result.current.hasUpdated).toBe(true)
       })
     })
     it('should return false when metadata.json is not updated', async () => {
@@ -75,7 +75,7 @@ describe('useHasAppUpdated', () => {
 
       const { result } = renderHook(() => useHasAppUpdated())
 
-      await waitFor(() => expect(result.current).toBe(false))
+      await waitFor(() => expect(result.current.hasUpdated).toBe(false))
     })
 
     it('should return false when axios fails', async () => {
@@ -92,7 +92,7 @@ describe('useHasAppUpdated', () => {
         return Promise.reject({ error: {} })
       })
 
-      await vi.waitFor(() => expect(result.current).toBe(false))
+      await vi.waitFor(() => expect(result.current.hasUpdated).toBe(false))
     })
   })
 
@@ -120,7 +120,7 @@ describe('useHasAppUpdated', () => {
         else return Promise.resolve({ data: {} })
       })
 
-      await waitFor(() => expect(result.current).toBe(false))
+      await waitFor(() => expect(result.current.hasUpdated).toBe(false))
       expect(mocks.get.mock.calls.length).toEqual(0)
     })
 

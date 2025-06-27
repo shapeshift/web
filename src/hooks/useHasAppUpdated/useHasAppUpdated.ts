@@ -7,17 +7,22 @@ export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60 // one minute
 // Treat private IPs as local: 192.168.0.0/16, 10.0.0.0/16, 127.0.0.0/16, and 'localhost'
 const localhostRegEx = /(?:192\.168|10\.0|127\.0)\.\d{1,3}\.\d{1,3}|localhost/
 
-type Metadata = {
+export type Metadata = {
   latestTag: string
   headShortCommitHash: string
 }
 
-export const useHasAppUpdated = () => {
-  const [hasUpdated, setHasUpdated] = useState(false)
+type HasUpdatedResult = {
+  hasUpdated: boolean
+  initialMetadata?: Metadata
+  newMetadata?: Metadata
+}
 
+export const useHasAppUpdated = (): HasUpdatedResult => {
   // 'metadata.json' keeps track of current commit hash and git tag
   const metadataUrl = `/metadata.json`
   const [initialMetadata, setInitialMetadata] = useState<Metadata | undefined>()
+  const [newMetadata, setNewMetadata] = useState<Metadata | undefined>()
 
   const isLocalhost = localhostRegEx.test(window.location.hostname)
 
@@ -47,7 +52,7 @@ export const useHasAppUpdated = () => {
       // don't erroneously compare if we failed to fetch on the interval
       if (!currentMetadata) return
       const isDifferentMetadata = !isEqual(initialMetadata, currentMetadata)
-      setHasUpdated(isDifferentMetadata)
+      setNewMetadata(isDifferentMetadata ? currentMetadata : undefined)
     }
     const interval = setInterval(fn, APP_UPDATE_CHECK_INTERVAL)
     fn() // run this once, makes testing easier
@@ -56,6 +61,12 @@ export const useHasAppUpdated = () => {
     return () => clearTimeout(interval)
   }, [fetchData, initialMetadata, isLocalhost, metadataUrl])
 
-  if (isLocalhost) return false // never return true on localhost
-  return hasUpdated
+  if (isLocalhost) return { hasUpdated: false } // never return true on localhost
+  // if (isLocalhost)
+  //   return {
+  //     hasUpdated: true,
+  //     initialMetadata: { latestTag: 'old beans', headShortCommitHash: 'old beans hash' },
+  //     newMetadata: { latestTag: 'new beans', headShortCommitHash: 'new beans hash' },
+  //   }
+  return { hasUpdated: newMetadata !== undefined, initialMetadata, newMetadata }
 }

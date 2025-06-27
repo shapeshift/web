@@ -32,3 +32,9 @@ export const BUTTERSWAP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
 }
 
 export const DEFAULT_BUTTERSWAP_AFFILIATE_BPS = 50
+
+const BUTTERSWAP_AFFILIATE = 'butter'
+
+export const getButterSwapAffiliate = (): string => {
+  return `${BUTTERSWAP_AFFILIATE}:${DEFAULT_BUTTERSWAP_AFFILIATE_BPS}`
+}

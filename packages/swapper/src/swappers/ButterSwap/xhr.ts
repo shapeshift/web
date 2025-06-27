@@ -1,7 +1,9 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TradeQuoteError } from 'packages/swapper/src/types'
 
 import type { SwapErrorRight } from '../../types'
+import { makeSwapErrorRight } from '../../utils'
 import type {
   BridgeInfoApiResponse,
   BuildTxResponse,
@@ -49,21 +51,31 @@ export const getRoute = async (
   tokenOutAddress: string,
   amountHumanUnits: string,
   slippage: string,
+  affiliate: string,
 ): ButterSwapPromise<RouteResponse> => {
-  const result = await butterService.get<RouteResponse>('/route', {
-    params: {
-      fromChainId,
-      tokenInAddress,
-      toChainId,
-      tokenOutAddress,
-      amount: amountHumanUnits,
-      type: 'exactIn',
-      slippage,
-      entrance: 'Butter+',
-    },
-  })
+  const params: Record<string, any> = {
+    fromChainId,
+    tokenInAddress,
+    toChainId,
+    tokenOutAddress,
+    amount: amountHumanUnits,
+    type: 'exactIn',
+    slippage,
+    entrance: 'Butter+',
+    affiliate,
+  }
+  const result = await butterService.get<RouteResponse>('/route', { params })
   if (result.isErr()) return Err(result.unwrapErr())
-  return Ok(result.unwrap().data)
+  const data = result.unwrap().data
+  if (data.errno > 0) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getRoute] ${data.message}`,
+        code: butterSwapErrorToTradeQuoteError(data.errno),
+      }),
+    )
+  }
+  return Ok(data)
 }
 
 /**
@@ -79,7 +91,16 @@ export const getBuildTx = async (
     params: { hash, slippage, from, receiver },
   })
   if (result.isErr()) return Err(result.unwrapErr())
-  return Ok(result.unwrap().data)
+  const data = result.unwrap().data
+  if (data.errno > 0) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getBuildTx] ${data.message}`,
+        code: butterSwapErrorToTradeQuoteError(data.errno),
+      }),
+    )
+  }
+  return Ok(data)
 }
 
 /**
@@ -110,25 +131,34 @@ export const getRouteAndSwap = async (
     },
   })
   if (result.isErr()) return Err(result.unwrapErr())
-  return Ok(result.unwrap().data)
+  const data = result.unwrap().data
+  if (data.errno > 0) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getRouteAndSwap] ${data.message}`,
+        code: butterSwapErrorToTradeQuoteError(data.errno),
+      }),
+    )
+  }
+  return Ok(data)
 }
 
 export function isRouteSuccess(
   response: RouteResponse,
 ): response is Extract<RouteResponse, { errno: 0 }> {
-  return (response as any).errno === 0
+  return response.errno === 0
 }
 
 export function isBuildTxSuccess(
   response: BuildTxResponse,
 ): response is Extract<BuildTxResponse, { errno: 0 }> {
-  return (response as any).errno === 0
+  return response.errno === 0
 }
 
 export function isRouteAndSwapSuccess(
   response: RouteAndSwapResponse,
 ): response is Extract<RouteAndSwapResponse, { errno: 0 }> {
-  return (response as any).errno === 0
+  return response.errno === 0
 }
 
 /**
@@ -152,5 +182,33 @@ export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | und
     return data.data.info
   } catch (e) {
     return undefined
+  }
+}
+
+/**
+ * Maps ButterSwap API error codes to human-readable error types.
+ * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/error-code-list
+ */
+
+export function butterSwapErrorToTradeQuoteError(errno: number): TradeQuoteError {
+  switch (errno) {
+    case 2000:
+      return TradeQuoteError.QueryFailed
+    case 2001:
+      return TradeQuoteError.UnsupportedChain
+    case 2002:
+      return TradeQuoteError.UnsupportedTradePair
+    case 2003:
+      return TradeQuoteError.NoRouteFound
+    case 2004:
+      return TradeQuoteError.NoRouteFound
+    case 2005:
+      return TradeQuoteError.FinalQuoteMaxSlippageExceeded
+    case 2006:
+      return TradeQuoteError.SellAmountBelowMinimum
+    case 2007:
+      return TradeQuoteError.QueryFailed
+    default:
+      return TradeQuoteError.QueryFailed
   }
 }

@@ -8,8 +8,9 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getButterSwapAffiliate } from '../utils/constants'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
-import { getRoute, isRouteSuccess } from '../xhr'
+import { butterSwapErrorToTradeQuoteError, getRoute, isRouteSuccess } from '../xhr'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -62,16 +63,25 @@ export const getTradeRate = async (
     buyAssetAddress,
     amount,
     slippage,
+    getButterSwapAffiliate(),
   )
 
   if (result.isErr()) return Err(result.unwrapErr())
   const routeResponse = result.unwrap()
 
   if (!isRouteSuccess(routeResponse)) {
+    if (routeResponse.errno === 2003 && routeResponse.message === 'No Route Found') {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeRate] No route found',
+          code: butterSwapErrorToTradeQuoteError(routeResponse.errno),
+        }),
+      )
+    }
     return Err(
       makeSwapErrorRight({
         message: `[getTradeRate] ${routeResponse.message}`,
-        code: TradeQuoteError.QueryFailed,
+        code: butterSwapErrorToTradeQuoteError(routeResponse.errno),
       }),
     )
   }

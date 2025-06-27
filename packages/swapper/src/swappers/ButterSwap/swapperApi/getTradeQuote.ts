@@ -8,9 +8,15 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS } from '../utils/constants'
+import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, getButterSwapAffiliate } from '../utils/constants'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
-import { getBuildTx, getRoute, isBuildTxSuccess, isRouteSuccess } from '../xhr'
+import {
+  butterSwapErrorToTradeQuoteError,
+  getBuildTx,
+  getRoute,
+  isBuildTxSuccess,
+  isRouteSuccess,
+} from '../xhr'
 
 const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
 
@@ -79,6 +85,7 @@ export const getTradeQuote = async (
     buyAssetAddress,
     bn(amount).shiftedBy(-sellAsset.precision).toString(), // convert to human units
     slippage,
+    getButterSwapAffiliate(), // pass affiliate string
   )
 
   if (routeResult.isErr()) return Err(routeResult.unwrapErr())
@@ -87,7 +94,7 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getTradeQuote] ${routeResponse.message}`,
-        code: TradeQuoteError.QueryFailed,
+        code: butterSwapErrorToTradeQuoteError(routeResponse.errno),
       }),
     )
   }

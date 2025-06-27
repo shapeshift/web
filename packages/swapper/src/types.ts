@@ -540,8 +540,6 @@ export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
-  filterAssetIdsBySellable: (assets: Asset[], config: SwapperConfig) => Promise<AssetId[]>
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 
   executeEvmTransaction?: (

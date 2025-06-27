@@ -1,5 +1,4 @@
-import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
-import { bnOrZero, isSome, timeoutMonadic } from '@shapeshiftoss/utils'
+import { bnOrZero, timeoutMonadic } from '@shapeshiftoss/utils'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type {
@@ -8,7 +7,6 @@ import type {
   QuoteResult,
   RateResult,
   SwapErrorRight,
-  SwapperConfig,
   SwapperDeps,
   SwapperName,
   TradeQuote,
@@ -73,41 +71,4 @@ export const getTradeRates = async (
     // in case this logs an error from a rejected promise, it means we throw somewhere and forgot to handle errors the monadic way
     console.error('Unhandled error. Use monadic error handling: ', e)
   }
-}
-
-// TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
-// We currently need to pass assetsById to avoid instantiating AssetService in web
-// but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
-export const getSupportedSellAssetIds = async (
-  enabledSwappers: Record<SwapperName, boolean>,
-  assetsById: AssetsByIdPartial,
-  config: SwapperConfig,
-) => {
-  const assets = Object.values(assetsById) as Asset[]
-  const supportedAssetIds = await Promise.all(
-    Object.entries(swappers)
-      .filter(([swapperName, _]) => enabledSwappers[swapperName as SwapperName])
-      .map(([_, swapper]) => swapper?.filterAssetIdsBySellable(assets, config))
-      .filter(isSome),
-  )
-  return new Set(supportedAssetIds.flat())
-}
-
-// TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
-// We currently need to pass assetsById to avoid instantiating AssetService in web
-// but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
-export const getSupportedBuyAssetIds = async (
-  enabledSwappers: Record<SwapperName, boolean>,
-  sellAsset: Asset,
-  assetsById: AssetsByIdPartial,
-  config: SwapperConfig,
-) => {
-  const assets = Object.values(assetsById) as Asset[]
-  const supportedAssetIds = await Promise.all(
-    Object.entries(swappers)
-      .filter(([swapperName, _]) => enabledSwappers[swapperName as SwapperName])
-      .map(([_, swapper]) => swapper?.filterBuyAssetsBySellAssetId({ assets, sellAsset, config }))
-      .filter(isSome),
-  )
-  return new Set(supportedAssetIds.flat())
 }

@@ -1,7 +1,6 @@
 import { executeSolanaTransaction } from '../..'
 import type { Swapper } from '../../types'
 import { JUPITER_ERRORS, SolanaLogsError } from './errorPatterns'
-import { jupiterSupportedChainIds } from './utils/constants'
 
 export const jupiterSwapper: Swapper = {
   executeSolanaTransaction: async (txToSign, callbacks) => {
@@ -27,19 +26,5 @@ export const jupiterSwapper: Swapper = {
 
       throw e
     }
-  },
-  filterAssetIdsBySellable: assets => {
-    return Promise.resolve(
-      assets
-        .filter(asset => jupiterSupportedChainIds.includes(asset.chainId))
-        .map(asset => asset.assetId),
-    )
-  },
-  filterBuyAssetsBySellAssetId: input => {
-    return Promise.resolve(
-      input.assets
-        .filter(asset => jupiterSupportedChainIds.includes(asset.chainId))
-        .map(asset => asset.assetId),
-    )
   },
 }

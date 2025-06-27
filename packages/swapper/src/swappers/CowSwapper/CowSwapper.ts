@@ -2,8 +2,6 @@ import { SigningScheme } from '@shapeshiftoss/types'
 
 import { assertGetCowNetwork, signCowOrder } from '../../cowswap-utils'
 import type { Swapper } from '../../types'
-import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { cowService } from './utils/cowService'
 
 export const cowSwapper: Swapper = {
@@ -33,6 +31,4 @@ export const cowSwapper: Swapper = {
 
     return orderUid
   },
-  filterAssetIdsBySellable: assets => Promise.resolve(filterAssetIdsBySellable(assets)),
-  filterBuyAssetsBySellAssetId: input => Promise.resolve(filterBuyAssetsBySellAssetId(input)),
 }

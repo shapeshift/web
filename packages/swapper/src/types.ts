@@ -316,8 +316,7 @@ export type TradeQuoteStep = {
     data: string
     value: string
     chainId: string
-    method?: string
-    args?: { type: string; value: unknown }[]
+    method: string
   }
 }
 

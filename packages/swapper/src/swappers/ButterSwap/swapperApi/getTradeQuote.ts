@@ -142,9 +142,7 @@ export const getTradeQuote = async (
   }
 
   // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
-  const networkFeeCryptoBaseUnit = bnOrZero(route.gasFee?.amount).gt(0)
-    ? toBaseUnit(route.gasFee.amount, feeAsset.precision)
-    : '0'
+  const networkFeeCryptoBaseUnit = toBaseUnit(bnOrZero(route.gasFee?.amount), feeAsset.precision)
 
   // Calculate rate as lastHop.totalAmountOut / srcChain.totalAmountIn (in base units)
   // For cross-chain swaps, use dstChain.totalAmountOut (final min amount out)
@@ -174,11 +172,7 @@ export const getTradeQuote = async (
       data: buildTx.data,
       value: buildTx.value,
       chainId: buildTx.chainId,
-      method: buildTx.method,
-      args: buildTx.args?.map(arg => ({
-        type: arg.type,
-        value: Object.prototype.hasOwnProperty.call(arg, 'value') ? arg.value : null,
-      })),
+      method: buildTx.method ?? '',
     },
   }
 

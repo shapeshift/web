@@ -216,7 +216,7 @@ export const DashboardHeaderTop = memo(() => {
             gap={2}
             gridColumn={3}
             display={mobileButtonRowDisplay}
-            px={6}
+            px={4}
           >
             <Flex align='center' onClick={onOpen}>
               <ProfileAvatar size='md' borderRadius='full' />

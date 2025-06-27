@@ -18,7 +18,6 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
   try {
     const info = await getBridgeInfoBySourceHash(txHash)
     if (!info) {
-      console.debug('ButterSwap checkTradeStatus: no info', { txHash })
       return { status: TxStatus.Unknown, buyTxHash: undefined, message: 'No data from ButterSwap' }
     }
     // State mapping: 0 = pending, 1 = complete, 6 = refunded/failed
@@ -36,7 +35,6 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     })()
     // Use toHash as the destination chain tx hash if present
     const buyTxHash = info.toHash || undefined
-    console.debug('ButterSwap checkTradeStatus:', { status, buyTxHash, info })
     return { status, buyTxHash, message: undefined }
   } catch (e) {
     return { status: TxStatus.Unknown, buyTxHash: undefined, message: (e as Error).message }

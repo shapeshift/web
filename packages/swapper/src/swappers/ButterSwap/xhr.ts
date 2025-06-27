@@ -79,7 +79,6 @@ export const getBuildTx = async (
     params: { hash, slippage, from, receiver },
   })
   if (result.isErr()) return Err(result.unwrapErr())
-  console.log('[ButterSwap /swap] raw response:', JSON.stringify(result.unwrap().data, null, 2))
   return Ok(result.unwrap().data)
 }
 
@@ -111,10 +110,6 @@ export const getRouteAndSwap = async (
     },
   })
   if (result.isErr()) return Err(result.unwrapErr())
-  console.log(
-    '[ButterSwap /routeAndSwap] raw response:',
-    JSON.stringify(result.unwrap().data, null, 2),
-  )
   return Ok(result.unwrap().data)
 }
 
@@ -148,19 +143,14 @@ export const getBridgeInfoBySourceHash = async (hash: string): Promise<any | und
       },
     )
     if (result.isErr()) {
-      console.debug('ButterSwap getBridgeInfoBySourceHash: result isErr', result.unwrapErr())
       throw result.unwrapErr()
     }
     const data = result.unwrap().data
-    console.debug('ButterSwap getBridgeInfoBySourceHash: API response', data)
     if (!data || !data.data || !data.data.info) {
-      console.debug('ButterSwap getBridgeInfoBySourceHash: info is null or missing')
       return undefined
     }
-    console.debug('ButterSwap getBridgeInfoBySourceHash: returning info', data.data.info)
     return data.data.info
   } catch (e) {
-    console.debug('ButterSwap getBridgeInfoBySourceHash: caught error', e)
     return undefined
   }
 }

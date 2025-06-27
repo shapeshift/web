@@ -2,12 +2,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { ZERO_ADDRESS } from '../utils/constants'
 import { chainIdToButterSwapChainId } from '../utils/helpers'
 import { getRoute, isRouteSuccess } from '../xhr'
 
@@ -47,8 +47,8 @@ export const getTradeRate = async (
   const { assetReference: sellAssetAddressRaw } = fromAssetId(sellAsset.assetId)
   const { assetReference: buyAssetAddressRaw } = fromAssetId(buyAsset.assetId)
 
-  const sellAssetAddress = sellAssetIsNative ? ZERO_ADDRESS : sellAssetAddressRaw
-  const buyAssetAddress = buyAssetIsNative ? ZERO_ADDRESS : buyAssetAddressRaw
+  const sellAssetAddress = sellAssetIsNative ? zeroAddress : sellAssetAddressRaw
+  const buyAssetAddress = buyAssetIsNative ? zeroAddress : buyAssetAddressRaw
 
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,

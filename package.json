@@ -32,7 +32,7 @@
     "generate:color-map": "yarn tsx ./scripts/generateAssetData/generateColorMap.ts",
     "generate:tradable-asset-map": "yarn tsx ./scripts/generateTradableAssetMap/index.ts",
     "generate:thor-longtail-tokens": "yarn tsx ./scripts/generateThorLongtailTokens/generateThorLongtailTokens.ts",
-    "local-ci": "yarn lint && yarn type-check && yarn test && yarn build:web",
+    "local-ci": "yarn build:packages && yarn lint && yarn type-check && yarn test && yarn build:web",
     "lint": "yarn eslint --cache '*/**/*.{ts,tsx}'",
     "lint:fix": "yarn lint --fix",
     "postinstall": "git config --local include.path '.gitconfig'",

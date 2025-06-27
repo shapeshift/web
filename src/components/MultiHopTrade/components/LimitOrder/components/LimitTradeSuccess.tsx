@@ -1,4 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { CardFooterProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -47,6 +48,8 @@ export type LimitTradeSuccessProps = {
   sellAmountCryptoPrecision?: string
   quoteBuyAmountCryptoPrecision?: string
 }
+
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const LimitTradeSuccess = ({
   handleBack,
@@ -150,7 +153,14 @@ export const LimitTradeSuccess = ({
           </Flex>
         </SlideTransition>
       </CardBody>
-      <CardFooter flexDir='column' gap={2} px={4} borderTop='none'>
+      <CardFooter
+        flexDir='column'
+        gap={2}
+        px={4}
+        borderTop='none'
+        position={footerPosition}
+        bottom='var(--mobile-nav-offset)'
+      >
         <SlideTransition>
           {summaryTranslation && children && (
             <>

@@ -1,3 +1,4 @@
+import type { CardFooterProps } from '@chakra-ui/react'
 import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
 import type { JSX } from 'react'
 
@@ -18,6 +19,7 @@ type SharedConfirmProps = {
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 const cardBorderRadius = { base: '0', md: '2xl' }
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const SharedConfirm = ({
   bodyContent,
@@ -37,7 +39,7 @@ export const SharedConfirm = ({
         bg={cardBgProp}
         minHeight={cardMinHeight}
       >
-        <CardHeader px={6} pt={4}>
+        <CardHeader px={6} pt={4} borderTop={'none'}>
           <WithBackButton onBack={onBack}>
             <Heading textAlign='center' fontSize='md'>
               <Text translation={headerTranslation} />
@@ -48,7 +50,15 @@ export const SharedConfirm = ({
           {bodyContent}
         </CardBody>
         {footerContent && (
-          <CardFooter borderTopWidth={1} borderColor='border.subtle' flexDir='column' px={0} py={0}>
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            px={0}
+            py={0}
+            position={footerPosition}
+            bottom='var(--mobile-nav-offset)'
+          >
             {footerContent}
           </CardFooter>
         )}

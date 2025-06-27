@@ -1,4 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { CardFooterProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -53,6 +54,8 @@ export type SpotTradeSuccessProps = {
 
 const cardFooterPx = { base: 4, md: 8 }
 const youGotMoreMarginBottom = { base: 0, md: 4 }
+
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const SpotTradeSuccess = ({
   handleBack,
@@ -199,7 +202,13 @@ export const SpotTradeSuccess = ({
                 </Box>
               )}
           </Box>
-          <CardFooter flexDir='column' gap={2} px={cardFooterPx}>
+          <CardFooter
+            flexDir='column'
+            gap={2}
+            px={cardFooterPx}
+            position={footerPosition}
+            bottom='var(--mobile-nav-offset)'
+          >
             <SlideTransition>
               <HStack width='full' justifyContent='space-between'>
                 <Button variant='link' onClick={handleToggle}>

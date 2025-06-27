@@ -1,4 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
+import type { CardFooterProps } from '@chakra-ui/react'
 import {
   Button,
   Card,
@@ -48,6 +49,7 @@ const backIcon = <ArrowBackIcon />
 const cardFooterBgProp = { base: 'transparent', md: 'background.surface.raised.accent' }
 const assetPy = { base: 8, md: 32 }
 const slideTransitionStyle: ResolvedValues = { flex: 1, display: 'flex', flexDirection: 'column' }
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   activeClaim,
@@ -195,6 +197,8 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
           px={6}
           bg={cardFooterBgProp}
           borderBottomRadius='xl'
+          position={footerPosition}
+          bottom='var(--mobile-nav-offset)'
         >
           <Stack spacing={4}>
             <Row fontSize='sm' fontWeight='medium'>

@@ -25,6 +25,18 @@ const mobileButtonsStyle = {
 const cardPaddingX = { base: 2, md: 6 }
 const cardHeaderBgProp = { base: 'background.surface.base', md: 'transparent' }
 const cardPosition: CardHeaderProps['position'] = { base: 'sticky', md: 'static' }
+const cardTop = {
+  base: '0',
+  md: 0,
+}
+const cardPaddingTop = {
+  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: 4,
+}
+const cardMarginTop = {
+  base: 'calc(-1 * env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: 0,
+}
 
 export const SharedTradeInputHeader = ({
   initialTab,
@@ -65,9 +77,11 @@ export const SharedTradeInputHeader = ({
     <CardHeader
       px={cardPaddingX}
       position={cardPosition}
-      top={'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'}
+      top={cardTop}
       zIndex={1}
       bg={cardHeaderBgProp}
+      pt={cardPaddingTop}
+      mt={cardMarginTop}
     >
       <Display.Desktop>
         <Flex alignItems='center' justifyContent='space-between'>

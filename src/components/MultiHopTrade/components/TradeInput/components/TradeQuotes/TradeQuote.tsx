@@ -1,23 +1,26 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
+import { Box, Circle, Flex, Skeleton, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import { TbRipple } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { TradeQuoteBadges } from './components/TradeQuoteBadges'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
+import { TradeQuoteExchangeRate } from './components/TradeQuoteExchangeRate'
+import { TradeQuoteMetaItem } from './components/TradeQuoteMetaItem'
 
-import { Amount } from '@/components/Amount/Amount'
-import { SlippageIcon } from '@/components/Icons/Slippage'
 import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { isMobile } from '@/lib/globals'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
+import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,
@@ -28,6 +31,7 @@ import {
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
@@ -40,24 +44,16 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type TradeQuoteProps = {
   isActive: boolean
-  isBest: boolean
+  isBestRate?: boolean
+  isFastest?: boolean
+  isLowestGas?: boolean
   quoteData: ApiQuote
-  bestTotalReceiveAmountCryptoPrecision: string | undefined
-  bestInputOutputRatio: number | undefined
   isLoading: boolean
   onBack?: () => void
 }
 
 export const TradeQuote: FC<TradeQuoteProps> = memo(
-  ({
-    isActive,
-    isBest,
-    quoteData,
-    bestTotalReceiveAmountCryptoPrecision,
-    bestInputOutputRatio,
-    isLoading,
-    onBack,
-  }) => {
+  ({ isActive, isBestRate, isFastest, isLowestGas, quoteData, isLoading, onBack }) => {
     const { quote, errors, inputOutputRatio, swapperName } = quoteData
     const {
       isOpen: isTooltipOpen,
@@ -99,13 +95,24 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
 
+    const quoteDisplayOption = useAppSelector(preferences.selectors.selectQuoteDisplayOption)
+
     const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
     const buyAssetMarketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, buyAsset.assetId ?? ''),
     )
 
+    const badgesIconOnlyIfCount = useMemo(() => {
+      if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
+        return 2
+      } else {
+        return isMobile ? 3 : undefined
+      }
+    }, [quoteDisplayOption])
+
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+    const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here
     const networkFeeUserCurrencyPrecision = useMemo(() => {
@@ -159,6 +166,22 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [buyAssetMarketData?.price, isTradingWithoutMarketData, totalReceiveAmountCryptoPrecision],
     )
 
+    const buyAmountUserCurrency = useMemo(
+      () =>
+        isTradingWithoutMarketData
+          ? undefined
+          : bn(totalReceiveAmountCryptoPrecision)
+              .times(bnOrZero(buyAssetMarketData?.price))
+              .toString(),
+      [buyAssetMarketData?.price, totalReceiveAmountCryptoPrecision, isTradingWithoutMarketData],
+    )
+
+    const lossAfterRateAndFeesUserCurrency = useMemo((): number => {
+      if (sellAmountUserCurrency === undefined || buyAmountUserCurrency === undefined) return 0
+
+      return bn(buyAmountUserCurrency).minus(sellAmountUserCurrency).toNumber()
+    }, [buyAmountUserCurrency, sellAmountUserCurrency])
+
     const handleQuoteSelection = useCallback(() => {
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
       onBack && onBack()
@@ -170,21 +193,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     if (!feeAsset)
       throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-    // the difference percentage is on the receive amount only
-    const quoteAmountDifferenceDecimalPercentage = useMemo(() => {
-      if (!quote || !bestTotalReceiveAmountCryptoPrecision) return
-      return bn(1)
-        .minus(
-          bn(totalReceiveAmountCryptoPrecision).dividedBy(bestTotalReceiveAmountCryptoPrecision),
-        )
-        .toNumber()
-    }, [bestTotalReceiveAmountCryptoPrecision, quote, totalReceiveAmountCryptoPrecision])
-
-    const quoteOverallDifferenceDecimalPercentage = useMemo(() => {
-      if (!quote || !bestInputOutputRatio) return
-      return -bn(1).minus(bn(inputOutputRatio).dividedBy(bestInputOutputRatio)).toNumber()
-    }, [bestInputOutputRatio, inputOutputRatio, quote])
-
     const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
     const hasNegativeRatio =
       inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
@@ -194,7 +202,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       (!hasNegativeRatio || isTradingWithoutMarketData) &&
       bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
-    const tag: JSX.Element | null = useMemo(() => {
+    const errorIndicator: JSX.Element | null = useMemo(() => {
       const error = errors?.[0]
       const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
@@ -233,32 +241,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
               </Tooltip>
             </Box>
           )
-        case isBest:
-          return (
-            <Tag size='sm' colorScheme='green'>
-              {translate('common.best')}
-            </Tag>
-          )
         default:
-          return quoteOverallDifferenceDecimalPercentage !== undefined ? (
-            <Box
-              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
-              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
-              onTouchEnd={handleTooltipToggle}
-            >
-              <Tooltip
-                label={translate('trade.tooltip.overallPercentageDifference')}
-                isOpen={isTooltipOpen}
-              >
-                <Tag size='sm'>
-                  <Amount.Percent
-                    value={quoteOverallDifferenceDecimalPercentage}
-                    autoColor={false}
-                  />
-                </Tag>
-              </Tooltip>
-            </Box>
-          ) : null
+          return null
       }
     }, [
       errors,
@@ -266,8 +250,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       translate,
       hasAmountWithPositiveReceive,
       isAmountEntered,
-      isBest,
-      quoteOverallDifferenceDecimalPercentage,
       handleToolTipOpen,
       handleTooltipClose,
       handleTooltipToggle,
@@ -290,7 +272,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [quote?.steps])
 
     const slippage = useMemo(() => {
-      if (!quote) return
+      if (!quote || quoteDisplayOption === QuoteDisplayOption.Basic) return
 
       // user slippage setting was not applied if:
       // - the user did not input a custom value
@@ -311,9 +293,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           })
         }
 
-        return translate('trade.quote.slippage', {
-          slippageFormatted: toPercent(quote.slippageTolerancePercentageDecimal ?? '0'),
-        })
+        return translate('trade.quote.slippage')
       })()
 
       const slippageElement = (() => {
@@ -338,39 +318,81 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       })()
 
       return (
-        <Skeleton isLoaded={!isLoading}>
-          <Tooltip label={tooltip}>
-            <Flex gap={2} alignItems='center'>
-              <RawText color={isUserSlippageNotApplied ? 'text.error' : 'text.subtle'}>
-                <SlippageIcon />
-              </RawText>
-              {slippageElement}
-              {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
-            </Flex>
-          </Tooltip>
-        </Skeleton>
+        <TradeQuoteMetaItem
+          tooltip={tooltip}
+          icon={TbRipple}
+          isLoading={isLoading}
+          error={isUserSlippageNotApplied}
+        >
+          <Flex alignItems='center' gap={1.5}>
+            {slippageElement}
+            {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
+          </Flex>
+        </TradeQuoteMetaItem>
       )
-    }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
+    }, [
+      isLoading,
+      quote,
+      quoteDisplayOption,
+      swapperName,
+      toPercent,
+      translate,
+      userSlippagePercentageDecimal,
+    ])
 
     const headerContent = useMemo(() => {
       return (
-        <Flex gap={2} alignItems='center'>
-          <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
+        <Flex justifyContent='space-between' alignItems='center' flexGrow={1}>
+          {quoteDisplayOption === QuoteDisplayOption.Advanced && quote && (
+            <Skeleton isLoaded={!isLoading}>
+              <TradeQuoteExchangeRate
+                buyAsset={buyAsset}
+                sellAsset={sellAsset}
+                totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
+                sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+              />
+            </Skeleton>
+          )}
+          <Box ml='auto'>
+            <Skeleton isLoaded={!isLoading}>
+              <Flex alignItems='center' gap={2}>
+                <TradeQuoteBadges
+                  isBestRate={isBestRate}
+                  isFastest={isFastest}
+                  isLowestGas={isLowestGas}
+                  iconOnlyIfCount={badgesIconOnlyIfCount}
+                />
+                {errorIndicator}
+              </Flex>
+            </Skeleton>
+          </Box>
         </Flex>
       )
-    }, [isLoading, tag])
+    }, [
+      buyAsset,
+      errorIndicator,
+      badgesIconOnlyIfCount,
+      isBestRate,
+      isFastest,
+      isLoading,
+      isLowestGas,
+      quote,
+      quoteDisplayOption,
+      sellAmountCryptoPrecision,
+      sellAsset,
+      totalReceiveAmountCryptoPrecision,
+    ])
 
     const bodyContent = useMemo(() => {
       return quote ? (
         <TradeQuoteContent
           isLoading={isLoading}
           buyAsset={buyAsset}
-          isBest={isBest}
-          numHops={quote?.steps.length}
+          quoteDisplayOption={quoteDisplayOption}
+          lossAfterRateAndFeesUserCurrency={lossAfterRateAndFeesUserCurrency}
           totalReceiveAmountFiatUserCurrency={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-          quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
           networkFeeFiatUserCurrency={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
           slippage={slippage}
@@ -380,11 +402,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [
       buyAsset,
       hasAmountWithPositiveReceive,
-      isBest,
       isLoading,
+      lossAfterRateAndFeesUserCurrency,
       networkFeeUserCurrencyPrecision,
       quote,
-      quoteAmountDifferenceDecimalPercentage,
+      quoteDisplayOption,
       slippage,
       totalEstimatedExecutionTimeMs,
       totalReceiveAmountCryptoPrecision,
@@ -393,8 +415,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     return showSwapper ? (
       <TradeQuoteCard
-        title={quote?.steps[0].source ?? quoteData.swapperName}
         swapperName={quoteData.swapperName}
+        swapperTitle={quote?.steps[0].source ?? quoteData.swapperName}
         headerContent={headerContent}
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}

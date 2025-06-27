@@ -25,9 +25,9 @@ import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selector
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { getBestQuotesByCategory } from '@/state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,
-  selectBuyAmountAfterFeesCryptoPrecision,
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
@@ -62,15 +62,16 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
   const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
   const loadingSwappers = useAppSelector(selectLoadingSwappers)
-  const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
   const translate = useTranslate()
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
-  const bestTotalReceiveAmountCryptoPrecision = useAppSelector(
-    selectBuyAmountAfterFeesCryptoPrecision,
-  )
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
+
+  const bestQuotesByCategory = useMemo(
+    () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
+    [availableTradeQuotesDisplayCache],
+  )
 
   const shouldUseComisSansMs = useMemo(() => {
     return buyAsset?.assetId === dogeAssetId || sellAsset?.assetId === dogeAssetId
@@ -100,8 +101,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
       return []
     }
 
-    return availableTradeQuotesDisplayCache.map((quoteData, i) => {
-      const { id, errors } = quoteData
+    return availableTradeQuotesDisplayCache.map(quoteData => {
+      const { id } = quoteData
 
       const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
@@ -110,11 +111,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
           <TradeQuote
             isActive={isActive}
             isLoading={isQuoteLoading(quoteData)}
-            isBest={i === 0 && errors.length === 0}
+            isBestRate={bestQuotesByCategory.bestRate === quoteData.id}
+            isFastest={bestQuotesByCategory.fastest === quoteData.id}
+            isLowestGas={bestQuotesByCategory.lowestGas === quoteData.id}
             key={id}
             quoteData={quoteData}
-            bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
-            bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
             onBack={onBack}
           />
         </MotionBox>
@@ -125,8 +126,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     availableTradeQuotesDisplayCache,
     activeQuoteMeta,
     isQuoteLoading,
-    bestTotalReceiveAmountCryptoPrecision,
-    bestQuoteData?.inputOutputRatio,
+    bestQuotesByCategory,
     onBack,
   ])
 
@@ -140,22 +140,13 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <TradeQuote
           isActive={false}
           isLoading={isQuoteLoading(quoteData)}
-          isBest={false}
           key={quoteData.id}
           quoteData={quoteData}
-          bestTotalReceiveAmountCryptoPrecision={undefined}
-          bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
           onBack={onBack}
         />
       )
     })
-  }, [
-    isTradeQuoteRequestAborted,
-    unavailableTradeQuotesDisplayCache,
-    isQuoteLoading,
-    bestQuoteData?.inputOutputRatio,
-    onBack,
-  ])
+  }, [isTradeQuoteRequestAborted, unavailableTradeQuotesDisplayCache, isQuoteLoading, onBack])
 
   const unavailableQuotesLength = useMemo(
     () =>
@@ -193,13 +184,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
           <TradeQuote
             isActive={false}
             isLoading={true}
-            isBest={false}
             key={id}
             // eslint doesn't understand useMemo not possible to use inside map
             // eslint-disable-next-line react-memo/require-usememo
             quoteData={quoteData}
-            bestTotalReceiveAmountCryptoPrecision={undefined}
-            bestInputOutputRatio={undefined}
             onBack={onBack}
           />
         </MotionBox>

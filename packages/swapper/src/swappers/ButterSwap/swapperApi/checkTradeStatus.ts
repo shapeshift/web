@@ -16,7 +16,15 @@ const BUTTER_SWAP_STATES = (() => ({
 export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<TradeStatus> => {
   const { txHash } = input
   try {
-    const info = await getBridgeInfoBySourceHash(txHash)
+    const infoResult = await getBridgeInfoBySourceHash(txHash)
+    if (infoResult.isErr()) {
+      return {
+        status: TxStatus.Unknown,
+        buyTxHash: undefined,
+        message: infoResult.unwrapErr().message,
+      }
+    }
+    const info = infoResult.unwrap()
     if (!info) {
       return { status: TxStatus.Unknown, buyTxHash: undefined, message: 'No data from ButterSwap' }
     }

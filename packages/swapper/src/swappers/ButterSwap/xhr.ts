@@ -54,7 +54,7 @@ export interface GetButterRouteArgs {
   buyAssetAddress: string
   amountHumanUnits: string
   slippage: string
-  affiliate: string
+  affiliate?: string
 }
 
 export const getButterRoute = async ({

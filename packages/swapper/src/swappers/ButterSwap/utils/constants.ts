@@ -33,8 +33,9 @@ export const BUTTERSWAP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
 
 export const DEFAULT_BUTTERSWAP_AFFILIATE_BPS = 50
 
-const BUTTERSWAP_AFFILIATE = 'butter'
+const BUTTERSWAP_AFFILIATE = '' // TODO: add affiliate
 
-export const makeButterSwapAffiliate = (affiliateBps: string): string => {
+export const makeButterSwapAffiliate = (affiliateBps: string): string | undefined => {
+  if (!BUTTERSWAP_AFFILIATE) return undefined
   return `${BUTTERSWAP_AFFILIATE}:${affiliateBps}`
 }

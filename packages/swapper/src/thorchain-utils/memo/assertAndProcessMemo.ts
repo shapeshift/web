@@ -141,9 +141,7 @@ export const assertAndProcessMemo = (memo: string, affiliate: string): string =>
         return ''
       })()
 
-      return `${_action}:${asset}:${destAddr}:${limit}:${affiliate}:${
-        affiliate ? fee || 0 : ''
-      }${maybeSwapOutParts}`
+      return `${_action}:${asset}:${destAddr}:${limit}:${affiliate}:${fee || 0}${maybeSwapOutParts}`
     }
     case 'add':
     case '+':

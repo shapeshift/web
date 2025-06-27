@@ -12,6 +12,7 @@ export type Metadata = {
   headShortCommitHash: string
 }
 
+// TODO make the typing better here. If hasUpdated is true then newMetadata is never false
 type HasUpdatedResult = {
   hasUpdated: boolean
   initialMetadata?: Metadata
@@ -26,15 +27,19 @@ export const useHasAppUpdated = (): HasUpdatedResult => {
 
   const isLocalhost = localhostRegEx.test(window.location.hostname)
 
-  const fetchData = useCallback(async (url: string): Promise<Metadata | undefined> => {
-    try {
-      // dummy query param to bypass the browser cache.
-      const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
-      return data
-    } catch (e) {
-      console.error(e)
-    }
-  }, [])
+  const fetchData = useCallback(
+    async (url: string): Promise<Metadata | undefined> => {
+      if (isLocalhost) return
+      try {
+        // dummy query param to bypass the browser cache.
+        const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+        return data
+      } catch (e) {
+        console.error(e)
+      }
+    },
+    [isLocalhost],
+  )
 
   // store initial values once
   useEffect(() => {
@@ -43,7 +48,7 @@ export const useHasAppUpdated = (): HasUpdatedResult => {
   }, [fetchData, isLocalhost, metadataUrl])
 
   useEffect(() => {
-    if (isLocalhost) return
+    // if (isLocalhost) return
     // don't erroneously compare if we failed to fetch the initial
     if (!initialMetadata) return
 
@@ -62,11 +67,5 @@ export const useHasAppUpdated = (): HasUpdatedResult => {
   }, [fetchData, initialMetadata, isLocalhost, metadataUrl])
 
   if (isLocalhost) return { hasUpdated: false } // never return true on localhost
-  // if (isLocalhost)
-  //   return {
-  //     hasUpdated: true,
-  //     initialMetadata: { latestTag: 'old beans', headShortCommitHash: 'old beans hash' },
-  //     newMetadata: { latestTag: 'new beans', headShortCommitHash: 'new beans hash' },
-  //   }
   return { hasUpdated: newMetadata !== undefined, initialMetadata, newMetadata }
 }

@@ -18,7 +18,7 @@ vi.mock('../utils/butterSwapService', () => ({
 }))
 
 vi.mock('../xhr', () => ({
-  getRoute: vi.fn(() => Promise.resolve(Ok({ data: [(ROUTE_QUOTE as any).data[0]] }))),
+  getButterRoute: vi.fn(() => Promise.resolve(Ok(ROUTE_QUOTE))),
   getBuildTx: vi.fn(() =>
     Promise.resolve(
       Ok({

@@ -35,14 +35,6 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
 
-const Home = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Home/Home').then(({ Home }) => ({
-      default: Home,
-    })),
-  ),
-)
-
 const Dashboard = makeSuspenseful(
   lazy(() =>
     import('@/pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
@@ -125,7 +117,7 @@ const MarketsPage = makeSuspenseful(
 
 export const routes: Route[] = [
   {
-    path: '/home/*',
+    path: '/wallet/*',
     label: 'navBar.home',
     shortLabel: 'navBar.home',
     icon: <HomeIcon />,

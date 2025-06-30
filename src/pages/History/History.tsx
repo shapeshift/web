@@ -5,13 +5,15 @@ import {
   Tab,
   TabIndicator,
   TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import SwipeableViews from 'react-swipeable-views'
+import { mod } from 'react-swipeable-views-core'
+import type { SlideRenderProps } from 'react-swipeable-views-utils'
+import { virtualize } from 'react-swipeable-views-utils'
 
 import { ActionCenter } from '@/components/Layout/Header/ActionCenter/ActionCenter'
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
@@ -42,8 +44,16 @@ const CustomTab = (props: TabProps) => (
   />
 )
 
+const VirtualizedSwipableViews = virtualize(SwipeableViews)
+
+enum HistoryTab {
+  Activity,
+  History,
+}
+
 export const History = () => {
   const translate = useTranslate()
+  const [slideIndex, setSlideIndex] = useState(0)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const {
     isOpen: isSearchOpen,
@@ -52,6 +62,32 @@ export const History = () => {
     onToggle: onSearchToggle,
   } = useDisclosure()
   const qrCode = useModal('qrCode')
+
+  const handleSlideIndexChange = useCallback((index: number) => {
+    setSlideIndex(index)
+  }, [])
+
+  const slideRenderer = useCallback((props: SlideRenderProps) => {
+    const { index, key } = props
+    let content
+    const tab = mod(index, 2)
+    switch (tab) {
+      case HistoryTab.Activity:
+        content = <ActionCenter />
+        break
+      case HistoryTab.History:
+        content = <TransactionHistory />
+        break
+      default:
+        content = null
+        break
+    }
+    return (
+      <div id={`scroll-view-${key}`} key={key}>
+        {content}
+      </div>
+    )
+  }, [])
 
   const mobileDrawer = useMemo(() => {
     if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
@@ -75,7 +111,12 @@ export const History = () => {
           onOpen={onOpen}
         />
       </Container>
-      <Tabs variant='unstyled' isLazy>
+      <Tabs 
+        index={slideIndex} 
+        onChange={handleSlideIndexChange}
+        variant='unstyled' 
+        isLazy
+      >
         <Box borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>
             <CustomTab>{'Activity'}</CustomTab>
@@ -83,14 +124,14 @@ export const History = () => {
           </TabList>
           <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
         </Box>
-        <TabPanels width='100%'>
-          <TabPanel px={0} py={0} width='100%'>
-            <ActionCenter />
-          </TabPanel>
-          <TabPanel px={0} py={0} width='100%'>
-            <TransactionHistory />
-          </TabPanel>
-        </TabPanels>
+        <VirtualizedSwipableViews 
+          index={slideIndex} 
+          onChangeIndex={handleSlideIndexChange}
+          slideRenderer={slideRenderer}
+          slideCount={2}
+          overscanSlideBefore={1}
+          overscanSlideAfter={1}
+        />
       </Tabs>
     </Main>
   )

@@ -20,6 +20,7 @@ const paddingTop = {
   md: '4.5rem',
 }
 const marginTop = { base: 0, md: '-4.5rem' }
+const borderBottomWidth = { base: 0, md: 1 }
 
 export type TabItem = {
   label: string
@@ -144,7 +145,7 @@ export const DashboardHeader = memo(() => {
       <Stack
         spacing={0}
         borderColor='border.base'
-        borderBottomWidth={1}
+        borderBottomWidth={borderBottomWidth}
         pt={paddingTop}
         mt={marginTop}
       >

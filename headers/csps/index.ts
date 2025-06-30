@@ -26,6 +26,7 @@ import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
 import { csp as zeroX } from './defi/swappers/0x'
+import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
@@ -98,6 +99,7 @@ export const csps = [
   oneInch,
   portals,
   thor,
+  butterSwap,
   foxPage,
   walletConnectToDapps,
   coinbase,

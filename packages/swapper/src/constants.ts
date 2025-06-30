@@ -4,6 +4,9 @@ import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './cowswap-utils/constants'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
+import { butterSwap } from './swappers/ButterSwap/ButterSwap'
+import { butterSwapApi } from './swappers/ButterSwap/endpoints'
+import { BUTTERSWAP_SUPPORTED_CHAIN_IDS } from './swappers/ButterSwap/utils/constants'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
 import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
@@ -100,6 +103,12 @@ export const swappers: Record<
     supportedChainIds: RELAY_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
+  [SwapperName.ButterSwap]: {
+    ...butterSwap,
+    ...butterSwapApi,
+    supportedChainIds: BUTTERSWAP_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -111,6 +120,7 @@ const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
+const DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.015' // 1.5%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -136,6 +146,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Jupiter')
     case SwapperName.Relay:
       throw new Error('Default slippage not supported by Relay')
+    case SwapperName.ButterSwap:
+      return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

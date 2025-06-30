@@ -650,11 +650,6 @@ export type TradeExecutionEventMap = {
   [TradeExecutionEvent.Error]: (args: unknown) => void
 }
 
-export type SupportedChainIds = {
-  buy: ChainId[]
-  sell: ChainId[]
-}
-
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
 
 export enum MixPanelEvent {

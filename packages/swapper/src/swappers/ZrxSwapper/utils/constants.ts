@@ -1,7 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-
-import type { SupportedChainIds } from '../../../types'
 
 // Zrx doesn't have an easily accessible master assets list.
 // We assume all erc20's are supported and remove these explicitly unsupported assets
@@ -24,11 +21,6 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
 ])
-
-export const ZRX_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: ZRX_SUPPORTED_CHAINIDS as ChainId[],
-  buy: ZRX_SUPPORTED_CHAINIDS as ChainId[],
-}
 
 // https://0x.org/docs/developer-resources/faqs-and-troubleshooting
 export const ZRX_NATIVE_ASSET_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

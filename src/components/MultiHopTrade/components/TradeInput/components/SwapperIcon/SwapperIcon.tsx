@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import ZrxIcon from './0x-icon.png'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
+import ButterSwapIcon from './butterswap.png'
 import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
@@ -42,6 +43,8 @@ export const SwapperIcon = ({
         return RelayIcon
       case SwapperName.Mayachain:
         return MayachainIcon
+      case SwapperName.ButterSwap:
+        return ButterSwapIcon
       case SwapperName.Test:
         return ''
       default:

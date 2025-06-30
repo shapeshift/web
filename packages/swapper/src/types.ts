@@ -73,6 +73,7 @@ export enum SwapperName {
   Chainflip = 'Chainflip',
   Jupiter = 'Jupiter',
   Relay = 'Relay',
+  ButterSwap = 'ButterSwap',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -308,6 +309,11 @@ export type TradeQuoteStep = {
     maxStreamingQuantity?: number
   }
   relayTransactionMetadata?: RelayTransactionMetadata
+  butterSwapTransactionMetadata?: {
+    to: string
+    data: string
+    value: string
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

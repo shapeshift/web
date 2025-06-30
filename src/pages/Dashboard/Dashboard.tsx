@@ -24,6 +24,7 @@ import { EarnDashboard } from './EarnDashboard'
 import { MobileActivity } from './MobileActivity'
 import { WalletDashboard } from './WalletDashboard'
 
+import { Display } from '@/components/Display'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { RawText } from '@/components/Text'
@@ -46,6 +47,7 @@ const accounts = <Accounts />
 const mobileActivity = <MobileActivity />
 const transactionHistory = <TransactionHistory />
 const notFound = <RawText>Not found</RawText>
+const dashboardHeader = <DashboardHeader />
 
 const CustomTab = (props: TabProps) => (
   <Tab
@@ -140,44 +142,43 @@ export const Dashboard = memo(() => {
     )
   }, [handleSlideIndexChange, slideIndex, translate])
 
-  const dashboardHeader = useMemo(() => <DashboardHeader />, [appIsMobile, mobileTabs])
-
-  if (appIsMobile) {
-    return (
-      <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
-        <ScrollView>
-          <Tabs variant='soft-rounded' isLazy size='sm' pt={0}>
-            <TabList bg='transparent' borderWidth={0} pt={0}>
-              <Tab>{translate('My Crypto')}</Tab>
-              <Tab>{translate('Watchlist')}</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel px={0} py={0} pt={0}>
-                <Routes>
-                  <Route path='' element={walletDashboard} />
-                  <Route path='accounts/*' element={accounts} />
-                </Routes>
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <WatchlistTable />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </ScrollView>
-      </Main>
-    )
-  }
-
   return (
-    <Main headerComponent={dashboardHeader} py={mainPadding}>
+    <>
       <SEO title={translate('navBar.dashboard')} />
-      <Routes>
-        <Route path='*' element={walletDashboard} />
-        <Route path='earn' element={earnDashboard} />
-        <Route path='accounts/*' element={accounts} />
-        <Route path='activity' element={transactionHistory} />
-        <Route path='*' element={notFound} />
-      </Routes>
-    </Main>
+      <Display.Desktop>
+        <Main headerComponent={dashboardHeader} py={mainPadding}>
+          <Routes>
+            <Route path='*' element={walletDashboard} />
+            <Route path='earn' element={earnDashboard} />
+            <Route path='accounts/*' element={accounts} />
+            <Route path='activity' element={transactionHistory} />
+            <Route path='*' element={notFound} />
+          </Routes>
+        </Main>
+      </Display.Desktop>
+      <Display.Mobile>
+        <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
+          <ScrollView>
+            <Tabs variant='soft-rounded' isLazy size='sm' pt={0}>
+              <TabList bg='transparent' borderWidth={0} pt={0}>
+                <Tab>{translate('My Crypto')}</Tab>
+                <Tab>{translate('Watchlist')}</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel px={0} py={0} pt={0}>
+                  <Routes>
+                    <Route path='' element={walletDashboard} />
+                    <Route path='accounts/*' element={accounts} />
+                  </Routes>
+                </TabPanel>
+                <TabPanel px={0} py={0}>
+                  <WatchlistTable />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </ScrollView>
+        </Main>
+      </Display.Mobile>
+    </>
   )
 })

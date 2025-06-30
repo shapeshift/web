@@ -66,6 +66,8 @@ export const getTxBaseUrl = ({
       return mayachain.explorerTxLink
     case SwapperName.Relay:
       return 'https://relay.link/transaction/'
+    case SwapperName.ButterSwap:
+      return 'https://explorer.butterswap.io/tx/'
     default:
       return defaultExplorerBaseUrl
   }

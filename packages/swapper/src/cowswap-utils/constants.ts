@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { zeroAddress } from 'viem'
 
-
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
   { name: 'buyToken', type: 'address' },
@@ -28,7 +27,6 @@ export const SUPPORTED_CHAIN_IDS: ChainId[] = [
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
 ]
-
 
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
 export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'

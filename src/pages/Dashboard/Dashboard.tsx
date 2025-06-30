@@ -140,10 +140,7 @@ export const Dashboard = memo(() => {
     )
   }, [handleSlideIndexChange, slideIndex, translate])
 
-  const dashboardHeader = useMemo(
-    () => <DashboardHeader tabComponent={() => null} />,
-    [appIsMobile, mobileTabs],
-  )
+  const dashboardHeader = useMemo(() => <DashboardHeader />, [appIsMobile, mobileTabs])
 
   if (appIsMobile) {
     return (

@@ -5,6 +5,7 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import type WalletConnectCore from '@walletconnect/core'
 import type { PairingTypes, SessionTypes } from '@walletconnect/types'
 import type { Dispatch } from 'react'
+import type { Address, Hex } from 'viem'
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -116,16 +117,16 @@ export type CustomTransactionData = {
 }
 
 export type TransactionParams = {
-  from: string
-  to: string
-  data: string
-  gasLimit?: string
+  from: Address
+  to: Address
+  data: Hex
+  gasLimit?: Hex
   gas?: string
   maxFeePerGas?: string
   maxPriorityFeePerGas?: string
   gasPrice?: string
-  value?: string
-  nonce?: string
+  value?: Hex
+  nonce?: Hex
 }
 
 // Overwrite Web3WalletTypes.SessionRequest to narrow chainId and request params

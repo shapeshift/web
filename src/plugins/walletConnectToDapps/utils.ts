@@ -8,6 +8,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
+import type { Hex } from 'viem'
 import { hexToString, isAddress, isHex, toHex } from 'viem'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -34,7 +35,7 @@ export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
   }
 }
 
-export const convertNumberToHex = (value: number | string): string =>
+export const convertNumberToHex = (value: number | string): Hex =>
   typeof value === 'number' ? toHex(value) : toHex(parseInt(value))
 
 export const convertHexToNumber = (value: string): number => parseInt(value, 16)

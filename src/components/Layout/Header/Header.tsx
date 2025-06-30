@@ -212,7 +212,7 @@ export const Header = memo(() => {
                 </Suspense>
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
-              {isConnected && <TxWindow />}
+              {isConnected && !isActionCenterEnabled && <TxWindow />}
               {isConnected && isActionCenterEnabled && <ActionCenter />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>

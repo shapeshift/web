@@ -267,7 +267,6 @@ export const useGetTradeQuotes = () => {
           sellAccountType: sellAccountMetadata?.accountType,
           buyAsset,
           wallet: wallet ?? undefined,
-          originalRate: activeRateRef?.current as TradeRate,
           quoteOrRate: 'quote',
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,

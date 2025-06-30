@@ -5,6 +5,7 @@ import {
   Flex,
   IconButton,
   Stack,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -18,6 +19,7 @@ import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useModal } from '@/hooks/useModal/useModal'
+import { breakpoints } from '@/theme/theme'
 
 const arrowUpDownIcon = <LuArrowUpDown />
 
@@ -62,6 +64,7 @@ export const SharedTradeInputBody = ({
   onSellAssetChainIdChange,
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')
 
@@ -94,6 +97,12 @@ export const SharedTradeInputBody = ({
     onSellAssetChainIdChange,
   ])
 
+  const assetSelectButtonProps = useMemo(() => {
+    return {
+      maxWidth: isSmallerThanMd ? '100%' : undefined,
+    }
+  }, [isSmallerThanMd])
+
   const sellTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
@@ -103,10 +112,15 @@ export const SharedTradeInputBody = ({
         onlyConnectedChains={true}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        showChainDropdown={!isSmallerThanMd}
+        buttonProps={assetSelectButtonProps}
+        mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       sellAsset.assetId,
+      isSmallerThanMd,
+      assetSelectButtonProps,
       handleSellAssetClick,
       setSellAsset,
       assetFilterPredicate,
@@ -115,7 +129,7 @@ export const SharedTradeInputBody = ({
   )
 
   return (
-    <Stack spacing={0}>
+    <Stack spacing={0} flex='1'>
       <SellAssetInput
         accountId={sellAccountId}
         asset={sellAsset}
@@ -158,6 +172,7 @@ export const SharedTradeInputBody = ({
               aria-label={translate('lending.switchAssets')}
               icon={arrowUpDownIcon}
               isDisabled={isSwitchAssetsDisabled}
+              color='text.subtle'
             />
           </CircularProgressLabel>
         </CircularProgress>

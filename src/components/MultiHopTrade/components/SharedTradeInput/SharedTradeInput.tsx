@@ -31,6 +31,10 @@ type SharedTradeInputProps = {
   isStandalone?: boolean
 }
 
+const cardBorderRadius = { base: '0', md: '2xl' }
+const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
+const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
+
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   bodyContent,
   headerRightContent,
@@ -65,6 +69,9 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               ref={tradeInputRef}
               as='form'
               onSubmit={onSubmit}
+              bg={cardBgProp}
+              borderRadius={cardBorderRadius}
+              minHeight={cardMinHeight}
             >
               <SharedTradeInputHeader
                 initialTab={tradeInputTab}

@@ -26,7 +26,6 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
       new mayachain.Parser({
         chainId: this.chainId,
-        rpcUrl: args.rpcUrl,
         midgardUrl: args.mayaMidgardUrl,
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),

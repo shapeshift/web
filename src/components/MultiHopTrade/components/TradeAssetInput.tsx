@@ -29,7 +29,9 @@ const AssetInputAwaitingAsset = () => {
   )
 }
 
-type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & { assetId: AssetId }
+type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & {
+  assetId: AssetId
+}
 
 const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
   const { assetId, accountId } = props

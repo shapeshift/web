@@ -89,7 +89,7 @@ export const CardStyle = {
           md: 1,
         },
         borderTopWidth: {
-          base: 1,
+          base: 0,
           md: 0,
         },
         borderColor: 'border.base',

@@ -1,5 +1,5 @@
 import { cosmosAssetId, cosmosChainId } from '@shapeshiftoss/caip'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
@@ -52,6 +52,10 @@ const txParser = new TransactionParser({
 })
 
 describe('parseTx', () => {
+  beforeEach(() => {
+    mocks.get.mockReset()
+  })
+
   it('should be able to parse a standard send tx', async () => {
     const { tx } = standard
     const address = 'cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd'
@@ -372,6 +376,8 @@ describe('parseTx', () => {
       const address = 'cosmos1dnssyzyhnja28zdww2ffa6fcxaxwanguf7nmq7'
       const memo = 'SWAP:THOR.RUNE:thor166n4w5039meulfa3p6ydg60ve6ueac7tlt0jws:30984116284'
 
+      mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
+
       const expected: ParsedTx = {
         txid: tx.txid,
         blockHash: tx.blockHash,
@@ -409,7 +415,7 @@ describe('parseTx', () => {
       const address = 'cosmos10hng6437uh2yvjy6ax7dsmhkm0446z224s3ag6'
       const memo = 'OUT:818B5E84218B3A159EFD4F8DDA6484E005A9CE6558E9C12DD188E323B3E6F180'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -443,7 +449,7 @@ describe('parseTx', () => {
       const address = 'cosmos1dnssyzyhnja28zdww2ffa6fcxaxwanguf7nmq7'
       const memo = 'REFUND:361F10B0AEAB2DD40B431EA4941D0EA5A18BE6AE10E29C0F845375955B4860F4'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -476,6 +482,8 @@ describe('parseTx', () => {
       const { tx } = thorchainStreamingSwap
       const address = 'cosmos1nz22stv03fcp29563jrgu2v56hd92l96wwystz'
       const memo = '=:BNB.BNB:bnb1e75f8rzqlsrm3qepv4qh2ytp07ad6625at8nzg:0/1/0:te:0'
+
+      mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -514,7 +522,7 @@ describe('parseTx', () => {
       const address = 'cosmos1laznh8p3tvwu7q8ytrnn6nrntfyx0mpvvrltzl'
       const memo = 'OUT:59DDC87BE3B99846002140031F28AB0E1A1E4F01D0DA3A2D252953D9D47C9912'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -548,7 +556,7 @@ describe('parseTx', () => {
       const address = 'cosmos1s9t9jkqvwcwh66c4nya5vxnsntew3wrcald960'
       const memo = 'REFUND:CFD82073CB432FDFFA4BB75FE0838A1C28FD966F91E91AD9A421F128AFDC97C2'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -618,6 +626,8 @@ describe('parseTx', () => {
       const address = 'cosmos1g7ufueqz24luzcj0d5h8u3452vv4l4d9fz0fdn'
       const memo = '-:GAIA/ATOM:10000'
 
+      mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
+
       const expected: ParsedTx = {
         txid: tx.txid,
         blockHash: tx.blockHash,
@@ -654,7 +664,7 @@ describe('parseTx', () => {
       const address = 'cosmos1g7ufueqz24luzcj0d5h8u3452vv4l4d9fz0fdn'
       const memo = 'OUT:860B73A29EA69D7FB24B4B17893CF7CDB3B66C2BB9DD91872B140A2F325294D8'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -688,7 +698,7 @@ describe('parseTx', () => {
       const address = 'cosmos1yt49rwszuelyh0k9hl6kkq4kdn66aeqwxez6sc'
       const memo = 'REFUND:44BC762D4D5A1BD3ED8D06EFADDD905CC05CB48FB233D88119EBC0FE7DF7A8F1'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -758,6 +768,8 @@ describe('parseTx', () => {
       const address = 'cosmos18377m4dkzz9exa6yctph0fu9ygsexgjvfy893w'
       const memo = '-:GAIA.ATOM:10000'
 
+      mocks.get.mockImplementation(() => ({ data: { actions: [{}] } }))
+
       const expected: ParsedTx = {
         txid: tx.txid,
         blockHash: tx.blockHash,
@@ -794,7 +806,7 @@ describe('parseTx', () => {
       const address = 'cosmos18377m4dkzz9exa6yctph0fu9ygsexgjvfy893w'
       const memo = 'OUT:E8C9E5708C60F1C17AB106851EB19B0BF8A888A5FA0E079B7DFC7DBDB8B2E21D'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -828,7 +840,7 @@ describe('parseTx', () => {
       const address = 'cosmos1x04c87s4kyfr3ktrvkd47h43jlz35gys0rjfn0'
       const memo = 'REFUND:70D66FC759772014C0273EB84691A2A4BFFCD0EFA6ED3A4E5A9A021C1FF53338'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -862,7 +874,7 @@ describe('parseTx', () => {
       const address = 'cosmos173xmmmzpalc9h7ynwtn6fl76h78n57e8kp7cp6'
       const memo = 'OUT:C8ECD3A1C72473C294A63428E6284B2CEEC972BFA7372DF475F381777168D486'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -932,7 +944,7 @@ describe('parseTx', () => {
       const address = 'cosmos1vvtcw3cvje0kthxca6w5q2nz5kxr9cnckrutgc'
       const memo = 'REFUND:4EAC7774DD66B1AC08C9FE36ABC324875CF64B31E591649E5E410898F1603AD1'
 
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+      mocks.get.mockImplementation(() => ({ data: actionsResponse }))
 
       const expected: ParsedTx = {
         txid: tx.txid,

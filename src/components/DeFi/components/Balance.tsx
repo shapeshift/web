@@ -6,9 +6,9 @@ type AssetBalanceProps = {
   cryptoBalance: string
   fiatBalance: string
   isFiat?: boolean
-  label: string
-  textAlign?: TextProps['textAlign']
-}
+  label?: string
+} & TextProps
+
 export const Balance: React.FC<AssetBalanceProps> = ({
   symbol,
   cryptoBalance,
@@ -16,6 +16,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
   label,
   isFiat,
   textAlign = 'left',
+  ...props
 }) => {
   return isFiat ? (
     <Amount.Fiat
@@ -26,6 +27,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       prefix={label}
       value={fiatBalance}
       textAlign={textAlign}
+      {...props}
     />
   ) : (
     <Amount.Crypto
@@ -40,6 +42,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       overflow='hidden'
       textOverflow='ellipsis'
       maxWidth='240px'
+      {...props}
     />
   )
 }

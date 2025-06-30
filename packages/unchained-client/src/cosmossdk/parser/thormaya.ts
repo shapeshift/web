@@ -1,15 +1,16 @@
-import { Parser as MayachainParser } from '../../../parser/mayachain'
-import type { SubParser, Tx, TxSpecific } from '../../parser'
+import type * as mayachain from '../../parser/mayachain'
+import type * as thorchain from '../../parser/thorchain'
+import type { SubParser, Tx, TxSpecific } from '.'
 
-export interface ParserArgs {
-  midgardUrl: string
+interface ParserArgs {
+  parser: thorchain.Parser | mayachain.Parser
 }
 
 export class Parser implements SubParser<Tx> {
-  private readonly mayachainParser: MayachainParser
+  protected parser: thorchain.Parser | mayachain.Parser
 
   constructor(args: ParserArgs) {
-    this.mayachainParser = new MayachainParser({ midgardUrl: args.midgardUrl })
+    this.parser = args.parser
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -19,11 +20,11 @@ export class Parser implements SubParser<Tx> {
     const outboundMemoEvent = Object.values(tx.events).find(event => !!event['outbound']?.['memo'])
     const outboundMemo = outboundMemoEvent?.['outbound']?.['memo']
 
-    const memo = messageMemo || outboundMemo
+    const memo = messageMemo || outboundMemo || tx.memo
 
     if (!memo) return
 
-    const txSpecific = await this.mayachainParser.parse(memo)
+    const txSpecific = await this.parser.parse(memo, tx.txid)
 
     // special case for native thorchain transactions
     const outboundEventIndex = tx.messages.find(msg => msg.type === 'outbound')?.index
@@ -39,12 +40,16 @@ export class Parser implements SubParser<Tx> {
         case 'deposit':
           txSpecific.data.method = 'depositRefundNative'
           break
+        // contains both the loan repayment and refund outbound
+        case 'loanRepayment':
+          txSpecific.data.method = 'loanRepaymentRefundNative'
+          break
         default: {
           if (txSpecific) break
 
-          // generic fallback metadata if the mayachain parser didn't return anything
+          // generic fallback metadata if the thorchain parser didn't return any
           const method = !!refundEvent ? 'refund' : 'out'
-          return { data: { parser: 'mayachain', memo: outboundEvent['memo'], method } }
+          return { data: { parser: this.parser.parserName, memo: outboundEvent['memo'], method } }
         }
       }
     }

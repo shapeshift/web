@@ -1,4 +1,4 @@
-import { Parser as ThorchainParser } from '../../parser/thorchain'
+import * as thorchain from '../../parser/thorchain'
 import type { SubParser, Tx, TxSpecific } from '../parser'
 
 const opReturnRegex = /OP_RETURN \((?<memo>[^)]+)\)/
@@ -8,10 +8,10 @@ export interface ParserArgs {
 }
 
 export class Parser implements SubParser<Tx> {
-  protected parser: ThorchainParser<'thorchain' | 'mayachain'>
+  private readonly parser: thorchain.Parser
 
   constructor(args: ParserArgs) {
-    this.parser = new ThorchainParser({ midgardUrl: args.midgardUrl })
+    this.parser = new thorchain.Parser({ midgardUrl: args.midgardUrl })
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -19,8 +19,8 @@ export class Parser implements SubParser<Tx> {
     if (!opReturn) return
 
     const memo = opReturn.match(opReturnRegex)?.groups?.memo
-
     if (!memo) return
-    return await this.parser.parse(memo)
+
+    return await this.parser.parse(memo, tx.txid)
   }
 }

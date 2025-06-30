@@ -4,6 +4,7 @@ import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { common } from '@shapeshiftoss/unchained-client'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
@@ -11,7 +12,6 @@ import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
-import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
@@ -162,7 +162,8 @@ export const selectTxIdsByFilter = createCachedSelector(
 
     const maybeFilteredByMemo = memo
       ? maybeFilteredByParser.filter(
-          txId => (txs[txId].data as ThorTxMetadata | undefined)?.memo?.startsWith(memo),
+          txId =>
+            (txs[txId].data as common.thormaya.TxMetadata | undefined)?.memo?.startsWith(memo),
         )
       : maybeFilteredByParser
 

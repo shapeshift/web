@@ -1,18 +1,18 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 
-import { Parser as MayachainParser } from '../../parser/mayachain'
-import { Parser as ThorchainParser } from './thorchain'
+import * as mayachain from '../../parser/mayachain'
+import * as thormaya from './thormaya'
 
 export interface ParserArgs {
   chainId: ChainId
   midgardUrl: string
-  rpcUrl: string
 }
 
-export class Parser extends ThorchainParser {
+export class Parser extends thormaya.Parser {
   constructor(args: ParserArgs) {
-    super(args)
-
-    this.parser = new MayachainParser({ midgardUrl: args.midgardUrl })
+    super({
+      chainId: args.chainId,
+      parser: new mayachain.Parser({ midgardUrl: args.midgardUrl }),
+    })
   }
 }

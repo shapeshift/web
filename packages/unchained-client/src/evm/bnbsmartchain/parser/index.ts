@@ -19,7 +19,6 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new bep20.Parser({ chainId: this.chainId, provider: this.provider }),
       new thorchain.Parser({
         chainId: this.chainId,
-        rpcUrl: args.rpcUrl,
         midgardUrl: args.midgardUrl,
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),

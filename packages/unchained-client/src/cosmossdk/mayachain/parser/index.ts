@@ -1,7 +1,7 @@
 import type { Tx } from '../../../generated/mayachain'
 import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
-import * as mayachain from './mayachain'
+import * as mayachain from '../../parser/mayachain'
 
 export interface TransactionParserArgs extends BaseTransactionParserArgs {
   midgardUrl: string

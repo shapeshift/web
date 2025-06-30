@@ -1,7 +1,7 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { GetTradeQuoteInput, GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, GetTradeRateInput } from '@shapeshiftoss/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -19,7 +19,6 @@ export type GetTradeQuoteOrRateInputArgs = {
   slippageTolerancePercentageDecimal?: string
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
-  originalRate?: TradeRate
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
@@ -39,7 +38,6 @@ export const getTradeQuoteOrRateInput = async ({
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
-  originalRate,
   affiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
@@ -59,7 +57,6 @@ export const getTradeQuoteOrRateInput = async ({
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'quote',
-          originalRate,
         }
       : {
           sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
@@ -69,7 +66,6 @@ export const getTradeQuoteOrRateInput = async ({
           sellAsset,
           buyAsset,
           receiveAddress,
-          originalRate,
           accountNumber: sellAccountNumber,
           affiliateBps,
           allowMultiHop,

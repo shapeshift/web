@@ -8,7 +8,7 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
 } from '../../../cowswap-utils/constants'
-import type { GetTradeQuoteInput, SwapperConfig, TradeQuote, TradeRate } from '../../../types'
+import type { GetTradeQuoteInput, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   ETH,
@@ -381,7 +381,6 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input, MOCK_COWSWAP_CONFIG)
@@ -408,7 +407,6 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -453,7 +451,6 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -498,7 +495,6 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -543,7 +539,6 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -588,7 +583,6 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
-      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(

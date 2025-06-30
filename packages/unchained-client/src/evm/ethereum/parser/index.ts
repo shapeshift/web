@@ -30,12 +30,10 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new uniV2.Parser({ chainId: this.chainId, provider: this.provider }),
       new mayachain.Parser({
         chainId: this.chainId,
-        rpcUrl: args.rpcUrl,
         midgardUrl: args.mayaMidgardUrl,
       }),
       new thorchain.Parser({
         chainId: this.chainId,
-        rpcUrl: args.rpcUrl,
         midgardUrl: args.thorMidgardUrl,
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),

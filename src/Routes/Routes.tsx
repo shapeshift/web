@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { Layout } from '@/components/Layout/Layout'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from '@/hooks/useQuery/useQuery'
@@ -40,7 +41,7 @@ const MobileConnect = makeSuspenseful(
   ),
 )
 
-const tradeRedirect = <Navigate to='/trade' replace />
+const tradeRedirect = <Navigate to={TradeRoutePaths.Input} replace />
 const walletEarnRedirect = <Navigate to='/wallet/earn' replace />
 
 const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) => {
@@ -105,7 +106,7 @@ export const AppRoutes = memo(() => {
         if (isMobile && !state.isConnected) {
           const to = {
             pathname: '/connect-mobile-wallet',
-            search: `returnUrl=${location?.pathname ?? '/trade'}`,
+            search: `returnUrl=${location?.pathname ?? TradeRoutePaths.Input}`,
           }
 
           return (

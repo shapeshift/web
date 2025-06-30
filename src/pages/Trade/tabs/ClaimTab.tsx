@@ -12,6 +12,11 @@ import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInpu
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 
 const padding = { base: 0, md: 8 }
+const mainPaddingTop = { base: 0, md: '4.5rem' }
+const mainMarginTop = { base: 0, md: '-4.5rem' }
+
+const containerPaddingTop = { base: 0, md: 12 }
+const containerPaddingBottom = { base: 0, md: 12 }
 
 export const ClaimTab = memo(() => {
   const translate = useTranslate()
@@ -44,12 +49,12 @@ export const ClaimTab = memo(() => {
   const claimElement = useMemo(() => <Claim onChangeTab={handleChangeTab} />, [handleChangeTab])
 
   return (
-    <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full'>
+    <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>
       <SEO title={title} />
       <Flex
-        pt={12}
+        pt={containerPaddingTop}
         px={padding}
-        pb={12}
+        pb={containerPaddingBottom}
         alignItems='flex-start'
         width='full'
         justifyContent='center'

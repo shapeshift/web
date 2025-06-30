@@ -16,7 +16,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
 export type FiatRampsModalProps = {
-  assetId: AssetId
+  assetId: AssetId | undefined
   accountId?: AccountId
   fiatRampAction: FiatRampAction
 }

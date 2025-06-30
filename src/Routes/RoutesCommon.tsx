@@ -125,7 +125,7 @@ const MarketsPage = makeSuspenseful(
 
 export const routes: Route[] = [
   {
-    path: '/wallet/*',
+    path: '/home/*',
     label: 'navBar.home',
     shortLabel: 'navBar.home',
     icon: <HomeIcon />,
@@ -134,6 +134,16 @@ export const routes: Route[] = [
     mobileNav: true,
     hideDesktop: true,
     priority: 1,
+  },
+  {
+    path: '/wallet/*',
+    label: 'navBar.myWallet',
+    shortLabel: 'navBar.wallet',
+    icon: <WalletIcon />,
+    main: Dashboard,
+    category: RouteCategory.Featured,
+    mobileNav: false,
+    priority: 5,
   },
   {
     path: '/history',

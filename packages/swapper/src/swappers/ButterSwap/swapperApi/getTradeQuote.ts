@@ -116,7 +116,7 @@ export const getButterQuote = async (
     )
   }
 
-  // Fee asset for network/protocol fees
+  // Fee asset for network fees
   const feeAsset = _deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
   if (!feeAsset) {
     return Err(

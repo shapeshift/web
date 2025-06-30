@@ -108,8 +108,8 @@ export const History = () => {
       <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' isLazy>
         <Box borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>
-            <CustomTab>{'Activity'}</CustomTab>
-            <CustomTab>{'History'}</CustomTab>
+            <CustomTab>{translate('common.activity')}</CustomTab>
+            <CustomTab>{translate('navBar.history')}</CustomTab>
           </TabList>
           <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
         </Box>

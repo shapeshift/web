@@ -74,7 +74,7 @@ export const DashboardHeader = memo(() => {
         rightElement: <EarnBalance />,
       },
       {
-        label: 'navBar.activity',
+        label: 'common.activity',
         path: '/wallet/activity',
         color: 'blue',
       },

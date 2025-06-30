@@ -574,6 +574,7 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "history": "History",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "Home",
@@ -2846,6 +2847,9 @@
       "hasClaimsTitle": "You have TCY claims available!",
       "button": "Check Claims"
     }
+  },
+  "history": {
+    "heading": "History"
   },
   "markets": {
     "recommended": "Recommended",

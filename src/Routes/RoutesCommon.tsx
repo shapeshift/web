@@ -1,3 +1,4 @@
+import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
@@ -20,6 +21,7 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
+import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
@@ -123,13 +125,24 @@ const MarketsPage = makeSuspenseful(
 
 export const routes: Route[] = [
   {
-    path: '/home',
+    path: '/wallet/*',
     label: 'navBar.home',
+    shortLabel: 'navBar.home',
     icon: <HomeIcon />,
+    main: Dashboard,
+    category: RouteCategory.Featured,
     mobileNav: true,
     hideDesktop: true,
-    main: Home,
     priority: 1,
+  },
+  {
+    path: '/history',
+    label: 'navBar.history',
+    icon: <TimeIcon />,
+    mobileNav: true,
+    hideDesktop: true,
+    main: History,
+    priority: 7,
   },
   {
     path: '/trade/*',
@@ -192,16 +205,6 @@ export const routes: Route[] = [
       main: Buy,
       hide: true,
     })),
-  },
-  {
-    path: '/wallet/*',
-    label: 'navBar.myWallet',
-    shortLabel: 'navBar.wallet',
-    icon: <WalletIcon />,
-    main: Dashboard,
-    category: RouteCategory.Featured,
-    mobileNav: true,
-    priority: 5,
   },
   {
     path: '/explore',

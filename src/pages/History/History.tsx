@@ -1,13 +1,5 @@
 import type { TabProps } from '@chakra-ui/react'
-import {
-  Box,
-  Container,
-  Tab,
-  TabIndicator,
-  TabList,
-  Tabs,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Container, Tab, TabIndicator, TabList, Tabs, useDisclosure } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import SwipeableViews from 'react-swipeable-views'
@@ -94,6 +86,8 @@ export const History = () => {
     return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
   }, [isOpen, onClose])
 
+  const handleQrCodeclick = useCallback(() => qrCode.open({}), [qrCode])
+
   return (
     <Main pb={mainPaddingBottom} isSubPage>
       <SEO title={translate('history.heading')} />
@@ -107,16 +101,11 @@ export const History = () => {
       <Container px={6} pt={4}>
         <MobileUserHeader
           onSearchOpen={onSearchOpen}
-          handleQrCodeClick={() => qrCode.open({})}
+          handleQrCodeClick={handleQrCodeclick}
           onOpen={onOpen}
         />
       </Container>
-      <Tabs 
-        index={slideIndex} 
-        onChange={handleSlideIndexChange}
-        variant='unstyled' 
-        isLazy
-      >
+      <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' isLazy>
         <Box borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>
             <CustomTab>{'Activity'}</CustomTab>
@@ -124,8 +113,8 @@ export const History = () => {
           </TabList>
           <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
         </Box>
-        <VirtualizedSwipableViews 
-          index={slideIndex} 
+        <VirtualizedSwipableViews
+          index={slideIndex}
           onChangeIndex={handleSlideIndexChange}
           slideRenderer={slideRenderer}
           slideCount={2}

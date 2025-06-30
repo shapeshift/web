@@ -1,6 +1,9 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { zeroAddress } from 'viem'
 
 import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
@@ -10,13 +13,23 @@ import type {
   BridgeInfoApiResponse,
   BuildTxResponse,
   FindTokenResponse,
-  RouteAndSwapResponse,
   RouteResponse,
   SupportedChainListResponse,
 } from './types'
 import { butterHistoryService } from './utils/butterSwapHistoryService'
 import { butterService } from './utils/butterSwapService'
 import { chainIdToButterSwapChainId } from './utils/helpers'
+
+export enum ButterSwapErrorCode {
+  ParameterError = 2000,
+  ChainNotSupported = 2001,
+  TokenNotSupported = 2002,
+  NoRouteFound = 2003,
+  InsufficientLiquidity = 2004,
+  SlippageOutOfRange = 2005,
+  InsufficientAmount = 2006,
+  InvalidAddress = 2007,
+}
 
 type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 
@@ -48,26 +61,24 @@ export const findToken = async (
  * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-route
  */
 export interface GetButterRouteArgs {
-  fromChainId: ChainId
-  sellAssetAddress: string
-  toChainId: ChainId
-  buyAssetAddress: string
+  sellAsset: Asset
+  buyAsset: Asset
   amountHumanUnits: string
   slippage: string
   affiliate?: string
 }
 
+const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
+
 export const getButterRoute = async ({
-  fromChainId,
-  sellAssetAddress,
-  toChainId,
-  buyAssetAddress,
+  sellAsset,
+  buyAsset,
   amountHumanUnits,
   slippage,
   affiliate,
 }: GetButterRouteArgs): ButterSwapPromise<RouteResponse> => {
-  const butterFromChainId = chainIdToButterSwapChainId(fromChainId)
-  const butterToChainId = chainIdToButterSwapChainId(toChainId)
+  const butterFromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
+  const butterToChainId = chainIdToButterSwapChainId(buyAsset.chainId)
   if (!butterFromChainId || !butterToChainId) {
     return Err(
       makeSwapErrorRight({
@@ -76,6 +87,24 @@ export const getButterRoute = async ({
       }),
     )
   }
+
+  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
+  const sellAssetIsNative = sellAsset.assetId === feeAssetId
+  const buyAssetIsNative = buyAsset.assetId === chainIdToFeeAssetId(buyAsset.chainId)
+
+  const { assetReference: sellAssetAddressRaw } = fromAssetId(sellAsset.assetId)
+  const { assetReference: buyAssetAddressRaw } = fromAssetId(buyAsset.assetId)
+
+  const sellAssetAddress = (() => {
+    if (sellAsset.chainId === solanaChainId && sellAssetIsNative) return SOLANA_NATIVE_ADDRESS
+    if (sellAssetIsNative) return zeroAddress
+    return sellAssetAddressRaw
+  })()
+  const buyAssetAddress = (() => {
+    if (buyAsset.chainId === solanaChainId && buyAssetIsNative) return SOLANA_NATIVE_ADDRESS
+    if (buyAssetIsNative) return zeroAddress
+    return buyAssetAddressRaw
+  })()
   const params = {
     fromChainId: butterFromChainId,
     tokenInAddress: sellAssetAddress,
@@ -90,14 +119,6 @@ export const getButterRoute = async ({
   const result = await butterService.get<RouteResponse>('/route', { params })
   if (result.isErr()) return Err(result.unwrapErr())
   const data = result.unwrap().data
-  if (data.errno > 0) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getRoute] ${data.message}`,
-        code: butterSwapErrorToTradeQuoteError(data.errno),
-      }),
-    )
-  }
   return Ok(data)
 }
 
@@ -119,54 +140,6 @@ export const getBuildTx = async ({
   })
   if (result.isErr()) return Err(result.unwrapErr())
   const data = result.unwrap().data
-  if (data.errno > 0) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getBuildTx] ${data.message}`,
-        code: butterSwapErrorToTradeQuoteError(data.errno),
-      }),
-    )
-  }
-  return Ok(data)
-}
-
-/**
- * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-routeandswap
- */
-export const getRouteAndSwap = async (
-  fromChainId: number,
-  tokenInAddress: string,
-  toChainId: number,
-  tokenOutAddress: string,
-  amount: string,
-  from: string,
-  receiver: string,
-  slippage: string,
-): ButterSwapPromise<RouteAndSwapResponse> => {
-  const result = await butterService.get<RouteAndSwapResponse>('/routeAndSwap', {
-    params: {
-      fromChainId,
-      tokenInAddress,
-      toChainId,
-      tokenOutAddress,
-      amount,
-      type: 'exactIn',
-      slippage,
-      entrance: 'Butter+',
-      from,
-      receiver,
-    },
-  })
-  if (result.isErr()) return Err(result.unwrapErr())
-  const data = result.unwrap().data
-  if (data.errno > 0) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getRouteAndSwap] ${data.message}`,
-        code: butterSwapErrorToTradeQuoteError(data.errno),
-      }),
-    )
-  }
   return Ok(data)
 }
 
@@ -179,12 +152,6 @@ export function isRouteSuccess(
 export function isBuildTxSuccess(
   response: BuildTxResponse,
 ): response is Extract<BuildTxResponse, { errno: 0 }> {
-  return response.errno === 0
-}
-
-export function isRouteAndSwapSuccess(
-  response: RouteAndSwapResponse,
-): response is Extract<RouteAndSwapResponse, { errno: 0 }> {
   return response.errno === 0
 }
 
@@ -221,21 +188,21 @@ export const getBridgeInfoBySourceHash = async (
 
 export function butterSwapErrorToTradeQuoteError(errno: number): TradeQuoteError {
   switch (errno) {
-    case 2000:
+    case ButterSwapErrorCode.ParameterError:
       return TradeQuoteError.QueryFailed
-    case 2001:
+    case ButterSwapErrorCode.ChainNotSupported:
       return TradeQuoteError.UnsupportedChain
-    case 2002:
+    case ButterSwapErrorCode.TokenNotSupported:
       return TradeQuoteError.UnsupportedTradePair
-    case 2003:
+    case ButterSwapErrorCode.NoRouteFound:
       return TradeQuoteError.NoRouteFound
-    case 2004:
+    case ButterSwapErrorCode.InsufficientLiquidity:
       return TradeQuoteError.NoRouteFound
-    case 2005:
+    case ButterSwapErrorCode.SlippageOutOfRange:
       return TradeQuoteError.FinalQuoteMaxSlippageExceeded
-    case 2006:
+    case ButterSwapErrorCode.InsufficientAmount:
       return TradeQuoteError.SellAmountBelowMinimum
-    case 2007:
+    case ButterSwapErrorCode.InvalidAddress:
       return TradeQuoteError.QueryFailed
     default:
       return TradeQuoteError.QueryFailed

@@ -1,23 +1,20 @@
-import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero, chainIdToFeeAssetId, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
+  ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
   getBuildTx,
   getButterRoute,
   isBuildTxSuccess,
   isRouteSuccess,
 } from '../xhr'
-
-const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
 
 export const getButterQuote = async (
   input: CommonTradeQuoteInput,
@@ -43,23 +40,6 @@ export const getButterQuote = async (
     )
   }
 
-  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
-  const sellAssetIsNative = sellAsset.assetId === feeAssetId
-  const buyAssetIsNative = buyAsset.assetId === chainIdToFeeAssetId(buyAsset.chainId)
-
-  const { assetReference: sellAssetAddressRaw } = fromAssetId(sellAsset.assetId)
-  const { assetReference: buyAssetAddressRaw } = fromAssetId(buyAsset.assetId)
-
-  const sellAssetAddress = (() => {
-    if (sellAsset.chainId === solanaChainId && sellAssetIsNative) return SOLANA_NATIVE_ADDRESS
-    if (sellAssetIsNative) return zeroAddress
-    return sellAssetAddressRaw
-  })()
-  const buyAssetAddress = (() => {
-    if (buyAsset.chainId === solanaChainId && buyAssetIsNative) return SOLANA_NATIVE_ADDRESS
-    if (buyAssetIsNative) return zeroAddress
-    return buyAssetAddressRaw
-  })()
   const slippageDecimal =
     slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
@@ -67,10 +47,8 @@ export const getButterQuote = async (
 
   // Call ButterSwap /route API
   const routeResult = await getButterRoute({
-    fromChainId: sellAsset.chainId,
-    sellAssetAddress,
-    toChainId: buyAsset.chainId,
-    buyAssetAddress,
+    sellAsset,
+    buyAsset,
     amountHumanUnits: fromBaseUnit(amount, sellAsset.precision),
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
@@ -78,7 +56,20 @@ export const getButterQuote = async (
 
   if (routeResult.isErr()) return Err(routeResult.unwrapErr())
   const routeResponse = routeResult.unwrap()
+
   if (!isRouteSuccess(routeResponse)) {
+    if (routeResponse.errno === ButterSwapErrorCode.InsufficientAmount) {
+      const minAmountCryptoBaseUnit = toBaseUnit(
+        (routeResponse as any).minAmount,
+        sellAsset.precision,
+      )
+      return Err(
+        createTradeAmountTooSmallErr({
+          minAmountCryptoBaseUnit,
+          assetId: sellAsset.assetId,
+        }),
+      )
+    }
     return Err(
       makeSwapErrorRight({
         message: `[getTradeQuote] ${routeResponse.message}`,
@@ -126,7 +117,7 @@ export const getButterQuote = async (
   }
 
   // Fee asset for network/protocol fees
-  const feeAsset = _deps.assetsById[feeAssetId]
+  const feeAsset = _deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
   if (!feeAsset) {
     return Err(
       makeSwapErrorRight({

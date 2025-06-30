@@ -1,15 +1,18 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, makeButterSwapAffiliate } from '../utils/constants'
-import { butterSwapErrorToTradeQuoteError, getButterRoute, isRouteSuccess } from '../xhr'
+import {
+  ButterSwapErrorCode,
+  butterSwapErrorToTradeQuoteError,
+  getButterRoute,
+  isRouteSuccess,
+} from '../xhr'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -29,14 +32,6 @@ export const getTradeRate = async (
     .toString()
 
   const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
-  const sellAssetIsNative = sellAsset.assetId === feeAssetId
-  const buyAssetIsNative = buyAsset.assetId === chainIdToFeeAssetId(buyAsset.chainId)
-
-  const { assetReference: sellAssetAddressRaw } = fromAssetId(sellAsset.assetId)
-  const { assetReference: buyAssetAddressRaw } = fromAssetId(buyAsset.assetId)
-
-  const sellAssetAddress = sellAssetIsNative ? zeroAddress : sellAssetAddressRaw
-  const buyAssetAddress = buyAssetIsNative ? zeroAddress : buyAssetAddressRaw
 
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,
@@ -44,24 +39,27 @@ export const getTradeRate = async (
   const slippage = bn(slippageTolerancePercentageDecimal).times(10000).toString()
 
   const result = await getButterRoute({
-    fromChainId: sellAsset.chainId,
-    sellAssetAddress,
-    toChainId: buyAsset.chainId,
-    buyAssetAddress,
+    sellAsset,
+    buyAsset,
     amountHumanUnits: amount,
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps ?? DEFAULT_BUTTERSWAP_AFFILIATE_BPS),
   })
-
-  if (result.isErr()) return Err(result.unwrapErr())
+  if (result.isErr()) {
+    return Err(result.unwrapErr())
+  }
   const routeResponse = result.unwrap()
 
   if (!isRouteSuccess(routeResponse)) {
-    if (routeResponse.errno === 2003 && routeResponse.message === 'No Route Found') {
+    if (routeResponse.errno === ButterSwapErrorCode.InsufficientAmount) {
+      const minAmountCryptoBaseUnit = toBaseUnit(
+        (routeResponse as any).minAmount,
+        sellAsset.precision,
+      )
       return Err(
-        makeSwapErrorRight({
-          message: '[getTradeRate] No route found',
-          code: butterSwapErrorToTradeQuoteError(routeResponse.errno),
+        createTradeAmountTooSmallErr({
+          minAmountCryptoBaseUnit,
+          assetId: sellAsset.assetId,
         }),
       )
     }

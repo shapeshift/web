@@ -309,7 +309,6 @@ export type TradeQuoteStep = {
     maxStreamingQuantity?: number
   }
   relayTransactionMetadata?: RelayTransactionMetadata
-  // ButterSwap-specific executable transaction metadata
   butterSwapTransactionMetadata?: {
     to: string
     data: string

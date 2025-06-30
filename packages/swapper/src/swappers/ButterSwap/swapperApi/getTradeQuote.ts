@@ -49,7 +49,7 @@ export const getButterQuote = async (
   const routeResult = await getButterRoute({
     sellAsset,
     buyAsset,
-    amountHumanUnits: fromBaseUnit(amount, sellAsset.precision),
+    sellAmountCryptoBaseUnit: fromBaseUnit(amount, sellAsset.precision),
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
   })

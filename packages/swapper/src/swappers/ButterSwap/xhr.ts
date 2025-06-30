@@ -32,7 +32,7 @@ type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 export interface GetButterRouteArgs {
   sellAsset: Asset
   buyAsset: Asset
-  amountHumanUnits: string
+  sellAmountCryptoBaseUnit: string
   slippage: string
   affiliate?: string
 }
@@ -42,7 +42,7 @@ const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
 export const getButterRoute = async ({
   sellAsset,
   buyAsset,
-  amountHumanUnits,
+  sellAmountCryptoBaseUnit,
   slippage,
   affiliate,
 }: GetButterRouteArgs): ButterSwapPromise<RouteResponse> => {
@@ -79,7 +79,7 @@ export const getButterRoute = async ({
     tokenInAddress: sellAssetAddress,
     toChainId: butterToChainId,
     tokenOutAddress: buyAssetAddress,
-    amount: amountHumanUnits,
+    amount: sellAmountCryptoBaseUnit,
     type: 'exactIn',
     slippage,
     entrance: 'Butter+',

@@ -41,7 +41,7 @@ export const getTradeRate = async (
   const result = await getButterRoute({
     sellAsset,
     buyAsset,
-    amountHumanUnits: amount,
+    sellAmountCryptoBaseUnit: amount,
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps ?? DEFAULT_BUTTERSWAP_AFFILIATE_BPS),
   })

@@ -234,6 +234,7 @@ export const useGetTradeRates = () => {
     [shouldRefetchTradeQuotes, tradeRateInput],
   )
 
+  // TODO(0xdef1cafe): this is brittle
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
@@ -243,6 +244,7 @@ export const useGetTradeRates = () => {
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

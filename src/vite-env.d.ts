@@ -61,6 +61,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_JUPITER_SWAP: string
   readonly VITE_FEATURE_SWAPPER_RELAY: string
   readonly VITE_FEATURE_MAYA_SWAP: string
+  readonly VITE_FEATURE_BUTTERSWAP: string
 
   // URLs and API keys from base .env (always defined)
   readonly VITE_ABSOLUTE_URL_PREFIX: string

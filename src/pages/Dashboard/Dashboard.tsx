@@ -1,5 +1,15 @@
 import type { FlexProps, TabProps } from '@chakra-ui/react'
-import { Flex, Tab, TabIndicator, TabList, Tabs, useMediaQuery } from '@chakra-ui/react'
+import {
+  Flex,
+  Stack,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useNavigate } from 'react-router-dom'
@@ -8,6 +18,7 @@ import { mod } from 'react-swipeable-views-core'
 import type { SlideRenderProps } from 'react-swipeable-views-utils'
 import { virtualize } from 'react-swipeable-views-utils'
 
+import { WatchlistTable } from '../Home/WatchlistTable'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
 import { EarnDashboard } from './EarnDashboard'
 import { MobileActivity } from './MobileActivity'
@@ -20,6 +31,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { Accounts } from '@/pages/Accounts/Accounts'
+import { WatchList } from '@/pages/Markets/Watchlist'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 import { breakpoints } from '@/theme/theme'
 
@@ -112,63 +124,49 @@ export const Dashboard = memo(() => {
 
   const mobileTabs = useMemo(() => {
     return (
-      <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
-        <TabList>
-          <CustomTab>{translate('navBar.overview')}</CustomTab>
-          <CustomTab>{translate('defi.earn')}</CustomTab>
-          <CustomTab>{translate('navBar.activity')}</CustomTab>
+      <Tabs
+        mx={6}
+        index={slideIndex}
+        variant='soft-rounded'
+        isLazy
+        size='sm'
+        onChange={handleSlideIndexChange}
+      >
+        <TabList bg='transparent' borderWidth={0}>
+          <Tab>{translate('My Crypto')}</Tab>
+          <Tab>{translate('Watchlist')}</Tab>
         </TabList>
-        <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
       </Tabs>
     )
   }, [handleSlideIndexChange, slideIndex, translate])
 
   const dashboardHeader = useMemo(
-    () => <DashboardHeader tabComponent={appIsMobile ? mobileTabs : undefined} />,
+    () => <DashboardHeader tabComponent={() => null} />,
     [appIsMobile, mobileTabs],
   )
-
-  const slideRenderer = useCallback((props: SlideRenderProps) => {
-    const { index, key } = props
-    let content
-    const tab = mod(index, 3)
-    switch (tab) {
-      case MobileTab.Overview:
-        content = (
-          <>
-            <Route path='' element={walletDashboard} />
-            <Route path='accounts/*' element={accounts} />
-          </>
-        )
-        break
-      case MobileTab.Earn:
-        content = <Route path='*' element={earnDashboard} />
-        break
-      case MobileTab.Activity:
-        content = <Route path='*' element={mobileActivity} />
-        break
-      default:
-        content = null
-        break
-    }
-    return (
-      <ScrollView id={`scroll-view-${key}`} key={key}>
-        <Routes>{content}</Routes>
-      </ScrollView>
-    )
-  }, [])
 
   if (appIsMobile) {
     return (
       <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
-        <VirtualizedSwipableViews
-          index={slideIndex}
-          slideRenderer={slideRenderer}
-          slideCount={3}
-          overscanSlideBefore={1}
-          overscanSlideAfter={1}
-          onChangeIndex={handleSlideIndexChange}
-        />
+        <ScrollView>
+          <Tabs variant='soft-rounded' isLazy size='sm' pt={0}>
+            <TabList bg='transparent' borderWidth={0} pt={0}>
+              <Tab>{translate('My Crypto')}</Tab>
+              <Tab>{translate('Watchlist')}</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel px={0} py={0} pt={0}>
+                <Routes>
+                  <Route path='' element={walletDashboard} />
+                  <Route path='accounts/*' element={accounts} />
+                </Routes>
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                <WatchlistTable />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </ScrollView>
       </Main>
     )
   }

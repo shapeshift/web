@@ -89,7 +89,7 @@ export const History = () => {
   const handleQrCodeclick = useCallback(() => qrCode.open({}), [qrCode])
 
   return (
-    <Main pb={mainPaddingBottom} isSubPage>
+    <Main pb={mainPaddingBottom} pt={0}>
       <SEO title={translate('navBar.history')} />
       <GlobalSearchModal
         isOpen={isSearchOpen}
@@ -105,7 +105,7 @@ export const History = () => {
           onOpen={onOpen}
         />
       </Container>
-      <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' isLazy>
+      <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' pt={0} isLazy>
         <Box borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>
             <CustomTab>{translate('common.activity')}</CustomTab>

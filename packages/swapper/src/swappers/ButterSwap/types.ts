@@ -1,12 +1,12 @@
 // Type definitions inferred from validators.ts for ButterSwap
 
-export interface ErrorType {
+export type ErrorType = {
   errno: number
   message: string
   data?: unknown
 }
 
-export interface Token {
+export type Token = {
   address: string
   name: string
   decimals: number
@@ -14,7 +14,7 @@ export interface Token {
   icon: string
 }
 
-export interface RouteChain {
+export type RouteChain = {
   chainId: string
   tokenIn: Token
   tokenOut: Token
@@ -31,13 +31,13 @@ export interface RouteChain {
   bridge?: string
 }
 
-export interface Affiliate {
+export type Affiliate = {
   amount: string
   list: unknown[]
   data: string
 }
 
-export interface BridgeFee {
+export type BridgeFee = {
   amount: string
   affiliate: Affiliate
   symbol?: string
@@ -47,7 +47,7 @@ export interface BridgeFee {
   out?: number
 }
 
-export interface RouteSuccessItem {
+export type RouteSuccessItem = {
   diff: string
   bridgeFee: BridgeFee
   tradeType: number
@@ -93,7 +93,7 @@ export type RouteResponse =
     }
   | ErrorType
 
-export interface BuildTxSuccessItem {
+export type BuildTxSuccessItem = {
   to: string
   data: string
   value: string
@@ -110,12 +110,12 @@ export type BuildTxResponse =
     }
   | ErrorType
 
-export interface TxParamArg {
+export type TxParamArg = {
   type: string
   value: string
 }
 
-export interface TxParamData {
+export type TxParamData = {
   to: string
   data: string
   value: string
@@ -124,13 +124,13 @@ export interface TxParamData {
   args: TxParamArg[]
 }
 
-export interface TxParam {
+export type TxParam = {
   errno: number
   message: string
   data: TxParamData[]
 }
 
-export interface RouteAndSwapData {
+export type RouteAndSwapData = {
   route: RouteSuccessItem
   txParam: TxParam
 }
@@ -143,7 +143,7 @@ export type RouteAndSwapResponse =
     }
   | ErrorType
 
-export interface ChainInfo {
+export type ChainInfo = {
   id: number
   chainId: string
   chainName: string
@@ -155,7 +155,7 @@ export interface ChainInfo {
   nativeDecimal: number
 }
 
-export interface TokenInfo {
+export type TokenInfo = {
   id: number
   chainId: number | string
   address: string
@@ -167,7 +167,7 @@ export interface TokenInfo {
   showSymbol?: string
 }
 
-export interface BridgeInfo {
+export type BridgeInfo = {
   id?: number
   fromChain: ChainInfo
   toChain: ChainInfo
@@ -175,7 +175,7 @@ export interface BridgeInfo {
   amount: string
   fromToken: TokenInfo
   sourceHash: string
-  relayerHash: string | undefined // undocumented, curl 'https://bs-app-api.chainservice.io/api/queryBridgeInfoBySourceHash?hash=0x7d663afc31b6a477d0d5269d859864e2570b7dc3278eed83aed653adeff01da0'
+  relayerHash: string | undefined
   toHash: string | null
   receiveToken: TokenInfo
   receiveAmount: string
@@ -196,7 +196,7 @@ export type BridgeInfoNullResponse = {
 
 export type BridgeInfoResponse = BridgeInfo | BridgeInfo[] | ErrorType | BridgeInfoNullResponse
 
-export interface BridgeInfoApiResponse {
+export type BridgeInfoApiResponse = {
   code: number
   message: string
   data: {

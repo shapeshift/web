@@ -29,7 +29,7 @@ type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 /**
  * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-route
  */
-export interface GetButterRouteArgs {
+export type GetButterRouteArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountCryptoBaseUnit: string

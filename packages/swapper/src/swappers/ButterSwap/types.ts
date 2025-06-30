@@ -143,34 +143,6 @@ export type RouteAndSwapResponse =
     }
   | ErrorType
 
-export interface SupportedChainListResponse {
-  errno: number
-  message: string
-  data: number[]
-}
-
-export interface FindTokenItem {
-  id: number
-  chainId: number
-  address: string
-  blockchainNetwork: string
-  coingeckoId: string
-  decimals: number
-  image: string
-  name: string
-  rank: number
-  symbol: string
-  tokenSecurity: null
-  usdprice: number
-  usedIniframe: number
-}
-
-export interface FindTokenResponse {
-  errno: number
-  message: string
-  data: FindTokenItem[]
-}
-
 export interface ChainInfo {
   id: number
   chainId: string

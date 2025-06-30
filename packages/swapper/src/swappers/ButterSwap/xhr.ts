@@ -8,14 +8,7 @@ import { zeroAddress } from 'viem'
 import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
-import type {
-  BridgeInfo,
-  BridgeInfoApiResponse,
-  BuildTxResponse,
-  FindTokenResponse,
-  RouteResponse,
-  SupportedChainListResponse,
-} from './types'
+import type { BridgeInfo, BridgeInfoApiResponse, BuildTxResponse, RouteResponse } from './types'
 import { butterHistoryService } from './utils/butterSwapHistoryService'
 import { butterService } from './utils/butterSwapService'
 import { chainIdToButterSwapChainId } from './utils/helpers'
@@ -32,30 +25,6 @@ export enum ButterSwapErrorCode {
 }
 
 type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
-
-/**
- * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-supportedchainlist
- */
-export const getSupportedChainList = async (): ButterSwapPromise<SupportedChainListResponse> => {
-  const result = await butterService.get<SupportedChainListResponse>('/supportedChainList')
-  if (result.isErr()) return Err(result.unwrapErr())
-  // No runtime validation, just return the data
-  return Ok(result.unwrap().data)
-}
-
-/**
- * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-findtoken
- */
-export const findToken = async (
-  chainId: number,
-  address: string,
-): ButterSwapPromise<FindTokenResponse> => {
-  const result = await butterService.get<FindTokenResponse>('/findToken', {
-    params: { chainId, address },
-  })
-  if (result.isErr()) return Err(result.unwrapErr())
-  return Ok(result.unwrap().data)
-}
 
 /**
  * @see https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-route

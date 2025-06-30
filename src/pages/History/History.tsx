@@ -1,45 +1,30 @@
-import type { StackDirection, TabProps } from '@chakra-ui/react'
-import { Stack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Box } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import type { TabProps } from '@chakra-ui/react'
+import {
+  Box,
+  Container,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router'
 
-import { Display } from '@/components/Display'
 import { ActionCenter } from '@/components/Layout/Header/ActionCenter/ActionCenter'
-import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
+import { useModal } from '@/hooks/useModal/useModal'
+import { isMobile as isMobileApp } from '@/lib/globals'
+import { DashboardDrawer } from '@/pages/Dashboard/components/DashboardHeader/DashboardDrawer'
+import { MobileUserHeader } from '@/pages/Dashboard/components/DashboardHeader/MobileUserHeader'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 
-const maxWidth = { base: '100%', md: '450px' }
 const mainPaddingBottom = { base: 16, md: 8 }
-
-const HistoryHeader = () => {
-  const translate = useTranslate()
-  const navigate = useNavigate()
-
-  const handleBack = useCallback(() => {
-    navigate('/explore')
-  }, [navigate])
-
-  return (
-    <>
-      <PageHeader>
-        <SEO title={translate('history.heading')} />
-        <Display.Mobile>
-          <PageHeader.Left>
-            <PageBackButton onBack={handleBack} />
-          </PageHeader.Left>
-          <PageHeader.Middle>
-            <PageHeader.Title>{translate('history.heading')}</PageHeader.Title>
-          </PageHeader.Middle>
-        </Display.Mobile>
-      </PageHeader>
-    </>
-  )
-}
-
-const historyHeader = <HistoryHeader />
 
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
@@ -58,8 +43,38 @@ const CustomTab = (props: TabProps) => (
 )
 
 export const History = () => {
+  const translate = useTranslate()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isSearchOpen,
+    onOpen: onSearchOpen,
+    onClose: onSearchClose,
+    onToggle: onSearchToggle,
+  } = useDisclosure()
+  const qrCode = useModal('qrCode')
+
+  const mobileDrawer = useMemo(() => {
+    if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+    return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
+  }, [isOpen, onClose])
+
   return (
-    <Main pb={mainPaddingBottom} headerComponent={historyHeader} isSubPage>
+    <Main pb={mainPaddingBottom} isSubPage>
+      <SEO title={translate('history.heading')} />
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={onSearchClose}
+        onOpen={onSearchOpen}
+        onToggle={onSearchToggle}
+      />
+      {mobileDrawer}
+      <Container px={6} pt={4}>
+        <MobileUserHeader
+          onSearchOpen={onSearchOpen}
+          handleQrCodeClick={() => qrCode.open({})}
+          onOpen={onOpen}
+        />
+      </Container>
       <Tabs variant='unstyled' isLazy>
         <Box borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>

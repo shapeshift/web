@@ -1,11 +1,15 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Flex, IconButton, Text } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useMipdProviders } from '@/lib/mipd'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const searchIcon = <SearchIcon />
 const qrCodeIcon = (
@@ -33,12 +37,21 @@ export const MobileUserHeader = ({
     state: { walletInfo },
   } = useWallet()
 
+  const maybeRdns = useAppSelector(selectWalletRdns)
+
+  const mipdProviders = useMipdProviders()
+  const maybeMipdProvider = useMemo(
+    () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
+    [mipdProviders, maybeRdns],
+  )
+
   return (
     <Flex justifyContent='space-between' width='100%' display={mobileButtonRowDisplay}>
       <Flex align='center' onClick={onOpen}>
         <ProfileAvatar size='md' borderRadius='full' />
         <Text ml={2} fontWeight='semibold' fontSize='md'>
-          {(walletInfo?.meta?.label || walletInfo?.name) ?? translate('common.connectWallet')}
+          {(maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name) ??
+            translate('common.connectWallet')}
         </Text>
       </Flex>
       <Flex gap={2}>

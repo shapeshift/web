@@ -26,7 +26,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     }
     const info = infoResult.unwrap()
     if (!info) {
-      return { status: TxStatus.Unknown, buyTxHash: undefined, message: 'No data from ButterSwap' }
+      return { status: TxStatus.Unknown, buyTxHash: undefined, message: undefined }
     }
     // State mapping: 0 = pending, 1 = complete, 6 = refunded/failed
     let status: TxStatus = (() => {

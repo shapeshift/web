@@ -90,7 +90,7 @@ export const History = () => {
 
   return (
     <Main pb={mainPaddingBottom} isSubPage>
-      <SEO title={translate('history.heading')} />
+      <SEO title={translate('navBar.history')} />
       <GlobalSearchModal
         isOpen={isSearchOpen}
         onClose={onSearchClose}

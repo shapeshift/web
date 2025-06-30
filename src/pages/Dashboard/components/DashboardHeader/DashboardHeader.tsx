@@ -1,5 +1,5 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Container, Flex, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import type { JSX } from 'react'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
@@ -11,10 +11,9 @@ import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
 
 import { Amount } from '@/components/Amount/Amount'
-import { isMobile } from '@/lib/globals'
+import { Display } from '@/components/Display'
 import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 const paddingTop = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
@@ -39,7 +38,7 @@ const navCss = {
   },
 }
 
-export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
+export const DashboardHeader = memo(() => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -95,12 +94,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
     ))
   }, [NavItems, location.pathname])
 
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const appIsMobile = isMobile || !isLargerThanMd
-
-  const renderTabs = useMemo(() => {
-    if (appIsMobile) return null
-    if (tabComponent) return tabComponent
+  const tabs = useMemo(() => {
     return (
       <Flex
         flexDir={flexDirTabs}
@@ -125,7 +119,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         </Container>
       </Flex>
     )
-  }, [borderColor, renderNavItems, tabComponent])
+  }, [borderColor, renderNavItems])
 
   useLayoutEffect(() => {
     const body = document.body
@@ -155,7 +149,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         mt={marginTop}
       >
         <DashboardHeaderTop />
-        {renderTabs}
+        <Display.Desktop>{tabs}</Display.Desktop>
       </Stack>
     </DashboardHeaderWrapper>
   )

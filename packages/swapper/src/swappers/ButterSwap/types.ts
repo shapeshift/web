@@ -203,6 +203,7 @@ export interface BridgeInfo {
   amount: string
   fromToken: TokenInfo
   sourceHash: string
+  relayerHash: string | undefined // undocumented, curl 'https://bs-app-api.chainservice.io/api/queryBridgeInfoBySourceHash?hash=0x7d663afc31b6a477d0d5269d859864e2570b7dc3278eed83aed653adeff01da0'
   toHash: string | null
   receiveToken: TokenInfo
   receiveAmount: string

@@ -42,7 +42,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
       }
     })()
     // Use toHash as the destination chain tx hash if present
-    const buyTxHash = info.toHash || undefined
+    const buyTxHash = info.toHash ?? info.relayerHash ?? undefined
     return { status, buyTxHash, message: undefined }
   } catch (e) {
     return { status: TxStatus.Unknown, buyTxHash: undefined, message: (e as Error).message }

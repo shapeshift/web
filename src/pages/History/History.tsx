@@ -1,6 +1,6 @@
-import type { StackDirection } from '@chakra-ui/react'
-import { Stack } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import type { StackDirection, TabProps } from '@chakra-ui/react'
+import { Stack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Box } from '@chakra-ui/react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -9,6 +9,7 @@ import { ActionCenter } from '@/components/Layout/Header/ActionCenter/ActionCent
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 
 const maxWidth = { base: '100%', md: '450px' }
 const mainPaddingBottom = { base: 16, md: 8 }
@@ -40,13 +41,42 @@ const HistoryHeader = () => {
 
 const historyHeader = <HistoryHeader />
 
+const customTabActive = { color: 'text.base' }
+const customTabLast = { marginRight: 0 }
+
+const CustomTab = (props: TabProps) => (
+  <Tab
+    fontWeight='semibold'
+    color='text.subtle'
+    _selected={customTabActive}
+    px={0}
+    py={4}
+    mr={6}
+    _last={customTabLast}
+    {...props}
+  />
+)
+
 export const History = () => {
   return (
-    <Main pb={mainPaddingBottom} headerComponent={historyHeader} px={4} isSubPage>
-      <Stack spacing={4} width='full'></Stack>
-      <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
-        <ActionCenter />
-      </Stack>
+    <Main pb={mainPaddingBottom} headerComponent={historyHeader} isSubPage>
+      <Tabs variant='unstyled' isLazy>
+        <Box borderBottomWidth={1} borderColor='border.base'>
+          <TabList px={4}>
+            <CustomTab>{'Activity'}</CustomTab>
+            <CustomTab>{'History'}</CustomTab>
+          </TabList>
+          <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
+        </Box>
+        <TabPanels width='100%'>
+          <TabPanel px={0} py={0} width='100%'>
+            <ActionCenter />
+          </TabPanel>
+          <TabPanel px={0} py={0} width='100%'>
+            <TransactionHistory />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Main>
   )
 }

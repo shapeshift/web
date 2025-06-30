@@ -1,11 +1,10 @@
-import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Button,
   Container,
   Flex,
-  IconButton,
   Text,
   useColorModeValue,
   useDisclosure,
@@ -18,8 +17,8 @@ import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
+import { MobileUserHeader } from './MobileUserHeader'
 import { WalletBalance } from './WalletBalance'
 
 import { Display } from '@/components/Display'
@@ -55,7 +54,6 @@ const buyIcon = (
 )
 const sendIcon = <SendIcon boxSize='6' />
 const receiveIcon = <ArrowDownIcon boxSize={6} />
-const searchIcon = <SearchIcon />
 const qrCodeIcon = (
   <Box>
     <FaExpand />
@@ -100,49 +98,6 @@ const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionBu
         </Text>
       </VStack>
     </Button>
-  )
-}
-
-type MobileUserHeaderPrps = {
-  onSearchOpen: () => void
-  handleQrCodeClick: () => void
-  onOpen: () => void
-}
-
-export const MobileUserHeader = ({
-  onSearchOpen,
-  handleQrCodeClick,
-  onOpen,
-}: MobileUserHeaderPrps) => {
-  const translate = useTranslate()
-
-  const {
-    state: { walletInfo },
-  } = useWallet()
-
-  return (
-    <Flex justifyContent='space-between' width='100%' display={mobileButtonRowDisplay}>
-      <Flex align='center' onClick={onOpen}>
-        <ProfileAvatar size='md' borderRadius='full' />
-        <Text ml={2} fontWeight='semibold' fontSize='md'>
-          {(walletInfo?.meta?.label || walletInfo?.name) ?? translate('common.connectWallet')}
-        </Text>
-      </Flex>
-      <Flex gap={2}>
-        <IconButton
-          icon={searchIcon}
-          aria-label={translate('common.search')}
-          onClick={onSearchOpen}
-          isRound
-        />
-        <IconButton
-          icon={qrCodeIcon}
-          aria-label={translate('modals.send.qrCode')}
-          onClick={handleQrCodeClick}
-          isRound
-        />
-      </Flex>
-    </Flex>
   )
 }
 

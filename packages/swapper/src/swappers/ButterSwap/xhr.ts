@@ -98,7 +98,7 @@ export type ButterBuildTxArgs = {
   receiver: string
 }
 
-export const getBuildTx = async ({
+export const fetchTxData = async ({
   hash,
   slippage,
   from,

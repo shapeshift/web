@@ -10,7 +10,7 @@ import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
-  getBuildTx,
+  fetchTxData,
   getButterRoute,
   isBuildTxSuccess,
   isRouteSuccess,
@@ -89,7 +89,7 @@ export const getButterQuote = async (
   }
 
   // Call ButterSwap /swap API to get calldata and contract info
-  const buildTxResult = await getBuildTx({
+  const buildTxResult = await fetchTxData({
     hash: route.hash,
     slippage,
     from: sendAddress, // from (source chain address)

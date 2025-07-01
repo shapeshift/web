@@ -850,7 +850,8 @@
     "quoteBadge": {
       "bestRate": "Best Rate",
       "fastest": "Fastest",
-      "lowestGas": "Lowest Gas"
+      "lowestGas": "Lowest Gas",
+      "bestQuote": "Best Quote"
     },
      "quoteDisplay": {
       "title": "Quote Display",

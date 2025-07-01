@@ -118,14 +118,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       selectMarketDataByAssetIdUserCurrency(state, buyAsset.assetId ?? ''),
     )
 
-    const badgesIconOnlyIfCount = useMemo(() => {
-      if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-        return 2
-      } else {
-        return isMobile ? 3 : undefined
-      }
-    }, [quoteDisplayOption])
-
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
 
@@ -386,7 +378,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
                   isBestRate={isBestRate}
                   isFastest={isFastest}
                   isLowestGas={isLowestGas}
-                  iconOnlyIfCount={badgesIconOnlyIfCount}
                 />
                 {errorIndicator}
                 {!hasUnsupportedChainError && (
@@ -412,7 +403,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isBestRate,
       isFastest,
       isLowestGas,
-      badgesIconOnlyIfCount,
       errorIndicator,
       isRefetching,
       pollingInterval,

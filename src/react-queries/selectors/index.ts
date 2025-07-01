@@ -1,7 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import type { InboundAddressResponse } from '@shapeshiftoss/swapper'
-import { assetIdToThorPoolAssetId, isNativeAsset, isTcy, SwapperName } from '@shapeshiftoss/swapper'
+import {
+  assetIdToThorPoolAssetId,
+  isNativeAsset,
+  isRuji,
+  isTcy,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
@@ -37,16 +43,16 @@ export const selectIsTradingActive = ({
     case SwapperName.Mayachain: {
       if (!assetId) return false
 
-      const assetIsNative = isNativeAsset(assetId, swapperName)
-      const assetIsTcy = isTcy(assetId)
+      const isNative = isNativeAsset(assetId, swapperName)
+      const isThorNonFeeNativeAsset = isTcy(assetId) || isRuji(assetId)
 
-      if (assetIsNative) {
+      if (isNative) {
         // The asset is native (RUNE/CACAO), there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
         return Boolean(mimir && mimir.HALTTHORCHAIN === 0)
       }
 
-      if (assetIsTcy) {
+      if (isThorNonFeeNativeAsset) {
         // The asset is TCY, there is no inbound address data to check against
         // Check the HALTTCYTRADING flag on the mimir endpoint instead
         return Boolean(mimir && mimir.HALTTCYTRADING === 0)

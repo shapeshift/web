@@ -261,7 +261,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const { from, value, memo, chainSpecific } = input
       const { fee, coin = 'THOR.RUNE' } = chainSpecific
 
-      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY') throw new Error('unsupported coin type')
+      if (!['THOR.TCY', 'THOR.RUJI', 'THOR.RUNE'].includes(coin))
+        throw new Error('unsupported coin type')
 
       if (!fee) throw new Error('fee is required')
 

@@ -57,7 +57,7 @@ export const getPool = (
   if (!assetId) return
 
   const chainId = fromAssetId(assetId).chainId
-  if (!THORCHAIN_SUPPORTED_CHAIN_IDS.sell.includes(chainId)) return
+  if (!THORCHAIN_SUPPORTED_CHAIN_IDS.includes(chainId)) return
 
   const asset = assets[assetId]
   if (!asset) return

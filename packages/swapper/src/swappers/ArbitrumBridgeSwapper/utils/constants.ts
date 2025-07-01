@@ -1,14 +1,6 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/utils'
 
-import type { SupportedChainIds } from '../../../types'
 import { BRIDGE_TYPE } from '../types'
-import { arbitrumBridgeSupportedChainIds } from './types'
-
-export const ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: arbitrumBridgeSupportedChainIds as unknown as ChainId[],
-  buy: arbitrumBridgeSupportedChainIds as unknown as ChainId[],
-}
 
 // Broad estimate calculated by looking at a couple of different ERC-20 deposits
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51

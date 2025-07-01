@@ -15,7 +15,7 @@ export const assertValidTrade = ({
   buyAsset: Asset
   sellAsset: Asset
 }): Result<boolean, SwapErrorRight> => {
-  if (!MAYACHAIN_SUPPORTED_CHAIN_IDS.sell.includes(sellAsset.chainId)) {
+  if (!MAYACHAIN_SUPPORTED_CHAIN_IDS.includes(sellAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
         message: `[MayachainSwapper: assertValidTrade] - unsupported sell chain`,
@@ -25,7 +25,7 @@ export const assertValidTrade = ({
     )
   }
 
-  if (!MAYACHAIN_SUPPORTED_CHAIN_IDS.buy.includes(buyAsset.chainId)) {
+  if (!MAYACHAIN_SUPPORTED_CHAIN_IDS.includes(buyAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
         message: `[MayachainSwapper: assertValidTrade] - unsupported buy chain`,

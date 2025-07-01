@@ -159,6 +159,16 @@ export const useTradeExecution = (
           tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
         )
       })
+      execution.on(TradeExecutionEvent.BridgeTxHash, ({ bridgeTxHash }) => {
+        txHashReceived = true
+        dispatch(
+          tradeQuoteSlice.actions.setSwapBridgeTxHash({
+            hopIndex,
+            bridgeTxHash,
+            id: confirmedTradeId,
+          }),
+        )
+      })
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
         dispatch(
           tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),

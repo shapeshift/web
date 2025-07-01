@@ -353,6 +353,7 @@ export enum TransactionExecutionState {
 export type SwapExecutionMetadata = {
   state: TransactionExecutionState
   sellTxHash?: string
+  bridgeTxHash?: string
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
@@ -380,6 +381,7 @@ export type Swap = {
   buyAsset: Asset
   status: SwapStatus
   sellTxHash?: string
+  bridgeTxHash?: string
   buyTxHash?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId | undefined
@@ -534,6 +536,7 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
+  bridgeTxHash?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
 }
 
@@ -631,6 +634,7 @@ export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
+  BridgeTxHash = 'bridgeTxHash',
   Status = 'status',
   Success = 'success',
   Fail = 'fail',
@@ -638,12 +642,14 @@ export enum TradeExecutionEvent {
 }
 
 export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
+export type BridgeTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; bridgeTxHash: string }
 export type StatusArgs = TradeStatus & {
   stepIndex: number
 }
 
 export type TradeExecutionEventMap = {
   [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
+  [TradeExecutionEvent.BridgeTxHash]: (args: BridgeTxHashArgs) => void
   [TradeExecutionEvent.Status]: (args: StatusArgs) => void
   [TradeExecutionEvent.Success]: (args: StatusArgs) => void
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void

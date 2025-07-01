@@ -1,7 +1,6 @@
 import type { AccountId } from './accountId/accountId'
 import { fromAccountId } from './accountId/accountId'
 import type { AssetId } from './assetId/assetId'
-import { fromAssetId, toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 import { rujiAssetId, tcyAssetId } from './constants'

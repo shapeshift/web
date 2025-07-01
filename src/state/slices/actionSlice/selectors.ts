@@ -5,6 +5,7 @@ import type { LimitOrderAction } from './types'
 import {
   ActionStatus,
   ActionType,
+  isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSwapAction,
   isSwapAction,
@@ -20,6 +21,7 @@ export const selectActions = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
   (actionsById, actionIds) => {
+    console.log({ actionsById })
     return actionIds.map(id => actionsById[id])
   },
 )
@@ -29,6 +31,7 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
   swapSlice.selectors.selectSwapsById,
   (actions, enabledWalletAccountIds, swapsById) => {
+    console.log({ actions })
     return actions.filter(action => {
       if (isSwapAction(action)) {
         const swapId = action.swapMetadata.swapId
@@ -41,6 +44,10 @@ export const selectWalletActions = createDeepEqualOutputSelector(
 
       if (isLimitOrderAction(action)) {
         return enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId)
+      }
+
+      if (isGenericTransactionAction(action)) {
+        return enabledWalletAccountIds.includes(action.accountId)
       }
 
       return action

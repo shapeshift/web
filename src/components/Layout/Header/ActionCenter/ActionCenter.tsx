@@ -17,6 +17,7 @@ import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { EmptyState } from './components/EmptyState'
+import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
@@ -56,6 +57,9 @@ export const ActionCenter = memo(() => {
     return actions.map(action => {
       const actionsCards = (() => {
         switch (action.type) {
+          case ActionType.GenericTransaction: {
+            return <GenericTransactionActionCard key={action.id} action={action} isCollapsable />
+          }
           case ActionType.Swap: {
             const swap = swapsById[action.swapMetadata.swapId]
 

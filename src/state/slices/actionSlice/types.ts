@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
@@ -8,6 +8,7 @@ export enum ActionType {
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
+  GenericTransaction = 'GenericTransaction',
 }
 
 export enum ActionStatus {
@@ -63,7 +64,15 @@ export type LimitOrderAction = BaseAction & {
   limitOrderMetadata: ActionLimitOrderMetadata
 }
 
-export type Action = SwapAction | LimitOrderAction
+export type GenericTransactionAction = BaseAction & {
+  type: ActionType.GenericTransaction
+  message: string
+  accountId: AccountId
+  txHash: string
+  chainId: ChainId
+}
+
+export type Action = GenericTransactionAction | SwapAction | LimitOrderAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -82,4 +91,10 @@ export const isLimitOrderAction = (action: Action): action is LimitOrderAction =
 
 export const isPendingSwapAction = (action: Action): action is SwapAction => {
   return Boolean(isSwapAction(action) && action.status === ActionStatus.Pending)
+}
+
+export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
+  return Boolean(
+    action.type === ActionType.GenericTransaction && action.message && action.accountId,
+  )
 }

@@ -1,16 +1,20 @@
+import { useToast } from '@chakra-ui/react'
 import { thorchainChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router'
+import { v4 as uuidv4 } from 'uuid'
 import { Route, Switch } from 'wouter'
 
 import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -87,9 +91,44 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const location = useLocation()
   const [stakeTxid, setStakeTxid] = useState<string>()
   const queryClient = useQueryClient()
+  const dispatch = useAppDispatch()
+
+  const toast = useToast({
+    duration: 5000,
+    position: 'bottom-right',
+  })
+
+  const accountId = useAppSelector(state => {
+    const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
+    const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
+    return accountNumberAccounts?.[thorchainChainId] ?? ''
+  })
 
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
+
+    dispatch(
+      actionSlice.actions.upsertAction({
+        id: uuidv4(),
+        type: ActionType.GenericTransaction,
+        status: ActionStatus.Complete,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        message: 'TCY stake transaction confirmed',
+        // TODO(gomes): this doesn't work as this gets reset, handleTxConfirmed should take tx hash as a closure
+        txHash: stakeTxid,
+        chainId: thorchainChainId,
+        accountId,
+      }),
+    )
+
+    toast({
+      title: 'Transaction confirmed',
+      description: 'Your TCY stake has been confirmed.',
+      status: 'success',
+      isClosable: true,
+      position: 'top-right',
+    })
   }, [queryClient])
 
   const renderStakeInput = useCallback(() => {

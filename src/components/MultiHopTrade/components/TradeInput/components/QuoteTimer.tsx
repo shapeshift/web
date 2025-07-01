@@ -18,6 +18,7 @@ type QuoteTimerProps = {
 export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
   const lastRefreshTime = useAppSelector(selectLastRefreshTime)
   const isRefreshPending = useAppSelector(selectIsRefreshPending)
+
   const [timeRemaining, setTimeRemaining] = useState(TRADE_QUOTE_REFRESH_INTERVAL_MS)
 
   useEffect(() => {

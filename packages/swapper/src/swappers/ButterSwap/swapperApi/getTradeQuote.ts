@@ -16,7 +16,7 @@ import {
   isRouteSuccess,
 } from '../xhr'
 
-export const getButterQuote = async (
+export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   _deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {

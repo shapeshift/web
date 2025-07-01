@@ -5,11 +5,11 @@ import BigNumber from 'bignumber.js'
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { checkTradeStatus } from './swapperApi/checkTradeStatus'
-import { getButterQuote } from './swapperApi/getTradeQuote'
+import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 
 export const butterSwapApi: SwapperApi = {
-  getTradeQuote: getButterQuote,
+  getTradeQuote,
   getTradeRate,
   checkTradeStatus,
   getUnsignedEvmTransaction: async args => {

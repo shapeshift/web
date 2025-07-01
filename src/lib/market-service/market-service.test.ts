@@ -91,7 +91,9 @@ vi.mock('./foxy/foxy', () => ({
 
 const mockThorchainAssetsFindAll = vi.fn().mockImplementation(() => mockTcyMarketData)
 const mockThorchainAssetsFindByAssetId = vi.fn().mockImplementation(() => mockTcyMarketData)
-const mockThorchainAssetsFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockTcyPriceHistoryData)
+const mockThorchainAssetsFindPriceHistoryByAssetId = vi
+  .fn()
+  .mockImplementation(() => mockTcyPriceHistoryData)
 
 vi.mock('./thorchainAssets/thorchainAssets', () => ({
   ThorchainAssetsMarketService: vi.fn().mockImplementation(() => {

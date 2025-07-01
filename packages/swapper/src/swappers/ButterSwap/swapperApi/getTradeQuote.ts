@@ -1,4 +1,5 @@
-import { solanaChainId } from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero, chainIdToFeeAssetId, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -32,6 +33,42 @@ export const getTradeQuote = async (
     accountNumber,
     affiliateBps,
   } = input
+
+  if (
+    !isEvmChainId(sellAsset.chainId) &&
+    sellAsset.chainId !== btcChainId &&
+    sellAsset.chainId !== solanaChainId
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Unsupported chain`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
+  if (sellAsset.assetId === btcAssetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `BTC sells are currently unsupported`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Yes, this is supposed to be supported as per checks above, but currently is explicitly disabled, this can be confirmed by hitting
+  // Butter supported chains endpoit or trying to get a quote
+  // Disabling this explicitly for the time being, since the PR that brings Solana support (https://github.com/shapeshift/web/pull/9840)
+  // wasn't able to be tested yet
+  if (sellAsset.chainId === solanaChainId || buyAsset.chainId === solanaChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Solana chain is currently unsupported`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
 
   if (!sendAddress) {
     return Err(

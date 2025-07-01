@@ -34,7 +34,7 @@ export enum CosmosSdkMessageType {
 
 type MsgDeposit<
   T = ThorchainMessageType.MsgDeposit | MayachainMessageType.MsgDeposit,
-  U = 'THOR.RUNE' | 'THOR.TCY' | 'MAYA.CACAO',
+  U = 'THOR.RUNE' | 'THOR.TCY' | 'THOR.RUJI' | 'MAYA.CACAO',
 > = {
   type: T
   value: {

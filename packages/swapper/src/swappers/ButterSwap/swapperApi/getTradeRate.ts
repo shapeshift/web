@@ -6,7 +6,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, makeButterSwapAffiliate } from '../utils/constants'
+import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
@@ -43,7 +43,7 @@ export const getTradeRate = async (
     buyAsset,
     sellAmountCryptoBaseUnit: amount,
     slippage,
-    affiliate: makeButterSwapAffiliate(affiliateBps ?? DEFAULT_BUTTERSWAP_AFFILIATE_BPS),
+    affiliate: makeButterSwapAffiliate(affiliateBps),
   })
   if (result.isErr()) {
     return Err(result.unwrapErr())

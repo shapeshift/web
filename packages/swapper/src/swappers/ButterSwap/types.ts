@@ -1,4 +1,3 @@
-// Type definitions inferred from validators.ts for ButterSwap
 import type { Hex } from 'viem'
 
 export type ErrorType = {

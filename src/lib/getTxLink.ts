@@ -18,6 +18,7 @@ type GetTxBaseUrl = {
   stepSource?: Dex | SwapSource
   defaultExplorerBaseUrl: string
   isOrder?: boolean
+  isBridge?: boolean
 }
 
 // An eip-3770 compliant mapping of ChainId to chain shortname
@@ -45,6 +46,7 @@ export const getTxBaseUrl = ({
   stepSource,
   defaultExplorerBaseUrl,
   isOrder,
+  isBridge,
 }: GetTxBaseUrl): string => {
   switch (stepSource) {
     case Dex.CowSwap:
@@ -67,7 +69,7 @@ export const getTxBaseUrl = ({
     case SwapperName.Relay:
       return 'https://relay.link/transaction/'
     case SwapperName.ButterSwap:
-      return 'https://explorer.butterswap.io/tx/'
+      return isBridge ? 'https://www.maposcan.io/tx/' : 'https://explorer.butterswap.io/tx/'
     default:
       return defaultExplorerBaseUrl
   }
@@ -82,11 +84,12 @@ export const getTxLink = ({
   address,
   chainId,
   maybeChainflipSwapId,
+  isBridge,
 }: GetTxLink): string => {
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
   const isOrder = !!tradeId
-  const baseUrl = getTxBaseUrl({ stepSource: name, defaultExplorerBaseUrl, isOrder })
+  const baseUrl = getTxBaseUrl({ stepSource: name, defaultExplorerBaseUrl, isOrder, isBridge })
 
   if (!isSafeTxHash) {
     switch (name) {

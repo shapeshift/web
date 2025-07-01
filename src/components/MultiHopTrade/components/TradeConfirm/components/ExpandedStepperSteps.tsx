@@ -403,10 +403,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
               {firstHopSwap.bridgeTxHash && (
                 <TxLabel
                   txHash={firstHopSwap.bridgeTxHash}
-                  explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink} // We don't track the bridge asset explorer base URL, but the sell asset works for this purpose
+                  explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
                   accountId={firstHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
+                  isBridge={true}
                 />
               )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (

@@ -10,6 +10,9 @@ import { simpleLocale } from '@/lib/browserLocale'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { selectAssets } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 dayjs.extend(localizedFormat)
 
@@ -255,8 +258,11 @@ export const preferences = createSlice({
         state.watchedAssets = state.watchedAssets.concat(payload)
       }
 
+      const assets = selectAssets(store.getState())
+      const compositeAssetId = getMaybeCompositeAssetSymbol(payload, assets)
+
       getMixPanel()?.track(MixPanelEvent.ToggleWatchAsset, {
-        assetId: payload,
+        assetId: compositeAssetId,
         isAdding: !isWatched,
       })
     }),

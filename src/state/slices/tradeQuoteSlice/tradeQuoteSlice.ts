@@ -19,12 +19,16 @@ export const tradeQuoteSlice = createSlice({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       sortOption: state.sortOption, // Preserve the sort option
+      refreshPendingUntil: state.refreshPendingUntil, // Maintain out quote refresh countdown
+      lastRefreshTime: state.lastRefreshTime,
     })),
     clearTradeQuotes: create.reducer(state => ({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       activeQuoteMeta: state.activeQuoteMeta, // And the activeQuoteMeta too, or we'll lose the active quote when backing out from preview
       sortOption: state.sortOption, // Preserve the sort option
+      refreshPendingUntil: state.refreshPendingUntil, // Maintain out quote refresh countdown
+      lastRefreshTime: state.lastRefreshTime,
     })),
     setIsTradeQuoteRequestAborted: create.reducer((state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload

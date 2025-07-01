@@ -43,16 +43,16 @@ export const selectIsTradingActive = ({
     case SwapperName.Mayachain: {
       if (!assetId) return false
 
-      const isNative = isNativeAsset(assetId, swapperName)
-      const isThorNonFeeNativeAsset = isTcy(assetId) || isRuji(assetId)
+      const isNativeFeeAsset = isNativeAsset(assetId, swapperName)
+      const isNonFeeNativeAsset = isTcy(assetId) || isRuji(assetId)
 
-      if (isNative) {
+      if (isNativeFeeAsset) {
         // The asset is native (RUNE/CACAO), there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
         return Boolean(mimir && mimir.HALTTHORCHAIN === 0)
       }
 
-      if (isThorNonFeeNativeAsset) {
+      if (isNonFeeNativeAsset) {
         // The asset is TCY, there is no inbound address data to check against
         // Check the HALTTCYTRADING flag on the mimir endpoint instead
         return Boolean(mimir && mimir.HALTTCYTRADING === 0)

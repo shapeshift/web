@@ -125,7 +125,7 @@ export const Dashboard = memo(() => {
               size='sm'
               pt={0}
             >
-              <TabList bg='transparent' borderWidth={0} pt={0} gap={1}>
+              <TabList bg='transparent' borderWidth={0} pt={0} gap={2}>
                 <Tab>{translate('dashboard.portfolio.myCrypto')}</Tab>
                 <Tab>{translate('watchlist.title')}</Tab>
               </TabList>

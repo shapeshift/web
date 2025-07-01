@@ -139,6 +139,21 @@ export const tcy: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const ruji: Readonly<Asset> = Object.freeze({
+  assetId: caip.rujiAssetId,
+  chainId: caip.thorchainChainId,
+  name: 'Rujira',
+  networkName: 'THORChain',
+  symbol: 'RUJI',
+  precision: 8,
+  color: '#33FF99',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat-ruji/scripts/generateAssetData/thorchain/icons/ruji-icon.png',
+  explorer: 'https://viewblock.io/thorchain',
+  explorerAddressLink: 'https://viewblock.io/thorchain/address/',
+  explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  relatedAssetKey: null,
+})
+
 export const maya: Readonly<Asset> = Object.freeze({
   assetId: mayaTokenAssetId,
   chainId: caip.mayachainChainId,

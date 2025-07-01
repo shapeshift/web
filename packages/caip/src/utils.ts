@@ -24,6 +24,7 @@ export const generateAssetIdFromCosmosSdkDenom = (
   nativeAssetId: AssetId,
 ): AssetId => {
   if (denom === 'tcy') return tcyAssetId
+  if (denom === 'ruji') return tcyAssetId
   if (denom === 'maya') return mayaTokenAssetId
   if (denom.startsWith('ibc')) {
     return toAssetId({

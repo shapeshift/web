@@ -1,8 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 // https://api.portals.fi/v1/networks
-export const PortalsSupportedChainIds: ChainId[] = [
+export const PortalsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.AvalancheMainnet,

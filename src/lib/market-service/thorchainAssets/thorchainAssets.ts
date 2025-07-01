@@ -10,15 +10,28 @@ import { getConfig } from '@/config'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 
+const supportedAssetIds = [tcyAssetId, rujiAssetId]
+
 export class ThorchainAssetsMarketService implements MarketService {
   baseUrl = getConfig().VITE_THORCHAIN_NODE_URL
 
   async findAll() {
     try {
-      const assetId = tcyAssetId
-      const marketData = await this.findByAssetId({ assetId })
+      const assetIds = supportedAssetIds
+      const marketDataResults = await Promise.all(
+        assetIds.map(assetId => this.findByAssetId({ assetId })),
+      )
 
-      return { [assetId]: marketData } as Record<string, MarketData>
+      return marketDataResults.reduce(
+        (acc, marketData, index) => {
+          if (!marketData) return acc
+
+          acc[assetIds[index]] = marketData
+
+          return acc
+        },
+        {} as Record<string, MarketData>,
+      )
     } catch (e) {
       console.warn(e)
       return {}
@@ -27,7 +40,7 @@ export class ThorchainAssetsMarketService implements MarketService {
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     try {
-      if (![tcyAssetId, rujiAssetId].includes(assetId)) return null
+      if (!supportedAssetIds.includes(assetId)) return null
 
       const poolAssetId = thorPoolAssetIdToAssetId(assetId)
       if (!poolAssetId) return null

@@ -28,7 +28,7 @@ import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
 import type Polyglot from 'node-polyglot'
-import type { Address } from 'viem'
+import type { Address, Hex } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -312,7 +312,7 @@ export type TradeQuoteStep = {
   butterSwapTransactionMetadata?: {
     to: string
     data: string
-    value: string
+    value: Hex
   }
 }
 

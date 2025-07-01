@@ -28,7 +28,7 @@ import { bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
+import type { ThorchainMsgDeposit, ThorchainMsgSend, ThorSupportedCoin } from '../types'
 import { ThorchainMessageType } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
@@ -272,7 +272,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const msg: ThorchainMsgDeposit = {
         type: ThorchainMessageType.MsgDeposit,
         value: {
-          coins: [{ asset: coin, amount: bnOrZero(value).toString() }],
+          coins: [{ asset: coin as ThorSupportedCoin, amount: bnOrZero(value).toString() }],
           memo,
           signer: from,
         },

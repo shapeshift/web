@@ -4,7 +4,7 @@ import type { AssetId } from './assetId/assetId'
 import { fromAssetId, toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
-import { tcyAssetId } from './constants'
+import { rujiAssetId, tcyAssetId } from './constants'
 
 const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
@@ -24,7 +24,7 @@ export const generateAssetIdFromCosmosSdkDenom = (
   nativeAssetId: AssetId,
 ): AssetId => {
   if (denom === 'tcy') return tcyAssetId
-  if (denom === 'ruji') return tcyAssetId
+  if (denom === 'x/ruji') return rujiAssetId
   if (denom === 'maya') return mayaTokenAssetId
   if (denom.startsWith('ibc')) {
     return toAssetId({

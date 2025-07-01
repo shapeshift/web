@@ -1,6 +1,6 @@
 import { rujiAssetId, tcyAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
-import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import type { MarketData, MarketDataArgs } from '@shapeshiftoss/types'
 import axios from 'axios'
 
@@ -42,7 +42,7 @@ export class ThorchainAssetsMarketService implements MarketService {
     try {
       if (!supportedAssetIds.includes(assetId)) return null
 
-      const poolAssetId = thorPoolAssetIdToAssetId(assetId)
+      const poolAssetId = assetIdToThorPoolAssetId({ assetId })
       if (!poolAssetId) return null
 
       const response = await axios.get<ThornodePoolResponse>(

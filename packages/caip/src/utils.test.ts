@@ -13,6 +13,7 @@ import {
   cosmosChainId,
   ethAssetId,
   ethChainId,
+  thorchainChainId,
 } from './constants'
 import {
   assertIsAssetNamespace,
@@ -202,26 +203,23 @@ describe('type guard assertion', () => {
     })
   })
   describe('generateAssetIdFromCosmosDenom', () => {
-    it('correctly generates ATOM native asset id', () => {
+    it('correctly generates ATOM native AssetId', () => {
       const nativeAssetId = toAssetId({
         assetNamespace: ASSET_NAMESPACE.slip44,
         assetReference: ASSET_REFERENCE.Cosmos,
         chainId: cosmosChainId,
       })
-      const result = generateAssetIdFromCosmosSdkDenom('uatom', cosmosAssetId)
+      const result = generateAssetIdFromCosmosSdkDenom('uatom')
       expect(result).toEqual(nativeAssetId)
     })
-    it('correctly generates cosmoshub IBC asset id', () => {
-      const ibcAssetId = toAssetId({
-        assetNamespace: ASSET_NAMESPACE.ibc,
-        assetReference: '14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
-        chainId: cosmosChainId,
+    it('correctly generates TCY AssetId', () => {
+      const nativeAssetId = toAssetId({
+        assetNamespace: ASSET_NAMESPACE.slip44,
+        assetReference: ASSET_REFERENCE.Thorchain,
+        chainId: thorchainChainId,
       })
-      const result = generateAssetIdFromCosmosSdkDenom(
-        'ibc/14F9BC3E44B8A9C1BE1FB08980FAB87034C9905EF17CF2F5008FC085218811CC',
-        cosmosAssetId,
-      )
-      expect(result).toEqual(ibcAssetId)
+      const result = generateAssetIdFromCosmosSdkDenom('tcy')
+      expect(result).toEqual(nativeAssetId)
     })
   })
 })

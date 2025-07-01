@@ -20,7 +20,7 @@ export const isValidChainPartsPair = (
 
 export const generateAssetIdFromCosmosSdkDenom = (
   denom: string,
-  nativeAssetId: AssetId,
+  // nativeAssetId: AssetId,
 ): AssetId => {
   if (denom === 'tcy') return tcyAssetId
   if (denom === 'x/ruji') return rujiAssetId

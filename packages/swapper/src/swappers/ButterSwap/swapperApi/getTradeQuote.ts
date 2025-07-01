@@ -16,14 +16,14 @@ import {
   isRouteSuccess,
 } from '../xhr'
 
-export const getButterQuote = async (
+export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   _deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
     sendAddress,
     slippageTolerancePercentageDecimal,
@@ -49,7 +49,10 @@ export const getButterQuote = async (
   const routeResult = await getButterRoute({
     sellAsset,
     buyAsset,
-    sellAmountCryptoBaseUnit: fromBaseUnit(amount, sellAsset.precision),
+    sellAmountCryptoBaseUnit: fromBaseUnit(
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset.precision,
+    ),
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
   })
@@ -141,7 +144,7 @@ export const getButterQuote = async (
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
     buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit,
       protocolFees: undefined,

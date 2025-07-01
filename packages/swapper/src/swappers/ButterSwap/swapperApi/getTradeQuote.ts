@@ -1,6 +1,8 @@
+import { solanaChainId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero, chainIdToFeeAssetId, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
@@ -141,6 +143,30 @@ export const getTradeQuote = async (
   const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
   const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
 
+  // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
+  const solanaTransactionMetadata = (() => {
+    if (sellAsset.chainId !== solanaChainId) return
+
+    const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
+    const versionedTransaction = VersionedTransaction.deserialize(
+      new Uint8Array(Buffer.from(txData, 'hex')),
+    )
+
+    // Decompile VersionedMessage to get instructions
+    // https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
+    const instructions = TransactionMessage.decompile(versionedTransaction.message).instructions
+
+    // Extract address lookup table addresses
+    const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups?.map(
+      lookup => lookup.accountKey.toString(),
+    )
+
+    return {
+      instructions,
+      addressLookupTableAddresses,
+    }
+  })()
+
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
     buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
@@ -160,6 +186,7 @@ export const getTradeQuote = async (
       to: buildTx.to,
       data: buildTx.data,
       value: buildTx.value,
+      ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
     },
   }
 

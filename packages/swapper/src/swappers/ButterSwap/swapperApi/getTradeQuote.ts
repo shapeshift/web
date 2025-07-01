@@ -23,7 +23,7 @@ export const getTradeQuote = async (
   const {
     sellAsset,
     buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
     sendAddress,
     slippageTolerancePercentageDecimal,
@@ -141,7 +141,7 @@ export const getTradeQuote = async (
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
     buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit,
       protocolFees: undefined,

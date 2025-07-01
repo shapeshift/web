@@ -18,25 +18,17 @@ export const isValidChainPartsPair = (
   chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
-export const generateAssetIdFromCosmosSdkDenom = (
-  denom: string,
-  // nativeAssetId: AssetId,
-): AssetId => {
-  if (denom === 'tcy') return tcyAssetId
-  if (denom === 'x/ruji') return rujiAssetId
-  if (denom === 'maya') return mayaTokenAssetId
-
-  // TODO: maybe bring me back some day, or maybe nuke me, we don't support IBC assets anymore, and absolutely don't want to fallback
-  // to a default AssetId for THORChain assets, or this could produce v. bad and unintended behavior, cf. https://github.com/shapeshift/web/issues/9811
-  // if (denom.startsWith('ibc')) {
-  // return toAssetId({
-  // assetNamespace: constants.ASSET_NAMESPACE.ibc,
-  // assetReference: denom.split('/')[1],
-  // chainId: fromAssetId(nativeAssetId).chainId,
-  // })
-  // }
-
-  return nativeAssetId
+export const generateAssetIdFromCosmosSdkDenom = (denom: string): AssetId => {
+  switch (denom) {
+    case 'tcy':
+      return tcyAssetId
+    case 'x/ruji':
+      return rujiAssetId
+    case 'maya':
+      return mayaTokenAssetId
+    default:
+      throw new Error(`Unsupported denom: ${denom}`)
+  }
 }
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }

@@ -852,9 +852,11 @@
       "fastest": "Fastest",
       "lowestGas": "Lowest Gas"
     },
-     "quoteDisplay": {
+    "quoteDisplay": {
       "title": "Quote Display",
-      "info": "Choose your quote display style."
+      "info": "Choose your quote display style.",
+      "basic": "Basic",
+      "advanced": "Advanced"
     },
     "sort": {
       "sortBy": "Sort Quotes By",

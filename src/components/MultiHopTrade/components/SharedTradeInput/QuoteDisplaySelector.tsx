@@ -1,6 +1,7 @@
 import { Box, Button, ButtonGroup } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { Text } from '@/components/Text'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -8,6 +9,8 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const QuoteDisplaySelector: FC = memo(() => {
   const quoteDisplayOption = useAppSelector(preferences.selectors.selectQuoteDisplayOption)
+
+  const translate = useTranslate()
 
   const dispatch = useAppDispatch()
 
@@ -40,13 +43,13 @@ export const QuoteDisplaySelector: FC = memo(() => {
           isActive={quoteDisplayOption === QuoteDisplayOption.Basic}
           onClick={handleBasicDisplaySelect}
         >
-          Basic
+          {translate('trade.quoteDisplay.basic')}
         </Button>
         <Button
           isActive={quoteDisplayOption === QuoteDisplayOption.Advanced}
           onClick={handleAdvancedDisplaySelect}
         >
-          Advanced
+          {translate('trade.quoteDisplay.advanced')}
         </Button>
       </ButtonGroup>
     </Box>

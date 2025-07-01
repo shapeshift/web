@@ -56,7 +56,9 @@ export const TradeQuoteExchangeRate: React.FC<TradeQuoteExchangeRateProps> = ({
       _hover={hoverDottedUnderline}
       {...rest}
     >
-      {`1 ${fromAsset.symbol} = ${toCrypto(exchangeRate, toAsset.symbol)}`}
+      {`1 ${fromAsset.symbol} = ${toCrypto(exchangeRate, toAsset.symbol, {
+        maximumFractionDigits: buyAsset.precision,
+      })}`}
     </Flex>
   )
 }

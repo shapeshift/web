@@ -1,6 +1,7 @@
 import { CardBody, CardFooter, Flex, Skeleton } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
@@ -20,8 +21,8 @@ export type TradeQuoteContentProps = {
   quoteDisplayOption: QuoteDisplayOption
   totalReceiveAmountFiatUserCurrency: string | undefined
   hasAmountWithPositiveReceive: boolean
+  sellAmountUserCurrency: string | undefined
   totalReceiveAmountCryptoPrecision: string
-  lossAfterRateAndFeesUserCurrency: number
   networkFeeFiatUserCurrency: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
@@ -34,7 +35,7 @@ export const TradeQuoteContent = ({
   quoteDisplayOption,
   totalReceiveAmountFiatUserCurrency,
   hasAmountWithPositiveReceive,
-  lossAfterRateAndFeesUserCurrency,
+  sellAmountUserCurrency,
   totalReceiveAmountCryptoPrecision,
   networkFeeFiatUserCurrency,
   totalEstimatedExecutionTimeMs,
@@ -52,6 +53,17 @@ export const TradeQuoteContent = ({
   const priceImpactTooltipText = useMemo(
     () => translate('trade.tooltip.inputOutputDifference'),
     [translate],
+  )
+
+  const lossAfterRateAndFeesUserCurrency = useMemo(
+    () =>
+      priceImpactDecimalPercentage !== undefined && sellAmountUserCurrency !== undefined
+        ? bn(sellAmountUserCurrency)
+            .multipliedBy(priceImpactDecimalPercentage)
+            .toFixed(2)
+            .toString()
+        : undefined,
+    [priceImpactDecimalPercentage, sellAmountUserCurrency],
   )
 
   return (
@@ -99,11 +111,14 @@ export const TradeQuoteContent = ({
                 : translate('trade.quote.gas')
             }
           >
-            {networkFeeFiatUserCurrency ? (
-              <Amount.Fiat value={networkFeeFiatUserCurrency} />
-            ) : (
-              <Text translation={'trade.unknownGas'} fontSize='sm' />
-            )}
+            {
+              // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
+              networkFeeFiatUserCurrency ? (
+                <Amount.Fiat value={networkFeeFiatUserCurrency} />
+              ) : (
+                <Text translation={'trade.unknownGas'} fontSize='sm' />
+              )
+            }
           </TradeQuoteMetaItem>
           {priceImpactDecimalPercentage !== undefined &&
             quoteDisplayOption === QuoteDisplayOption.Advanced && (

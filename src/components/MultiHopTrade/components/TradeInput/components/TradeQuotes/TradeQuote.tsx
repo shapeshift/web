@@ -1,5 +1,13 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Box, Circle, Flex, Skeleton, Tooltip, useDisclosure } from '@chakra-ui/react'
+import {
+  Box,
+  Circle,
+  Flex,
+  Skeleton,
+  Tooltip,
+  useDisclosure,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
@@ -22,7 +30,6 @@ import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { isMobile } from '@/lib/globals'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -46,6 +53,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type TradeQuoteProps = {
   isActive: boolean
@@ -78,6 +86,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     } = useDisclosure()
     const dispatch = useAppDispatch()
     const translate = useTranslate()
+
+    const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
     const handleToolTipOpen = useCallback(
       (e: React.MouseEvent) => {
@@ -117,14 +127,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const buyAssetMarketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, buyAsset.assetId ?? ''),
     )
-
-    const badgesIconOnlyIfCount = useMemo(() => {
-      if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-        return 2
-      } else {
-        return isMobile ? 3 : undefined
-      }
-    }, [quoteDisplayOption])
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
@@ -185,22 +187,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [buyAssetMarketData?.price, isTradingWithoutMarketData, totalReceiveAmountCryptoPrecision],
     )
 
-    const buyAmountUserCurrency = useMemo(
-      () =>
-        isTradingWithoutMarketData
-          ? undefined
-          : bn(totalReceiveAmountCryptoPrecision)
-              .times(bnOrZero(buyAssetMarketData?.price))
-              .toString(),
-      [buyAssetMarketData?.price, totalReceiveAmountCryptoPrecision, isTradingWithoutMarketData],
-    )
-
-    const lossAfterRateAndFeesUserCurrency = useMemo((): number => {
-      if (sellAmountUserCurrency === undefined || buyAmountUserCurrency === undefined) return 0
-
-      return bn(buyAmountUserCurrency).minus(sellAmountUserCurrency).toNumber()
-    }, [buyAmountUserCurrency, sellAmountUserCurrency])
-
     const handleQuoteSelection = useCallback(() => {
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
       onBack && onBack()
@@ -230,8 +216,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
             <Box
-              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
-              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
+              onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
               onTouchEnd={handleTooltipToggle}
             >
               <Tooltip
@@ -249,8 +235,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
             <Box
-              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
-              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
+              onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
               onTouchEnd={handleTooltipToggle}
             >
               <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
@@ -266,13 +252,14 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [
       errors,
       quote,
-      translate,
-      hasAmountWithPositiveReceive,
-      isAmountEntered,
+      isLargerThanMd,
       handleToolTipOpen,
       handleTooltipClose,
       handleTooltipToggle,
+      translate,
       isTooltipOpen,
+      hasAmountWithPositiveReceive,
+      isAmountEntered,
     ])
 
     const isDisabled = !quote || isLoading
@@ -386,7 +373,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
                   isBestRate={isBestRate}
                   isFastest={isFastest}
                   isLowestGas={isLowestGas}
-                  iconOnlyIfCount={badgesIconOnlyIfCount}
+                  quoteDisplayOption={quoteDisplayOption}
                 />
                 {errorIndicator}
                 {!hasUnsupportedChainError && (
@@ -412,7 +399,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isBestRate,
       isFastest,
       isLowestGas,
-      badgesIconOnlyIfCount,
       errorIndicator,
       isRefetching,
       pollingInterval,
@@ -424,9 +410,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           isLoading={isLoading}
           buyAsset={buyAsset}
           quoteDisplayOption={quoteDisplayOption}
-          lossAfterRateAndFeesUserCurrency={lossAfterRateAndFeesUserCurrency}
           totalReceiveAmountFiatUserCurrency={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
+          sellAmountUserCurrency={sellAmountUserCurrency}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
           networkFeeFiatUserCurrency={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
@@ -438,10 +424,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       buyAsset,
       hasAmountWithPositiveReceive,
       isLoading,
-      lossAfterRateAndFeesUserCurrency,
       networkFeeUserCurrencyPrecision,
       quote,
       quoteDisplayOption,
+      sellAmountUserCurrency,
       slippage,
       totalEstimatedExecutionTimeMs,
       totalReceiveAmountCryptoPrecision,

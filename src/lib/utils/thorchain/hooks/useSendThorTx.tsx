@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import {
@@ -42,6 +42,8 @@ import {
 import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { reactQueries } from '@/react-queries'
 import { selectInboundAddressData } from '@/react-queries/selectors'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -50,7 +52,7 @@ import {
   selectFeeAssetByChainId,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type Action =
   | 'swap'
@@ -94,6 +96,7 @@ export const useSendThorTx = ({
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 
+  const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const toast = useToast()
   const translate = useTranslate()
@@ -425,22 +428,50 @@ export const useSendThorTx = ({
     })
 
     // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet
-    if (!maybeSafeTx?.isSafeTxHash) {
-      toast({
-        title: translate('modals.send.transactionSent'),
-        description: _txId ? (
-          <Text>
-            <Link href={_txIdLink} isExternal>
-              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-            </Link>
-          </Text>
-        ) : undefined,
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
+    if (maybeSafeTx?.isSafeTxHash) {
+      setTxId(_txId)
+      setSerializedTxIndex(_serializedTxIndex)
+
+      return _txId
     }
+
+    // Upsert TCY stake Tx broadcasts into the action slice
+    if (action === 'stakeTcy') {
+      const amountCryptoPrecision = bnOrZero(
+        fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
+      ).toFixed(2)
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: _txId,
+          type: ActionType.GenericTransaction,
+          displayType: 'TCY',
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          message: `Your stake of ${amountCryptoPrecision} TCY is pending`,
+          txHash: _txId,
+          chainId: thorchainChainId,
+          accountId,
+          assetId: asset.assetId,
+        }),
+      )
+    }
+
+    toast({
+      title: translate('modals.send.transactionSent'),
+      description: _txId ? (
+        <Text>
+          <Link href={_txIdLink} isExternal>
+            {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+          </Link>
+        </Text>
+      ) : undefined,
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right',
+    })
 
     setTxId(_txId)
     setSerializedTxIndex(_serializedTxIndex)

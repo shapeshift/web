@@ -20,7 +20,7 @@ import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistor
 
 const mainPaddingBottom = { base: 16, md: 8 }
 
-const customTabActive = { color: 'text.base' }
+const customTabActive = { color: 'text.base', WebkitTapHighlightColor: 'transparent' }
 const customTabLast = { marginRight: 0 }
 
 const CustomTab = (props: TabProps) => (

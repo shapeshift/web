@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
@@ -16,7 +17,6 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
-import { bnOrZero } from '@shapeshiftoss/utils'
 
 const defaultBoxSpinnerStyle = {
   height: '500px',
@@ -107,12 +107,13 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   })
 
   const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
+    if (!stakeTxid) throw new Error('Stake Txid is required')
 
     const amount = bnOrZero(getValues('amountCryptoPrecision')).toFixed(2)
+
     dispatch(
       actionSlice.actions.upsertAction({
-        id: uuidv4(),
+        id: stakeTxid,
         type: ActionType.GenericTransaction,
         displayType: 'TCY',
         status: ActionStatus.Complete,
@@ -133,6 +134,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       isClosable: true,
       position: 'top-right',
     })
+    await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
   }, [queryClient, getValues, dispatch, stakeTxid, accountId])
 
   const renderStakeInput = useCallback(() => {

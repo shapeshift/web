@@ -31,7 +31,6 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
   swapSlice.selectors.selectSwapsById,
   (actions, enabledWalletAccountIds, swapsById) => {
-    console.log({ actions })
     return actions.filter(action => {
       if (isSwapAction(action)) {
         const swapId = action.swapMetadata.swapId

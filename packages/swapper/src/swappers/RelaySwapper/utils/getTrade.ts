@@ -383,7 +383,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       if (feeAmountUsd && buyAssetUsd && buyAmountAfterFeesCryptoBaseUnit) {
         // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
         // Then multiply by feeAmountUsd to get the equivalent buy asset amount
-        const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAmountAfterFeesCryptoBaseUnit).div(buyAssetUsd)
+        const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAmountAfterFeesCryptoBaseUnit).div(
+          buyAssetUsd,
+        )
         const appFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(buyAssetCryptoBaseUnitPerUsd)
 
         return appFeesCryptoBaseUnit.toFixed(0)

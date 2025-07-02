@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { mayachainAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { mayachainAssetId, rujiAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import fs from 'fs'
@@ -65,6 +65,7 @@ generateTradableAssetMap(
   [
     ['THOR.RUNE', thorchainAssetId],
     ['THOR.TCY', tcyAssetId],
+    ['THOR.RUJI', rujiAssetId],
   ],
   'ThorchainSwapper',
 )

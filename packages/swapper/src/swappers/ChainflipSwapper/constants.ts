@@ -13,7 +13,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { SupportedChainIds, SwapSource } from '../../types'
+import type { SwapSource } from '../../types'
 import { SwapperName } from '../../types'
 import { ChainflipNetwork } from './types'
 
@@ -41,11 +41,6 @@ export const chainIdToChainflipNetwork: Partial<Record<ChainId, ChainflipNetwork
   [KnownChainIds.ArbitrumMainnet]: ChainflipNetwork.Arbitrum,
   [KnownChainIds.BitcoinMainnet]: ChainflipNetwork.Bitcoin,
   [KnownChainIds.SolanaMainnet]: ChainflipNetwork.Solana,
-}
-
-export const CHAINFLIP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: ChainflipSupportedChainIds as unknown as ChainId[],
-  buy: ChainflipSupportedChainIds as unknown as ChainId[],
 }
 
 export const CHAINFLIP_SWAP_SOURCE: SwapSource = SwapperName.Chainflip

@@ -32,9 +32,12 @@ export enum CosmosSdkMessageType {
   MsgWithdrawDelegationReward = 'cosmos-sdk/MsgWithdrawDelegationReward',
 }
 
+export type ThorSupportedCoin = 'THOR.RUNE' | 'THOR.TCY' | 'THOR.RUJI'
+type MayaSupportedCoin = 'MAYA.CACAO'
+
 type MsgDeposit<
   T = ThorchainMessageType.MsgDeposit | MayachainMessageType.MsgDeposit,
-  U = 'THOR.RUNE' | 'THOR.TCY' | 'MAYA.CACAO',
+  U = ThorSupportedCoin | MayaSupportedCoin,
 > = {
   type: T
   value: {
@@ -53,10 +56,7 @@ type MsgSend<T = ThorchainMessageType.MsgSend | MayachainMessageType.MsgSend> = 
   }
 }
 
-export type ThorchainMsgDeposit = MsgDeposit<
-  ThorchainMessageType.MsgDeposit,
-  'THOR.RUNE' | 'THOR.TCY'
->
+export type ThorchainMsgDeposit = MsgDeposit<ThorchainMessageType.MsgDeposit, ThorSupportedCoin>
 export type ThorchainMsgSend = MsgSend<ThorchainMessageType.MsgSend>
 
 export type MayachainMsgDeposit = MsgDeposit<MayachainMessageType.MsgDeposit, 'MAYA.CACAO'>

@@ -80,6 +80,7 @@ export type FeatureFlags = {
   ThorchainTcyWidget: boolean
   ThorchainTcyActivity: boolean
   MayaSwap: boolean
+  ButterSwap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -188,6 +189,7 @@ const initialState: Preferences = {
     ThorchainTcyWidget: getConfig().VITE_FEATURE_THORCHAIN_TCY_WIDGET,
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
+    ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

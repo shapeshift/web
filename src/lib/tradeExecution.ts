@@ -5,6 +5,7 @@ import type {
   CosmosSdkTransactionExecutionInput,
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
+  RelayerTxDetailsArgs,
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
@@ -62,21 +63,22 @@ export const fetchTradeStatus = async ({
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
-  const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-    txHash: sellTxHash,
-    chainId: sellAssetChainId,
-    address,
-    swap,
-    stepIndex,
-    config: getConfig(),
-    assertGetEvmChainAdapter,
-    assertGetUtxoChainAdapter,
-    assertGetCosmosSdkChainAdapter,
-    assertGetSolanaChainAdapter,
-    fetchIsSmartContractAddressQuery,
-  })
+  const { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink } =
+    await swapper.checkTradeStatus({
+      txHash: sellTxHash,
+      chainId: sellAssetChainId,
+      address,
+      swap,
+      stepIndex,
+      config: getConfig(),
+      assertGetEvmChainAdapter,
+      assertGetUtxoChainAdapter,
+      assertGetCosmosSdkChainAdapter,
+      assertGetSolanaChainAdapter,
+      fetchIsSmartContractAddressQuery,
+    })
 
-  return { status, message, buyTxHash }
+  return { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink }
 }
 
 export class TradeExecution {
@@ -163,23 +165,45 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
-          const { status, message, buyTxHash } = await queryClient.fetchQuery({
-            queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
-            queryFn: () =>
-              fetchTradeStatus({
-                swapper,
-                sellTxHash: updatedSwap.sellTxHash,
-                sellAssetChainId: updatedSwap.sellAsset.chainId,
-                address: accountId ? fromAccountId(accountId).account : undefined,
-                swap: updatedSwap,
-                stepIndex,
-                config: getConfig(),
-              }),
-            staleTime: this.pollInterval,
-            gcTime: this.pollInterval,
-          })
+          const { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink } =
+            await queryClient.fetchQuery({
+              queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
+              queryFn: () =>
+                fetchTradeStatus({
+                  swapper,
+                  sellTxHash: updatedSwap.sellTxHash,
+                  sellAssetChainId: updatedSwap.sellAsset.chainId,
+                  address: accountId ? fromAccountId(accountId).account : undefined,
+                  swap: updatedSwap,
+                  stepIndex,
+                  config: getConfig(),
+                }),
+              staleTime: this.pollInterval,
+              gcTime: this.pollInterval,
+            })
 
-          const payload: StatusArgs = { stepIndex, status, message, buyTxHash }
+          // Emit RelayerTxHash event when relayerTxHash becomes available
+          if (
+            relayerTxHash &&
+            relayerExplorerTxLink &&
+            !updatedSwap.relayerTxHash &&
+            !updatedSwap.relayerExplorerTxLink
+          ) {
+            const relayerTxDetailsArgs: RelayerTxDetailsArgs = {
+              stepIndex,
+              relayerTxHash,
+              relayerExplorerTxLink,
+            }
+            this.emitter.emit(TradeExecutionEvent.RelayerTxHash, relayerTxDetailsArgs)
+          }
+
+          const payload: StatusArgs = {
+            stepIndex,
+            status,
+            message,
+            buyTxHash,
+            relayerTxHash,
+          }
           this.emitter.emit(TradeExecutionEvent.Status, payload)
 
           if (status === TxStatus.Confirmed) this.emitter.emit(TradeExecutionEvent.Success, payload)

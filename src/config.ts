@@ -181,6 +181,7 @@ const validators = {
   VITE_RELAY_API_URL: url(),
   VITE_COINCAP_API_KEY: str(),
   VITE_FEATURE_MAYA_SWAP: bool({ default: false }),
+  VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

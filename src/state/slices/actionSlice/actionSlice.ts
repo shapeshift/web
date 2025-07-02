@@ -24,6 +24,10 @@ export const actionSlice = createSlice({
         state.ids.push(payload.id)
       }
     }),
+    deleteAction: create.reducer((state, { payload }: PayloadAction<string>) => {
+      delete state.byId[payload]
+      state.ids = state.ids.filter(id => id !== payload)
+    }),
   }),
   selectors: {
     selectActionsById: state => state.byId,

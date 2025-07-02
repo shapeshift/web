@@ -1,5 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import { Box, Flex, IconButton, Text } from '@chakra-ui/react'
+import { Flex, IconButton, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -12,11 +12,7 @@ import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const searchIcon = <SearchIcon />
-const qrCodeIcon = (
-  <Box>
-    <FaExpand />
-  </Box>
-)
+const qrCodeIcon = <FaExpand />
 
 const mobileButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -47,7 +43,7 @@ export const MobileUserHeader = ({
 
   const label = useMemo(
     () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,
-    [mipdProviders, maybeRdns, walletInfo],
+    [mipdProviders, maybeRdns, walletInfo, maybeMipdProvider?.info?.name],
   )
 
   return (

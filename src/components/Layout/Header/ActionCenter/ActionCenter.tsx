@@ -161,7 +161,6 @@ export const ActionCenter = memo(() => {
               <Box
                 overflow='auto'
                 height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
-                className='scroll-container'
               >
                 {actionCardsOrEmpty}
               </Box>
@@ -175,7 +174,6 @@ export const ActionCenter = memo(() => {
           <Box
             overflow='auto'
             height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
-            className='scroll-container'
           >
             {actionCardsOrEmpty}
           </Box>

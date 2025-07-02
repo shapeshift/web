@@ -25,6 +25,7 @@ import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons
 import { RawText } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
@@ -43,15 +44,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(action.updatedAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
+    return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
   const swap = useMemo(() => {

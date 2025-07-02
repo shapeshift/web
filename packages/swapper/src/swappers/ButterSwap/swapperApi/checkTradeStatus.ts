@@ -68,13 +68,9 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
 
     // State mapping: 0 = pending, 1 = complete, 6 = refunded/failed
     let status: TxStatus = (() => {
-      // For BTC, be optimistic on buyTxHash as we update the balance once the TX hits the mempool
-      if (
-        destinationTxHash &&
-        butterSwapChainIdToChainId(Number(detailedInfo.toChain.chainId)) ===
-          KnownChainIds.BitcoinMainnet
-      )
-        return TxStatus.Confirmed
+      // Optimistically return Confirmed if we have a destination tx hash, useful to chains with long block
+      // times (e.g. BTC)
+      if (!!destinationTxHash) return TxStatus.Confirmed
 
       switch (detailedInfo.state) {
         case BUTTER_SWAP_STATES.Pending:

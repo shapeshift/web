@@ -492,7 +492,7 @@
     "eligibleOpportunities": "Eligible Opportunities",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
-    "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts (updated %{opportunityAccountsLoaded} with current positions)",
+    "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",

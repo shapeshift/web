@@ -30,7 +30,6 @@ import {
 } from '../utils'
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
-import type { BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
@@ -397,19 +396,6 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       )
       return aggregatedEarnUserStakingOpportunity
     }),
-)
-
-// Returns a single aggregated amount, for all opportunities, accounts, and assets
-// Including delegations, undelegations, and rewards
-export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSelector(
-  selectAggregatedUserStakingOpportunities,
-  selectMarketDataUserCurrency,
-  selectAssets,
-  (aggregatedUserStakingOpportunities, marketData, assets): BN => {
-    return aggregatedUserStakingOpportunities
-      .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
-      .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0))
-  },
 )
 
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =

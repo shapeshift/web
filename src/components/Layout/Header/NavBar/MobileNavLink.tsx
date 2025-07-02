@@ -6,6 +6,8 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import type { Route } from '@/Routes/helpers'
 
+const customTabActive = { WebkitTapHighlightColor: 'transparent' }
+
 type MobileNavLinkProps = ButtonProps &
   Route & {
     order?: number
@@ -52,6 +54,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
       pt={6}
       flex={1}
       zIndex='sticky'
+      _active={customTabActive}
       {...rest}
     >
       {icon}

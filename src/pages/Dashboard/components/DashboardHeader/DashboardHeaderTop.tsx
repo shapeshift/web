@@ -42,6 +42,7 @@ const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: '
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
 const balanceFontSize = '4xl'
+const customTabActive = { WebkitTapHighlightColor: 'transparent' }
 
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
@@ -90,6 +91,7 @@ const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionBu
       alignItems='center'
       onClick={onClick}
       isDisabled={isDisabled}
+      _active={customTabActive}
     >
       <VStack spacing={2} justify='center' align='center'>
         {icon}

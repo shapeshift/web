@@ -24,6 +24,7 @@ import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistor
 
 const mainPadding = { base: 0, md: 4 }
 const pageProps = { paddingTop: 0, pb: 0 }
+const customTabActive = { WebkitTapHighlightColor: 'transparent' }
 
 const walletDashboard = <WalletDashboard />
 const earnDashboard = <EarnDashboard />
@@ -126,8 +127,8 @@ export const Dashboard = memo(() => {
               pt={0}
             >
               <TabList bg='transparent' borderWidth={0} pt={0} gap={2}>
-                <Tab>{translate('dashboard.portfolio.myCrypto')}</Tab>
-                <Tab>{translate('watchlist.title')}</Tab>
+                <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
+                <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
               </TabList>
             </Tabs>
             <VirtualizedSwipableViews

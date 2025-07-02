@@ -1,6 +1,9 @@
+import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero, chainIdToFeeAssetId, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
@@ -16,20 +19,56 @@ import {
   isRouteSuccess,
 } from '../xhr'
 
-export const getButterQuote = async (
+export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   _deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
     sendAddress,
     slippageTolerancePercentageDecimal,
     accountNumber,
     affiliateBps,
   } = input
+
+  if (
+    !isEvmChainId(sellAsset.chainId) &&
+    sellAsset.chainId !== btcChainId &&
+    sellAsset.chainId !== solanaChainId
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Unsupported chain`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
+  if (sellAsset.assetId === btcAssetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `BTC sells are currently unsupported`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Yes, this is supposed to be supported as per checks above, but currently is explicitly disabled, this can be confirmed by hitting
+  // Butter supported chains endpoit or trying to get a quote
+  // Disabling this explicitly for the time being, since the PR that brings Solana support (https://github.com/shapeshift/web/pull/9840)
+  // wasn't able to be tested yet
+  if (sellAsset.chainId === solanaChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Solana chain sells are currently unsupported`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
 
   if (!sendAddress) {
     return Err(
@@ -49,7 +88,10 @@ export const getButterQuote = async (
   const routeResult = await getButterRoute({
     sellAsset,
     buyAsset,
-    sellAmountCryptoBaseUnit: fromBaseUnit(amount, sellAsset.precision),
+    sellAmountCryptoBaseUnit: fromBaseUnit(
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset.precision,
+    ),
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
   })
@@ -138,10 +180,34 @@ export const getButterQuote = async (
   const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
   const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
 
+  // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
+  const solanaTransactionMetadata = (() => {
+    if (sellAsset.chainId !== solanaChainId) return
+
+    const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
+    const versionedTransaction = VersionedTransaction.deserialize(
+      new Uint8Array(Buffer.from(txData, 'hex')),
+    )
+
+    // Decompile VersionedMessage to get instructions
+    // https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
+    const instructions = TransactionMessage.decompile(versionedTransaction.message).instructions
+
+    // Extract address lookup table addresses
+    const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups?.map(
+      lookup => lookup.accountKey.toString(),
+    )
+
+    return {
+      instructions,
+      addressLookupTableAddresses,
+    }
+  })()
+
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
     buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: amount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit,
       protocolFees: undefined,
@@ -157,6 +223,7 @@ export const getButterQuote = async (
       to: buildTx.to,
       data: buildTx.data,
       value: buildTx.value,
+      ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
     },
   }
 

@@ -1,3 +1,5 @@
+import type { Hex } from 'viem'
+
 export type ErrorType = {
   errno: number
   message: string
@@ -94,7 +96,7 @@ export type RouteResponse =
 export type BuildTxSuccessItem = {
   to: string
   data: string
-  value: string
+  value: Hex
   chainId: string
   method?: string
   args?: { type: string; value: unknown }[]
@@ -116,7 +118,7 @@ export type TxParamArg = {
 export type TxParamData = {
   to: string
   data: string
-  value: string
+  value: Hex
   chainId: string
   method: string
   args: TxParamArg[]

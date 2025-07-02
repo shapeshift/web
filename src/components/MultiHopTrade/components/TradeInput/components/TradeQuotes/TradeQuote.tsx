@@ -358,12 +358,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         <Flex justifyContent='space-between' alignItems='center' flexGrow={1}>
           {quoteDisplayOption === QuoteDisplayOption.Advanced && quote && (
             <Skeleton isLoaded={!isLoading}>
-              <TradeQuoteExchangeRate
-                buyAsset={buyAsset}
-                sellAsset={sellAsset}
-                totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-                sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-              />
+              <TradeQuoteExchangeRate rate={quote.rate} buyAsset={buyAsset} sellAsset={sellAsset} />
             </Skeleton>
           )}
           <Box ml='auto'>
@@ -394,8 +389,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isLoading,
       buyAsset,
       sellAsset,
-      totalReceiveAmountCryptoPrecision,
-      sellAmountCryptoPrecision,
       isBestRate,
       isFastest,
       isLowestGas,

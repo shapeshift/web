@@ -80,9 +80,10 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
 
     // Use toHash as the destination chain tx hash if present
     const buyTxHash = detailedInfo.toHash ?? undefined
-    // Use relayerHash as the relayer transaction hash
     const relayerTxHash = detailedInfo.relayerHash ?? undefined
-    return { status, buyTxHash, relayerTxHash, message: undefined }
+    const relayerExplorerTxLink = detailedInfo.relayerChain?.scanUrl ?? undefined
+
+    return { status, buyTxHash, relayerTxHash, relayerExplorerTxLink, message: undefined }
   } catch (e) {
     return { status: TxStatus.Unknown, buyTxHash: undefined, message: (e as Error).message }
   }

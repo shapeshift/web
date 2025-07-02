@@ -408,6 +408,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
                   isRelayer={true}
+                  relayerExplorerTxLink={firstHopSwap.relayerExplorerTxLink}
                 />
               )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
@@ -436,6 +437,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     activeTradeQuote.swapperName,
     tradeQuoteFirstHop,
     activeSwap?.status,
+    firstHopSwap.relayerExplorerTxLink,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {

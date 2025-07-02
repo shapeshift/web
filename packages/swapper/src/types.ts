@@ -354,6 +354,7 @@ export type SwapExecutionMetadata = {
   state: TransactionExecutionState
   sellTxHash?: string
   relayerTxHash?: string
+  relayerExplorerTxLink?: string | undefined
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
@@ -382,6 +383,7 @@ export type Swap = {
   status: SwapStatus
   sellTxHash?: string
   relayerTxHash?: string
+  relayerExplorerTxLink?: string | undefined
   buyTxHash?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId | undefined
@@ -537,6 +539,7 @@ export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
   relayerTxHash?: string | undefined
+  relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
 }
 
@@ -642,14 +645,18 @@ export enum TradeExecutionEvent {
 }
 
 export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
-export type RelayerTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; relayerTxHash: string }
+export type RelayerTxDetailsArgs = {
+  stepIndex: SupportedTradeQuoteStepIndex
+  relayerTxHash: string
+  relayerExplorerTxLink: string
+}
 export type StatusArgs = TradeStatus & {
   stepIndex: number
 }
 
 export type TradeExecutionEventMap = {
   [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
-  [TradeExecutionEvent.RelayerTxHash]: (args: RelayerTxHashArgs) => void
+  [TradeExecutionEvent.RelayerTxHash]: (args: RelayerTxDetailsArgs) => void
   [TradeExecutionEvent.Status]: (args: StatusArgs) => void
   [TradeExecutionEvent.Success]: (args: StatusArgs) => void
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void

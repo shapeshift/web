@@ -1,11 +1,11 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
-  BridgeTxHashArgs,
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
   CosmosSdkTransactionExecutionInput,
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
+  RelayTxHashArgs,
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
@@ -63,7 +63,7 @@ export const fetchTradeStatus = async ({
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
-  const { status, message, buyTxHash, bridgeTxHash } = await swapper.checkTradeStatus({
+  const { status, message, buyTxHash, relayTxHash } = await swapper.checkTradeStatus({
     txHash: sellTxHash,
     chainId: sellAssetChainId,
     address,
@@ -77,7 +77,7 @@ export const fetchTradeStatus = async ({
     fetchIsSmartContractAddressQuery,
   })
 
-  return { status, message, buyTxHash, bridgeTxHash }
+  return { status, message, buyTxHash, relayTxHash }
 }
 
 export class TradeExecution {
@@ -164,7 +164,7 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
-          const { status, message, buyTxHash, bridgeTxHash } = await queryClient.fetchQuery({
+          const { status, message, buyTxHash, relayTxHash } = await queryClient.fetchQuery({
             queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
             queryFn: () =>
               fetchTradeStatus({
@@ -180,13 +180,19 @@ export class TradeExecution {
             gcTime: this.pollInterval,
           })
 
-          // Emit BridgeTxHash event when bridgeTxHash becomes available
-          if (bridgeTxHash && !updatedSwap.bridgeTxHash) {
-            const bridgeTxHashArgs: BridgeTxHashArgs = { stepIndex, bridgeTxHash }
-            this.emitter.emit(TradeExecutionEvent.BridgeTxHash, bridgeTxHashArgs)
+          // Emit RelayTxHash event when relayTxHash becomes available
+          if (relayTxHash && !updatedSwap.relayTxHash) {
+            const relayTxHashArgs: RelayTxHashArgs = { stepIndex, relayTxHash }
+            this.emitter.emit(TradeExecutionEvent.RelayTxHash, relayTxHashArgs)
           }
 
-          const payload: StatusArgs = { stepIndex, status, message, buyTxHash, bridgeTxHash }
+          const payload: StatusArgs = {
+            stepIndex,
+            status,
+            message,
+            buyTxHash,
+            relayTxHash,
+          }
           this.emitter.emit(TradeExecutionEvent.Status, payload)
 
           if (status === TxStatus.Confirmed) this.emitter.emit(TradeExecutionEvent.Success, payload)

@@ -400,14 +400,14 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   quoteSwapperName={activeTradeQuote.swapperName}
                 />
               )}
-              {firstHopSwap.bridgeTxHash && (
+              {firstHopSwap.relayTxHash && (
                 <TxLabel
-                  txHash={firstHopSwap.bridgeTxHash}
+                  txHash={firstHopSwap.relayTxHash}
                   explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
                   accountId={firstHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
-                  isBridge={true}
+                  isRelay={true}
                 />
               )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
@@ -430,7 +430,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSellAccountId,
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
-    firstHopSwap.bridgeTxHash,
+    firstHopSwap.relayTxHash,
     firstHopSwap.sellTxHash,
     stepSource,
     activeTradeQuote.swapperName,

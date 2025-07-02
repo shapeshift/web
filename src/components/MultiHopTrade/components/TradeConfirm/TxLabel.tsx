@@ -15,7 +15,7 @@ export const TxLabel = ({
   stepSource,
   quoteSwapperName,
   isBuyTxHash,
-  isBridge,
+  isRelay,
 }: {
   txHash: string
   explorerBaseUrl: string
@@ -23,7 +23,7 @@ export const TxLabel = ({
   stepSource: SwapSource | undefined
   quoteSwapperName: SwapperName | undefined
   isBuyTxHash?: boolean
-  isBridge?: boolean
+  isRelay?: boolean
 }) => {
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,
@@ -43,7 +43,7 @@ export const TxLabel = ({
     stepSource,
     ...(isBuyTxHash ? { txId: txHash } : { tradeId: txHash }),
     maybeChainflipSwapId,
-    isBridge,
+    isRelay,
   })
 
   return txLink ? (

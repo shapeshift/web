@@ -109,8 +109,6 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const handleTxConfirmed = useCallback(async () => {
     if (!stakeTxid) throw new Error('Stake Txid is required')
 
-    console.log({ stakeTxid })
-
     const amount = bnOrZero(getValues('amountCryptoPrecision')).toFixed(2)
 
     dispatch(
@@ -122,7 +120,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
         createdAt: Date.now(),
         updatedAt: Date.now(),
         message: `Your stake of ${amount} TCY is complete`,
-        txHash: stakeTxid || '',
+        txHash: stakeTxid,
         chainId: thorchainChainId,
         accountId,
         assetId: tcyAssetId,

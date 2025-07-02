@@ -18,7 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { breakpoints } from '@/theme/theme'
 
-type QuoteBadgeProps = { icon: IconType; label?: string; hideLabel?: boolean }
+type QuoteBadgeProps = { icon: IconType; label: string; hideLabel?: boolean }
 const QuoteBadge: FC<QuoteBadgeProps> = ({ icon, label, hideLabel = false }) => {
   const badgeBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 

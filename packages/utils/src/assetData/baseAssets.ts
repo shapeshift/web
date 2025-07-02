@@ -147,7 +147,7 @@ export const ruji: Readonly<Asset> = Object.freeze({
   symbol: 'RUJI',
   precision: 8,
   color: '#D800D8',
-  icon: 'https://raw.githubusercontent.com/shapeshift/web/feat-ruji/scripts/generateAssetData/thorchain/icons/ruji-icon.png',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/scripts/generateAssetData/thorchain/icons/ruji-icon.png',
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',

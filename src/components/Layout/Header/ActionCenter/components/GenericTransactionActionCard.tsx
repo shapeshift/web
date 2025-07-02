@@ -1,6 +1,7 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   Collapse,
@@ -8,6 +9,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Link,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -130,7 +132,13 @@ export const GenericTransactionActionCard = ({
             <Collapse in={isOpen}>
               <Card bg='transparent' mt={4} boxShadow='none'>
                 <CardBody px={0} py={0}>
-                  <GenericTransactionDetails />
+                  <Stack gap={4}>
+                    <ButtonGroup width='full' size='sm'>
+                      <Button width='full' as={Link} isExternal href={txLink}>
+                        {translate('notificationCenter.viewTransaction')}
+                      </Button>
+                    </ButtonGroup>
+                  </Stack>
                 </CardBody>
               </Card>
             </Collapse>
@@ -150,6 +158,7 @@ export const GenericTransactionActionCard = ({
               variant='solid'
               isDisabled={!txLink}
               size='lg'
+              onClick={e => e.stopPropagation()}
             >
               {translate('notificationCenter.viewTransaction')}
             </Button>

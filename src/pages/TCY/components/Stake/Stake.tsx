@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router'
 import { v4 as uuidv4 } from 'uuid'
 import { Route, Switch } from 'wouter'
@@ -16,6 +16,7 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
+import { bnOrZero } from '@shapeshiftoss/utils'
 
 const defaultBoxSpinnerStyle = {
   height: '500px',
@@ -92,6 +93,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const [stakeTxid, setStakeTxid] = useState<string>()
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
+  const { getValues } = useFormContext<StakeFormValues>()
 
   const toast = useToast({
     duration: 5000,
@@ -107,6 +109,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
 
+    const amount = bnOrZero(getValues('amountCryptoPrecision')).toFixed(2)
     dispatch(
       actionSlice.actions.upsertAction({
         id: uuidv4(),
@@ -115,8 +118,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: 'TCY stake transaction confirmed',
-        // TODO(gomes): this doesn't work as this gets reset, handleTxConfirmed should take tx hash as a closure
+        message: `Your stake of ${amount} TCY is complete`,
         txHash: stakeTxid || '',
         chainId: thorchainChainId,
         accountId,
@@ -131,7 +133,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       isClosable: true,
       position: 'top-right',
     })
-  }, [queryClient])
+  }, [queryClient, getValues, dispatch, stakeTxid, accountId])
 
   const renderStakeInput = useCallback(() => {
     return (

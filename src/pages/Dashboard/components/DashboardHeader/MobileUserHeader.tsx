@@ -43,7 +43,7 @@ export const MobileUserHeader = ({
 
   const label = useMemo(
     () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,
-    [mipdProviders, maybeRdns, walletInfo, maybeMipdProvider?.info?.name],
+    [walletInfo, maybeMipdProvider?.info?.name],
   )
 
   return (

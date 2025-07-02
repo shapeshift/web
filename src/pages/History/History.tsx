@@ -64,8 +64,9 @@ export const History = () => {
     let content
     const tab = mod(index, 2)
     switch (tab) {
+      // <ActionCenter /> should always be rendered for actions to work in the backgorud when action center is not opened
       case HistoryTab.Activity:
-        content = <ActionCenter />
+        content = null
         break
       case HistoryTab.History:
         content = <TransactionHistory />
@@ -113,6 +114,7 @@ export const History = () => {
           </TabList>
           <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
         </Box>
+        <ActionCenter />
         <VirtualizedSwipableViews
           index={slideIndex}
           onChangeIndex={handleSlideIndexChange}

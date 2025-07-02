@@ -1,4 +1,4 @@
-import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, usePrevious, WarningTwoIcon } from '@chakra-ui/icons'
 import { fromAccountId, tcyAssetId } from '@shapeshiftoss/caip'
 import { SwapperName, THORCHAIN_PRECISION } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -53,8 +53,11 @@ export const ReusableStatus = ({
     refetchInterval: 10_000,
   })
 
+  const prevThorTxStatus = usePrevious(thorTxStatus)
+
   useEffect(() => {
-    if (thorTxStatus !== TxStatus.Confirmed) return
+    console.log({ prevThorTxStatus, thorTxStatus })
+    if (!(prevThorTxStatus !== TxStatus.Confirmed && thorTxStatus === TxStatus.Confirmed)) return
 
     handleTxConfirmed()
   }, [thorTxStatus, handleTxConfirmed])

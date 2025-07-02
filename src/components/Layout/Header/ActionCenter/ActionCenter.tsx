@@ -10,7 +10,6 @@ import {
   Flex,
   Icon,
   IconButton,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
@@ -35,17 +34,18 @@ import {
 import { ActionType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
+import { useActionCenterContext } from './ActionCenterContext'
 
 const paddingProp = { base: 4, md: 6 }
 
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
 
-  useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
-  useAppUpdateActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useSwapActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  useLimitOrderActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  useAppUpdateActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -101,16 +101,16 @@ export const ActionCenter = memo(() => {
   }, [actions, ordersByActionId, swapsById])
 
   const actionCardsOrEmpty = useMemo(() => {
-    if (!maybeActionCards.length) return <EmptyState onClose={onClose} />
+    if (!maybeActionCards.length) return <EmptyState onClose={closeDrawer} />
 
     return maybeActionCards
-  }, [maybeActionCards, onClose])
+  }, [maybeActionCards, closeDrawer])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
       return (
         <Button
-          onClick={onOpen}
+          onClick={openDrawer}
           aria-label={translate('notificationCenter.pendingTransactions', {
             count: pendingActions.length,
           })}
@@ -132,16 +132,16 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={onOpen}
+          onClick={openDrawer}
         />
       </Box>
     )
-  }, [onOpen, translate, pendingActions])
+  }, [openDrawer, translate, pendingActions])
 
   return (
     <>
       <Box position='relative'>{actionCenterButton}</Box>
-      <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
+      <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} size='sm'>
         <DrawerOverlay backdropBlur='10px' />
 
         <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>

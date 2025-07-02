@@ -12,12 +12,13 @@ import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 
 const defaultBoxSpinnerStyle = {
   height: '500px',
@@ -95,9 +96,10 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const { getValues } = useFormContext<StakeFormValues>()
+  const { isDrawerOpen, openDrawer } = useActionCenterContext()
 
   const toast = useToast({
-    duration: 5000,
+    duration: isDrawerOpen ? 5000 : null,
     position: 'bottom-right',
   })
 
@@ -129,10 +131,15 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
     )
 
     toast({
+      id: stakeTxid,
+      duration: isDrawerOpen ? 5000 : null,
       status: 'success',
       render: ({ onClose, ...props }) => (
         <GenericTransactionNotification
-          handleClick={() => {}}
+          handleClick={() => {
+            onClose()
+            openDrawer()
+          }}
           actionId={stakeTxid}
           onClose={onClose}
           {...props}
@@ -140,7 +147,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       ),
     })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
-  }, [queryClient, getValues, dispatch, stakeTxid, accountId])
+  }, [queryClient, getValues, dispatch, stakeTxid, accountId, isDrawerOpen, openDrawer])
 
   const renderStakeInput = useCallback(() => {
     return (

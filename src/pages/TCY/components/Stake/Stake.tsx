@@ -17,6 +17,7 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 
 const defaultBoxSpinnerStyle = {
   height: '500px',
@@ -128,11 +129,15 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
     )
 
     toast({
-      title: 'Transaction confirmed',
-      description: 'Your TCY stake has been confirmed.',
       status: 'success',
-      isClosable: true,
-      position: 'bottom-right',
+      render: ({ onClose, ...props }) => (
+        <GenericTransactionNotification
+          handleClick={() => {}}
+          actionId={stakeTxid}
+          onClose={onClose}
+          {...props}
+        />
+      ),
     })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
   }, [queryClient, getValues, dispatch, stakeTxid, accountId])

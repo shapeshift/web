@@ -26,7 +26,7 @@ import type {
   TradeRateStep,
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
@@ -236,7 +236,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const { data: quote } = maybeQuote.unwrap()
 
-  const { slippageTolerance, rate, currencyOut, timeEstimate } = quote.details
+  const { slippageTolerance, currencyOut, timeEstimate } = quote.details
+
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountCryptoBaseUnit: currencyOut.amount,
+    sellAsset,
+    buyAsset,
+  })
 
   const { currency: relayToken } = currencyOut
 

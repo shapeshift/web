@@ -425,7 +425,10 @@ export const useSendThorTx = ({
     })
 
     // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet
-    if (!maybeSafeTx?.isSafeTxHash) {
+    // Also note confirmed TCY stakes (more to come) are currently handled by the action center, with new style bottom-right
+    // toasts, so we don't want to toast the Tx confirmed one, or the two diff toasts would look very odd to the user
+    // Toasts on Tx confirmed are quite annoying for such a fast blocktime anyway, so they should probably all go away eventually anyway
+    if (!maybeSafeTx?.isSafeTxHash && action !== 'stakeTcy') {
       toast({
         title: translate('modals.send.transactionSent'),
         description: _txId ? (

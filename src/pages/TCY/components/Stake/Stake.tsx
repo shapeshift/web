@@ -132,7 +132,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       description: 'Your TCY stake has been confirmed.',
       status: 'success',
       isClosable: true,
-      position: 'top-right',
+      position: 'bottom-right',
     })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
   }, [queryClient, getValues, dispatch, stakeTxid, accountId])

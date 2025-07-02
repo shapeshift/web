@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
@@ -66,10 +66,12 @@ export type LimitOrderAction = BaseAction & {
 
 export type GenericTransactionAction = BaseAction & {
   type: ActionType.GenericTransaction
+  displayType: string
   message: string
   accountId: AccountId
   txHash: string
   chainId: ChainId
+  assetId: AssetId
 }
 
 export type Action = GenericTransactionAction | SwapAction | LimitOrderAction

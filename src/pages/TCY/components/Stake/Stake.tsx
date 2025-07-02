@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { thorchainChainId } from '@shapeshiftoss/caip'
+import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -111,14 +111,16 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       actionSlice.actions.upsertAction({
         id: uuidv4(),
         type: ActionType.GenericTransaction,
+        displayType: 'TCY',
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         message: 'TCY stake transaction confirmed',
         // TODO(gomes): this doesn't work as this gets reset, handleTxConfirmed should take tx hash as a closure
-        txHash: stakeTxid,
+        txHash: stakeTxid || '',
         chainId: thorchainChainId,
         accountId,
+        assetId: tcyAssetId,
       }),
     )
 

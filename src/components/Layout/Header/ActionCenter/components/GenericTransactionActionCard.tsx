@@ -1,7 +1,15 @@
-import { Card, CardBody, Flex, HStack, Stack, Button, Collapse, Icon, useDisclosure } from '@chakra-ui/react'
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
+  Button,
+  Card,
+  CardBody,
+  Collapse,
   Flex as ChakraFlex,
+  Flex,
+  HStack,
+  Icon,
+  Stack,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { SwapStatus } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
@@ -11,8 +19,8 @@ import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
-import { SwapDetails } from './Details/SwapDetails'
 import { GenericTransactionDetails } from './Details/GenericTransactionDetails'
+import { SwapDetails } from './Details/SwapDetails'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
@@ -21,10 +29,10 @@ import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons
 import { RawText } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
-import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { getTxLink } from '@/lib/getTxLink'
-import { useAppSelector } from '@/state/store'
+import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
 
@@ -35,7 +43,10 @@ type GenericTransactionActionCardProps = {
   isCollapsable?: boolean
 }
 
-export const GenericTransactionActionCard = ({ action, isCollapsable = false }: GenericTransactionActionCardProps) => {
+export const GenericTransactionActionCard = ({
+  action,
+  isCollapsable = false,
+}: GenericTransactionActionCardProps) => {
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, action.chainId))
 
@@ -79,15 +90,30 @@ export const GenericTransactionActionCard = ({ action, isCollapsable = false }: 
   }, [onToggle, isCollapsable])
 
   return (
-    <Stack spacing={4} mx={2} borderRadius='lg' transitionProperty='common' transitionDuration='fast' _hover={hoverProps}>
+    <Stack
+      spacing={4}
+      mx={2}
+      borderRadius='lg'
+      transitionProperty='common'
+      transitionDuration='fast'
+      _hover={hoverProps}
+    >
       <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={handleClick}>
-        <ActionStatusTag status={action.status} />
+        {action.assetId && (
+          <AssetIconWithBadge assetId={action.assetId} size='md'>
+            <ActionStatusIcon status={action.status} />
+          </AssetIconWithBadge>
+        )}
         <Stack spacing={0} width='full'>
-          <HStack>
+          <HStack width='full'>
             <Stack spacing={1} width='full'>
-              <span style={{ fontSize: '1rem', fontWeight: 500 }}>{action.message}</span>
-              <HStack fontSize='sm' color='text.subtle'>
-                <span>{formattedDate}</span>
+              <RawText fontSize='sm' fontWeight={500} lineHeight='short'>
+                {action.message}
+              </RawText>
+              <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1} align='center'>
+                <ActionStatusTag status={action.status} />
+                <RawText>{formattedDate}</RawText>
+                <RawText>{action.displayType}</RawText>
               </HStack>
             </Stack>
             {isCollapsable && (

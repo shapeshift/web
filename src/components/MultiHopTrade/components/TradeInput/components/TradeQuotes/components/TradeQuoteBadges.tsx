@@ -59,7 +59,7 @@ const QuoteBadge: FC<QuoteBadgeProps> = ({ icon, label, hideLabel = false }) => 
     <Box
       onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
       onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
-      onTouchEnd={handleTooltipToggle}
+      onTouchEnd={hideLabel ? handleTooltipToggle : undefined}
     >
       <Tooltip label={hideLabel ? label : undefined} isOpen={label ? isTooltipOpen : false}>
         <Tag gap={1.5} padding={2} rounded='full' backgroundColor={badgeBg} whiteSpace='nowrap'>

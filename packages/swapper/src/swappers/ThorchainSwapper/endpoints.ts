@@ -1,4 +1,4 @@
-import { cosmosAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, rujiAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { thorchain } from '@shapeshiftoss/chain-adapters'
 
 import type { ThorTradeQuote } from '../../thorchain-utils'
@@ -46,7 +46,13 @@ export const thorchainApi: SwapperApi = {
 
     switch (sellAsset.assetId) {
       case thorchainAssetId:
+      case rujiAssetId:
       case tcyAssetId: {
+        const coin = (() => {
+          if (sellAsset.assetId === tcyAssetId) return 'THOR.TCY'
+          if (sellAsset.assetId === rujiAssetId) return 'THOR.RUJI'
+          return 'THOR.RUNE'
+        })()
         const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId) as thorchain.ChainAdapter
 
         const { txToSign } = await adapter.buildDepositTransaction({
@@ -57,7 +63,7 @@ export const thorchainApi: SwapperApi = {
           chainSpecific: {
             gas,
             fee,
-            coin: sellAsset.assetId === tcyAssetId ? 'THOR.TCY' : 'THOR.RUNE',
+            coin,
           },
         })
 

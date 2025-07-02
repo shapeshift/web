@@ -139,20 +139,35 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
       id: unstakeTxid,
       duration: isDrawerOpen ? 5000 : null,
       status: 'success',
-      render: ({ onClose, ...props }) => (
-        <GenericTransactionNotification
-          handleClick={() => {
-            onClose()
-            openDrawer()
-          }}
-          actionId={unstakeTxid}
-          onClose={onClose}
-          {...props}
-        />
-      ),
+      render: ({ onClose, ...props }) => {
+        const handleClick = () => {
+          onClose()
+          openDrawer()
+        }
+
+        return (
+          <GenericTransactionNotification
+            // eslint-disable-next-line react-memo/require-usememo
+            handleClick={handleClick}
+            actionId={unstakeTxid}
+            onClose={onClose}
+            {...props}
+          />
+        )
+      },
     })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
-  }, [queryClient, getValues, dispatch, unstakeTxid, accountId, isDrawerOpen, openDrawer])
+  }, [
+    queryClient,
+    getValues,
+    dispatch,
+    unstakeTxid,
+    accountId,
+    isDrawerOpen,
+    openDrawer,
+    toast,
+    translate,
+  ])
 
   const renderUnstakeInput = useCallback(() => {
     return (

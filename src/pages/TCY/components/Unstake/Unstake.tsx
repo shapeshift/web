@@ -134,25 +134,23 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
         assetId: tcyAssetId,
       }),
     )
-    const toastId = `unstake-tx-${unstakeTxid}`
-    if (!toast.isActive(toastId)) {
-      toast({
-        id: toastId,
-        duration: isDrawerOpen ? 5000 : null,
-        status: 'success',
-        render: ({ onClose, ...props }) => (
-          <GenericTransactionNotification
-            handleClick={() => {
-              onClose()
-              openDrawer()
-            }}
-            actionId={unstakeTxid}
-            onClose={onClose}
-            {...props}
-          />
-        ),
-      })
-    }
+
+    toast({
+      id: unstakeTxid,
+      duration: isDrawerOpen ? 5000 : null,
+      status: 'success',
+      render: ({ onClose, ...props }) => (
+        <GenericTransactionNotification
+          handleClick={() => {
+            onClose()
+            openDrawer()
+          }}
+          actionId={unstakeTxid}
+          onClose={onClose}
+          {...props}
+        />
+      ),
+    })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
   }, [queryClient, getValues, dispatch, unstakeTxid, accountId, isDrawerOpen, openDrawer])
 

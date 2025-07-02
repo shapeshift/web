@@ -24,6 +24,8 @@ export const useAppUpdateActionSubscriber = ({
   const dispatch = useAppDispatch()
   const { hasUpdated, newMetadata, initialMetadata } = useHasAppUpdated()
 
+  console.log({ newMetadata, initialMetadata, hasUpdated })
+
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
   const toast = useToast({

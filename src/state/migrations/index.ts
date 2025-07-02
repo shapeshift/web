@@ -23,6 +23,7 @@ export const clearOpportunitiesMigrations = {
   2: clearOpportunities,
   3: clearOpportunities,
   4: clearOpportunities,
+  5: clearOpportunities,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearPortfolioMigrations = {

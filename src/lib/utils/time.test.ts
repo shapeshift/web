@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatSecondsToDuration } from './time'
+import { formatSecondsToDuration, formatSmartDate } from './time'
 
 describe('formatSecondsToDuration', () => {
   it('should format seconds correctly when less than a minute', () => {
@@ -34,5 +34,36 @@ describe('formatSecondsToDuration', () => {
 
   it('should handle 0-value seconds correctly', () => {
     expect(formatSecondsToDuration(0)).toBe('a few seconds')
+  })
+})
+
+describe('formatSmartDate', () => {
+  const now = new Date()
+
+  it('should format recent dates with relative time (within 7 days)', () => {
+    // 2 hours ago
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000)
+    const result = formatSmartDate(twoHoursAgo)
+    expect(result).toMatch(/hours? ago/)
+  })
+
+  it('should format older dates with absolute time (more than 7 days)', () => {
+    // 10 days ago
+    const tenDaysAgo = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000)
+    const result = formatSmartDate(tenDaysAgo)
+    expect(result).toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/)
+  })
+
+  it('should handle string dates', () => {
+    const dateString = '2023-01-01T12:00:00Z'
+    const result = formatSmartDate(dateString)
+    expect(typeof result).toBe('string')
+    expect(result.length).toBeGreaterThan(0)
+  })
+
+  it('should handle number timestamps', () => {
+    const timestamp = Date.now() - 60 * 60 * 1000 // 1 hour ago
+    const result = formatSmartDate(timestamp)
+    expect(result).toMatch(/hour ago/)
   })
 })

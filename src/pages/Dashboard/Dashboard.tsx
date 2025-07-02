@@ -1,6 +1,6 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Tab, TabList, Tabs } from '@chakra-ui/react'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes } from 'react-router-dom'
 import SwipeableViews from 'react-swipeable-views'
@@ -101,6 +101,37 @@ export const Dashboard = memo(() => {
     )
   }, [])
 
+  const mobileHome = useMemo(
+    () => (
+      <ScrollView>
+        <Tabs
+          index={slideIndex}
+          onChange={handleSlideIndexChange}
+          variant='soft-rounded'
+          isLazy
+          size='sm'
+          pt={0}
+        >
+          <TabList bg='transparent' borderWidth={0} pt={0} gap={2}>
+            <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
+            <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
+          </TabList>
+        </Tabs>
+        <VirtualizedSwipableViews
+          index={slideIndex}
+          onChangeIndex={handleSlideIndexChange}
+          slideRenderer={slideRenderer}
+          slideCount={2}
+          overscanSlideBefore={1}
+          overscanSlideAfter={1}
+        />
+      </ScrollView>
+    ),
+    [slideIndex, handleSlideIndexChange, slideRenderer, translate],
+  )
+
+  const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])
+
   return (
     <>
       <SEO title={translate('navBar.dashboard')} />
@@ -117,29 +148,10 @@ export const Dashboard = memo(() => {
       </Display.Desktop>
       <Display.Mobile>
         <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
-          <ScrollView>
-            <Tabs
-              index={slideIndex}
-              onChange={handleSlideIndexChange}
-              variant='soft-rounded'
-              isLazy
-              size='sm'
-              pt={0}
-            >
-              <TabList bg='transparent' borderWidth={0} pt={0} gap={2}>
-                <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
-                <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
-              </TabList>
-            </Tabs>
-            <VirtualizedSwipableViews
-              index={slideIndex}
-              onChangeIndex={handleSlideIndexChange}
-              slideRenderer={slideRenderer}
-              slideCount={2}
-              overscanSlideBefore={1}
-              overscanSlideAfter={1}
-            />
-          </ScrollView>
+          <Routes>
+            <Route path='*' element={mobileHome} />
+            <Route path='earn' element={mobileEarn} />
+          </Routes>
         </Main>
       </Display.Mobile>
     </>

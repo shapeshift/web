@@ -2623,9 +2623,8 @@
       "title": "Lending",
       "body": "Borrow against your assets."
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "Stake FOX earn RUNE."
+    "foxEcosystem": {
+      "body": "Your dashboard for all things FOX."
     },
     "tcy": {
       "title": "TCY",

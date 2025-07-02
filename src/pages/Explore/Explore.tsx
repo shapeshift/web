@@ -6,8 +6,9 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { DefiIcon } from '@/components/Icons/DeFi'
+import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { PoolsIcon } from '@/components/Icons/Pools'
-import { RFOXIcon } from '@/components/Icons/RFOX'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -43,8 +44,9 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
 
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
-const rfoxIcon = <RFOXIcon />
+const foxIcon = <FoxIcon />
 const tcyIcon = <TCYIcon />
+const defiIcon = <DefiIcon />
 
 const pageProps = { paddingTop: 4 }
 
@@ -60,12 +62,16 @@ export const Explore = memo(() => {
     navigate('/lending')
   }, [navigate])
 
-  const handleRFOXClick = useCallback(() => {
-    navigate('/rfox')
+  const handleFoxClick = useCallback(() => {
+    navigate('/fox')
   }, [navigate])
 
   const handleTCYClick = useCallback(() => {
     navigate('/tcy')
+  }, [navigate])
+
+  const handleEarnClick = useCallback(() => {
+    navigate('/wallet/earn')
   }, [navigate])
 
   return (
@@ -88,11 +94,11 @@ export const Explore = memo(() => {
       >
         <SEO title={translate('navBar.explore')} />
         <ExploreCard
-          title='explore.rfox.title'
-          body='explore.rfox.body'
-          icon={rfoxIcon}
+          title='navBar.foxEcosystem'
+          body='explore.foxEcosystem.body'
+          icon={foxIcon}
           bg='linear-gradient(303deg, #3761F9 29.13%, #0CC 105.38%);'
-          onClick={handleRFOXClick}
+          onClick={handleFoxClick}
         />
         <ExploreCard
           title='explore.pools.title'
@@ -114,6 +120,13 @@ export const Explore = memo(() => {
           icon={tcyIcon}
           bg='linear-gradient(159deg, #319795 2.01%, #215063 86%);'
           onClick={handleTCYClick}
+        />
+        <ExploreCard
+          title='navBar.defi'
+          body='defi.myPositionsBody'
+          icon={defiIcon}
+          bg='linear-gradient(161deg, #D6BCFA 6.22%, #553C9A 87.07%)'
+          onClick={handleEarnClick}
         />
       </Main>
     </>

@@ -20,7 +20,7 @@ import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistor
 
 const mainPaddingBottom = { base: 16, md: 8 }
 
-const customTabActive = { color: 'text.base', WebkitTapHighlightColor: 'transparent' }
+const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
 
 const CustomTab = (props: TabProps) => (
@@ -64,9 +64,8 @@ export const History = () => {
     let content
     const tab = mod(index, 2)
     switch (tab) {
-      // <ActionCenter /> should always be rendered for actions to work in the backgorud when action center is not opened
       case HistoryTab.Activity:
-        content = null
+        content = <ActionCenter />
         break
       case HistoryTab.History:
         content = <TransactionHistory />
@@ -114,7 +113,6 @@ export const History = () => {
           </TabList>
           <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
         </Box>
-        <ActionCenter />
         <VirtualizedSwipableViews
           index={slideIndex}
           onChangeIndex={handleSlideIndexChange}

@@ -62,7 +62,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     }
 
     // Use toHash as the destination chain tx hash if present
-    const buyTxHash = detailedInfo.toHash ?? undefined
+    const destinationTxHash = detailedInfo.toHash ?? undefined
     const relayerTxHash = detailedInfo.relayerHash ?? undefined
     const relayerExplorerTxLink = detailedInfo.relayerChain?.scanUrl ?? undefined
 
@@ -70,7 +70,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     let status: TxStatus = (() => {
       // For BTC, be optimistic on buyTxHash as we update the balance once the TX hits the mempool
       if (
-        buyTxHash &&
+        destinationTxHash &&
         butterSwapChainIdToChainId(Number(detailedInfo.toChain.chainId)) ===
           KnownChainIds.BitcoinMainnet
       )
@@ -93,7 +93,13 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
       butterIdCache.delete(txHash)
     }
 
-    return { status, buyTxHash, relayerTxHash, relayerExplorerTxLink, message: undefined }
+    return {
+      status,
+      buyTxHash: destinationTxHash,
+      relayerTxHash,
+      relayerExplorerTxLink,
+      message: undefined,
+    }
   } catch (e) {
     return { status: TxStatus.Unknown, buyTxHash: undefined, message: (e as Error).message }
   }

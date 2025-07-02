@@ -80,11 +80,9 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       _hover={hoverProps}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={onToggle}>
-        {action.assetId && (
-          <AssetIconWithBadge assetId={action.assetId} size='md'>
-            <ActionStatusIcon status={action.status} />
-          </AssetIconWithBadge>
-        )}
+        <AssetIconWithBadge assetId={action.assetId} size='md'>
+          <ActionStatusIcon status={action.status} />
+        </AssetIconWithBadge>
         <Stack spacing={0} width='full'>
           <HStack width='full'>
             <Stack spacing={1} width='full'>

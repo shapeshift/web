@@ -1,10 +1,7 @@
-import { Card, CardBody, Flex, HStack, Stack, Button } from '@chakra-ui/react'
+import { Card, CardBody, Flex, HStack, Stack, Button, Collapse, Icon, useDisclosure } from '@chakra-ui/react'
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
-  Collapse,
   Flex as ChakraFlex,
-  Icon,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { SwapStatus } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
@@ -15,6 +12,7 @@ import { useTranslate } from 'react-polyglot'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 import { SwapDetails } from './Details/SwapDetails'
+import { GenericTransactionDetails } from './Details/GenericTransactionDetails'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
@@ -34,9 +32,10 @@ const divider = <RawText color='text.subtle'>•</RawText>
 
 type GenericTransactionActionCardProps = {
   action: GenericTransactionAction
+  isCollapsable?: boolean
 }
 
-export const GenericTransactionActionCard = ({ action }: GenericTransactionActionCardProps) => {
+export const GenericTransactionActionCard = ({ action, isCollapsable = false }: GenericTransactionActionCardProps) => {
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, action.chainId))
 
@@ -62,9 +61,26 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
         })
       : undefined
 
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
+
+  const hoverProps = useMemo(
+    () => ({
+      bg: isCollapsable ? 'background.button.secondary.hover' : 'transparent',
+      cursor: isCollapsable ? 'pointer' : 'default',
+      textDecoration: 'none',
+    }),
+    [isCollapsable],
+  )
+
+  const handleClick = useCallback(() => {
+    if (isCollapsable) {
+      onToggle()
+    }
+  }, [onToggle, isCollapsable])
+
   return (
-    <Stack spacing={4} mx={2} borderRadius='lg' transitionProperty='common' transitionDuration='fast'>
-      <Flex gap={4} alignItems='flex-start' px={4} py={4}>
+    <Stack spacing={4} mx={2} borderRadius='lg' transitionProperty='common' transitionDuration='fast' _hover={hoverProps}>
+      <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={handleClick}>
         <ActionStatusTag status={action.status} />
         <Stack spacing={0} width='full'>
           <HStack>
@@ -74,25 +90,46 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
                 <span>{formattedDate}</span>
               </HStack>
             </Stack>
+            {isCollapsable && (
+              <Icon
+                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+                ml='auto'
+                my='auto'
+                fontSize='xl'
+                color='text.subtle'
+              />
+            )}
           </HStack>
+          {isCollapsable && (
+            <Collapse in={isOpen}>
+              <Card bg='transparent' mt={4} boxShadow='none'>
+                <CardBody px={0} py={0}>
+                  <GenericTransactionDetails />
+                </CardBody>
+              </Card>
+            </Collapse>
+          )}
         </Stack>
       </Flex>
-      <Card bg='transparent' mt={0} boxShadow='none'>
-        <CardBody px={0} py={0}>
-          <Button
-            as='a'
-            href={txLink}
-            target='_blank'
-            rel='noopener noreferrer'
-            width='full'
-            colorScheme='gray'
-            variant='solid'
-            isDisabled={!txLink}
-          >
-            {translate('notificationCenter.viewTransaction')}
-          </Button>
-        </CardBody>
-      </Card>
+      {!isCollapsable && (
+        <Card bg='transparent' mt={0} boxShadow='none'>
+          <CardBody px={0} py={0}>
+            <Button
+              as='a'
+              href={txLink}
+              target='_blank'
+              rel='noopener noreferrer'
+              width='full'
+              colorScheme='gray'
+              variant='solid'
+              isDisabled={!txLink}
+              size='lg'
+            >
+              {translate('notificationCenter.viewTransaction')}
+            </Button>
+          </CardBody>
+        </Card>
+      )}
     </Stack>
   )
 }

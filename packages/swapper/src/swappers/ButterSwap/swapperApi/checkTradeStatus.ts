@@ -1,8 +1,6 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { CheckTradeStatusInput, TradeStatus } from '../../../types'
-import { butterSwapChainIdToChainId } from '../utils/helpers'
 import { getBridgeInfoById, getBridgeInfoBySourceHash } from '../xhr'
 
 // See: https://docs.butternetwork.io/butter-swap-integration/butter-api-for-swap-data/get-swap-history-by-source-hash

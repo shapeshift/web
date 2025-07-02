@@ -6,6 +6,7 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { DefiIcon } from '@/components/Icons/DeFi'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
@@ -45,6 +46,7 @@ const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
 const foxIcon = <FoxIcon />
 const tcyIcon = <TCYIcon />
+const defiIcon = <DefiIcon />
 
 const pageProps = { paddingTop: 4 }
 
@@ -89,7 +91,7 @@ export const Explore = memo(() => {
         <SEO title={translate('navBar.explore')} />
         <ExploreCard
           title='navBar.foxEcosystem'
-          body='explore.fox.body'
+          body='explore.foxEcosystem.body'
           icon={foxIcon}
           bg='linear-gradient(303deg, #3761F9 29.13%, #0CC 105.38%);'
           onClick={handleFoxClick}
@@ -113,6 +115,13 @@ export const Explore = memo(() => {
           body='explore.tcy.body'
           icon={tcyIcon}
           bg='linear-gradient(159deg, #319795 2.01%, #215063 86%);'
+          onClick={handleTCYClick}
+        />
+        <ExploreCard
+          title='navBar.defi'
+          body='defi.myPositionsBody'
+          icon={defiIcon}
+          bg='linear-gradient(161deg, #D6BCFA 6.22%, #553C9A 87.07%)'
           onClick={handleTCYClick}
         />
       </Main>

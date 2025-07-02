@@ -47,8 +47,8 @@ type ActionLimitOrderMetadata = {
 }
 
 type ActionAppUpdateMetadata = {
-  currentVersion?: string
-  newVersion?: string
+  currentVersion: string
+  newVersion: string
 }
 
 export type BaseAction = {

@@ -20,7 +20,6 @@ import UpdateIcon from '@/assets/update-icon.svg'
 import { RawText } from '@/components/Text'
 import { Text } from '@/components/Text/Text'
 import type { AppUpdateAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 
@@ -37,9 +36,7 @@ type AppUpdateActionCardProps = {
 export const AppUpdateActionCard = ({ action }: AppUpdateActionCardProps) => {
   const translate = useTranslate()
 
-  const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen: action.status === ActionStatus.Pending,
-  })
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
 
   const formattedDate = useMemo(() => {
     const now = dayjs()

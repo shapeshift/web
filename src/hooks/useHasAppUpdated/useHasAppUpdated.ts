@@ -12,14 +12,21 @@ export type Metadata = {
   headShortCommitHash: string
 }
 
-// TODO make the typing better here. If hasUpdated is true then newMetadata is never false
 type HasUpdatedResult = {
-  hasUpdated: boolean
-  initialMetadata?: Metadata
-  newMetadata?: Metadata
+  hasUpdated: true
+  initialMetadata: Metadata
+  newMetadata: Metadata
 }
 
-export const useHasAppUpdated = (): HasUpdatedResult => {
+type HasNotUpdatedResult = {
+  hasUpdated: false
+  initialMetadata?: Metadata
+  newMetadata?: undefined
+}
+
+type MaybeUpdatedResult = HasUpdatedResult | HasNotUpdatedResult
+
+export const useHasAppUpdated = (): MaybeUpdatedResult => {
   // 'metadata.json' keeps track of current commit hash and git tag
   const metadataUrl = `/metadata.json`
   const [initialMetadata, setInitialMetadata] = useState<Metadata | undefined>()
@@ -27,19 +34,15 @@ export const useHasAppUpdated = (): HasUpdatedResult => {
 
   const isLocalhost = localhostRegEx.test(window.location.hostname)
 
-  const fetchData = useCallback(
-    async (url: string): Promise<Metadata | undefined> => {
-      if (isLocalhost) return
-      try {
-        // dummy query param to bypass the browser cache.
-        const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
-        return data
-      } catch (e) {
-        console.error(e)
-      }
-    },
-    [isLocalhost],
-  )
+  const fetchData = useCallback(async (url: string): Promise<Metadata | undefined> => {
+    try {
+      // dummy query param to bypass the browser cache.
+      const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+      return data
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
 
   // store initial values once
   useEffect(() => {
@@ -48,7 +51,7 @@ export const useHasAppUpdated = (): HasUpdatedResult => {
   }, [fetchData, isLocalhost, metadataUrl])
 
   useEffect(() => {
-    // if (isLocalhost) return
+    if (isLocalhost) return
     // don't erroneously compare if we failed to fetch the initial
     if (!initialMetadata) return
 
@@ -67,5 +70,8 @@ export const useHasAppUpdated = (): HasUpdatedResult => {
   }, [fetchData, initialMetadata, isLocalhost, metadataUrl])
 
   if (isLocalhost) return { hasUpdated: false } // never return true on localhost
-  return { hasUpdated: newMetadata !== undefined, initialMetadata, newMetadata }
+
+  return newMetadata !== undefined && initialMetadata !== undefined
+    ? { hasUpdated: true, newMetadata, initialMetadata }
+    : { hasUpdated: false, initialMetadata }
 }

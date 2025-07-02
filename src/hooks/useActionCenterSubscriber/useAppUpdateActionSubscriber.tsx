@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import stringify from 'fast-json-stable-stringify'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import type { Metadata } from '../useHasAppUpdated/useHasAppUpdated'
 import { useHasAppUpdated } from '../useHasAppUpdated/useHasAppUpdated'
@@ -23,6 +23,9 @@ export const useAppUpdateActionSubscriber = ({
 }: UseAppUpdateActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const { hasUpdated, newMetadata, initialMetadata } = useHasAppUpdated()
+  const hasShownToast = useRef(false)
+
+  console.log({ hasUpdated, newMetadata, initialMetadata })
 
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
@@ -40,7 +43,11 @@ export const useAppUpdateActionSubscriber = ({
 
   // Check for a new version and add an action + pop a toast if there is
   useEffect(() => {
-    if (currentVersionExistingAction === undefined && currentVersionId !== undefined) {
+    if (
+      currentVersionExistingAction === undefined &&
+      currentVersionId !== undefined &&
+      hasUpdated
+    ) {
       // Create the app update action
       dispatch(
         actionSlice.actions.upsertAction({
@@ -49,13 +56,22 @@ export const useAppUpdateActionSubscriber = ({
           status: ActionStatus.Complete,
           createdAt: Date.now(),
           updatedAt: Date.now(),
-          appUpdateMetadata: {},
+          appUpdateMetadata: {
+            currentVersion: currentVersionId,
+            newVersion: getAppUpdateId(newMetadata),
+          },
         }),
       )
 
-      toast({
-        render: props => <AppUpdateNotification handleClick={onDrawerOpen} {...props} />,
-      })
+      // this ensures we don't accidentally double toast if this runs twice for due to some reference update
+      // while hasUpdated = true and currentVersionExistingAction = undefined
+      if (!hasShownToast.current) {
+        toast({
+          render: props => <AppUpdateNotification handleClick={onDrawerOpen} {...props} />,
+        })
+
+        hasShownToast.current = true
+      }
     }
   }, [
     dispatch,

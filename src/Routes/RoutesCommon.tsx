@@ -151,7 +151,7 @@ export const routes: Route[] = [
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
-    mobileNav: false,
+    mobileNav: true,
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
@@ -234,7 +234,7 @@ export const routes: Route[] = [
     main: FoxPage,
     category: RouteCategory.Fox,
     priority: 6,
-    mobileNav: true,
+    mobileNav: false,
     disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {

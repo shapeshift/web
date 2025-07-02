@@ -5,7 +5,7 @@ import type {
   CosmosSdkTransactionExecutionInput,
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
-  RelayTxHashArgs,
+  RelayerTxHashArgs,
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
@@ -63,7 +63,7 @@ export const fetchTradeStatus = async ({
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
-  const { status, message, buyTxHash, relayTxHash } = await swapper.checkTradeStatus({
+  const { status, message, buyTxHash, relayerTxHash } = await swapper.checkTradeStatus({
     txHash: sellTxHash,
     chainId: sellAssetChainId,
     address,
@@ -77,7 +77,7 @@ export const fetchTradeStatus = async ({
     fetchIsSmartContractAddressQuery,
   })
 
-  return { status, message, buyTxHash, relayTxHash }
+  return { status, message, buyTxHash, relayerTxHash }
 }
 
 export class TradeExecution {
@@ -164,7 +164,7 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
-          const { status, message, buyTxHash, relayTxHash } = await queryClient.fetchQuery({
+          const { status, message, buyTxHash, relayerTxHash } = await queryClient.fetchQuery({
             queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
             queryFn: () =>
               fetchTradeStatus({
@@ -180,10 +180,10 @@ export class TradeExecution {
             gcTime: this.pollInterval,
           })
 
-          // Emit RelayTxHash event when relayTxHash becomes available
-          if (relayTxHash && !updatedSwap.relayTxHash) {
-            const relayTxHashArgs: RelayTxHashArgs = { stepIndex, relayTxHash }
-            this.emitter.emit(TradeExecutionEvent.RelayTxHash, relayTxHashArgs)
+          // Emit RelayerTxHash event when relayerTxHash becomes available
+          if (relayerTxHash && !updatedSwap.relayerTxHash) {
+            const relayerTxHashArgs: RelayerTxHashArgs = { stepIndex, relayerTxHash }
+            this.emitter.emit(TradeExecutionEvent.RelayerTxHash, relayerTxHashArgs)
           }
 
           const payload: StatusArgs = {
@@ -191,7 +191,7 @@ export class TradeExecution {
             status,
             message,
             buyTxHash,
-            relayTxHash,
+            relayerTxHash,
           }
           this.emitter.emit(TradeExecutionEvent.Status, payload)
 

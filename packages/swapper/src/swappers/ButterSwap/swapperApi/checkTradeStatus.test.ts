@@ -86,7 +86,7 @@ describe('checkTradeStatus', () => {
     expect(result.buyTxHash).toBe(
       '7a4d8686e186a5f86f7f3a71dc8181c66e9b40a68edd068e99cdeea77514a157',
     )
-    expect(result.relayTxHash).toBe('bridge_tx_hash_123')
+    expect(result.relayerTxHash).toBe('bridge_tx_hash_123')
   })
 
   it('should return Unknown status if no info is found', async () => {

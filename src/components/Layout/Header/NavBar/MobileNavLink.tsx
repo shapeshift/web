@@ -50,8 +50,8 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
       isActive={isActive}
       fontWeight='medium'
       onClick={handleClick}
-      pb={4}
-      pt={6}
+      pb={3}
+      pt={5}
       flex={1}
       zIndex='sticky'
       _active={customTabActive}

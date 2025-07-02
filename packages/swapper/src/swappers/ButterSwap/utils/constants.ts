@@ -1,5 +1,3 @@
-export const DEFAULT_BUTTERSWAP_AFFILIATE_BPS = 50
-
 const BUTTERSWAP_AFFILIATE = '' // TODO: add affiliate
 
 export const makeButterSwapAffiliate = (affiliateBps: string): string | undefined => {

@@ -6,8 +6,8 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { PoolsIcon } from '@/components/Icons/Pools'
-import { RFOXIcon } from '@/components/Icons/RFOX'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -43,7 +43,7 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
 
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
-const rfoxIcon = <RFOXIcon />
+const foxIcon = <FoxIcon />
 const tcyIcon = <TCYIcon />
 
 const pageProps = { paddingTop: 4 }
@@ -60,8 +60,8 @@ export const Explore = memo(() => {
     navigate('/lending')
   }, [navigate])
 
-  const handleRFOXClick = useCallback(() => {
-    navigate('/rfox')
+  const handleFoxClick = useCallback(() => {
+    navigate('/fox')
   }, [navigate])
 
   const handleTCYClick = useCallback(() => {
@@ -88,11 +88,11 @@ export const Explore = memo(() => {
       >
         <SEO title={translate('navBar.explore')} />
         <ExploreCard
-          title='explore.rfox.title'
-          body='explore.rfox.body'
-          icon={rfoxIcon}
+          title='navBar.foxEcosystem'
+          body='explore.fox.body'
+          icon={foxIcon}
           bg='linear-gradient(303deg, #3761F9 29.13%, #0CC 105.38%);'
-          onClick={handleRFOXClick}
+          onClick={handleFoxClick}
         />
         <ExploreCard
           title='explore.pools.title'

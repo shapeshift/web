@@ -15,20 +15,20 @@ const BUTTER_SWAP_STATES = (() => ({
   Failed: 6,
 }))()
 
-// Cache relayer IDs to avoid repeated API calls during polling
+// Cache butter IDs to avoid repeated API calls during polling
 // We use a module-level cache instead of storing in swap.metadata because:
-// 1. The relayer ID is only available after transaction submission (not at quote time like chainflipSwapId)
+// 1. The butter ID is only available after transaction submission (not at quote time like chainflipSwapId)
 // 2. checkTradeStatus doesn't have a mechanism to update swap state during polling
 // 3. This approach is simpler and doesn't require changes to core types or polling logic
-const relayerIdCache = new Map<string, number>()
+const butterIdCache = new Map<string, number>()
 
 export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<TradeStatus> => {
   const { txHash } = input
   try {
-    let relayerId = relayerIdCache.get(txHash)
+    let butterId = butterIdCache.get(txHash)
 
-    // Only fetch relayer info by source hash if we don't have the relayer ID cached
-    if (!relayerId) {
+    // Only fetch relayer info by source hash if we don't have the butter ID cached
+    if (!butterId) {
       const infoResult = await getBridgeInfoBySourceHash(txHash)
       if (infoResult.isErr()) {
         return {
@@ -43,12 +43,12 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
       }
 
       // Cache the relayer ID for future calls
-      relayerId = basicInfo.id
-      relayerIdCache.set(txHash, relayerId)
+      butterId = basicInfo.id
+      butterIdCache.set(txHash, butterId)
     }
 
     // Get the detailed relayer info using the cached ID
-    const detailedInfoResult = await getBridgeInfoById(relayerId)
+    const detailedInfoResult = await getBridgeInfoById(butterId)
     if (detailedInfoResult.isErr()) {
       return {
         status: TxStatus.Unknown,
@@ -90,7 +90,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
 
     // Clean up cache for completed/failed trades to prevent memory leaks
     if (status === TxStatus.Confirmed || status === TxStatus.Failed) {
-      relayerIdCache.delete(txHash)
+      butterIdCache.delete(txHash)
     }
 
     return { status, buyTxHash, relayerTxHash, relayerExplorerTxLink, message: undefined }

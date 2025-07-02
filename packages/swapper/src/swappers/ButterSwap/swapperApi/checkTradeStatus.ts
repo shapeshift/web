@@ -15,20 +15,20 @@ const BUTTER_SWAP_STATES = (() => ({
   Failed: 6,
 }))()
 
-// Cache relay IDs to avoid repeated API calls during polling
+// Cache relayer IDs to avoid repeated API calls during polling
 // We use a module-level cache instead of storing in swap.metadata because:
-// 1. The relay ID is only available after transaction submission (not at quote time like chainflipSwapId)
+// 1. The relayer ID is only available after transaction submission (not at quote time like chainflipSwapId)
 // 2. checkTradeStatus doesn't have a mechanism to update swap state during polling
 // 3. This approach is simpler and doesn't require changes to core types or polling logic
-const relayIdCache = new Map<string, number>()
+const relayerIdCache = new Map<string, number>()
 
 export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<TradeStatus> => {
   const { txHash } = input
   try {
-    let relayId = relayIdCache.get(txHash)
+    let relayerId = relayerIdCache.get(txHash)
 
-    // Only fetch relay info by source hash if we don't have the relay ID cached
-    if (!relayId) {
+    // Only fetch relayer info by source hash if we don't have the relayer ID cached
+    if (!relayerId) {
       const infoResult = await getBridgeInfoBySourceHash(txHash)
       if (infoResult.isErr()) {
         return {
@@ -42,13 +42,13 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
         return { status: TxStatus.Unknown, buyTxHash: undefined, message: undefined }
       }
 
-      // Cache the relay ID for future calls
-      relayId = basicInfo.id
-      relayIdCache.set(txHash, relayId)
+      // Cache the relayer ID for future calls
+      relayerId = basicInfo.id
+      relayerIdCache.set(txHash, relayerId)
     }
 
-    // Get the detailed relay info using the cached ID
-    const detailedInfoResult = await getBridgeInfoById(relayId)
+    // Get the detailed relayer info using the cached ID
+    const detailedInfoResult = await getBridgeInfoById(relayerId)
     if (detailedInfoResult.isErr()) {
       return {
         status: TxStatus.Unknown,
@@ -90,7 +90,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
 
     // Clean up cache for completed/failed trades to prevent memory leaks
     if (status === TxStatus.Confirmed || status === TxStatus.Failed) {
-      relayIdCache.delete(txHash)
+      relayerIdCache.delete(txHash)
     }
 
     return { status, buyTxHash, relayerTxHash, relayerExplorerTxLink, message: undefined }

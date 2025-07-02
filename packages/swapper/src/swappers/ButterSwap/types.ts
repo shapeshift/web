@@ -175,12 +175,56 @@ export type BridgeInfo = {
   amount: string
   fromToken: TokenInfo
   sourceHash: string
-  relayerHash: string | undefined
   toHash: string | null
   receiveToken: TokenInfo
   receiveAmount: string
   toAddress: string
   destinationToken?: TokenInfo | null
+  state: number
+  timestamp: string
+  timestampLong: number
+  completeTime: string
+  completeTimeLong: number
+}
+
+export type DetailedBridgeInfo = {
+  id?: number | null
+  fromChain: ChainInfo
+  relayerChain?: ChainInfo
+  toChain: ChainInfo
+  tokenAddress?: string
+  tokenSymbol?: string
+  sourceAddress: string
+  amount: string | number
+  inAmount?: string | number
+  fee?: string
+  fromToken: TokenInfo
+  sourceHash: string
+  relayerHash?: string | null
+  toHash: string | null
+  receiveToken: TokenInfo
+  receiveAmount: string | number
+  toAddress: string
+  destinationToken?: TokenInfo | null
+  sourceToken?: TokenInfo
+  feeToken?: TokenInfo
+  fromTokenDecimal?: number
+  isMessageBridge?: number
+  bridgeToken?: unknown | null
+  bridgeAmount?: unknown | null
+  chainPoolChainDict?: unknown | null
+  chainPoolTokenDict?: unknown | null
+  chainPoolAddress?: unknown | null
+  chainPoolAmount?: unknown | null
+  chainPoolAction?: unknown | null
+  chainPoolHash?: unknown | null
+  routerAmount?: number
+  integratorAmount?: number
+  nativeAmount?: number
+  integratorNative?: number
+  routerFeeToken?: string
+  stage?: unknown | null
+  status?: unknown | null
   state: number
   timestamp: string
   timestampLong: number
@@ -201,5 +245,13 @@ export type BridgeInfoApiResponse = {
   message: string
   data: {
     info: BridgeInfo | null
+  }
+}
+
+export type DetailedBridgeInfoApiResponse = {
+  code: number
+  message: string
+  data: {
+    info: DetailedBridgeInfo | null
   }
 }

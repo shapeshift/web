@@ -56,11 +56,10 @@ export const ReusableStatus = ({
   const prevThorTxStatus = usePrevious(thorTxStatus)
 
   useEffect(() => {
-    console.log({ prevThorTxStatus, thorTxStatus })
     if (!(prevThorTxStatus !== TxStatus.Confirmed && thorTxStatus === TxStatus.Confirmed)) return
 
     handleTxConfirmed()
-  }, [thorTxStatus, handleTxConfirmed])
+  }, [thorTxStatus, prevThorTxStatus, handleTxConfirmed])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,

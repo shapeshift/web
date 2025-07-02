@@ -15,6 +15,7 @@ import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
@@ -34,7 +35,6 @@ import {
 import { ActionType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
-import { useActionCenterContext } from './ActionCenterContext'
 
 const paddingProp = { base: 4, md: 6 }
 
@@ -89,7 +89,7 @@ export const ActionCenter = memo(() => {
             return <AppUpdateActionCard key={action.id} action={action} />
           }
           case ActionType.GenericTransaction: {
-            return <GenericTransactionActionCard key={action.id} action={action} isCollapsable />
+            return <GenericTransactionActionCard key={action.id} action={action} />
           }
           default:
             return null

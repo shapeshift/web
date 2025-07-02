@@ -11,6 +11,7 @@ import { WagmiProvider } from 'wagmi'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
+import { ActionCenterProvider } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { AppProvider } from '@/context/AppProvider/AppContext'
 import { BrowserRouterProvider } from '@/context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from '@/context/I18nProvider/I18nProvider'
@@ -28,7 +29,6 @@ import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
 import { WalletConnectV2Provider } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { persistor, store } from '@/state/store'
 import { theme } from '@/theme/theme'
-import { ActionCenterProvider } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 
 type ProvidersProps = {
   children: React.ReactNode

@@ -4,8 +4,8 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router'
-import { v4 as uuidv4 } from 'uuid'
 import { Route, Switch } from 'wouter'
 
 import type { TCYRouteProps } from '../../types'
@@ -91,6 +91,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   headerComponent,
   activeAccountNumber,
 }) => {
+  const translate = useTranslate()
   const location = useLocation()
   const [stakeTxid, setStakeTxid] = useState<string>()
   const queryClient = useQueryClient()
@@ -112,7 +113,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const handleTxConfirmed = useCallback(async () => {
     if (!stakeTxid) throw new Error('Stake Txid is required')
 
-    const amount = bnOrZero(getValues('amountCryptoPrecision')).toFixed(2)
+    const amountCryptoPrecision = bnOrZero(getValues('amountCryptoPrecision')).toFixed()
 
     dispatch(
       actionSlice.actions.upsertAction({
@@ -122,7 +123,10 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: `Your stake of ${amount} TCY is complete`,
+        message: translate(`RFOX.stakeSuccess`, {
+          amount: amountCryptoPrecision,
+          symbol: 'TCY',
+        }),
         txHash: stakeTxid,
         chainId: thorchainChainId,
         accountId,
@@ -134,20 +138,34 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       id: stakeTxid,
       duration: isDrawerOpen ? 5000 : null,
       status: 'success',
-      render: ({ onClose, ...props }) => (
-        <GenericTransactionNotification
-          handleClick={() => {
-            onClose()
-            openDrawer()
-          }}
-          actionId={stakeTxid}
-          onClose={onClose}
-          {...props}
-        />
-      ),
+      render: ({ onClose, ...props }) => {
+        const handleClick = () => {
+          onClose()
+          openDrawer()
+        }
+        return (
+          <GenericTransactionNotification
+            // eslint-disable-next-line react-memo/require-usememo
+            handleClick={handleClick}
+            actionId={stakeTxid}
+            onClose={onClose}
+            {...props}
+          />
+        )
+      },
     })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
-  }, [queryClient, getValues, dispatch, stakeTxid, accountId, isDrawerOpen, openDrawer])
+  }, [
+    queryClient,
+    getValues,
+    dispatch,
+    stakeTxid,
+    accountId,
+    isDrawerOpen,
+    openDrawer,
+    toast,
+    translate,
+  ])
 
   const renderStakeInput = useCallback(() => {
     return (

@@ -5,7 +5,6 @@ import {
   Card,
   CardBody,
   Collapse,
-  Flex as ChakraFlex,
   Flex,
   HStack,
   Icon,
@@ -13,7 +12,6 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import { SwapStatus } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
@@ -21,16 +19,9 @@ import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
-import { GenericTransactionDetails } from './Details/GenericTransactionDetails'
-import { SwapDetails } from './Details/SwapDetails'
 
-import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
-import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { RawText } from '@/components/Text'
-import type { TextPropTypes } from '@/components/Text/Text'
-import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
@@ -40,15 +31,17 @@ dayjs.extend(relativeTime)
 
 const divider = <RawText color='text.subtle'>•</RawText>
 
-type GenericTransactionActionCardProps = {
-  action: GenericTransactionAction
-  isCollapsable?: boolean
+const hoverProps = {
+  bg: 'background.button.secondary.hover',
+  cursor: 'pointer',
+  textDecoration: 'none',
 }
 
-export const GenericTransactionActionCard = ({
-  action,
-  isCollapsable = false,
-}: GenericTransactionActionCardProps) => {
+type GenericTransactionActionCardProps = {
+  action: GenericTransactionAction
+}
+
+export const GenericTransactionActionCard = ({ action }: GenericTransactionActionCardProps) => {
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, action.chainId))
 
@@ -63,33 +56,23 @@ export const GenericTransactionActionCard = ({
     }
   }, [action.updatedAt])
 
-  const txLink =
-    action.txHash && feeAsset?.explorerTxLink
-      ? getTxLink({
-          txId: action.txHash,
-          chainId: action.chainId,
-          defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-          address: undefined,
-          maybeSafeTx: undefined,
-        })
-      : undefined
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+
+    return getTxLink({
+      txId: action.txHash,
+      chainId: action.chainId,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      address: undefined,
+      maybeSafeTx: undefined,
+    })
+  }, [action.txHash, action.chainId, feeAsset])
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
-  const hoverProps = useMemo(
-    () => ({
-      bg: isCollapsable ? 'background.button.secondary.hover' : 'transparent',
-      cursor: isCollapsable ? 'pointer' : 'default',
-      textDecoration: 'none',
-    }),
-    [isCollapsable],
-  )
-
   const handleClick = useCallback(() => {
-    if (isCollapsable) {
-      onToggle()
-    }
-  }, [onToggle, isCollapsable])
+    onToggle()
+  }, [onToggle])
 
   return (
     <Stack
@@ -118,17 +101,15 @@ export const GenericTransactionActionCard = ({
                 <RawText>{action.displayType}</RawText>
               </HStack>
             </Stack>
-            {isCollapsable && (
-              <Icon
-                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-                ml='auto'
-                my='auto'
-                fontSize='xl'
-                color='text.subtle'
-              />
-            )}
+            <Icon
+              as={isOpen ? ChevronUpIcon : ChevronDownIcon}
+              ml='auto'
+              my='auto'
+              fontSize='xl'
+              color='text.subtle'
+            />
           </HStack>
-          {isCollapsable && (
+          {txLink && (
             <Collapse in={isOpen}>
               <Card bg='transparent' mt={4} boxShadow='none'>
                 <CardBody px={0} py={0}>
@@ -145,26 +126,6 @@ export const GenericTransactionActionCard = ({
           )}
         </Stack>
       </Flex>
-      {!isCollapsable && (
-        <Card bg='transparent' mt={0} boxShadow='none'>
-          <CardBody px={0} py={0}>
-            <Button
-              as='a'
-              href={txLink}
-              target='_blank'
-              rel='noopener noreferrer'
-              width='full'
-              colorScheme='gray'
-              variant='solid'
-              isDisabled={!txLink}
-              size='lg'
-              onClick={e => e.stopPropagation()}
-            >
-              {translate('notificationCenter.viewTransaction')}
-            </Button>
-          </CardBody>
-        </Card>
-      )}
     </Stack>
   )
 }

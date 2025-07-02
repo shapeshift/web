@@ -24,6 +24,7 @@ import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitO
 import { RawText } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 
@@ -55,15 +56,7 @@ export const LimitOrderActionCard = ({
   const { updatedAt, status, type } = action
 
   const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(updatedAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
+    return formatSmartDate(updatedAt)
   }, [updatedAt])
 
   const handleClick = useCallback(() => {

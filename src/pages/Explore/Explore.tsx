@@ -70,6 +70,10 @@ export const Explore = memo(() => {
     navigate('/tcy')
   }, [navigate])
 
+  const handleEarnClick = useCallback(() => {
+    navigate('/wallet/earn')
+  }, [navigate])
+
   return (
     <>
       <PageHeader>
@@ -122,7 +126,7 @@ export const Explore = memo(() => {
           body='defi.myPositionsBody'
           icon={defiIcon}
           bg='linear-gradient(161deg, #D6BCFA 6.22%, #553C9A 87.07%)'
-          onClick={handleTCYClick}
+          onClick={handleEarnClick}
         />
       </Main>
     </>

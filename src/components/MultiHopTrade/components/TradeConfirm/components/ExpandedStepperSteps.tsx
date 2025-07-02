@@ -400,6 +400,17 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   quoteSwapperName={activeTradeQuote.swapperName}
                 />
               )}
+              {firstHopSwap.relayerTxHash && (
+                <TxLabel
+                  txHash={firstHopSwap.relayerTxHash}
+                  explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                  accountId={firstHopSellAccountId}
+                  stepSource={stepSource}
+                  quoteSwapperName={activeTradeQuote.swapperName}
+                  isRelayer={true}
+                  relayerExplorerTxLink={firstHopSwap.relayerExplorerTxLink}
+                />
+              )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
                 <TxLabel
                   isBuyTxHash
@@ -420,11 +431,13 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSellAccountId,
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
+    firstHopSwap.relayerTxHash,
     firstHopSwap.sellTxHash,
     stepSource,
     activeTradeQuote.swapperName,
     tradeQuoteFirstHop,
     activeSwap?.status,
+    firstHopSwap.relayerExplorerTxLink,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {

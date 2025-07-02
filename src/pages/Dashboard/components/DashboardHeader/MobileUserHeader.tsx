@@ -1,5 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import { Box, Flex, IconButton, Text } from '@chakra-ui/react'
+import { Flex, IconButton, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -12,11 +12,7 @@ import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const searchIcon = <SearchIcon />
-const qrCodeIcon = (
-  <Box>
-    <FaExpand />
-  </Box>
-)
+const qrCodeIcon = <FaExpand />
 
 const mobileButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -45,13 +41,17 @@ export const MobileUserHeader = ({
     [mipdProviders, maybeRdns],
   )
 
+  const label = useMemo(
+    () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,
+    [walletInfo, maybeMipdProvider?.info?.name],
+  )
+
   return (
     <Flex justifyContent='space-between' width='100%' display={mobileButtonRowDisplay}>
       <Flex align='center' onClick={onOpen}>
         <ProfileAvatar size='md' borderRadius='full' />
         <Text ml={2} fontWeight='semibold' fontSize='md'>
-          {(maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name) ??
-            translate('common.connectWallet')}
+          {label ?? translate('common.connectWallet')}
         </Text>
       </Flex>
       <Flex gap={2}>

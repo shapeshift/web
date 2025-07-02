@@ -38,9 +38,9 @@ if (window.location.hostname !== 'localhost') {
     'yeet',
     'beard',
     'juice',
-    'wood',
     'gome',
     'neo',
+    'jib',
   ] as const
 
   const environment = (() => {

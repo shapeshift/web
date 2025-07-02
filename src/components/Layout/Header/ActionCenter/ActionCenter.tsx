@@ -16,6 +16,7 @@ import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
@@ -24,6 +25,7 @@ import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
@@ -43,6 +45,7 @@ export const ActionCenter = memo(() => {
 
   useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
   useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useAppUpdateActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -81,6 +84,9 @@ export const ActionCenter = memo(() => {
                 onCancelOrder={setOrderToCancel}
               />
             )
+          }
+          case ActionType.AppUpdate: {
+            return <AppUpdateActionCard key={action.id} action={action} />
           }
           default:
             return null
@@ -154,8 +160,7 @@ export const ActionCenter = memo(() => {
             <Box pe={2}>
               <Box
                 overflow='auto'
-                height='calc(100vh - 70px - env(safe-area-inset-top))'
-                className='scroll-container'
+                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
               >
                 {actionCardsOrEmpty}
               </Box>
@@ -168,8 +173,7 @@ export const ActionCenter = memo(() => {
         <Box pe={2}>
           <Box
             overflow='auto'
-            height='calc(100vh - 70px - env(safe-area-inset-top))'
-            className='scroll-container'
+            height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
           >
             {actionCardsOrEmpty}
           </Box>

@@ -1,10 +1,9 @@
 import type { AccountId } from './accountId/accountId'
 import { fromAccountId } from './accountId/accountId'
 import type { AssetId } from './assetId/assetId'
-import { fromAssetId, toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
-import { tcyAssetId } from './constants'
+import { rujiAssetId, tcyAssetId } from './constants'
 
 const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
@@ -19,21 +18,17 @@ export const isValidChainPartsPair = (
   chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
-export const generateAssetIdFromCosmosSdkDenom = (
-  denom: string,
-  nativeAssetId: AssetId,
-): AssetId => {
-  if (denom === 'tcy') return tcyAssetId
-  if (denom === 'maya') return mayaTokenAssetId
-  if (denom.startsWith('ibc')) {
-    return toAssetId({
-      assetNamespace: constants.ASSET_NAMESPACE.ibc,
-      assetReference: denom.split('/')[1],
-      chainId: fromAssetId(nativeAssetId).chainId,
-    })
+export const generateAssetIdFromCosmosSdkDenom = (denom: string): AssetId => {
+  switch (denom) {
+    case 'tcy':
+      return tcyAssetId
+    case 'x/ruji':
+      return rujiAssetId
+    case 'maya':
+      return mayaTokenAssetId
+    default:
+      throw new Error(`Unsupported denom: ${denom}`)
   }
-
-  return nativeAssetId
 }
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }

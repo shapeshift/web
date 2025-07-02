@@ -10,6 +10,6 @@ export const PortalsSupportedChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.BaseMainnet,
-] as const
+]
 
 export type PortalsSupportedChainId = (typeof PortalsSupportedChainIds)[number]

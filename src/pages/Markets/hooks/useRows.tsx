@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftoss/swapper'
+import { PortalsSupportedChainIds } from 'packages/swapper/src/swappers/PortalsSwapper/types'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -130,7 +130,7 @@ export const useRows = ({ limit }: { limit: number }) => {
             sortBy={sortBy}
           />
         ),
-        supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS.buy,
+        supportedChainIds: PortalsSupportedChainIds,
       },
     }),
     [coingeckoSupportedChainIds, limit, translate],

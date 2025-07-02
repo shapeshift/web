@@ -1,3 +1,5 @@
+import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -6,7 +8,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_BUTTERSWAP_AFFILIATE_BPS, makeButterSwapAffiliate } from '../utils/constants'
+import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
@@ -27,6 +29,42 @@ export const getTradeRate = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
+  if (
+    !isEvmChainId(sellAsset.chainId) &&
+    sellAsset.chainId !== btcChainId &&
+    sellAsset.chainId !== solanaChainId
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Unsupported chain`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
+  if (sellAsset.assetId === btcAssetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `BTC sells are currently unsupported`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  // Yes, this is supposed to be supported as per checks above, but currently is explicitly disabled, this can be confirmed by hitting
+  // Butter supported chains endpoit or trying to get a quote
+  // Disabling this explicitly for the time being, since the PR that brings Solana support (https://github.com/shapeshift/web/pull/9840)
+  // wasn't able to be tested yet
+  if (sellAsset.chainId === solanaChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Solana chain sells are currently unsupported`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
   const amount = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit)
     .shiftedBy(-sellAsset.precision)
     .toString()
@@ -43,7 +81,7 @@ export const getTradeRate = async (
     buyAsset,
     sellAmountCryptoBaseUnit: amount,
     slippage,
-    affiliate: makeButterSwapAffiliate(affiliateBps ?? DEFAULT_BUTTERSWAP_AFFILIATE_BPS),
+    affiliate: makeButterSwapAffiliate(affiliateBps),
   })
   if (result.isErr()) {
     return Err(result.unwrapErr())

@@ -28,7 +28,7 @@ import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
 import type Polyglot from 'node-polyglot'
-import type { Address } from 'viem'
+import type { Address, Hex } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -312,7 +312,7 @@ export type TradeQuoteStep = {
   butterSwapTransactionMetadata?: {
     to: string
     data: string
-    value: string
+    value: Hex
   }
 }
 
@@ -353,6 +353,8 @@ export enum TransactionExecutionState {
 export type SwapExecutionMetadata = {
   state: TransactionExecutionState
   sellTxHash?: string
+  relayerTxHash?: string
+  relayerExplorerTxLink?: string | undefined
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
@@ -380,6 +382,8 @@ export type Swap = {
   buyAsset: Asset
   status: SwapStatus
   sellTxHash?: string
+  relayerTxHash?: string
+  relayerExplorerTxLink?: string | undefined
   buyTxHash?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId | undefined
@@ -534,6 +538,8 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
+  relayerTxHash?: string | undefined
+  relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
 }
 
@@ -631,6 +637,7 @@ export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
+  RelayerTxHash = 'relayerTxHash',
   Status = 'status',
   Success = 'success',
   Fail = 'fail',
@@ -638,21 +645,22 @@ export enum TradeExecutionEvent {
 }
 
 export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
+export type RelayerTxDetailsArgs = {
+  stepIndex: SupportedTradeQuoteStepIndex
+  relayerTxHash: string
+  relayerExplorerTxLink: string
+}
 export type StatusArgs = TradeStatus & {
   stepIndex: number
 }
 
 export type TradeExecutionEventMap = {
   [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
+  [TradeExecutionEvent.RelayerTxHash]: (args: RelayerTxDetailsArgs) => void
   [TradeExecutionEvent.Status]: (args: StatusArgs) => void
   [TradeExecutionEvent.Success]: (args: StatusArgs) => void
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
   [TradeExecutionEvent.Error]: (args: unknown) => void
-}
-
-export type SupportedChainIds = {
-  buy: ChainId[]
-  sell: ChainId[]
 }
 
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>

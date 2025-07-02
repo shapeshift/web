@@ -45,13 +45,17 @@ export const MobileUserHeader = ({
     [mipdProviders, maybeRdns],
   )
 
+  const label = useMemo(
+    () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,
+    [mipdProviders, maybeRdns, walletInfo],
+  )
+
   return (
     <Flex justifyContent='space-between' width='100%' display={mobileButtonRowDisplay}>
       <Flex align='center' onClick={onOpen}>
         <ProfileAvatar size='md' borderRadius='full' />
         <Text ml={2} fontWeight='semibold' fontSize='md'>
-          {(maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name) ??
-            translate('common.connectWallet')}
+          {label ?? translate('common.connectWallet')}
         </Text>
       </Flex>
       <Flex gap={2}>

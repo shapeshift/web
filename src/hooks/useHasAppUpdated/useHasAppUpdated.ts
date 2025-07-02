@@ -7,14 +7,13 @@ export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60 // one minute
 // Treat private IPs as local: 192.168.0.0/16, 10.0.0.0/16, 127.0.0.0/16, and 'localhost'
 const localhostRegEx = /(?:192\.168|10\.0|127\.0)\.\d{1,3}\.\d{1,3}|localhost/
 
-type Metadata = {
+export type Metadata = {
   latestTag: string
   headShortCommitHash: string
 }
 
-export const useHasAppUpdated = () => {
+export const useHasAppUpdated = (): { hasUpdated: boolean; initialMetadata?: Metadata } => {
   const [hasUpdated, setHasUpdated] = useState(false)
-
   // 'metadata.json' keeps track of current commit hash and git tag
   const metadataUrl = `/metadata.json`
   const [initialMetadata, setInitialMetadata] = useState<Metadata | undefined>()
@@ -56,6 +55,7 @@ export const useHasAppUpdated = () => {
     return () => clearTimeout(interval)
   }, [fetchData, initialMetadata, isLocalhost, metadataUrl])
 
-  if (isLocalhost) return false // never return true on localhost
-  return hasUpdated
+  if (isLocalhost) return { hasUpdated: false, initialMetadata } // never return true on localhost
+
+  return { hasUpdated, initialMetadata }
 }

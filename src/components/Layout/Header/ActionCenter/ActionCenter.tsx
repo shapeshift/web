@@ -16,6 +16,7 @@ import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
@@ -24,6 +25,7 @@ import { SwapActionCard } from './components/SwapActionCard'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
@@ -43,6 +45,7 @@ export const ActionCenter = memo(() => {
 
   useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
   useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useAppUpdateActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -57,9 +60,6 @@ export const ActionCenter = memo(() => {
     return actions.map(action => {
       const actionsCards = (() => {
         switch (action.type) {
-          case ActionType.GenericTransaction: {
-            return <GenericTransactionActionCard key={action.id} action={action} isCollapsable />
-          }
           case ActionType.Swap: {
             const swap = swapsById[action.swapMetadata.swapId]
 
@@ -84,6 +84,12 @@ export const ActionCenter = memo(() => {
                 onCancelOrder={setOrderToCancel}
               />
             )
+          }
+          case ActionType.AppUpdate: {
+            return <AppUpdateActionCard key={action.id} action={action} />
+          }
+          case ActionType.GenericTransaction: {
+            return <GenericTransactionActionCard key={action.id} action={action} isCollapsable />
           }
           default:
             return null

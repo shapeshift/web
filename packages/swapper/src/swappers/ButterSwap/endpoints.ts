@@ -2,6 +2,8 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import BigNumber from 'bignumber.js'
 
+import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { checkTradeStatus } from './swapperApi/checkTradeStatus'
@@ -44,4 +46,6 @@ export const butterSwapApi: SwapperApi = {
       gasLimit: BigNumber.max(feeData.gasLimit).toFixed(),
     })
   },
+  getUnsignedSolanaTransaction,
+  getSolanaTransactionFees,
 }

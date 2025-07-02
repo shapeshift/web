@@ -1,4 +1,4 @@
-import type { AccountId, ChainId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
@@ -9,6 +9,7 @@ export enum ActionType {
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
   GenericTransaction = 'GenericTransaction',
+  AppUpdate = 'AppUpdate',
 }
 
 export enum ActionStatus {
@@ -46,6 +47,10 @@ type ActionLimitOrderMetadata = {
   accountId: AccountId
 }
 
+type ActionAppUpdateMetadata = {
+  currentVersion: string
+}
+
 export type BaseAction = {
   id: string
   type: ActionType
@@ -74,7 +79,12 @@ export type GenericTransactionAction = BaseAction & {
   assetId: AssetId
 }
 
-export type Action = GenericTransactionAction | SwapAction | LimitOrderAction
+export type AppUpdateAction = BaseAction & {
+  type: ActionType.AppUpdate
+  appUpdateMetadata: ActionAppUpdateMetadata
+}
+
+export type Action = SwapAction | LimitOrderAction | AppUpdateAction | GenericTransactionAction
 
 export type ActionState = {
   byId: Record<string, Action>

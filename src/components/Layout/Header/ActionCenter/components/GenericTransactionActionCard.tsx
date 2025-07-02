@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
@@ -70,10 +70,6 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
-  const handleClick = useCallback(() => {
-    onToggle()
-  }, [onToggle])
-
   return (
     <Stack
       spacing={4}
@@ -83,7 +79,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       transitionDuration='fast'
       _hover={hoverProps}
     >
-      <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={handleClick}>
+      <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={onToggle}>
         {action.assetId && (
           <AssetIconWithBadge assetId={action.assetId} size='md'>
             <ActionStatusIcon status={action.status} />

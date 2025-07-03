@@ -1,6 +1,6 @@
 import { Card, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
-import { useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
@@ -26,8 +26,6 @@ const FormHeaderItems = [
 export const Widget: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
-
-  console.log('Widget location:', location)
 
   // Compute step index directly from route
   const stepIndex = useMemo(() => {
@@ -75,7 +73,10 @@ export const Widget: React.FC = () => {
         <TabPanels>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='stake' element={<Stake headerComponent={TabHeader} setStepIndex={handleTabChange} />} />
+              <Route
+                path='stake'
+                element={<Stake headerComponent={TabHeader} setStepIndex={handleTabChange} />}
+              />
               <Route path='' element={<Navigate to='stake' replace />} />
             </Routes>
           </TabPanel>
@@ -86,12 +87,18 @@ export const Widget: React.FC = () => {
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='claim/*' element={<Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />} />
+              <Route
+                path='claim/*'
+                element={<Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />}
+              />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='change-address' element={<ChangeAddress headerComponent={TabHeader} />} />
+              <Route
+                path='change-address'
+                element={<ChangeAddress headerComponent={TabHeader} />}
+              />
             </Routes>
           </TabPanel>
         </TabPanels>

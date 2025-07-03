@@ -12,11 +12,13 @@ import {
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
+
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
@@ -37,6 +39,7 @@ type RfoxClaimActionCardProps = {
 
 export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -50,6 +53,27 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   }, [action.updatedAt])
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
+
+  const handleClaimClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation() // Prevent card collapse
+      const index = action.id.split('-')[1] // Extract index from composite ID
+      // TODO(gomes): there may be a better way to do the top-level navigation thing, but that works so...
+      navigate('/rfox/claim')
+      navigate(`/rfox/claim/${index}/confirm`, {
+        state: {
+          confirmedQuote: {
+            stakingAssetAccountId: action.accountId,
+            stakingAssetId: action.assetId,
+            // TODO(gomes): this should live in action
+            stakingAmountCryptoBaseUnit: '42000000000000000000',
+            index,
+          },
+        },
+      })
+    },
+    [action.id, navigate],
+  )
 
   return (
     <Stack
@@ -88,7 +112,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
             <Card bg='transparent' mt={4} boxShadow='none'>
               <CardBody px={0} py={0}>
                 <Stack gap={4}>
-                  <Button width='full' colorScheme='green'>
+                  <Button width='full' colorScheme='green' onClick={handleClaimClick}>
                     {translate('notificationCenter.claim')}
                   </Button>
                 </Stack>
@@ -99,4 +123,4 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       </Flex>
     </Stack>
   )
-} 
+}

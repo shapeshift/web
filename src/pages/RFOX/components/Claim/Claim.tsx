@@ -44,18 +44,13 @@ const ClaimStatus = makeSuspenseful(
 )
 
 export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
-  return (
-    <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
-  )
+  return <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation()
-  const { claimId } = useParams<{ claimId: string }>()
+  const params = useParams<>()
   const queryClient = useQueryClient()
-
-  console.log('Claim location:', location)
-  console.log('Claim claimId param:', claimId)
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
@@ -89,11 +84,13 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   }, [headerComponent, setStepIndex])
 
   const renderClaimConfirm = useCallback(() => {
-    if (!confirmedQuote) return null
+    const maybeParamsConfirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
+    const claimQuote = maybeParamsConfirmedQuote ?? confirmedQuote
+    if (!claimQuote) return null
 
     return (
       <ClaimConfirm
-        claimQuote={confirmedQuote}
+        claimQuote={claimQuote}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
         claimTxid={claimTxid}

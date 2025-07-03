@@ -5,10 +5,10 @@ import { useMemo } from 'react'
 import { StakingInfo } from './StakingInfo'
 import { Stats } from './Stats'
 
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
 export const Overview: React.FC = () => {
-  const { stakingAssetAccountId, supportedStakingAssetIds } = useRFOXContext()
+  const { stakingAssetAccountId } = useRFOXContext()
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),

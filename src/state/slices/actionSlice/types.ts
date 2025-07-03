@@ -10,6 +10,7 @@ export enum ActionType {
   LimitOrder = 'LimitOrder',
   GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
+  RfoxClaim = 'RfoxClaim',
 }
 
 export enum ActionStatus {
@@ -84,7 +85,17 @@ export type AppUpdateAction = BaseAction & {
   appUpdateMetadata: ActionAppUpdateMetadata
 }
 
-export type Action = SwapAction | LimitOrderAction | AppUpdateAction | GenericTransactionAction
+export type RfoxClaimAction = BaseAction & {
+  type: ActionType.RfoxClaim
+  message: string
+  assetId: AssetId
+  secondaryAssetId?: AssetId
+  amountCryptoBaseUnit: string
+  accountId: AccountId
+  status: ActionStatus
+}
+
+export type Action = SwapAction | LimitOrderAction | AppUpdateAction | GenericTransactionAction | RfoxClaimAction
 
 export type ActionState = {
   byId: Record<string, Action>

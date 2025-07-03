@@ -14,9 +14,9 @@ import {
   getUnstakingRequestCountQueryFn,
   getUnstakingRequestCountQueryKey,
 } from './useGetUnstakingRequestCountQuery'
-import { useRFOXContext } from './useRfoxContext'
 
 import { isSome } from '@/lib/utils'
+import { supportedStakingAssetIds } from '@/pages/RFOX/hooks/useRfoxContext'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 const getContractFnParams = (
@@ -57,8 +57,6 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   stakingAssetAccountAddress,
   select,
 }: UseGetUnstakingRequestsQueryProps<SelectData>) => {
-  const { supportedStakingAssetIds } = useRFOXContext()
-
   const unstakingRequestCountQueries = useMemo(() => {
     return supportedStakingAssetIds.map(
       stakingAssetId =>
@@ -126,7 +124,6 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
 
           const contractAddress = contracts[i].address
 
-          // getUnstakingRequest(account address, index uint256)
           const index = Number(contracts[i].args[1])
 
           return {

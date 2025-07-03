@@ -21,7 +21,6 @@ export const selectActions = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
   (actionsById, actionIds) => {
-    console.log({ actionsById })
     return actionIds.map(id => actionsById[id])
   },
 )

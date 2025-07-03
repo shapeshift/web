@@ -11,15 +11,13 @@ import { Text } from '@/components/Text'
 import { fromBaseUnit } from '@/lib/math'
 import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds } from '@/pages/RFOX/hooks/useRfoxContext'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const gridColumns = { base: 1, md: 2 }
 
 export const Stats: React.FC = () => {
-  const { supportedStakingAssetIds } = useRFOXContext()
-
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),

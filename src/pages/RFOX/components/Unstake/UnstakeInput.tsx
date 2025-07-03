@@ -31,7 +31,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAssetById,
@@ -68,8 +68,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const translate = useTranslate()
   const navigate = useNavigate()
 
-  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
-    useRFOXContext()
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
 
   useEffect(() => {
     if (supportedStakingAssetIds.includes(stakingAssetId)) return

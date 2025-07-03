@@ -96,9 +96,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
 
       return (
         <ClaimRow

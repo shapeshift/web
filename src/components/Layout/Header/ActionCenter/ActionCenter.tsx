@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
+import { EvergreenDepositActionCard } from './components/EvergreenDepositActionCard'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { RfoxClaimActionCard } from './components/RfoxClaimActionCard'
@@ -88,6 +89,9 @@ export const ActionCenter = memo(() => {
           }
           case ActionType.RfoxClaim: {
             return <RfoxClaimActionCard key={action.id} action={action} />
+          }
+          case ActionType.EvergreenDeposit: {
+            return <EvergreenDepositActionCard key={action.id} action={action} />
           }
           default:
             return null

@@ -142,17 +142,22 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       id: stakeTxid,
       duration: isDrawerOpen ? 5000 : null,
       status: 'success',
-      render: ({ onClose, ...props }) => (
-        <GenericTransactionNotification
-          handleClick={() => {
-            onClose()
-            openDrawer()
-          }}
-          actionId={stakeTxid}
-          onClose={onClose}
-          {...props}
-        />
-      ),
+      render: ({ onClose, ...props }) => {
+        const handleClick = () => {
+          onClose()
+          openDrawer()
+        }
+
+        return (
+          <GenericTransactionNotification
+            // eslint-disable-next-line react-memo/require-usememo
+            handleClick={handleClick}
+            actionId={stakeTxid}
+            onClose={onClose}
+            {...props}
+          />
+        )
+      },
     })
 
     await queryClient.invalidateQueries({
@@ -188,7 +193,19 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
         endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
       }),
     })
-  }, [confirmedQuote, stakeTxid, dispatch, isDrawerOpen, openDrawer, toast, translate])
+  }, [
+    confirmedQuote,
+    stakeTxid,
+    dispatch,
+    isDrawerOpen,
+    openDrawer,
+    toast,
+    translate,
+    currentEpochMetadataQuery,
+    queryClient,
+    stakingAsset,
+    stakingAssetAccountAddress,
+  ])
 
   const renderStakeInput = useCallback(() => {
     return (

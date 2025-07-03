@@ -126,17 +126,22 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       id: unstakeTxid,
       duration: isDrawerOpen ? 5000 : null,
       status: 'success',
-      render: ({ onClose, ...props }) => (
-        <GenericTransactionNotification
-          handleClick={() => {
-            onClose()
-            openDrawer()
-          }}
-          actionId={unstakeTxid}
-          onClose={onClose}
-          {...props}
-        />
-      ),
+      render: ({ onClose, ...props }) => {
+        const handleClick = () => {
+          onClose()
+          openDrawer()
+        }
+
+        return (
+          <GenericTransactionNotification
+            // eslint-disable-next-line react-memo/require-usememo
+            handleClick={handleClick}
+            actionId={unstakeTxid}
+            onClose={onClose}
+            {...props}
+          />
+        )
+      },
     })
 
     await queryClient.invalidateQueries({
@@ -167,6 +172,9 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     toast,
     translate,
     stakingAsset,
+    queryClient,
+    stakingAssetAccountAddress,
+    unstakingRequestQueryKey,
   ])
 
   const renderUnstakeInput = useCallback(() => {

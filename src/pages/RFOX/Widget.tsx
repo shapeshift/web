@@ -1,5 +1,6 @@
 import { Card, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
+import { useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
@@ -23,13 +24,47 @@ const FormHeaderItems = [
 ]
 
 export const Widget: React.FC = () => {
-  const [stepIndex, setStepIndex] = useState(RfoxTabIndex.Stake)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Compute step index directly from route
+  const stepIndex = useMemo(() => {
+    const path = location.pathname
+    if (path.includes('/stake')) {
+      return RfoxTabIndex.Stake
+    } else if (path.includes('/unstake')) {
+      return RfoxTabIndex.Unstake
+    } else if (path.includes('/claim')) {
+      return RfoxTabIndex.Claim
+    } else if (path.includes('/change-address')) {
+      return RfoxTabIndex.ChangeAddress
+    }
+    return RfoxTabIndex.Stake // default
+  }, [location.pathname])
+
+  // Handle tab navigation
+  const handleTabChange = (index: number) => {
+    switch (index) {
+      case RfoxTabIndex.Stake:
+        navigate('/rfox/stake')
+        break
+      case RfoxTabIndex.Unstake:
+        navigate('/rfox/unstake')
+        break
+      case RfoxTabIndex.Claim:
+        navigate('/rfox/claim')
+        break
+      case RfoxTabIndex.ChangeAddress:
+        navigate('/rfox/change-address')
+        break
+    }
+  }
 
   const TabHeader = useMemo(
     () => (
-      <FormHeader items={FormHeaderItems} setStepIndex={setStepIndex} activeIndex={stepIndex} />
+      <FormHeader items={FormHeaderItems} setStepIndex={handleTabChange} activeIndex={stepIndex} />
     ),
-    [stepIndex],
+    [stepIndex, handleTabChange],
   )
 
   return (
@@ -37,16 +72,25 @@ export const Widget: React.FC = () => {
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
           <TabPanel px={0} py={0}>
-            <Stake headerComponent={TabHeader} setStepIndex={setStepIndex} />
+            <Routes>
+              <Route path='stake' element={<Stake headerComponent={TabHeader} setStepIndex={handleTabChange} />} />
+              <Route path='' element={<Navigate to='stake' replace />} />
+            </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
-            <Unstake headerComponent={TabHeader} />
+            <Routes>
+              <Route path='unstake' element={<Unstake headerComponent={TabHeader} />} />
+            </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
-            <Claim headerComponent={TabHeader} setStepIndex={setStepIndex} />
+            <Routes>
+              <Route path='claim' element={<Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />} />
+            </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
-            <ChangeAddress headerComponent={TabHeader} />
+            <Routes>
+              <Route path='change-address' element={<ChangeAddress headerComponent={TabHeader} />} />
+            </Routes>
           </TabPanel>
         </TabPanels>
       </Tabs>

@@ -96,11 +96,10 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const handleTxConfirmed = useCallback(async () => {
     if (!confirmedQuote || !unstakeTxid || !stakingAsset) return
 
-    const amountCryptoBaseUnit = fromBaseUnit(
+    const amountCryptoPrecision = fromBaseUnit(
       confirmedQuote.unstakingAmountCryptoBaseUnit,
       stakingAsset.precision,
     )
-    const symbol = stakingAsset.symbol
     const cooldownPeriod = confirmedQuote.cooldownPeriod
 
     dispatch(
@@ -111,9 +110,8 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: translate('RFOX.unstakeSuccess', {
-          amount: amountCryptoBaseUnit,
-          symbol,
+        message: translate('notificationCenter.rfox.unstakeConfirmed', {
+          amount: amountCryptoPrecision,
           cooldownPeriod,
         }),
         txHash: unstakeTxid,

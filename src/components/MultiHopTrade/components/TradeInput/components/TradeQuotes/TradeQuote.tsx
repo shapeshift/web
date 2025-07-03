@@ -277,7 +277,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       }, 0)
     }, [quote?.steps])
 
-    const slippage = useMemo(() => {
+    const maybeSlippageElement = useMemo(() => {
       if (!quote || quoteDisplayOption !== QuoteDisplayOption.Advanced) return
 
       // user slippage setting was not applied if:
@@ -409,7 +409,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
           networkFeeFiatUserCurrency={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
-          slippage={slippage}
+          userSlippagePercentageDecimal={userSlippagePercentageDecimal}
           tradeQuote={quote}
         />
       ) : null
@@ -421,7 +421,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       quote,
       quoteDisplayOption,
       sellAmountUserCurrency,
-      slippage,
+      maybeSlippageElement,
       totalEstimatedExecutionTimeMs,
       totalReceiveAmountCryptoPrecision,
       totalReceiveAmountFiatPrecision,

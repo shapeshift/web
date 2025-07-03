@@ -1,11 +1,11 @@
-import { CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
+import { WarningIcon } from '@chakra-ui/icons'
+import { CardBody, CardFooter, Flex, Skeleton, Text as CText, Tooltip } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
-import type { JSX } from 'react'
 import { useMemo } from 'react'
-import { TbBolt, TbClockHour3, TbGasStation } from 'react-icons/tb'
+import { TbBolt, TbClockHour3, TbGasStation, TbRipple } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { TradeQuoteMetaItem } from './TradeQuoteMetaItem'
@@ -13,6 +13,7 @@ import { TradeQuoteMetaItem } from './TradeQuoteMetaItem'
 import { Amount } from '@/components/Amount/Amount'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { Text } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export type TradeQuoteContentProps = {
@@ -25,7 +26,7 @@ export type TradeQuoteContentProps = {
   totalReceiveAmountCryptoPrecision: string
   networkFeeFiatUserCurrency: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
-  slippage: JSX.Element | undefined
+  userSlippagePercentageDecimal: string | undefined
   tradeQuote: TradeQuote | TradeRate | undefined
 }
 
@@ -39,10 +40,14 @@ export const TradeQuoteContent = ({
   totalReceiveAmountCryptoPrecision,
   networkFeeFiatUserCurrency,
   totalEstimatedExecutionTimeMs,
-  slippage,
+  userSlippagePercentageDecimal,
   tradeQuote,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
+  const {
+    number: { toPercent },
+  } = useLocaleFormatter()
+
   const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(tradeQuote)
 
   const priceImpactDecimalPercentage = useMemo(
@@ -66,6 +71,109 @@ export const TradeQuoteContent = ({
         : undefined,
     [priceImpactDecimalPercentage, sellAmountUserCurrency],
   )
+
+  const maybeSlippageElement = useMemo(() => {
+    if (!tradeQuote || quoteDisplayOption !== QuoteDisplayOption.Advanced) return
+
+    // user slippage setting was not applied if:
+    // - the user did not input a custom value
+    // - the slippage on the quote is different to the custom value
+    const isUserSlippageNotApplied =
+      userSlippagePercentageDecimal !== undefined &&
+      tradeQuote.slippageTolerancePercentageDecimal !== userSlippagePercentageDecimal
+
+    if (!isUserSlippageNotApplied && tradeQuote.slippageTolerancePercentageDecimal === undefined)
+      return
+
+    const tooltip = (() => {
+      if (isUserSlippageNotApplied) {
+        return translate('trade.quote.cantSetSlippage', {
+          userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
+          swapperName: tradeQuote.swapperName,
+        })
+      }
+
+      return translate('trade.quote.slippage')
+    })()
+
+    const slippageElement = (() => {
+      const autoSlippagePercentage =
+        tradeQuote.isStreaming && isUserSlippageNotApplied
+          ? translate('trade.slippage.auto')
+          : undefined
+      const userSlippagePercentage =
+        tradeQuote.slippageTolerancePercentageDecimal !== undefined
+          ? toPercent(tradeQuote.slippageTolerancePercentageDecimal)
+          : undefined
+
+      const slippagePercentageOrAuto = autoSlippagePercentage ?? userSlippagePercentage
+
+      if (!slippagePercentageOrAuto) return null
+
+      return (
+        <CText color={isUserSlippageNotApplied ? 'text.error' : undefined}>
+          {slippagePercentageOrAuto}
+        </CText>
+      )
+    })()
+
+    return (
+      <TradeQuoteMetaItem
+        tooltip={tooltip}
+        icon={TbRipple}
+        isLoading={isLoading}
+        error={isUserSlippageNotApplied}
+      >
+        <Flex alignItems='center' gap={1.5}>
+          {slippageElement}
+          {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
+        </Flex>
+      </TradeQuoteMetaItem>
+    )
+  }, [
+    isLoading,
+    tradeQuote,
+    quoteDisplayOption,
+    toPercent,
+    translate,
+    userSlippagePercentageDecimal,
+  ])
+
+  const maybeEtaElement = useMemo(() => {
+    if (totalEstimatedExecutionTimeMs === undefined) return
+
+    return (
+      <TradeQuoteMetaItem
+        icon={TbClockHour3}
+        isLoading={isLoading}
+        tooltip={translate('trade.quote.timeEstimate')}
+      >
+        {totalEstimatedExecutionTimeMs === 0
+          ? '0s'
+          : prettyMilliseconds(totalEstimatedExecutionTimeMs)}
+      </TradeQuoteMetaItem>
+    )
+  }, [totalEstimatedExecutionTimeMs, isLoading, translate])
+
+  const maybePriceImpactElement = useMemo(() => {
+    return (
+      priceImpactDecimalPercentage !== undefined &&
+      quoteDisplayOption === QuoteDisplayOption.Advanced && (
+        <TradeQuoteMetaItem icon={TbBolt} isLoading={isLoading} tooltip={priceImpactTooltipText}>
+          <Amount.Percent
+            value={priceImpactDecimalPercentage.times(-1).toString()}
+            color={priceImpactColor}
+          />
+        </TradeQuoteMetaItem>
+      )
+    )
+  }, [
+    priceImpactDecimalPercentage,
+    quoteDisplayOption,
+    isLoading,
+    priceImpactTooltipText,
+    priceImpactColor,
+  ])
 
   return (
     <>
@@ -123,32 +231,9 @@ export const TradeQuoteContent = ({
               )
             }
           </TradeQuoteMetaItem>
-          {priceImpactDecimalPercentage !== undefined &&
-            quoteDisplayOption === QuoteDisplayOption.Advanced && (
-              <TradeQuoteMetaItem
-                icon={TbBolt}
-                isLoading={isLoading}
-                tooltip={priceImpactTooltipText}
-              >
-                <Amount.Percent
-                  value={priceImpactDecimalPercentage.times(-1).toString()}
-                  color={priceImpactColor}
-                />
-              </TradeQuoteMetaItem>
-            )}
-
-          {slippage}
-          {totalEstimatedExecutionTimeMs !== undefined && (
-            <TradeQuoteMetaItem
-              icon={TbClockHour3}
-              isLoading={isLoading}
-              tooltip={translate('trade.quote.timeEstimate')}
-            >
-              {totalEstimatedExecutionTimeMs === 0
-                ? '0s'
-                : prettyMilliseconds(totalEstimatedExecutionTimeMs)}
-            </TradeQuoteMetaItem>
-          )}
+          {maybePriceImpactElement}
+          {maybeSlippageElement}
+          {maybeEtaElement}
         </Flex>
       </CardFooter>
     </>

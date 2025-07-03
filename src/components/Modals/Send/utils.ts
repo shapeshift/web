@@ -1,5 +1,11 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId, tcyAssetId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromChainId,
+  rujiAssetId,
+  tcyAssetId,
+} from '@shapeshiftoss/caip'
 import type {
   BuildSendTxInput,
   FeeData,
@@ -208,6 +214,13 @@ export const handleSend = async ({
     if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
       const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
       const { accountNumber } = bip44Params
+
+      const maybeCoin = (() => {
+        if (sendInput.assetId === tcyAssetId) return { coin: 'THOR.TCY' }
+        if (sendInput.assetId === rujiAssetId) return { coin: 'THOR.RUJI' }
+        return {}
+      })()
+
       const params = {
         to,
         memo: (sendInput as SendInput<CosmosSdkChainId>).memo,
@@ -217,7 +230,7 @@ export const handleSend = async ({
         chainSpecific: {
           gas: fees.chainSpecific.gasLimit,
           fee: fees.txFee,
-          ...(sendInput.assetId === tcyAssetId ? { coin: 'THOR.TCY' } : {}),
+          ...maybeCoin,
         },
         sendMax: sendInput.sendMax,
       }

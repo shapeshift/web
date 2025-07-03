@@ -200,7 +200,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   async buildSendApiTransaction(
     input: BuildSendApiTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
-    debugger
     try {
       const { sendMax, to, value, from, chainSpecific } = input
       const { coin = 'THOR.RUNE', fee } = chainSpecific

@@ -1,5 +1,13 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
+import {
+  Box,
+  Circle,
+  Flex,
+  Skeleton,
+  Tooltip,
+  useDisclosure,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
@@ -8,21 +16,19 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 
 import { CountdownSpinner } from './components/CountdownSpinner'
+import { TradeQuoteBadges } from './components/TradeQuoteBadges'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
+import { TradeQuoteExchangeRate } from './components/TradeQuoteExchangeRate'
 
-import { Amount } from '@/components/Amount/Amount'
-import { SlippageIcon } from '@/components/Icons/Slippage'
 import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { RawText } from '@/components/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
+import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,
@@ -33,6 +39,7 @@ import {
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
@@ -42,13 +49,14 @@ import {
 } from '@/state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type TradeQuoteProps = {
   isActive: boolean
-  isBest: boolean
+  isBestRate?: boolean
+  isFastest?: boolean
+  isLowestGas?: boolean
   quoteData: ApiQuote
-  bestTotalReceiveAmountCryptoPrecision: string | undefined
-  bestInputOutputRatio: number | undefined
   isLoading: boolean
   isRefetching: boolean
   onBack?: () => void
@@ -57,10 +65,10 @@ type TradeQuoteProps = {
 export const TradeQuote: FC<TradeQuoteProps> = memo(
   ({
     isActive,
-    isBest,
+    isBestRate,
+    isFastest,
+    isLowestGas,
     quoteData,
-    bestTotalReceiveAmountCryptoPrecision,
-    bestInputOutputRatio,
     isLoading,
     isRefetching,
     onBack,
@@ -74,6 +82,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     } = useDisclosure()
     const dispatch = useAppDispatch()
     const translate = useTranslate()
+
+    const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
     const handleToolTipOpen = useCallback(
       (e: React.MouseEvent) => {
@@ -99,12 +109,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [onTooltipClose],
     )
 
-    const {
-      number: { toPercent },
-    } = useLocaleFormatter()
-
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
+
+    const quoteDisplayOption = useAppSelector(preferences.selectors.selectQuoteDisplayOption)
 
     const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -113,6 +121,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+    const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
 
     const pollingInterval = useMemo(() => {
       return swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
@@ -181,21 +190,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     if (!feeAsset)
       throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-    // the difference percentage is on the receive amount only
-    const quoteAmountDifferenceDecimalPercentage = useMemo(() => {
-      if (!quote || !bestTotalReceiveAmountCryptoPrecision) return
-      return bn(1)
-        .minus(
-          bn(totalReceiveAmountCryptoPrecision).dividedBy(bestTotalReceiveAmountCryptoPrecision),
-        )
-        .toNumber()
-    }, [bestTotalReceiveAmountCryptoPrecision, quote, totalReceiveAmountCryptoPrecision])
-
-    const quoteOverallDifferenceDecimalPercentage = useMemo(() => {
-      if (!quote || !bestInputOutputRatio) return
-      return -bn(1).minus(bn(inputOutputRatio).dividedBy(bestInputOutputRatio)).toNumber()
-    }, [bestInputOutputRatio, inputOutputRatio, quote])
-
     const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
     const hasNegativeRatio =
       inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
@@ -205,7 +199,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       (!hasNegativeRatio || isTradingWithoutMarketData) &&
       bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
-    const tag: JSX.Element | null = useMemo(() => {
+    const errorIndicator: JSX.Element | null = useMemo(() => {
       const error = errors?.[0]
       const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
@@ -214,8 +208,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
             <Box
-              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
-              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
+              onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
               onTouchEnd={handleTooltipToggle}
             >
               <Tooltip
@@ -233,8 +227,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
             <Box
-              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
-              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
+              onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
               onTouchEnd={handleTooltipToggle}
             >
               <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
@@ -244,45 +238,20 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
               </Tooltip>
             </Box>
           )
-        case isBest:
-          return (
-            <Tag size='sm' colorScheme='green'>
-              {translate('common.best')}
-            </Tag>
-          )
         default:
-          return quoteOverallDifferenceDecimalPercentage !== undefined ? (
-            <Box
-              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
-              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
-              onTouchEnd={handleTooltipToggle}
-            >
-              <Tooltip
-                label={translate('trade.tooltip.overallPercentageDifference')}
-                isOpen={isTooltipOpen}
-              >
-                <Tag size='sm'>
-                  <Amount.Percent
-                    value={quoteOverallDifferenceDecimalPercentage}
-                    autoColor={false}
-                  />
-                </Tag>
-              </Tooltip>
-            </Box>
-          ) : null
+          return null
       }
     }, [
       errors,
       quote,
-      translate,
-      hasAmountWithPositiveReceive,
-      isAmountEntered,
-      isBest,
-      quoteOverallDifferenceDecimalPercentage,
+      isLargerThanMd,
       handleToolTipOpen,
       handleTooltipClose,
       handleTooltipToggle,
+      translate,
       isTooltipOpen,
+      hasAmountWithPositiveReceive,
+      isAmountEntered,
     ])
 
     const isDisabled = !quote || isLoading
@@ -300,69 +269,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       }, 0)
     }, [quote?.steps])
 
-    const slippage = useMemo(() => {
-      if (!quote) return
-
-      // user slippage setting was not applied if:
-      // - the user did not input a custom value
-      // - the slippage on the quote is different to the custom value
-      const isUserSlippageNotApplied =
-        userSlippagePercentageDecimal !== undefined &&
-        quote.slippageTolerancePercentageDecimal !== userSlippagePercentageDecimal
-
-      if (!isUserSlippageNotApplied && quote.slippageTolerancePercentageDecimal === undefined) {
-        return
-      }
-
-      const tooltip = (() => {
-        if (isUserSlippageNotApplied) {
-          return translate('trade.quote.cantSetSlippage', {
-            userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
-            swapperName,
-          })
-        }
-
-        return translate('trade.quote.slippage', {
-          slippageFormatted: toPercent(quote.slippageTolerancePercentageDecimal ?? '0'),
-        })
-      })()
-
-      const slippageElement = (() => {
-        const autoSlippagePercentage =
-          quote.isStreaming && isUserSlippageNotApplied
-            ? translate('trade.slippage.auto')
-            : undefined
-        const userSlippagePercentage =
-          quote.slippageTolerancePercentageDecimal !== undefined
-            ? toPercent(quote.slippageTolerancePercentageDecimal)
-            : undefined
-
-        const slippagePercentageOrAuto = autoSlippagePercentage ?? userSlippagePercentage
-
-        if (!slippagePercentageOrAuto) return null
-
-        return (
-          <RawText color={isUserSlippageNotApplied ? 'text.error' : undefined}>
-            {slippagePercentageOrAuto}
-          </RawText>
-        )
-      })()
-
-      return (
-        <Skeleton isLoaded={!isLoading}>
-          <Tooltip label={tooltip}>
-            <Flex gap={2} alignItems='center'>
-              <RawText color={isUserSlippageNotApplied ? 'text.error' : 'text.subtle'}>
-                <SlippageIcon />
-              </RawText>
-              {slippageElement}
-              {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
-            </Flex>
-          </Tooltip>
-        </Skeleton>
-      )
-    }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
-
     const headerContent = useMemo(() => {
       const hasUnsupportedChainError = errors.some(
         error =>
@@ -372,53 +278,82 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       )
 
       return (
-        <Flex gap={2} alignItems='center'>
-          <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-          {!hasUnsupportedChainError && (
-            <CountdownSpinner
-              isLoading={isLoading || isRefetching}
-              initialTimeMs={pollingInterval}
-            />
+        <Flex justifyContent='space-between' alignItems='center' flexGrow={1}>
+          {quoteDisplayOption === QuoteDisplayOption.Advanced && quote && (
+            <Skeleton isLoaded={!isLoading}>
+              <TradeQuoteExchangeRate rate={quote.rate} buyAsset={buyAsset} sellAsset={sellAsset} />
+            </Skeleton>
           )}
+          <Box ml='auto'>
+            <Skeleton isLoaded={!isLoading}>
+              <Flex alignItems='center' gap={2}>
+                <TradeQuoteBadges
+                  isBestRate={isBestRate}
+                  isFastest={isFastest}
+                  isLowestGas={isLowestGas}
+                  quoteDisplayOption={quoteDisplayOption}
+                />
+                {errorIndicator}
+                {!hasUnsupportedChainError && (
+                  <CountdownSpinner
+                    isLoading={isLoading || isRefetching}
+                    initialTimeMs={pollingInterval}
+                  />
+                )}
+              </Flex>
+            </Skeleton>
+          </Box>
         </Flex>
       )
-    }, [isLoading, isRefetching, pollingInterval, tag, errors])
+    }, [
+      errors,
+      quoteDisplayOption,
+      quote,
+      isLoading,
+      buyAsset,
+      sellAsset,
+      isBestRate,
+      isFastest,
+      isLowestGas,
+      errorIndicator,
+      isRefetching,
+      pollingInterval,
+    ])
 
     const bodyContent = useMemo(() => {
       return quote ? (
         <TradeQuoteContent
           isLoading={isLoading}
           buyAsset={buyAsset}
-          isBest={isBest}
-          numHops={quote?.steps.length}
+          quoteDisplayOption={quoteDisplayOption}
           totalReceiveAmountFiatUserCurrency={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
+          sellAmountUserCurrency={sellAmountUserCurrency}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-          quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
           networkFeeFiatUserCurrency={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
-          slippage={slippage}
+          userSlippagePercentageDecimal={userSlippagePercentageDecimal}
           tradeQuote={quote}
         />
       ) : null
     }, [
       buyAsset,
       hasAmountWithPositiveReceive,
-      isBest,
       isLoading,
       networkFeeUserCurrencyPrecision,
       quote,
-      quoteAmountDifferenceDecimalPercentage,
-      slippage,
+      quoteDisplayOption,
+      sellAmountUserCurrency,
       totalEstimatedExecutionTimeMs,
       totalReceiveAmountCryptoPrecision,
       totalReceiveAmountFiatPrecision,
+      userSlippagePercentageDecimal,
     ])
 
     return showSwapper ? (
       <TradeQuoteCard
-        title={quote?.steps[0].source ?? quoteData.swapperName}
         swapperName={quoteData.swapperName}
+        swapperTitle={quote?.steps[0].source ?? quoteData.swapperName}
         headerContent={headerContent}
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}

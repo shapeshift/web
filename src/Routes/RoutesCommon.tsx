@@ -218,7 +218,7 @@ export const routes: Route[] = [
     priority: 7,
   },
   {
-    path: '/rfox',
+    path: '/rfox/*',
     label: 'navBar.rFOX',
     icon: <RFOXIcon />,
     mobileNav: false,

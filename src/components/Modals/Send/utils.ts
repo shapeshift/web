@@ -218,7 +218,7 @@ export const handleSend = async ({
       const { accountNumber } = bip44Params
 
       const maybeCoin = (() => {
-        // We don't support coin sends for Cosmos SDK
+        // We only support coin sends for THORChain, not Cosmos SDK
         if (chainId !== thorchainChainId) return {}
 
         if (sendInput.assetId === tcyAssetId) return { coin: 'THOR.TCY' }

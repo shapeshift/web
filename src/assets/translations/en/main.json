@@ -1049,7 +1049,6 @@
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "gas": "The gas to complete this swapper's transaction.",
-      "priceImpact": "The price impact on the route for this swap.",
       "slippage": "This is the slippage on this quote.",
       "timeEstimate": "This is the estimated time for this swap to complete."
     },

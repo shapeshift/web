@@ -278,7 +278,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [quote?.steps])
 
     const slippage = useMemo(() => {
-      if (!quote || quoteDisplayOption === QuoteDisplayOption.Basic) return
+      if (!quote || quoteDisplayOption !== QuoteDisplayOption.Advanced) return
 
       // user slippage setting was not applied if:
       // - the user did not input a custom value

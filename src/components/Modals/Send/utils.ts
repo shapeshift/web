@@ -5,6 +5,8 @@ import {
   fromChainId,
   rujiAssetId,
   tcyAssetId,
+  thorchainAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type {
   BuildSendTxInput,
@@ -216,9 +218,14 @@ export const handleSend = async ({
       const { accountNumber } = bip44Params
 
       const maybeCoin = (() => {
+        // We don't support coin sends for Cosmos SDK
+        if (chainId !== thorchainChainId) return {}
+
         if (sendInput.assetId === tcyAssetId) return { coin: 'THOR.TCY' }
         if (sendInput.assetId === rujiAssetId) return { coin: 'THOR.RUJI' }
-        return {}
+        if (sendInput.assetId === thorchainAssetId) return {}
+
+        throw new Error('Unsupported THORChain asset')
       })()
 
       const params = {

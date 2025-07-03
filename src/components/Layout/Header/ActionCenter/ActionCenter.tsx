@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
+import { EvergreenDepositActionCard } from './components/EvergreenDepositActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
@@ -26,6 +27,7 @@ import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrd
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
+import { useEvergreenDepositActionSubscriber } from '@/hooks/useActionCenterSubscriber/useEvergreenDepositActionSubscriber'
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
@@ -46,6 +48,7 @@ export const ActionCenter = memo(() => {
   useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
   useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
   useAppUpdateActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useEvergreenDepositActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -87,6 +90,9 @@ export const ActionCenter = memo(() => {
           }
           case ActionType.AppUpdate: {
             return <AppUpdateActionCard key={action.id} action={action} />
+          }
+          case ActionType.EvergreenDeposit: {
+            return <EvergreenDepositActionCard key={action.id} action={action} />
           }
           default:
             return null

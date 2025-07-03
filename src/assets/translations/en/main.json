@@ -2984,6 +2984,11 @@
       "cancelled": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was cancelled.",
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
+    "deposit": {
+      "pending": "Your deposit of %{depositAmountAndSymbol} to %{contractAddress} is being processed.",
+      "complete": "Your deposit of %{depositAmountAndSymbol} to %{contractAddress} is complete.",
+      "failed": "Your deposit of %{depositAmountAndSymbol} to %{contractAddress} has failed."
+    },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",

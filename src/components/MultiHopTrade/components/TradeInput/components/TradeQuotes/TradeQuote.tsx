@@ -425,6 +425,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       totalEstimatedExecutionTimeMs,
       totalReceiveAmountCryptoPrecision,
       totalReceiveAmountFiatPrecision,
+      userSlippagePercentageDecimal,
     ])
 
     return showSwapper ? (

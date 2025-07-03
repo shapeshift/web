@@ -16,7 +16,6 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import React, { memo, useCallback, useMemo } from 'react'
-import { TbRipple } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { CountdownSpinner } from './components/CountdownSpinner'
@@ -24,11 +23,8 @@ import { TradeQuoteBadges } from './components/TradeQuoteBadges'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
 import { TradeQuoteExchangeRate } from './components/TradeQuoteExchangeRate'
-import { TradeQuoteMetaItem } from './components/TradeQuoteMetaItem'
 
 import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { RawText } from '@/components/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
@@ -112,10 +108,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       },
       [onTooltipClose],
     )
-
-    const {
-      number: { toPercent },
-    } = useLocaleFormatter()
 
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
@@ -277,75 +269,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       }, 0)
     }, [quote?.steps])
 
-    const maybeSlippageElement = useMemo(() => {
-      if (!quote || quoteDisplayOption !== QuoteDisplayOption.Advanced) return
-
-      // user slippage setting was not applied if:
-      // - the user did not input a custom value
-      // - the slippage on the quote is different to the custom value
-      const isUserSlippageNotApplied =
-        userSlippagePercentageDecimal !== undefined &&
-        quote.slippageTolerancePercentageDecimal !== userSlippagePercentageDecimal
-
-      if (!isUserSlippageNotApplied && quote.slippageTolerancePercentageDecimal === undefined) {
-        return
-      }
-
-      const tooltip = (() => {
-        if (isUserSlippageNotApplied) {
-          return translate('trade.quote.cantSetSlippage', {
-            userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
-            swapperName,
-          })
-        }
-
-        return translate('trade.quote.slippage')
-      })()
-
-      const slippageElement = (() => {
-        const autoSlippagePercentage =
-          quote.isStreaming && isUserSlippageNotApplied
-            ? translate('trade.slippage.auto')
-            : undefined
-        const userSlippagePercentage =
-          quote.slippageTolerancePercentageDecimal !== undefined
-            ? toPercent(quote.slippageTolerancePercentageDecimal)
-            : undefined
-
-        const slippagePercentageOrAuto = autoSlippagePercentage ?? userSlippagePercentage
-
-        if (!slippagePercentageOrAuto) return null
-
-        return (
-          <RawText color={isUserSlippageNotApplied ? 'text.error' : undefined}>
-            {slippagePercentageOrAuto}
-          </RawText>
-        )
-      })()
-
-      return (
-        <TradeQuoteMetaItem
-          tooltip={tooltip}
-          icon={TbRipple}
-          isLoading={isLoading}
-          error={isUserSlippageNotApplied}
-        >
-          <Flex alignItems='center' gap={1.5}>
-            {slippageElement}
-            {isUserSlippageNotApplied && <WarningIcon color='text.error' />}
-          </Flex>
-        </TradeQuoteMetaItem>
-      )
-    }, [
-      isLoading,
-      quote,
-      quoteDisplayOption,
-      swapperName,
-      toPercent,
-      translate,
-      userSlippagePercentageDecimal,
-    ])
-
     const headerContent = useMemo(() => {
       const hasUnsupportedChainError = errors.some(
         error =>
@@ -421,7 +344,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       quote,
       quoteDisplayOption,
       sellAmountUserCurrency,
-      maybeSlippageElement,
       totalEstimatedExecutionTimeMs,
       totalReceiveAmountCryptoPrecision,
       totalReceiveAmountFiatPrecision,

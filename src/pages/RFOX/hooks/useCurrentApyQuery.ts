@@ -49,39 +49,33 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
 
-      const previousEpoch = epochs.reduce((latest, current) => {
-        return current.number > latest.number ? current : latest
+      const latestEpoch = epochs.reduce((prev, current) => {
+        return current.number > prev.number ? current : prev
       })
 
-      const closestRunePrice = runePriceHistory.find(
-        (price, index) =>
-          price.date <= previousEpoch.endTimestamp &&
-          runePriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
-      )
-
-      const closestFoxPrice = stakingAssetPriceHistory.find(
-        (price, index) =>
-          price.date <= previousEpoch.endTimestamp &&
-          stakingAssetPriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
-      )
-
-      const previousDistributionRate =
-        previousEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
+      const distributionRate =
+        latestEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
           .distributionRate
 
-      const totalRuneUsdValue = bnOrZero(
-        fromBaseUnit(previousEpoch.totalRevenue, runeAsset.precision),
+      const closestRunePrice =
+        runePriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
+        runePriceHistory[0]
+
+      const closestStakingAssetPrice =
+        stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
+        stakingAssetPriceHistory[0]
+
+      const rewardDistributionUsd = bnOrZero(
+        fromBaseUnit(latestEpoch.totalRevenue, runeAsset.precision),
       )
-        .times(previousDistributionRate)
-        .times(closestRunePrice?.price ?? 0)
+        .times(distributionRate)
+        .times(closestRunePrice.price)
 
-      const totalFoxUsdValue = bnOrZero(
+      const totalStakedUsd = bnOrZero(
         fromBaseUnit(totalStakedCryptoCurrencyQuery.data, stakingAsset.precision),
-      ).times(closestFoxPrice?.price ?? 0)
+      ).times(closestStakingAssetPrice.price)
 
-      const estimatedApy = totalRuneUsdValue.dividedBy(totalFoxUsdValue).times(12).toFixed(4)
-
-      return estimatedApy
+      return rewardDistributionUsd.dividedBy(totalStakedUsd).times(12).toFixed(4)
     },
     [
       runePriceHistory,

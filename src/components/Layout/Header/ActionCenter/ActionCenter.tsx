@@ -21,6 +21,7 @@ import { EmptyState } from './components/EmptyState'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
+import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
@@ -136,37 +137,48 @@ export const ActionCenter = memo(() => {
 
   return (
     <>
-      <Box position='relative'>{actionCenterButton}</Box>
-      <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
-        <DrawerOverlay backdropBlur='10px' />
+      <Display.Desktop>
+        <Box position='relative'>{actionCenterButton}</Box>
+        <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
+          <DrawerOverlay backdropBlur='10px' />
 
-        <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
-          <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
-          <DrawerHeader
-            px={paddingProp}
-            display='flex'
-            alignItems='center'
-            gap={2}
-            justifyContent='space-between'
-          >
-            <Flex alignItems='center' gap={2}>
-              <Icon as={TbBellFilled} color='text.subtle' />
-              {translate('notificationCenter.title')}
-            </Flex>
-          </DrawerHeader>
-
-          <Box pe={2}>
-            <Box
-              overflow='auto'
-              height='calc(100vh - 70px - env(safe-area-inset-top))'
-              className='scroll-container'
+          <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
+            <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
+            <DrawerHeader
+              px={paddingProp}
+              display='flex'
+              alignItems='center'
+              gap={2}
+              justifyContent='space-between'
             >
-              {actionCardsOrEmpty}
+              <Flex alignItems='center' gap={2}>
+                <Icon as={TbBellFilled} color='text.subtle' />
+                {translate('notificationCenter.title')}
+              </Flex>
+            </DrawerHeader>
+
+            <Box pe={2}>
+              <Box
+                overflow='auto'
+                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
+              >
+                {actionCardsOrEmpty}
+              </Box>
             </Box>
+          </DrawerContent>
+        </Drawer>
+        <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
+      </Display.Desktop>
+      <Display.Mobile>
+        <Box pe={2}>
+          <Box
+            overflow='auto'
+            height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
+          >
+            {actionCardsOrEmpty}
           </Box>
-        </DrawerContent>
-      </Drawer>
-      <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
+        </Box>
+      </Display.Mobile>
     </>
   )
 })

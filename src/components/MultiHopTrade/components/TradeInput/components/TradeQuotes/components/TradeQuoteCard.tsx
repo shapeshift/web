@@ -1,11 +1,9 @@
-import { Card, CardHeader, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Card, CardHeader, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
-
-import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 
 const borderRadius = { base: 'md', md: 'lg' }
 const hoverProps = {
@@ -69,9 +67,11 @@ export const TradeQuoteCard = ({
     >
       <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4} pb={2}>
         <Flex alignItems='center' gap={2}>
-          <TooltipWithTouch label={swapperTitle}>
-            <SwapperIcon swapperName={swapperName} size='sm' />
-          </TooltipWithTouch>
+          <Tooltip label={swapperTitle}>
+            <Box>
+              <SwapperIcon swapperName={swapperName} size='sm' />
+            </Box>
+          </Tooltip>
           {headerContent}
         </Flex>
       </CardHeader>

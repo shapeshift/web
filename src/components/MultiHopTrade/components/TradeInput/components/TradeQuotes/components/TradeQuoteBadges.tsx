@@ -18,7 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { breakpoints } from '@/theme/theme'
 
-type QuoteBadgeProps = { icon: IconType; label?: string; hideLabel?: boolean }
+type QuoteBadgeProps = { icon: IconType; label: string; hideLabel?: boolean }
 const QuoteBadge: FC<QuoteBadgeProps> = ({ icon, label, hideLabel = false }) => {
   const badgeBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
@@ -59,7 +59,7 @@ const QuoteBadge: FC<QuoteBadgeProps> = ({ icon, label, hideLabel = false }) => 
     <Box
       onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
       onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
-      onTouchEnd={handleTooltipToggle}
+      onTouchEnd={hideLabel ? handleTooltipToggle : undefined}
     >
       <Tooltip label={hideLabel ? label : undefined} isOpen={label ? isTooltipOpen : false}>
         <Tag gap={1.5} padding={2} rounded='full' backgroundColor={badgeBg} whiteSpace='nowrap'>
@@ -108,21 +108,21 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
         <QuoteBadge
           icon={TbRosetteDiscountCheckFilled}
           hideLabel={hideLabel}
-          label={translate('trade.quoteBadge.bestRate')}
+          label={translate('trade.sort.bestRate')}
         />
       )}
       {isFastest && (
         <QuoteBadge
           icon={TbClockHour3}
           hideLabel={hideLabel}
-          label={translate('trade.quoteBadge.fastest')}
+          label={translate('trade.sort.fastest')}
         />
       )}
       {isLowestGas && (
         <QuoteBadge
           icon={TbGasStation}
           hideLabel={hideLabel}
-          label={translate('trade.quoteBadge.lowestGas')}
+          label={translate('trade.sort.lowestGas')}
         />
       )}
     </Flex>

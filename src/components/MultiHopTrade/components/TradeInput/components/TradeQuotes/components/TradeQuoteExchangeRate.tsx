@@ -1,41 +1,64 @@
+import type { FlexProps } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import type { BigNumber } from '@shapeshiftoss/utils'
 import { bn } from '@shapeshiftoss/utils'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
-import { Amount } from '@/components/Amount/Amount'
-import { clickableLinkSx } from '@/theme/styles'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
-type TradeQuoteExchangeRateProps = {
-  rate: string
+const hoverDottedUnderline = { textDecorationStyle: 'solid' }
+
+type TradeQuoteExchangeRateProps = FlexProps & {
   buyAsset: Asset
   sellAsset: Asset
+  totalReceiveAmountCryptoPrecision: string
+  sellAmountCryptoPrecision: string
 }
 export const TradeQuoteExchangeRate: React.FC<TradeQuoteExchangeRateProps> = ({
-  rate,
   sellAsset,
   buyAsset,
+  totalReceiveAmountCryptoPrecision,
+  sellAmountCryptoPrecision,
+  ...rest
 }) => {
-  const [shouldInvertRate, setShouldInvertRate] = useState<boolean>(false)
+  const [shouldFlipRate, setShouldFlipRate] = useState<boolean>(false)
 
-  const handleClickRate = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
-    e.stopPropagation()
-    setShouldInvertRate(prev => !prev)
-  }, [])
+  const exchangeRate = useMemo((): BigNumber.Value => {
+    const rate = bn(totalReceiveAmountCryptoPrecision).dividedBy(bn(sellAmountCryptoPrecision))
+    return shouldFlipRate ? bn(1).dividedBy(rate) : rate
+  }, [totalReceiveAmountCryptoPrecision, sellAmountCryptoPrecision, shouldFlipRate])
 
-  const prefix = shouldInvertRate ? `1 ${buyAsset.symbol} =` : `1 ${sellAsset.symbol} =`
-  const value = shouldInvertRate ? bn(1).div(rate).toString() : rate
-  const symbol = shouldInvertRate ? sellAsset.symbol : buyAsset.symbol
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
+
+  const handleFlipRate = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+      e.stopPropagation()
+      setShouldFlipRate(!shouldFlipRate)
+    },
+    [shouldFlipRate],
+  )
+
+  const fromAsset = shouldFlipRate ? buyAsset : sellAsset
+  const toAsset = shouldFlipRate ? sellAsset : buyAsset
 
   return (
-    <Amount.Crypto
+    <Flex
+      gap={1}
+      alignItems='center'
+      fontSize='sm'
       fontWeight='medium'
-      onClick={handleClickRate}
-      sx={clickableLinkSx}
-      cursor='pointer'
-      userSelect='none'
-      prefix={prefix}
-      value={value}
-      symbol={symbol}
-    />
+      textUnderlineOffset='4px'
+      textDecoration='underline dotted'
+      onClick={handleFlipRate}
+      _hover={hoverDottedUnderline}
+      {...rest}
+    >
+      {`1 ${fromAsset.symbol} = ${toCrypto(exchangeRate, toAsset.symbol, {
+        maximumFractionDigits: buyAsset.precision,
+      })}`}
+    </Flex>
   )
 }

@@ -10,7 +10,6 @@ import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ClaimStatus } from '@/components/ClaimRow/types'
@@ -72,7 +71,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
-  const handleClaimClick = useCallback(() => navigate(ClaimRoutePaths.Confirm), [navigate])
+  const handleClaimClick = useCallback((claimId: number) => {
+    navigate(`/rfox/claim/${claimId}/confirm`)
+  }, [navigate])
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
@@ -109,7 +110,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
-          onClaimClick={handleClaimClick}
+          onClaimClick={() => handleClaimClick(unstakingRequest.index)}
         />
       )
     })

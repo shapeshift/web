@@ -27,6 +27,8 @@ export const Widget: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
+  console.log('Widget location:', location)
+
   // Compute step index directly from route
   const stepIndex = useMemo(() => {
     const path = location.pathname
@@ -84,7 +86,7 @@ export const Widget: React.FC = () => {
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='claim' element={<Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />} />
+              <Route path='claim/*' element={<Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>

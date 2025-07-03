@@ -2,11 +2,9 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, useLocation } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
 
 import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
@@ -45,19 +43,19 @@ const ClaimStatus = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const ClaimEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
-
 export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   return (
-    <MemoryRouter initialEntries={ClaimEntries} initialIndex={0}>
-      <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
-    </MemoryRouter>
+    <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
   )
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation()
+  const { claimId } = useParams<{ claimId: string }>()
   const queryClient = useQueryClient()
+
+  console.log('Claim location:', location)
+  console.log('Claim claimId param:', claimId)
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
@@ -122,12 +120,12 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        <Switch location={location.pathname}>
-          <Route path={ClaimRoutePaths.Select}>{renderClaimSelect()}</Route>
-          <Route path={ClaimRoutePaths.Confirm}>{renderClaimConfirm()}</Route>
-          <Route path={ClaimRoutePaths.Status}>{renderClaimStatus()}</Route>
-          <Route path='*'>{renderClaimSelect()}</Route>
-        </Switch>
+        <Routes>
+          <Route path='' element={renderClaimSelect()} />
+          <Route path=':claimId/confirm' element={renderClaimConfirm()} />
+          <Route path=':claimId/status' element={renderClaimStatus()} />
+          <Route path='*' element={<Navigate to='' replace />} />
+        </Routes>
       </Suspense>
     </AnimatePresence>
   )

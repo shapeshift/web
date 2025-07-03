@@ -17,11 +17,10 @@ import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -65,11 +64,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   setClaimTxid,
 }) => {
   const navigate = useNavigate()
+  const { claimId } = useParams<{ claimId: string }>()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
 
   const handleGoBack = useCallback(() => {
-    navigate(ClaimRoutePaths.Select)
+    navigate('/rfox/claim')
   }, [navigate])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
@@ -210,8 +210,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     const txHash = await handleClaim()
     if (!txHash) return
-    navigate(ClaimRoutePaths.Status)
-  }, [handleClaim, navigate])
+    navigate(`/rfox/claim/${claimId}/status`)
+  }, [handleClaim, navigate, claimId])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

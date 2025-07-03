@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -46,7 +45,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   const navigate = useNavigate()
 
   const handleGoBack = useCallback(() => {
-    navigate(ClaimRoutePaths.Select)
+    navigate('/rfox/claim')
   }, [navigate])
 
   const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))

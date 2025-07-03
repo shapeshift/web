@@ -142,9 +142,9 @@ export const ActionCenter = memo(() => {
   return (
     <>
       <Display.Desktop>
-      <Box position='relative'>{actionCenterButton}</Box>
-      <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} size='sm'>
-        <DrawerOverlay backdropBlur='10px' />
+        <Box position='relative'>{actionCenterButton}</Box>
+        <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} size='sm'>
+          <DrawerOverlay backdropBlur='10px' />
           <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
             <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
             <DrawerHeader

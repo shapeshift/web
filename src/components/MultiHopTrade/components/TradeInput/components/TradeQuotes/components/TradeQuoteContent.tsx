@@ -1,4 +1,4 @@
-import { CardBody, CardFooter, Flex, Skeleton } from '@chakra-ui/react'
+import { CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
@@ -60,6 +60,7 @@ export const TradeQuoteContent = ({
       priceImpactDecimalPercentage !== undefined && sellAmountUserCurrency !== undefined
         ? bn(sellAmountUserCurrency)
             .multipliedBy(priceImpactDecimalPercentage)
+            .times(-1)
             .toFixed(2)
             .toString()
         : undefined,
@@ -87,13 +88,15 @@ export const TradeQuoteContent = ({
                   prefix='≈'
                   lineHeight={1}
                 />
-                <Amount.Fiat
-                  color='text.subtle'
-                  value={lossAfterRateAndFeesUserCurrency}
-                  prefix='('
-                  suffix=')'
-                  lineHeight={1}
-                />
+                <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
+                  <Amount.Fiat
+                    color='text.subtle'
+                    value={lossAfterRateAndFeesUserCurrency}
+                    prefix='('
+                    suffix=')'
+                    lineHeight={1}
+                  />
+                </Tooltip>
               </Flex>
             ) : null}
           </Skeleton>

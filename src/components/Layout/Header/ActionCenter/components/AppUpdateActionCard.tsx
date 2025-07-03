@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import UpdateIcon from '@/assets/update-icon.svg'
 import { RawText } from '@/components/Text'
 import { Text } from '@/components/Text/Text'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { AppUpdateAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -39,15 +40,7 @@ export const AppUpdateActionCard = ({ action }: AppUpdateActionCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
 
   const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(action.updatedAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
+    return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
   const handleUpdate = useCallback(() => {

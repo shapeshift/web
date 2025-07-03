@@ -1,3 +1,4 @@
+import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
@@ -20,6 +21,7 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from '@/pages/Fox/FoxPage'
+import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
@@ -32,14 +34,6 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
-
-const Home = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Home/Home').then(({ Home }) => ({
-      default: Home,
-    })),
-  ),
-)
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
@@ -123,20 +117,41 @@ const MarketsPage = makeSuspenseful(
 
 export const routes: Route[] = [
   {
-    path: '/home',
+    path: '/wallet/*',
     label: 'navBar.home',
+    shortLabel: 'navBar.home',
     icon: <HomeIcon />,
+    main: Dashboard,
+    category: RouteCategory.Featured,
     mobileNav: true,
     hideDesktop: true,
-    main: Home,
     priority: 1,
+  },
+  {
+    path: '/wallet/*',
+    label: 'navBar.myWallet',
+    shortLabel: 'navBar.wallet',
+    icon: <WalletIcon />,
+    main: Dashboard,
+    category: RouteCategory.Featured,
+    mobileNav: false,
+    priority: 5,
+  },
+  {
+    path: '/history',
+    label: 'navBar.history',
+    icon: <TimeIcon />,
+    mobileNav: true,
+    hideDesktop: true,
+    main: History,
+    priority: 7,
   },
   {
     path: '/trade/*',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
-    mobileNav: false,
+    mobileNav: true,
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
@@ -194,16 +209,6 @@ export const routes: Route[] = [
     })),
   },
   {
-    path: '/wallet/*',
-    label: 'navBar.myWallet',
-    shortLabel: 'navBar.wallet',
-    icon: <WalletIcon />,
-    main: Dashboard,
-    category: RouteCategory.Featured,
-    mobileNav: true,
-    priority: 5,
-  },
-  {
     path: '/explore',
     label: 'navBar.explore',
     icon: <ExploreIcon />,
@@ -229,7 +234,7 @@ export const routes: Route[] = [
     main: FoxPage,
     category: RouteCategory.Fox,
     priority: 6,
-    mobileNav: true,
+    mobileNav: false,
     disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {

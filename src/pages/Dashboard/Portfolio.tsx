@@ -43,9 +43,11 @@ export const Portfolio = memo(() => {
         </Display.Desktop>
         <Card variant='dashboard'>
           <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
-            <Heading as='h6'>
-              <Text translation='dashboard.portfolio.myAssets' />
-            </Heading>
+            <Display.Desktop>
+              <Heading as='h6'>
+                <Text translation='dashboard.portfolio.myAssets' />
+              </Heading>
+            </Display.Desktop>
           </CardHeader>
           <CardBody px={cardBodyPx} pt={0} pb={0}>
             {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}

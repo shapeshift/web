@@ -1,52 +1,37 @@
-import type { FlexProps, TabProps } from '@chakra-ui/react'
-import { Flex, Tab, TabIndicator, TabList, Tabs, useMediaQuery } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
+import { Flex, Tab, TabList, Tabs } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
 import type { SlideRenderProps } from 'react-swipeable-views-utils'
 import { virtualize } from 'react-swipeable-views-utils'
 
+import { WatchlistTable } from '../Home/WatchlistTable'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
 import { EarnDashboard } from './EarnDashboard'
-import { MobileActivity } from './MobileActivity'
 import { WalletDashboard } from './WalletDashboard'
 
+import { Display } from '@/components/Display'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isMobile } from '@/lib/globals'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
-import { breakpoints } from '@/theme/theme'
 
 const mainPadding = { base: 0, md: 4 }
-const customTabActive = { color: 'text.base' }
-const customTabLast = { marginRight: 0 }
 const pageProps = { paddingTop: 0, pb: 0 }
+const customTabActive = { WebkitTapHighlightColor: 'transparent' }
 
 const walletDashboard = <WalletDashboard />
 const earnDashboard = <EarnDashboard />
 const accounts = <Accounts />
-const mobileActivity = <MobileActivity />
 const transactionHistory = <TransactionHistory />
 const notFound = <RawText>Not found</RawText>
-
-const CustomTab = (props: TabProps) => (
-  <Tab
-    fontWeight='semibold'
-    color='text.subtle'
-    _selected={customTabActive}
-    px={0}
-    py={4}
-    mr={6}
-    _last={customTabLast}
-    {...props}
-  />
-)
+const dashboardHeader = <DashboardHeader />
 
 const ScrollView = (props: FlexProps) => (
   <Flex
@@ -62,20 +47,16 @@ const ScrollView = (props: FlexProps) => (
 
 const VirtualizedSwipableViews = virtualize(SwipeableViews)
 
-// Leverage the fact that enums don't exist in native JS and compile to 0, 1, and 2 when accessed here
+// Leverage the fact that enums don't exist in native JS and compile to 0 and 1 when accessed here
 // so we can have a declarative way to refer to the tab indexes instead of magic numbers
 enum MobileTab {
-  Overview,
-  Earn,
-  Activity,
+  MyCrypto,
+  Watchlist,
 }
 
 export const Dashboard = memo(() => {
   const translate = useTranslate()
   const [slideIndex, setSlideIndex] = useState(0)
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const appIsMobile = isMobile || !isLargerThanMd
-  const navigate = useNavigate()
 
   const {
     dispatch: walletDispatch,
@@ -89,100 +70,90 @@ export const Dashboard = memo(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [isLoadingLocalWallet, isConnected, walletDispatch])
 
-  const handleSlideIndexChange = useCallback(
-    (index: number) => {
-      switch (index) {
-        case MobileTab.Overview:
-          navigate('')
-          break
-        case MobileTab.Earn:
-          navigate('earn')
-          break
-        case MobileTab.Activity:
-          navigate('activity')
-          break
-        default:
-          break
-      }
-
-      setSlideIndex(index)
-    },
-    [navigate],
-  )
-
-  const mobileTabs = useMemo(() => {
-    return (
-      <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
-        <TabList>
-          <CustomTab>{translate('navBar.overview')}</CustomTab>
-          <CustomTab>{translate('defi.earn')}</CustomTab>
-          <CustomTab>{translate('navBar.activity')}</CustomTab>
-        </TabList>
-        <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
-      </Tabs>
-    )
-  }, [handleSlideIndexChange, slideIndex, translate])
-
-  const dashboardHeader = useMemo(
-    () => <DashboardHeader tabComponent={appIsMobile ? mobileTabs : undefined} />,
-    [appIsMobile, mobileTabs],
-  )
+  const handleSlideIndexChange = useCallback((index: number) => {
+    setSlideIndex(index)
+  }, [])
 
   const slideRenderer = useCallback((props: SlideRenderProps) => {
     const { index, key } = props
     let content
-    const tab = mod(index, 3)
+    const tab = mod(index, 2)
     switch (tab) {
-      case MobileTab.Overview:
+      case MobileTab.MyCrypto:
         content = (
-          <>
+          <Routes>
             <Route path='' element={walletDashboard} />
             <Route path='accounts/*' element={accounts} />
-          </>
+          </Routes>
         )
         break
-      case MobileTab.Earn:
-        content = <Route path='*' element={earnDashboard} />
-        break
-      case MobileTab.Activity:
-        content = <Route path='*' element={mobileActivity} />
+      case MobileTab.Watchlist:
+        content = <WatchlistTable />
         break
       default:
         content = null
         break
     }
     return (
-      <ScrollView id={`scroll-view-${key}`} key={key}>
-        <Routes>{content}</Routes>
-      </ScrollView>
+      <div id={`scroll-view-${key}`} key={key}>
+        {content}
+      </div>
     )
   }, [])
 
-  if (appIsMobile) {
-    return (
-      <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
+  const mobileHome = useMemo(
+    () => (
+      <ScrollView>
+        <Tabs
+          index={slideIndex}
+          onChange={handleSlideIndexChange}
+          variant='soft-rounded'
+          isLazy
+          size='sm'
+          pt={0}
+        >
+          <TabList bg='transparent' borderWidth={0} pt={0} gap={2}>
+            <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
+            <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
+          </TabList>
+        </Tabs>
         <VirtualizedSwipableViews
           index={slideIndex}
+          onChangeIndex={handleSlideIndexChange}
           slideRenderer={slideRenderer}
-          slideCount={3}
+          slideCount={2}
           overscanSlideBefore={1}
           overscanSlideAfter={1}
-          onChangeIndex={handleSlideIndexChange}
         />
-      </Main>
-    )
-  }
+      </ScrollView>
+    ),
+    [slideIndex, handleSlideIndexChange, slideRenderer, translate],
+  )
+
+  const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])
 
   return (
-    <Main headerComponent={dashboardHeader} py={mainPadding}>
+    <>
       <SEO title={translate('navBar.dashboard')} />
-      <Routes>
-        <Route path='*' element={walletDashboard} />
-        <Route path='earn' element={earnDashboard} />
-        <Route path='accounts/*' element={accounts} />
-        <Route path='activity' element={transactionHistory} />
-        <Route path='*' element={notFound} />
-      </Routes>
-    </Main>
+      <Display.Desktop>
+        <Main headerComponent={dashboardHeader} py={mainPadding}>
+          <Routes>
+            <Route path='*' element={walletDashboard} />
+            <Route path='earn' element={earnDashboard} />
+            <Route path='accounts/*' element={accounts} />
+            <Route path='activity' element={transactionHistory} />
+            <Route path='*' element={notFound} />
+          </Routes>
+        </Main>
+      </Display.Desktop>
+      <Display.Mobile>
+        <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
+          <Routes>
+            <Route path='*' element={mobileHome} />
+            <Route path='earn' element={mobileEarn} />
+          </Routes>
+        </Main>
+      </Display.Mobile>
+    </>
   )
 })

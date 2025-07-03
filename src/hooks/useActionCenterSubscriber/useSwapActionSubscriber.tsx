@@ -3,6 +3,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
+  SwapperName,
   swappers,
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
@@ -123,28 +124,34 @@ export const useSwapActionSubscriber = ({
         gcTime: 10000,
       })
 
-      if (!buyTxHash) return
+      const { chainId, account: address } = fromAccountId(swap.sellAccountId)
 
       const swapBuyAsset = swap.buyAsset
+      const feeAsset = selectFeeAssetByChainId(store.getState(), swapBuyAsset.chainId)
+      const txHash = swap.metadata.relayerTxHash ?? swap.sellTxHash ?? buyTxHash
+
+      const maybeSafeTx = await fetchSafeTransactionInfo({
+        address,
+        chainId,
+        safeTxHash: swap.sellTxHash,
+        fetchIsSmartContractAddressQuery,
+      })
+
+      const txLink = getTxLink({
+        address,
+        chainId,
+        defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+        maybeSafeTx,
+        stepSource: swap.source,
+        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
+        ...(swap.metadata.relayerTxHash && {
+          isRelayer: true,
+          relayerExplorerTxLink: swap.metadata.relayerExplorerTxLink,
+        }),
+      })
 
       if (status === TxStatus.Confirmed) {
-        const feeAsset = selectFeeAssetByChainId(store.getState(), swapBuyAsset.chainId)
-
-        const maybeSafeTx = await fetchSafeTransactionInfo({
-          address: swap.receiveAddress,
-          chainId: swapBuyAsset.chainId,
-          safeTxHash: buyTxHash,
-          fetchIsSmartContractAddressQuery,
-        })
-
-        const txLink = getTxLink({
-          defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-          txId: buyTxHash,
-          maybeSafeTx,
-          address: swap.receiveAddress,
-          chainId: swapBuyAsset.chainId,
-        })
-
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -154,6 +161,7 @@ export const useSwapActionSubscriber = ({
             status: ActionStatus.Complete,
           }),
         )
+
         dispatch(
           swapSlice.actions.upsertSwap({
             ...swap,
@@ -205,6 +213,7 @@ export const useSwapActionSubscriber = ({
             status: SwapStatus.Failed,
             statusMessage: message,
             buyTxHash,
+            txLink,
           }),
         )
 

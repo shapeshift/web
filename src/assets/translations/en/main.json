@@ -848,11 +848,6 @@
       "warning": "High slippage tolerances can result in unfavorable trades.",
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
-    "quoteBadge": {
-      "bestRate": "Best Rate",
-      "fastest": "Fastest",
-      "lowestGas": "Lowest Gas"
-    },
     "quoteDisplay": {
       "title": "Quote Display",
       "info": "Choose your quote display style.",

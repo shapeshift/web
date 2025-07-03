@@ -108,21 +108,21 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
         <QuoteBadge
           icon={TbRosetteDiscountCheckFilled}
           hideLabel={hideLabel}
-          label={translate('trade.quoteBadge.bestRate')}
+          label={translate('trade.sort.bestRate')}
         />
       )}
       {isFastest && (
         <QuoteBadge
           icon={TbClockHour3}
           hideLabel={hideLabel}
-          label={translate('trade.quoteBadge.fastest')}
+          label={translate('trade.sort.fastest')}
         />
       )}
       {isLowestGas && (
         <QuoteBadge
           icon={TbGasStation}
           hideLabel={hideLabel}
-          label={translate('trade.quoteBadge.lowestGas')}
+          label={translate('trade.sort.lowestGas')}
         />
       )}
     </Flex>

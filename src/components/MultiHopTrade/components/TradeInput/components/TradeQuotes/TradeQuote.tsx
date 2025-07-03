@@ -323,6 +323,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       errorIndicator,
       isRefetching,
       pollingInterval,
+      sellAmountCryptoPrecision,
+      totalReceiveAmountCryptoPrecision,
     ])
 
     const bodyContent = useMemo(() => {

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, release, yeet, private, beard, juice, wood, gome, neo, arkeo]
+    branches: [main, develop, release, yeet, private, beard, juice, gome, neo, arkeo, jib]
   pull_request:
     branches: [main, develop, release, yeet, private]
 

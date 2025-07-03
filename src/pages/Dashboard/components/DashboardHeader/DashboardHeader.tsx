@@ -11,6 +11,7 @@ import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
 
 import { Amount } from '@/components/Amount/Amount'
+import { Display } from '@/components/Display'
 import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -19,6 +20,7 @@ const paddingTop = {
   md: '4.5rem',
 }
 const marginTop = { base: 0, md: '-4.5rem' }
+const borderBottomWidth = { base: 0, md: 1 }
 
 export type TabItem = {
   label: string
@@ -37,7 +39,7 @@ const navCss = {
   },
 }
 
-export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
+export const DashboardHeader = memo(() => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -72,7 +74,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         rightElement: <EarnBalance />,
       },
       {
-        label: 'navBar.activity',
+        label: 'common.activity',
         path: '/wallet/activity',
         color: 'blue',
       },
@@ -93,8 +95,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
     ))
   }, [NavItems, location.pathname])
 
-  const renderTabs = useMemo(() => {
-    if (tabComponent) return tabComponent
+  const tabs = useMemo(() => {
     return (
       <Flex
         flexDir={flexDirTabs}
@@ -119,7 +120,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         </Container>
       </Flex>
     )
-  }, [borderColor, renderNavItems, tabComponent])
+  }, [borderColor, renderNavItems])
 
   useLayoutEffect(() => {
     const body = document.body
@@ -144,12 +145,12 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
       <Stack
         spacing={0}
         borderColor='border.base'
-        borderBottomWidth={1}
+        borderBottomWidth={borderBottomWidth}
         pt={paddingTop}
         mt={marginTop}
       >
         <DashboardHeaderTop />
-        {renderTabs}
+        <Display.Desktop>{tabs}</Display.Desktop>
       </Stack>
     </DashboardHeaderWrapper>
   )

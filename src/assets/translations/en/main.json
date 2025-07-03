@@ -217,7 +217,7 @@
     "availableAssets": "Available Assets"
   },
   "updateToast": {
-    "body": "A new version of the app is available",
+    "body": "There is an app update available!",
     "cta": "Reload App",
     "keepKey": {
       "title": "KeepKey Update Available",
@@ -249,6 +249,7 @@
       "marketCap": "Market Cap",
       "volume": "Volume",
       "sparkLine": "Sparkline",
+      "myCrypto": "My Crypto",
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
@@ -574,10 +575,10 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "history": "History",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "Home",
-    "activity": "Activity",
     "myWallet": "My Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
@@ -2610,7 +2611,8 @@
       "title": "Start building your watchlist",
       "body": "Wherever you see the star icon, you can use it to add assets here.",
       "cta": "Explore more assets"
-    }
+    },
+    "title": "Watchlist"
   },
   "explore": {
     "pools": {
@@ -2621,9 +2623,8 @@
       "title": "Lending",
       "body": "Borrow against your assets."
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "Stake FOX earn RUNE."
+    "foxEcosystem": {
+      "body": "Your dashboard for all things FOX."
     },
     "tcy": {
       "title": "TCY",

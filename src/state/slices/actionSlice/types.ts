@@ -8,6 +8,7 @@ export enum ActionType {
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
+  AppUpdate = 'AppUpdate',
 }
 
 export enum ActionStatus {
@@ -45,6 +46,10 @@ type ActionLimitOrderMetadata = {
   accountId: AccountId
 }
 
+type ActionAppUpdateMetadata = {
+  currentVersion: string
+}
+
 export type BaseAction = {
   id: string
   type: ActionType
@@ -63,7 +68,12 @@ export type LimitOrderAction = BaseAction & {
   limitOrderMetadata: ActionLimitOrderMetadata
 }
 
-export type Action = SwapAction | LimitOrderAction
+export type AppUpdateAction = BaseAction & {
+  type: ActionType.AppUpdate
+  appUpdateMetadata: ActionAppUpdateMetadata
+}
+
+export type Action = SwapAction | LimitOrderAction | AppUpdateAction
 
 export type ActionState = {
   byId: Record<string, Action>

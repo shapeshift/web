@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router'
 import { AppUpdateNotification } from './components/Layout/Header/ActionCenter/components/Notifications/AppUpdateNotification'
 import { preferences } from './state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlag } from './state/slices/selectors'
-import { selectActiveQuote } from './state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from './state/store'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
@@ -29,7 +28,6 @@ export const App = () => {
   const showWelcomeModal = useSelector(preferences.selectors.selectShowWelcomeModal)
   const showConsentBanner = useAppSelector(preferences.selectors.selectShowConsentBanner)
   const isMixpanelEnabled = useAppSelector(state => selectFeatureFlag(state, 'Mixpanel'))
-  const activeTradeQuote = useAppSelector(selectActiveQuote)
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 

@@ -31,7 +31,7 @@ import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionType } from '@/state/slices/actionSlice/types'
+import { ActionType, SwapDisplayType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -46,8 +46,6 @@ export const ActionCenter = memo(() => {
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
   const actions = useAppSelector(selectWalletActionsSorted)
-
-  console.log({ actions })
 
   const pendingActions = useAppSelector(selectWalletPendingActions)
   const { ordersByActionId } = useLimitOrders()
@@ -64,7 +62,10 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={Boolean(swap?.txLink)}
+                isCollapsable={
+                  Boolean(swap?.txLink) ||
+                  action.swapMetadata.displayType === SwapDisplayType.Bridge
+                }
               />
             )
           }

@@ -68,11 +68,13 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       // Close the drawer as early as possible
       closeDrawer()
       const confirmedQuote: RfoxClaimQuote = {
-        stakingAssetAccountId: action.rfoxClaimActionMetadata.accountId,
-        stakingAssetId: action.rfoxClaimActionMetadata.assetId,
-        stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
-        index: Number(index),
-        id: action.id,
+        request: {
+          stakingAssetAccountId: action.rfoxClaimActionMetadata.accountId,
+          stakingAssetId: action.rfoxClaimActionMetadata.assetId,
+          stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
+          index: Number(index),
+          id: action.id,
+        },
       }
       navigate(`/rfox/claim/${index}/confirm`, {
         state: {

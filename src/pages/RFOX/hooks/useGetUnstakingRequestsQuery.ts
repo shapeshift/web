@@ -135,7 +135,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
           const index = Number(contracts[i].args[1])
 
           return {
-            unstakingBalance: result.unstakingBalance.toString(),
+            amountCryptoBaseUnit: result.unstakingBalance.toString(),
             cooldownExpiry: result.cooldownExpiry.toString(),
             stakingAssetId: getStakingAssetId(contractAddress),
             index,

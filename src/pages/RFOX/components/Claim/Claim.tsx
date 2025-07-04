@@ -56,7 +56,9 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   const confirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
 
   const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
+    return confirmedQuote
+      ? fromAccountId(confirmedQuote.request.stakingAssetAccountId).account
+      : undefined
   }, [confirmedQuote])
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
@@ -68,7 +70,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
     await queryClient.invalidateQueries({
       queryKey: getUnstakingRequestCountQueryKey({
-        stakingAssetId: confirmedQuote.stakingAssetId,
+        stakingAssetId: confirmedQuote.request.stakingAssetId,
         stakingAssetAccountAddress,
       }),
     })
@@ -98,7 +100,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
     return (
       <ClaimStatus
-        accountId={confirmedQuote.stakingAssetAccountId}
+        accountId={confirmedQuote.request.stakingAssetAccountId}
         txId={claimTxid}
         setClaimTxid={setClaimTxid}
         onTxConfirmed={handleTxConfirmed}

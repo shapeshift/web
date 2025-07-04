@@ -1,11 +1,13 @@
 import { arbitrumChainId } from '@shapeshiftoss/caip'
+import { difference } from 'lodash'
 import { useEffect } from 'react'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
 import { fromBaseUnit } from '@/lib/math'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { selectActions } from '@/state/slices/actionSlice/selectors'
+import { ActionStatus, ActionType, isRfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -21,17 +23,60 @@ export const useRfoxClaimActionSubscriber = () => {
     selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
   )
 
-  // TODO(gomes): useQueries
+  // TODO(gomes): useQueries and handle multiple AccountIds
   const stakingAssetAccountId = stakingAssetAccountIds[0]
   const stakingAssetAccountAddress = stakingAssetAccountId?.split(':')[2]
 
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
+  // Get current wallet actions to compare with fetched unstaking requests
+  const walletActions = useAppSelector(selectActions)
+
+  console.log({ walletActions })
+
   useEffect(() => {
     if (!unstakingRequestsQuery.isSuccess) return
     if (!stakingAssetAccountId) return
     const now = Date.now()
-    console.log({ unstakingRequestsQueryData: unstakingRequestsQuery.data })
+
+    const currentRfoxClaimActions = walletActions.filter(isRfoxClaimAction)
+    const currentRfoxClaimActionIds = currentRfoxClaimActions.map(action => action.id)
+    const unstakingRequestIds = unstakingRequestsQuery.data.map(request => request.id)
+    const staleActionIds = difference(currentRfoxClaimActionIds, unstakingRequestIds)
+
+    console.log({ unstakingRequestIds, staleActionIds })
+
+    // Diff the current unstaking requests in store with the current unstaking requests from the API
+    // This will yield us all the confirmed
+    staleActionIds.forEach(staleActionId => {
+      const action = currentRfoxClaimActions.find(request => request.id === staleActionId)
+      if (!action) return
+      if (!action.rfoxClaimActionMetadata.txHash) return
+      const asset = assets[action.rfoxClaimActionMetadata.assetId]
+      if (!asset) return
+
+      const amountCryptoPrecision = fromBaseUnit(
+        action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
+        assets[action.rfoxClaimActionMetadata.assetId]?.precision ?? 0,
+      )
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: action.id,
+          status: ActionStatus.Claimed,
+          type: ActionType.RfoxClaim,
+          createdAt: action.createdAt,
+          updatedAt: Date.now(),
+          rfoxClaimActionMetadata: {
+            ...action.rfoxClaimActionMetadata,
+            message: `Your claim of ${Number(amountCryptoPrecision).toFixed(2)} ${
+              asset.symbol
+            } is complete`,
+          },
+        }),
+      )
+    })
+
     unstakingRequestsQuery.data.forEach(request => {
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
       if (now >= cooldownExpiryMs) {
@@ -42,10 +87,6 @@ export const useRfoxClaimActionSubscriber = () => {
           actionSlice.actions.upsertAction({
             id: request.id,
             status: ActionStatus.ClaimAvailable,
-            // TODO(gomes): users are not going to be able to make two unstakes per block, so cooldownExpiry as an timestamp *should*
-            // be more than enough in terms of being unique.
-            // Upsert the index separately, as we *will* need it, no need for a composite we later destructure
-            // or alternatively, upsert the whole request here as `request` and call it a day
             type: ActionType.RfoxClaim,
             createdAt: cooldownExpiryMs,
             updatedAt: now,

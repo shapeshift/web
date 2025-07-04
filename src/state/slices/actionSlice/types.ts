@@ -102,6 +102,7 @@ export type RfoxClaimAction = BaseAction & {
     secondaryAssetId?: AssetId
     amountCryptoBaseUnit: string
     accountId: AccountId
+    txHash?: string
   }
 }
 
@@ -133,4 +134,8 @@ export const isPendingSwapAction = (action: Action): action is SwapAction => {
 
 export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(action.type === ActionType.GenericTransaction && action.transactionMetadata)
+}
+
+export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => {
+  return Boolean(action.type === ActionType.RfoxClaim && action.rfoxClaimActionMetadata)
 }

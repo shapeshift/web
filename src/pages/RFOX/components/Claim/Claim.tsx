@@ -98,6 +98,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   }, [claimTxid, confirmedQuote, headerComponent, location.state?.confirmedQuote])
 
   const renderClaimStatus = useCallback(() => {
+    const confirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
+
     if (!claimTxid) return null
     if (!confirmedQuote) return null
 

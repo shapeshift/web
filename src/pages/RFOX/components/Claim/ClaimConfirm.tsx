@@ -39,14 +39,17 @@ import {
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
 import { getStakingContract } from '@/pages/RFOX/helpers'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
+  selectWalletActions,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   claimQuote: RfoxClaimQuote
@@ -67,6 +70,14 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const { claimId } = useParams<{ claimId: string }>()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
+  const dispatch = useAppDispatch()
+
+  const actions = useAppSelector(selectWalletActions)
+
+  const maybeClaimAction = useMemo(
+    () => actions.find(action => action.id === claimQuote.id),
+    [actions, claimQuote.id],
+  )
 
   const handleGoBack = useCallback(() => {
     navigate('/rfox/claim')
@@ -148,6 +159,26 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
       if (!txId) return
 
       setClaimTxid(txId)
+
+      // Update the RFOX claim action with the transaction hash
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: claimQuote.id,
+          status: ActionStatus.Pending,
+          type: ActionType.RfoxClaim,
+          createdAt: maybeClaimAction?.createdAt ?? Date.now(),
+          updatedAt: Date.now(),
+          rfoxClaimActionMetadata: {
+            message: `Your claim of ${Number(stakingAmountCryptoPrecision).toFixed(2)} ${
+              stakingAsset?.symbol ?? ''
+            } is pending`,
+            assetId: claimQuote.stakingAssetId,
+            amountCryptoBaseUnit: claimQuote.stakingAmountCryptoBaseUnit,
+            accountId: claimQuote.stakingAssetAccountId,
+            txHash: txId,
+          },
+        }),
+      )
     },
   })
 
@@ -210,8 +241,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     const txHash = await handleClaim()
     if (!txHash) return
-    navigate(`/rfox/claim/${claimId}/status`)
-  }, [handleClaim, navigate, claimId])
+    navigate(`/rfox/claim/${claimId}/status`, {
+      state: {
+        confirmedQuote: claimQuote,
+      },
+    })
+  }, [handleClaim, navigate, claimId, claimQuote])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

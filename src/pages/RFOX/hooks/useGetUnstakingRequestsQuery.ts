@@ -125,6 +125,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
 
           const contractAddress = contracts[i].address
 
+          // getUnstakingRequest(account address, index uint256)
           const index = Number(contracts[i].args[1])
 
           return {
@@ -137,7 +138,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
             // two unstaking requests in in one block. But for the sake of paranoia, we make it a composite ID with index too
             // Which itself *is* unique at any given time, though as users unstake/claim, it may change due to the inner workings of solidity, as
             // indexes can reorg
-            id: `${result.cooldownExpiry}-${index}`,
+            id: `${index}-${result.cooldownExpiry}-${contractAddress}`,
           }
         })
         .filter(isSome)

@@ -22,6 +22,7 @@ type ClaimRowProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
   index: number
+  id: string
   onClaimClick?: () => void
 }
 
@@ -32,6 +33,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   setConfirmedQuote,
   cooldownPeriodHuman,
   index,
+  id,
   onClaimClick,
 }) => {
   const translate = useTranslate()
@@ -54,6 +56,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
         stakingAssetId,
         stakingAmountCryptoBaseUnit: amountCryptoBaseUnit,
         index,
+        id,
       }
 
       setConfirmedQuote(claimQuote)
@@ -61,6 +64,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     }
   }, [
     amountCryptoBaseUnit,
+    id,
     index,
     onClaimClick,
     setConfirmedQuote,

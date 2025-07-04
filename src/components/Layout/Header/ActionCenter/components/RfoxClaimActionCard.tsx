@@ -61,7 +61,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       // Prevent card collapse
       e.stopPropagation()
       // id is a composite id of <cooldownExpiry>-<index>
-      const index = action.id.split('-')[1]
+      const index = action.id.split('-')[0]
       // Close the drawer as early as possible
       closeDrawer()
       navigate(`/rfox/claim/${index}/confirm`, {
@@ -71,6 +71,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
             stakingAssetId: action.rfoxClaimActionMetadata.assetId,
             stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
             index,
+            id: action.id,
           },
         },
       })

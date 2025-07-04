@@ -17,4 +17,5 @@ export type RfoxClaimQuote = {
   stakingAssetId: AssetId
   stakingAmountCryptoBaseUnit: string
   index: number
+  id: string
 }

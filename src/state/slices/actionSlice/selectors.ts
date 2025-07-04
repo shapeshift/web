@@ -1,13 +1,14 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import type { LimitOrderAction } from './types'
+import type { LimitOrderAction, RfoxClaimAction } from './types'
 import {
   ActionStatus,
   ActionType,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSwapAction,
+  isRfoxClaimAction,
   isSwapAction,
 } from './types'
 
@@ -44,6 +45,10 @@ export const selectWalletActions = createDeepEqualOutputSelector(
 
       if (isGenericTransactionAction(action)) {
         return enabledWalletAccountIds.includes(action.transactionMetadata.accountId)
+      }
+
+      if (isRfoxClaimAction(action)) {
+        return enabledWalletAccountIds.includes(action.rfoxClaimActionMetadata.accountId)
       }
 
       return action

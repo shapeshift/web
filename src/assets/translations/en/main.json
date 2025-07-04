@@ -2972,6 +2972,7 @@
       "failed": "Failed",
       "pending": "Pending",
       "claimAvailable": "Claim Available",
+      "claimed": "Claimed",
       "unknown": "Unknown"
     },
     "emptyState": {

@@ -2964,6 +2964,10 @@
     "protocol": "Protocol",
     "streamingStatus": "Streaming Status",
     "executionPrice": "Execution Price",
+    "types": {
+      "swap": "Swap",
+      "bridge": "Bridge"
+    },
     "status": {
       "title": "Status",
       "open": "Open",
@@ -2987,6 +2991,13 @@
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+    },
+    "bridge": {
+      "processing": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} on %{buyChainName} is being processed.",
+      "complete": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} on %{buyChainName} is complete.",
+      "failed": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} on %{buyChainName} has failed.",
+      "progress": "%{elapsedMinutes} of %{totalMinutes} mins",
+      "status": "Time left"
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",

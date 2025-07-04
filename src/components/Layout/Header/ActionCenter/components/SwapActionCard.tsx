@@ -1,4 +1,4 @@
-import { useDisclosure } from '@chakra-ui/react'
+import { Box, useDisclosure } from '@chakra-ui/react'
 import { SwapStatus } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -18,7 +18,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, SwapDisplayType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -32,13 +32,15 @@ type SwapActionCardProps = {
 export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCardProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
+  const { displayType = SwapDisplayType.Swap, swapId } = action.swapMetadata
+
   const formattedDate = useMemo(() => {
     return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
   const swap = useMemo(() => {
-    return swapsById[action.swapMetadata.swapId]
-  }, [action, swapsById])
+    return swapsById[swapId]
+  }, [swapId, swapsById])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -71,17 +73,22 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
           display='inline'
         />
       ),
+      buyChainName: (
+        <Box display='inline' fontWeight='bold'>
+          {swap.buyAsset.networkName}
+        </Box>
+      ),
     }
   }, [swap])
 
   const title = useMemo(() => {
-    if (!swap) return 'actionCenter.swap.processing'
+    if (!swap) return `actionCenter.${displayType}.processing`
     if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
-    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
+    if (swap.status === SwapStatus.Success) return `actionCenter.${displayType}.complete`
+    if (swap.status === SwapStatus.Failed) return `actionCenter.${displayType}.failed`
 
-    return 'actionCenter.swap.processing'
-  }, [swap])
+    return `actionCenter.${displayType}.processing`
+  }, [displayType, swap])
 
   const icon = useMemo(() => {
     return (
@@ -127,7 +134,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       description={description}
       icon={icon}
     >
-      <SwapDetails txLink={swap?.txLink} swap={swap} />
+      <SwapDetails txLink={swap?.txLink} swap={swap} displayType={displayType} />
     </ActionCard>
   )
 }

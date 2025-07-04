@@ -5,10 +5,7 @@ import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
 import { fromBaseUnit } from '@/lib/math'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  selectPendingRfoxClaimActions,
-  selectWalletActions,
-} from '@/state/slices/actionSlice/selectors'
+import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
@@ -32,7 +29,6 @@ export const useRfoxClaimActionSubscriber = () => {
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
-  const actions = useAppSelector(selectWalletActions)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
 
   useEffect(() => {

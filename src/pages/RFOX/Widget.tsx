@@ -72,38 +72,44 @@ export const Widget: React.FC = () => {
     [stepIndex, handleTabChange],
   )
 
+  const stakeElement = useMemo(
+    () => <Stake headerComponent={TabHeader} setStepIndex={handleTabChange} />,
+    [TabHeader, handleTabChange],
+  )
+  const stakeRedirect = useMemo(() => <Navigate to='stake' replace />, [])
+  const unstakeElement = useMemo(() => <Unstake headerComponent={TabHeader} />, [TabHeader])
+  const claimElement = useMemo(
+    () => <Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />,
+    [TabHeader, handleTabChange],
+  )
+  const changeAddressElement = useMemo(
+    () => <ChangeAddress headerComponent={TabHeader} />,
+    [TabHeader],
+  )
+
   return (
     <Card width='full'>
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route
-                path='stake'
-                element={<Stake headerComponent={TabHeader} setStepIndex={handleTabChange} />}
-              />
-              <Route path='' element={<Navigate to='stake' replace />} />
+              <Route path='stake' element={stakeElement} />
+              <Route path='' element={stakeRedirect} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='unstake' element={<Unstake headerComponent={TabHeader} />} />
+              <Route path='unstake' element={unstakeElement} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route
-                path='claim/*'
-                element={<Claim headerComponent={TabHeader} setStepIndex={handleTabChange} />}
-              />
+              <Route path='claim/*' element={claimElement} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route
-                path='change-address'
-                element={<ChangeAddress headerComponent={TabHeader} />}
-              />
+              <Route path='change-address' element={changeAddressElement} />
             </Routes>
           </TabPanel>
         </TabPanels>

@@ -113,7 +113,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
         confirmedQuote={confirmedQuote}
       />
     )
-  }, [claimTxid, confirmedQuote, handleTxConfirmed, headerComponent])
+  }, [claimTxid, handleTxConfirmed, headerComponent, location.state?.confirmedQuote])
 
   const renderRedirect = useCallback(() => <Navigate to='' replace />, [])
 

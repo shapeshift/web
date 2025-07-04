@@ -108,7 +108,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   )
 
   const queryFn = useMemo(() => {
-    if (fnParamsQuery.isPending || fnParamsQuery.isLoading || stakingAssetAccountAddress)
+    if (fnParamsQuery.isPending || fnParamsQuery.isLoading || !stakingAssetAccountAddress)
       return skipToken
 
     // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state

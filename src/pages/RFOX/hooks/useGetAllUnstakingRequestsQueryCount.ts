@@ -50,5 +50,8 @@ export const useGetAllUnstakingCountsQuery = () => {
   // 5. return a mapping of AccountId to unstaking requests and PROFIT
   // Then when it all works nicely, we can consume it in place of our existing useGetUnstakingRequestsQuery, and simply introspect by AccountId - yes this will be slightly heavier for multi-account,
   // but also more sane
+  //
+  //
+  // And probably even better would be do it all in one hook/query, this is way too messy, and we're talking 1 json-rpc call per account/contract (assuming caching ever works atm)
   return unstakingRequestCountQueries
 }

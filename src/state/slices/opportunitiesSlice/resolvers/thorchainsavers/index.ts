@@ -44,50 +44,17 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
+  // eslint-disable-next-line require-await
 }> => {
-  const thorchainPools = await queryClient.fetchQuery({
-    ...thornode.poolsData(),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // Infinity staleTime as we handle halted state JIT
-    staleTime: Infinity,
-  })
-
-  if (!thorchainPools.length) {
-    throw new Error('Error fetching THORChain pools')
-  }
-
-  const availablePools = thorchainPools.filter(pool => pool.status === 'Available')
-
-  const midgardPools = await getMidgardPools('7d')
-
-  const sortedPools = availablePools.sort((a, b) => {
-    const aApy = bnOrZero(midgardPools.find(pool => pool.asset === a.asset)?.saversAPR)
-    const bApy = bnOrZero(midgardPools.find(pool => pool.asset === b.asset)?.saversAPR)
-
-    return bApy.minus(aApy).toNumber()
-  })
-
-  const opportunityIds = sortedPools.reduce<OpportunityId[]>((acc, currentPool) => {
-    const maybeOpportunityId = thorPoolAssetIdToAssetId(currentPool.asset)
-
-    if (
-      bnOrZero(currentPool.savers_depth).gt(0) &&
-      maybeOpportunityId &&
-      currentPool.status === 'Available'
-    ) {
-      acc.push(maybeOpportunityId as StakingId)
-    }
-
-    return acc
-  }, [])
+  const opportunityIds: StakingId[] = []
 
   if (getConfig().VITE_FEATURE_RUNEPOOL) {
     opportunityIds.push(thorchainAssetId as StakingId)
   }
 
-  return {
+  return Promise.resolve({
     data: opportunityIds,
-  }
+  })
 }
 
 export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
@@ -183,9 +150,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     }
   }
 
-  const asset = selectAssetById(state, thorchainAssetId)
+  const thorchainAsset = selectAssetById(state, thorchainAssetId)
 
-  if (getConfig().VITE_FEATURE_RUNEPOOL && asset) {
+  if (getConfig().VITE_FEATURE_RUNEPOOL && thorchainAsset) {
     const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
       `${
         getConfig().VITE_THORCHAIN_MIDGARD_URL
@@ -212,9 +179,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
     const underlyingAssetIds = reservePositions.pools
       .map(pool => thorPoolAssetIdToAssetId(pool.pool))
-      .filter(
-        assetId => isSome(assetId) && opportunityIds.includes(assetId as OpportunityId),
-      ) as AssetId[]
+      .filter(assetId => isSome(assetId)) as AssetId[]
 
     const totalRuneAmount = reservePositions.pools.reduce((acc, pool) => {
       const assetId = thorPoolAssetIdToAssetId(pool.pool)
@@ -289,7 +254,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       rewardAssetIds: [thorchainAssetId] as [AssetId],
       underlyingAssetRatiosBaseUnit,
       underlyingAssetWeightPercentageDecimal,
-      name: asset.symbol,
+      name: thorchainAsset.symbol,
       saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,

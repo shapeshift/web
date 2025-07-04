@@ -26,7 +26,7 @@ import type {
   TradeRateStep,
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
@@ -236,7 +236,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const { data: quote } = maybeQuote.unwrap()
 
-  const { slippageTolerance, rate, currencyOut, timeEstimate } = quote.details
+  const { slippageTolerance, currencyOut, timeEstimate } = quote.details
+
+  const buyAmountAfterFeesCryptoBaseUnit = currencyOut.amount
+
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
 
   const { currency: relayToken } = currencyOut
 
@@ -370,12 +379,13 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       // If fee is in a different asset, convert to buy asset
       const feeAmountUsd = quote.fees.app.amountUsd
       const buyAssetUsd = currencyOut.amountUsd
-      const buyAssetAmountBaseUnit = currencyOut.amount
 
-      if (feeAmountUsd && buyAssetUsd && buyAssetAmountBaseUnit) {
+      if (feeAmountUsd && buyAssetUsd && buyAmountAfterFeesCryptoBaseUnit) {
         // Calculate the rate: (buyAssetAmount / buyAssetUsd) gives us "buy asset per USD"
         // Then multiply by feeAmountUsd to get the equivalent buy asset amount
-        const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAssetAmountBaseUnit).div(buyAssetUsd)
+        const buyAssetCryptoBaseUnitPerUsd = bnOrZero(buyAmountAfterFeesCryptoBaseUnit).div(
+          buyAssetUsd,
+        )
         const appFeesCryptoBaseUnit = bnOrZero(feeAmountUsd).times(buyAssetCryptoBaseUnitPerUsd)
 
         return appFeesCryptoBaseUnit.toFixed(0)
@@ -569,7 +579,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: currencyOut.amount,
+      buyAmountAfterFeesCryptoBaseUnit,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,

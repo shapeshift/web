@@ -75,7 +75,7 @@ describe('getTradeQuote', () => {
     expect(result.isOk()).toBe(true)
     const tradeQuote = result.unwrap()
     // Use the actual returned value for the expected rate
-    expect(tradeQuote[0].rate).toBe('2298.70840740740740740741')
+    expect(tradeQuote[0].rate).toBe('2296.409699')
     // 1 WETH in base units
     expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
       '1000000000000000000',

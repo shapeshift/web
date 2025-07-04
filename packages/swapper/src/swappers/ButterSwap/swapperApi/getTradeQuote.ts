@@ -8,7 +8,11 @@ import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
@@ -172,13 +176,20 @@ export const getTradeQuote = async (
   // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
   const networkFeeCryptoBaseUnit = toBaseUnit(bnOrZero(route.gasFee?.amount), feeAsset.precision)
 
-  // Calculate rate as lastHop.totalAmountOut / srcChain.totalAmountIn (in base units)
-  // For cross-chain swaps, use dstChain.totalAmountOut (final min amount out)
-  // For same-chain swaps, use srcChain.totalAmountOut
-  // We do NOT use bridgeChain.totalAmountOut, as it is only an intermediary for cross-chain swaps
-  const inputAmount = bnOrZero(route.srcChain.totalAmountIn)
+  // Use destination receive amount as a priority if present and defined
+  // It won't for same-chain swaps, so we fall back to the source chain receive amount (i.e source chain *is* the destination chain)
   const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
-  const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
+
+  // TODO: affiliate fees not yet here, gut feel is that Butter won't do the swap output - fees logic for us here
+  // Sanity check me when affiliates are implemented, and do the math ourselves if needed
+  const buyAmountAfterFeesCryptoBaseUnit = toBaseUnit(outputAmount, buyAsset.precision)
+
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
 
   // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
   const solanaTransactionMetadata = (() => {
@@ -206,7 +217,7 @@ export const getTradeQuote = async (
 
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
-    buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    buyAmountAfterFeesCryptoBaseUnit,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit,

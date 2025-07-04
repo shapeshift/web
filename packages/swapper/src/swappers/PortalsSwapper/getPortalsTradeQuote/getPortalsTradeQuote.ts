@@ -190,8 +190,7 @@ export async function getPortalsTradeQuote(
     const {
       context: {
         orderId,
-        outputAmount: buyAmountAfterFeesCryptoBaseUnit,
-        minOutputAmount: buyAmountBeforeFeesCryptoBaseUnit,
+        minOutputAmount: buyAmountAfterFeesCryptoBaseUnit,
         slippageTolerancePercentage,
         target: allowanceContract,
         feeAmount,
@@ -227,6 +226,10 @@ export async function getPortalsTradeQuote(
       .div(100)
       .toString()
 
+    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+      .toFixed(0)
+
     const tradeQuote: TradeQuote = {
       id: orderId,
       quoteOrRate: 'quote' as const,
@@ -242,7 +245,7 @@ export async function getPortalsTradeQuote(
           rate: inputOutputRate,
           buyAsset,
           sellAsset,
-          buyAmountBeforeFeesCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeSlippageCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,

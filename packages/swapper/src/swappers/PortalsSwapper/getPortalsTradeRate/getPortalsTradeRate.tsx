@@ -110,11 +110,14 @@ export async function getPortalsTradeRate(
       slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
       swapperConfig,
     })
+
+    const buyAmountAfterFeesCryptoBaseUnit = quoteEstimateResponse.minOutputAmount
+
     // Use the quote estimate endpoint to get a quote without a wallet
 
     const inputOutputRate = getInputOutputRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: quoteEstimateResponse?.context.outputAmount,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
       sellAsset,
       buyAsset,
     })
@@ -159,7 +162,7 @@ export async function getPortalsTradeRate(
           // we simply add the slippage back to the min out, which yields values very close to the actual quote amounts (with a small upside on the quote, so users actually get a better quote
           // than what they've seen as a rate, which is much better than a *huge* downside on the quote)
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeSlippageCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
+          buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {

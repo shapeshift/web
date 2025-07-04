@@ -20,7 +20,11 @@ import {
 } from '../../../cowswap-utils/constants'
 import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { cowService } from '../utils/cowService'
 import {
@@ -122,7 +126,7 @@ export async function getCowSwapTradeRate(
 
   const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = cowswapQuoteResponse.quote
 
-  const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
+  const { buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
     getValuesFromQuoteResponse({
       buyAsset,
       sellAsset,
@@ -130,6 +134,13 @@ export async function getCowSwapTradeRate(
       affiliateBps,
       slippageTolerancePercentageDecimal,
     })
+
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
 
   const id = cowswapQuoteResponse.id?.toString()
 

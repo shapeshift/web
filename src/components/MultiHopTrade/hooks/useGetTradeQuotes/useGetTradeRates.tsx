@@ -21,6 +21,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -28,6 +29,7 @@ import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/select
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAssets } from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -57,8 +59,8 @@ type MixPanelQuoteMeta = {
 
 type GetMixPanelDataFromApiQuotesReturn = {
   quoteMeta: MixPanelQuoteMeta[]
-  sellAssetId: string
-  buyAssetId: string
+  sellAsset: string
+  buyAsset: string
   sellAssetChainId: string
   buyAssetChainId: string
   sellAmountUsd: string | undefined
@@ -73,6 +75,12 @@ const getMixPanelDataFromApiRates = (
   const state = store.getState()
   const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
   const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
+
+  const assets = selectAssets(state)
+
+  const compositeSellAssetId = getMaybeCompositeAssetSymbol(sellAssetId, assets)
+  const compositeBuyAssetId = getMaybeCompositeAssetSymbol(buyAssetId, assets)
+
   const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
     .map(({ quote: _quote, errors, swapperName, inputOutputRatio }) => {
@@ -100,8 +108,8 @@ const getMixPanelDataFromApiRates = (
 
   return {
     quoteMeta,
-    sellAssetId,
-    buyAssetId,
+    sellAsset: compositeSellAssetId,
+    buyAsset: compositeBuyAssetId,
     sellAmountUsd,
     sellAssetChainId,
     buyAssetChainId,

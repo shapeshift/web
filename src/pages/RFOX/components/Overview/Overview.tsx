@@ -10,24 +10,19 @@ import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/use
 export const Overview: React.FC = () => {
   const { stakingAssetAccountId } = useRFOXContext()
 
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
-
   const Info = useMemo(() => {
     return supportedStakingAssetIds.map((stakingAssetId, i) => (
       <>
         <StakingInfo
           stakingAssetId={stakingAssetId}
-          stakingAssetAccountId={stakingAssetAccountAddress}
+          stakingAssetAccountId={stakingAssetAccountId}
         />
         {i < supportedStakingAssetIds.length - 1 && (
           <Divider my={4} mx={-6} width='calc(100% + 42px)' />
         )}
       </>
     ))
-  }, [stakingAssetAccountAddress])
+  }, [stakingAssetAccountId])
 
   return (
     <Card>

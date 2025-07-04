@@ -91,35 +91,19 @@ export const useSwapActionSubscriber = ({
       activeSwap.sellAsset.chainId === KnownChainIds.EthereumMainnet &&
       activeSwap.buyAsset.chainId === KnownChainIds.ArbitrumMainnet
 
-    if (isArbitrumDeposit && activeSwap.metadata.estimatedExecutionTimeMs !== undefined) {
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: uuidv4(),
-          createdAt: activeSwap.createdAt,
-          updatedAt: activeSwap.updatedAt,
-          type: ActionType.BridgeWithETA,
-          status: ActionStatus.Pending,
-          swapMetadata: {
-            swapId: activeSwap.id,
-            createdAt: activeSwap.createdAt,
-            estimatedExecutionTimeMs: activeSwap.metadata.estimatedExecutionTimeMs,
-          },
-        }),
-      )
-    } else {
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: uuidv4(),
-          createdAt: activeSwap.createdAt,
-          updatedAt: activeSwap.updatedAt,
-          type: ActionType.Swap,
-          status: ActionStatus.Pending,
-          swapMetadata: {
-            swapId: activeSwap.id,
-          },
-        }),
-      )
-    }
+    dispatch(
+      actionSlice.actions.upsertAction({
+        id: uuidv4(),
+        createdAt: activeSwap.createdAt,
+        updatedAt: activeSwap.updatedAt,
+        type: ActionType.Swap,
+        status: ActionStatus.Pending,
+        swapMetadata: {
+          swapId: activeSwap.id,
+          isBridgeWithEta: isArbitrumDeposit,
+        },
+      }),
+    )
   }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(

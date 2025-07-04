@@ -9,7 +9,8 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import { SwapStatus } from '@shapeshiftoss/swapper'
+import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
@@ -43,13 +44,15 @@ type SwapActionCardProps = {
 export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCardProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
+  const { isBridgeWithEta, swapId } = action.swapMetadata
+
   const formattedDate = useMemo(() => {
     return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
   const swap = useMemo(() => {
-    return swapsById[action.swapMetadata.swapId]
-  }, [action, swapsById])
+    return swapsById[swapId]
+  }, [swapId, swapsById])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen: swap?.isStreaming && action.status === ActionStatus.Pending,
@@ -100,14 +103,15 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   }, [swap])
 
   const title = useMemo(() => {
-    if (!swap) return 'notificationCenter.swap.processing'
+    const typeKey = isBridgeWithEta ? 'bridge' : 'swap'
+    if (!swap) return `notificationCenter.${typeKey}.processing`
     if (swap.isStreaming && swap.status === SwapStatus.Pending)
       return 'notificationCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return 'notificationCenter.swap.complete'
-    if (swap.status === SwapStatus.Failed) return 'notificationCenter.swap.failed'
+    if (swap.status === SwapStatus.Success) return `notificationCenter.${typeKey}.complete`
+    if (swap.status === SwapStatus.Failed) return `notificationCenter.${typeKey}.failed`
 
-    return 'notificationCenter.swap.processing'
-  }, [swap])
+    return `notificationCenter.${typeKey}.processing`
+  }, [isBridgeWithEta, swap])
 
   return (
     <Stack
@@ -137,7 +141,13 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
                 <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
-                <RawText>{action.type}</RawText>
+                <Text
+                  translation={
+                    isBridgeWithEta
+                      ? 'notificationCenter.types.bridge'
+                      : 'notificationCenter.types.swap'
+                  }
+                />
                 {swap?.swapperName && (
                   <RawText>
                     <HoverTooltip label={swap.swapperName}>
@@ -160,7 +170,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4}>
               <CardBody px={0} py={0}>
-                <SwapDetails txLink={swap?.txLink} swap={swap} />
+                <SwapDetails txLink={swap?.txLink} swap={swap} isBridgeWithEta={isBridgeWithEta} />
               </CardBody>
             </Card>
           </Collapse>

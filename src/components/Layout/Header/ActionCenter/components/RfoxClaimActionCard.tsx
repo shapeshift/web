@@ -22,7 +22,6 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
-import type { RfoxClaimQuote } from '@/pages/RFOX/components/Claim/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -61,35 +60,18 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     (e: React.MouseEvent) => {
       // Prevent card collapse
       e.stopPropagation()
-      // id is a composite id of <cooldownExpiry>-<index>
-      const index = action.id.split('-')[0]
-      if (index === undefined) throw new Error('index not found in composite id')
+      const index = action.rfoxClaimActionMetadata.request.index
 
       // Close the drawer as early as possible
       closeDrawer()
-      const confirmedQuote: RfoxClaimQuote = {
-        request: {
-          stakingAssetAccountId: action.rfoxClaimActionMetadata.accountId,
-          stakingAssetId: action.rfoxClaimActionMetadata.assetId,
-          stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
-          index: Number(index),
-          id: action.id,
-        },
-      }
+
       navigate(`/rfox/claim/${index}/confirm`, {
         state: {
-          confirmedQuote,
+          selectedUnstakingRequest: action.rfoxClaimActionMetadata.request,
         },
       })
     },
-    [
-      navigate,
-      closeDrawer,
-      action.id,
-      action.rfoxClaimActionMetadata.accountId,
-      action.rfoxClaimActionMetadata.assetId,
-      action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
-    ],
+    [navigate, closeDrawer, action.rfoxClaimActionMetadata.request],
   )
 
   return (
@@ -102,7 +84,10 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       _hover={hoverProps}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={onToggle}>
-        <AssetIconWithBadge assetId={action.rfoxClaimActionMetadata.assetId} size='md'>
+        <AssetIconWithBadge
+          assetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
+          size='md'
+        >
           <ActionStatusIcon status={action.status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>

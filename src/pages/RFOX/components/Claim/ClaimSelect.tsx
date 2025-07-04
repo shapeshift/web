@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import type { ClaimRouteProps } from './types'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ClaimStatus } from '@/components/ClaimRow/types'
@@ -91,13 +91,9 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
 
       const handleClaimClick = (claimId: number) => {
-        const claimQuote: RfoxClaimQuote = {
-          request: unstakingRequest,
-        }
-
         navigate(`/rfox/claim/${claimId}/confirm`, {
           state: {
-            confirmedQuote: claimQuote,
+            selectedUnstakingRequest: unstakingRequest,
           },
         })
       }

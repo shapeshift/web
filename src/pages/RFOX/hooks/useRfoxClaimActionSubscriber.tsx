@@ -37,11 +37,11 @@ export const useRfoxClaimActionSubscriber = () => {
 
     pendingRfoxClaimActions.forEach(action => {
       if (!action.rfoxClaimActionMetadata.txHash) return
-      const asset = assets[action.rfoxClaimActionMetadata.assetId]
+      const asset = assets[action.rfoxClaimActionMetadata.request.stakingAssetId]
       if (!asset) return
 
       const amountCryptoPrecision = fromBaseUnit(
-        action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
+        action.rfoxClaimActionMetadata.request.amountCryptoBaseUnit,
         asset.precision,
       )
 
@@ -90,13 +90,11 @@ export const useRfoxClaimActionSubscriber = () => {
             createdAt: cooldownExpiryMs,
             updatedAt: now,
             rfoxClaimActionMetadata: {
+              request,
               // TODO(gomes): translations
               message: `Your unstake of ${Number(amountCryptoPrecision).toFixed(2)} ${
                 asset?.symbol ?? ''
               } is ready to claim`,
-              assetId: request.stakingAssetId,
-              amountCryptoBaseUnit: request.amountCryptoBaseUnit,
-              accountId: stakingAssetAccountId as string,
             },
           }),
         )

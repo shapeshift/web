@@ -7,8 +7,9 @@ import type { JSX } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery'
 import { SharedStatus } from '../Shared/SharedStatus'
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import type { ClaimRouteProps } from './types'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -28,7 +29,7 @@ type BodyContent = {
 }
 
 type ClaimStatusProps = {
-  confirmedQuote: RfoxClaimQuote
+  selectedUnstakingRequest: UnstakingRequest
   accountId: AccountId
   txId: string
   setClaimTxid: (txId: string) => void
@@ -36,7 +37,7 @@ type ClaimStatusProps = {
 }
 
 export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimStatusProps> = ({
-  confirmedQuote,
+  selectedUnstakingRequest,
   accountId,
   txId,
   setClaimTxid,
@@ -49,22 +50,22 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   }, [navigate])
 
   const claimAsset = useAppSelector(state =>
-    selectAssetById(state, confirmedQuote.request.stakingAssetId),
+    selectAssetById(state, selectedUnstakingRequest.stakingAssetId),
   )
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.request.amountCryptoBaseUnit, claimAsset?.precision ?? 0),
-    [confirmedQuote.request.amountCryptoBaseUnit, claimAsset?.precision],
+    () => fromBaseUnit(selectedUnstakingRequest.amountCryptoBaseUnit, claimAsset?.precision ?? 0),
+    [selectedUnstakingRequest.amountCryptoBaseUnit, claimAsset?.precision],
   )
 
   const txStatus = useTxStatus({
-    accountId: confirmedQuote.request.amountCryptoBaseUnit,
+    accountId: selectedUnstakingRequest.amountCryptoBaseUnit,
     txHash: txId,
     onTxStatusConfirmed: handleTxConfirmed,
   })
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    accountId: confirmedQuote.request.stakingAssetAccountId,
+    accountId: selectedUnstakingRequest.stakingAssetAccountId,
   })
 
   const bodyContent: BodyContent | null = useMemo(() => {

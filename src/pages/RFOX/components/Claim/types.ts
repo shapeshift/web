@@ -1,7 +1,5 @@
 import type { JSX } from 'react'
 
-import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery'
-
 export enum ClaimRoutePaths {
   Select = '/claim',
   Confirm = '/claim/:claimId/confirm',
@@ -11,8 +9,4 @@ export enum ClaimRoutePaths {
 export type ClaimRouteProps = {
   headerComponent?: JSX.Element
   setStepIndex: (index: number) => void
-}
-
-export type RfoxClaimQuote = {
-  request: UnstakingRequest
 }

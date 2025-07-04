@@ -4,9 +4,10 @@ import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import type { ClaimRouteProps } from './types'
 
 import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -53,62 +54,64 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
-  const confirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
+  const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
+    | UnstakingRequest
+    | undefined
 
   const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote
-      ? fromAccountId(confirmedQuote.request.stakingAssetAccountId).account
+    return selectedUnstakingRequest
+      ? fromAccountId(selectedUnstakingRequest.stakingAssetAccountId).account
       : undefined
-  }, [confirmedQuote])
+  }, [selectedUnstakingRequest])
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
     stakingAssetAccountAddress,
   })
 
   const handleTxConfirmed = useCallback(async () => {
-    if (!confirmedQuote) return
+    if (!selectedUnstakingRequest) return
 
     await queryClient.invalidateQueries({
       queryKey: getUnstakingRequestCountQueryKey({
-        stakingAssetId: confirmedQuote.request.stakingAssetId,
+        stakingAssetId: selectedUnstakingRequest.stakingAssetId,
         stakingAssetAccountAddress,
       }),
     })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [confirmedQuote, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
+  }, [selectedUnstakingRequest, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />
   }, [headerComponent, setStepIndex])
 
   const renderClaimConfirm = useCallback(() => {
-    if (!confirmedQuote) return null
+    if (!selectedUnstakingRequest) return null
 
     return (
       <ClaimConfirm
-        claimQuote={confirmedQuote}
+        claimQuote={selectedUnstakingRequest}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
         claimTxid={claimTxid}
       />
     )
-  }, [claimTxid, confirmedQuote, headerComponent])
+  }, [claimTxid, selectedUnstakingRequest, headerComponent])
 
   const renderClaimStatus = useCallback(() => {
     if (!claimTxid) return null
-    if (!confirmedQuote) return null
+    if (!selectedUnstakingRequest) return null
 
     return (
       <ClaimStatus
-        accountId={confirmedQuote.request.stakingAssetAccountId}
+        accountId={selectedUnstakingRequest.stakingAssetAccountId}
         txId={claimTxid}
         setClaimTxid={setClaimTxid}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
-        confirmedQuote={confirmedQuote}
+        confirmedQuote={selectedUnstakingRequest}
       />
     )
-  }, [claimTxid, handleTxConfirmed, headerComponent, confirmedQuote])
+  }, [claimTxid, handleTxConfirmed, headerComponent, selectedUnstakingRequest])
 
   const renderRedirect = useCallback(() => <Navigate to='' replace />, [])
 

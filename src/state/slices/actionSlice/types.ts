@@ -3,6 +3,8 @@ import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+
 export enum ActionType {
   Deposit = 'Deposit',
   Claim = 'Claim',
@@ -98,10 +100,7 @@ export type RfoxClaimAction = BaseAction & {
   type: ActionType.RfoxClaim
   rfoxClaimActionMetadata: {
     message: string
-    assetId: AssetId
-    secondaryAssetId?: AssetId
-    amountCryptoBaseUnit: string
-    accountId: AccountId
+    request: UnstakingRequest
     txHash?: string
   }
 }

@@ -40,7 +40,11 @@ export const getUnstakingRequestCountQueryKey = ({
   {
     address: stakingAssetId ? getStakingContract(stakingAssetId) : undefined,
     functionName: 'getUnstakingRequestCount',
-    args: [stakingAssetAccountId ? getAddress(stakingAssetAccountId) : ('' as Address)],
+    args: [
+      stakingAssetAccountId
+        ? getAddress(fromAccountId(stakingAssetAccountId).account)
+        : ('' as Address),
+    ],
     chainId: arbitrum.id,
   },
 ]

@@ -17,6 +17,9 @@ export const actionSlice = createSlice({
         state.byId[payload.id] = {
           ...state.byId[payload.id],
           ...payload,
+          // ensure we do *never* use payload createdAt for updates
+          // only case we should use it is for inserts
+          createdAt: state.byId[payload.id]?.createdAt || payload.createdAt,
           updatedAt: Date.now(),
         }
       } else {

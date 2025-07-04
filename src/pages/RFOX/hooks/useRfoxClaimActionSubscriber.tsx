@@ -10,6 +10,9 @@ import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/s
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+// Note: the is a slight misnomer here compared to what we conventionally call a subscriber in action center (a poller)
+// However, this *is* reactive on useGetUnstakingRequestsQuery(), with inner queries which do get invalidated, so it is a subscriber in a way, just different
+
 export const useRfoxClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)

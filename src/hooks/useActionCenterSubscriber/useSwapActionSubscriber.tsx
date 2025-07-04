@@ -8,6 +8,7 @@ import {
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
 } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
@@ -29,7 +30,7 @@ import {
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
-import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { selectFeeAssetByChainId, selectTxs } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -51,6 +52,7 @@ export const useSwapActionSubscriber = ({
   })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
+  console.log({ pendingSwapActions })
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
   const {
     state: { isConnected },
@@ -70,6 +72,7 @@ export const useSwapActionSubscriber = ({
     if (!activeSwapId) return
 
     const activeSwap = swapsById[activeSwapId]
+    console.log({ activeSwap })
 
     if (!activeSwap) return
 
@@ -82,18 +85,41 @@ export const useSwapActionSubscriber = ({
 
     if (existingSwapAction) return
 
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: uuidv4(),
-        createdAt: activeSwap.createdAt,
-        updatedAt: activeSwap.updatedAt,
-        type: ActionType.Swap,
-        status: ActionStatus.Pending,
-        swapMetadata: {
-          swapId: activeSwap.id,
-        },
-      }),
-    )
+    // TODO - break this out into a function and make this code below cleaner
+    const isArbitrumDeposit =
+      activeSwap.swapperName === SwapperName.ArbitrumBridge &&
+      activeSwap.sellAsset.chainId === KnownChainIds.EthereumMainnet &&
+      activeSwap.buyAsset.chainId === KnownChainIds.ArbitrumMainnet
+
+    if (isArbitrumDeposit && activeSwap.metadata.estimatedExecutionTimeMs !== undefined) {
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: uuidv4(),
+          createdAt: activeSwap.createdAt,
+          updatedAt: activeSwap.updatedAt,
+          type: ActionType.BridgeWithETA,
+          status: ActionStatus.Pending,
+          swapMetadata: {
+            swapId: activeSwap.id,
+            createdAt: activeSwap.createdAt,
+            estimatedExecutionTimeMs: activeSwap.metadata.estimatedExecutionTimeMs,
+          },
+        }),
+      )
+    } else {
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: uuidv4(),
+          createdAt: activeSwap.createdAt,
+          updatedAt: activeSwap.updatedAt,
+          type: ActionType.Swap,
+          status: ActionStatus.Pending,
+          swapMetadata: {
+            swapId: activeSwap.id,
+          },
+        }),
+      )
+    }
   }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(

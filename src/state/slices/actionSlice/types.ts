@@ -9,6 +9,7 @@ export enum ActionType {
   Deposit = 'Deposit',
   Claim = 'Claim',
   Swap = 'Swap',
+  BridgeWithETA = 'BridgeWithETA',
   LimitOrder = 'LimitOrder',
   GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
@@ -29,6 +30,12 @@ export enum ActionStatus {
 
 type ActionSwapMetadata = {
   swapId: string
+}
+
+type BridgeWithETAMetadata = {
+  swapId: string
+  createdAt: number
+  estimatedExecutionTimeMs: number
 }
 
 type ActionLimitOrderMetadata = {
@@ -81,6 +88,11 @@ export type SwapAction = BaseAction & {
   swapMetadata: ActionSwapMetadata
 }
 
+export type BridgeWithETAAction = BaseAction & {
+  type: ActionType.BridgeWithETA
+  swapMetadata: BridgeWithETAMetadata
+}
+
 export type LimitOrderAction = BaseAction & {
   type: ActionType.LimitOrder
   limitOrderMetadata: ActionLimitOrderMetadata
@@ -110,6 +122,7 @@ export type Action =
   | AppUpdateAction
   | GenericTransactionAction
   | RfoxClaimAction
+  | BridgeWithETAAction
 
 export type ActionState = {
   byId: Record<string, Action>

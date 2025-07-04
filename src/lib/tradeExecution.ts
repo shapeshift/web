@@ -39,6 +39,7 @@ import { poll } from '@/lib/poll/poll'
 import { selectCurrentSwap } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
+import { getQuoteExecutionTime } from '@/state/slices/tradeQuoteSlice/helpers'
 import { store } from '@/state/store'
 
 export const tradeStatusQueryKey = (swapId: string, sellTxHash: string) => [
@@ -115,6 +116,9 @@ export class TradeExecution {
 
       const hop = getHopByIndex(tradeQuote, stepIndex)
 
+      console.log('LES GOOOO')
+      console.log({ tradeQuote, stepIndex, hop })
+
       if (!hop) {
         throw new Error(`No hop found for stepIndex ${stepIndex}`)
       }
@@ -155,6 +159,7 @@ export class TradeExecution {
         status: SwapStatus.Pending,
         metadata: {
           ...swap.metadata,
+          estimatedExecutionTimeMs: getQuoteExecutionTime({ quote: tradeQuote }),
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
           stepIndex,

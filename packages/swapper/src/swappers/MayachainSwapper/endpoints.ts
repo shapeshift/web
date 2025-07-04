@@ -88,7 +88,10 @@ export const mayachainApi: SwapperApi = {
   getCosmosSdkTransactionFees: input => cosmossdk.getCosmosSdkTransactionFees(input),
   checkTradeStatus: input => {
     const { config } = input
-    const url = `${config.VITE_MAYACHAIN_NODE_URL}/mayachain`
-    return checkTradeStatus({ ...input, url, nativeChain: 'MAYA' })
+
+    const nodeUrl = `${config.VITE_MAYACHAIN_NODE_URL}/mayachain`
+    const apiUrl = `${config.VITE_UNCHAINED_MAYACHAIN_HTTP_URL}/api/v1`
+
+    return checkTradeStatus({ ...input, nodeUrl, apiUrl, nativeChain: 'MAYA' })
   },
 }

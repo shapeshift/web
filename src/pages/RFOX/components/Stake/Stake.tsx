@@ -24,7 +24,11 @@ import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanc
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -127,15 +131,17 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       actionSlice.actions.upsertAction({
         id: stakeTxid,
         type: ActionType.GenericTransaction,
-        displayType: 'rFOX',
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: translate('RFOX.stakeSuccess', { amount: amountCryptoPrecision, symbol }),
-        txHash: stakeTxid,
-        chainId: stakingAsset.chainId,
-        accountId: confirmedQuote.stakingAssetAccountId,
-        assetId: confirmedQuote.stakingAssetId,
+        transactionMetadata: {
+          displayType: GenericTransactionDisplayType.RFOX,
+          txHash: stakeTxid,
+          chainId: stakingAsset.chainId,
+          accountId: confirmedQuote.stakingAssetAccountId,
+          assetId: confirmedQuote.stakingAssetId,
+          message: translate('RFOX.stakeSuccess', { amount: amountCryptoPrecision, symbol }),
+        },
       }),
     )
     toast({

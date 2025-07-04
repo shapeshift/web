@@ -97,7 +97,10 @@ export const thorchainApi: SwapperApi = {
   getCosmosSdkTransactionFees: input => cosmossdk.getCosmosSdkTransactionFees(input),
   checkTradeStatus: input => {
     const { config } = input
-    const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
-    return checkTradeStatus({ ...input, url, nativeChain: 'THOR' })
+
+    const nodeUrl = `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
+    const apiUrl = `${config.VITE_UNCHAINED_THORCHAIN_HTTP_URL}/api/v1`
+
+    return checkTradeStatus({ ...input, nodeUrl, apiUrl, nativeChain: 'THOR' })
   },
 }

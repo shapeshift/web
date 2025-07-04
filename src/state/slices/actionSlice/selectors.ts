@@ -20,10 +20,7 @@ import {
 export const selectActions = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
-  (actionsById, actionIds) => {
-    console.log({ actionsById })
-    return actionIds.map(id => actionsById[id])
-  },
+  (actionsById, actionIds) => actionIds.map(id => actionsById[id]),
 )
 
 export const selectWalletActions = createDeepEqualOutputSelector(
@@ -46,7 +43,7 @@ export const selectWalletActions = createDeepEqualOutputSelector(
       }
 
       if (isGenericTransactionAction(action)) {
-        return enabledWalletAccountIds.includes(action.accountId)
+        return enabledWalletAccountIds.includes(action.transactionMetadata.accountId)
       }
 
       return action

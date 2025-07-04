@@ -21,7 +21,7 @@ export const QuoteSortSelector: FC = memo(() => {
       <Text translation='trade.sort.sortBy' />
       <Text translation='trade.sort.info' fontWeight='medium' fontSize='xs' color='text.subtle' />
       <ButtonGroup
-        mt={6}
+        mt={4}
         size='sm'
         borderRadius='xl'
         variant='ghost'

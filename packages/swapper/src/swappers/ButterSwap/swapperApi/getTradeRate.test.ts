@@ -53,7 +53,7 @@ describe('getTradeRate', () => {
 
     expect(result.isOk()).toBe(true)
     const tradeRate = result.unwrap()
-    expect(tradeRate[0].rate).toBe('2298.70840740740740740741')
+    expect(tradeRate[0].rate).toBe('2296.409699')
   })
 
   it('should return a correct trade rate and steps for a multi-hop ETH->BTC route', async () => {

@@ -225,7 +225,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                 </Row.Value>
               </Row>
               <Flex gap={1} alignItems='center'>
-                <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                <Tooltip
+                  label={translate(
+                    networkFeeFiatUserCurrency
+                      ? 'trade.quote.gas'
+                      : 'trade.tooltip.continueSwapping',
+                  )}
+                >
                   <Box>
                     <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
                       <Row.Label fontSize='sm'>

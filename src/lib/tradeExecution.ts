@@ -186,8 +186,8 @@ export class TradeExecution {
           if (
             relayerTxHash &&
             relayerExplorerTxLink &&
-            !updatedSwap.relayerTxHash &&
-            !updatedSwap.relayerExplorerTxLink
+            !updatedSwap.metadata.relayerTxHash &&
+            !updatedSwap.metadata.relayerExplorerTxLink
           ) {
             const relayerTxDetailsArgs: RelayerTxDetailsArgs = {
               stepIndex,

@@ -1,11 +1,9 @@
-import { Card, CardHeader, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Card, CardHeader, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
-
-import { RawText } from '@/components/Text'
 
 const borderRadius = { base: 'md', md: 'lg' }
 const hoverProps = {
@@ -14,8 +12,8 @@ const hoverProps = {
 }
 
 export type TradeQuoteCardProps = {
-  title: string
   swapperName: SwapperName
+  swapperTitle?: string
   isActive: boolean
   isActionable: boolean
   headerContent: JSX.Element
@@ -25,8 +23,8 @@ export type TradeQuoteCardProps = {
 }
 
 export const TradeQuoteCard = ({
-  title,
   swapperName,
+  swapperTitle,
   isActive,
   isActionable,
   headerContent,
@@ -67,20 +65,13 @@ export const TradeQuoteCard = ({
       transitionProperty='common'
       transitionDuration='normal'
     >
-      <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4}>
-        <Flex justifyContent='space-between' alignItems='center'>
-          <Flex
-            gap={2}
-            alignItems='center'
-            overflow='hidden'
-            textOverflow='ellipsis'
-            whiteSpace='nowrap'
-          >
-            <SwapperIcon swapperName={swapperName} />
-            <RawText fontWeight='medium' isTruncated>
-              {title}
-            </RawText>
-          </Flex>
+      <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4} pb={2}>
+        <Flex alignItems='center' gap={2}>
+          <Tooltip label={swapperTitle}>
+            <Box>
+              <SwapperIcon swapperName={swapperName} size='sm' />
+            </Box>
+          </Tooltip>
           {headerContent}
         </Flex>
       </CardHeader>

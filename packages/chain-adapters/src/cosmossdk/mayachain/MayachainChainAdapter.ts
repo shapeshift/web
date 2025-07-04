@@ -216,9 +216,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
     _: Partial<GetFeeDataInput<KnownChainIds.MayachainMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.MayachainMainnet>> {
     return {
-      fast: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '200000' } },
-      average: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '200000' } },
-      slow: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '200000' } },
+      fast: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '500000' } },
+      average: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '500000' } },
+      slow: { txFee: NATIVE_FEE, chainSpecific: { gasLimit: '500000' } },
     }
   }
 

@@ -2992,6 +2992,9 @@
       "cancelled": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was cancelled.",
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
+    "rfox": {
+      "unstakeConfirmed": "Your unstake of %{amount} FOX will be available to claim in %{cooldownPeriod}."
+    },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",

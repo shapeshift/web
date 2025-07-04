@@ -8,12 +8,8 @@ import { useLocation } from 'react-router-dom'
 import { DashboardTab } from '../DashboardTab'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
 import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
-import { EarnBalance } from './EarnBalance'
 
-import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
-import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 const paddingTop = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
@@ -43,7 +39,6 @@ export const DashboardHeader = memo(() => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
 
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
 
@@ -65,13 +60,11 @@ export const DashboardHeader = memo(() => {
         label: 'navBar.wallet',
         path: '/wallet/accounts',
         color: 'blue',
-        rightElement: <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />,
       },
       {
         label: 'navBar.defi',
         path: '/wallet/earn',
         color: 'purple',
-        rightElement: <EarnBalance />,
       },
       {
         label: 'common.activity',
@@ -79,7 +72,7 @@ export const DashboardHeader = memo(() => {
         color: 'blue',
       },
     ]
-  }, [portfolioTotalUserCurrencyBalance])
+  }, [])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (

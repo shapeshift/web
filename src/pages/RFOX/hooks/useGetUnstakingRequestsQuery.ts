@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
@@ -149,10 +149,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
             // Which itself *is* unique at any given time, though as users unstake/claim, it may change due to the inner workings of solidity, as
             // indexes can reorg
             id: `${index}-${result.cooldownExpiry}-${contractAddress}`,
-            stakingAssetAccountId: toAccountId({
-              account: stakingAssetAccountId,
-              chainId: arbitrumChainId,
-            }),
+            stakingAssetAccountId,
           }
         })
         .filter(isSome)

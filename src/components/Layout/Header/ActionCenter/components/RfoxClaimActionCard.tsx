@@ -22,6 +22,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
+import type { RfoxClaimQuote } from '@/pages/RFOX/components/Claim/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -62,17 +63,20 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       e.stopPropagation()
       // id is a composite id of <cooldownExpiry>-<index>
       const index = action.id.split('-')[0]
+      if (index === undefined) throw new Error('index not found in composite id')
+
       // Close the drawer as early as possible
       closeDrawer()
+      const confirmedQuote: RfoxClaimQuote = {
+        stakingAssetAccountId: action.rfoxClaimActionMetadata.accountId,
+        stakingAssetId: action.rfoxClaimActionMetadata.assetId,
+        stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
+        index: Number(index),
+        id: action.id,
+      }
       navigate(`/rfox/claim/${index}/confirm`, {
         state: {
-          confirmedQuote: {
-            stakingAssetAccountId: action.rfoxClaimActionMetadata.accountId,
-            stakingAssetId: action.rfoxClaimActionMetadata.assetId,
-            stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
-            index,
-            id: action.id,
-          },
+          confirmedQuote,
         },
       })
     },

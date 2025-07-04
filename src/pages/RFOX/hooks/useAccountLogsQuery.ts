@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken } from '@tanstack/react-query'
 import { getAddress } from 'viem'
@@ -33,7 +34,7 @@ const fetchAccountLogs = async (
             event,
             fromBlock: rfoxCreationBlockNumber,
             args: {
-              account: getAddress(stakingAssetAccountId),
+              account: getAddress(fromAccountId(stakingAssetAccountId).account),
             },
           }) as Promise<RFOXAccountLog[]>,
       ),

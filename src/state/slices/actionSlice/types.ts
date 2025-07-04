@@ -9,6 +9,7 @@ export enum ActionType {
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
   AppUpdate = 'AppUpdate',
+  EvergreenDeposit = 'EvergreenDeposit',
 }
 
 export enum ActionStatus {
@@ -50,6 +51,15 @@ type ActionAppUpdateMetadata = {
   currentVersion: string
 }
 
+type ActionEvergreenDepositMetadata = {
+  contractAddress: string
+  depositAmountCryptoBaseUnit: string
+  depositAmountCryptoPrecision: string
+  lpAsset: Asset
+  accountId: AccountId
+  stakeTxHash: string
+}
+
 export type BaseAction = {
   id: string
   type: ActionType
@@ -73,7 +83,12 @@ export type AppUpdateAction = BaseAction & {
   appUpdateMetadata: ActionAppUpdateMetadata
 }
 
-export type Action = SwapAction | LimitOrderAction | AppUpdateAction
+export type EvergreenDepositAction = BaseAction & {
+  type: ActionType.EvergreenDeposit
+  evergreenDepositMetadata: ActionEvergreenDepositMetadata
+}
+
+export type Action = SwapAction | LimitOrderAction | AppUpdateAction | EvergreenDepositAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -92,4 +107,8 @@ export const isLimitOrderAction = (action: Action): action is LimitOrderAction =
 
 export const isPendingSwapAction = (action: Action): action is SwapAction => {
   return Boolean(isSwapAction(action) && action.status === ActionStatus.Pending)
+}
+
+export const isEvergreenDepositAction = (action: Action): action is EvergreenDepositAction => {
+  return Boolean(action.type === ActionType.EvergreenDeposit && action.evergreenDepositMetadata)
 }

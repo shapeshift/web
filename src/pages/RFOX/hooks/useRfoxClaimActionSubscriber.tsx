@@ -1,13 +1,15 @@
 import { arbitrumChainId } from '@shapeshiftoss/caip'
-import { difference } from 'lodash'
 import { useEffect } from 'react'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
 import { fromBaseUnit } from '@/lib/math'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { selectActions } from '@/state/slices/actionSlice/selectors'
-import { ActionStatus, ActionType, isRfoxClaimAction } from '@/state/slices/actionSlice/types'
+import {
+  selectPendingRfoxClaimActions,
+  selectWalletActions,
+} from '@/state/slices/actionSlice/selectors'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -29,35 +31,22 @@ export const useRfoxClaimActionSubscriber = () => {
 
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
-  // Get current wallet actions to compare with fetched unstaking requests
-  const walletActions = useAppSelector(selectActions)
-
-  console.log({ walletActions })
+  const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
+  const actions = useAppSelector(selectWalletActions)
+  const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
 
   useEffect(() => {
-    if (!unstakingRequestsQuery.isSuccess) return
-    if (!stakingAssetAccountId) return
+    if (!pendingRfoxClaimActions.length) return
     const now = Date.now()
 
-    const currentRfoxClaimActions = walletActions.filter(isRfoxClaimAction)
-    const currentRfoxClaimActionIds = currentRfoxClaimActions.map(action => action.id)
-    const unstakingRequestIds = unstakingRequestsQuery.data.map(request => request.id)
-    const staleActionIds = difference(currentRfoxClaimActionIds, unstakingRequestIds)
-
-    console.log({ unstakingRequestIds, staleActionIds })
-
-    // Diff the current unstaking requests in store with the current unstaking requests from the API
-    // This will yield us all the confirmed
-    staleActionIds.forEach(staleActionId => {
-      const action = currentRfoxClaimActions.find(request => request.id === staleActionId)
-      if (!action) return
+    pendingRfoxClaimActions.forEach(action => {
       if (!action.rfoxClaimActionMetadata.txHash) return
       const asset = assets[action.rfoxClaimActionMetadata.assetId]
       if (!asset) return
 
       const amountCryptoPrecision = fromBaseUnit(
         action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
-        assets[action.rfoxClaimActionMetadata.assetId]?.precision ?? 0,
+        asset.precision,
       )
 
       dispatch(
@@ -66,7 +55,7 @@ export const useRfoxClaimActionSubscriber = () => {
           status: ActionStatus.Claimed,
           type: ActionType.RfoxClaim,
           createdAt: action.createdAt,
-          updatedAt: Date.now(),
+          updatedAt: now,
           rfoxClaimActionMetadata: {
             ...action.rfoxClaimActionMetadata,
             message: `Your claim of ${Number(amountCryptoPrecision).toFixed(2)} ${
@@ -76,8 +65,19 @@ export const useRfoxClaimActionSubscriber = () => {
         }),
       )
     })
+    // We definitely don't want to react on assets here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingRfoxClaimActions, dispatch])
+
+  useEffect(() => {
+    if (!unstakingRequestsQuery.isSuccess) return
+    if (!stakingAssetAccountId) return
+    const now = Date.now()
 
     unstakingRequestsQuery.data.forEach(request => {
+      // Don't rug order by updating updatedAt and createdAt, this was already available, and still is
+      if (actionIds.includes(request.id)) return
+
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
       if (now >= cooldownExpiryMs) {
         const asset = assets[request.stakingAssetId]

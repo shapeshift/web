@@ -132,3 +132,22 @@ export const selectLimitOrderActionsByWallet = createDeepEqualOutputSelector(
     )
   },
 )
+
+export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      (action): action is RfoxClaimAction =>
+        isRfoxClaimAction(action) &&
+        enabledWalletAccountIds.includes(action.rfoxClaimActionMetadata.accountId),
+    )
+  },
+)
+
+export const selectPendingRfoxClaimActions = createDeepEqualOutputSelector(
+  selectRfoxClaimActionsByWallet,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending)
+  },
+)

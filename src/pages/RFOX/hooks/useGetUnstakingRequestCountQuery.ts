@@ -65,3 +65,24 @@ export const getUnstakingRequestCountQueryFn = ({
       args: [getAddress(stakingAssetAccountAddress)],
     })
 }
+
+// TODO(gomes): remove all implementation
+export const newGetUnstakingRequestCountQueryFn = ({
+  stakingAssetAccountId,
+  stakingAssetId,
+}: Omit<UseGetUnstakingRequestCountQueryProps, 'select'>) => {
+  if (!stakingAssetAccountId || !stakingAssetId) return skipToken
+
+  const stakingAssetAccountAddress = fromAccountId(stakingAssetAccountId).account
+
+  return async () => {
+    const count = await readContract(client, {
+      abi: RFOX_ABI,
+      address: getStakingContract(stakingAssetId),
+      functionName: 'getUnstakingRequestCount',
+      args: [getAddress(stakingAssetAccountAddress)],
+    })
+
+    return { count, stakingAssetId, stakingAssetAccountId }
+  }
+}

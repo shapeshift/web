@@ -7,7 +7,6 @@ import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { multicall } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { serialize } from 'wagmi'
 
 import { getStakingAssetId, getStakingContract } from '../helpers'
 import {
@@ -37,8 +36,6 @@ const getContractFnParams = (
     } as const
   })
 }
-
-type GetUnstakingRequestsQueryKey = [string, { fnParams: string }]
 
 export type UnstakingRequest = {
   amountCryptoBaseUnit: string
@@ -96,17 +93,12 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
     },
   })
 
-  const queryKey: GetUnstakingRequestsQueryKey = useMemo(
-    () => [
-      'unstakingRequests',
-      {
-        fnParams: serialize(unstakingRequestCountQueries.data),
-      },
-    ],
-    [unstakingRequestCountQueries],
+  const getUnstakingRequestsQueryKey = useMemo(
+    () => ['unstakingRequests', { stakingAssetAccountId }],
+    [],
   )
 
-  const queryFn = useMemo(() => {
+  const getUnstakingRequestsQueryFn = useMemo(() => {
     if (
       unstakingRequestCountQueries.isPending ||
       unstakingRequestCountQueries.isLoading ||
@@ -114,7 +106,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
     )
       return skipToken
 
-    // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
+    // We have an error in unstaking request count - no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
     // until staleTime/gcTime elapses on the dependant query. Propagates the error instead.
     if (unstakingRequestCountQueries.isError)
       return () => Promise.reject(unstakingRequestCountQueries.error)
@@ -157,11 +149,11 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   }, [unstakingRequestCountQueries, stakingAssetAccountId])
 
   const unstakingRequestsQuery = useQuery({
-    queryKey,
-    queryFn,
+    queryKey: getUnstakingRequestsQueryKey,
+    queryFn: getUnstakingRequestsQueryFn,
     select,
     retry: false,
   })
 
-  return { ...unstakingRequestsQuery, queryKey }
+  return { ...unstakingRequestsQuery, queryKey: getUnstakingRequestsQueryKey }
 }

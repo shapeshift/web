@@ -1,6 +1,7 @@
 import { arbitrumChainId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 
+import { useGetAllUnstakingCountsQuery } from './useGetAllUnstakingRequestsQueryCount'
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
 import { fromBaseUnit } from '@/lib/math'
@@ -28,6 +29,10 @@ export const useRfoxClaimActionSubscriber = () => {
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
     stakingAssetAccountId,
   })
+
+  const test = useGetAllUnstakingCountsQuery()
+
+  console.log({ test })
 
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)

@@ -848,6 +848,12 @@
       "warning": "High slippage tolerances can result in unfavorable trades.",
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
+    "quoteDisplay": {
+      "title": "Quote Display",
+      "info": "Choose your quote display style.",
+      "basic": "Basic",
+      "advanced": "Advanced"
+    },
     "sort": {
       "sortBy": "Sort Quotes By",
       "auto": "Auto",
@@ -1042,7 +1048,9 @@
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
-      "slippage": "Slippage: %{slippageFormatted}"
+      "gas": "The gas to complete this swapper's transaction.",
+      "slippage": "This is the slippage on this quote.",
+      "timeEstimate": "This is the estimated time for this swap to complete."
     },
     "awaitingPermit2Approval": "Awaiting token transfer",
     "awaitingSwap": "Awaiting swap via %{swapperName}",
@@ -2983,6 +2991,9 @@
       "complete": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was successfully filled.",
       "cancelled": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was cancelled.",
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
+    },
+    "rfox": {
+      "unstakeConfirmed": "Your unstake of %{amount} FOX will be available to claim in %{cooldownPeriod}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

@@ -71,9 +71,12 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
-  const handleClaimClick = useCallback((claimId: number) => {
-    navigate(`/rfox/claim/${claimId}/confirm`)
-  }, [navigate])
+  const handleClaimClick = useCallback(
+    (claimId: number) => {
+      navigate(`/rfox/claim/${claimId}/confirm`)
+    },
+    [navigate],
+  )
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />

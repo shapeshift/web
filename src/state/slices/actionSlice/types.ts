@@ -95,7 +95,12 @@ export type RfoxClaimAction = BaseAction & {
   status: ActionStatus
 }
 
-export type Action = SwapAction | LimitOrderAction | AppUpdateAction | GenericTransactionAction | RfoxClaimAction
+export type Action =
+  | SwapAction
+  | LimitOrderAction
+  | AppUpdateAction
+  | GenericTransactionAction
+  | RfoxClaimAction
 
 export type ActionState = {
   byId: Record<string, Action>

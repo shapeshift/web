@@ -49,7 +49,6 @@ export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation()
-  const params = useParams<>()
   const queryClient = useQueryClient()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()

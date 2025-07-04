@@ -39,7 +39,7 @@ export const useRfoxClaimActionSubscriber = () => {
             // be more than enough in terms of being unique.
             // Upsert the index separately, as we *will* need it, no need for a composite we later destructure
             // or alternatively, upsert the whole request here as `request` and call it a day
-            id: `${request.cooldownExpiry}-${request.index}`,
+            id: request.id,
             type: ActionType.RfoxClaim,
             status: ActionStatus.ClaimAvailable,
             createdAt: cooldownExpiryMs,

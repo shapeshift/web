@@ -1,5 +1,5 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { arbitrumChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, foxAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -56,18 +56,13 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
 
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
-
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
-    stakingAssetAccountId: stakingAssetAccountAddress,
+    stakingAssetAccountId,
   })
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
-    if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={arbitrumChainId} />
+    if (!stakingAssetAccountId) return <ChainNotSupported chainId={arbitrumChainId} />
     if (!stakingAssetAccountId) return
 
     if (
@@ -116,7 +111,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
   }, [
     isConnected,
     setStepIndex,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
     unstakingRequestsQuery,
     navigate,
     stakingAssetAccountId,

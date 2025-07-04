@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
@@ -30,7 +31,7 @@ type UseCurrentEpochRewardsQueryProps = {
  */
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetId,
-  stakingAssetAccountId: stakingAssetAccountAddress,
+  stakingAssetAccountId,
   currentEpochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
   const combine = useCallback(
@@ -42,7 +43,7 @@ export const useCurrentEpochRewardsQuery = ({
       ],
     ) => {
       const combineResults = (_results: (Epoch[] | bigint | undefined)[]) => {
-        if (!stakingAssetAccountAddress) return 0n
+        if (!stakingAssetAccountId) return 0n
 
         const results = _results as EpochRewardsResultTuple
         const [epochHistory, currentEpochRewardUnits, affiliateRevenue] = results
@@ -58,8 +59,9 @@ export const useCurrentEpochRewardsQuery = ({
 
             const distribution =
               epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-                ?.distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
-                ?.totalRewardUnits
+                ?.distributionsByStakingAddress[
+                getAddress(fromAccountId(stakingAssetAccountId).account)
+              ]?.totalRewardUnits
 
             return distribution ? BigInt(distribution) : 0n
           },
@@ -78,7 +80,7 @@ export const useCurrentEpochRewardsQuery = ({
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [currentEpochMetadata, stakingAssetId, stakingAssetAccountAddress],
+    [currentEpochMetadata, stakingAssetId, stakingAssetAccountId],
   )
 
   const combinedQueries = useQueries({
@@ -87,19 +89,19 @@ export const useCurrentEpochRewardsQuery = ({
         queryKey: getEpochHistoryQueryKey(),
         queryFn: fetchEpochHistory,
         staleTime: 60 * 1000, // 1 minute in milliseconds
-        enabled: Boolean(currentEpochMetadata && stakingAssetAccountAddress && stakingAssetId),
+        enabled: Boolean(currentEpochMetadata && stakingAssetAccountId && stakingAssetId),
       },
       {
         queryKey: getEarnedQueryKey({
-          stakingAssetAccountId: stakingAssetAccountAddress,
+          stakingAssetAccountId,
           stakingAssetId,
         }),
         queryFn: getEarnedQueryFn({
-          stakingAssetAccountId: stakingAssetAccountAddress,
+          stakingAssetAccountId,
           stakingAssetId,
         }),
         staleTime: 60 * 1000, // 1 minute in milliseconds
-        enabled: Boolean(currentEpochMetadata && stakingAssetAccountAddress && stakingAssetId),
+        enabled: Boolean(currentEpochMetadata && stakingAssetAccountId && stakingAssetId),
       },
       {
         queryKey: getAffiliateRevenueQueryKey({
@@ -111,7 +113,7 @@ export const useCurrentEpochRewardsQuery = ({
           endTimestamp: currentEpochMetadata?.epochEndTimestamp,
         }),
         staleTime: 60 * 1000, // 1 minute in milliseconds
-        enabled: Boolean(currentEpochMetadata && stakingAssetAccountAddress && stakingAssetId),
+        enabled: Boolean(currentEpochMetadata && stakingAssetAccountId && stakingAssetId),
       },
     ],
     combine,

@@ -30,7 +30,7 @@ import type {
   SwapperName,
 } from '../types'
 import { TradeQuoteError } from '../types'
-import { makeSwapErrorRight } from '../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../utils'
 import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
@@ -174,16 +174,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     perRouteValues.push(getRouteValues(streamingSwapQuote, true))
   }
 
-  const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
-    const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
-    // all pool amounts are native precision regardless of token precision
-    const sellAmountCryptoThorBaseUnit = bn(
-      toBaseUnit(sellAmountCryptoPrecision, buyAssetNativePrecision),
-    )
-
-    return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
-  }
-
   const getRouteBuyAmountBeforeFeesCryptoBaseUnit = (quote: ThornodeQuoteResponseSuccess) => {
     const buyAmountBeforeFeesCryptoThorPrecision = bn(quote.expected_amount_out).plus(
       quote.fees.total,
@@ -259,7 +249,12 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       outputExponent: buyAsset.precision,
     }).toFixed()
 
-    const rate = getRouteRate(route.expectedAmountOutThorBaseUnit)
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
     const slippage = route.isStreaming ? undefined : slippageTolerancePercentageDecimal
     const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmountBeforeFeesCryptoBaseUnit(route.quote)
 

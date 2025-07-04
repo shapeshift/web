@@ -142,14 +142,14 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  rate: '14924.80846543344314936607', // 14942 FOX per WETH
+  rate: '14633.996289802713696747',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-      rate: '14924.80846543344314936607', // 14942 FOX per WETH
+      rate: '14633.996289802713696747',
       feeData: {
         protocolFees: {
           [WETH.assetId]: {
@@ -161,8 +161,8 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
         networkFeeCryptoBaseUnit: '0',
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366', // ~14925 FOX
-      buyAmountAfterFeesCryptoBaseUnit: '14633996289802713696747', // ~14634 FOX
+      buyAmountBeforeFeesCryptoBaseUnit: '14924808465433443149366',
+      buyAmountAfterFeesCryptoBaseUnit: '14633996289802713696747',
       source: SwapperName.CowSwap,
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
@@ -188,14 +188,14 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  rate: '0.00004995640398295996',
+  rate: '0.00004663451553170897',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-      rate: '0.00004995640398295996',
+      rate: '0.00004663451553170897',
       feeData: {
         protocolFees: {
           [FOX_MAINNET.assetId]: {
@@ -234,13 +234,13 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  rate: '1.0003121775396440882',
+  rate: '1.04501702603391403555',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-      rate: '1.0003121775396440882',
+      rate: '1.04501702603391403555',
       estimatedExecutionTimeMs: undefined,
       feeData: {
         protocolFees: {
@@ -280,13 +280,13 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  rate: '0.00028787191526496171',
+  rate: '0.000281881715243856',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-      rate: '0.00028787191526496171',
+      rate: '0.000281881715243856',
       estimatedExecutionTimeMs: undefined,
       feeData: {
         networkFeeCryptoBaseUnit: '0',
@@ -326,14 +326,14 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
-  rate: '14716.04718939437523468382', // 14716 FOX per WETH
+  rate: '144293027.59156357115',
   slippageTolerancePercentageDecimal: '0.005',
   swapperName: SwapperName.CowSwap,
   steps: [
     {
       estimatedExecutionTimeMs: undefined,
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-      rate: '14716.04718939437523468382', // 14716 FOX per WETH
+      rate: '144293027.59156357115',
       feeData: {
         protocolFees: {
           [WETH.assetId]: {

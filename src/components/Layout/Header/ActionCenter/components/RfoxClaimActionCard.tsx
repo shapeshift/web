@@ -21,6 +21,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
+import { useActionCenterContext } from '../ActionCenterContext'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -40,6 +41,7 @@ type RfoxClaimActionCardProps = {
 export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const { closeDrawer } = useActionCenterContext()
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -58,6 +60,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     (e: React.MouseEvent) => {
       e.stopPropagation() // Prevent card collapse
       const index = action.id.split('-')[1] // Extract index from composite ID
+      closeDrawer() // Close the Action Center drawer
       // TODO(gomes): there may be a better way to do the top-level navigation thing, but that works so...
       navigate('/rfox/claim')
       navigate(`/rfox/claim/${index}/confirm`, {
@@ -72,7 +75,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
         },
       })
     },
-    [action.id, navigate],
+    [action.id, navigate, closeDrawer],
   )
 
   return (

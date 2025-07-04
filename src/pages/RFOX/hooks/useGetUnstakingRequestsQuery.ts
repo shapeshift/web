@@ -40,8 +40,8 @@ const getContractFnParams = (
 type GetUnstakingRequestsQueryKey = [string, { fnParams: string }]
 
 type UnstakingRequests = {
-  unstakingBalance: bigint
-  cooldownExpiry: bigint
+  unstakingBalance: string
+  cooldownExpiry: string
   stakingAssetId: AssetId
   index: number
   id: string
@@ -128,8 +128,8 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
           const index = Number(contracts[i].args[1])
 
           return {
-            unstakingBalance: result.unstakingBalance,
-            cooldownExpiry: result.cooldownExpiry,
+            unstakingBalance: result.unstakingBalance.toString(),
+            cooldownExpiry: result.cooldownExpiry.toString(),
             stakingAssetId: getStakingAssetId(contractAddress),
             index,
             // composite ID to ensure uniqueness of unstaking requests, to be used for lookups

@@ -31,11 +31,13 @@ export const useRfoxClaimActionSubscriber = () => {
     if (!unstakingRequestsQuery.isSuccess) return
     if (!stakingAssetAccountId) return
     const now = Date.now()
+    console.log({ unstakingRequestsQueryData: unstakingRequestsQuery.data })
     unstakingRequestsQuery.data.forEach(request => {
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
       if (now >= cooldownExpiryMs) {
         const asset = assets[request.stakingAssetId]
-        const amount = fromBaseUnit(request.unstakingBalance.toString(), asset?.precision ?? 18)
+        const amountCryptoPrecision = fromBaseUnit(request.unstakingBalance, asset?.precision ?? 18)
+
         dispatch(
           actionSlice.actions.upsertAction({
             id: request.id,
@@ -49,11 +51,11 @@ export const useRfoxClaimActionSubscriber = () => {
             updatedAt: now,
             rfoxClaimActionMetadata: {
               // TODO(gomes): translations
-              message: `Your unstake of ${Number(amount).toFixed(2)} ${
+              message: `Your unstake of ${Number(amountCryptoPrecision).toFixed(2)} ${
                 asset?.symbol ?? ''
               } is ready to claim`,
               assetId: request.stakingAssetId,
-              amountCryptoBaseUnit: request.unstakingBalance.toString(),
+              amountCryptoBaseUnit: request.unstakingBalance,
               accountId: stakingAssetAccountId as string,
             },
           }),

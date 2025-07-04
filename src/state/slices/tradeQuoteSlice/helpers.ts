@@ -197,7 +197,7 @@ const getQuoteBuyAmountAfterAfterFees = (quote: ApiQuote): BigNumber => {
   return bnOrZero(lastStep.buyAmountAfterFeesCryptoBaseUnit)
 }
 
-const getQuoteExecutionTime = (quote: ApiQuote): number => {
+export const getQuoteExecutionTime = (quote: Pick<ApiQuote, 'quote'>): number => {
   if (!quote.quote?.steps?.length) return Number.MAX_SAFE_INTEGER
 
   if (quote.quote.steps.every(step => step.estimatedExecutionTimeMs === undefined)) {

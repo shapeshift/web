@@ -362,6 +362,7 @@ export type SwapExecutionMetadata = {
 }
 
 export type SwapperSpecificMetadata = {
+  estimatedExecutionTimeMs?: number | undefined
   chainflipSwapId: number | undefined
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined

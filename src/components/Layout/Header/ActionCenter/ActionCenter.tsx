@@ -47,6 +47,8 @@ export const ActionCenter = memo(() => {
 
   const actions = useAppSelector(selectWalletActionsSorted)
 
+  console.log({ actions })
+
   const pendingActions = useAppSelector(selectWalletPendingActions)
   const { ordersByActionId } = useLimitOrders()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)

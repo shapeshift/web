@@ -77,7 +77,10 @@ export const useRfoxClaimActionSubscriber = () => {
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
       if (now >= cooldownExpiryMs) {
         const asset = assets[request.stakingAssetId]
-        const amountCryptoPrecision = fromBaseUnit(request.unstakingBalance, asset?.precision ?? 18)
+        const amountCryptoPrecision = fromBaseUnit(
+          request.amountCryptoBaseUnit,
+          asset?.precision ?? 18,
+        )
 
         dispatch(
           actionSlice.actions.upsertAction({
@@ -92,7 +95,7 @@ export const useRfoxClaimActionSubscriber = () => {
                 asset?.symbol ?? ''
               } is ready to claim`,
               assetId: request.stakingAssetId,
-              amountCryptoBaseUnit: request.unstakingBalance,
+              amountCryptoBaseUnit: request.amountCryptoBaseUnit,
               accountId: stakingAssetAccountId as string,
             },
           }),

@@ -1,5 +1,6 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { JSX } from 'react'
+
+import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery'
 
 export enum ClaimRoutePaths {
   Select = '/claim',
@@ -13,9 +14,5 @@ export type ClaimRouteProps = {
 }
 
 export type RfoxClaimQuote = {
-  stakingAssetAccountId: AccountId
-  stakingAssetId: AssetId
-  stakingAmountCryptoBaseUnit: string
-  index: number
-  id: string
+  request: UnstakingRequest
 }

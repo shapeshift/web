@@ -1,4 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, toAccountId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
@@ -39,13 +40,16 @@ const getContractFnParams = (
 
 type GetUnstakingRequestsQueryKey = [string, { fnParams: string }]
 
-type UnstakingRequests = {
-  unstakingBalance: string
+export type UnstakingRequest = {
+  amountCryptoBaseUnit: string
   cooldownExpiry: string
   stakingAssetId: AssetId
+  stakingAssetAccountId: AccountId
   index: number
   id: string
-}[]
+}
+
+type UnstakingRequests = UnstakingRequest[]
 
 type UseGetUnstakingRequestsQueryProps<SelectData = UnstakingRequests> = {
   stakingAssetAccountAddress: string | undefined
@@ -104,7 +108,8 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   )
 
   const queryFn = useMemo(() => {
-    if (fnParamsQuery.isPending || fnParamsQuery.isLoading) return skipToken
+    if (fnParamsQuery.isPending || fnParamsQuery.isLoading || stakingAssetAccountAddress)
+      return skipToken
 
     // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
     // until staleTime/gcTime elapses on the dependant query. Propagates the error instead.
@@ -121,6 +126,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
 
       return responses
         .map(({ result }, i) => {
+          if (!stakingAssetAccountAddress) return null
           if (!result) return null
 
           const contractAddress = contracts[i].address
@@ -139,11 +145,15 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
             // Which itself *is* unique at any given time, though as users unstake/claim, it may change due to the inner workings of solidity, as
             // indexes can reorg
             id: `${index}-${result.cooldownExpiry}-${contractAddress}`,
+            stakingAssetAccountId: toAccountId({
+              account: stakingAssetAccountAddress,
+              chainId: arbitrumChainId,
+            }),
           }
         })
         .filter(isSome)
     }
-  }, [fnParamsQuery])
+  }, [fnParamsQuery, stakingAssetAccountAddress])
 
   const unstakingRequestsQuery = useQuery({
     queryKey,

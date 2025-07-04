@@ -48,7 +48,7 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
         <ClaimRow
           stakingAssetId={unstakingRequest.stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
-          amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
+          amountCryptoBaseUnit={unstakingRequest.amountCryptoBaseUnit.toString()}
           status={status}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}

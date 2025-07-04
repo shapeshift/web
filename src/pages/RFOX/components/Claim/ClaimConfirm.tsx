@@ -75,36 +75,38 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const actions = useAppSelector(selectWalletActions)
 
   const maybeClaimAction = useMemo(
-    () => actions.find(action => action.id === claimQuote.id),
-    [actions, claimQuote.id],
+    () => actions.find(action => action.id === claimQuote.request.id),
+    [actions, claimQuote.request.id],
   )
 
   const handleGoBack = useCallback(() => {
     navigate('/rfox/claim')
   }, [navigate])
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.stakingAssetId))
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, claimQuote.request.stakingAssetId),
+  )
 
   const claimAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, claimQuote.stakingAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, claimQuote.request.stakingAssetId),
   )
 
   const stakingAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(claimQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
-    [claimQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
+    () => fromBaseUnit(claimQuote.request.amountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    [claimQuote.request.amountCryptoBaseUnit, stakingAsset?.precision],
   )
 
   const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(claimQuote.stakingAssetAccountId).account,
-    [claimQuote.stakingAssetAccountId],
+    () => fromAccountId(claimQuote.request.stakingAssetAccountId).account,
+    [claimQuote.request.stakingAssetAccountId],
   )
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
     return {
-      assetId: claimQuote.stakingAssetId,
-      accountId: claimQuote.stakingAssetAccountId,
+      assetId: claimQuote.request.stakingAssetId,
+      accountId: claimQuote.request.stakingAssetAccountId,
     }
-  }, [claimQuote.stakingAssetAccountId, claimQuote.stakingAssetId])
+  }, [claimQuote.request.stakingAssetAccountId, claimQuote.request.stakingAssetId])
 
   const stakingAssetAccountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
@@ -122,9 +124,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     return encodeFunctionData({
       abi: RFOX_ABI,
       functionName: 'withdraw',
-      args: [BigInt(claimQuote.index)],
+      args: [BigInt(claimQuote.request.index)],
     })
-  }, [claimQuote.index])
+  }, [claimQuote.request.index])
 
   const {
     mutateAsync: handleClaim,
@@ -135,7 +137,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     mutationFn: async () => {
       if (!wallet || stakingAssetAccountNumber === undefined) return
 
-      const adapter = assertGetEvmChainAdapter(fromAssetId(claimQuote.stakingAssetId).chainId)
+      const adapter = assertGetEvmChainAdapter(
+        fromAssetId(claimQuote.request.stakingAssetId).chainId,
+      )
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
@@ -143,7 +147,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         adapter,
         data: callData,
         value: '0',
-        to: getStakingContract(claimQuote.stakingAssetId),
+        to: getStakingContract(claimQuote.request.stakingAssetId),
         wallet,
       })
 
@@ -163,7 +167,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
       // Update the RFOX claim action with the transaction hash
       dispatch(
         actionSlice.actions.upsertAction({
-          id: claimQuote.id,
+          id: claimQuote.request.id,
           status: ActionStatus.Pending,
           type: ActionType.RfoxClaim,
           createdAt: maybeClaimAction?.createdAt ?? Date.now(),
@@ -172,9 +176,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
             message: `Your claim of ${Number(stakingAmountCryptoPrecision).toFixed(2)} ${
               stakingAsset?.symbol ?? ''
             } is pending`,
-            assetId: claimQuote.stakingAssetId,
-            amountCryptoBaseUnit: claimQuote.stakingAmountCryptoBaseUnit,
-            accountId: claimQuote.stakingAssetAccountId,
+            assetId: claimQuote.request.stakingAssetId,
+            amountCryptoBaseUnit: claimQuote.request.amountCryptoBaseUnit,
+            accountId: claimQuote.request.stakingAssetAccountId,
             txHash: txId,
           },
         }),
@@ -186,14 +190,19 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const claimFeesQueryInput = useMemo(
     () => ({
-      to: getStakingContract(claimQuote.stakingAssetId),
+      to: getStakingContract(claimQuote.request.stakingAssetId),
       from: stakingAssetAccountAddress,
-      chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
+      chainId: fromAssetId(claimQuote.request.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, claimQuote.stakingAssetId, stakingAssetAccountAddress, stakingAssetAccountNumber],
+    [
+      callData,
+      claimQuote.request.stakingAssetId,
+      stakingAssetAccountAddress,
+      stakingAssetAccountNumber,
+    ],
   )
 
   const {
@@ -211,9 +220,14 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   })
 
   const serializedClaimTxIndex = useMemo(() => {
-    if (!(claimTxid && stakingAssetAccountAddress && claimQuote.stakingAssetAccountId)) return ''
-    return serializeTxIndex(claimQuote.stakingAssetAccountId, claimTxid, stakingAssetAccountAddress)
-  }, [claimQuote.stakingAssetAccountId, claimTxid, stakingAssetAccountAddress])
+    if (!(claimTxid && stakingAssetAccountAddress && claimQuote.request.stakingAssetAccountId))
+      return ''
+    return serializeTxIndex(
+      claimQuote.request.stakingAssetAccountId,
+      claimTxid,
+      stakingAssetAccountAddress,
+    )
+  }, [claimQuote.request.stakingAssetAccountId, claimTxid, stakingAssetAccountAddress])
 
   const claimCard = useMemo(() => {
     if (!stakingAsset) return null

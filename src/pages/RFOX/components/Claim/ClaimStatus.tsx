@@ -48,21 +48,23 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
     navigate('/rfox/claim')
   }, [navigate])
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))
+  const claimAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.request.stakingAssetId),
+  )
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
-    [confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision],
+    () => fromBaseUnit(confirmedQuote.request.amountCryptoBaseUnit, claimAsset?.precision ?? 0),
+    [confirmedQuote.request.amountCryptoBaseUnit, claimAsset?.precision],
   )
 
   const txStatus = useTxStatus({
-    accountId: confirmedQuote.stakingAssetAccountId,
+    accountId: confirmedQuote.request.amountCryptoBaseUnit,
     txHash: txId,
     onTxStatusConfirmed: handleTxConfirmed,
   })
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    accountId: confirmedQuote.stakingAssetAccountId,
+    accountId: confirmedQuote.request.stakingAssetAccountId,
   })
 
   const bodyContent: BodyContent | null = useMemo(() => {

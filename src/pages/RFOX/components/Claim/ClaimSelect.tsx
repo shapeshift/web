@@ -92,11 +92,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
 
       const handleClaimClick = (claimId: number) => {
         const claimQuote: RfoxClaimQuote = {
-          stakingAssetAccountId,
-          stakingAssetId: unstakingRequest.stakingAssetId,
-          stakingAmountCryptoBaseUnit: unstakingRequest.unstakingBalance.toString(),
-          index: unstakingRequest.index,
-          id: unstakingRequest.id,
+          request: unstakingRequest,
         }
 
         navigate(`/rfox/claim/${claimId}/confirm`, {
@@ -110,7 +106,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
         <ClaimRow
           stakingAssetId={unstakingRequest.stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
-          amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
+          amountCryptoBaseUnit={unstakingRequest.amountCryptoBaseUnit.toString()}
           status={status}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}

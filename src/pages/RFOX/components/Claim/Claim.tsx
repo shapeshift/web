@@ -51,8 +51,9 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   const location = useLocation()
   const queryClient = useQueryClient()
 
-  const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
+
+  const confirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
 
   const stakingAssetAccountAddress = useMemo(() => {
     return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
@@ -63,9 +64,11 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   })
 
   const handleTxConfirmed = useCallback(async () => {
+    if (!confirmedQuote) return
+
     await queryClient.invalidateQueries({
       queryKey: getUnstakingRequestCountQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
+        stakingAssetId: confirmedQuote.stakingAssetId,
         stakingAssetAccountAddress,
       }),
     })
@@ -73,33 +76,23 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
   }, [confirmedQuote, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
 
   const renderClaimSelect = useCallback(() => {
-    return (
-      <ClaimSelect
-        headerComponent={headerComponent}
-        setConfirmedQuote={setConfirmedQuote}
-        setStepIndex={setStepIndex}
-      />
-    )
+    return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />
   }, [headerComponent, setStepIndex])
 
   const renderClaimConfirm = useCallback(() => {
-    const maybeParamsConfirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
-    const claimQuote = maybeParamsConfirmedQuote ?? confirmedQuote
-    if (!claimQuote) return null
+    if (!confirmedQuote) return null
 
     return (
       <ClaimConfirm
-        claimQuote={claimQuote}
+        claimQuote={confirmedQuote}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
         claimTxid={claimTxid}
       />
     )
-  }, [claimTxid, confirmedQuote, headerComponent, location.state?.confirmedQuote])
+  }, [claimTxid, confirmedQuote, headerComponent])
 
   const renderClaimStatus = useCallback(() => {
-    const confirmedQuote = location.state?.confirmedQuote as RfoxClaimQuote | undefined
-
     if (!claimTxid) return null
     if (!confirmedQuote) return null
 
@@ -113,7 +106,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
         confirmedQuote={confirmedQuote}
       />
     )
-  }, [claimTxid, handleTxConfirmed, headerComponent, location.state?.confirmedQuote])
+  }, [claimTxid, handleTxConfirmed, headerComponent, confirmedQuote])
 
   const renderRedirect = useCallback(() => <Navigate to='' replace />, [])
 

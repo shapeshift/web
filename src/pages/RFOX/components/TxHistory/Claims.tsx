@@ -2,7 +2,7 @@ import { CardBody, Skeleton } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { JSX } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { ClaimRow } from '../Claim/ClaimRow'
 
@@ -17,8 +17,6 @@ type ClaimsProps = {
 
 export const Claims = ({ headerComponent }: ClaimsProps) => {
   const { stakingAssetAccountId } = useRFOXContext()
-
-  const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
@@ -52,18 +50,12 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
           key={unstakingRequest.cooldownExpiry.toString()}
           amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
           status={status}
-          setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
         />
       )
     })
-  }, [
-    setConfirmedQuote,
-    stakingAssetAccountId,
-    unstakingRequestsQuery.data,
-    unstakingRequestsQuery.isSuccess,
-  ])
+  }, [stakingAssetAccountId, unstakingRequestsQuery.data, unstakingRequestsQuery.isSuccess])
 
   return (
     <CardBody>

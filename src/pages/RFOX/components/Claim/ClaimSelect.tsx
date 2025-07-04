@@ -20,10 +20,6 @@ import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstaking
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { RfoxTabIndex } from '@/pages/RFOX/Widget'
 
-type ClaimSelectProps = {
-  setConfirmedQuote: (quote: RfoxClaimQuote) => void
-}
-
 type NoClaimsAvailableProps = {
   isError?: boolean
   setStepIndex: (index: number) => void
@@ -55,11 +51,7 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError, setStepIndex }
   )
 }
 
-export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
-  headerComponent,
-  setConfirmedQuote,
-  setStepIndex,
-}) => {
+export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const navigate = useNavigate()
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
@@ -71,16 +63,10 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
-  const handleClaimClick = useCallback(
-    (claimId: number) => {
-      navigate(`/rfox/claim/${claimId}/confirm`)
-    },
-    [navigate],
-  )
-
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
     if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={arbitrumChainId} />
+    if (!stakingAssetAccountId) return
 
     if (
       unstakingRequestsQuery.isPending ||
@@ -104,28 +90,42 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
 
+      const handleClaimClick = (claimId: number) => {
+        const claimQuote: RfoxClaimQuote = {
+          stakingAssetAccountId,
+          stakingAssetId: unstakingRequest.stakingAssetId,
+          stakingAmountCryptoBaseUnit: unstakingRequest.unstakingBalance.toString(),
+          index: unstakingRequest.index,
+          id: unstakingRequest.id,
+        }
+
+        navigate(`/rfox/claim/${claimId}/confirm`, {
+          state: {
+            confirmedQuote: claimQuote,
+          },
+        })
+      }
+
       return (
         <ClaimRow
           stakingAssetId={unstakingRequest.stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
           amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
           status={status}
-          setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
-          id={unstakingRequest.id}
           // eslint-disable-next-line react-memo/require-usememo
           onClaimClick={() => handleClaimClick(unstakingRequest.index)}
         />
       )
     })
   }, [
-    handleClaimClick,
     isConnected,
-    setConfirmedQuote,
     setStepIndex,
     stakingAssetAccountAddress,
     unstakingRequestsQuery,
+    navigate,
+    stakingAssetAccountId,
   ])
 
   return (

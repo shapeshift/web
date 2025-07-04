@@ -6,8 +6,6 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import type { RfoxClaimQuote } from './types'
-
 import { ClaimRow as ReusableClaimRow } from '@/components/ClaimRow/ClaimRow'
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -19,10 +17,8 @@ type ClaimRowProps = {
   stakingAssetId: AssetId
   amountCryptoBaseUnit: string
   status: ClaimStatus
-  setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
   index: number
-  id: string
   onClaimClick?: () => void
 }
 
@@ -30,10 +26,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   stakingAssetId,
   amountCryptoBaseUnit,
   status,
-  setConfirmedQuote,
   cooldownPeriodHuman,
-  index,
-  id,
   onClaimClick,
 }) => {
   const translate = useTranslate()
@@ -51,26 +44,9 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     if (!stakingAssetAccountId || onClaimClick === undefined) return
 
     return () => {
-      const claimQuote: RfoxClaimQuote = {
-        stakingAssetAccountId,
-        stakingAssetId,
-        stakingAmountCryptoBaseUnit: amountCryptoBaseUnit,
-        index,
-        id,
-      }
-
-      setConfirmedQuote(claimQuote)
       onClaimClick()
     }
-  }, [
-    amountCryptoBaseUnit,
-    id,
-    index,
-    onClaimClick,
-    setConfirmedQuote,
-    stakingAssetAccountId,
-    stakingAssetId,
-  ])
+  }, [onClaimClick, stakingAssetAccountId])
 
   const statusText = useMemo(() => {
     if (!isLargerThanMd) return cooldownPeriodHuman

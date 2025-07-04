@@ -53,6 +53,7 @@ type ActionAppUpdateMetadata = {
 
 export enum GenericTransactionDisplayType {
   TCY = 'TCY',
+  RFOX = 'rFOX',
 }
 
 type ActionGenericTransactionMetadata = {

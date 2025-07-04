@@ -48,7 +48,9 @@ export const selectWalletActions = createDeepEqualOutputSelector(
       }
 
       if (isRfoxClaimAction(action)) {
-        return enabledWalletAccountIds.includes(action.rfoxClaimActionMetadata.accountId)
+        return enabledWalletAccountIds.includes(
+          action.rfoxClaimActionMetadata.request.stakingAssetAccountId,
+        )
       }
 
       return action
@@ -140,7 +142,9 @@ export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(
     return actions.filter(
       (action): action is RfoxClaimAction =>
         isRfoxClaimAction(action) &&
-        enabledWalletAccountIds.includes(action.rfoxClaimActionMetadata.accountId),
+        enabledWalletAccountIds.includes(
+          action.rfoxClaimActionMetadata.request.stakingAssetAccountId,
+        ),
     )
   },
 )

@@ -89,7 +89,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
     return (
       <ClaimConfirm
-        claimQuote={selectedUnstakingRequest}
+        selectedUnstakingRequest={selectedUnstakingRequest}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
         claimTxid={claimTxid}
@@ -108,7 +108,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
         setClaimTxid={setClaimTxid}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
-        confirmedQuote={selectedUnstakingRequest}
+        selectedUnstakingRequest={selectedUnstakingRequest}
       />
     )
   }, [claimTxid, handleTxConfirmed, headerComponent, selectedUnstakingRequest])

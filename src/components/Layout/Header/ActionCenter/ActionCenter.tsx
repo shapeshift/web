@@ -10,19 +10,23 @@ import {
   Flex,
   Icon,
   IconButton,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { useActionCenterContext } from './ActionCenterContext'
+import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
+import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
+import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
@@ -38,10 +42,11 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
 
-  useSwapActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: onOpen, isDrawerOpen: isOpen })
+  useSwapActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  useLimitOrderActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  useAppUpdateActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -81,6 +86,12 @@ export const ActionCenter = memo(() => {
               />
             )
           }
+          case ActionType.AppUpdate: {
+            return <AppUpdateActionCard key={action.id} action={action} />
+          }
+          case ActionType.GenericTransaction: {
+            return <GenericTransactionActionCard key={action.id} action={action} />
+          }
           default:
             return null
         }
@@ -91,16 +102,16 @@ export const ActionCenter = memo(() => {
   }, [actions, ordersByActionId, swapsById])
 
   const actionCardsOrEmpty = useMemo(() => {
-    if (!maybeActionCards.length) return <EmptyState onClose={onClose} />
+    if (!maybeActionCards.length) return <EmptyState onClose={closeDrawer} />
 
     return maybeActionCards
-  }, [maybeActionCards, onClose])
+  }, [maybeActionCards, closeDrawer])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
       return (
         <Button
-          onClick={onOpen}
+          onClick={openDrawer}
           aria-label={translate('notificationCenter.pendingTransactions', {
             count: pendingActions.length,
           })}
@@ -122,45 +133,55 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={onOpen}
+          onClick={openDrawer}
         />
       </Box>
     )
-  }, [onOpen, translate, pendingActions])
+  }, [openDrawer, translate, pendingActions])
 
   return (
     <>
-      <Box position='relative'>{actionCenterButton}</Box>
-      <Drawer isOpen={isOpen} onClose={onClose} size='sm'>
-        <DrawerOverlay backdropBlur='10px' />
-
-        <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
-          <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
-          <DrawerHeader
-            px={paddingProp}
-            display='flex'
-            alignItems='center'
-            gap={2}
-            justifyContent='space-between'
-          >
-            <Flex alignItems='center' gap={2}>
-              <Icon as={TbBellFilled} color='text.subtle' />
-              {translate('notificationCenter.title')}
-            </Flex>
-          </DrawerHeader>
-
-          <Box pe={2}>
-            <Box
-              overflow='auto'
-              height='calc(100vh - 70px - env(safe-area-inset-top))'
-              className='scroll-container'
+      <Display.Desktop>
+        <Box position='relative'>{actionCenterButton}</Box>
+        <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} size='sm'>
+          <DrawerOverlay backdropBlur='10px' />
+          <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
+            <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
+            <DrawerHeader
+              px={paddingProp}
+              display='flex'
+              alignItems='center'
+              gap={2}
+              justifyContent='space-between'
             >
-              {actionCardsOrEmpty}
+              <Flex alignItems='center' gap={2}>
+                <Icon as={TbBellFilled} color='text.subtle' />
+                {translate('notificationCenter.title')}
+              </Flex>
+            </DrawerHeader>
+
+            <Box pe={2}>
+              <Box
+                overflow='auto'
+                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
+              >
+                {actionCardsOrEmpty}
+              </Box>
             </Box>
+          </DrawerContent>
+        </Drawer>
+        <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
+      </Display.Desktop>
+      <Display.Mobile>
+        <Box pe={2}>
+          <Box
+            overflow='auto'
+            height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
+          >
+            {actionCardsOrEmpty}
           </Box>
-        </DrawerContent>
-      </Drawer>
-      <CancelLimitOrder orderToCancel={orderToCancel} onSetOrderToCancel={setOrderToCancel} />
+        </Box>
+      </Display.Mobile>
     </>
   )
 })

@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
@@ -8,6 +8,8 @@ export enum ActionType {
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
+  GenericTransaction = 'GenericTransaction',
+  AppUpdate = 'AppUpdate',
 }
 
 export enum ActionStatus {
@@ -45,6 +47,24 @@ type ActionLimitOrderMetadata = {
   accountId: AccountId
 }
 
+type ActionAppUpdateMetadata = {
+  currentVersion: string
+}
+
+export enum GenericTransactionDisplayType {
+  TCY = 'TCY',
+  RFOX = 'rFOX',
+}
+
+type ActionGenericTransactionMetadata = {
+  displayType: GenericTransactionDisplayType
+  message: string
+  accountId: AccountId
+  txHash: string
+  chainId: ChainId
+  assetId: AssetId
+}
+
 export type BaseAction = {
   id: string
   type: ActionType
@@ -63,7 +83,17 @@ export type LimitOrderAction = BaseAction & {
   limitOrderMetadata: ActionLimitOrderMetadata
 }
 
-export type Action = SwapAction | LimitOrderAction
+export type GenericTransactionAction = BaseAction & {
+  type: ActionType.GenericTransaction
+  transactionMetadata: ActionGenericTransactionMetadata
+}
+
+export type AppUpdateAction = BaseAction & {
+  type: ActionType.AppUpdate
+  appUpdateMetadata: ActionAppUpdateMetadata
+}
+
+export type Action = SwapAction | LimitOrderAction | AppUpdateAction | GenericTransactionAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -82,4 +112,8 @@ export const isLimitOrderAction = (action: Action): action is LimitOrderAction =
 
 export const isPendingSwapAction = (action: Action): action is SwapAction => {
   return Boolean(isSwapAction(action) && action.status === ActionStatus.Pending)
+}
+
+export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
+  return Boolean(action.type === ActionType.GenericTransaction && action.transactionMetadata)
 }

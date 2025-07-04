@@ -217,7 +217,7 @@
     "availableAssets": "Available Assets"
   },
   "updateToast": {
-    "body": "A new version of the app is available",
+    "body": "There is an app update available!",
     "cta": "Reload App",
     "keepKey": {
       "title": "KeepKey Update Available",
@@ -249,6 +249,7 @@
       "marketCap": "Market Cap",
       "volume": "Volume",
       "sparkLine": "Sparkline",
+      "myCrypto": "My Crypto",
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
@@ -574,10 +575,10 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "history": "History",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "Home",
-    "activity": "Activity",
     "myWallet": "My Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
@@ -847,6 +848,12 @@
       "warning": "High slippage tolerances can result in unfavorable trades.",
       "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
+    "quoteDisplay": {
+      "title": "Quote Display",
+      "info": "Choose your quote display style.",
+      "basic": "Basic",
+      "advanced": "Advanced"
+    },
     "sort": {
       "sortBy": "Sort Quotes By",
       "auto": "Auto",
@@ -1041,7 +1048,9 @@
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
-      "slippage": "Slippage: %{slippageFormatted}"
+      "gas": "The gas to complete this swapper's transaction.",
+      "slippage": "This is the slippage on this quote.",
+      "timeEstimate": "This is the estimated time for this swap to complete."
     },
     "awaitingPermit2Approval": "Awaiting token transfer",
     "awaitingSwap": "Awaiting swap via %{swapperName}",
@@ -2610,7 +2619,8 @@
       "title": "Start building your watchlist",
       "body": "Wherever you see the star icon, you can use it to add assets here.",
       "cta": "Explore more assets"
-    }
+    },
+    "title": "Watchlist"
   },
   "explore": {
     "pools": {
@@ -2621,9 +2631,8 @@
       "title": "Lending",
       "body": "Borrow against your assets."
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "Stake FOX earn RUNE."
+    "foxEcosystem": {
+      "body": "Your dashboard for all things FOX."
     },
     "tcy": {
       "title": "TCY",
@@ -2982,6 +2991,9 @@
       "complete": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was successfully filled.",
       "cancelled": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} was cancelled.",
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
+    },
+    "rfox": {
+      "unstakeConfirmed": "Your unstake of %{amount} FOX will be available to claim in %{cooldownPeriod}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

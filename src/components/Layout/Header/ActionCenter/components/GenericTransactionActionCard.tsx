@@ -43,7 +43,9 @@ type GenericTransactionActionCardProps = {
 
 export const GenericTransactionActionCard = ({ action }: GenericTransactionActionCardProps) => {
   const translate = useTranslate()
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, action.chainId))
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, action.transactionMetadata.chainId),
+  )
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -60,13 +62,13 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     if (!feeAsset) return
 
     return getTxLink({
-      txId: action.txHash,
-      chainId: action.chainId,
+      txId: action.transactionMetadata.txHash,
+      chainId: action.transactionMetadata.chainId,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })
-  }, [action.txHash, action.chainId, feeAsset])
+  }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
@@ -80,19 +82,19 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       _hover={hoverProps}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={onToggle}>
-        <AssetIconWithBadge assetId={action.assetId} size='md'>
+        <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
           <ActionStatusIcon status={action.status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>
           <HStack width='full'>
             <Stack spacing={1} width='full'>
               <RawText fontSize='sm' fontWeight={500} lineHeight='short'>
-                {action.message}
+                {action.transactionMetadata.message}
               </RawText>
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1} align='center'>
                 <ActionStatusTag status={action.status} />
                 <RawText>{formattedDate}</RawText>
-                <RawText>{action.displayType}</RawText>
+                <RawText>{action.transactionMetadata.displayType}</RawText>
               </HStack>
             </Stack>
             <Icon

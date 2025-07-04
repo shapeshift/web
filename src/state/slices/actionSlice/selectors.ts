@@ -43,7 +43,7 @@ export const selectWalletActions = createDeepEqualOutputSelector(
       }
 
       if (isGenericTransactionAction(action)) {
-        return enabledWalletAccountIds.includes(action.accountId)
+        return enabledWalletAccountIds.includes(action.transactionMetadata.accountId)
       }
 
       return action

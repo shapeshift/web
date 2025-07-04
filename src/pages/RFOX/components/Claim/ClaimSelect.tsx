@@ -61,7 +61,9 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
     [stakingAssetAccountId],
   )
 
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
+    stakingAssetAccountId: stakingAssetAccountAddress,
+  })
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />

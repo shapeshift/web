@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, toAccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
@@ -21,11 +21,12 @@ import { supportedStakingAssetIds } from '@/pages/RFOX/hooks/useRfoxContext'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 const getContractFnParams = (
-  stakingAssetAccountAddress: string | undefined,
+  stakingAssetAccountId: AccountId | undefined,
   count: bigint,
   contractAddress: Address,
 ) => {
-  if (!stakingAssetAccountAddress) return []
+  if (!stakingAssetAccountId) return []
+  const stakingAssetAccountAddress = fromAccountId(stakingAssetAccountId).account
 
   return Array.from({ length: Number(count) }, (_, index) => {
     return {
@@ -52,14 +53,14 @@ export type UnstakingRequest = {
 type UnstakingRequests = UnstakingRequest[]
 
 type UseGetUnstakingRequestsQueryProps<SelectData = UnstakingRequests> = {
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   select?: (unstakingRequests: UnstakingRequests) => SelectData
 }
 
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   select,
 }: UseGetUnstakingRequestsQueryProps<SelectData>) => {
   const unstakingRequestCountQueries = useMemo(() => {
@@ -67,20 +68,23 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
       stakingAssetId =>
         ({
           queryKey: getUnstakingRequestCountQueryKey({
-            stakingAssetAccountAddress,
+            stakingAssetAccountId,
             stakingAssetId,
           }),
-          queryFn: getUnstakingRequestCountQueryFn({ stakingAssetAccountAddress, stakingAssetId }),
+          queryFn: getUnstakingRequestCountQueryFn({
+            stakingAssetAccountId,
+            stakingAssetId,
+          }),
         }) as const,
     )
-  }, [stakingAssetAccountAddress])
+  }, [stakingAssetAccountId])
 
   const combine = useCallback(
     (queries: UseQueryResult<bigint, Error>[]) => {
       const combineResults = (results: (bigint | undefined)[]) => {
         return results.flatMap((result, i) => {
           return getContractFnParams(
-            stakingAssetAccountAddress,
+            stakingAssetAccountId,
             result ?? 0n,
             getStakingContract(supportedStakingAssetIds[i]),
           )
@@ -89,7 +93,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [stakingAssetAccountAddress],
+    [stakingAssetAccountId],
   )
 
   const fnParamsQuery = useQueries({
@@ -108,7 +112,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   )
 
   const queryFn = useMemo(() => {
-    if (fnParamsQuery.isPending || fnParamsQuery.isLoading || !stakingAssetAccountAddress)
+    if (fnParamsQuery.isPending || fnParamsQuery.isLoading || !stakingAssetAccountId)
       return skipToken
 
     // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
@@ -126,7 +130,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
 
       return responses
         .map(({ result }, i) => {
-          if (!stakingAssetAccountAddress) return null
+          if (!stakingAssetAccountId) return null
           if (!result) return null
 
           const contractAddress = contracts[i].address
@@ -146,14 +150,14 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
             // indexes can reorg
             id: `${index}-${result.cooldownExpiry}-${contractAddress}`,
             stakingAssetAccountId: toAccountId({
-              account: stakingAssetAccountAddress,
+              account: stakingAssetAccountId,
               chainId: arbitrumChainId,
             }),
           }
         })
         .filter(isSome)
     }
-  }, [fnParamsQuery, stakingAssetAccountAddress])
+  }, [fnParamsQuery, stakingAssetAccountId])
 
   const unstakingRequestsQuery = useQuery({
     queryKey,

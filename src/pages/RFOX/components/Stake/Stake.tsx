@@ -169,19 +169,19 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        accountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getTimeInPoolQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: stakingAssetAccountAddress,
       }),
     })
     await queryClient.invalidateQueries({
@@ -190,7 +190,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     await queryClient.invalidateQueries({
       queryKey: getEarnedQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: stakingAssetAccountAddress,
       }),
     })
     await queryClient.invalidateQueries({

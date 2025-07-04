@@ -130,7 +130,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     isLoading: isCurrentRuneAddressLoading,
     isSuccess: isCurrentRuneAddressSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectRuneAddress,
   })

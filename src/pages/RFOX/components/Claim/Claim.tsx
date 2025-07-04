@@ -1,7 +1,6 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { ClaimRouteProps } from './types'
@@ -58,14 +57,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     | UnstakingRequest
     | undefined
 
-  const stakingAssetAccountAddress = useMemo(() => {
-    return selectedUnstakingRequest
-      ? fromAccountId(selectedUnstakingRequest.stakingAssetAccountId).account
-      : undefined
-  }, [selectedUnstakingRequest])
-
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress,
+    stakingAssetAccountId: selectedUnstakingRequest?.stakingAssetAccountId,
   })
 
   const handleTxConfirmed = useCallback(async () => {
@@ -74,11 +67,11 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     await queryClient.invalidateQueries({
       queryKey: getUnstakingRequestCountQueryKey({
         stakingAssetId: selectedUnstakingRequest.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: selectedUnstakingRequest?.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [selectedUnstakingRequest, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
+  }, [selectedUnstakingRequest, queryClient, unstakingRequestQueryKey])
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />

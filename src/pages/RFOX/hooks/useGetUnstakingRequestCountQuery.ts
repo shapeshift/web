@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
@@ -24,7 +25,7 @@ type UnstakingRequestCount = ReadContractReturnType<
 >
 
 type UseGetUnstakingRequestCountQueryProps<SelectData = UnstakingRequestCount> = {
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: string | undefined
   stakingAssetId: AssetId | undefined
   select?: (unstakingRequestCount: UnstakingRequestCount) => SelectData
 }
@@ -32,23 +33,25 @@ type UseGetUnstakingRequestCountQueryProps<SelectData = UnstakingRequestCount> =
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const getUnstakingRequestCountQueryKey = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: Omit<UseGetUnstakingRequestCountQueryProps, 'select'>): GetUnstakingRequestCountQueryKey => [
   'readContract',
   {
     address: stakingAssetId ? getStakingContract(stakingAssetId) : undefined,
     functionName: 'getUnstakingRequestCount',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
+    args: [stakingAssetAccountId ? getAddress(stakingAssetAccountId) : ('' as Address)],
     chainId: arbitrum.id,
   },
 ]
 
 export const getUnstakingRequestCountQueryFn = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: Omit<UseGetUnstakingRequestCountQueryProps, 'select'>) => {
-  if (!stakingAssetAccountAddress || !stakingAssetId) return skipToken
+  if (!stakingAssetAccountId || !stakingAssetId) return skipToken
+
+  const stakingAssetAccountAddress = fromAccountId(stakingAssetAccountId).account
 
   return () =>
     readContract(client, {

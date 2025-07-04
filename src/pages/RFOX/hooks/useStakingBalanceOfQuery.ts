@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
@@ -18,7 +18,7 @@ type StakingBalanceOfQueryKey = ReadContractQueryKey<
 >
 type StakingBalanceOf = ReadContractReturnType<typeof erc20Abi, 'balanceOf', readonly [Address]>
 type UseStakingBalanceOfQueryProps<SelectData = StakingBalanceOf> = {
-  stakingAssetAccountAddress: string | undefined
+  accountId: AccountId | undefined
   stakingAssetId: AssetId | undefined
   select?: (stakingBalanceOf: StakingBalanceOf) => SelectData
   enabled?: boolean
@@ -26,10 +26,10 @@ type UseStakingBalanceOfQueryProps<SelectData = StakingBalanceOf> = {
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const getStakingBalanceOfQueryKey = ({
-  stakingAssetAccountAddress,
+  accountId,
   stakingAssetId,
 }: {
-  stakingAssetAccountAddress: string | undefined
+  accountId: AccountId | undefined
   stakingAssetId: AssetId | undefined
 }): StakingBalanceOfQueryKey => [
   'readContract',
@@ -38,42 +38,49 @@ export const getStakingBalanceOfQueryKey = ({
       ? getAddress(fromAssetId(stakingAssetId).assetReference)
       : ('' as Address),
     functionName: 'balanceOf',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
+    args: [accountId ? getAddress(fromAccountId(accountId).account) : ('' as Address)],
     chainId: arbitrum.id,
   },
 ]
 
 export const getStakingBalanceOfQueryFn = ({
-  stakingAssetAccountAddress,
+  accountId,
   stakingAssetId,
 }: {
-  stakingAssetAccountAddress: string
+  accountId: AccountId
   stakingAssetId: AssetId
 }) => {
   return readContract(client, {
     abi: erc20Abi,
     address: getAddress(fromAssetId(stakingAssetId).assetReference),
     functionName: 'balanceOf',
-    args: [getAddress(stakingAssetAccountAddress)],
+    args: [getAddress(fromAccountId(accountId).account)],
   })
 }
 
 export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
-  stakingAssetAccountAddress,
+  accountId,
   stakingAssetId,
   select,
   enabled = true,
 }: UseStakingBalanceOfQueryProps<SelectData>) => {
   const queryKey = useMemo(() => {
-    return getStakingBalanceOfQueryKey({ stakingAssetAccountAddress, stakingAssetId })
-  }, [stakingAssetAccountAddress, stakingAssetId])
+    return getStakingBalanceOfQueryKey({
+      accountId,
+      stakingAssetId,
+    })
+  }, [accountId, stakingAssetId])
 
   const queryFn = useMemo(
     () =>
-      enabled && stakingAssetAccountAddress && stakingAssetId
-        ? () => getStakingBalanceOfQueryFn({ stakingAssetAccountAddress, stakingAssetId })
+      enabled && accountId && stakingAssetId
+        ? () =>
+            getStakingBalanceOfQueryFn({
+              accountId,
+              stakingAssetId,
+            })
         : skipToken,
-    [enabled, stakingAssetAccountAddress, stakingAssetId],
+    [enabled, accountId, stakingAssetId],
   )
 
   return useQuery({

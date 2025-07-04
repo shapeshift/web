@@ -1,8 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -85,12 +84,8 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
 
-  const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
-  }, [confirmedQuote])
-
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress,
+    stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId,
   })
 
   const stakingAsset = useAppSelector(state =>
@@ -151,19 +146,19 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
+        accountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getUnstakingRequestCountQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
@@ -177,7 +172,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     translate,
     stakingAsset,
     queryClient,
-    stakingAssetAccountAddress,
     unstakingRequestQueryKey,
   ])
 

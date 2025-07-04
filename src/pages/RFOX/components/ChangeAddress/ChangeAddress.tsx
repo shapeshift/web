@@ -73,7 +73,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId,
       }),
     })
   }, [confirmedQuote, queryClient, stakingAssetAccountAddress])

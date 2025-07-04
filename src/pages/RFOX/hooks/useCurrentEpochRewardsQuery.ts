@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
@@ -21,7 +21,7 @@ type EpochRewardsResultTuple = [
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetId: AssetId
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   currentEpochMetadata: CurrentEpochMetadata | undefined
 }
 
@@ -30,7 +30,7 @@ type UseCurrentEpochRewardsQueryProps = {
  */
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetId,
-  stakingAssetAccountAddress,
+  stakingAssetAccountId: stakingAssetAccountAddress,
   currentEpochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
   const combine = useCallback(
@@ -90,8 +90,14 @@ export const useCurrentEpochRewardsQuery = ({
         enabled: Boolean(currentEpochMetadata && stakingAssetAccountAddress && stakingAssetId),
       },
       {
-        queryKey: getEarnedQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
-        queryFn: getEarnedQueryFn({ stakingAssetAccountAddress, stakingAssetId }),
+        queryKey: getEarnedQueryKey({
+          stakingAssetAccountId: stakingAssetAccountAddress,
+          stakingAssetId,
+        }),
+        queryFn: getEarnedQueryFn({
+          stakingAssetAccountId: stakingAssetAccountAddress,
+          stakingAssetId,
+        }),
         staleTime: 60 * 1000, // 1 minute in milliseconds
         enabled: Boolean(currentEpochMetadata && stakingAssetAccountAddress && stakingAssetId),
       },

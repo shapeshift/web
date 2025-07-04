@@ -120,7 +120,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   const { data: currentRuneAddress } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectRuneAddress,
   })

@@ -23,7 +23,9 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
     [stakingAssetAccountId],
   )
 
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
+    stakingAssetAccountId: stakingAssetAccountAddress,
+  })
 
   const claims = useMemo(() => {
     if (!stakingAssetAccountId) return null

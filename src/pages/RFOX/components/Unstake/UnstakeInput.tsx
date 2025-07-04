@@ -1,5 +1,5 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -100,11 +100,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
-
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleStakingAssetClick = useCallback(() => {
@@ -198,7 +193,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectStakingBalance,
   })
@@ -355,7 +350,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       </SlideTransition>
     )
 
-  if (!stakingAssetAccountAddress)
+  if (!stakingAssetAccountId)
     return (
       <SlideTransition>
         <Stack>{headerComponent}</Stack>

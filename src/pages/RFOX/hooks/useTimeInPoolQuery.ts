@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -21,22 +21,22 @@ export type TimeInPoolQueryKey = [
 ]
 
 type UseTimeInPoolQueryProps<SelectData = bigint> = {
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
   select?: (timeInPoolSeconds: bigint) => SelectData
 }
 
 export const getTimeInPoolQueryKey = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: {
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: string | undefined
   stakingAssetId: AssetId | undefined
 }): TimeInPoolQueryKey => {
   return [
     'timeInPool',
     {
-      stakingAssetAccountAddress,
+      stakingAssetAccountAddress: stakingAssetAccountId,
       stakingAssetId,
     },
   ]
@@ -92,27 +92,27 @@ export const getTimeInPoolSeconds = async (sortedLogs: RFOXAccountLog[]) => {
 }
 
 export const useTimeInPoolQuery = <SelectData = bigint>({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
   const queryKey: TimeInPoolQueryKey = useMemo(
-    () => getTimeInPoolQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
-    [stakingAssetAccountAddress, stakingAssetId],
+    () => getTimeInPoolQueryKey({ stakingAssetAccountId, stakingAssetId }),
+    [stakingAssetAccountId, stakingAssetId],
   )
   const queryFn = useMemo(
     () =>
-      stakingAssetAccountAddress
+      stakingAssetAccountId
         ? async () => {
             const sortedAccountLogs = await queryClient.fetchQuery({
-              queryFn: getAccountLogsQueryFn(stakingAssetAccountAddress, stakingAssetId),
-              queryKey: getAccountLogsQueryKey(stakingAssetAccountAddress, stakingAssetId),
+              queryFn: getAccountLogsQueryFn(stakingAssetAccountId, stakingAssetId),
+              queryKey: getAccountLogsQueryKey(stakingAssetAccountId, stakingAssetId),
             })
 
             return getTimeInPoolSeconds(sortedAccountLogs)
           }
         : skipToken,
-    [stakingAssetAccountAddress, stakingAssetId],
+    [stakingAssetAccountId, stakingAssetId],
   )
   const timeInPoolQuery = useQuery({
     queryKey,

@@ -20,7 +20,7 @@ export const Overview: React.FC = () => {
       <>
         <StakingInfo
           stakingAssetId={stakingAssetId}
-          stakingAssetAccountAddress={stakingAssetAccountAddress}
+          stakingAssetAccountId={stakingAssetAccountAddress}
         />
         {i < supportedStakingAssetIds.length - 1 && (
           <Divider my={4} mx={-6} width='calc(100% + 42px)' />

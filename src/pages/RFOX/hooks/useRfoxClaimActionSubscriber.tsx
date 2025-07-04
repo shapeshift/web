@@ -24,9 +24,10 @@ export const useRfoxClaimActionSubscriber = () => {
 
   // TODO(gomes): useQueries and handle multiple AccountIds
   const stakingAssetAccountId = stakingAssetAccountIds[0]
-  const stakingAssetAccountAddress = stakingAssetAccountId?.split(':')[2]
 
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
+  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
+    stakingAssetAccountId,
+  })
 
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)

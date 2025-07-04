@@ -16,12 +16,12 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { useActionCenterContext } from '../ActionCenterContext'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
-import { useActionCenterContext } from '../ActionCenterContext'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -58,11 +58,11 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation() // Prevent card collapse
+      // Prevent card collapse
+      e.stopPropagation()
       const index = action.id.split('-')[1] // Extract index from composite ID
-      closeDrawer() // Close the Action Center drawer
-      // TODO(gomes): there may be a better way to do the top-level navigation thing, but that works so...
-      navigate('/rfox/claim')
+      // Close the drawer as early as possible
+      closeDrawer()
       navigate(`/rfox/claim/${index}/confirm`, {
         state: {
           confirmedQuote: {

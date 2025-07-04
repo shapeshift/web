@@ -101,7 +101,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const stakingAssetIds = useMemo(() => {
     return supportedStakingAssetIds.concat(l1AssetId)
-  }, [supportedStakingAssetIds, l1AssetId])
+  }, [l1AssetId])
 
   const assets = useAppSelector(selectAssets)
 

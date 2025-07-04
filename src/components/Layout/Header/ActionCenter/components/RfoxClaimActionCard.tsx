@@ -67,15 +67,22 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       navigate(`/rfox/claim/${index}/confirm`, {
         state: {
           confirmedQuote: {
-            stakingAssetAccountId: action.accountId,
-            stakingAssetId: action.assetId,
-            stakingAmountCryptoBaseUnit: action.amountCryptoBaseUnit,
+            stakingAssetAccountId: action.rfoxClaimActionMetadata.accountId,
+            stakingAssetId: action.rfoxClaimActionMetadata.assetId,
+            stakingAmountCryptoBaseUnit: action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
             index,
           },
         },
       })
     },
-    [action.id, navigate, closeDrawer],
+    [
+      navigate,
+      closeDrawer,
+      action.id,
+      action.rfoxClaimActionMetadata.accountId,
+      action.rfoxClaimActionMetadata.assetId,
+      action.rfoxClaimActionMetadata.amountCryptoBaseUnit,
+    ],
   )
 
   return (
@@ -88,14 +95,14 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       _hover={hoverProps}
     >
       <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={onToggle}>
-        <AssetIconWithBadge assetId={action.assetId} size='md'>
+        <AssetIconWithBadge assetId={action.rfoxClaimActionMetadata.assetId} size='md'>
           <ActionStatusIcon status={action.status} />
         </AssetIconWithBadge>
         <Stack spacing={0} width='full'>
           <HStack width='full'>
             <Stack spacing={1} width='full'>
               <RawText fontSize='sm' fontWeight={500} lineHeight='short'>
-                {action.message}
+                {action.rfoxClaimActionMetadata.message}
               </RawText>
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1} align='center'>
                 <ActionStatusTag status={action.status} />

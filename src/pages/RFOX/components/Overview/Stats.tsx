@@ -51,13 +51,13 @@ export const Stats: React.FC = () => {
     return supportedStakingAssetIds.map(stakingAssetId => (
       <TotalStaked stakingAssetId={stakingAssetId} />
     ))
-  }, [supportedStakingAssetIds])
+  }, [])
 
   const Emissions = useMemo(() => {
     return supportedStakingAssetIds.map(stakingAssetId => (
       <EmissionsPool stakingAssetId={stakingAssetId} />
     ))
-  }, [supportedStakingAssetIds])
+  }, [])
 
   return (
     <Box>

@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { ClaimRouteProps, RfoxClaimQuote } from './types'
 
@@ -95,7 +95,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
         claimTxid={claimTxid}
       />
     )
-  }, [claimTxid, confirmedQuote, headerComponent])
+  }, [claimTxid, confirmedQuote, headerComponent, location.state?.confirmedQuote])
 
   const renderClaimStatus = useCallback(() => {
     if (!claimTxid) return null
@@ -113,6 +113,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     )
   }, [claimTxid, confirmedQuote, handleTxConfirmed, headerComponent])
 
+  const renderRedirect = useCallback(() => <Navigate to='' replace />, [])
+
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
@@ -120,7 +122,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
           <Route path='' element={renderClaimSelect()} />
           <Route path=':claimId/confirm' element={renderClaimConfirm()} />
           <Route path=':claimId/status' element={renderClaimStatus()} />
-          <Route path='*' element={<Navigate to='' replace />} />
+          <Route path='*' element={renderRedirect()} />
         </Routes>
       </Suspense>
     </AnimatePresence>

@@ -1,5 +1,5 @@
 import { Card, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
@@ -43,22 +43,27 @@ export const Widget: React.FC = () => {
   }, [location.pathname])
 
   // Handle tab navigation
-  const handleTabChange = (index: number) => {
-    switch (index) {
-      case RfoxTabIndex.Stake:
-        navigate('/rfox/stake')
-        break
-      case RfoxTabIndex.Unstake:
-        navigate('/rfox/unstake')
-        break
-      case RfoxTabIndex.Claim:
-        navigate('/rfox/claim')
-        break
-      case RfoxTabIndex.ChangeAddress:
-        navigate('/rfox/change-address')
-        break
-    }
-  }
+  const handleTabChange = useCallback(
+    (index: number) => {
+      switch (index) {
+        case RfoxTabIndex.Stake:
+          navigate('/rfox/stake')
+          break
+        case RfoxTabIndex.Unstake:
+          navigate('/rfox/unstake')
+          break
+        case RfoxTabIndex.Claim:
+          navigate('/rfox/claim')
+          break
+        case RfoxTabIndex.ChangeAddress:
+          navigate('/rfox/change-address')
+          break
+        default:
+          throw new Error(`Invalid tab index: ${index}`)
+      }
+    },
+    [navigate],
+  )
 
   const TabHeader = useMemo(
     () => (

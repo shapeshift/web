@@ -69,7 +69,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
           queryFn: getUnstakingRequestCountQueryFn({ stakingAssetAccountAddress, stakingAssetId }),
         }) as const,
     )
-  }, [supportedStakingAssetIds, stakingAssetAccountAddress])
+  }, [stakingAssetAccountAddress])
 
   const combine = useCallback(
     (queries: UseQueryResult<bigint, Error>[]) => {
@@ -85,7 +85,7 @@ export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [stakingAssetAccountAddress, supportedStakingAssetIds],
+    [stakingAssetAccountAddress],
   )
 
   const fnParamsQuery = useQueries({

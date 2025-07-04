@@ -52,6 +52,20 @@ type ActionAppUpdateMetadata = {
   currentVersion: string
 }
 
+export enum GenericTransactionDisplayType {
+  TCY = 'TCY',
+  RFOX = 'rFOX',
+}
+
+type ActionGenericTransactionMetadata = {
+  displayType: GenericTransactionDisplayType
+  message: string
+  accountId: AccountId
+  txHash: string
+  chainId: ChainId
+  assetId: AssetId
+}
+
 export type BaseAction = {
   id: string
   type: ActionType
@@ -72,12 +86,7 @@ export type LimitOrderAction = BaseAction & {
 
 export type GenericTransactionAction = BaseAction & {
   type: ActionType.GenericTransaction
-  displayType: string
-  message: string
-  accountId: AccountId
-  txHash: string
-  chainId: ChainId
-  assetId: AssetId
+  transactionMetadata: ActionGenericTransactionMetadata
 }
 
 export type AppUpdateAction = BaseAction & {
@@ -87,12 +96,13 @@ export type AppUpdateAction = BaseAction & {
 
 export type RfoxClaimAction = BaseAction & {
   type: ActionType.RfoxClaim
-  message: string
-  assetId: AssetId
-  secondaryAssetId?: AssetId
-  amountCryptoBaseUnit: string
-  accountId: AccountId
-  status: ActionStatus
+  rfoxClaimActionMetadata: {
+    message: string
+    assetId: AssetId
+    secondaryAssetId?: AssetId
+    amountCryptoBaseUnit: string
+    accountId: AccountId
+  }
 }
 
 export type Action =
@@ -122,7 +132,5 @@ export const isPendingSwapAction = (action: Action): action is SwapAction => {
 }
 
 export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
-  return Boolean(
-    action.type === ActionType.GenericTransaction && action.message && action.accountId,
-  )
+  return Boolean(action.type === ActionType.GenericTransaction && action.transactionMetadata)
 }

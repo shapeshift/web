@@ -37,6 +37,7 @@ import type { makeSwapperAxiosServiceMonadic } from './utils'
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
   VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
+  VITE_UNCHAINED_MAYACHAIN_HTTP_URL: string
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
   VITE_MAYACHAIN_NODE_URL: string
@@ -362,8 +363,10 @@ export type SwapExecutionMetadata = {
 
 export type SwapperSpecificMetadata = {
   chainflipSwapId: number | undefined
-  stepIndex: SupportedTradeQuoteStepIndex
   relayTransactionMetadata: RelayTransactionMetadata | undefined
+  relayerExplorerTxLink: string | undefined
+  relayerTxHash: string | undefined
+  stepIndex: SupportedTradeQuoteStepIndex
   streamingSwapMetadata: StreamingSwapMetadata | undefined
 }
 
@@ -381,12 +384,11 @@ export type Swap = {
   sellAsset: Asset
   buyAsset: Asset
   status: SwapStatus
+  source: SwapSource
   sellTxHash?: string
-  relayerTxHash?: string
-  relayerExplorerTxLink?: string | undefined
   buyTxHash?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
-  sellAccountId: AccountId | undefined
+  sellAccountId: AccountId
   receiveAddress: string | undefined
   swapperName: SwapperName
   sellAmountCryptoBaseUnit: string

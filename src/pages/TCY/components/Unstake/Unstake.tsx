@@ -15,7 +15,11 @@ import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -121,17 +125,19 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
       actionSlice.actions.upsertAction({
         id: unstakeTxid,
         type: ActionType.GenericTransaction,
-        displayType: 'TCY',
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: translate(`TCY.unstakeStatus.successSubtitle`, {
-          amount: amountCryptoPrecision,
-        }),
-        txHash: unstakeTxid,
-        chainId: thorchainChainId,
-        accountId,
-        assetId: tcyAssetId,
+        transactionMetadata: {
+          displayType: GenericTransactionDisplayType.TCY,
+          txHash: unstakeTxid,
+          chainId: thorchainChainId,
+          accountId,
+          assetId: tcyAssetId,
+          message: translate(`TCY.unstakeStatus.successSubtitle`, {
+            amount: amountCryptoPrecision,
+          }),
+        },
       }),
     )
 

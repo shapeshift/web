@@ -113,6 +113,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
+          // eslint-disable-next-line react-memo/require-usememo
           onClaimClick={() => handleClaimClick(unstakingRequest.index)}
         />
       )

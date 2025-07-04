@@ -27,7 +27,7 @@ export const Overview: React.FC = () => {
         )}
       </>
     ))
-  }, [supportedStakingAssetIds, stakingAssetAccountAddress])
+  }, [stakingAssetAccountAddress])
 
   return (
     <Card>

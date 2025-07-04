@@ -73,13 +73,13 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   useEffect(() => {
     if (supportedStakingAssetIds.includes(stakingAssetId)) return
     setStakingAssetId(supportedStakingAssetIds[0])
-  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+  }, [stakingAssetId, setStakingAssetId])
 
   const assets = useAppSelector(selectAssets)
 
   const stakingAssets = useMemo(() => {
     return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
-  }, [assets, supportedStakingAssetIds])
+  }, [assets])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetMarketData = useAppSelector(state =>
@@ -130,7 +130,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         onlyConnectedChains={true}
       />
     )
-  }, [stakingAssetId, handleStakingAssetClick, handleAssetChange, supportedStakingAssetIds])
+  }, [stakingAssetId, handleStakingAssetClick, handleAssetChange])
 
   const methods = useForm<UnstakeInputValues>({
     defaultValues: defaultFormValues,

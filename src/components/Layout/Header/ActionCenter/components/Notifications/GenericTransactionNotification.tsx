@@ -73,12 +73,12 @@ export const GenericTransactionNotification = ({
         <Stack spacing={3}>
           <Flex alignItems='center' justifyContent='space-between' pe={6}>
             <HStack spacing={2}>
-              <AssetIconWithBadge assetId={action.assetId} size='md'>
+              <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
                 <ActionStatusIcon status={action.status} />
               </AssetIconWithBadge>
               <Box ml={2}>
                 <Box fontSize='sm' letterSpacing='0.02em'>
-                  {action.message}
+                  {action.transactionMetadata.message}
                 </Box>
               </Box>
             </HStack>

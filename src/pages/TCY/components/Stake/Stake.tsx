@@ -15,7 +15,11 @@ import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -119,18 +123,20 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       actionSlice.actions.upsertAction({
         id: stakeTxid,
         type: ActionType.GenericTransaction,
-        displayType: 'TCY',
+        transactionMetadata: {
+          displayType: GenericTransactionDisplayType.TCY,
+          txHash: stakeTxid,
+          chainId: thorchainChainId,
+          accountId,
+          assetId: tcyAssetId,
+          message: translate(`RFOX.stakeSuccess`, {
+            amount: amountCryptoPrecision,
+            symbol: 'TCY',
+          }),
+        },
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: translate(`RFOX.stakeSuccess`, {
-          amount: amountCryptoPrecision,
-          symbol: 'TCY',
-        }),
-        txHash: stakeTxid,
-        chainId: thorchainChainId,
-        accountId,
-        assetId: tcyAssetId,
       }),
     )
 

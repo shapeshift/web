@@ -73,7 +73,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   useEffect(() => {
     if (supportedStakingAssetIds.includes(stakingAssetId)) return
     setStakingAssetId(supportedStakingAssetIds[0])
-  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+  }, [stakingAssetId, setStakingAssetId])
 
   const assets = useAppSelector(selectAssets)
 

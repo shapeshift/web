@@ -18,7 +18,11 @@ import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstaking
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -106,18 +110,20 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       actionSlice.actions.upsertAction({
         id: unstakeTxid,
         type: ActionType.GenericTransaction,
-        displayType: 'rFOX',
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        message: translate('notificationCenter.rfox.unstakeConfirmed', {
-          amount: amountCryptoPrecision,
-          cooldownPeriod,
-        }),
-        txHash: unstakeTxid,
-        chainId: stakingAsset.chainId,
-        accountId: confirmedQuote.stakingAssetAccountId,
-        assetId: confirmedQuote.stakingAssetId,
+        transactionMetadata: {
+          displayType: GenericTransactionDisplayType.RFOX,
+          message: translate('notificationCenter.rfox.unstakeConfirmed', {
+            amount: amountCryptoPrecision,
+            cooldownPeriod,
+          }),
+          txHash: unstakeTxid,
+          chainId: stakingAsset.chainId,
+          accountId: confirmedQuote.stakingAssetAccountId,
+          assetId: confirmedQuote.stakingAssetId,
+        },
       }),
     )
     toast({

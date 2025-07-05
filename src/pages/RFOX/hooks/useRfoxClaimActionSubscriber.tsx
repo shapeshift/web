@@ -60,10 +60,8 @@ export const useRfoxClaimActionSubscriber = () => {
     const now = Date.now()
 
     allUnstakingRequests.data.all.forEach(request => {
-      // Don't rug order by updating updatedAt and createdAt, this was already available, and still is
-      if (actionIds.includes(request.id)) return
-
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
+
       if (now >= cooldownExpiryMs) {
         const asset = assets[request.stakingAssetId]
         const amountCryptoPrecision = fromBaseUnit(

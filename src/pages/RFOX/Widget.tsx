@@ -27,19 +27,20 @@ export const Widget: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Compute step index directly from route
   const stepIndex = useMemo(() => {
     const path = location.pathname
-    if (path.includes('/stake')) {
-      return RfoxTabIndex.Stake
-    } else if (path.includes('/unstake')) {
-      return RfoxTabIndex.Unstake
-    } else if (path.includes('/claim')) {
-      return RfoxTabIndex.Claim
-    } else if (path.includes('/change-address')) {
-      return RfoxTabIndex.ChangeAddress
+    switch (true) {
+      case path.includes('/stake'):
+        return RfoxTabIndex.Stake
+      case path.includes('/unstake'):
+        return RfoxTabIndex.Unstake
+      case path.includes('/claim'):
+        return RfoxTabIndex.Claim
+      case path.includes('/change-address'):
+        return RfoxTabIndex.ChangeAddress
+      default:
+        return RfoxTabIndex.Stake
     }
-    return RfoxTabIndex.Stake // default
   }, [location.pathname])
 
   // Handle tab navigation

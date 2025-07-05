@@ -1,5 +1,7 @@
 import { ChakraProvider, ColorModeScript, createLocalStorageManager } from '@chakra-ui/react'
-import React from 'react'
+import { captureException } from '@sentry/react'
+import React, { useCallback } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
@@ -19,7 +21,10 @@ import { QueryClientProvider } from '@/context/QueryClientProvider/QueryClientPr
 import { KeepKeyProvider } from '@/context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from '@/context/WalletProvider/WalletProvider'
 import { DefiManagerProvider } from '@/features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { wagmiConfig } from '@/lib/wagmi-config'
+import { ErrorPage } from '@/pages/ErrorPage/ErrorPage'
 import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
 import { WalletConnectV2Provider } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { persistor, store } from '@/state/store'
@@ -34,6 +39,18 @@ const manager = createLocalStorageManager('ss-theme')
 const splashScreen = <SplashScreen />
 
 export function AppProviders({ children }: ProvidersProps) {
+  const handleError = useCallback(
+    (
+      error: Error,
+      info: {
+        componentStack: string
+      },
+    ) => {
+      captureException(error)
+      getMixPanel()?.track(MixPanelEvent.Error, { error, info })
+    },
+    [],
+  )
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
@@ -52,11 +69,13 @@ export function AppProviders({ children }: ProvidersProps) {
                           <KeepKeyProvider>
                             <WalletConnectV2Provider>
                               <ModalProvider>
-                                <ActionCenterProvider>
-                                  <AppProvider>
-                                    <DefiManagerProvider>{children}</DefiManagerProvider>
-                                  </AppProvider>
-                                </ActionCenterProvider>
+                                <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                                  <ActionCenterProvider>
+                                    <AppProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </AppProvider>
+                                  </ActionCenterProvider>
+                                </ErrorBoundary>
                               </ModalProvider>
                             </WalletConnectV2Provider>
                           </KeepKeyProvider>

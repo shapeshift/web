@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
+import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
@@ -79,7 +81,7 @@ export const useRfoxClaimActionSubscriber = () => {
             rfoxClaimActionMetadata: {
               request,
               message: translate('notificationCenter.rfox.unstakeReady', {
-                amount: amountCryptoPrecision,
+                amount: bn(amountCryptoPrecision).toFixed(6),
                 symbol: asset.symbol,
               }),
             },

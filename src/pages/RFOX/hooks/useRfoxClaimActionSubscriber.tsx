@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 // However, this *is* reactive on useGetUnstakingRequestsQuery(), with inner queries which do get invalidated, so it is a subscriber in a way, just different
 
 export const useRfoxClaimActionSubscriber = () => {
+  const translate = useTranslate()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -64,10 +65,9 @@ export const useRfoxClaimActionSubscriber = () => {
 
       if (now >= cooldownExpiryMs) {
         const asset = assets[request.stakingAssetId]
-        const amountCryptoPrecision = fromBaseUnit(
-          request.amountCryptoBaseUnit,
-          asset?.precision ?? 18,
-        )
+        if (!asset) return
+
+        const amountCryptoPrecision = fromBaseUnit(request.amountCryptoBaseUnit, asset.precision)
 
         dispatch(
           actionSlice.actions.upsertAction({
@@ -78,10 +78,10 @@ export const useRfoxClaimActionSubscriber = () => {
             updatedAt: now,
             rfoxClaimActionMetadata: {
               request,
-              // TODO(gomes): translations
-              message: `Your unstake of ${Number(amountCryptoPrecision).toFixed(2)} ${
-                asset?.symbol ?? ''
-              } is ready to claim`,
+              message: translate('notificationCenter.rfox.unstakeReady', {
+                amount: amountCryptoPrecision,
+                symbol: asset.symbol,
+              }),
             },
           }),
         )

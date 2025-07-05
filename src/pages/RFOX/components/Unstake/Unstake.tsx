@@ -107,6 +107,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
           message: translate('notificationCenter.rfox.unstakeConfirmed', {
             amount: amountCryptoPrecision,
             cooldownPeriod,
+            symbol: stakingAsset.symbol,
           }),
           txHash: unstakeTxid,
           chainId: stakingAsset.chainId,

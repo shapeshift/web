@@ -2994,7 +2994,8 @@
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
     "rfox": {
-      "unstakeConfirmed": "Your unstake of %{amount} FOX will be available to claim in %{cooldownPeriod}."
+      "unstakeConfirmed": "Your unstake of %{amount} %{symbol} will be available to claim in %{cooldownPeriod}.",
+      "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

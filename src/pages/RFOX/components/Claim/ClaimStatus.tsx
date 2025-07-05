@@ -58,7 +58,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   )
 
   const txStatus = useTxStatus({
-    accountId: selectedUnstakingRequest.amountCryptoBaseUnit,
+    accountId: selectedUnstakingRequest.stakingAssetAccountId,
     txHash: txId,
     onTxStatusConfirmed: handleTxConfirmed,
   })

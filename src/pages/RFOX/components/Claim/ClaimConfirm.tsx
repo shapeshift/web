@@ -15,12 +15,13 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
+import { useRFOXContext } from '../../hooks/useRfoxContext'
 import type { ClaimRouteProps } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -74,6 +75,20 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const dispatch = useAppDispatch()
 
   const actions = useAppSelector(selectWalletActions)
+
+  const { stakingAssetAccountId, setStakingAssetAccountId } = useRFOXContext()
+
+  useEffect(() => {
+    // Do this as early as possible to ensure the app is properly in sync. Users may have selected a claim from the notification center that's from a
+    // different AccountId than their current one
+    if (selectedUnstakingRequest.stakingAssetAccountId !== stakingAssetAccountId) {
+      setStakingAssetAccountId(selectedUnstakingRequest.stakingAssetAccountId)
+    }
+  }, [
+    selectedUnstakingRequest.stakingAssetAccountId,
+    stakingAssetAccountId,
+    setStakingAssetAccountId,
+  ])
 
   const maybeClaimAction = useMemo(
     () => actions.find(action => action.id === selectedUnstakingRequest.id),

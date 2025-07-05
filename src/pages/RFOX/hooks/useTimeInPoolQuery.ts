@@ -30,7 +30,7 @@ export const getTimeInPoolQueryKey = ({
   stakingAssetAccountId,
   stakingAssetId,
 }: {
-  stakingAssetAccountId: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId | undefined
 }): TimeInPoolQueryKey => {
   return [

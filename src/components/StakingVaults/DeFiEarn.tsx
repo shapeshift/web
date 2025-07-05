@@ -6,6 +6,7 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 
 import { GlobalFilter } from './GlobalFilter'
+import { useFetchOpportunities } from './hooks/useFetchOpportunities'
 import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
 
@@ -34,6 +35,8 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({ positionTableProps, header, 
   const chainIds = useAppSelector(state =>
     isConnected ? selectWalletConnectedChainIdsSorted(state) : knownChainIds,
   )
+
+  useFetchOpportunities()
 
   return (
     <Flex width='full' flexDir='column' gap={6}>

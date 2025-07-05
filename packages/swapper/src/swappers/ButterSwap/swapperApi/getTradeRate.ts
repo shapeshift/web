@@ -7,7 +7,11 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
@@ -119,12 +123,20 @@ export const getTradeRate = async (
     )
   }
 
-  // Determine input and output for rate calculation
-  const inputAmount = bnOrZero(route.srcChain.totalAmountIn)
-  // Prefer dstChain if present, else srcChain
+  // Use destination receive amount as a priority if present and defined
+  // It won't for same-chain swaps, so we fall back to the source chain receive amount (i.e source chain *is* the destination chain)
   const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
 
-  const rate = inputAmount.gt(0) ? bnOrZero(outputAmount).div(inputAmount).toString() : '0'
+  // TODO: affiliate fees not yet here, gut feel is that Butter won't do the swap output - fees logic for us here
+  // Sanity check me when affiliates are implemented, and do the math ourselves if needed
+  const buyAmountAfterFeesCryptoBaseUnit = toBaseUnit(outputAmount, buyAsset.precision)
+
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
 
   const feeAsset = _deps.assetsById[feeAssetId]
   if (!feeAsset) {
@@ -145,7 +157,7 @@ export const getTradeRate = async (
   const step = {
     rate,
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
-    buyAmountAfterFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    buyAmountAfterFeesCryptoBaseUnit,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit,

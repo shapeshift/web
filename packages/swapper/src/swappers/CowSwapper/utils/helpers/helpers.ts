@@ -165,7 +165,6 @@ export const getValuesFromQuoteResponse = ({
     .toFixed(0)
 
   return {
-    rate,
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeAffiliateAndProtocolFeesCryptoBaseUnit,
     buyAmountAfterFeesCryptoBaseUnit: buyAmountAfterAffiliateFeesAndSlippage,
   }

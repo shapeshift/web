@@ -15,7 +15,7 @@ const client = viemClientByNetworkId[arbitrum.id]
 export type TimeInPoolQueryKey = [
   'timeInPool',
   {
-    stakingAssetAccountAddress?: string
+    stakingAssetAccountId?: string
     stakingAssetId?: AssetId
   },
 ]
@@ -36,7 +36,7 @@ export const getTimeInPoolQueryKey = ({
   return [
     'timeInPool',
     {
-      stakingAssetAccountAddress: stakingAssetAccountId,
+      stakingAssetAccountId,
       stakingAssetId,
     },
   ]

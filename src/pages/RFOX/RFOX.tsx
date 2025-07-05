@@ -2,9 +2,9 @@ import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
 
 import { Faq } from './components/Faq/Faq'
+import { History } from './components/History/History'
 import { Overview } from './components/Overview/Overview'
 import { RFOXHeader } from './components/RFOXHeader'
-import { TxHistory } from './components/TxHistory/TxHistory'
 import { Widget } from './Widget'
 
 import { Main } from '@/components/Layout/Main'
@@ -22,7 +22,7 @@ export const RFOX: React.FC = () => (
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview />
-          <TxHistory />
+          <History />
           <Faq />
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>

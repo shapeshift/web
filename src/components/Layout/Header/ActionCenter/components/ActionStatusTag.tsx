@@ -59,8 +59,14 @@ export const ActionStatusTag = ({ status }: ActionStatusTagProps) => {
         )
       case ActionStatus.ClaimAvailable:
         return (
-          <Tag size='sm' colorScheme='blue' {...defaultTagProps}>
+          <Tag size='sm' colorScheme='green' {...defaultTagProps}>
             {translate('notificationCenter.status.claimAvailable')}
+          </Tag>
+        )
+      case ActionStatus.Claimed:
+        return (
+          <Tag size='sm' colorScheme='green' {...defaultTagProps}>
+            {translate('notificationCenter.status.claimed')}
           </Tag>
         )
       default:

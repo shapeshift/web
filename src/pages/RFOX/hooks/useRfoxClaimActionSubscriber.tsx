@@ -1,0 +1,95 @@
+import { useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
+
+import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+
+// Note: the is a slight misnomer here compared to what we conventionally call a subscriber in action center (a poller)
+// However, this *is* reactive on useGetUnstakingRequestsQuery(), with inner queries which do get invalidated, so it is a subscriber in a way, just different
+
+export const useRfoxClaimActionSubscriber = () => {
+  const translate = useTranslate()
+  const dispatch = useAppDispatch()
+  const assets = useAppSelector(selectAssets)
+
+  const allUnstakingRequests = useGetUnstakingRequestsQuery()
+
+  const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
+  const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
+
+  useEffect(() => {
+    if (!pendingRfoxClaimActions.length) return
+    const now = Date.now()
+
+    pendingRfoxClaimActions.forEach(action => {
+      if (!action.rfoxClaimActionMetadata.txHash) return
+      const asset = assets[action.rfoxClaimActionMetadata.request.stakingAssetId]
+      if (!asset) return
+
+      const amountCryptoPrecision = fromBaseUnit(
+        action.rfoxClaimActionMetadata.request.amountCryptoBaseUnit,
+        asset.precision,
+      )
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: action.id,
+          status: ActionStatus.Claimed,
+          type: ActionType.RfoxClaim,
+          createdAt: action.createdAt,
+          updatedAt: now,
+          rfoxClaimActionMetadata: {
+            ...action.rfoxClaimActionMetadata,
+            message: `Your claim of ${Number(amountCryptoPrecision).toFixed(2)} ${
+              asset.symbol
+            } is complete`,
+          },
+        }),
+      )
+    })
+    // We definitely don't want to react on assets here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingRfoxClaimActions, dispatch])
+
+  useEffect(() => {
+    if (!allUnstakingRequests.isSuccess) return
+    const now = Date.now()
+
+    allUnstakingRequests.data.all.forEach(request => {
+      const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
+
+      if (now >= cooldownExpiryMs) {
+        const asset = assets[request.stakingAssetId]
+        if (!asset) return
+
+        const amountCryptoPrecision = fromBaseUnit(request.amountCryptoBaseUnit, asset.precision)
+
+        dispatch(
+          actionSlice.actions.upsertAction({
+            id: request.id,
+            status: ActionStatus.ClaimAvailable,
+            type: ActionType.RfoxClaim,
+            createdAt: cooldownExpiryMs,
+            updatedAt: now,
+            rfoxClaimActionMetadata: {
+              request,
+              message: translate('notificationCenter.rfox.unstakeReady', {
+                amount: bn(amountCryptoPrecision).toFixed(6),
+                symbol: asset.symbol,
+              }),
+            },
+          }),
+        )
+      }
+    })
+    // We definitely don't want to react on assets here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])
+}

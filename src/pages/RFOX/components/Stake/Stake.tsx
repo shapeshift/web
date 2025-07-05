@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import React, { lazy, useCallback, useMemo, useState } from 'react'
+import React, { lazy, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -110,10 +109,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   // Get bridge quote from location.state
   const maybeBridgeQuote = location.state as RfoxBridgeQuote | undefined
 
-  const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
-  }, [confirmedQuote])
-
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote?.stakingAssetId ?? ''),
   )
@@ -169,19 +164,19 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        accountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getTimeInPoolQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
@@ -190,7 +185,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     await queryClient.invalidateQueries({
       queryKey: getEarnedQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
@@ -210,7 +205,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     currentEpochMetadataQuery,
     queryClient,
     stakingAsset,
-    stakingAssetAccountAddress,
   ])
 
   const renderStakeInput = useCallback(() => {

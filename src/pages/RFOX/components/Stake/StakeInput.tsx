@@ -41,7 +41,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { selectRuneAddress } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -97,12 +97,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setStakingAssetId: setSelectedStakingAssetId,
     selectedAssetAccountId,
     stakingAssetAccountId,
-    supportedStakingAssetIds,
   } = useRFOXContext()
 
   const stakingAssetIds = useMemo(() => {
     return supportedStakingAssetIds.concat(l1AssetId)
-  }, [supportedStakingAssetIds, l1AssetId])
+  }, [l1AssetId])
 
   const assets = useAppSelector(selectAssets)
 
@@ -121,7 +120,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   const { data: currentRuneAddress } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectRuneAddress,
   })

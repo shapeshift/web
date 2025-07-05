@@ -87,9 +87,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
 
   const { data: currentRuneAddress } = useStakingInfoQuery({
     stakingAssetId,
-    stakingAssetAccountAddress: stakingAssetAccountId
-      ? fromAccountId(stakingAssetAccountId).account
-      : undefined,
+    accountId: stakingAssetAccountId,
     select: selectRuneAddress,
   })
 

@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Activity } from './Activity'
-import { Claims } from './Claims'
 import { Rewards } from './Rewards'
 
 type FormHeaderTabProps = {
@@ -17,11 +16,10 @@ const activeStyle = { color: 'text.base' }
 
 export const TxHistoryIndex = {
   Rewards: 0,
-  Claims: 1,
-  Activity: 2,
+  Activity: 1,
 }
 
-const TxHistoryTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
+const HistoryTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
   const handleClick = useCallback(() => {
     onClick(index)
   }, [index, onClick])
@@ -54,32 +52,25 @@ const TxHistoryHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex 
 
   return (
     <Flex gap={4}>
-      <TxHistoryTab
+      <HistoryTab
         index={TxHistoryIndex.Rewards}
         onClick={handleClick}
         isActive={activeIndex === TxHistoryIndex.Rewards}
       >
         {translate('RFOX.rewards')}
-      </TxHistoryTab>
-      <TxHistoryTab
-        index={TxHistoryIndex.Claims}
-        onClick={handleClick}
-        isActive={activeIndex === TxHistoryIndex.Claims}
-      >
-        {translate('RFOX.claims')}
-      </TxHistoryTab>
-      <TxHistoryTab
+      </HistoryTab>
+      <HistoryTab
         index={TxHistoryIndex.Activity}
         onClick={handleClick}
         isActive={activeIndex === TxHistoryIndex.Activity}
       >
         {translate('common.activity')}
-      </TxHistoryTab>
+      </HistoryTab>
     </Flex>
   )
 }
 
-export const TxHistory: React.FC = () => {
+export const History: React.FC = () => {
   const [stepIndex, setStepIndex] = useState(TxHistoryIndex.Rewards)
 
   const TabHeader = useMemo(
@@ -92,9 +83,6 @@ export const TxHistory: React.FC = () => {
         <TabPanels>
           <TabPanel px={0} py={0}>
             <Rewards headerComponent={TabHeader} />
-          </TabPanel>
-          <TabPanel px={0} py={0}>
-            <Claims headerComponent={TabHeader} />
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Activity headerComponent={TabHeader} />

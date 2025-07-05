@@ -17,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '../useWallet/useWallet'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
@@ -33,15 +34,9 @@ import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-type UseSwapActionSubscriberProps = {
-  onDrawerOpen: () => void
-  isDrawerOpen: boolean
-}
+export const useSwapActionSubscriber = () => {
+  const { isDrawerOpen, openDrawer } = useActionCenterContext()
 
-export const useSwapActionSubscriber = ({
-  onDrawerOpen,
-  isDrawerOpen,
-}: UseSwapActionSubscriberProps) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
@@ -177,7 +172,7 @@ export const useSwapActionSubscriber = ({
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()
-              onDrawerOpen()
+              openDrawer()
             }
 
             return (
@@ -222,7 +217,7 @@ export const useSwapActionSubscriber = ({
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()
-              onDrawerOpen()
+              openDrawer()
             }
 
             return (
@@ -257,7 +252,7 @@ export const useSwapActionSubscriber = ({
         buyTxHash,
       }
     },
-    [dispatch, toast, onDrawerOpen],
+    [dispatch, toast, openDrawer],
   )
 
   // Update actions status when swap is confirmed or failed

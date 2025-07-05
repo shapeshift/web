@@ -1,6 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -39,16 +39,11 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
   const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } =
     useCooldownPeriodQuery(stakingAssetId)
 
-  const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(stakingAssetAccountId).account,
-    [stakingAssetAccountId],
-  )
-
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectStakingBalance,
   })
@@ -57,7 +52,10 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     data: newContractBalanceOfCryptoBaseUnit,
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery<string>({
-    stakingAssetAccountAddress: getStakingContract(stakingAssetId),
+    accountId: toAccountId({
+      account: getStakingContract(stakingAssetId),
+      chainId: fromAssetId(stakingAssetId).chainId,
+    }),
     stakingAssetId,
     select: data => bnOrZero(data.toString()).plus(stakingAmountCryptoBaseUnit).toFixed(),
   })

@@ -20,6 +20,7 @@ import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
+import { RfoxClaimActionCard } from './components/RfoxClaimActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
 import { Display } from '@/components/Display'
@@ -29,6 +30,7 @@ import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitO
 import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
 import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
+import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
@@ -44,9 +46,10 @@ const ActionCenterIcon = <Icon as={TbBellFilled} />
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
 
-  useSwapActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
-  useAppUpdateActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  useSwapActionSubscriber()
+  useLimitOrderActionSubscriber()
+  useAppUpdateActionSubscriber()
+  useRfoxClaimActionSubscriber()
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -91,6 +94,9 @@ export const ActionCenter = memo(() => {
           }
           case ActionType.GenericTransaction: {
             return <GenericTransactionActionCard key={action.id} action={action} />
+          }
+          case ActionType.RfoxClaim: {
+            return <RfoxClaimActionCard key={action.id} action={action} />
           }
           default:
             return null
@@ -160,10 +166,10 @@ export const ActionCenter = memo(() => {
               </Flex>
             </DrawerHeader>
 
-            <Box pe={2}>
+            <Box pe={2} height='100%'>
               <Box
                 overflow='auto'
-                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
+                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)))'
               >
                 {actionCardsOrEmpty}
               </Box>

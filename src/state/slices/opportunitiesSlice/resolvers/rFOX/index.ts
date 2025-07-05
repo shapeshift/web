@@ -1,4 +1,4 @@
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
@@ -83,11 +83,10 @@ export const rFOXStakingUserDataResolver = async ({
   opportunityId,
   accountId,
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const stakingAssetAccountAddress = getAddress(fromAccountId(accountId).account)
   const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
   const rfoxStakingInfo = await getStakingInfoQueryFn({
-    stakingAssetAccountAddress,
+    stakingAssetAccountId: accountId,
     stakingAssetId: opportunityId,
   })
 

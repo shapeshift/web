@@ -1,4 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken } from '@tanstack/react-query'
 import { getAddress } from 'viem'
@@ -17,7 +18,7 @@ const client = viemClientByNetworkId[arbitrum.id]
  * i.e DO NOT EXPORT THIS FUNCTION
  */
 const fetchAccountLogs = async (
-  stakingAssetAccountAddress: string,
+  stakingAssetAccountId: AccountId,
   stakingAssetId: AssetId,
 ): Promise<RFOXAccountLog[]> => {
   const rfoxCreationBlockNumber = getRfoxContractCreationBlockNumber(
@@ -33,7 +34,7 @@ const fetchAccountLogs = async (
             event,
             fromBlock: rfoxCreationBlockNumber,
             args: {
-              account: getAddress(stakingAssetAccountAddress),
+              account: getAddress(fromAccountId(stakingAssetAccountId).account),
             },
           }) as Promise<RFOXAccountLog[]>,
       ),
@@ -53,14 +54,12 @@ const fetchAccountLogs = async (
 }
 
 export const getAccountLogsQueryKey = (
-  stakingAssetAccountAddress: string | undefined,
+  stakingAssetAccountId: AccountId | undefined,
   stakingAssetId: AssetId,
-) => ['accountLogs', stakingAssetAccountAddress, stakingAssetId]
+) => ['accountLogs', stakingAssetAccountId, stakingAssetId]
 
 export const getAccountLogsQueryFn = (
-  stakingAssetAccountAddress: string | undefined,
+  stakingAssetAccountId: AccountId | undefined,
   stakingAssetId: AssetId,
 ) =>
-  stakingAssetAccountAddress
-    ? () => fetchAccountLogs(stakingAssetAccountAddress, stakingAssetId)
-    : skipToken
+  stakingAssetAccountId ? () => fetchAccountLogs(stakingAssetAccountId, stakingAssetId) : skipToken

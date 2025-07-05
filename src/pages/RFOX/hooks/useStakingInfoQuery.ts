@@ -1,4 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address } from 'viem'
@@ -14,22 +15,22 @@ export type StakingInfoQueryKey = [
   {
     chainId: number
     contractAddress?: Address
-    stakingAssetAccountAddress?: string
+    stakingAssetAccountId?: AccountId
     stakingAssetId?: AssetId
   },
 ]
 
 type UseStakingInfoQueryProps<SelectData = AbiStakingInfo> = {
-  stakingAssetAccountAddress: string | undefined
+  accountId: AccountId | undefined
   stakingAssetId: AssetId | undefined
   select?: (stakingInfo: AbiStakingInfo) => SelectData
 }
 
 export const getStakingInfoQueryKey = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: {
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId | undefined
 }): StakingInfoQueryKey => {
   return [
@@ -37,37 +38,43 @@ export const getStakingInfoQueryKey = ({
     {
       chainId: arbitrum.id,
       contractAddress: stakingAssetId ? getStakingContract(stakingAssetId) : undefined,
-      stakingAssetAccountAddress,
+      stakingAssetAccountId,
       stakingAssetId,
     },
   ]
 }
 
 export const getStakingInfoQueryFn = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: {
-  stakingAssetAccountAddress: string
+  stakingAssetAccountId: AccountId
   stakingAssetId: AssetId
 }) => {
-  return getRfoxContract(stakingAssetId).read.stakingInfo([getAddress(stakingAssetAccountAddress)])
+  return getRfoxContract(stakingAssetId).read.stakingInfo([
+    getAddress(fromAccountId(stakingAssetAccountId).account),
+  ])
 }
 
 export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
-  stakingAssetAccountAddress,
+  accountId: stakingAssetAccountId,
   stakingAssetId,
   select,
 }: UseStakingInfoQueryProps<SelectData>) => {
   const queryKey: StakingInfoQueryKey = useMemo(
-    () => getStakingInfoQueryKey({ stakingAssetAccountAddress, stakingAssetId }),
-    [stakingAssetAccountAddress, stakingAssetId],
+    () => getStakingInfoQueryKey({ stakingAssetAccountId, stakingAssetId }),
+    [stakingAssetAccountId, stakingAssetId],
   )
 
   const queryFn = useMemo(() => {
-    return stakingAssetAccountAddress && stakingAssetId
-      ? () => getStakingInfoQueryFn({ stakingAssetAccountAddress, stakingAssetId })
+    return stakingAssetAccountId && stakingAssetId
+      ? () =>
+          getStakingInfoQueryFn({
+            stakingAssetAccountId,
+            stakingAssetId,
+          })
       : skipToken
-  }, [stakingAssetAccountAddress, stakingAssetId])
+  }, [stakingAssetAccountId, stakingAssetId])
 
   return useQuery({
     queryKey,

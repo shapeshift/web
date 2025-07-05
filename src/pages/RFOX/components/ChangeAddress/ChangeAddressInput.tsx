@@ -46,7 +46,7 @@ import type {
 } from '@/lib/utils/evm'
 import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from '@/lib/utils/evm'
 import { getStakingContract, selectRuneAddress } from '@/pages/RFOX/helpers'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
@@ -68,19 +68,18 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const navigate = useNavigate()
   const buyAssetSearch = useModal('buyAssetSearch')
 
-  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
-    useRFOXContext()
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
 
   useEffect(() => {
     if (supportedStakingAssetIds.includes(stakingAssetId)) return
     setStakingAssetId(supportedStakingAssetIds[0])
-  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+  }, [stakingAssetId, setStakingAssetId])
 
   const assets = useAppSelector(selectAssets)
 
   const stakingAssets = useMemo(() => {
     return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
-  }, [assets, supportedStakingAssetIds])
+  }, [assets])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -131,7 +130,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     isLoading: isCurrentRuneAddressLoading,
     isSuccess: isCurrentRuneAddressSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectRuneAddress,
   })

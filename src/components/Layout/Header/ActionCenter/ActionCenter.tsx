@@ -46,9 +46,9 @@ const ActionCenterIcon = <Icon as={TbBellFilled} />
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
 
-  useSwapActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
-  useAppUpdateActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  useSwapActionSubscriber()
+  useLimitOrderActionSubscriber()
+  useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()
 
   const translate = useTranslate()

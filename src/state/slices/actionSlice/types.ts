@@ -3,7 +3,7 @@ import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 
-import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 
 export enum ActionType {
   Deposit = 'Deposit',

@@ -1,7 +1,6 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -65,10 +64,6 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
 
-  const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
-  }, [confirmedQuote])
-
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
@@ -76,7 +71,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
         stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId,
       }),
     })
-  }, [confirmedQuote, queryClient, stakingAssetAccountAddress])
+  }, [confirmedQuote, queryClient])
 
   const renderChangeAddressInput = useCallback(() => {
     return (

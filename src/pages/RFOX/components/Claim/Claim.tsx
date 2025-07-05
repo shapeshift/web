@@ -5,9 +5,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { ClaimRouteProps } from './types'
 
-import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
-import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
@@ -57,21 +55,16 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     | UnstakingRequest
     | undefined
 
-  const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountId: selectedUnstakingRequest?.stakingAssetAccountId,
-  })
-
   const handleTxConfirmed = useCallback(async () => {
     if (!selectedUnstakingRequest) return
 
     await queryClient.invalidateQueries({
-      queryKey: getUnstakingRequestCountQueryKey({
-        stakingAssetId: selectedUnstakingRequest.stakingAssetId,
-        stakingAssetAccountId: selectedUnstakingRequest?.stakingAssetAccountId,
-      }),
+      queryKey: [
+        'getUnstakingRequests',
+        { stakingAssetAccountId: selectedUnstakingRequest.stakingAssetAccountId },
+      ],
     })
-    await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [selectedUnstakingRequest, queryClient, unstakingRequestQueryKey])
+  }, [selectedUnstakingRequest, queryClient])
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />

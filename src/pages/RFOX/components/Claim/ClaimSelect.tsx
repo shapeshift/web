@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { useGetUnstakingRequestsQuery } from '../../hooks/useGetUnstakingRequestsQuery'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
@@ -16,7 +17,6 @@ import { ClaimStatus } from '@/components/ClaimRow/types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { RfoxTabIndex } from '@/pages/RFOX/Widget'
 
@@ -56,9 +56,12 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
 
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
-    stakingAssetAccountId,
-  })
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+
+  const accountUnstakingRequests = useMemo(
+    () => allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? ''],
+    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId],
+  )
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
@@ -66,20 +69,23 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
     if (!stakingAssetAccountId) return
 
     if (
-      unstakingRequestsQuery.isPending ||
-      unstakingRequestsQuery.isPaused ||
-      unstakingRequestsQuery.isFetching
+      allUnstakingRequestsQuery.isPending ||
+      allUnstakingRequestsQuery.isPaused ||
+      allUnstakingRequestsQuery.isFetching
     ) {
       return new Array(2).fill(null).map((_, index) => <Skeleton key={index} height={16} my={2} />)
     }
 
-    if (unstakingRequestsQuery.isError || !unstakingRequestsQuery.data.length) {
+    if (allUnstakingRequestsQuery.isError || !accountUnstakingRequests?.length) {
       return (
-        <NoClaimsAvailable isError={unstakingRequestsQuery.isError} setStepIndex={setStepIndex} />
+        <NoClaimsAvailable
+          isError={allUnstakingRequestsQuery.isError}
+          setStepIndex={setStepIndex}
+        />
       )
     }
 
-    return unstakingRequestsQuery.data.map(unstakingRequest => {
+    return accountUnstakingRequests.map(unstakingRequest => {
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
@@ -111,10 +117,10 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
   }, [
     isConnected,
     setStepIndex,
-    stakingAssetAccountId,
-    unstakingRequestsQuery,
+    allUnstakingRequestsQuery,
     navigate,
     stakingAssetAccountId,
+    accountUnstakingRequests,
   ])
 
   return (

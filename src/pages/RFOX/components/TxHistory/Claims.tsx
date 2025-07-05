@@ -1,14 +1,13 @@
 import { CardBody, Skeleton } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
+import { useGetUnstakingRequestsQuery } from '../../hooks/useGetUnstakingRequestsQuery'
 import { ClaimRow } from '../Claim/ClaimRow'
 
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { Text } from '@/components/Text'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
 type ClaimsProps = {
@@ -18,27 +17,25 @@ type ClaimsProps = {
 export const Claims = ({ headerComponent }: ClaimsProps) => {
   const { stakingAssetAccountId } = useRFOXContext()
 
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
 
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
-    stakingAssetAccountId: stakingAssetAccountAddress,
-  })
+  const accountUnstakingRequests = useMemo(
+    () => allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? ''],
+    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId],
+  )
 
   const claims = useMemo(() => {
     if (!stakingAssetAccountId) return null
 
-    if (!unstakingRequestsQuery.isSuccess) {
+    if (!allUnstakingRequestsQuery.isSuccess) {
       return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />
     }
 
-    if (!unstakingRequestsQuery.data.length) {
+    if (!accountUnstakingRequests?.length) {
       return <Text color='text.subtle' translation='RFOX.noClaimsAvailable' />
     }
 
-    return unstakingRequestsQuery.data.map(unstakingRequest => {
+    return accountUnstakingRequests.map(unstakingRequest => {
       const currentTimestampMs = Date.now()
       const unstakingTimestampMs = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
@@ -57,17 +54,17 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
         />
       )
     })
-  }, [stakingAssetAccountId, unstakingRequestsQuery.data, unstakingRequestsQuery.isSuccess])
+  }, [stakingAssetAccountId, allUnstakingRequestsQuery, accountUnstakingRequests])
 
   return (
     <CardBody>
       {headerComponent}
       <Skeleton
         isLoaded={
-          !unstakingRequestsQuery.isLoading &&
-          !unstakingRequestsQuery.isPending &&
-          !unstakingRequestsQuery.isPaused &&
-          !unstakingRequestsQuery.isRefetching
+          !allUnstakingRequestsQuery.isLoading &&
+          !allUnstakingRequestsQuery.isPending &&
+          !allUnstakingRequestsQuery.isPaused &&
+          !allUnstakingRequestsQuery.isRefetching
         }
       >
         {claims}

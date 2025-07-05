@@ -7,7 +7,7 @@ import type { JSX } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery'
+import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { ClaimRouteProps } from './types'
 

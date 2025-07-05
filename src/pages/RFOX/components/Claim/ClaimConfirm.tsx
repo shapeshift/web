@@ -20,7 +20,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
-import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery'
+import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
 import type { ClaimRouteProps } from './types'
 
 import { Amount } from '@/components/Amount/Amount'

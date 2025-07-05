@@ -1,5 +1,4 @@
 import { Card, CardBody, CardHeader, Divider } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { StakingInfo } from './StakingInfo'

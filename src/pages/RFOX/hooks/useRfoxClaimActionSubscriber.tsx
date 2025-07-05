@@ -1,7 +1,6 @@
 import { arbitrumChainId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 
-import { useGetAllUnstakingCountsQuery } from './useGetAllUnstakingRequestsQueryCount'
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
 import { fromBaseUnit } from '@/lib/math'
@@ -26,13 +25,7 @@ export const useRfoxClaimActionSubscriber = () => {
   // TODO(gomes): useQueries and handle multiple AccountIds
   const stakingAssetAccountId = stakingAssetAccountIds[0]
 
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({
-    stakingAssetAccountId,
-  })
-
-  const test = useGetAllUnstakingCountsQuery()
-
-  console.log({ test })
+  const allUnstakingRequests = useGetUnstakingRequestsQuery()
 
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
@@ -72,11 +65,11 @@ export const useRfoxClaimActionSubscriber = () => {
   }, [pendingRfoxClaimActions, dispatch])
 
   useEffect(() => {
-    if (!unstakingRequestsQuery.isSuccess) return
+    if (!allUnstakingRequests.isSuccess) return
     if (!stakingAssetAccountId) return
     const now = Date.now()
 
-    unstakingRequestsQuery.data.forEach(request => {
+    allUnstakingRequests.data.all.forEach(request => {
       // Don't rug order by updating updatedAt and createdAt, this was already available, and still is
       if (actionIds.includes(request.id)) return
 
@@ -109,9 +102,10 @@ export const useRfoxClaimActionSubscriber = () => {
     // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    unstakingRequestsQuery.data,
-    unstakingRequestsQuery.isSuccess,
+    allUnstakingRequests.data,
+    allUnstakingRequests.isSuccess,
     dispatch,
     stakingAssetAccountId,
+    actionIds,
   ])
 }

@@ -4,7 +4,7 @@ import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType, isRfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -18,6 +18,7 @@ export const useRfoxClaimActionSubscriber = () => {
   const allUnstakingRequests = useGetUnstakingRequestsQuery()
 
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
+  const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
 
   useEffect(() => {
@@ -53,7 +54,17 @@ export const useRfoxClaimActionSubscriber = () => {
     allUnstakingRequests.data.all.forEach(request => {
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
 
+      const maybeStoreAction = actions[request.id]
+
       if (now >= cooldownExpiryMs) {
+        // This was available and is still available, no-op.
+        if (
+          maybeStoreAction &&
+          isRfoxClaimAction(maybeStoreAction) &&
+          maybeStoreAction.status === ActionStatus.ClaimAvailable
+        )
+          return
+
         const asset = assets[request.stakingAssetId]
         if (!asset) return
 

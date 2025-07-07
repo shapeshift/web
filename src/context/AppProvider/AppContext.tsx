@@ -7,7 +7,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetch } from './hooks/useAccountsFetch'
 
-import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
@@ -62,9 +61,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Previously <TransactionsProvider />
   useTransactionsSubscriber()
-  // App-wide long-poll of limit orders
-  // TODO: this should eventually go away in profit of an action center subscriber
-  useLimitOrders()
   useActionCenterSubscribers()
 
   useEffect(() => {

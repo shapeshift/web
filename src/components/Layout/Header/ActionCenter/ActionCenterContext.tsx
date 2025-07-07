@@ -21,7 +21,7 @@ export const ActionCenterProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!isLargerThanMd) return navigate('/history')
 
     setIsDrawerOpen(true)
-  }, [isLargerThanMd])
+  }, [isLargerThanMd, navigate])
   const closeDrawer = useCallback(() => setIsDrawerOpen(false), [])
 
   return (

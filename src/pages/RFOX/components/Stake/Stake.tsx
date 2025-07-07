@@ -102,7 +102,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const { stakingAssetId } = useRFOXContext()
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openNotifications } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
   const translate = useTranslate()
 
@@ -146,7 +146,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       render: ({ onClose, ...props }) => {
         const handleClick = () => {
           onClose()
-          openNotifications()
+          openActionCenter()
         }
 
         return (
@@ -199,7 +199,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     stakeTxid,
     dispatch,
     isDrawerOpen,
-    openNotifications,
+    openActionCenter,
     toast,
     translate,
     currentEpochMetadataQuery,

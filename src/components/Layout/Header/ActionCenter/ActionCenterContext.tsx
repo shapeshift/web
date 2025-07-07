@@ -6,7 +6,7 @@ import { breakpoints } from '@/theme/theme'
 
 type ActionCenterContextProps = {
   isDrawerOpen: boolean
-  openNotifications: () => void
+  openActionCenter: () => void
   closeDrawer: () => void
 }
 
@@ -17,7 +17,7 @@ export const ActionCenterProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const navigate = useNavigate()
 
-  const openNotifications = useCallback(() => {
+  const openActionCenter = useCallback(() => {
     if (!isLargerThanMd) return navigate('/history')
 
     setIsDrawerOpen(true)
@@ -25,7 +25,7 @@ export const ActionCenterProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const closeDrawer = useCallback(() => setIsDrawerOpen(false), [])
 
   return (
-    <ActionCenterContext.Provider value={{ isDrawerOpen, openNotifications, closeDrawer }}>
+    <ActionCenterContext.Provider value={{ isDrawerOpen, openActionCenter, closeDrawer }}>
       {children}
     </ActionCenterContext.Provider>
   )

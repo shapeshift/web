@@ -2949,7 +2949,7 @@
       "getValidator": "Failed to get validator."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Notifications",
     "viewTransaction": "View Transaction",
     "viewOrder": "View Order",

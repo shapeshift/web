@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const getAppUpdateId = (meta: Metadata) => stringify(meta)
 
 export const useAppUpdateActionSubscriber = () => {
-  const { isDrawerOpen, openNotifications } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const dispatch = useAppDispatch()
   const { hasUpdated, initialMetadata } = useHasAppUpdated()
   const hasShownToast = useRef(false)
@@ -57,7 +57,7 @@ export const useAppUpdateActionSubscriber = () => {
       // this ensures we don't accidentally double toast if this runs twice due to some reference update while hasUpdated = true and currentVersionExistingAction = undefined
       if (!hasShownToast.current) {
         toast({
-          render: props => <AppUpdateNotification handleClick={openNotifications} {...props} />,
+          render: props => <AppUpdateNotification handleClick={openActionCenter} {...props} />,
         })
 
         hasShownToast.current = true
@@ -65,7 +65,7 @@ export const useAppUpdateActionSubscriber = () => {
     }
   }, [
     dispatch,
-    openNotifications,
+    openActionCenter,
     toast,
     hasUpdated,
     currentVersionExistingAction,
@@ -80,5 +80,5 @@ export const useAppUpdateActionSubscriber = () => {
         dispatch(actionSlice.actions.deleteAction(id))
       }
     })
-  }, [dispatch, openNotifications, toast, hasUpdated, actionsById, currentVersionId])
+  }, [dispatch, openActionCenter, toast, hasUpdated, actionsById, currentVersionId])
 }

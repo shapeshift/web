@@ -35,7 +35,7 @@ import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useSwapActionSubscriber = () => {
-  const { isDrawerOpen, openNotifications } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -172,7 +172,7 @@ export const useSwapActionSubscriber = () => {
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()
-              openNotifications()
+              openActionCenter()
             }
 
             return (
@@ -217,7 +217,7 @@ export const useSwapActionSubscriber = () => {
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()
-              openNotifications()
+              openActionCenter()
             }
 
             return (
@@ -252,7 +252,7 @@ export const useSwapActionSubscriber = () => {
         buyTxHash,
       }
     },
-    [dispatch, toast, openNotifications],
+    [dispatch, toast, openActionCenter],
   )
 
   // Update actions status when swap is confirmed or failed

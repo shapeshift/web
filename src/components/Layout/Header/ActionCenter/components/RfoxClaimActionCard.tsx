@@ -94,19 +94,19 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
     switch (action.status) {
       case ActionStatus.ClaimAvailable: {
-        return translate('notificationCenter.rfox.unstakeReady', {
+        return translate('actionCenter.rfox.unstakeReady', {
           amount: amountCryptoHuman,
           symbol: stakingAsset.symbol,
         })
       }
       case ActionStatus.Pending: {
-        return translate('notificationCenter.rfox.unstakeTxPending', {
+        return translate('actionCenter.rfox.unstakeTxPending', {
           amount: amountCryptoHuman,
           symbol: stakingAsset.symbol,
         })
       }
       case ActionStatus.Claimed: {
-        return translate('notificationCenter.rfox.unstakeTxComplete', {
+        return translate('actionCenter.rfox.unstakeTxComplete', {
           amount: amountCryptoHuman,
           symbol: stakingAsset.symbol,
         })
@@ -162,7 +162,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
               <CardBody px={0} py={0}>
                 <Stack gap={4}>
                   <Button width='full' colorScheme='green' onClick={handleClaimClick}>
-                    {translate('notificationCenter.claim')}
+                    {translate('actionCenter.claim')}
                   </Button>
                 </Stack>
               </CardBody>

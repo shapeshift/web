@@ -75,7 +75,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const location = useLocation()
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications } = useActionCenterContext()
   const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
   const translate = useTranslate()
 
@@ -123,7 +123,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       render: ({ onClose, ...props }) => {
         const handleClick = () => {
           onClose()
-          openDrawer()
+          openNotifications()
         }
 
         return (
@@ -161,7 +161,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     unstakeTxid,
     dispatch,
     isDrawerOpen,
-    openDrawer,
+    openNotifications,
     toast,
     translate,
     stakingAsset,

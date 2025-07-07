@@ -40,7 +40,7 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const { isDrawerOpen, openNotifications: openDrawer, closeDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications, closeDrawer } = useActionCenterContext()
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -108,7 +108,7 @@ export const ActionCenter = memo(() => {
     if (pendingActions.length) {
       return (
         <Button
-          onClick={openDrawer}
+          onClick={openNotifications}
           aria-label={translate('notificationCenter.pendingTransactions', {
             count: pendingActions.length,
           })}
@@ -130,11 +130,11 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={openDrawer}
+          onClick={openNotifications}
         />
       </Box>
     )
-  }, [openDrawer, translate, pendingActions])
+  }, [openNotifications, translate, pendingActions])
 
   return (
     <>

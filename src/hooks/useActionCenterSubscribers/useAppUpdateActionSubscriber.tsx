@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const getAppUpdateId = (meta: Metadata) => stringify(meta)
 
 export const useAppUpdateActionSubscriber = () => {
-  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications } = useActionCenterContext()
   const dispatch = useAppDispatch()
   const { hasUpdated, initialMetadata } = useHasAppUpdated()
   const hasShownToast = useRef(false)
@@ -57,13 +57,20 @@ export const useAppUpdateActionSubscriber = () => {
       // this ensures we don't accidentally double toast if this runs twice due to some reference update while hasUpdated = true and currentVersionExistingAction = undefined
       if (!hasShownToast.current) {
         toast({
-          render: props => <AppUpdateNotification handleClick={openDrawer} {...props} />,
+          render: props => <AppUpdateNotification handleClick={openNotifications} {...props} />,
         })
 
         hasShownToast.current = true
       }
     }
-  }, [dispatch, openDrawer, toast, hasUpdated, currentVersionExistingAction, currentVersionId])
+  }, [
+    dispatch,
+    openNotifications,
+    toast,
+    hasUpdated,
+    currentVersionExistingAction,
+    currentVersionId,
+  ])
 
   // Delete any app update actions that are not relevant to our current version
   useEffect(() => {
@@ -73,5 +80,5 @@ export const useAppUpdateActionSubscriber = () => {
         dispatch(actionSlice.actions.deleteAction(id))
       }
     })
-  }, [dispatch, openDrawer, toast, hasUpdated, actionsById, currentVersionId])
+  }, [dispatch, openNotifications, toast, hasUpdated, actionsById, currentVersionId])
 }

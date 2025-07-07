@@ -22,8 +22,12 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
+import { bn } from '@/lib/bignumber/bignumber'
 import { RfoxRoute } from '@/pages/RFOX/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
 
@@ -43,6 +47,10 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { closeDrawer } = useActionCenterContext()
+
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, action.rfoxClaimActionMetadata.request.stakingAssetId),
+  )
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -75,6 +83,39 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     [navigate, closeDrawer, action.rfoxClaimActionMetadata.request],
   )
 
+  const message = useMemo(() => {
+    if (!stakingAsset) return null
+
+    // Yes, this may round down to 0 during testing if you unstake a fraction of FOX, but for *real* users, this is much better visually
+    // and it doesn't matter to be off from something like a penny to $0.1, this by no means is supposed to be the exact amount up to the 18dp
+    const amountCryptoHuman = bn(
+      action.rfoxClaimActionMetadata.request.amountCryptoPrecision,
+    ).toFixed(2)
+
+    switch (action.status) {
+      case ActionStatus.ClaimAvailable: {
+        return translate('notificationCenter.rfox.unstakeReady', {
+          amount: amountCryptoHuman,
+          symbol: stakingAsset.symbol,
+        })
+      }
+      case ActionStatus.Pending: {
+        return translate('notificationCenter.rfox.unstakeTxPending', {
+          amount: amountCryptoHuman,
+          symbol: stakingAsset.symbol,
+        })
+      }
+      case ActionStatus.Claimed: {
+        return translate('notificationCenter.rfox.unstakeTxComplete', {
+          amount: amountCryptoHuman,
+          symbol: stakingAsset.symbol,
+        })
+      }
+      default:
+        throw new Error(`Unsupported RFOX Claim Action status: ${action.status}`)
+    }
+  }, [])
+
   return (
     <Stack
       spacing={4}
@@ -95,7 +136,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
           <HStack width='full'>
             <Stack spacing={1} width='full'>
               <RawText fontSize='sm' fontWeight={500} lineHeight='short'>
-                {action.rfoxClaimActionMetadata.message}
+                {message}
               </RawText>
               <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1} align='center'>
                 <ActionStatusTag status={action.status} />

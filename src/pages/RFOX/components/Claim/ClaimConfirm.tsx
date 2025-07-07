@@ -191,9 +191,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
           updatedAt: Date.now(),
           rfoxClaimActionMetadata: {
             request: selectedUnstakingRequest,
-            message: `Your claim of ${Number(stakingAmountCryptoPrecision).toFixed(2)} ${
-              stakingAsset?.symbol ?? ''
-            } is pending`,
             txHash: txId,
           },
         }),

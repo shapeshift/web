@@ -7,7 +7,10 @@ import { arbitrum } from 'viem/chains'
 
 import { getStakingContract } from '../../helpers'
 
+import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
+import { selectAssetById } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 const client = viemClientByNetworkId[arbitrum.id]
 
@@ -17,6 +20,7 @@ type UseGetUnstakingRequestsQueryProps = {
 }
 
 export type UnstakingRequest = {
+  amountCryptoPrecision: string
   amountCryptoBaseUnit: string
   cooldownExpiry: string
   stakingAssetId: AssetId
@@ -59,14 +63,21 @@ export const getUnstakingRequestsQueryFn = ({
     const responses = await multicall(client, { contracts: multicallParams })
     const unstakingRequests = responses
       .map(({ result }, i) => {
+        const stakingAsset = selectAssetById(store.getState(), stakingAssetId)
+
         if (!result) return null
+        if (!stakingAsset) return null
+
         const contractAddress = multicallParams[i].address
 
         // getUnstakingRequest(account address, index uint256)
         const index = Number(multicallParams[i].args[1])
 
+        const amountCryptoBaseUnit = result.unstakingBalance.toString()
+
         return {
-          amountCryptoBaseUnit: result.unstakingBalance.toString(),
+          amountCryptoBaseUnit,
+          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision),
           cooldownExpiry: result.cooldownExpiry.toString(),
           stakingAssetId,
           index,

@@ -99,7 +99,6 @@ export type AppUpdateAction = BaseAction & {
 export type RfoxClaimAction = BaseAction & {
   type: ActionType.RfoxClaim
   rfoxClaimActionMetadata: {
-    message: string
     request: UnstakingRequest
     txHash?: string
   }

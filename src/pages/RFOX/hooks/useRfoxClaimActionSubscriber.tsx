@@ -1,10 +1,7 @@
 import { useEffect } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 
-import { bn } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
@@ -15,7 +12,6 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 // However, this *is* reactive on useGetUnstakingRequestsQuery(), with inner queries which do get invalidated, so it is a subscriber in a way, just different
 
 export const useRfoxClaimActionSubscriber = () => {
-  const translate = useTranslate()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -33,11 +29,6 @@ export const useRfoxClaimActionSubscriber = () => {
       const asset = assets[action.rfoxClaimActionMetadata.request.stakingAssetId]
       if (!asset) return
 
-      const amountCryptoPrecision = fromBaseUnit(
-        action.rfoxClaimActionMetadata.request.amountCryptoBaseUnit,
-        asset.precision,
-      )
-
       dispatch(
         actionSlice.actions.upsertAction({
           id: action.id,
@@ -47,9 +38,6 @@ export const useRfoxClaimActionSubscriber = () => {
           updatedAt: now,
           rfoxClaimActionMetadata: {
             ...action.rfoxClaimActionMetadata,
-            message: `Your claim of ${Number(amountCryptoPrecision).toFixed(2)} ${
-              asset.symbol
-            } is complete`,
           },
         }),
       )
@@ -69,8 +57,6 @@ export const useRfoxClaimActionSubscriber = () => {
         const asset = assets[request.stakingAssetId]
         if (!asset) return
 
-        const amountCryptoPrecision = fromBaseUnit(request.amountCryptoBaseUnit, asset.precision)
-
         dispatch(
           actionSlice.actions.upsertAction({
             id: request.id,
@@ -80,10 +66,6 @@ export const useRfoxClaimActionSubscriber = () => {
             updatedAt: now,
             rfoxClaimActionMetadata: {
               request,
-              message: translate('notificationCenter.rfox.unstakeReady', {
-                amount: bn(amountCryptoPrecision).toFixed(6),
-                symbol: asset.symbol,
-              }),
             },
           }),
         )

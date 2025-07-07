@@ -54,6 +54,7 @@ export const Widget: React.FC = () => {
           navigate('/rfox/unstake')
           break
         case RfoxTabIndex.Claim:
+          // Claim is a lil bit different - it's the only one with top-level routing for all its route AND inner routes
           navigate('/rfox/claim')
           break
         case RfoxTabIndex.ChangeAddress:

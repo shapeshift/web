@@ -4,6 +4,7 @@ import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { ClaimRouteProps } from './types'
+import { ClaimRoutePaths } from './types'
 
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -105,9 +106,9 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
         <Routes>
-          <Route path='' element={renderClaimSelect()} />
-          <Route path=':claimId/confirm' element={renderClaimConfirm()} />
-          <Route path=':claimId/status' element={renderClaimStatus()} />
+          <Route path={ClaimRoutePaths.Select} element={renderClaimSelect()} />
+          <Route path={ClaimRoutePaths.Confirm} element={renderClaimConfirm()} />
+          <Route path={ClaimRoutePaths.Status} element={renderClaimStatus()} />
           <Route path='*' element={renderRedirect()} />
         </Routes>
       </Suspense>

@@ -9,7 +9,7 @@ import type { KnownChainIds } from './base'
 export type AppDataHash = Nominal<string, 'AppDataHash'>
 export type AppData = Nominal<string, 'AppData'>
 export type OrderId = Nominal<string, 'OrderId'>
-export type QuoteId = Nominal<number, 'QuoteId'>
+export type CowSwapQuoteId = Nominal<number, 'CowSwapQuoteId'>
 
 // The following are lifted directly out of the cowprotocol source code because ethers version conflicts prevent us importing the SDK directly.
 // https://github.dev/cowprotocol/cow-sdk/blob/main/src/order-book/generated/models/
@@ -141,7 +141,7 @@ export type OrderCreation = {
   signingScheme: SigningScheme
   signature: string
   from?: Address | null
-  quoteId?: number | null
+  quoteId?: CowSwapQuoteId | null
   appData: AppData | AppDataHash
   appDataHash?: AppDataHash | null
 }
@@ -165,6 +165,7 @@ export type OrderMetaData = {
   owner: Address
   uid: string
   availableBalance?: string | null
+  sellAmount: string
   executedSellAmount: string
   executedSellAmountBeforeFees: string
   executedBuyAmount: string
@@ -202,7 +203,7 @@ export type OrderQuoteResponse = {
   quote: OrderParameters
   from?: Address
   expiration: string
-  id?: QuoteId
+  id?: CowSwapQuoteId
   verified: boolean
 }
 

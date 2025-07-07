@@ -9,7 +9,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe, ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
-import { createThrottle } from '@shapeshiftoss/utils'
+import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import qs from 'qs'
@@ -26,7 +26,7 @@ import { zerionMarketDataToMarketData } from './utils'
 
 import { getConfig } from '@/config'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { assertUnreachable, isToken } from '@/lib/utils'
+import { assertUnreachable } from '@/lib/utils'
 
 const { throttle, clear } = createThrottle({
   capacity: 1000, // Production keys are stated to have "200+ RPS"

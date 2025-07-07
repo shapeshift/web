@@ -16,8 +16,7 @@ import { DappHeaderMenuSummary } from '@/plugins/walletConnectToDapps/components
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
 const paddingProp = { base: 0, md: '20px' }
-const maxWidthProp = { base: '280px', md: 'xs' }
-const minWidthProp = { base: 0, md: 'xs' }
+const menuWidthProp = { base: '355px', md: 'xs' }
 const widthProp = { base: 'full', md: 'auto' }
 
 const WalletConnectV2ConnectedButtonText = ({
@@ -99,14 +98,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
           />
         )}
       </MenuButton>
-      <MenuList
-        zIndex='banner'
-        maxWidth={maxWidthProp}
-        minWidth={minWidthProp}
-        display='flex'
-        flexDir='column'
-        pb={0}
-      >
+      <MenuList zIndex='banner' width={menuWidthProp} display='flex' flexDir='column' pb={0}>
         <DappHeaderMenuSummary />
       </MenuList>
     </Menu>

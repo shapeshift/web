@@ -71,7 +71,7 @@ export const useStepperSteps = () => {
   const quoteId = useAppSelector(selectActiveQuoteId)
 
   const orderSubmissionMetadataFilter = useMemo(() => {
-    return { quoteId: quoteId ?? 0 }
+    return { cowSwapQuoteId: quoteId ?? 0 }
   }, [quoteId])
 
   const limitOrderSubmissionMetadata = useSelectorWithArgs(

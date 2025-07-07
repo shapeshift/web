@@ -96,7 +96,6 @@ export const mockStore: ReduxState = {
       Mayachain: false,
       ZrxSwap: false,
       ThorSwap: false,
-      ThorSwapStreamingSwaps: false,
       Cowswap: false,
       WalletConnectToDapps: false,
       WalletConnectToDappsV2: false,
@@ -147,10 +146,11 @@ export const mockStore: ReduxState = {
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,
       RelaySwapper: false,
-      NotificationCenter: false,
+      ActionCenter: false,
       ThorchainTcy: false,
       ThorchainTcyWidget: false,
       ThorchainTcyActivity: false,
+      MayaSwap: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -193,7 +193,6 @@ export const mockStore: ReduxState = {
       ids: [],
       priceHistory: {},
     },
-    isMarketDataLoaded: false,
   },
   txHistory: {
     _persist: {
@@ -206,6 +205,23 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     hydrationMeta: {},
+  },
+  action: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    byId: {},
+    ids: [],
+  },
+  swap: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    byId: {},
+    ids: [],
+    activeSwapId: null,
   },
   opportunities: {
     _persist: {

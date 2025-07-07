@@ -1,6 +1,6 @@
 import { CheckCircleIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Avatar, Box, Button, Flex, IconButton } from '@chakra-ui/react'
+import { Avatar, Box, Button, Flex, IconButton, Spinner } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -10,6 +10,7 @@ import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 const activeIcon = <CheckCircleIcon color='blue.500' ml='auto' />
 const editIcon = <EditIcon />
 const deleteIcon = <DeleteIcon />
+const initializingIcon = <Spinner />
 
 type WalletCardProps = {
   id?: string
@@ -17,6 +18,8 @@ type WalletCardProps = {
   onClick?: (arg: RevocableWallet) => Promise<void>
   isActive?: boolean
   isEditing?: boolean
+  isInitializing?: boolean
+  isDisabled?: boolean
   onRename?: (wallet: RevocableWallet) => void
   onDelete?: (wallet: RevocableWallet) => void
   _active?: ButtonProps['_active']
@@ -29,6 +32,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({
   onClick,
   isActive,
   isEditing,
+  isInitializing,
+  isDisabled,
   onRename,
   onDelete,
   _active,
@@ -52,6 +57,10 @@ export const WalletCard: React.FC<WalletCardProps> = ({
   const handleDelete = useCallback(() => onDelete && onDelete(wallet), [onDelete, wallet])
 
   const rightElement = useMemo(() => {
+    if (isInitializing) {
+      return initializingIcon
+    }
+
     if (isEditing) {
       return (
         <Flex ml='auto'>
@@ -75,10 +84,10 @@ export const WalletCard: React.FC<WalletCardProps> = ({
     if (isActive) {
       return activeIcon
     }
-  }, [handleDelete, handleRename, isActive, isEditing, translate])
+  }, [handleDelete, handleRename, isActive, isEditing, isInitializing, translate])
   return (
     <Button
-      onClick={handleClick}
+      onClick={isDisabled ? undefined : handleClick}
       height='auto'
       p={4}
       leftIcon={avatar}

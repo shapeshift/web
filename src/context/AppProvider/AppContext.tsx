@@ -5,7 +5,7 @@ import { useQueries } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useAccountsFetchQuery } from './hooks/useAccountsFetchQuery'
+import { useAccountsFetch } from './hooks/useAccountsFetch'
 
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
@@ -20,7 +20,6 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
   marketApi,
-  marketData,
   useFindAllMarketDataQuery,
 } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -96,8 +95,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // and covers most assets users will have
   useFindAllMarketDataQuery()
 
-  // Master hook for accounts fetch as a react-query
-  useAccountsFetchQuery()
+  // Master hook for accounts fetch
+  useAccountsFetch()
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {
@@ -146,9 +145,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             forceRefetch: true,
           }),
         )
-
-        // used to trigger mixpanel init after load of market data
-        dispatch(marketData.actions.setMarketDataLoaded())
 
         // We *have* to return a value other than undefined from react-query queries, see
         // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries

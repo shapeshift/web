@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
-import { isUtxoChainId } from '@shapeshiftoss/utils'
+import { isToken, isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -25,7 +25,6 @@ import { Text } from '@/components/Text'
 import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isToken } from '@/lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
@@ -116,17 +115,23 @@ export const ConfirmSummary = ({
   )
 
   const shouldDisableThorTaprootReceiveAddress = useMemo(() => {
-    // Taproot addresses are not supported by THORChain swapper currently
-    if (activeSwapperName === SwapperName.Thorchain && isTaprootReceiveAddress) return true
+    // Taproot addresses are not supported by THORChain or MAYAChain swappers currently
+    if (
+      (activeSwapperName === SwapperName.Thorchain ||
+        activeSwapperName === SwapperName.Mayachain) &&
+      isTaprootReceiveAddress
+    )
+      return true
 
     return false
   }, [activeSwapperName, isTaprootReceiveAddress])
 
   const shouldDisableThorNativeSmartContractReceive = useMemo(() => {
-    // THORChain is only affected by the sc limitation for native EVM receives
+    // THORChain and MAYAChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
     if (
-      activeSwapperName === SwapperName.Thorchain &&
+      (activeSwapperName === SwapperName.Thorchain ||
+        activeSwapperName === SwapperName.Mayachain) &&
       _isSmartContractReceiveAddress &&
       isEvmChainId(buyAsset.chainId) &&
       buyAsset.assetId === buyAssetFeeAsset?.assetId

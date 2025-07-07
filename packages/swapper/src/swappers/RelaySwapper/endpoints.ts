@@ -1,32 +1,14 @@
-import { fromChainId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { isUtxoChainId } from '@shapeshiftoss/utils'
-import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
-import type {
-  CommonTradeQuoteInput,
-  EvmTransactionRequest,
-  GetTradeRateInput,
-  GetUnsignedEvmTransactionArgs,
-  GetUnsignedUtxoTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-} from '../../types'
+import type { SwapperApi } from '../../types'
 import {
   checkSafeTransactionStatus,
+  getExecutableTradeStep,
   isExecutableTradeQuote,
-  isExecutableTradeStep,
 } from '../../utils'
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -38,39 +20,25 @@ import type { RelayStatus } from './utils/types'
 
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
-const txByQuoteIdMap: Map<string, EvmTransactionRequest> = new Map()
 
 export const relayApi: SwapperApi = {
-  getTradeQuote: async (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input, deps, chainIdToRelayChainId)
-
-    return tradeQuoteResult
-  },
-  getTradeRate: async (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    const tradeRateResult = await getTradeRate(input, deps, chainIdToRelayChainId)
-
-    return tradeRateResult
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input, deps, chainIdToRelayChainId),
+  getTradeRate: (input, deps) => getTradeRate(input, deps, chainIdToRelayChainId),
   getEvmTransactionFees: async ({
     from,
     stepIndex,
     tradeQuote,
-    chainId,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const currentStep = tradeQuote.steps[stepIndex]
-    if (!currentStep?.relayTransactionMetadata) throw Error('Missing relay transaction metadata')
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { to, value, data } = currentStep.relayTransactionMetadata
+    const { relayTransactionMetadata, sellAsset } = step
+    if (!relayTransactionMetadata) throw Error('Missing relay transaction metadata')
+
+    const { to, value, data } = relayTransactionMetadata
 
     if (to === undefined || value === undefined || data === undefined) {
       const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
@@ -82,30 +50,27 @@ export const relayApi: SwapperApi = {
       })
     }
 
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data: data.toString(),
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    return networkFeeCryptoBaseUnit
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    return feeData.networkFeeCryptoBaseUnit
   },
   getUnsignedEvmTransaction: async ({
-    chainId,
     from,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-  }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
-    const currentStep = tradeQuote.steps[stepIndex]
-    if (!currentStep?.relayTransactionMetadata) throw Error('Invalid step index')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = currentStep.relayTransactionMetadata
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, relayTransactionMetadata, sellAsset } = step
+    if (!relayTransactionMetadata) throw Error('Transaction metadata is required')
+
+    const { to, value, data, gasLimit: gasLimitFromApi } = relayTransactionMetadata
 
     if (to === undefined || value === undefined || data === undefined) {
       const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
@@ -117,138 +82,98 @@ export const relayApi: SwapperApi = {
       })
     }
 
-    const { gasLimit, ...feeData } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(chainId),
-      data,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const tx = {
-      to,
-      from,
-      value,
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    const unsignedTx = await adapter.buildCustomApiTx({
+      accountNumber,
       data,
-      chainId: Number(fromChainId(chainId).chainReference),
+      from,
+      to,
+      value,
       ...feeData,
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', gasLimit).toFixed(),
-    }
+      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
+    })
 
-    txByQuoteIdMap.set(tradeQuote.id, tx)
-
-    return tx
+    return unsignedTx
   },
   getUnsignedUtxoTransaction: async ({
+    stepIndex,
     tradeQuote,
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
-  }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { steps } = tradeQuote
-    const firstStep = steps[0]
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
-
-    const {
-      accountNumber,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sellAsset,
-      relayTransactionMetadata,
-    } = firstStep
-
+    const { accountNumber, sellAsset, relayTransactionMetadata } = step
     if (!relayTransactionMetadata) throw new Error('Missing relay transaction metadata')
 
     const { to, opReturnData } = relayTransactionMetadata
 
-    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
-
     if (!to) throw new Error('Missing transaction destination')
     if (!opReturnData) throw new Error('Missing opReturnData')
 
-    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
-      to,
-      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: {
-        pubkey: xpub,
-        opReturnData,
-      },
-      sendMax: false,
-    }
+    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    const feeData = await adapter.getFeeData(getFeeDataInput)
+    const { fast } = await adapter.getFeeData({
+      to,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: { pubkey: xpub, opReturnData },
+      sendMax: false,
+    })
 
     return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
-      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub,
       to,
       accountNumber,
       chainSpecific: {
         accountType,
         opReturnData,
-        satoshiPerByte: feeData.fast.chainSpecific.satoshiPerByte,
+        satoshiPerByte: fast.chainSpecific.satoshiPerByte,
       },
     })
   },
-  getUtxoTransactionFees: async ({
-    tradeQuote,
-    xpub,
-    assertGetUtxoChainAdapter,
-  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
-    const { steps } = tradeQuote
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const firstStep = steps[0]
+    const { sellAsset, relayTransactionMetadata } = step
+    if (!relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
 
-    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
-
-    if (!firstStep.relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
-
-    const sellAssetChainId = firstStep.sellAsset.chainId
-
-    if (!isUtxoChainId(sellAssetChainId)) throw new Error('Invalid chain id')
-
-    const { to, opReturnData } = firstStep.relayTransactionMetadata
+    const { to, opReturnData } = relayTransactionMetadata
 
     if (!to) throw new Error('Missing transaction destination')
     if (!opReturnData) throw new Error('Missing opReturnData')
 
-    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+
+    const { fast } = await adapter.getFeeData({
       to,
-      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: {
-        pubkey: xpub,
-        opReturnData,
-      },
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: { pubkey: xpub, opReturnData },
       sendMax: false,
-    }
+    })
 
-    const adapter = assertGetUtxoChainAdapter(sellAssetChainId)
-
-    const feeData = await adapter.getFeeData(getFeeDataInput)
-
-    return feeData.fast.txFee
+    return fast.txFee
   },
   getSolanaTransactionFees,
   getUnsignedSolanaTransaction,
   checkTradeStatus: async ({
-    quoteId,
+    swap,
     txHash,
     chainId,
     accountId,
     config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
-  }): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
+  }) => {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       txHash,
       chainId,
@@ -256,6 +181,8 @@ export const relayApi: SwapperApi = {
       accountId,
       fetchIsSmartContractAddressQuery,
     })
+
+    if (!swap?.metadata.relayTransactionMetadata) throw new Error('Missing swap metadata')
 
     if (maybeSafeTransactionStatus) {
       // return any safe transaction status that has not yet executed on chain (no buyTxHash)
@@ -266,27 +193,30 @@ export const relayApi: SwapperApi = {
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
-    if (!txIndexingMap.has(quoteId) && txByQuoteIdMap.has(quoteId) && isEvmChainId(chainId)) {
-      const got = txByQuoteIdMap.get(quoteId)
+    if (
+      swap.metadata.relayTransactionMetadata &&
+      !txIndexingMap.has(swap.id) &&
+      isEvmChainId(chainId)
+    ) {
       const relayTxParam = {
-        ...got,
+        ...swap.metadata.relayTransactionMetadata,
         txHash,
       }
       // We don't need to handle the response here, we just want to notify the relay indexer
       await notifyTransactionIndexing(
         {
-          requestId: quoteId,
+          requestId: swap.metadata.relayTransactionMetadata.relayId,
           chainId: chainIdToRelayChainId[chainId].toString(),
           tx: JSON.stringify(relayTxParam),
         },
         config,
       )
 
-      txIndexingMap.set(quoteId, true)
+      txIndexingMap.set(swap.id, true)
     }
 
     const maybeStatusResponse = await relayService.get<RelayStatus>(
-      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${quoteId}`,
+      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${swap.metadata.relayTransactionMetadata.relayId}`,
     )
 
     if (maybeStatusResponse.isErr()) {

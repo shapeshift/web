@@ -8,24 +8,26 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
+import type { ThorTradeRate } from '../../../thorchain-utils'
+import { getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeRate } from '../types'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Rate } from './getL1Rate'
-import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
+import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Rate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
   streamingInterval: number,
+  swapperName: SwapperName,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
@@ -79,22 +81,21 @@ export const getLongtailToL1Rate = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainRates = await getL1Rate(
+  const thorchainRates = await getL1RateOrQuote<ThorTradeRate>(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
     TradeType.LongTailToL1,
+    swapperName,
   )
 
   return thorchainRates.andThen(rates => {
     const updatedRates: ThorTradeRate[] = rates.map(q => ({
       ...q,
-      accountNumber: undefined,
       aggregator: bestAggregator,
       // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
       steps: q.steps.map(s => ({
         ...s,
-        accountNumber: undefined,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         sellAsset,
         allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,

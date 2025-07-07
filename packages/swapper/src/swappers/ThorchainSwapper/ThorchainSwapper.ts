@@ -1,21 +1,12 @@
-import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { isSome } from '@shapeshiftoss/utils'
 
-import type {
-  BuyAssetBySellIdInput,
-  CosmosSdkTransactionExecutionProps,
-  Swapper,
-  SwapperConfig,
-  UtxoTransactionExecutionProps,
-} from '../../types'
+import type { ThornodePoolResponse } from '../../thorchain-utils'
+import { thorService } from '../../thorchain-utils'
+import type { Swapper, SwapperConfig } from '../../types'
 import { executeEvmTransaction } from '../../utils'
-import { thorchainBuySupportedChainIds, thorchainSellSupportedChainIds } from './constants'
-import type { ThornodePoolResponse } from './types'
-import { poolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from './utils/thorService'
+import { thorPoolAssetIdToAssetId } from './utils/poolAssetHelpers/poolAssetHelpers'
 
 const getSupportedAssets = async (
   config: SwapperConfig,
@@ -23,65 +14,68 @@ const getSupportedAssets = async (
   supportedSellAssetIds: AssetId[]
   supportedBuyAssetIds: AssetId[]
 }> => {
-  const daemonUrl = config.VITE_THORCHAIN_NODE_URL
   const thorchainSwapLongtailEnabled = config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL
-  let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
-  let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
-  const poolResponse = await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/thorchain/pools`)
 
-  const longtailTokensJson = await import('./generated/generatedThorLongtailTokens.json')
-  const longtailTokens: AssetId[] = longtailTokensJson.default
-  const l1Tokens = poolResponse.isOk()
-    ? poolResponse
-        .unwrap()
-        .data.filter(pool => pool.status === 'Available')
-        .map(pool => poolAssetIdToAssetId(pool.asset))
-        .filter(isSome)
-    : []
+  const supportedSellAssetIds = [thorchainAssetId]
+  const supportedBuyAssetIds = [thorchainAssetId]
 
-  const allTokens = thorchainSwapLongtailEnabled ? [...longtailTokens, ...l1Tokens] : l1Tokens
+  const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain/pools`
 
-  allTokens.forEach(assetId => {
-    const chainId = fromAssetId(assetId).chainId
-    thorchainSellSupportedChainIds[chainId] && supportedSellAssetIds.push(assetId)
-    thorchainBuySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
+  const res = await thorService.get<ThornodePoolResponse[]>(url)
+  if (!res.isOk()) return { supportedSellAssetIds, supportedBuyAssetIds }
+
+  const { data: pools } = res.unwrap()
+
+  const assetIds = pools
+    .filter(pool => pool.status === 'Available')
+    .map(pool => thorPoolAssetIdToAssetId(pool.asset))
+    .filter(isSome)
+
+  assetIds.forEach(assetId => {
+    supportedSellAssetIds.push(assetId)
+    supportedBuyAssetIds.push(assetId)
   })
+
+  if (thorchainSwapLongtailEnabled) {
+    const longtailAssetIds: AssetId[] = (
+      await import('./generated/generatedThorLongtailTokens.json')
+    ).default
+
+    const chainIds = new Set(assetIds.map(assetId => fromAssetId(assetId).chainId))
+
+    longtailAssetIds.forEach(assetId => {
+      if (chainIds.has(fromAssetId(assetId).chainId)) {
+        supportedSellAssetIds.push(assetId)
+        supportedBuyAssetIds.push(assetId)
+      }
+    })
+  }
 
   return { supportedSellAssetIds, supportedBuyAssetIds }
 }
 
 export const thorchainSwapper: Swapper = {
   executeEvmTransaction,
-
-  executeCosmosSdkTransaction: async (
-    txToSign: StdSignDoc,
-    { signAndBroadcastTransaction }: CosmosSdkTransactionExecutionProps,
-  ): Promise<string> => {
-    return await signAndBroadcastTransaction(txToSign)
+  executeCosmosSdkTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
   },
-
-  executeUtxoTransaction: async (
-    txToSign: BTCSignTx,
-    { signAndBroadcastTransaction }: UtxoTransactionExecutionProps,
-  ): Promise<string> => {
-    return await signAndBroadcastTransaction(txToSign)
+  executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
   },
+  filterAssetIdsBySellable: async (_, config) => {
+    const { supportedSellAssetIds } = await getSupportedAssets(config)
 
-  filterAssetIdsBySellable: async (_, config): Promise<AssetId[]> =>
-    await getSupportedAssets(config).then(({ supportedSellAssetIds }) => supportedSellAssetIds),
-
-  filterBuyAssetsBySellAssetId: async ({
-    assets,
-    sellAsset,
-    config,
-  }: BuyAssetBySellIdInput): Promise<AssetId[]> => {
+    return supportedSellAssetIds
+  },
+  filterBuyAssetsBySellAssetId: async ({ assets, sellAsset, config }) => {
     const { supportedSellAssetIds, supportedBuyAssetIds } = await getSupportedAssets(config)
+
     if (!supportedSellAssetIds.includes(sellAsset.assetId)) return []
-    return assets
-      .filter(
-        asset =>
-          supportedBuyAssetIds.includes(asset.assetId) && asset.assetId !== sellAsset.assetId,
-      )
-      .map(asset => asset.assetId)
+
+    const filteredAssets = assets.filter(
+      asset => supportedBuyAssetIds.includes(asset.assetId) && asset.assetId !== sellAsset.assetId,
+    )
+
+    return filteredAssets.map(asset => asset.assetId)
   },
 }

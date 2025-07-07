@@ -732,6 +732,13 @@
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"
       },
+      "mayachain": {
+        "out": "Outbound Received",
+        "refund": "Refund",
+        "swapOut": "Swap Received",
+        "swap": "Trade",
+        "swapRefund": "Swap Refund"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Unstake",
@@ -1141,6 +1148,7 @@
       }
     },
     "limitOrderFilled": "Limit order filled",
+    "limitOrderPartiallyFilled": "Limit order partially filled",
     "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -2960,6 +2968,7 @@
     "expires": "Expires",
     "filled": "Filled",
     "swap": "Swap",
+    "streaming": "Streaming",
     "claim": "Claim",
     "protocol": "Protocol",
     "streamingStatus": "Streaming Status",
@@ -2974,6 +2983,9 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "unknown": "Unknown"
-    }
+    },
+    "swapTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}",
+    "swapError": "Swap failed",
+    "limitOrderTitle": "%{sellAmountAndSymbol} → %{buyAmountAndSymbol}"
   }
 }

@@ -4,7 +4,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
-  LifiTradeRate,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
@@ -14,6 +13,7 @@ import {
   isThorTradeQuote,
   SwapperName,
   swappers,
+  TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -54,7 +54,7 @@ import {
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState, TransactionExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type MixPanelQuoteMeta = {
@@ -267,7 +267,7 @@ export const useGetTradeQuotes = () => {
           sellAccountType: sellAccountMetadata?.accountType,
           buyAsset,
           wallet: wallet ?? undefined,
-          originalRate: activeRateRef?.current as LifiTradeRate,
+          originalRate: activeRateRef?.current as TradeRate,
           quoteOrRate: 'quote',
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,

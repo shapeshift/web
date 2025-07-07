@@ -4,7 +4,7 @@ import type { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import type { HistoryTimeframe, QuoteId } from '@shapeshiftoss/types'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TxMetadata as ThorTxMetadata } from 'packages/unchained-client/src/parser/thorchain'
 import createCachedSelector from 're-reselect'
@@ -56,7 +56,9 @@ type ParamFilter = Partial<{
   memo: ThorTxMetadata['memo']
   hopIndex: number
   tradeId: TradeQuote['id']
-  quoteId: QuoteId
+  quoteId: string
+  cowSwapQuoteId: number
+  swapId: string
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -95,7 +97,10 @@ export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
 export const selectParserParamFromFilter = selectParamFromFilter('parser')
 export const selectMemoParamFromFilter = selectParamFromFilter('memo')
-
+export const selectSwapIdParamFromFilter = selectParamFromFilter('swapId')
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')
 export const selectQuoteIdParamFromRequiredFilter = selectRequiredParamFromFilter('quoteId')
+export const selectCowSwapQuoteIdParamFromRequiredFilter =
+  selectRequiredParamFromFilter('cowSwapQuoteId')
+export const selectSwapIdParamFromRequiredFilter = selectRequiredParamFromFilter('swapId')

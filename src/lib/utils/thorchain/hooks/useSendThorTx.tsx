@@ -11,6 +11,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
@@ -26,7 +27,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { assertUnreachable, isToken } from '@/lib/utils'
+import { assertUnreachable } from '@/lib/utils'
 import { assertGetThorchainChainAdapter } from '@/lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
@@ -34,6 +35,7 @@ import {
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
 import {
+  THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT,
   THORCHAIN_POOL_MODULE_ADDRESS,
 } from '@/lib/utils/thorchain/constants'
@@ -127,7 +129,10 @@ export const useSendThorTx = ({
     return asset ? getThorchainTransactionType(asset.chainId) : undefined
   }, [asset])
 
-  const memo = useMemo(() => _memo && assertAndProcessMemo(_memo), [_memo])
+  const memo = useMemo(
+    () => _memo && assertAndProcessMemo(_memo, THORCHAIN_AFFILIATE_NAME),
+    [_memo],
+  )
 
   const { data: inboundAddressData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

@@ -1,14 +1,15 @@
 import type { QuoteResponse } from '@jup-ag/api'
-import type { StdSignDoc } from '@keplr-wallet/types'
+import type { Route } from '@lifi/sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
+  SignTx,
   solana,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -21,7 +22,7 @@ import type {
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
-import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
@@ -38,10 +39,11 @@ export type SwapperConfig = {
   VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
-  VITE_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
+  VITE_MAYACHAIN_NODE_URL: string
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
   VITE_THORCHAIN_MIDGARD_URL: string
+  VITE_MAYACHAIN_MIDGARD_URL: string
   VITE_UNCHAINED_BITCOIN_HTTP_URL: string
   VITE_UNCHAINED_DOGECOIN_HTTP_URL: string
   VITE_UNCHAINED_LITECOIN_HTTP_URL: string
@@ -62,6 +64,7 @@ export type SwapperConfig = {
 
 export enum SwapperName {
   Thorchain = 'THORChain',
+  Mayachain = 'MAYAChain',
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
@@ -117,7 +120,6 @@ export enum TradeQuoteError {
 }
 
 export type UtxoFeeData = {
-  byteCount: string
   satsPerByte: string
 }
 
@@ -237,10 +239,15 @@ export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }
-export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
+
+export type UtxoSwapperDeps = {
+  assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter
+}
+
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
+
 export type SolanaSwapperDeps = {
   assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
 }
@@ -299,6 +306,10 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  lifiSpecific?: {
+    lifiTools: LifiTools | undefined
+    lifiRoute: Route | undefined
+  }
   relayTransactionMetadata?: RelayTransactionMetadata
 }
 
@@ -316,6 +327,70 @@ type TradeQuoteBase = {
   isLongtail?: boolean
   quoteOrRate: 'quote' | 'rate'
   swapperName: SwapperName // The swapper that generated this quote/rate
+}
+
+export type LifiTools = {
+  bridges: string[] | undefined
+  exchanges: string[] | undefined
+}
+
+export type StreamingSwapFailedSwap = {
+  reason: string
+  swapIndex: number
+}
+
+export type StreamingSwapMetadata = {
+  attemptedSwapCount: number
+  totalSwapCount: number
+  failedSwaps: StreamingSwapFailedSwap[]
+}
+
+export enum TransactionExecutionState {
+  AwaitingConfirmation = 'AwaitingConfirmation',
+  Pending = 'Pending',
+  Complete = 'Complete',
+  Failed = 'Failed',
+}
+
+export type SwapExecutionMetadata = {
+  state: TransactionExecutionState
+  sellTxHash?: string
+  buyTxHash?: string
+  streamingSwap?: StreamingSwapMetadata
+  message?: string | [string, InterpolationOptions]
+}
+
+export type SwapperSpecificMetadata = {
+  lifiRoute: Route | undefined
+  lifiTools: LifiTools | undefined
+  chainflipSwapId: number | undefined
+  stepIndex: SupportedTradeQuoteStepIndex
+  relayTransactionMetadata: RelayTransactionMetadata | undefined
+  streamingSwapMetadata: StreamingSwapMetadata | undefined
+}
+
+export enum SwapStatus {
+  Idle = 'idle',
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+}
+
+export type Swap = {
+  id: string
+  createdAt: number
+  updatedAt: number
+  sellAsset: Asset
+  buyAsset: Asset
+  status: SwapStatus
+  sellTxHash?: string
+  sellAccountId: AccountId | undefined
+  swapperName: SwapperName
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  txLink?: string
+  metadata: SwapperSpecificMetadata
+  isStreaming?: boolean
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -377,7 +452,7 @@ export type GetUnsignedTxArgs = {
 } & FromOrXpub
 
 export type EvmTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: EvmTransactionRequest) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SignTx<EvmChainId>) => Promise<string>
 }
 
 export type EvmMessageExecutionProps = {
@@ -385,15 +460,15 @@ export type EvmMessageExecutionProps = {
 }
 
 export type UtxoTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: BTCSignTx) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
 }
 
 export type CosmosSdkTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SignTx<CosmosSdkChainId>) => Promise<string>
 }
 
 export type SolanaTransactionExecutionProps = {
-  signAndBroadcastTransaction: (transactionRequest: SolanaSignTx) => Promise<string>
+  signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
 }
 
 type EvmAccountMetadata = { from: string }
@@ -443,37 +518,28 @@ export type ExecuteTradeArgs = {
   chainId: ChainId
 }
 
-export type ExecuteTradeArgs2 = {
-  txToSign: UnsignedTx
-  wallet: HDWallet
-  chainId: ChainId
-}
-
 export type CheckTradeStatusInput = {
-  quoteId: string
   txHash: string
   chainId: ChainId
   accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
+  swap: Swap | undefined
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps
 
+export type TradeStatus = {
+  status: TxStatus
+  buyTxHash: string | undefined
+  message: string | [string, InterpolationOptions] | undefined
+}
+
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
 export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
-
-export type EvmTransactionRequest = {
-  gasLimit: string
-  to: string
-  from: string
-  value: string
-  data: string
-  chainId: number
-} & evm.types.Fees
 
 // TODO: one day this might be a union to support various implementations or generic 💀
 export type EvmMessageToSign = CowMessageToSign
@@ -484,7 +550,7 @@ export type Swapper = {
   executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 
   executeEvmTransaction?: (
-    txToSign: EvmTransactionRequest,
+    txToSign: SignTx<EvmChainId>,
     callbacks: EvmTransactionExecutionProps,
   ) => Promise<string>
   executeEvmMessage?: (
@@ -493,11 +559,11 @@ export type Swapper = {
     config: SwapperConfig,
   ) => Promise<string>
   executeUtxoTransaction?: (
-    txToSign: BTCSignTx,
+    txToSign: SignTx<UtxoChainId>,
     callbacks: UtxoTransactionExecutionProps,
   ) => Promise<string>
   executeCosmosSdkTransaction?: (
-    txToSign: StdSignDoc,
+    txToSign: SignTx<CosmosSdkChainId>,
     callbacks: CosmosSdkTransactionExecutionProps,
   ) => Promise<string>
   executeSolanaTransaction?: (
@@ -507,24 +573,22 @@ export type Swapper = {
 }
 
 export type SwapperApi = {
-  checkTradeStatus: (input: CheckTradeStatusInput) => Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }>
+  checkTradeStatus: (input: CheckTradeStatusInput) => Promise<TradeStatus>
+
   getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
-  getUnsignedEvmTransaction?: (
-    input: GetUnsignedEvmTransactionArgs,
-  ) => Promise<EvmTransactionRequest>
+  getUnsignedEvmTransaction?: (input: GetUnsignedEvmTransactionArgs) => Promise<SignTx<EvmChainId>>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>
-  getUnsignedUtxoTransaction?: (input: GetUnsignedUtxoTransactionArgs) => Promise<BTCSignTx>
+  getUnsignedUtxoTransaction?: (
+    input: GetUnsignedUtxoTransactionArgs,
+  ) => Promise<SignTx<UtxoChainId>>
   getUnsignedCosmosSdkTransaction?: (
     input: GetUnsignedCosmosSdkTransactionArgs,
-  ) => Promise<StdSignDoc>
+  ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
@@ -575,11 +639,8 @@ export enum TradeExecutionEvent {
 }
 
 export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
-export type StatusArgs = {
+export type StatusArgs = TradeStatus & {
   stepIndex: number
-  status: TxStatus
-  message?: string | [string, InterpolationOptions]
-  buyTxHash?: string
 }
 
 export type TradeExecutionEventMap = {

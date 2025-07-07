@@ -1,5 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import * as caip from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+
+const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
 export const ethereum: Readonly<Asset> = Object.freeze({
   assetId: caip.ethAssetId,
@@ -136,6 +139,21 @@ export const tcy: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const maya: Readonly<Asset> = Object.freeze({
+  assetId: mayaTokenAssetId,
+  chainId: caip.mayachainChainId,
+  name: 'MAYA',
+  networkName: 'MAYAChain',
+  symbol: 'MAYA',
+  precision: 4,
+  color: '#00FFA0',
+  icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/scripts/generateAssetData/thorchain/icons/maya.png',
+  explorer: 'https://mayascan.org',
+  explorerAddressLink: 'https://mayascan.org/address/',
+  explorerTxLink: 'https://mayascan.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const mayachain: Readonly<Asset> = Object.freeze({
   assetId: caip.mayachainAssetId,
   chainId: caip.mayachainChainId,
@@ -145,6 +163,7 @@ export const mayachain: Readonly<Asset> = Object.freeze({
   precision: 10,
   color: '#63FDD9',
   icon: 'https://gitlab.com/mayachain/frontend/mayachain-explorer-v2/-/raw/main/assets/images/cacao.png',
+  networkIcon: 'https://gitlab.com/uploads/-/system/project/avatar/36018613/maya_logo.png',
   explorer: 'https://mayascan.org',
   explorerAddressLink: 'https://mayascan.org/address/',
   explorerTxLink: 'https://mayascan.org/tx/',

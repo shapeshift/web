@@ -2,7 +2,6 @@ import type { Draft, PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
@@ -25,7 +24,6 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   clear: () => initialState,
   setBuyAsset: (state: Draft<T>, action: PayloadAction<Asset>) => {
     const asset = action.payload
-    if (asset.chainId === KnownChainIds.MayachainMainnet) return
     if (asset.assetId === state.buyAsset.assetId) return
 
     if (asset.assetId === state.sellAsset.assetId) {
@@ -42,7 +40,6 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   },
   setSellAsset: (state: Draft<T>, action: PayloadAction<Asset>) => {
     const asset = action.payload
-    if (asset.chainId === KnownChainIds.MayachainMainnet) return
     if (asset.assetId === state.sellAsset.assetId) return
 
     if (asset.assetId === state.buyAsset.assetId) {

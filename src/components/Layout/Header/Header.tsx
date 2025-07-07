@@ -8,13 +8,13 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
+import { ActionCenter } from './ActionCenter/ActionCenter'
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
 import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
-import { NotificationCenter } from './NotificationCenter/NotificationCenter'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -44,7 +44,10 @@ const pxProp = { base: 0, xl: 4 }
 const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
 const widthProp = { base: 'auto', md: 'full' }
-const paddingTopProp = { base: 'env(safe-area-inset-top)', md: 0 }
+const paddingTopProp = {
+  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: 0,
+}
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
@@ -72,7 +75,7 @@ export const Header = memo(() => {
   }, [scrollY])
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
-  const isNotificationCenterEnabled = useFeatureFlag('NotificationCenter')
+  const isActionCenterEnabled = useFeatureFlag('ActionCenter')
 
   /**
    * FOR DEVELOPERS:
@@ -210,7 +213,7 @@ export const Header = memo(() => {
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
-              {isConnected && isNotificationCenterEnabled && <NotificationCenter />}
+              {isConnected && isActionCenterEnabled && <ActionCenter />}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

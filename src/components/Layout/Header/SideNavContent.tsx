@@ -60,7 +60,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
       data-test='full-width-header'
       flexDir='column'
       overflowY='auto'
-      paddingTop='calc(1.5rem + env(safe-area-inset-top))'
+      paddingTop='calc(1.5rem + env(safe-area-inset-top) + var(--safe-area-inset-top))'
       p={4}
     >
       {!isLargerThanMd && (

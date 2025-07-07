@@ -21,11 +21,12 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
-  assetIdToPoolAssetId,
-  poolAssetIdToAssetId,
+  assetIdToThorPoolAssetId,
+  thorPoolAssetIdToAssetId,
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { isToken } from '@shapeshiftoss/utils'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import type { JSX } from 'react'
@@ -46,7 +47,6 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { SlippagePopover } from '@/components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -67,13 +67,7 @@ import { calculateFeeUsd } from '@/lib/fees/utils'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import {
-  assertUnreachable,
-  chainIdToChainDisplayName,
-  isNonEmptyString,
-  isSome,
-  isToken,
-} from '@/lib/utils'
+import { assertUnreachable, chainIdToChainDisplayName, isNonEmptyString, isSome } from '@/lib/utils'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
@@ -289,7 +283,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     if (!pools?.length) return
 
-    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
+    const assetId = thorPoolAssetIdToAssetId(poolAssetId ?? '')
 
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
@@ -516,7 +510,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const thorchainNotationPoolAssetId = useMemo(() => {
     if (!poolAsset) return undefined
-    return assetIdToPoolAssetId({
+    return assetIdToThorPoolAssetId({
       assetId: poolAsset.assetId,
     })
   }, [poolAsset])
@@ -889,12 +883,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
   const createHandleAddLiquidityInputChange = useCallback(
-    (marketData: MarketData, isRune: boolean) => {
+    (marketData: MarketData | undefined, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
-        if (!poolAsset || !marketData) return
+        if (!poolAsset) return
 
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
             .div(bn(marketData?.price))
             .toFixed()
@@ -902,6 +898,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
         const amountFiatUserCurrency = (() => {
           if (isFiat) return value
+          if (!marketData) return
+
           return bnOrZero(value)
             .times(bn(marketData?.price))
             .toFixed()
@@ -1080,12 +1078,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           const isRune = asset.assetId === runeAsset.assetId
           const marketData = isRune ? runeMarketData : poolAssetMarketData
           const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(
-            marketData ?? {
-              price: '0',
-              marketCap: '0',
-              volume: '0',
-              changePercent24Hr: 0,
-            },
+            marketData,
             isRune,
           )
 
@@ -1423,15 +1416,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const renderHeader = useMemo(() => {
     if (headerComponent) return headerComponent
     return (
-      <CardHeader display='flex' alignItems='center' justifyContent='space-between'>
-        <IconButton
-          onClick={handleBackClick}
-          variant='ghost'
-          icon={backIcon}
-          aria-label='go back'
-        />
-        {translate('pools.addLiquidity')}
-        <SlippagePopover isDisabled tooltipTranslation='pools.customSlippageDisabled' />
+      <CardHeader display='flex' alignItems='center'>
+        <Flex flex={1} justify='flex-start'>
+          <IconButton
+            onClick={handleBackClick}
+            variant='ghost'
+            icon={backIcon}
+            aria-label='go back'
+          />
+        </Flex>
+        <Flex flex={1} justify='center'>
+          {translate('pools.addLiquidity')}
+        </Flex>
+        <Flex flex={1} justify='flex-end'>
+          {/* Reserved space for future right-side content */}
+        </Flex>
       </CardHeader>
     )
   }, [backIcon, handleBackClick, headerComponent, translate])

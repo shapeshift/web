@@ -21,6 +21,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { isToken } from '@shapeshiftoss/utils'
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
@@ -46,8 +47,8 @@ import { toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { isToken } from '@/lib/utils'
 import { waitForThorchainUpdate } from '@/lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from '@/lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from '@/pages/Lending/hooks/useLendingCloseQuery'
@@ -250,7 +251,7 @@ export const RepayConfirm = ({
   const memo = useMemo(() => {
     if (!confirmedQuote) return null
 
-    return assertAndProcessMemo(confirmedQuote.quoteMemo)
+    return assertAndProcessMemo(confirmedQuote.quoteMemo, THORCHAIN_AFFILIATE_NAME)
   }, [confirmedQuote])
 
   const {

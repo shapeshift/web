@@ -42,10 +42,10 @@ const cardBorderRadius = { base: '2xl' }
 
 type CancelLimitOrderProps = {
   orderToCancel: OrderToCancel | undefined
-  resetOrderToCancel: () => void
+  onSetOrderToCancel: (orderToCancel: OrderToCancel | undefined) => void
 }
 
-export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLimitOrderProps) => {
+export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLimitOrderProps) => {
   const wallet = useWallet().state.wallet
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
@@ -75,8 +75,8 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
 
   const handleClose = useCallback(() => {
     reset()
-    resetOrderToCancel()
-  }, [resetOrderToCancel, reset])
+    onSetOrderToCancel(undefined)
+  }, [onSetOrderToCancel, reset])
 
   const handleRequestCancellation = useCallback(async () => {
     if (!orderToCancel || !wallet) {
@@ -93,7 +93,7 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
       queryKey: ['getLimitOrdersForAccount', orderToCancel.accountId],
     })
 
-    resetOrderToCancel()
+    onSetOrderToCancel(undefined)
 
     // Track event in mixpanel
     const eventData = getMixpanelLimitOrderEventData({
@@ -110,7 +110,7 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
     wallet,
     cancelLimitOrder,
     queryClient,
-    resetOrderToCancel,
+    onSetOrderToCancel,
     sellAsset,
     buyAsset,
     sellAmountCryptoPrecision,

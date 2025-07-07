@@ -45,7 +45,8 @@ vi.mock('axios', () => {
 const txParser = new TransactionParser({
   chainId: thorchainChainId,
   assetId: thorchainAssetId,
-  midgardUrl: '',
+  thorMidgardUrl: '',
+  mayaMidgardUrl: '',
 })
 
 describe('parseTx', () => {

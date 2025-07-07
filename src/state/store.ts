@@ -3,7 +3,6 @@ import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { persistStore } from 'redux-persist'
 import { setGlobalDevModeChecks } from 'reselect'
-import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -18,7 +17,6 @@ import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
-import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
@@ -141,9 +139,6 @@ export const persistor = persistStore(store)
 
 // dev QoL to access the store in the console
 if (window && getConfig().VITE_REDUX_WINDOW) window.store = store
-
-getStateWith(store.getState)
-registerSelectors(selectors)
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 export const useSelectorWithArgs = <Args extends unknown[], TSelected>(

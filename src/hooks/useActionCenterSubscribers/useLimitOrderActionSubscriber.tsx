@@ -9,9 +9,7 @@ import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
-import {
-  useLimitOrders,
-} from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
+import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'

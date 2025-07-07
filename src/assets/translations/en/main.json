@@ -2997,7 +2997,7 @@
       "unstakeConfirmed": "Your unstake of %{amount} %{symbol} will be available to claim in %{cooldownPeriod}.",
       "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim.",
       "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending",
-      "unstakeTxComplete": "`Your unstake of %{amount} %{symbol} is complete`"
+      "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

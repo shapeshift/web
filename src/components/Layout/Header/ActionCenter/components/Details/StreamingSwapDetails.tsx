@@ -43,7 +43,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
 
   return (
     <Row fontSize='sm' alignItems='center'>
-      <Row.Label>{translate('notificationCenter.streamingStatus')}</Row.Label>
+      <Row.Label>{translate('actionCenter.streamingStatus')}</Row.Label>
       <Row.Value display='flex' alignItems='center' gap={2}>
         <Progress
           width='100px'

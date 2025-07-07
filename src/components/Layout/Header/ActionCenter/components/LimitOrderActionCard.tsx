@@ -122,13 +122,13 @@ export const LimitOrderActionCard = ({
   }, [action])
 
   const limitOrderTitleTranslation = useMemo(() => {
-    if (!action) return 'notificationCenter.limitOrder.processing'
-    if (action.status === ActionStatus.Open) return 'notificationCenter.limitOrder.placed'
-    if (action.status === ActionStatus.Complete) return 'notificationCenter.limitOrder.complete'
-    if (action.status === ActionStatus.Expired) return 'notificationCenter.limitOrder.expired'
-    if (action.status === ActionStatus.Cancelled) return 'notificationCenter.limitOrder.cancelled'
+    if (!action) return 'actionCenter.limitOrder.processing'
+    if (action.status === ActionStatus.Open) return 'actionCenter.limitOrder.placed'
+    if (action.status === ActionStatus.Complete) return 'actionCenter.limitOrder.complete'
+    if (action.status === ActionStatus.Expired) return 'actionCenter.limitOrder.expired'
+    if (action.status === ActionStatus.Cancelled) return 'actionCenter.limitOrder.cancelled'
 
-    return 'notificationCenter.limitOrder.placed'
+    return 'actionCenter.limitOrder.placed'
   }, [action])
 
   return (

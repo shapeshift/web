@@ -75,7 +75,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const location = useLocation()
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
   const translate = useTranslate()
 
@@ -104,7 +104,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
         updatedAt: Date.now(),
         transactionMetadata: {
           displayType: GenericTransactionDisplayType.RFOX,
-          message: translate('notificationCenter.rfox.unstakeConfirmed', {
+          message: translate('actionCenter.rfox.unstakeConfirmed', {
             amount: amountCryptoPrecision,
             cooldownPeriod,
             symbol: stakingAsset.symbol,
@@ -123,7 +123,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       render: ({ onClose, ...props }) => {
         const handleClick = () => {
           onClose()
-          openDrawer()
+          openActionCenter()
         }
 
         return (
@@ -161,7 +161,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     unstakeTxid,
     dispatch,
     isDrawerOpen,
-    openDrawer,
+    openActionCenter,
     toast,
     translate,
     stakingAsset,

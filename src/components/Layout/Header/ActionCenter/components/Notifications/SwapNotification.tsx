@@ -74,13 +74,12 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   }, [swap])
 
   const swapTitleTranslation = useMemo(() => {
-    if (!swap) return 'notificationCenter.swap.processing'
-    if (swap.isStreaming && swap.status === SwapStatus.Pending)
-      return 'notificationCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return 'notificationCenter.swap.complete'
-    if (swap.status === SwapStatus.Failed) return 'notificationCenter.swap.failed'
+    if (!swap) return 'actionCenter.swap.processing'
+    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
+    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
+    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
 
-    return 'notificationCenter.swap.processing'
+    return 'actionCenter.swap.processing'
   }, [swap])
 
   if (!swap) return null

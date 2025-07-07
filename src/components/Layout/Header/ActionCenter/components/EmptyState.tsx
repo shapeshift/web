@@ -36,17 +36,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onClose }) => {
         <Stack spacing={0} width='full'>
           <HStack>
             <Stack spacing={1} width='full'>
-              <Text fontSize='md' translation='notificationCenter.emptyState.title' />
+              <Text fontSize='md' translation='actionCenter.emptyState.title' />
               <Box>
                 <Text
                   fontSize='sm'
                   color='text.subtle'
-                  translation='notificationCenter.emptyState.body1'
+                  translation='actionCenter.emptyState.body1'
                 />
                 <Text
                   fontSize='sm'
                   color='text.subtle'
-                  translation='notificationCenter.emptyState.body2'
+                  translation='actionCenter.emptyState.body2'
                 />
               </Box>
             </Stack>
@@ -55,7 +55,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onClose }) => {
             <CardBody px={0} py={0}>
               <Stack gap={4}>
                 <Button colorScheme='blue' width='full' onClick={handleStartSwappingClick}>
-                  {translate('notificationCenter.emptyState.startSwapping')}
+                  {translate('actionCenter.emptyState.startSwapping')}
                 </Button>
               </Stack>
             </CardBody>

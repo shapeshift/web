@@ -217,7 +217,6 @@
     "availableAssets": "Verfügbare Vermögenswerte"
   },
   "updateToast": {
-    "body": "Eine neue Version der App ist verfügbar",
     "cta": "App neu laden",
     "keepKey": {
       "title": "KeepKey Aktualisierung \n verfügbar",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "Berechtigte Gelegenheiten",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
     "netWorth": "Nettovermögen",
-    "loadingAccounts": "%{portfolioAccountsLoaded} Konten geladen (%{opportunityAccountsLoaded} mit aktuellen Positionen aktualisiert)",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
     "rewardsBalance": "Belohnungssaldo",
@@ -1042,8 +1040,7 @@
     "resetTitle": "Token Genehmigungsbetrag zurücksetzen",
     "fiatAmountOnChain": "%{amountFiatFormatted} auf %{chainName}",
     "quote": {
-      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen",
-      "slippage": "Slippage: %{slippageFormatted}"
+      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen"
     },
     "awaitingPermit2Approval": "Auf Token Übertragung warten",
     "awaitingSwap": "Warte auf Tausch über %{swapperName}",
@@ -1264,7 +1261,6 @@
         "enterPassword": "Geben Sie Ihr Passwort ein, um fortzufahren",
         "testTitle": "Überprüfen Sie Ihre geheime Wiederherstellungsphrase",
         "title": "Sicherung bestätigen",
-        "description": "Führen Sie diesen Kurztest durch, um zu bestätigen, dass Sie alles richtig gespeichert haben.",
         "confirm": {
           "title": "Wallet sichern",
           "body": "Bevor Sie Ihre Wallet abmelden, möchten Sie Ihre geheime Wiederherstellungsphrase sichern?",
@@ -2016,8 +2012,6 @@
       "nextStep": "Als Nächstes werden Sie aufgefordert, die Positionen bestimmter Wörter in Ihrer geheimen Wiederherstellungsphrase zu bestätigen.",
       "button": "Weiter zur Bestätigung",
       "success": {
-        "title": "Sicherung bestätigt",
-        "description": "Sie haben Ihre geheime Wiederherstellungsphrase verifiziert. Bewahren Sie sie sicher auf – nur so können Sie Ihre Wallet wiederherstellen.",
         "viewWallet": "Wallet anzeigen"
       }
     }

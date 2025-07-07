@@ -217,7 +217,6 @@
     "availableAssets": "Kullanılabilir Varlıklar"
   },
   "updateToast": {
-    "body": "Uygulamanın yeni bir sürümü mevcut",
     "cta": "Uygulamayı Yeniden Yükle",
     "keepKey": {
       "title": "KeepKey Güncellemesi Mevcut",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "Uygun Fırsatlar",
     "defiBody": "Büyüyen evrende DeFi fırsatlarını keşfedin.",
     "netWorth": "Net Değer",
-    "loadingAccounts": "Yüklenen %{portfolioAccountsLoaded} hesap (güncellenen %{opportunityAccountsLoaded} mevcut pozisyonlarla)",
     "walletBalance": "Cüzdan Bakiyesi",
     "earnBalance": "Kazanç Bakiyesi",
     "rewardsBalance": "Ödül Bakiyesi",
@@ -1042,8 +1040,7 @@
     "resetTitle": "Token ödeneği sıfırlama",
     "fiatAmountOnChain": "%{chainName} üzerinde %{amountFiatFormatted}",
     "quote": {
-      "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz",
-      "slippage": "Kayma: %{slippageFormatted}"
+      "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz"
     },
     "awaitingPermit2Approval": "Token transferini bekliyor",
     "awaitingSwap": "%{swapperName} üzerinden takas bekleniyor",
@@ -1264,7 +1261,6 @@
         "enterPassword": "Devam etmek için şifrenizi girin",
         "testTitle": "Gizli Kurtarma İfadenizi Doğrulayın",
         "title": "Yedeklemeyi Onayla",
-        "description": "Her şeyi doğru şekilde kaydettiğinizi doğrulamak için bu kısa testi tamamlayın.",
         "confirm": {
           "title": "Cüzdan yedekle",
           "body": "Cüzdanınızı unutmadan önce gizli kurtarma cümlenizi yedeklemek ister misiniz?",
@@ -2016,8 +2012,6 @@
       "nextStep": "Daha sonra Gizli Kurtarma Cümlenizdeki belirli kelimelerin yerlerini onaylamanız istenecek.",
       "button": "Onaylamaya devam et",
       "success": {
-        "title": "Yedekleme Onaylandı",
-        "description": "Gizli Kurtarma İfadenizi doğruladınız. Güvenli bir şekilde sakladığınızdan emin olun; bu, cüzdanınızı kurtarmanın tek yoludur.",
         "viewWallet": "Cüzdanı Görüntüle"
       }
     }

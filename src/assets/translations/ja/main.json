@@ -217,7 +217,6 @@
     "availableAssets": "利用可能なアセット"
   },
   "updateToast": {
-    "body": "アプリの新しいバージョンが利用可能になりました",
     "cta": "アプリをリロードする",
     "keepKey": {
       "title": "KeepKey アップデート利用可能",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "おすすめ",
     "defiBody": "成長を続けるDeFiの世界を探索してください。",
     "netWorth": "純資産",
-    "loadingAccounts": "%{portfolioAccountsLoaded} 個のアカウントをロードしました (現在のポジションで %{opportunityAccountsLoaded} 個を更新しました)",
     "walletBalance": "ウォレット残高",
     "earnBalance": "獲得残高",
     "rewardsBalance": "報酬残高",
@@ -1042,8 +1040,7 @@
     "resetTitle": "トークン許容量のリセット",
     "fiatAmountOnChain": "%{chainName} の %{amountFiatFormatted}",
     "quote": {
-      "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
-      "slippage": "スリッページ: %{slippageFormatted}"
+      "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません"
     },
     "awaitingPermit2Approval": "トークン転送を待機中",
     "awaitingSwap": "%{swapperName} 経由でのスワップを待機中",
@@ -1264,7 +1261,6 @@
         "enterPassword": "続行するにはパスワードを入力してください",
         "testTitle": "シークレットリカバリーフレーズを確認する",
         "title": "バックアップの確認",
-        "description": "この簡単なテストを完了して、すべてが正しく保存されたことを確認してください。",
         "confirm": {
           "title": "ウォレットをバックアップ",
           "body": "ウォレットを忘れる前に、秘密の回復フレーズをバックアップしますか?",
@@ -2016,8 +2012,6 @@
       "nextStep": "次に、秘密の回復フレーズ内の特定の単語の位置を確認するように求められます。",
       "button": "確認を続ける",
       "success": {
-        "title": "バックアップを確認しました",
-        "description": "シークレット リカバリー フレーズを確認しました。必ず安全に保管してください。これがウォレットを復元する唯一の方法です。",
         "viewWallet": "ウォレットを表示"
       }
     }

@@ -217,7 +217,6 @@
     "availableAssets": "Actifs disponibles"
   },
   "updateToast": {
-    "body": "Une nouvelle version de l'app est disponible",
     "cta": "Rafraîchir l'app",
     "keepKey": {
       "title": "Mise à jour KeepKey disponible",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "Opportunités éligibles",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
     "netWorth": "Patrimoine net",
-    "loadingAccounts": "%{portfolioAccountsLoaded} comptes chargés (%{opportunityAccountsLoaded} mis à jour avec les positions actuelles)",
     "walletBalance": "Solde du porte-monnaie",
     "earnBalance": "Solde dans Gagner",
     "rewardsBalance": "Solde des récompenses",
@@ -1042,8 +1040,7 @@
     "resetTitle": "Réinitialisation d'allocation de jetons",
     "fiatAmountOnChain": "%{amountFiatFormatted} sur %{chainName}",
     "quote": {
-      "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userSlippageFormatted}) pour %{swapperName}",
-      "slippage": "Glissement/Slippage : %{slippageFormatted}"
+      "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userSlippageFormatted}) pour %{swapperName}"
     },
     "awaitingPermit2Approval": "En attente de transfert de jetons",
     "awaitingSwap": "En attente d'échange via %{swapperName}",
@@ -1264,7 +1261,6 @@
         "enterPassword": "Entrez votre mot de passe pour continuer",
         "testTitle": "Vérifier votre Phrase de Récupération Secrète",
         "title": "Confirmer la sauvegarde",
-        "description": "Effectuez ce test rapide pour confirmer que vous avez tout enregistré correctement.",
         "confirm": {
           "title": "Sauvegarder le porte-monnaie",
           "body": "Avant d’oublier votre porte-monnaie, souhaitez-vous sauvegarder votre phrase de récupération secrète ?",
@@ -2016,8 +2012,6 @@
       "nextStep": "Par la suite, il va vous être demandé de confirmer la position de certains mots dans votre Phrase de Récupération Secrète.",
       "button": "Continuer pour confirmer",
       "success": {
-        "title": "Sauvegarde confirmée",
-        "description": "Vous avez vérifié votre Phrase de Récupération Secrète. Conservez-la précieusement : c'est le seul moyen de récupérer votre porte-monnaie.",
         "viewWallet": "Voir le porte-monnaie"
       }
     }

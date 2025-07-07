@@ -217,7 +217,6 @@
     "availableAssets": "Ativos disponíveis"
   },
   "updateToast": {
-    "body": "Nova versão do aplicativo disponível",
     "cta": "Recarregar Aplicativo",
     "keepKey": {
       "title": "Atualização KeepKey disponível",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "Oportunidades Elegíveis",
     "defiBody": "Explore o crescente universo DeFi.",
     "netWorth": "Total",
-    "loadingAccounts": "Contas %{portfolioAccountsLoaded} carregadas (atualizado %{opportunityAccountsLoaded} nas posições atuais)",
     "walletBalance": "Disponível",
     "earnBalance": "Investimentos",
     "rewardsBalance": "Recompensas",
@@ -1042,8 +1040,7 @@
     "resetTitle": "Redefinição da permissão de token",
     "fiatAmountOnChain": "%{amountFiatFormatted} em %{chainName}",
     "quote": {
-      "cantSetSlippage": "Não foi possível definir um slippage personalizado (%{userSlippageFormatted}) para %{swapperName}",
-      "slippage": "Slippage: %{slippageFormatted}"
+      "cantSetSlippage": "Não foi possível definir um slippage personalizado (%{userSlippageFormatted}) para %{swapperName}"
     },
     "awaitingPermit2Approval": "Aguardando transferência de token",
     "awaitingSwap": "Aguardando troca via %{swapperName}",
@@ -1264,7 +1261,6 @@
         "enterPassword": "Entre com sua senha para continuar.",
         "testTitle": "Verificar Sua Frase de Recuperação Secreta. ",
         "title": "Confirmar backup",
-        "description": "Conclua este teste rápido para confirmar se você salvou tudo corretamente.",
         "confirm": {
           "title": "Carteira de backup",
           "body": "Antes de esquecer sua carteira, você gostaria de fazer um backup de sua frase secreta de recuperação?",
@@ -2016,8 +2012,6 @@
       "nextStep": "Em seguida, você será solicitado a confirmar as posições de certas palavras na sua Frase Secreta de Recuperação.",
       "button": "Continuar para confirmar",
       "success": {
-        "title": "Backup confirmado",
-        "description": "Você verificou sua Frase Secreta de Recuperação. Certifique-se de armazená-la com segurança — esta é a única maneira de recuperar sua carteira.",
         "viewWallet": "Ver carteira"
       }
     }

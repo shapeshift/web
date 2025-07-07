@@ -217,7 +217,6 @@
     "availableAssets": "Activos Disponibles"
   },
   "updateToast": {
-    "body": "Una nueva versión de la app está disponible",
     "cta": "Recargar App",
     "keepKey": {
       "title": "Actualización de KeepKey disponible",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
-    "loadingAccounts": "Cuentas %{portfolioAccountsLoaded} cargadas (%{opportunityAccountsLoaded} actualizadas con las posiciones actuales)",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
     "rewardsBalance": "Balance Recompensas",
@@ -1042,8 +1040,7 @@
     "resetTitle": "Restablecimiento Asignación de Tokens",
     "fiatAmountOnChain": "%{amountFiatFormatted} en %{chainName}",
     "quote": {
-      "cantSetSlippage": "No podemos establecer un deslizamiento personalizado (%{userSlippageFormatted}) para %{swapperName}",
-      "slippage": "Deslizamiento: %{slippageFormatted}"
+      "cantSetSlippage": "No podemos establecer un deslizamiento personalizado (%{userSlippageFormatted}) para %{swapperName}"
     },
     "awaitingPermit2Approval": "Esperando transferencia de token",
     "awaitingSwap": "Esperando intercambio via %{swapperName}",
@@ -1264,7 +1261,6 @@
         "enterPassword": "Ingrese su contraseña para continuar",
         "testTitle": "Verifique su Frase Secreta de Recuperación",
         "title": "Confirmar copia de seguridad",
-        "description": "Complete esta prueba rápida para confirmar que ha guardado todo correctamente.",
         "confirm": {
           "title": "Respaldar Billetera",
           "body": "Antes de olvidar tu billetera, ¿te gustaría respaldar tu frase de recuperación secreta?",
@@ -2016,8 +2012,6 @@
       "nextStep": "A continuación se le pedirá confirmar posiciones de ciertas palabras en su Frase Secreta de Recuperación.",
       "button": "Continuar para confirmar",
       "success": {
-        "title": "Copia de Seguridad Confirmada",
-        "description": "Has verificado tu Frase Secreta de Recuperación. Asegúrate de guardarla de forma segura; es la única manera de recuperar tu billetera.",
         "viewWallet": "Ver Billetera"
       }
     }

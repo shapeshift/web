@@ -217,7 +217,6 @@
     "availableAssets": "可用资产"
   },
   "updateToast": {
-    "body": "该应用程序有新版本可用",
     "cta": "重新加载应用程序",
     "keepKey": {
       "title": "KeepKey 更新可用",
@@ -491,7 +490,6 @@
     "eligibleOpportunities": "符合条件的机会",
     "defiBody": "探索不断增长的 DeFi 机会。",
     "netWorth": "净值",
-    "loadingAccounts": "已加载 %{portfolioAccountsLoaded} 个账户 (更新了 %{opportunityAccountsLoaded} 个账户的当前持仓)",
     "walletBalance": "钱包余额",
     "earnBalance": "赚取余额",
     "rewardsBalance": "奖励余额",
@@ -1042,8 +1040,7 @@
     "resetTitle": "代币额度重置",
     "fiatAmountOnChain": "%{chainName} 上的 %{amountFiatFormatted}",
     "quote": {
-      "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
-      "slippage": "滑点：%{slippageFormatted}"
+      "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})"
     },
     "awaitingPermit2Approval": "代币转移中",
     "awaitingSwap": "通过 %{swapperName} 进行交换中",
@@ -1264,7 +1261,6 @@
         "enterPassword": "输入你的密码以继续",
         "testTitle": "验证你的助记词",
         "title": "确认备份",
-        "description": "完成此快速测试以确认您已正确保存所有内容。",
         "confirm": {
           "title": "备份钱包",
           "body": "在忘记您的钱包之前，您是否希望备份您的秘密恢复短语？",
@@ -2016,8 +2012,6 @@
       "nextStep": "接下来，您将需要确认您的秘密恢复短语中某些单词的位置。",
       "button": "继续确认",
       "success": {
-        "title": "已确认备份",
-        "description": "您已验证您的秘密恢复短语。请确保安全地存储它——这是恢复您钱包的唯一方式。",
         "viewWallet": "查看钱包"
       }
     }

@@ -35,7 +35,7 @@ import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useSwapActionSubscriber = () => {
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()

@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const getAppUpdateId = (meta: Metadata) => stringify(meta)
 
 export const useAppUpdateActionSubscriber = () => {
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
   const dispatch = useAppDispatch()
   const { hasUpdated, initialMetadata } = useHasAppUpdated()
   const hasShownToast = useRef(false)

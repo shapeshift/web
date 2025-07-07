@@ -104,7 +104,7 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const { getValues } = useFormContext<UnstakeFormValues>()
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
   const toast = useToast({
     duration: isDrawerOpen ? 5000 : null,
     position: 'bottom-right',

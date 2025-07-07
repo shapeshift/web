@@ -35,7 +35,7 @@ import {
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const useLimitOrderActionSubscriber = () => {
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 

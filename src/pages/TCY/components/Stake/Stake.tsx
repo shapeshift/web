@@ -101,7 +101,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const { getValues } = useFormContext<StakeFormValues>()
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
 
   const toast = useToast({
     duration: isDrawerOpen ? 5000 : null,

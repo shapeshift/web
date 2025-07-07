@@ -40,8 +40,7 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
-
+  const { isDrawerOpen, openNotifications: openDrawer, closeDrawer } = useActionCenterContext()
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)

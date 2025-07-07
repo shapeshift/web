@@ -75,7 +75,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const location = useLocation()
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openNotifications: openDrawer } = useActionCenterContext()
   const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
   const translate = useTranslate()
 

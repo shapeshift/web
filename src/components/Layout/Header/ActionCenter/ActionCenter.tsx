@@ -27,10 +27,6 @@ import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
-import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
-import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
-import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
@@ -46,10 +42,6 @@ const ActionCenterIcon = <Icon as={TbBellFilled} />
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
 
-  useSwapActionSubscriber()
-  useLimitOrderActionSubscriber()
-  useAppUpdateActionSubscriber()
-  useRfoxClaimActionSubscriber()
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)

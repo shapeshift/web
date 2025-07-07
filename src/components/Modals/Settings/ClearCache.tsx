@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { reloadWebview } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -55,7 +54,6 @@ export const ClearCache = () => {
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()
-  const { navigate: browserNavigate } = useBrowserRouter()
   const navigate = useNavigate()
   const { disconnect } = useWallet()
   const goBack = useCallback(() => navigate(-1), [navigate])
@@ -71,7 +69,7 @@ export const ClearCache = () => {
       // reload the page
       isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}
-  }, [browserNavigate, disconnect])
+  }, [disconnect])
 
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())

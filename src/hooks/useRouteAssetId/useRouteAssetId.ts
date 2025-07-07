@@ -18,10 +18,8 @@ const getRouteAssetId = (pathname: string) => {
     '/assets/:chainId/:assetSubId',
     '/wallet/:chainId/:assetSubId/:nftId',
     '/wallet/:chainId/:assetSubId',
-    '/wallet/accounts/:chainId/:assetSubId/:nftId',
-    '/wallet/accounts/:chainId/:assetSubId',
-    '/wallet/accounts/:chainId/:assetSubId/:nftId',
-    '/wallet/accounts/:chainId/:assetSubId',
+    '/wallet/accounts/:accountId/:chainId/:assetSubId/:nftId',
+    '/wallet/accounts/:accountId/:chainId/:assetSubId',
     '/lending/pool/:chainId/:assetSubId/:nftId',
     '/lending/pool/:chainId/:assetSubId',
     '/lending/poolAccount/:accountId/:chainId/:assetSubId',
@@ -29,8 +27,8 @@ const getRouteAssetId = (pathname: string) => {
   ]
 
   const accountPaths = [
-    '/wallet/accounts/:chainId/:assetSubId/:nftId',
-    '/wallet/accounts/:chainId/:assetSubId',
+    '/wallet/accounts/:accountId/:chainId/:assetSubId/:nftId',
+    '/wallet/accounts/:accountId/:chainId/:assetSubId',
     '/accounts/:accountId/:assetId',
     '/accounts/:chainNamespace\\::chainReference\\:(.+)',
     '/lending/poolAccount/:accountId/:assetId',

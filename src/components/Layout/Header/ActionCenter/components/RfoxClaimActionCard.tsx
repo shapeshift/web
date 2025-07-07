@@ -22,6 +22,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
+import { RfoxRoute } from '@/pages/RFOX/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -65,7 +66,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       // Close the drawer as early as possible
       closeDrawer()
 
-      navigate(`/rfox/claim/${index}/confirm`, {
+      navigate(`${RfoxRoute.Claim}/${index}/confirm`, {
         state: {
           selectedUnstakingRequest: action.rfoxClaimActionMetadata.request,
         },

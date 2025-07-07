@@ -22,6 +22,7 @@ import { encodeFunctionData } from 'viem'
 
 import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
 import { useRFOXContext } from '../../hooks/useRfoxContext'
+import { RfoxRoute } from '../../types'
 import type { ClaimRouteProps } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -96,7 +97,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   )
 
   const handleGoBack = useCallback(() => {
-    navigate('/rfox/claim')
+    navigate(RfoxRoute.Claim)
   }, [navigate])
 
   const stakingAsset = useAppSelector(state =>
@@ -272,7 +273,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     const txHash = await handleClaim()
     if (!txHash) return
-    navigate(`/rfox/claim/${claimId}/status`, {
+    navigate(`${RfoxRoute.Claim}/${claimId}/status`, {
       state: {
         selectedUnstakingRequest,
       },

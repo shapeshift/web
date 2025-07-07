@@ -6,6 +6,7 @@ import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
 import { Stake } from './components/Stake/Stake'
 import { Unstake } from './components/Unstake/Unstake'
+import { RfoxRoute, RfoxSubRoute } from './types'
 
 import { FormHeader } from '@/components/FormHeader'
 
@@ -30,13 +31,13 @@ export const Widget: React.FC = () => {
   const stepIndex = useMemo(() => {
     const path = location.pathname
     switch (true) {
-      case path.includes('/stake'):
+      case path.includes(RfoxRoute.Stake):
         return RfoxTabIndex.Stake
-      case path.includes('/unstake'):
+      case path.includes(RfoxRoute.Unstake):
         return RfoxTabIndex.Unstake
-      case path.includes('/claim'):
+      case path.includes(RfoxRoute.Claim):
         return RfoxTabIndex.Claim
-      case path.includes('/change-address'):
+      case path.includes(RfoxRoute.ChangeAddress):
         return RfoxTabIndex.ChangeAddress
       default:
         return RfoxTabIndex.Stake
@@ -48,17 +49,16 @@ export const Widget: React.FC = () => {
     (index: number) => {
       switch (index) {
         case RfoxTabIndex.Stake:
-          navigate('/rfox/stake')
+          navigate(RfoxRoute.Stake)
           break
         case RfoxTabIndex.Unstake:
-          navigate('/rfox/unstake')
+          navigate(RfoxRoute.Unstake)
           break
         case RfoxTabIndex.Claim:
-          // Claim is a lil bit different - it's the only one with top-level routing for all its route AND inner routes
-          navigate('/rfox/claim')
+          navigate(RfoxRoute.Claim)
           break
         case RfoxTabIndex.ChangeAddress:
-          navigate('/rfox/change-address')
+          navigate(RfoxRoute.ChangeAddress)
           break
         default:
           throw new Error(`Invalid tab index: ${index}`)
@@ -95,23 +95,23 @@ export const Widget: React.FC = () => {
         <TabPanels>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='stake' element={stakeElement} />
+              <Route path={RfoxSubRoute.Stake} element={stakeElement} />
               <Route path='' element={stakeRedirect} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='unstake' element={unstakeElement} />
+              <Route path={RfoxSubRoute.Unstake} element={unstakeElement} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='claim/*' element={claimElement} />
+              <Route path={`${RfoxSubRoute.Claim}/*`} element={claimElement} />
             </Routes>
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Routes>
-              <Route path='change-address' element={changeAddressElement} />
+              <Route path={RfoxSubRoute.ChangeAddress} element={changeAddressElement} />
             </Routes>
           </TabPanel>
         </TabPanels>

@@ -8,6 +8,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
+import { RfoxRoute } from '../../types'
 import { SharedStatus } from '../Shared/SharedStatus'
 import type { ClaimRouteProps } from './types'
 
@@ -46,7 +47,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   const navigate = useNavigate()
 
   const handleGoBack = useCallback(() => {
-    navigate('/rfox/claim')
+    navigate(RfoxRoute.Claim)
   }, [navigate])
 
   const claimAsset = useAppSelector(state =>

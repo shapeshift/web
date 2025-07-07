@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { useGetUnstakingRequestsQuery } from '../../hooks/useGetUnstakingRequestsQuery'
+import { RfoxRoute } from '../../types'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
@@ -94,7 +95,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
 
       const handleClaimClick = (claimId: number) => {
-        navigate(`/rfox/claim/${claimId}/confirm`, {
+        navigate(`${RfoxRoute.Claim}/${claimId}/confirm`, {
           state: {
             selectedUnstakingRequest: unstakingRequest,
           },

@@ -114,7 +114,12 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       default:
         throw new Error(`Unsupported RFOX Claim Action status: ${action.status}`)
     }
-  }, [])
+  }, [
+    action.rfoxClaimActionMetadata.request.amountCryptoPrecision,
+    action.status,
+    stakingAsset,
+    translate,
+  ])
 
   return (
     <Stack

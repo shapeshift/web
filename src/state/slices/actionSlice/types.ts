@@ -3,6 +3,8 @@ import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
+
 export enum ActionType {
   Deposit = 'Deposit',
   Claim = 'Claim',
@@ -10,6 +12,7 @@ export enum ActionType {
   LimitOrder = 'LimitOrder',
   GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
+  RfoxClaim = 'RfoxClaim',
 }
 
 export enum ActionStatus {
@@ -93,7 +96,20 @@ export type AppUpdateAction = BaseAction & {
   appUpdateMetadata: ActionAppUpdateMetadata
 }
 
-export type Action = SwapAction | LimitOrderAction | AppUpdateAction | GenericTransactionAction
+export type RfoxClaimAction = BaseAction & {
+  type: ActionType.RfoxClaim
+  rfoxClaimActionMetadata: {
+    request: UnstakingRequest
+    txHash?: string
+  }
+}
+
+export type Action =
+  | SwapAction
+  | LimitOrderAction
+  | AppUpdateAction
+  | GenericTransactionAction
+  | RfoxClaimAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -116,4 +132,8 @@ export const isPendingSwapAction = (action: Action): action is SwapAction => {
 
 export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(action.type === ActionType.GenericTransaction && action.transactionMetadata)
+}
+
+export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => {
+  return Boolean(action.type === ActionType.RfoxClaim && action.rfoxClaimActionMetadata)
 }

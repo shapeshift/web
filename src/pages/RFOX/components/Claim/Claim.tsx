@@ -1,15 +1,12 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, useLocation } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import type { ClaimRouteProps } from './types'
 import { ClaimRoutePaths } from './types'
 
-import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
@@ -45,89 +42,75 @@ const ClaimStatus = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const ClaimEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
-
 export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
-  return (
-    <MemoryRouter initialEntries={ClaimEntries} initialIndex={0}>
-      <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
-    </MemoryRouter>
-  )
+  return <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation()
   const queryClient = useQueryClient()
 
-  const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
-  const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
-  }, [confirmedQuote])
-
-  const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress,
-  })
+  const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
+    | UnstakingRequest
+    | undefined
 
   const handleTxConfirmed = useCallback(async () => {
+    if (!selectedUnstakingRequest) return
+
     await queryClient.invalidateQueries({
-      queryKey: getUnstakingRequestCountQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
-      }),
+      queryKey: [
+        'getUnstakingRequests',
+        { stakingAssetAccountId: selectedUnstakingRequest.stakingAssetAccountId },
+      ],
     })
-    await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
-  }, [confirmedQuote, queryClient, unstakingRequestQueryKey, stakingAssetAccountAddress])
+  }, [selectedUnstakingRequest, queryClient])
 
   const renderClaimSelect = useCallback(() => {
-    return (
-      <ClaimSelect
-        headerComponent={headerComponent}
-        setConfirmedQuote={setConfirmedQuote}
-        setStepIndex={setStepIndex}
-      />
-    )
+    return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />
   }, [headerComponent, setStepIndex])
 
   const renderClaimConfirm = useCallback(() => {
-    if (!confirmedQuote) return null
+    if (!selectedUnstakingRequest) return null
 
     return (
       <ClaimConfirm
-        claimQuote={confirmedQuote}
+        selectedUnstakingRequest={selectedUnstakingRequest}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
         claimTxid={claimTxid}
       />
     )
-  }, [claimTxid, confirmedQuote, headerComponent])
+  }, [claimTxid, selectedUnstakingRequest, headerComponent])
 
   const renderClaimStatus = useCallback(() => {
     if (!claimTxid) return null
-    if (!confirmedQuote) return null
+    if (!selectedUnstakingRequest) return null
 
     return (
       <ClaimStatus
-        accountId={confirmedQuote.stakingAssetAccountId}
+        accountId={selectedUnstakingRequest.stakingAssetAccountId}
         txId={claimTxid}
         setClaimTxid={setClaimTxid}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
-        confirmedQuote={confirmedQuote}
+        selectedUnstakingRequest={selectedUnstakingRequest}
       />
     )
-  }, [claimTxid, confirmedQuote, handleTxConfirmed, headerComponent])
+  }, [claimTxid, handleTxConfirmed, headerComponent, selectedUnstakingRequest])
+
+  const renderRedirect = useCallback(() => <Navigate to='' replace />, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        <Switch location={location.pathname}>
-          <Route path={ClaimRoutePaths.Select}>{renderClaimSelect()}</Route>
-          <Route path={ClaimRoutePaths.Confirm}>{renderClaimConfirm()}</Route>
-          <Route path={ClaimRoutePaths.Status}>{renderClaimStatus()}</Route>
-          <Route path='*'>{renderClaimSelect()}</Route>
-        </Switch>
+        <Routes>
+          <Route path={ClaimRoutePaths.Select} element={renderClaimSelect()} />
+          <Route path={ClaimRoutePaths.Confirm} element={renderClaimConfirm()} />
+          <Route path={ClaimRoutePaths.Status} element={renderClaimStatus()} />
+          <Route path='*' element={renderRedirect()} />
+        </Routes>
       </Suspense>
     </AnimatePresence>
   )

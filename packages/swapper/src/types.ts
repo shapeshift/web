@@ -1,5 +1,4 @@
 import type { QuoteResponse } from '@jup-ag/api'
-import type { Route } from '@lifi/sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -28,7 +27,8 @@ import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Address } from 'viem'
+import type Polyglot from 'node-polyglot'
+import type { Address, Hex } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -37,6 +37,7 @@ import type { makeSwapperAxiosServiceMonadic } from './utils'
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
   VITE_UNCHAINED_THORCHAIN_HTTP_URL: string
+  VITE_UNCHAINED_MAYACHAIN_HTTP_URL: string
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
   VITE_MAYACHAIN_NODE_URL: string
@@ -68,12 +69,12 @@ export enum SwapperName {
   CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
-  LIFI = 'LI.FI',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
   Chainflip = 'Chainflip',
   Jupiter = 'Jupiter',
   Relay = 'Relay',
+  ButterSwap = 'ButterSwap',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -165,7 +166,6 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
   receiveAddress: string
   accountNumber: number
   quoteOrRate: 'quote'
-  originalRate: TradeRate
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
@@ -306,11 +306,15 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
-  lifiSpecific?: {
-    lifiTools: LifiTools | undefined
-    lifiRoute: Route | undefined
+  thorchainSpecific?: {
+    maxStreamingQuantity?: number
   }
   relayTransactionMetadata?: RelayTransactionMetadata
+  butterSwapTransactionMetadata?: {
+    to: string
+    data: string
+    value: Hex
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
@@ -329,11 +333,6 @@ type TradeQuoteBase = {
   swapperName: SwapperName // The swapper that generated this quote/rate
 }
 
-export type LifiTools = {
-  bridges: string[] | undefined
-  exchanges: string[] | undefined
-}
-
 export type StreamingSwapFailedSwap = {
   reason: string
   swapIndex: number
@@ -341,7 +340,7 @@ export type StreamingSwapFailedSwap = {
 
 export type StreamingSwapMetadata = {
   attemptedSwapCount: number
-  totalSwapCount: number
+  maxSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
 }
 
@@ -355,17 +354,19 @@ export enum TransactionExecutionState {
 export type SwapExecutionMetadata = {
   state: TransactionExecutionState
   sellTxHash?: string
+  relayerTxHash?: string
+  relayerExplorerTxLink?: string | undefined
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
 }
 
 export type SwapperSpecificMetadata = {
-  lifiRoute: Route | undefined
-  lifiTools: LifiTools | undefined
   chainflipSwapId: number | undefined
-  stepIndex: SupportedTradeQuoteStepIndex
   relayTransactionMetadata: RelayTransactionMetadata | undefined
+  relayerExplorerTxLink: string | undefined
+  relayerTxHash: string | undefined
+  stepIndex: SupportedTradeQuoteStepIndex
   streamingSwapMetadata: StreamingSwapMetadata | undefined
 }
 
@@ -383,11 +384,17 @@ export type Swap = {
   sellAsset: Asset
   buyAsset: Asset
   status: SwapStatus
+  source: SwapSource
   sellTxHash?: string
-  sellAccountId: AccountId | undefined
+  buyTxHash?: string
+  statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
+  sellAccountId: AccountId
+  receiveAddress: string | undefined
   swapperName: SwapperName
   sellAmountCryptoBaseUnit: string
-  buyAmountCryptoBaseUnit: string
+  expectedBuyAmountCryptoBaseUnit: string
+  sellAmountCryptoPrecision: string
+  expectedBuyAmountCryptoPrecision: string
   txLink?: string
   metadata: SwapperSpecificMetadata
   isStreaming?: boolean
@@ -521,7 +528,7 @@ export type ExecuteTradeArgs = {
 export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
-  accountId: AccountId | undefined
+  address: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
   swap: Swap | undefined
@@ -533,6 +540,8 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
+  relayerTxHash?: string | undefined
+  relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
 }
 
@@ -545,8 +554,6 @@ export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
-  filterAssetIdsBySellable: (assets: Asset[], config: SwapperConfig) => Promise<AssetId[]>
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 
   executeEvmTransaction?: (
@@ -632,6 +639,7 @@ export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
+  RelayerTxHash = 'relayerTxHash',
   Status = 'status',
   Success = 'success',
   Fail = 'fail',
@@ -639,21 +647,22 @@ export enum TradeExecutionEvent {
 }
 
 export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
+export type RelayerTxDetailsArgs = {
+  stepIndex: SupportedTradeQuoteStepIndex
+  relayerTxHash: string
+  relayerExplorerTxLink: string
+}
 export type StatusArgs = TradeStatus & {
   stepIndex: number
 }
 
 export type TradeExecutionEventMap = {
   [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
+  [TradeExecutionEvent.RelayerTxHash]: (args: RelayerTxDetailsArgs) => void
   [TradeExecutionEvent.Status]: (args: StatusArgs) => void
   [TradeExecutionEvent.Success]: (args: StatusArgs) => void
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
   [TradeExecutionEvent.Error]: (args: unknown) => void
-}
-
-export type SupportedChainIds = {
-  buy: ChainId[]
-  sell: ChainId[]
 }
 
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>

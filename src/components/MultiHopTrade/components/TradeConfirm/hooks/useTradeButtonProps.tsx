@@ -1,5 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -47,6 +48,21 @@ export const useTradeButtonProps = ({
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
+
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId ?? '',
+      hopIndex: currentHopIndex ?? 0,
+    }
+  }, [activeTradeId, currentHopIndex])
+
+  const {
+    allowanceApproval,
+    allowanceReset,
+    state: hopExecutionState,
+    swap: { state: swapTxState, relayerExplorerTxLink, relayerTxHash },
+  } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
+
   const {
     handleSignAllowanceApproval,
     isAllowanceApprovalLoading,
@@ -65,26 +81,42 @@ export const useTradeButtonProps = ({
 
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
+    if (!sellAccountId) return
 
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
+
     const swap: Swap = {
       id: uuid(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
       sellAccountId,
+      receiveAddress: activeQuote.receiveAddress,
+      source: firstStep.source,
       swapperName: activeQuote.swapperName,
       sellAsset: firstStep.sellAsset,
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountCryptoPrecision: fromBaseUnit(
+        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        firstStep.sellAsset.precision,
+      ),
+      expectedBuyAmountCryptoPrecision: fromBaseUnit(
+        lastStep.buyAmountAfterFeesCryptoBaseUnit,
+        lastStep.buyAsset.precision,
+      ),
       metadata: {
-        lifiRoute: firstStep?.lifiSpecific?.lifiRoute,
-        lifiTools: firstStep?.lifiSpecific?.lifiTools,
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
-        stepIndex: currentHopIndex,
+        relayerExplorerTxLink,
+        relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-        streamingSwapMetadata: undefined,
+        stepIndex: currentHopIndex,
+        streamingSwapMetadata: {
+          maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
+          attemptedSwapCount: 0,
+          failedSwaps: [],
+        },
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
@@ -94,22 +126,10 @@ export const useTradeButtonProps = ({
     dispatch(swapSlice.actions.setActiveSwapId(swap.id))
 
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [dispatch, activeQuote, currentHopIndex, sellAccountId])
-
-  const hopExecutionMetadataFilter = useMemo(() => {
-    return {
-      tradeId: activeTradeId ?? '',
-      hopIndex: currentHopIndex ?? 0,
-    }
-  }, [activeTradeId, currentHopIndex])
-  const {
-    allowanceApproval,
-    allowanceReset,
-    state: hopExecutionState,
-    swap: { state: swapTxState },
-  } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
+  }, [dispatch, activeQuote, currentHopIndex, sellAccountId, relayerExplorerTxLink, relayerTxHash])
 
   const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
+
   const handleSignTx = useCallback(() => {
     if (
       ![TransactionExecutionState.AwaitingConfirmation, TransactionExecutionState.Failed].includes(

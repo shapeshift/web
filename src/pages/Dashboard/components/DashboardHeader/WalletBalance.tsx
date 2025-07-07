@@ -1,21 +1,20 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
-import { Flex, Skeleton } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { Box, Flex, Spinner } from '@chakra-ui/react'
 import type { Property } from 'csstype'
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
-import { useFetchOpportunities } from '@/components/StakingVaults/hooks/useFetchOpportunities'
 import { Text } from '@/components/Text'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
+import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
 import {
-  selectClaimableRewards,
-  selectEarnBalancesUserCurrencyAmountFull,
-  selectIsPortfolioLoading,
+  selectPortfolioAccounts,
   selectPortfolioTotalUserCurrencyBalance,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const balanceFontSize = { base: '2xl', md: '4xl' }
+const defaultBalanceFontSize = { base: '2xl', md: '4xl' }
 const balanceFlexDir: ResponsiveValue<Property.FlexDirection> = {
   base: 'column-reverse',
   md: 'column',
@@ -28,44 +27,40 @@ const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
 type WalletBalanceProps = {
   label?: string
   alignItems?: FlexProps['alignItems']
+  balanceFontSize?: FlexProps['fontSize']
 }
 export const WalletBalance: React.FC<WalletBalanceProps> = memo(
-  ({ label = 'defi.netWorth', alignItems }) => {
-    const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
-    const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
-    const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
-    const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
-      selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
-    )
-    const earnUserCurrencyBalance = useAppSelector(
-      selectEarnBalancesUserCurrencyAmountFull,
-    ).toFixed()
+  ({ label = 'defi.netWorth', alignItems, balanceFontSize }) => {
+    const { isFetching: isAccountsMetadataFetching } = useAccountsFetchQuery()
     const portfolioTotalUserCurrencyBalance = useAppSelector(
       selectPortfolioTotalUserCurrencyBalance,
     )
-    const netWorth = useMemo(
-      () =>
-        bnOrZero(earnUserCurrencyBalance)
-          .plus(portfolioTotalUserCurrencyBalance)
-          .plus(claimableRewardsUserCurrencyBalance)
-          .toFixed(),
-      [
-        claimableRewardsUserCurrencyBalance,
-        earnUserCurrencyBalance,
-        portfolioTotalUserCurrencyBalance,
-      ],
-    )
+
+    const walletAccounts = useAppSelector(selectPortfolioAccounts)
+
+    const translate = useTranslate()
+
     return (
       <Flex flexDir={balanceFlexDir} alignItems={alignItems ?? portfolioTextAlignment}>
-        <Text fontWeight='medium' translation={label} color='text.subtle' />
-        <Skeleton isLoaded={!isPortfolioLoading && !isOpportunitiesLoading}>
-          <Amount.Fiat
-            lineHeight='shorter'
-            value={netWorth}
-            fontSize={balanceFontSize}
-            fontWeight='semibold'
-          />
-        </Skeleton>
+        <Box position='relative'>
+          <Text fontWeight='medium' translation={label} color='text.subtle' whiteSpace='nowrap' />
+
+          {isAccountsMetadataFetching && (
+            <TooltipWithTouch
+              label={translate('defi.loadingAccounts', {
+                portfolioAccountsLoaded: Object.keys(walletAccounts).length,
+              })}
+            >
+              <Spinner color='blue.500' size='sm' position='absolute' right={-8} top={1} />
+            </TooltipWithTouch>
+          )}
+        </Box>
+        <Amount.Fiat
+          lineHeight='shorter'
+          value={portfolioTotalUserCurrencyBalance}
+          fontSize={balanceFontSize ?? defaultBalanceFontSize}
+          fontWeight='semibold'
+        />
       </Flex>
     )
   },

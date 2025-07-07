@@ -411,7 +411,8 @@ export const useSendThorTx = ({
     const maybeSafeTx = await fetchSafeTransactionInfo({
       safeTxHash: _txId,
       fetchIsSmartContractAddressQuery,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
 
     const _txIdLink = getTxLink({
@@ -419,11 +420,16 @@ export const useSendThorTx = ({
       txId: _txId ?? '',
       stepSource: SwapperName.Thorchain,
       maybeSafeTx,
-      accountId,
+      address: fromAccountId(accountId).account,
+      chainId: fromAccountId(accountId).chainId,
     })
 
     // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet
-    if (!maybeSafeTx?.isSafeTxHash) {
+
+    // Also note confirmed TCY un/stakes (more to come) are currently handled by the action center, with new style bottom-right
+    // toasts, so we don't want to toast the Tx broadcasted one here, or the two diff toasts would look very odd to the user
+    // Toasts on Tx broadcasted are quite annoying for such a fast blocktime anyway, so they should probably all go away eventually anyway
+    if (!maybeSafeTx?.isSafeTxHash && !['stakeTcy', 'unstakeTcy'].includes(action)) {
       toast({
         title: translate('modals.send.transactionSent'),
         description: _txId ? (

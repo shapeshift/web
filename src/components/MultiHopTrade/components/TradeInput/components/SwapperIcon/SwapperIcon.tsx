@@ -4,10 +4,10 @@ import { useMemo } from 'react'
 
 import ZrxIcon from './0x-icon.png'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
+import ButterSwapIcon from './butterswap.png'
 import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
-import LiFiIcon from './lifi-icon.png'
 import MayachainIcon from './maya_logo.png'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
@@ -25,8 +25,6 @@ export const SwapperIcon = ({
 }) => {
   const icon = useMemo(() => {
     switch (swapperName) {
-      case SwapperName.LIFI:
-        return LiFiIcon
       case SwapperName.CowSwap:
         return CowIcon
       case SwapperName.Zrx:
@@ -45,6 +43,8 @@ export const SwapperIcon = ({
         return RelayIcon
       case SwapperName.Mayachain:
         return MayachainIcon
+      case SwapperName.ButterSwap:
+        return ButterSwapIcon
       case SwapperName.Test:
         return ''
       default:

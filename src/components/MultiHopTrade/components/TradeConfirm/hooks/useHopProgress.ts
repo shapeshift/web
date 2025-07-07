@@ -6,7 +6,6 @@ import type {
 } from '@shapeshiftoss/swapper'
 import {
   ChainflipStatusMessage,
-  LifiStatusMessage,
   SwapperName,
   ThorchainStatusMessage,
   TransactionExecutionState,
@@ -59,21 +58,13 @@ const SWAPPER_PROGRESS_MAPS: SwapperProgressMaps = {
   },
   [SwapperName.Thorchain]: thorSwapperProgressMap,
   [SwapperName.Mayachain]: mayaSwapperProgressMap,
-  [SwapperName.LIFI]: {
-    '': 16,
-    [LifiStatusMessage.BridgeWaitingForConfirmations]: 33,
-    [LifiStatusMessage.BridgeOffChainExecution]: 66,
-    [LifiStatusMessage.BridgeComplete]: 100,
-  },
 }
 
 const getSwapperSpecificProgress = ({
   message,
-  hopIndex,
   activeQuote,
 }: {
   message: SwapExecutionMetadata['message']
-  hopIndex: number | undefined
   activeQuote: TradeQuote | TradeRate | undefined
 }): number | undefined => {
   if (!activeQuote) return
@@ -82,13 +73,6 @@ const getSwapperSpecificProgress = ({
 
   const progressMap = SWAPPER_PROGRESS_MAPS[swapperName]
   if (!progressMap) return
-
-  const isCrossChainSwap =
-    activeQuote.steps[0].sellAsset.chainId !== activeQuote.steps[0].buyAsset.chainId
-  const isFirstHop = hopIndex === 0
-
-  // For Li.Fi, only apply bridge progress for cross-chain bridges (either single or multi) and always on the first hop only.
-  if (swapperName === SwapperName.LIFI && (!isCrossChainSwap || !isFirstHop)) return
 
   // This can technically be string | [string, InterpolationOptions] according to types but it won't
   const _message = message as string | undefined
@@ -122,7 +106,6 @@ export const useHopProgress = (
 
     const swapperSpecificProgress = getSwapperSpecificProgress({
       message: hopExecutionMetadata.swap.message,
-      hopIndex,
       activeQuote,
     })
 

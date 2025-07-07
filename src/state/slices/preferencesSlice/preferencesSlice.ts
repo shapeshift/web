@@ -32,7 +32,6 @@ export type FeatureFlags = {
   Cowswap: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
-  LifiSwap: boolean
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
   ArbitrumBridge: boolean
@@ -81,6 +80,7 @@ export type FeatureFlags = {
   ThorchainTcyWidget: boolean
   ThorchainTcyActivity: boolean
   MayaSwap: boolean
+  ButterSwap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -100,6 +100,11 @@ export enum HomeMarketView {
   Watchlist = 'Watchlist',
 }
 
+export enum QuoteDisplayOption {
+  Basic = 'basic',
+  Advanced = 'Advanced',
+}
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
@@ -113,6 +118,7 @@ export type Preferences = {
   snapInstalled: boolean
   watchedAssets: AssetId[]
   selectedHomeView: HomeMarketView
+  quoteDisplayOption: QuoteDisplayOption
 }
 
 const initialState: Preferences = {
@@ -134,7 +140,6 @@ const initialState: Preferences = {
     SaversVaultsWithdraw: getConfig().VITE_FEATURE_SAVERS_VAULTS_WITHDRAW,
     Cowswap: getConfig().VITE_FEATURE_COWSWAP,
     ZrxSwap: getConfig().VITE_FEATURE_ZRX_SWAP,
-    LifiSwap: getConfig().VITE_FEATURE_LIFI_SWAP,
     Mixpanel: getConfig().VITE_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().VITE_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().VITE_FEATURE_READ_ONLY_ASSETS,
@@ -184,6 +189,7 @@ const initialState: Preferences = {
     ThorchainTcyWidget: getConfig().VITE_FEATURE_THORCHAIN_TCY_WIDGET,
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
+    ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -196,6 +202,7 @@ const initialState: Preferences = {
   snapInstalled: false,
   watchedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
+  quoteDisplayOption: QuoteDisplayOption.Basic,
 }
 
 export const preferences = createSlice({
@@ -263,6 +270,9 @@ export const preferences = createSlice({
     setHomeMarketView: create.reducer((state, { payload }: { payload: HomeMarketView }) => {
       state.selectedHomeView = payload
     }),
+    setQuoteDisplayOption: create.reducer((state, { payload }: { payload: QuoteDisplayOption }) => {
+      state.quoteDisplayOption = payload
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -276,5 +286,6 @@ export const preferences = createSlice({
     selectShowSnapsModal: state => state.showSnapsModal,
     selectSelectedHomeView: state => state.selectedHomeView,
     selectShowConsentBanner: state => state.showConsentBanner,
+    selectQuoteDisplayOption: state => state.quoteDisplayOption,
   },
 })

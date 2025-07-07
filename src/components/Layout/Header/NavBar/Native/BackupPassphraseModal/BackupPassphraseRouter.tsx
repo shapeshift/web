@@ -6,9 +6,11 @@ import { Route, Switch } from 'wouter'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseInfo } from './BackupPassphraseInfo'
 import { BackupPassphrasePassword } from './BackupPassphrasePassword'
+import { BackupPassphraseSkip } from './BackupPassphraseSkip'
 import { BackupPassphraseStart } from './BackupPassphraseStart'
 import { BackupPassphraseSuccess } from './BackupPassphraseSuccess'
 import { BackupPassphraseTest } from './BackupPassphraseTest'
+import { BackupPassphraseWordsError } from './BackupPassphraseWordsError'
 
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -54,6 +56,12 @@ export const BackupPassphraseRouter = () => {
         </Route>
         <Route path={BackupPassphraseRoutes.Test}>
           <BackupPassphraseTest revocableWallet={revocableWallet} />
+        </Route>
+        <Route path={BackupPassphraseRoutes.Skip}>
+          <BackupPassphraseSkip />
+        </Route>
+        <Route path={BackupPassphraseRoutes.WordsError}>
+          <BackupPassphraseWordsError />
         </Route>
         <Route path={BackupPassphraseRoutes.Success}>
           <BackupPassphraseSuccess />

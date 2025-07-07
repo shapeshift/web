@@ -14,49 +14,50 @@ type StreamingSwapDetailsProps = {
 }
 
 export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap }) => {
+  const streamingSwapData = useStreamingProgress({ swap })
+
+  const { maxSwapCount: streamingTotalSwapCount, attemptedSwapCount } = streamingSwapData ?? {}
+
   const translate = useTranslate()
 
-  const streamingProgress = useStreamingProgress({ swap })
-
-  const {
-    numSuccessfulSwaps: thorchainNumSuccessfulSwaps,
-    totalSwapCount: thorchainTotalSwapCount,
-    isComplete: isThorchainStreamingComplete,
-  } = streamingProgress ?? {}
-
-  const isComplete = isThorchainStreamingComplete || swap.status === SwapStatus.Success
-
-  const totalSwapCount = useMemo(() => {
-    return thorchainTotalSwapCount === 0 ? 1 : thorchainTotalSwapCount
-  }, [thorchainTotalSwapCount])
-
-  const numSuccessfulSwaps = useMemo(() => {
-    if (thorchainNumSuccessfulSwaps === 0 && isComplete) return 1
-
-    return thorchainNumSuccessfulSwaps
-  }, [isComplete, thorchainNumSuccessfulSwaps])
+  const isSwapComplete = swap.status === SwapStatus.Success
 
   const progress = useMemo(() => {
-    return isComplete
-      ? 100
-      : bnOrZero(numSuccessfulSwaps).div(bnOrZero(totalSwapCount)).multipliedBy(100).toNumber()
-  }, [numSuccessfulSwaps, totalSwapCount, isComplete])
+    if (isSwapComplete) return 100
+    if (!streamingTotalSwapCount) return 0
+
+    return bnOrZero(attemptedSwapCount)
+      .div(bnOrZero(streamingTotalSwapCount))
+      .multipliedBy(100)
+      .toNumber()
+  }, [attemptedSwapCount, streamingTotalSwapCount, isSwapComplete])
+
+  const maxSwapCount = useMemo(() => {
+    if (streamingTotalSwapCount === 1) return
+    if (swap.status === SwapStatus.Success) return attemptedSwapCount
+
+    return streamingTotalSwapCount
+  }, [streamingTotalSwapCount, attemptedSwapCount, swap.status])
 
   if (!swap.isStreaming) return null
 
   return (
-    <Row fontSize='sm'>
+    <Row fontSize='sm' alignItems='center'>
       <Row.Label>{translate('notificationCenter.streamingStatus')}</Row.Label>
       <Row.Value display='flex' alignItems='center' gap={2}>
         <Progress
           width='100px'
           size='xs'
           value={progress}
-          colorScheme={isComplete ? 'green' : 'blue'}
+          colorScheme={isSwapComplete ? 'green' : 'blue'}
+          isAnimated={true}
+          hasStripe={isSwapComplete ? false : true}
         />
-        <RawText>
-          ({numSuccessfulSwaps}/{totalSwapCount})
-        </RawText>
+        {maxSwapCount ? (
+          <RawText>
+            ({attemptedSwapCount}/{maxSwapCount})
+          </RawText>
+        ) : null}
       </Row.Value>
     </Row>
   )

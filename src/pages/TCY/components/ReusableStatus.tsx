@@ -1,5 +1,5 @@
-import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { tcyAssetId } from '@shapeshiftoss/caip'
+import { CheckCircleIcon, usePrevious, WarningTwoIcon } from '@chakra-ui/icons'
+import { fromAccountId, tcyAssetId } from '@shapeshiftoss/caip'
 import { SwapperName, THORCHAIN_PRECISION } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQuery } from '@tanstack/react-query'
@@ -53,11 +53,13 @@ export const ReusableStatus = ({
     refetchInterval: 10_000,
   })
 
+  const prevThorTxStatus = usePrevious(thorTxStatus)
+
   useEffect(() => {
-    if (thorTxStatus !== TxStatus.Confirmed) return
+    if (!(prevThorTxStatus !== TxStatus.Confirmed && thorTxStatus === TxStatus.Confirmed)) return
 
     handleTxConfirmed()
-  }, [thorTxStatus, handleTxConfirmed])
+  }, [thorTxStatus, prevThorTxStatus, handleTxConfirmed])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
@@ -69,7 +71,8 @@ export const ReusableStatus = ({
       getTxLink({
         txId,
         defaultExplorerBaseUrl: tcyAsset?.explorerTxLink ?? '',
-        accountId,
+        address: fromAccountId(accountId).account,
+        chainId: fromAccountId(accountId).chainId,
         maybeSafeTx,
         stepSource: SwapperName.Thorchain,
       }),

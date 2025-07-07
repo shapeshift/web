@@ -491,6 +491,7 @@
     "eligibleOpportunities": "Berechtigte Gelegenheiten",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
     "netWorth": "Nettovermögen",
+    "loadingAccounts": "%{portfolioAccountsLoaded} Konten geladen (%{opportunityAccountsLoaded} mit aktuellen Positionen aktualisiert)",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
     "rewardsBalance": "Belohnungssaldo",
@@ -732,6 +733,13 @@
         "withdrawNative": "Abheben",
         "withdrawOut": "Auszahlung erhalten"
       },
+      "mayachain": {
+        "out": "Ausgang erhalten",
+        "refund": "Rückerstattung",
+        "swapOut": "Swap erhalten",
+        "swap": "Handel",
+        "swapRefund": "Swap Rückerstattung"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Staking beenden",
@@ -840,12 +848,12 @@
       "lowSlippage": "Eine gesetzte Marktabweichung unter 0,05 % kann zu einer fehlgeschlagenen Transaktion führen."
     },
     "sort": {
-      "sortBy": "Sortieren nach",
+      "sortBy": "Angebote sortieren nach",
       "auto": "Auto",
       "bestRate": "Bester Preis",
       "lowestGas": "Niedrigste Gaskosten",
       "fastest": "Am schnellsten",
-      "info": "Wählen Sie, wie die verfügbaren Angebote sortiert werden sollen"
+      "info": "Wählen Sie aus, wie Ihre Angebote sortiert werden sollen."
     },
     "from": "von",
     "to": "zu",
@@ -911,7 +919,6 @@
       "priceImpactWarning": "Ein Swap dieser Größenordnung kann angesichts der aktuellen Liquidität im Pool erhebliche Auswirkungen auf den Preis haben. Es kann einen großen Unterschied zwischen der Menge Ihres Eingabe-Tokens und dem, was Sie als Ausgabe-Token erhalten, geben",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
-      "protocolLifi": "Dies ist das Protokoll, über das Ihr Handel geleitet wird. LI.FI führt eine Reihe von Zwischengeschäften durch, um die beste Gesamtkombination aus Preis, Sicherheit und Geschwindigkeit zu erzielen.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉",
       "manualReceiveAddress": "Dies ist die Adresse, an die Sie Ihr Geld erhalten. Sie wurde manuell eingegeben, bitte stellen Sie sicher, dass sie korrekt ist.",
@@ -984,7 +991,6 @@
     },
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
     "recentTrades": "Letzte Handelsaktionen",
-    "lifiWarning": "Dieser Handel wird über LI.FI geleitet, das eine Reihe von Zwischengeschäften ausführt, um einen Swap durchzuführen. Wenn ein Schritt fehlschlägt, erhalten Sie das Token für den letzten erfolgreichen Schritt in der Sequenz.",
     "or": "oder",
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
@@ -1141,6 +1147,7 @@
       }
     },
     "limitOrderFilled": "Limit Order ausgeführt",
+    "limitOrderPartiallyFilled": "Limit Order teilweise ausgeführt",
     "assetToAsset": "%{sellAmount} %{sellAsset} zu %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -2959,7 +2966,13 @@
     "limitPrice": "Limitpreis",
     "expires": "Läuft ab",
     "filled": "Ausgeführt",
-    "swap": "Swap",
+    "swap": {
+      "processing": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} wird verarbeitet.",
+      "complete": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist abgeschlossen.",
+      "failed": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist fehlgeschlagen.",
+      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} läuft."
+    },
+    "streaming": "in Bearbeitung",
     "claim": "Anspruch",
     "protocol": "Protokoll",
     "streamingStatus": "Streaming Status",
@@ -2974,6 +2987,17 @@
       "pending": "Ausstehend",
       "claimAvailable": "Anspruch verfügbar",
       "unknown": "Unbekannt"
-    }
+    },
+    "limitOrder": {
+      "placed": "Limit-Order von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} aufgegeben",
+      "complete": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} wurde erfolgreich ausgeführt.",
+      "cancelled": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} wurde storniert.",
+      "expired": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} ist abgelaufen."
+    },
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} Ausstehend",
+    "orderCancelled": "Bestellung storniert",
+    "orderExpired": "Bestellung abgelaufen"
   }
 }

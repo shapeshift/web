@@ -5,6 +5,7 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import type WalletConnectCore from '@walletconnect/core'
 import type { PairingTypes, SessionTypes } from '@walletconnect/types'
 import type { Dispatch } from 'react'
+import type { Address, Hex } from 'viem'
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -18,6 +19,7 @@ export enum EIP155_SigningMethod {
   // So just assume this is supported so we don't error in case a dApp is trying to add a chain
   WALLET_ADD_ETHEREUM_CHAIN = 'wallet_addEthereumChain',
   WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
+  GET_CAPABILITIES = 'wallet_getCapabilities',
 }
 
 export enum CosmosSigningMethod {
@@ -115,16 +117,16 @@ export type CustomTransactionData = {
 }
 
 export type TransactionParams = {
-  from: string
-  to: string
-  data: string
-  gasLimit?: string
+  from: Address
+  to: Address
+  data: Hex
+  gasLimit?: Hex
   gas?: string
   maxFeePerGas?: string
   maxPriorityFeePerGas?: string
   gasPrice?: string
-  value?: string
-  nonce?: string
+  value?: Hex
+  nonce?: Hex
 }
 
 // Overwrite Web3WalletTypes.SessionRequest to narrow chainId and request params

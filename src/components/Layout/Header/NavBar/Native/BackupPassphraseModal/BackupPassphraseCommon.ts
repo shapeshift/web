@@ -6,6 +6,8 @@ export enum BackupPassphraseRoutes {
   Info = '/backup-passphrase/info',
   Test = '/backup-passphrase/test',
   Success = '/backup-passphrase/success',
+  Skip = '/backup-passphrase/skip',
+  WordsError = '/backup-passphrase/words-error',
 }
 
 export type LocationState = {

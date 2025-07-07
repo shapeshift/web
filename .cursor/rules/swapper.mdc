@@ -1,0 +1,149 @@
+---
+description:
+globs: packages/swapper/**/*.ts
+alwaysApply: false
+---
+
+Guidelines for implementing and reviewing the Swapper system in the project
+
+globs: ["packages/swapper/**/*.ts"]
+alwaysApply: false
+
+
+Swapper System Guidelines
+This document provides rules for implementing and reviewing the Swapper system, a design pattern for toggling or cycling between states, values, or components across blockchain types (EVM, UTXO, Cosmos, etc.). It outlines the architecture, core interfaces, and steps for adding a new swapper.
+Architecture Overview
+The Swapper system is built around a central registry and common interfaces, located in packages/swapper. All swappers must conform to these interfaces for integration.
+Core Concepts
+
+Swapper Interface (packages/swapper/src/types.ts): Defines methods for filtering supported assets and executing trades.
+SwapperApi Interface (packages/swapper/src/types.ts): Specifies methods for off-chain API interactions (e.g., fetching trade quotes, status checks).
+SwapperName Enum (packages/swapper/src/types.ts): Unique identifier for each swapper.
+Swapper Registry (packages/swapper/src/constants.ts): A Record mapping SwapperName enums to swapper implementations.
+
+Directory Structure
+Each swapper resides in packages/swapper/src/swappers/<SwapperName>/ with:
+
+<SwapperName>.ts: Implements Swapper interface.
+endpoints.ts: Implements SwapperApi interface.
+utils/constants.ts: Defines supported chain IDs and constants.
+utils/helpers.ts: Helper functions.
+types.ts: Swapper-specific types.
+
+Implementation Guidelines
+
+Type Safety: Use TypeScript with explicit types (e.g., SupportedChainIds).
+Naming: Use camelCase for variables/functions, PascalCase for types/interfaces, kebab-case for filenames.
+File Structure: Adhere to the directory structure above.
+Registry: Register new swappers in packages/swapper/src/constants.ts.
+Reusability: Leverage shared utilities if applicable (e.g., executeEvmTransaction, checkEvmSwapStatus).
+Error Handling: Validate inputs and log errors for debugging.
+Testing: Write unit tests for swapper methods and API endpoints.
+
+Step-by-Step Guide for Adding a New Swapper
+When adding a new swapper (e.g., NewSwapper), follow these steps:
+
+Create Directory:
+
+Create packages/swapper/src/swappers/NewSwapper/.
+Add files: NewSwapper.ts, endpoints.ts, types.ts, utils/constants.ts, utils/helpers.ts.
+
+
+Define Types (types.ts):
+
+Add swapper-specific types (e.g., API responses, transaction metadata).
+
+
+Define Constants (utils/constants.ts):
+import { ethChainId, bscChainId } from '@shapeshiftoss/caip'
+import type { SupportedChainIds } from '../../../types'
+
+export const NEW_SWAPPER_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
+  sell: [ethChainId, bscChainId],
+  buy: [ethChainId, bscChainId],
+}
+
+
+Implement Swapper Interface (NewSwapper.ts):
+
+Create newSwapper object implementing Swapper.
+Reuse executeEvmTransaction for EVM-based swappers.
+Implement filterAssetIdsBySellable and filterBuyAssetsBySellAssetId to filter assets by supported chain IDs.
+
+
+Implement SwapperApi Interface (endpoints.ts):
+
+Create newSwapperApi object implementing SwapperApi.
+Implement getTradeQuote, getTradeRate, getUnsignedEvmTransaction.
+Reuse checkEvmSwapStatus for EVM chains.
+
+
+Register Swapper (packages/swapper/src/constants.ts):
+
+Add NewSwapper to SwapperName enum in packages/swapper/src/types.ts.
+Add to swappers registry:import { newSwapper } from './swappers/NewSwapper/NewSwapper'
+import { newSwapperApi } from './swappers/NewSwapper/endpoints'
+import { NEW_SWAPPER_SUPPORTED_CHAIN_IDS } from './swappers/NewSwapper/utils/constants'
+
+export const swappers: Record<SwapperName, ...> = {
+  [SwapperName.NewSwapper]: {
+    ...newSwapper,
+    ...newSwapperApi,
+    supportedChainIds: NEW_SWAPPER_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+}
+
+
+
+
+Export (Optional):
+
+Export unique functions/types from packages/swapper/src/index.ts if needed.
+
+
+
+Rules for Cursor AI
+
+Code Generation:
+Use TypeScript with explicit types.
+Follow the directory structure and naming conventions.
+Include comments explaining swap logic.
+Reuse shared utilities where possible.
+
+
+Code Review:
+Ensure adherence to Swapper and SwapperApi interfaces.
+Verify chain ID filtering in filterAssetIdsBySellable and filterBuyAssetsBySellAssetId.
+Check registry entry in constants.ts.
+Flag missing unit tests or error handling.
+
+
+Warnings:
+Avoid placing swapper files outside packages/swapper/src/swappers/.
+Prevent unregistered swappers in the registry.
+Avoid side effects in swap logic.
+
+
+
+Example
+// packages/swapper/src/swappers/NewSwapper/NewSwapper.ts
+import type { Swapper } from '../../types'
+import { executeEvmTransaction } from '../../utils'
+import { NEW_SWAPPER_SUPPORTED_CHAIN_IDS } from './utils/constants'
+
+export const newSwapper: Swapper = {
+  executeEvmTransaction,
+  filterAssetIdsBySellable: async (assets) => {
+    return assets
+      .filter(asset => NEW_SWAPPER_SUPPORTED_CHAIN_IDS.sell.includes(asset.chainId))
+      .map(asset => asset.assetId)
+  },
+  filterBuyAssetsBySellAssetId: async (input) => {
+    return input.assets
+      .filter(asset => NEW_SWAPPER_SUPPORTED_CHAIN_IDS.buy.includes(asset.chainId))
+      .map(asset => asset.assetId)
+  },
+}
+
+@file packages/swapper/src/types.ts@file packages/swapper/src/constants.ts

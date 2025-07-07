@@ -491,6 +491,7 @@
     "eligibleOpportunities": "おすすめ",
     "defiBody": "成長を続けるDeFiの世界を探索してください。",
     "netWorth": "純資産",
+    "loadingAccounts": "%{portfolioAccountsLoaded} 個のアカウントをロードしました (現在のポジションで %{opportunityAccountsLoaded} 個を更新しました)",
     "walletBalance": "ウォレット残高",
     "earnBalance": "獲得残高",
     "rewardsBalance": "報酬残高",
@@ -732,6 +733,13 @@
         "withdrawNative": "撤回する",
         "withdrawOut": "引き出しを受け付けました"
       },
+      "mayachain": {
+        "out": "外部送金受領",
+        "refund": "返金",
+        "swapOut": "スワップ受領",
+        "swap": "トレード",
+        "swapRefund": "スワップ払い戻し"
+      },
       "foxy": {
         "stake": "ステーク",
         "unstake": "ステークを解除する",
@@ -840,12 +848,12 @@
       "lowSlippage": "スリッページが0.05%を下回ると、取引が失敗する可能性があります。"
     },
     "sort": {
-      "sortBy": "並べ替え",
+      "sortBy": "見積もりを並べ替える",
       "auto": "オート",
       "bestRate": "ベストレート",
       "lowestGas": "最小のガス代",
       "fastest": "最速",
-      "info": "利用可能な見積もりの並べ替え方法を選択する"
+      "info": "見積もりの並べ替え方法を選択します。"
     },
     "from": "から",
     "to": "に",
@@ -911,7 +919,6 @@
       "priceImpactWarning": "プール内の現在の流動性を考慮すると、このサイズのスワップは価格に大きな影響を与える可能性があります。入力トークンの量と出力トークンで受け取る量の間には大きな違いがある可能性があります。",
       "minerFee": "これはブロックチェーン上でトランザクションを処理するための料金であり、ShapeShiftによって請求される料金ではありません。",
       "protocol": "取引がルーティングされるプロトコルです。",
-      "protocolLifi": "取引がルーティングされるプロトコルです。 LI.FIは、価格、安全性、スピードの総合的な最適な組み合わせを実現するために、一連の仲介取引を内部で実行します。",
       "protocolFee": "このトランザクションを処理するために選択されたプロトコルによって請求される料金であり、ShapeShiftによって請求される料金ではありません",
       "shapeshiftFee": "ShapeShiftは取引で追加の手数料を徴収しません",
       "manualReceiveAddress": "資金を受け取るアドレスです。手動で入力されていますので、正しいことを確認してください。",
@@ -984,7 +991,6 @@
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
-    "lifiWarning": "この取引は LI.FI を介してルートされ、LI.FI が一連の仲介取引を実行してスワップを実行します。いずれかのステップが失敗した場合は、シーケンス内の最後に成功したステップのトークンを受け取ります。",
     "or": "または",
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
@@ -1141,6 +1147,7 @@
       }
     },
     "limitOrderFilled": "指値注文が成立",
+    "limitOrderPartiallyFilled": "指値注文が部分的に約定",
     "assetToAsset": "%{sellAmount} %{sellAsset} から %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -2959,7 +2966,13 @@
     "limitPrice": "指値価格",
     "expires": "有効期限",
     "filled": "一杯です",
-    "swap": "スワップ",
+    "swap": {
+      "processing": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップを処理中です。",
+      "complete": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} への交換が完了しました。",
+      "failed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップに失敗しました。",
+      "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。"
+    },
+    "streaming": "ストリーミング",
     "claim": "請求",
     "protocol": "プロトコル",
     "streamingStatus": "ストリーミングステータス",
@@ -2974,6 +2987,17 @@
       "pending": "保留中",
       "claimAvailable": "請求可能",
       "unknown": "未知"
-    }
+    },
+    "limitOrder": {
+      "placed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} への指値注文が出されました",
+      "complete": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文が正常に約定しました。",
+      "cancelled": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文はキャンセルされました。",
+      "expired": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文の有効期限が切れました。"
+    },
+    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
+    "pendingTransactions": "%{count} 保留中",
+    "orderCancelled": "注文はキャンセルされました",
+    "orderExpired": "注文期限切れ"
   }
 }

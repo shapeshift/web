@@ -5,9 +5,9 @@ export type CowSwapGetTradesResponse = {
   txHash: string
 }[]
 
-export type CowSwapGetTransactionsResponse = {
+export type CowSwapOrdersResponse = {
   status: 'presignaturePending' | 'open' | 'fulfilled' | 'cancelled' | 'expired'
-}[]
+}
 
 export type AffiliateAppDataFragment = {
   partnerFee?: {

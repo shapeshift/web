@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react'
 import {
   foxOnArbitrumOneAssetId,
-  fromAccountId,
   fromAssetId,
   thorchainAssetId,
   uniV2EthFoxArbitrumAssetId,
@@ -145,11 +144,6 @@ export const RFOXSection = () => {
     return matchingAccountId
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
-
   const handleManageClick = useCallback(() => {
     setStakingAssetAccountId(stakingAssetAccountId)
     navigate({
@@ -167,7 +161,7 @@ export const RFOXSection = () => {
 
   const stakingBalanceCryptoPrecisionQuery = useStakingInfoQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     select: selectStakingBalanceCryptoPrecision,
   })
 
@@ -175,7 +169,7 @@ export const RFOXSection = () => {
 
   const currentEpochRewardsQuery = useCurrentEpochRewardsQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
     currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
@@ -186,7 +180,7 @@ export const RFOXSection = () => {
 
   const lifetimeRewardsQuery = useLifetimeRewardsQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
   })
 
   const {
@@ -195,7 +189,7 @@ export const RFOXSection = () => {
     isFetching: isTimeInPoolFetching,
   } = useTimeInPoolQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })

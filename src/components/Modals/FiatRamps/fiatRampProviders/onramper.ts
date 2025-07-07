@@ -192,21 +192,21 @@ export const createOnRamperUrl = async ({
   if (!defaultCrypto) throw new Error('Failed to get onRamperSymbols head')
 
   params.set('apiKey', apiKey)
-  params.set('defaultCrypto', defaultCrypto)
   params.set('wallets', `${defaultCrypto}:${address}`)
 
   if (action === FiatRampAction.Sell) {
     // Note: selling via OnRamper does not allow selecting the currency, their api currently does not support it
-    params.set('initScreen', 'sell')
-    params.set('supportSell', 'true')
-    params.set('isAddressEditable', 'true')
+    params.set('mode', 'sell')
+    params.set('sell_defaultCrypto', defaultCrypto)
+    params.set('sell_defaultFiat', fiatCurrency)
+    params.set('sell_onlyCryptos', onRamperSymbols.join(','))
   } else {
+    params.set('mode', 'buy')
+    params.set('defaultCrypto', defaultCrypto)
     params.set('onlyCryptos', onRamperSymbols.join(','))
-    params.set('supportSell', 'false')
-    params.set('isAddressEditable', 'false')
+    params.set('defaultFiat', fiatCurrency)
   }
   params.set('language', language)
-  params.set('defaultFiat', fiatCurrency)
 
   params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)

@@ -1,7 +1,10 @@
-import { thorchainChainId } from '@shapeshiftoss/caip'
+import { useToast } from '@chakra-ui/react'
+import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -9,8 +12,16 @@ import type { TCYRouteProps } from '../../types'
 import { TCYUnstakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -87,13 +98,82 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   headerComponent,
   activeAccountNumber,
 }) => {
+  const translate = useTranslate()
   const location = useLocation()
   const [unstakeTxid, setUnstakeTxid] = useState<string>()
   const queryClient = useQueryClient()
+  const dispatch = useAppDispatch()
+  const { getValues } = useFormContext<UnstakeFormValues>()
+  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const toast = useToast({
+    duration: isDrawerOpen ? 5000 : null,
+    position: 'bottom-right',
+  })
+
+  const accountId = useAppSelector(state => {
+    const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
+    const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
+    return accountNumberAccounts?.[thorchainChainId] ?? ''
+  })
 
   const handleTxConfirmed = useCallback(async () => {
+    if (!unstakeTxid) throw new Error('Unstake Txid is required')
+
+    const amountCryptoPrecision = bnOrZero(getValues('amountCryptoPrecision')).toFixed()
+
+    dispatch(
+      actionSlice.actions.upsertAction({
+        id: unstakeTxid,
+        type: ActionType.GenericTransaction,
+        status: ActionStatus.Complete,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        transactionMetadata: {
+          displayType: GenericTransactionDisplayType.TCY,
+          txHash: unstakeTxid,
+          chainId: thorchainChainId,
+          accountId,
+          assetId: tcyAssetId,
+          message: translate(`TCY.unstakeStatus.successSubtitle`, {
+            amount: amountCryptoPrecision,
+          }),
+        },
+      }),
+    )
+
+    toast({
+      id: unstakeTxid,
+      duration: isDrawerOpen ? 5000 : null,
+      status: 'success',
+      render: ({ onClose, ...props }) => {
+        const handleClick = () => {
+          onClose()
+          openDrawer()
+        }
+
+        return (
+          <GenericTransactionNotification
+            // eslint-disable-next-line react-memo/require-usememo
+            handleClick={handleClick}
+            actionId={unstakeTxid}
+            onClose={onClose}
+            {...props}
+          />
+        )
+      },
+    })
     await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
-  }, [queryClient])
+  }, [
+    queryClient,
+    getValues,
+    dispatch,
+    unstakeTxid,
+    accountId,
+    isDrawerOpen,
+    openDrawer,
+    toast,
+    translate,
+  ])
 
   const renderUnstakeInput = useCallback(() => {
     return (

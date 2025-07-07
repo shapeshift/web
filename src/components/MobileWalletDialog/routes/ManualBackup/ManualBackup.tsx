@@ -5,7 +5,6 @@ import {
   Icon,
   SimpleGrid,
   Text as CText,
-  useClipboard,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -30,6 +29,7 @@ import {
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 
 const copyIcon = <Icon as={FiCopy} />
 
@@ -70,7 +70,15 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
     return location.state.vault.getWords() ?? []
   }, [location.state?.vault])
 
-  const { onCopy, hasCopied } = useClipboard(!revokedRef.current ? words.join(' ') : '')
+  const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
+
+  const handleCopyClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      copyToClipboard(!revokedRef.current ? words.join(' ') : '')
+    },
+    [copyToClipboard, words, revokedRef],
+  )
 
   const wordsButtonList = useMemo(() => {
     if (revokedRef.current) return null
@@ -143,12 +151,12 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
             <Box flex={1} height='1px' backgroundColor='text.subtle' />
             <Button
               variant='ghost'
-              onClick={onCopy}
+              onClick={handleCopyClick}
               leftIcon={copyIcon}
               color='text.subtle'
               flexShrink={0}
             >
-              {hasCopied
+              {isCopied
                 ? translate('walletProvider.manualBackup.copied')
                 : translate('walletProvider.manualBackup.copyToClipboard')}
             </Button>

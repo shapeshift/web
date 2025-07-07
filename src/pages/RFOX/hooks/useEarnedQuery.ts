@@ -1,4 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { skipToken } from '@tanstack/react-query'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
@@ -12,40 +13,40 @@ type EarnedQueryKey = [
   {
     chainId: number
     contractAddress: Address
-    stakingAssetAccountAddress?: string
+    stakingAssetAccountId?: AccountId
     stakingAssetId: AssetId
   },
 ]
 
 type UseEarnedQueryProps = {
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
 }
 
 export const getEarnedQueryKey = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: UseEarnedQueryProps): EarnedQueryKey => [
   'earned',
   {
     chainId: arbitrum.id,
     contractAddress: getStakingContract(stakingAssetId),
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
     stakingAssetId,
   },
 ]
 
 export const getEarnedQueryFn = ({
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
   stakingAssetId,
 }: UseEarnedQueryProps) => {
   if (!stakingAssetId) return skipToken
-  if (!stakingAssetAccountAddress) return skipToken
+  if (!stakingAssetAccountId) return skipToken
 
   return async () => {
     try {
       return await getRfoxContract(stakingAssetId).read.earned([
-        getAddress(stakingAssetAccountAddress),
+        getAddress(fromAccountId(stakingAssetAccountId).account),
       ])
     } catch (err) {
       console.error(err)

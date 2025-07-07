@@ -1,11 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { CardFooterProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
   CardBody,
   CardFooter,
   Collapse,
-  Divider,
   Flex,
   HStack,
   Icon,
@@ -51,6 +51,11 @@ export type SpotTradeSuccessProps = {
   sellAmountCryptoPrecision?: string
   quoteBuyAmountCryptoPrecision?: string
 }
+
+const cardFooterPx = { base: 4, md: 8 }
+const youGotMoreMarginBottom = { base: 0, md: 4 }
+
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const SpotTradeSuccess = ({
   handleBack,
@@ -170,8 +175,8 @@ export const SpotTradeSuccess = ({
   if (!(buyAsset && sellAsset)) return null
 
   return (
-    <>
-      <CardBody pb={4} px={0}>
+    <Flex flexDir='column' flex='1' minH={0}>
+      <CardBody pb={4} px={0} flex='1'>
         <SlideTransition>
           <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
             <Stack alignItems='center'>
@@ -179,9 +184,15 @@ export const SpotTradeSuccess = ({
               <Text translation={titleTranslation} fontWeight='bold' />
             </Stack>
             <AmountsLine />
+          </Flex>
+        </SlideTransition>
+      </CardBody>
+      {summaryTranslation && children && (
+        <>
+          <Box px={cardFooterPx} mb={youGotMoreMarginBottom}>
             {bnOrZero(maybeExtraDeltaCryptoPrecision).gt(0) &&
               bnOrZero(maybeExtraDeltaPercentage).gt(0.3) && (
-                <Box px={8}>
+                <Box width='full'>
                   <YouGotMore
                     extraDeltePercentage={maybeExtraDeltaPercentage}
                     extraDeltaCryptoPrecision={maybeExtraDeltaCryptoPrecision}
@@ -190,21 +201,17 @@ export const SpotTradeSuccess = ({
                   />
                 </Box>
               )}
-          </Flex>
-        </SlideTransition>
-        <Box px={8}>
-          <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-            {translate(buttonTranslation)}
-          </Button>
-        </Box>
-      </CardBody>
-      {summaryTranslation && children && (
-        <>
-          <Divider />
-          <CardFooter flexDir='column' gap={2} px={8}>
+          </Box>
+          <CardFooter
+            flexDir='column'
+            gap={2}
+            px={cardFooterPx}
+            position={footerPosition}
+            bottom='var(--mobile-nav-offset)'
+          >
             <SlideTransition>
               <HStack width='full' justifyContent='space-between'>
-                <Button variant='link' onClick={handleToggle} px={2}>
+                <Button variant='link' onClick={handleToggle}>
                   {translate(summaryTranslation)}
                 </Button>
                 <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
@@ -213,9 +220,13 @@ export const SpotTradeSuccess = ({
                 <Collapse in={isOpen}>{children}</Collapse>
               </Box>
             </SlideTransition>
+
+            <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
+              {translate(buttonTranslation)}
+            </Button>
           </CardFooter>
         </>
       )}
-    </>
+    </Flex>
   )
 }

@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
@@ -189,14 +189,17 @@ export const useRfoxUnstake = ({
   })
 
   const userStakingBalanceOfQuery = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectStakingBalance,
   })
   const { data: userStakingBalanceOfCryptoBaseUnit } = userStakingBalanceOfQuery
 
   const newContractBalanceOfQuery = useStakingBalanceOfQuery({
-    stakingAssetAccountAddress: getStakingContract(stakingAssetId),
+    accountId: toAccountId({
+      account: getStakingContract(stakingAssetId),
+      chainId: fromAssetId(stakingAssetId).chainId,
+    }),
     stakingAssetId,
     select: data => data.toString(),
   })

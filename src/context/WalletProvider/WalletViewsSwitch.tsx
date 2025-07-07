@@ -8,6 +8,7 @@ import {
   ModalOverlay,
   useToast,
 } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,6 +23,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
+import { reactQueries } from '@/react-queries'
 
 const arrowBackIcon = <ArrowBackIcon />
 
@@ -46,6 +48,7 @@ export const WalletViewsSwitch = () => {
     dispatch,
     disconnect,
   } = useWallet()
+  const queryClient = useQueryClient()
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
@@ -106,6 +109,23 @@ export const WalletViewsSwitch = () => {
       navigate(initialRoute)
     }
   }, [navigate, initialRoute])
+
+  // When the modal is closed, invalidate the queries for the native wallet
+  useEffect(() => {
+    return () => {
+      queryClient.resetQueries({
+        queryKey: reactQueries.common.hdwalletNativeVaultsList().queryKey,
+      })
+      queryClient.resetQueries({
+        queryKey: ['native-create-vault'],
+        exact: false,
+      })
+      queryClient.resetQueries({
+        queryKey: ['native-create-words'],
+        exact: false,
+      })
+    }
+  }, [queryClient])
 
   /**
    * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes

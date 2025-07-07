@@ -16,9 +16,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { IconCircle } from '@/components/IconCircle'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
+import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { ClaimRoutePaths } from '@/pages/RFOX/components/Claim/types'
-
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexAlignItems = { base: 'flex-start', md: 'center' }
@@ -62,7 +61,7 @@ export const useBridgeClaimNotification = () => {
     const _toastIdRef = toast({
       render: ({ onClose }) => {
         const handleCtaClick = () => {
-          navigate(ClaimRoutePaths.Select)
+          navigate(`/${TradeInputTab.Claim}`)
           onClose()
         }
 

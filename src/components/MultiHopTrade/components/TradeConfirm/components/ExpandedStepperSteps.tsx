@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -363,17 +363,29 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [stepSource, translate])
 
   const firstHopActionTitle = useMemo(() => {
+    // Never display streaming steps if the max swap count is 1 as the expected max swap number can be 1 then 0 because
+    // not considered as a streaming swap after the execution but a regular swap
+    const shouldDisplayStreamingSteps =
+      firstHopStreamingProgress &&
+      firstHopStreamingProgress.maxSwapCount > 1 &&
+      (firstHopStreamingProgress.attemptedSwapCount > 0 ||
+        activeSwap?.status !== SwapStatus.Success)
+
     return (
       <VStack width='full' spacing={2} align='stretch'>
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
             <RawText>{firstHopActionTitleText}</RawText>
-            {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
+            {shouldDisplayStreamingSteps && (
               <Tag
                 minWidth='auto'
-                colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
+                // This is not really the best way to do this, but it's the best way to do it for now
+                // The swap won't be complete if it's a multi hop, but for now we don't have any swapper supporting streaming multi hops
+                // We would require to get the state of the streaming swap of the current hop but in reality it's not so easy as
+                // the streaming can contain less chunks than the max chunks
+                colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
               >
-                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
+                {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.maxSwapCount}`}
               </Tag>
             )}
           </HStack>
@@ -386,6 +398,17 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   accountId={firstHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
+                />
+              )}
+              {firstHopSwap.relayerTxHash && (
+                <TxLabel
+                  txHash={firstHopSwap.relayerTxHash}
+                  explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                  accountId={firstHopSellAccountId}
+                  stepSource={stepSource}
+                  quoteSwapperName={activeTradeQuote.swapperName}
+                  isRelayer={true}
+                  relayerExplorerTxLink={firstHopSwap.relayerExplorerTxLink}
                 />
               )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
@@ -408,10 +431,13 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopSellAccountId,
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
+    firstHopSwap.relayerTxHash,
     firstHopSwap.sellTxHash,
     stepSource,
     activeTradeQuote.swapperName,
     tradeQuoteFirstHop,
+    activeSwap?.status,
+    firstHopSwap.relayerExplorerTxLink,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -474,17 +500,25 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const lastHopActionTitle = useMemo(() => {
+    // Never display streaming steps if the max swap count is 1 as the expected max swap number can be 1 then 0 because
+    // not considered as a streaming swap after the execution but a regular swap
+    const shouldDisplayStreamingSteps =
+      secondHopStreamingProgress &&
+      secondHopStreamingProgress.maxSwapCount > 1 &&
+      (secondHopStreamingProgress.attemptedSwapCount > 0 ||
+        activeSwap?.status !== SwapStatus.Success)
+
     return (
       <VStack width='full' spacing={2} align='stretch'>
         <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
           <HStack>
             <RawText>{lastHopActionTitleText}</RawText>
-            {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
+            {shouldDisplayStreamingSteps && (
               <Tag
                 minWidth='auto'
-                colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
+                colorScheme={activeSwap?.status === SwapStatus.Success ? 'green' : 'blue'}
               >
-                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
+                {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.maxSwapCount}`}
               </Tag>
             )}
           </HStack>
@@ -522,6 +556,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     stepSource,
     activeTradeQuote.swapperName,
     tradeQuoteSecondHop,
+    activeSwap?.status,
   ])
 
   return (

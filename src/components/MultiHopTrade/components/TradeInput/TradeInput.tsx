@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -26,7 +27,6 @@ import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
-import { useInputOutputDifferenceDecimalPercentage } from '@/components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
@@ -67,6 +67,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const emptyPercentOptions: number[] = []
 const formControlProps = {
@@ -94,6 +95,7 @@ export const TradeInput = ({
     dispatch: walletDispatch,
     state: { isConnected, wallet },
   } = useWallet()
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
@@ -146,9 +148,6 @@ export const TradeInput = ({
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
-
-  const inputOutputDifferenceDecimalPercentage =
-    useInputOutputDifferenceDecimalPercentage(activeQuote)
 
   const {
     manualReceiveAddress,
@@ -419,6 +418,12 @@ export const TradeInput = ({
     [dispatch],
   )
 
+  const assetSelectButtonProps = useMemo(() => {
+    return {
+      maxWidth: isSmallerThanMd ? '100%' : undefined,
+    }
+  }, [isSmallerThanMd])
+
   const buyTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
@@ -428,10 +433,15 @@ export const TradeInput = ({
         onlyConnectedChains={false}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        showChainDropdown={!isSmallerThanMd}
+        buttonProps={assetSelectButtonProps}
+        mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       buyAsset.assetId,
+      isSmallerThanMd,
+      assetSelectButtonProps,
       handleBuyAssetClick,
       setBuyAsset,
       assetFilterPredicate,
@@ -480,7 +490,7 @@ export const TradeInput = ({
           onAccountIdChange={setBuyAssetAccountId}
           formControlProps={formControlProps}
           labelPostFix={buyTradeAssetSelect}
-          inputOutputDifferenceDecimalPercentage={inputOutputDifferenceDecimalPercentage}
+          activeQuote={activeQuote}
         />
       </SharedTradeInputBody>
     )
@@ -491,7 +501,6 @@ export const TradeInput = ({
     buyAssetAccountId,
     buyTradeAssetSelect,
     hasUserEnteredAmount,
-    inputOutputDifferenceDecimalPercentage,
     isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,
@@ -510,6 +519,7 @@ export const TradeInput = ({
     setSellAssetAccountId,
     selectedSellAssetChainId,
     setSelectedSellAssetChainId,
+    activeQuote,
   ])
 
   const footerContent = useMemo(() => {

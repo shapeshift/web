@@ -7,8 +7,10 @@ import { NativeImportKeystore } from '../../NativeWallet/components/NativeImport
 import { NativeImportSeed } from '../../NativeWallet/components/NativeImportSeed'
 import { NativeImportSelect } from '../../NativeWallet/components/NativeImportSelect'
 import { NativePassword } from '../../NativeWallet/components/NativePassword'
+import { NativeSkipConfirm } from '../../NativeWallet/components/NativeSkipConfirm'
 import { NativeSuccess } from '../../NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from '../../NativeWallet/components/NativeTestPhrase'
+import { NativeWordsError } from '../../NativeWallet/components/NativeWordsError'
 import { NativeDelete } from '../wallets/native/NativeDelete'
 import { NativeRename } from '../wallets/native/NativeRename'
 import { NativeStart } from '../wallets/native/NativeStart'
@@ -27,6 +29,8 @@ export const NativeRoutes = () => {
   const enterPasswordElement = useMemo(() => <EnterPassword />, [])
   const nativeSuccessElement = useMemo(() => <NativeSuccess />, [])
   const nativeTestPhraseElement = useMemo(() => <NativeTestPhrase />, [])
+  const nativeWordsErrorElement = useMemo(() => <NativeWordsError />, [])
+  const nativeSkipConfirmElement = useMemo(() => <NativeSkipConfirm />, [])
 
   return (
     <Routes>
@@ -41,6 +45,8 @@ export const NativeRoutes = () => {
       <Route path={NativeWalletRoutes.EnterPassword} element={enterPasswordElement} />
       <Route path={NativeWalletRoutes.Success} element={nativeSuccessElement} />
       <Route path={NativeWalletRoutes.CreateTest} element={nativeTestPhraseElement} />
+      <Route path={NativeWalletRoutes.WordsError} element={nativeWordsErrorElement} />
+      <Route path={NativeWalletRoutes.SkipConfirm} element={nativeSkipConfirmElement} />
     </Routes>
   )
 }

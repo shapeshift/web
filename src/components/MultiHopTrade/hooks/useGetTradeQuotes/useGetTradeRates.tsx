@@ -21,14 +21,15 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
-import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAssets } from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -58,8 +59,8 @@ type MixPanelQuoteMeta = {
 
 type GetMixPanelDataFromApiQuotesReturn = {
   quoteMeta: MixPanelQuoteMeta[]
-  sellAssetId: string
-  buyAssetId: string
+  sellAsset: string
+  buyAsset: string
   sellAssetChainId: string
   buyAssetChainId: string
   sellAmountUsd: string | undefined
@@ -74,6 +75,12 @@ const getMixPanelDataFromApiRates = (
   const state = store.getState()
   const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
   const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
+
+  const assets = selectAssets(state)
+
+  const compositeSellAssetId = getMaybeCompositeAssetSymbol(sellAssetId, assets)
+  const compositeBuyAssetId = getMaybeCompositeAssetSymbol(buyAssetId, assets)
+
   const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
     .map(({ quote: _quote, errors, swapperName, inputOutputRatio }) => {
@@ -101,8 +108,8 @@ const getMixPanelDataFromApiRates = (
 
   return {
     quoteMeta,
-    sellAssetId,
-    buyAssetId,
+    sellAsset: compositeSellAssetId,
+    buyAsset: compositeBuyAssetId,
     sellAmountUsd,
     sellAssetChainId,
     buyAssetChainId,
@@ -185,11 +192,6 @@ export const useGetTradeRates = () => {
       },
     ],
     queryFn: async () => {
-      // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-      // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-      // That effectively means we'll unsubscribe to queries, considering them stale
-      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
-
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions
       // and losing sync on loading state etc.
@@ -240,16 +242,17 @@ export const useGetTradeRates = () => {
     [shouldRefetchTradeQuotes, tradeRateInput],
   )
 
+  // TODO(0xdef1cafe): this is brittle
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.LIFI))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

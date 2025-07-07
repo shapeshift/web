@@ -7,7 +7,6 @@ import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/sw
 import {
   getHopByIndex,
   isExecutableTradeQuote,
-  LIFI_TRADE_POLL_INTERVAL_MILLISECONDS,
   SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
@@ -152,10 +151,6 @@ export const useTradeExecution = (
 
       const execution = new TradeExecution()
 
-      if (swapperName === SwapperName.LIFI) {
-        execution.setPollInterval(LIFI_TRADE_POLL_INTERVAL_MILLISECONDS)
-      }
-
       let txHashReceived: boolean = false
 
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
@@ -164,6 +159,20 @@ export const useTradeExecution = (
           tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
         )
       })
+      execution.on(
+        TradeExecutionEvent.RelayerTxHash,
+        ({ relayerTxHash, relayerExplorerTxLink }) => {
+          txHashReceived = true
+          dispatch(
+            tradeQuoteSlice.actions.setSwapRelayerTxDetails({
+              hopIndex,
+              relayerTxHash,
+              relayerExplorerTxLink,
+              id: confirmedTradeId,
+            }),
+          )
+        },
+      )
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
         dispatch(
           tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),

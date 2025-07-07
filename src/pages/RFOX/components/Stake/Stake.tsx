@@ -1,6 +1,7 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { useToast } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import React, { lazy, useCallback, useMemo, useState } from 'react'
+import React, { lazy, useCallback, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -10,6 +11,9 @@ import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { fromBaseUnit } from '@/lib/math'
 import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
@@ -18,6 +22,14 @@ import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -89,33 +101,82 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const queryClient = useQueryClient()
   const { stakingAssetId } = useRFOXContext()
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
+  const dispatch = useAppDispatch()
+  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
+  const translate = useTranslate()
 
   // Get bridge quote from location.state
   const maybeBridgeQuote = location.state as RfoxBridgeQuote | undefined
 
-  const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
-  }, [confirmedQuote])
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote?.stakingAssetId ?? ''),
+  )
 
   const handleTxConfirmed = useCallback(async () => {
-    if (!confirmedQuote) return
+    if (!confirmedQuote || !stakeTxid || !stakingAsset) return
+
+    const amountCryptoPrecision = fromBaseUnit(
+      confirmedQuote.stakingAmountCryptoBaseUnit,
+      stakingAsset.precision,
+    )
+    const symbol = stakingAsset.symbol
+
+    dispatch(
+      actionSlice.actions.upsertAction({
+        id: stakeTxid,
+        type: ActionType.GenericTransaction,
+        status: ActionStatus.Complete,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        transactionMetadata: {
+          displayType: GenericTransactionDisplayType.RFOX,
+          txHash: stakeTxid,
+          chainId: stakingAsset.chainId,
+          accountId: confirmedQuote.stakingAssetAccountId,
+          assetId: confirmedQuote.stakingAssetId,
+          message: translate('RFOX.stakeSuccess', { amount: amountCryptoPrecision, symbol }),
+        },
+      }),
+    )
+    toast({
+      id: stakeTxid,
+      duration: isDrawerOpen ? 5000 : null,
+      status: 'success',
+      render: ({ onClose, ...props }) => {
+        const handleClick = () => {
+          onClose()
+          openDrawer()
+        }
+
+        return (
+          <GenericTransactionNotification
+            // eslint-disable-next-line react-memo/require-usememo
+            handleClick={handleClick}
+            actionId={stakeTxid}
+            onClose={onClose}
+            {...props}
+          />
+        )
+      },
+    })
 
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        accountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getTimeInPoolQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
@@ -124,7 +185,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     await queryClient.invalidateQueries({
       queryKey: getEarnedQueryKey({
         stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
@@ -133,7 +194,18 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
         endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
       }),
     })
-  }, [confirmedQuote, queryClient, stakingAssetAccountAddress, currentEpochMetadataQuery.data])
+  }, [
+    confirmedQuote,
+    stakeTxid,
+    dispatch,
+    isDrawerOpen,
+    openDrawer,
+    toast,
+    translate,
+    currentEpochMetadataQuery,
+    queryClient,
+    stakingAsset,
+  ])
 
   const renderStakeInput = useCallback(() => {
     return (

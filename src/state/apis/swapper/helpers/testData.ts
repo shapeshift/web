@@ -1,58 +1,6 @@
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 
-export const lifiQuote: TradeQuote = {
-  id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
-  rate: '51.34579860391078801712',
-  quoteOrRate: 'quote',
-  affiliateBps: '0',
-  receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
-  slippageTolerancePercentageDecimal: '0',
-  swapperName: SwapperName.LIFI,
-  steps: [
-    {
-      estimatedExecutionTimeMs: undefined,
-      allowanceContract: '0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE',
-      accountNumber: 0,
-      buyAmountBeforeFeesCryptoBaseUnit: '1.0269262412379365425e+21',
-      buyAmountAfterFeesCryptoBaseUnit: '1.0269262412379365425e+21',
-      buyAsset: {
-        assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        chainId: 'eip155:1',
-        name: 'FOX on Ethereum',
-        precision: 18,
-        color: '#3761F9',
-        icon: '/fox-token-logo.png',
-        symbol: 'FOX',
-        explorer: 'https://etherscan.io',
-        explorerAddressLink: 'https://etherscan.io/address/',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        relatedAssetKey: null,
-      },
-      feeData: {
-        protocolFees: {},
-        networkFeeCryptoBaseUnit: '7543572217388900',
-      },
-      rate: '51.34579860391078801712',
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
-      sellAsset: {
-        assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        chainId: 'eip155:1',
-        name: 'USD Coin on Ethereum',
-        precision: 6,
-        color: '#2373CB',
-        icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-        symbol: 'USDC',
-        explorer: 'https://etherscan.io',
-        explorerAddressLink: 'https://etherscan.io/address/',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        relatedAssetKey: null,
-      },
-      source: `${SwapperName.LIFI} • 0x`,
-    },
-  ],
-}
-
 export const thorQuote: TradeQuote = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
   quoteOrRate: 'quote',

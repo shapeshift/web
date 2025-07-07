@@ -8,17 +8,15 @@ import { useLocation } from 'react-router-dom'
 import { DashboardTab } from '../DashboardTab'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
 import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
-import { EarnBalance } from './EarnBalance'
 
-import { Amount } from '@/components/Amount/Amount'
-import { selectPortfolioTotalUserCurrencyBalance } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { Display } from '@/components/Display'
 
 const paddingTop = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
   md: '4.5rem',
 }
 const marginTop = { base: 0, md: '-4.5rem' }
+const borderBottomWidth = { base: 0, md: 1 }
 
 export type TabItem = {
   label: string
@@ -37,11 +35,10 @@ const navCss = {
   },
 }
 
-export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
+export const DashboardHeader = memo(() => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
 
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
 
@@ -63,21 +60,19 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         label: 'navBar.wallet',
         path: '/wallet/accounts',
         color: 'blue',
-        rightElement: <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />,
       },
       {
         label: 'navBar.defi',
         path: '/wallet/earn',
         color: 'purple',
-        rightElement: <EarnBalance />,
       },
       {
-        label: 'navBar.activity',
+        label: 'common.activity',
         path: '/wallet/activity',
         color: 'blue',
       },
     ]
-  }, [portfolioTotalUserCurrencyBalance])
+  }, [])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (
@@ -93,8 +88,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
     ))
   }, [NavItems, location.pathname])
 
-  const renderTabs = useMemo(() => {
-    if (tabComponent) return tabComponent
+  const tabs = useMemo(() => {
     return (
       <Flex
         flexDir={flexDirTabs}
@@ -119,7 +113,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         </Container>
       </Flex>
     )
-  }, [borderColor, renderNavItems, tabComponent])
+  }, [borderColor, renderNavItems])
 
   useLayoutEffect(() => {
     const body = document.body
@@ -144,12 +138,12 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
       <Stack
         spacing={0}
         borderColor='border.base'
-        borderBottomWidth={1}
+        borderBottomWidth={borderBottomWidth}
         pt={paddingTop}
         mt={marginTop}
       >
         <DashboardHeaderTop />
-        {renderTabs}
+        <Display.Desktop>{tabs}</Display.Desktop>
       </Stack>
     </DashboardHeaderWrapper>
   )

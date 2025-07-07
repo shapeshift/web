@@ -21,8 +21,8 @@ export const getTradeRate = async (
   const { sellAsset, buyAsset } = input
 
   if (
-    !THORCHAIN_SUPPORTED_CHAIN_IDS.sell.includes(sellAsset.chainId) ||
-    !THORCHAIN_SUPPORTED_CHAIN_IDS.buy.includes(buyAsset.chainId)
+    !THORCHAIN_SUPPORTED_CHAIN_IDS.includes(sellAsset.chainId) ||
+    !THORCHAIN_SUPPORTED_CHAIN_IDS.includes(buyAsset.chainId)
   ) {
     return Err(
       makeSwapErrorRight({

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/chain-adapters",
-  "version": "11.2.2",
+  "version": "11.3.2",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "main": "./dist/index.js",

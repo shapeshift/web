@@ -1,33 +1,27 @@
 import { Card, CardBody, CardHeader, Divider } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { StakingInfo } from './StakingInfo'
 import { Stats } from './Stats'
 
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
 export const Overview: React.FC = () => {
-  const { stakingAssetAccountId, supportedStakingAssetIds } = useRFOXContext()
-
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
+  const { stakingAssetAccountId } = useRFOXContext()
 
   const Info = useMemo(() => {
     return supportedStakingAssetIds.map((stakingAssetId, i) => (
       <>
         <StakingInfo
           stakingAssetId={stakingAssetId}
-          stakingAssetAccountAddress={stakingAssetAccountAddress}
+          stakingAssetAccountId={stakingAssetAccountId}
         />
         {i < supportedStakingAssetIds.length - 1 && (
           <Divider my={4} mx={-6} width='calc(100% + 42px)' />
         )}
       </>
     ))
-  }, [supportedStakingAssetIds, stakingAssetAccountAddress])
+  }, [stakingAssetAccountId])
 
   return (
     <Card>

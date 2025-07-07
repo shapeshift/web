@@ -7,11 +7,11 @@ import { assertUnreachable } from '@/lib/utils'
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
-    case SwapperName.LIFI:
     case SwapperName.Chainflip:
     case SwapperName.Jupiter:
     case SwapperName.Relay:
     case SwapperName.Mayachain:
+    case SwapperName.ButterSwap:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -29,7 +29,6 @@ export const getEnabledSwappers = (
   {
     ChainflipSwap,
     PortalsSwap,
-    LifiSwap,
     ThorSwap,
     ZrxSwap,
     ArbitrumBridge,
@@ -37,13 +36,12 @@ export const getEnabledSwappers = (
     JupiterSwap,
     RelaySwapper,
     MayaSwap,
+    ButterSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
   return {
-    [SwapperName.LIFI]:
-      LifiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.LIFI)),
     [SwapperName.Thorchain]:
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
     [SwapperName.Zrx]:
@@ -66,6 +64,8 @@ export const getEnabledSwappers = (
       RelaySwapper && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
     [SwapperName.Mayachain]:
       MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
+    [SwapperName.ButterSwap]:
+      ButterSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ButterSwap)),
     [SwapperName.Test]: false,
   }
 }

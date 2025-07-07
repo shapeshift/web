@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
@@ -8,7 +8,7 @@ import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardsQueryProps = {
   stakingAssetId: AssetId
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
 }
 
 /**
@@ -16,16 +16,16 @@ type UseLifetimeRewardsQueryProps = {
  */
 export const useLifetimeRewardsQuery = ({
   stakingAssetId,
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
 }: UseLifetimeRewardsQueryProps) => {
   const select = useCallback(
     (data: Epoch[]): bigint => {
-      if (!stakingAssetAccountAddress) return 0n
+      if (!stakingAssetAccountId) return 0n
 
       return data.reduce((acc, epoch) => {
         const distribution =
           epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-            ?.distributionsByStakingAddress[getAddress(stakingAssetAccountAddress)]
+            ?.distributionsByStakingAddress[getAddress(stakingAssetAccountId)]
 
         if (!distribution) return acc
 
@@ -35,12 +35,12 @@ export const useLifetimeRewardsQuery = ({
         return acc + BigInt(distribution.amount)
       }, 0n)
     },
-    [stakingAssetId, stakingAssetAccountAddress],
+    [stakingAssetId, stakingAssetAccountId],
   )
 
   const query = useEpochHistoryQuery({
     select,
-    enabled: !!stakingAssetAccountAddress,
+    enabled: !!stakingAssetAccountId,
   })
 
   return query

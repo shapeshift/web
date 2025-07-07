@@ -1,5 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { SafeTxInfo, SwapSource } from '@shapeshiftoss/swapper'
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -19,6 +18,8 @@ type GetTxBaseUrl = {
   stepSource?: Dex | SwapSource
   defaultExplorerBaseUrl: string
   isOrder?: boolean
+  isRelayer?: boolean
+  relayerExplorerTxLink?: string | undefined
 }
 
 // An eip-3770 compliant mapping of ChainId to chain shortname
@@ -36,15 +37,20 @@ export const safeChainShortNameByChainId: Partial<Record<KnownChainIds, string>>
 }
 type GetTxLink = GetTxBaseUrl &
   ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never }) & {
-    accountId: AccountId | undefined
+    address: string | undefined
+    chainId: ChainId | undefined
     maybeSafeTx: SafeTxInfo | undefined
     maybeChainflipSwapId?: string | undefined
+    isRelayer?: boolean
+    relayerExplorerTxLink?: string | undefined
   }
 
 export const getTxBaseUrl = ({
   stepSource,
   defaultExplorerBaseUrl,
   isOrder,
+  isRelayer,
+  relayerExplorerTxLink,
 }: GetTxBaseUrl): string => {
   switch (stepSource) {
     case Dex.CowSwap:
@@ -64,6 +70,12 @@ export const getTxBaseUrl = ({
     case SwapperName.Mayachain:
     case MAYACHAIN_STREAM_SWAP_SOURCE:
       return mayachain.explorerTxLink
+    case SwapperName.Relay:
+      return 'https://relay.link/transaction/'
+    case SwapperName.ButterSwap:
+      return isRelayer && relayerExplorerTxLink
+        ? `${relayerExplorerTxLink}tx/`
+        : 'https://explorer.butterswap.io/tx/'
     default:
       return defaultExplorerBaseUrl
   }
@@ -75,13 +87,22 @@ export const getTxLink = ({
   txId,
   tradeId,
   maybeSafeTx,
-  accountId,
+  address,
+  chainId,
   maybeChainflipSwapId,
+  isRelayer,
+  relayerExplorerTxLink,
 }: GetTxLink): string => {
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
   const isOrder = !!tradeId
-  const baseUrl = getTxBaseUrl({ stepSource: name, defaultExplorerBaseUrl, isOrder })
+  const baseUrl = getTxBaseUrl({
+    stepSource: name,
+    defaultExplorerBaseUrl,
+    isOrder,
+    isRelayer,
+    relayerExplorerTxLink,
+  })
 
   if (!isSafeTxHash) {
     switch (name) {
@@ -105,16 +126,15 @@ export const getTxLink = ({
     }
   }
 
-  if (!accountId) return ''
+  if (!address || !chainId) return ''
 
   // Queued SAFE Tx, return a link to the SAFE dApp
   if (maybeSafeTx?.isQueuedSafeTx) {
-    const { chainId, account: safeAddress } = fromAccountId(accountId)
     const shortname = safeChainShortNameByChainId[chainId as KnownChainIds]
     if (!shortname) {
       throw new Error(`No chain shortname found for chainId: ${chainId}`)
     }
-    return `https://app.safe.global/transactions/tx?id=multisig_${safeAddress}_${id}&safe=${shortname}:${safeAddress}`
+    return `https://app.safe.global/transactions/tx?id=multisig_${address}_${id}&safe=${shortname}:${address}`
   }
 
   switch (name) {

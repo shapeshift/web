@@ -92,3 +92,18 @@ export type StakingInfo = {
   rewardPerTokenStored: bigint
   runeAddress: string
 }
+
+// A subset of the RfoxRoute enum below - to be used in the context of /#/rfox
+export enum RfoxSubRoute {
+  Stake = 'stake',
+  Unstake = 'unstake',
+  Claim = 'claim',
+  ChangeAddress = 'change-address',
+}
+
+export enum RfoxRoute {
+  Stake = `/rfox/${RfoxSubRoute.Stake}`,
+  Unstake = `/rfox/${RfoxSubRoute.Unstake}`,
+  Claim = `/rfox/${RfoxSubRoute.Claim}`,
+  ChangeAddress = `/rfox/${RfoxSubRoute.ChangeAddress}`,
+}

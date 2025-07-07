@@ -291,20 +291,22 @@ export const useRfoxStake = ({
   })
 
   const approvalTxLink = useMemo(() => {
-    if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountId)) return
+    if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountAddress)) return
 
     return getTxLink({
       stepSource: undefined,
       defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
       txId: approvalTxHash,
-      accountId: stakingAssetAccountId,
+      address: stakingAssetAccountAddress,
+      chainId: fromAssetId(stakingAssetId).chainId,
       maybeSafeTx: maybeSafeApprovalTx,
     })
   }, [
     approvalTxHash,
     maybeSafeApprovalTx,
-    stakingAssetAccountId,
     stakingAssetFeeAsset?.explorerTxLink,
+    stakingAssetAccountAddress,
+    stakingAssetId,
   ])
 
   useEffect(() => {

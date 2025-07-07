@@ -165,7 +165,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
           const assets = data.assets.map<CosmosSDKToken>(asset => ({
             amount: asset.amount,
-            assetId: generateAssetIdFromCosmosSdkDenom(asset.denom, this.getFeeAssetId()),
+            assetId: generateAssetIdFromCosmosSdkDenom(asset.denom),
           }))
 
           return {
@@ -218,7 +218,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
         const assets = data.assets.map<CosmosSDKToken>(asset => ({
           amount: asset.amount,
-          assetId: generateAssetIdFromCosmosSdkDenom(asset.denom, this.getFeeAssetId()),
+          assetId: generateAssetIdFromCosmosSdkDenom(asset.denom),
         }))
 
         return { ...data, delegations, redelegations, undelegations, rewards, assets }

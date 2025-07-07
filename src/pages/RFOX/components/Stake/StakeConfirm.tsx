@@ -10,7 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getChainShortName } from '@shapeshiftoss/utils'
@@ -142,7 +142,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: confirmedQuote.stakingAssetAccountId,
     stakingAssetId: confirmedQuote.stakingAssetId,
     select: selectStakingBalance,
   })
@@ -152,7 +152,10 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery<string>({
     stakingAssetId: confirmedQuote.stakingAssetId,
-    stakingAssetAccountAddress: getStakingContract(confirmedQuote.stakingAssetId),
+    accountId: toAccountId({
+      account: getStakingContract(confirmedQuote.stakingAssetId),
+      chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
+    }),
     select: data =>
       bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
   })

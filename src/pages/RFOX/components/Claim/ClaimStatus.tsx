@@ -1,14 +1,16 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
 import React, { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
+import { RfoxRoute } from '../../types'
 import { SharedStatus } from '../Shared/SharedStatus'
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
+import type { ClaimRouteProps } from './types'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -28,7 +30,7 @@ type BodyContent = {
 }
 
 type ClaimStatusProps = {
-  confirmedQuote: RfoxClaimQuote
+  selectedUnstakingRequest: UnstakingRequest
   accountId: AccountId
   txId: string
   setClaimTxid: (txId: string) => void
@@ -36,7 +38,7 @@ type ClaimStatusProps = {
 }
 
 export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimStatusProps> = ({
-  confirmedQuote,
+  selectedUnstakingRequest,
   accountId,
   txId,
   setClaimTxid,
@@ -45,24 +47,26 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   const navigate = useNavigate()
 
   const handleGoBack = useCallback(() => {
-    navigate(ClaimRoutePaths.Select)
+    navigate(RfoxRoute.Claim)
   }, [navigate])
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))
+  const claimAsset = useAppSelector(state =>
+    selectAssetById(state, selectedUnstakingRequest.stakingAssetId),
+  )
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
-    [confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision],
+    () => fromBaseUnit(selectedUnstakingRequest.amountCryptoBaseUnit, claimAsset?.precision ?? 0),
+    [selectedUnstakingRequest.amountCryptoBaseUnit, claimAsset?.precision],
   )
 
   const txStatus = useTxStatus({
-    accountId: confirmedQuote.stakingAssetAccountId,
+    accountId: selectedUnstakingRequest.stakingAssetAccountId,
     txHash: txId,
     onTxStatusConfirmed: handleTxConfirmed,
   })
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    accountId: confirmedQuote.stakingAssetAccountId,
+    accountId: selectedUnstakingRequest.stakingAssetAccountId,
   })
 
   const bodyContent: BodyContent | null = useMemo(() => {
@@ -142,7 +146,8 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
       getTxLink({
         txId,
         defaultExplorerBaseUrl: claimAsset?.explorerTxLink ?? '',
-        accountId,
+        address: fromAccountId(accountId).account,
+        chainId: fromAccountId(accountId).chainId,
         maybeSafeTx,
       }),
     [accountId, claimAsset?.explorerTxLink, maybeSafeTx, txId],

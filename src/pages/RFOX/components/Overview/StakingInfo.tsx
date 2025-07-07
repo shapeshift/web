@@ -11,7 +11,7 @@ import {
   Tag,
   Text as CText,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { arbitrumAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
@@ -41,7 +41,7 @@ const gridColumns = { base: 1, md: 2 }
 
 type StakingInfoProps = {
   stakingAssetId: AssetId
-  stakingAssetAccountAddress: string | undefined
+  stakingAssetAccountId: AccountId | undefined
 }
 
 const pairProps = {
@@ -50,7 +50,7 @@ const pairProps = {
 
 export const StakingInfo: React.FC<StakingInfoProps> = ({
   stakingAssetId,
-  stakingAssetAccountAddress,
+  stakingAssetAccountId,
 }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -77,7 +77,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   const stakingBalanceCryptoBaseUnitQuery = useStakingInfoQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     select: selectStakingBalance,
   })
 
@@ -88,7 +88,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   const currentEpochRewardsCryptoBaseUnitQuery = useCurrentEpochRewardsQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
     currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
@@ -105,12 +105,12 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   const lifetimeRewardsCryptoBaseUnitQuery = useLifetimeRewardsQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
   })
 
   const timeInPoolHumanQuery = useTimeInPoolQuery({
     stakingAssetId,
-    stakingAssetAccountAddress,
+    stakingAssetAccountId,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })

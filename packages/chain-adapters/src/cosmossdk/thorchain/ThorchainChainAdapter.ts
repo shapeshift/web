@@ -28,7 +28,7 @@ import { bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
+import type { ThorchainMsgDeposit, ThorchainMsgSend, ThorSupportedCoin } from '../types'
 import { ThorchainMessageType } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
@@ -204,7 +204,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const { sendMax, to, value, from, chainSpecific } = input
       const { coin = 'THOR.RUNE', fee } = chainSpecific
 
-      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY') throw new Error('unsupported coin type')
+      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY' && coin !== 'THOR.RUJI')
+        throw new Error('unsupported coin type')
 
       if (!fee) throw new Error('fee is required')
 
@@ -213,10 +214,16 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       // THOR.TCY is a native asset, but not a fee asset, for all intents and purposes it's a token
       const amount = coin === 'THOR.RUNE' ? this.getAmount({ account, value, fee, sendMax }) : value
 
+      const denom = (() => {
+        if (coin === 'THOR.TCY') return 'tcy'
+        if (coin === 'THOR.RUJI') return 'x/ruji'
+        return this.denom
+      })()
+
       const msg: ThorchainMsgSend = {
         type: ThorchainMessageType.MsgSend,
         value: {
-          amount: [{ amount, denom: coin === 'THOR.TCY' ? 'tcy' : this.denom }],
+          amount: [{ amount, denom }],
           from_address: from,
           to_address: to,
         },
@@ -261,7 +268,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const { from, value, memo, chainSpecific } = input
       const { fee, coin = 'THOR.RUNE' } = chainSpecific
 
-      if (coin !== 'THOR.RUNE' && coin !== 'THOR.TCY') throw new Error('unsupported coin type')
+      if (!['THOR.TCY', 'THOR.RUJI', 'THOR.RUNE'].includes(coin))
+        throw new Error('unsupported coin type')
 
       if (!fee) throw new Error('fee is required')
 
@@ -271,7 +279,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const msg: ThorchainMsgDeposit = {
         type: ThorchainMessageType.MsgDeposit,
         value: {
-          coins: [{ asset: coin, amount: bnOrZero(value).toString() }],
+          coins: [{ asset: coin as ThorSupportedCoin, amount: bnOrZero(value).toString() }],
           memo,
           signer: from,
         },

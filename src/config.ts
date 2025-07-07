@@ -71,7 +71,6 @@ const validators = {
   VITE_MTPELERIN_REFERRAL_CODE: str(),
   VITE_MTPELERIN_INTEGRATION_KEY: str(),
   VITE_FRIENDLY_CAPTCHA_SITE_KEY: str(),
-  VITE_FEATURE_LIFI_SWAP: bool({ default: false }),
   VITE_FEATURE_COWSWAP: bool({ default: false }),
   VITE_FEATURE_OPTIMISM: bool({ default: false }),
   VITE_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
@@ -182,6 +181,7 @@ const validators = {
   VITE_RELAY_API_URL: url(),
   VITE_COINCAP_API_KEY: str(),
   VITE_FEATURE_MAYA_SWAP: bool({ default: false }),
+  VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

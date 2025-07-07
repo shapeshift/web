@@ -12,6 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, JSX, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
@@ -21,13 +22,15 @@ import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
-import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
+import { usePriceImpact } from '../hooks/quoteValidation/usePriceImpact'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
 import { Balance } from '@/components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from '@/components/DeFi/components/PercentOptionsButtonGroup'
+import { Display } from '@/components/Display'
+import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -61,6 +64,21 @@ const buttonProps = {
 }
 const boxProps = { px: 0, m: 0, maxWidth: '220px' }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
+const inputContainerStyle = {
+  display: {
+    base: 'flex',
+    md: 'block',
+  },
+  flexDirection: {
+    base: 'row-reverse',
+    md: 'column',
+  },
+  alignItems: 'center',
+  justifyContent: {
+    base: 'space-between',
+    md: 'flex-start',
+  },
+}
 
 export const AmountInput = (props: InputProps) => {
   const translate = useTranslate()
@@ -119,8 +137,8 @@ export type TradeAmountInputProps = {
   isAccountSelectionHidden?: boolean
   isFiat?: boolean
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
-  inputOutputDifferenceDecimalPercentage?: string
   placeholder?: string
+  activeQuote?: TradeQuote | TradeRate | undefined
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -165,8 +183,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     hideAmounts,
     layout = 'stacked',
     isFiat,
+    activeQuote,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
-    inputOutputDifferenceDecimalPercentage: inputOutputDifferencePercentage,
   }) => {
     const {
       number: { localeParts },
@@ -178,6 +196,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const bgColor = useColorModeValue('white', 'gray.850')
     const focusBg = useColorModeValue('gray.50', 'gray.900')
     const focusBorder = useColorModeValue('blue.500', 'blue.400')
+    const accountDropdownBalanceColor = useColorModeValue('black', 'white')
 
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const assetMarketDataUserCurrency = useAppSelector(state =>
@@ -205,6 +224,17 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           ? cryptoAmount
           : bnOrZero(cryptoAmount).toFixed(3),
       [cryptoAmount, cryptoAmountIntegerCount],
+    )
+
+    const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
+
+    // Only display price impact if we have one, for buy side only
+    const shouldDisplayPriceImpact = useMemo(
+      () =>
+        priceImpactPercentageAbsolute &&
+        activeQuote &&
+        assetId !== activeQuote?.steps[0].sellAsset.assetId,
+      [activeQuote, assetId, priceImpactPercentageAbsolute],
     )
 
     const handleOnChange = useCallback(() => {
@@ -307,23 +337,36 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const accountDropdownLabel = useMemo(
       () => (
-        <Balance
-          cryptoBalance={balance ?? ''}
-          fiatBalance={fiatBalance ?? ''}
-          symbol={assetSymbol}
-          isFiat={isFiat}
-          label={`${translate('common.balance')}:`}
-          textAlign='right'
-        />
+        <>
+          <Display.Desktop>
+            <Balance
+              cryptoBalance={balance ?? ''}
+              fiatBalance={fiatBalance ?? ''}
+              symbol={assetSymbol}
+              isFiat={isFiat}
+              label={`${translate('common.balance')}:`}
+              textAlign='right'
+            />
+          </Display.Desktop>
+          <Display.Mobile>
+            <Flex alignItems='center'>
+              <WalletIcon me={2} />
+              <Balance
+                cryptoBalance={balance ?? ''}
+                fiatBalance={fiatBalance ?? ''}
+                symbol={assetSymbol}
+                isFiat={isFiat}
+                textAlign='right'
+                color={accountDropdownBalanceColor}
+              />
+            </Flex>
+          </Display.Mobile>
+        </>
       ),
-      [assetSymbol, balance, fiatBalance, isFiat, translate],
+      [assetSymbol, balance, fiatBalance, isFiat, translate, accountDropdownBalanceColor],
     )
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
-
-    const priceImpactColor = usePriceImpactColor(
-      bnOrZero(inputOutputDifferencePercentage).times(100).toString(),
-    )
 
     return (
       <FormControl
@@ -344,47 +387,54 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               </FormLabel>
             </Flex>
           )}
-          {balance && label && !isAccountSelectionHidden && (
-            <AccountDropdown
-              defaultAccountId={accountId}
-              assetId={assetId}
-              onChange={onAccountIdChange}
-              disabled={isAccountSelectionDisabled}
-              autoSelectHighestBalance={autoSelectHighestBalance}
-              buttonProps={buttonProps}
-              boxProps={boxProps}
-              showLabel={false}
-              label={accountDropdownLabel}
-            />
-          )}
-        </Flex>
-        {labelPostFix}
-        <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
-          <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
-            <Skeleton isLoaded={!showInputSkeleton} width='full'>
-              <Controller
-                name={'amountFieldInput'}
-                render={renderController}
-                control={control}
-                rules={amountFieldInputRules}
+          <Display.Desktop>
+            {balance && label && !isAccountSelectionHidden && (
+              <AccountDropdown
+                defaultAccountId={accountId}
+                assetId={assetId}
+                onChange={onAccountIdChange}
+                disabled={isAccountSelectionDisabled}
+                autoSelectHighestBalance={autoSelectHighestBalance}
+                buttonProps={buttonProps}
+                boxProps={boxProps}
+                showLabel={false}
+                label={accountDropdownLabel}
               />
-            </Skeleton>
-            {RightComponent && <RightComponent assetId={assetId} />}
-            {layout === 'inline' && showFiatAmount && !isAssetWithoutMarketData && !hideAmounts && (
-              <Button
-                onClick={toggleIsFiat}
-                size='sm'
-                disabled={showFiatSkeleton}
-                fontWeight='medium'
-                variant='link'
-                color='text.subtle'
-                mb={1}
-              >
-                <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
-              </Button>
             )}
-          </Flex>
-        </Stack>
+          </Display.Desktop>
+        </Flex>
+        <Flex sx={inputContainerStyle}>
+          {labelPostFix}
+          <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
+            <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
+              <Skeleton isLoaded={!showInputSkeleton} width='full'>
+                <Controller
+                  name={'amountFieldInput'}
+                  render={renderController}
+                  control={control}
+                  rules={amountFieldInputRules}
+                />
+              </Skeleton>
+              {RightComponent && <RightComponent assetId={assetId} />}
+              {layout === 'inline' &&
+                showFiatAmount &&
+                !isAssetWithoutMarketData &&
+                !hideAmounts && (
+                  <Button
+                    onClick={toggleIsFiat}
+                    size='sm'
+                    disabled={showFiatSkeleton}
+                    fontWeight='medium'
+                    variant='link'
+                    color='text.subtle'
+                    mb={1}
+                  >
+                    <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+                  </Button>
+                )}
+            </Flex>
+          </Stack>
+        </Flex>
         {layout === 'stacked' && (
           <Flex
             direction='row'
@@ -408,7 +458,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>
-                {inputOutputDifferencePercentage && (
+                {shouldDisplayPriceImpact && (
                   <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
                     <Flex>
                       <Skeleton isLoaded={!showFiatSkeleton}>
@@ -417,7 +467,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                           prefix='('
                           suffix=')'
                           color={priceImpactColor ?? 'text.subtle'}
-                          value={bnOrZero(inputOutputDifferencePercentage).times(-1).toString()}
+                          value={priceImpactPercentageAbsolute?.div(100).times(-1).toString()}
                         />
                       </Skeleton>
                     </Flex>
@@ -426,25 +476,56 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               </Flex>
             )}
             <Flex alignItems='center' justifyContent='flex-end' gap={2}>
+              <Display.Mobile>
+                {balance && label && !isAccountSelectionHidden && (
+                  <AccountDropdown
+                    defaultAccountId={accountId}
+                    assetId={assetId}
+                    onChange={onAccountIdChange}
+                    disabled={isAccountSelectionDisabled}
+                    autoSelectHighestBalance={autoSelectHighestBalance}
+                    buttonProps={buttonProps}
+                    boxProps={boxProps}
+                    showLabel={false}
+                    label={accountDropdownLabel}
+                  />
+                )}
+
+                {balance && !label && !isAccountSelectionHidden && (
+                  <AccountDropdown
+                    defaultAccountId={accountId}
+                    assetId={assetId}
+                    onChange={onAccountIdChange}
+                    disabled={isAccountSelectionDisabled}
+                    autoSelectHighestBalance={autoSelectHighestBalance}
+                    buttonProps={buttonProps}
+                    boxProps={boxProps}
+                    showLabel={false}
+                    label={accountDropdownLabel}
+                  />
+                )}
+              </Display.Mobile>
               <PercentOptionsButtonGroup
                 options={percentOptions}
                 isDisabled={isReadOnly || isSendMaxDisabled}
                 onMaxClick={handleOnMaxClick}
                 onClick={onPercentOptionClick ?? noop}
               />
-              {balance && !label && !isAccountSelectionHidden && (
-                <AccountDropdown
-                  defaultAccountId={accountId}
-                  assetId={assetId}
-                  onChange={onAccountIdChange}
-                  disabled={isAccountSelectionDisabled}
-                  autoSelectHighestBalance={autoSelectHighestBalance}
-                  buttonProps={buttonProps}
-                  boxProps={boxProps}
-                  showLabel={false}
-                  label={accountDropdownLabel}
-                />
-              )}
+              <Display.Desktop>
+                {balance && !label && !isAccountSelectionHidden && (
+                  <AccountDropdown
+                    defaultAccountId={accountId}
+                    assetId={assetId}
+                    onChange={onAccountIdChange}
+                    disabled={isAccountSelectionDisabled}
+                    autoSelectHighestBalance={autoSelectHighestBalance}
+                    buttonProps={buttonProps}
+                    boxProps={boxProps}
+                    showLabel={false}
+                    label={accountDropdownLabel}
+                  />
+                )}
+              </Display.Desktop>
             </Flex>
           </Flex>
         )}

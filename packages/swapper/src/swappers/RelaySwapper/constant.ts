@@ -24,7 +24,6 @@ import {
   polygon,
 } from 'viem/chains'
 
-import type { SupportedChainIds } from '../../types'
 import { TradeQuoteError } from '../../types'
 import { RelayErrorCode } from './utils/types'
 
@@ -73,11 +72,6 @@ export const RELAY_SOLANA_TOKEN_ADDRESS = '11111111111111111111111111111111'
 export const DEFAULT_RELAY_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_RELAY_BTC_USER_ADDRESS = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'
 export const DEFAULT_RELAY_SOLANA_USER_ADDRESS = 'CbKGgVKLJFb8bBrf58DnAkdryX6ubewVytn7X957YwNr'
-
-export const RELAY_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: relaySupportedChainIds,
-  buy: relaySupportedChainIds,
-}
 
 export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
 

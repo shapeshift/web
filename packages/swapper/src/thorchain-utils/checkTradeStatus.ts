@@ -1,3 +1,5 @@
+import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { cosmossdk } from '@shapeshiftoss/unchained-client'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 
@@ -8,17 +10,19 @@ import { parseThorBuyTxHash } from './parseBuyTxHash'
 import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
 
 type CheckTradeStatusInputExtended = CheckTradeStatusInput & {
-  url: string
+  nodeUrl: string
+  apiUrl: string
   nativeChain: 'THOR' | 'MAYA'
 }
 
 export const checkTradeStatus = async ({
   txHash,
   chainId,
-  accountId,
+  address,
   fetchIsSmartContractAddressQuery,
   assertGetEvmChainAdapter,
-  url,
+  nodeUrl,
+  apiUrl,
   nativeChain,
 }: CheckTradeStatusInputExtended): Promise<TradeStatus> => {
   try {
@@ -26,7 +30,7 @@ export const checkTradeStatus = async ({
       txHash,
       chainId,
       assertGetEvmChainAdapter,
-      accountId,
+      address,
       fetchIsSmartContractAddressQuery,
     })
 
@@ -39,10 +43,26 @@ export const checkTradeStatus = async ({
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
+    // check for native chain tx errors
+    if (
+      (chainId === thorchainChainId && nativeChain === 'THOR') ||
+      (chainId === mayachainChainId && nativeChain === 'MAYA')
+    ) {
+      const { data: tx } = await axios.get<cosmossdk.Tx>(`${apiUrl}/tx/${txHash}`)
+
+      if (tx.events['0']?.error) {
+        return {
+          status: TxStatus.Failed,
+          buyTxHash: undefined,
+          message: tx.events[0].error.message,
+        }
+      }
+    }
+
     // not using monadic axios, this is intentional for simplicity in this non-monadic context
     const [{ data: txData }, { data: txStatusData }] = await Promise.all([
-      axios.get<ThornodeTxResponse>(`${url}/tx/${txHash.replace(/^0x/, '')}`),
-      axios.get<ThornodeStatusResponse>(`${url}/tx/status/${txHash.replace(/^0x/, '')}`),
+      axios.get<ThornodeTxResponse>(`${nodeUrl}/tx/${txHash.replace(/^0x/, '')}`),
+      axios.get<ThornodeStatusResponse>(`${nodeUrl}/tx/status/${txHash.replace(/^0x/, '')}`),
     ])
 
     // We care about txStatusData errors because it drives all of the status logic.

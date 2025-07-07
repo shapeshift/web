@@ -7,6 +7,7 @@ import { AccountTableSkeleton } from './components/AccountTableSkeleton'
 import { DashboardChart } from './components/DashboardChart'
 import { DashboardChartSkeleton } from './components/DashboardChartSkeleton'
 
+import { Display } from '@/components/Display'
 import { Text } from '@/components/Text'
 
 const cardBodyPx = { base: 4, md: 2 }
@@ -34,19 +35,25 @@ export const Portfolio = memo(() => {
   }, [shouldRenderChart])
 
   return (
-    <Stack spacing={stackSpacing} width='full'>
-      {shouldRenderChart ? <DashboardChart /> : <DashboardChartSkeleton />}
-      <TCYCta />
-      <Card variant='dashboard'>
-        <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
-          <Heading as='h6'>
-            <Text translation='dashboard.portfolio.myAssets' />
-          </Heading>
-        </CardHeader>
-        <CardBody px={cardBodyPx} pt={0} pb={0}>
-          {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
-        </CardBody>
-      </Card>
-    </Stack>
+    <>
+      <Stack spacing={stackSpacing} width='full'>
+        <Display.Desktop>
+          {shouldRenderChart ? <DashboardChart /> : <DashboardChartSkeleton />}
+          <TCYCta />
+        </Display.Desktop>
+        <Card variant='dashboard'>
+          <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
+            <Display.Desktop>
+              <Heading as='h6'>
+                <Text translation='dashboard.portfolio.myAssets' />
+              </Heading>
+            </Display.Desktop>
+          </CardHeader>
+          <CardBody px={cardBodyPx} pt={0} pb={0}>
+            {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
+          </CardBody>
+        </Card>
+      </Stack>
+    </>
   )
 })

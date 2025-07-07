@@ -1,11 +1,14 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
+import type { LimitOrderAction, RfoxClaimAction } from './types'
 import {
   ActionStatus,
   ActionType,
+  isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSwapAction,
+  isRfoxClaimAction,
   isSwapAction,
 } from './types'
 
@@ -15,8 +18,14 @@ import {
   selectSwapIdParamFromFilter,
 } from '@/state/selectors'
 
+export const selectActions = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  actionSlice.selectors.selectActionIds,
+  (actionsById, actionIds) => actionIds.map(id => actionsById[id]),
+)
+
 export const selectWalletActions = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
+  selectActions,
   selectEnabledWalletAccountIds,
   swapSlice.selectors.selectSwapsById,
   (actions, enabledWalletAccountIds, swapsById) => {
@@ -34,6 +43,16 @@ export const selectWalletActions = createDeepEqualOutputSelector(
         return enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId)
       }
 
+      if (isGenericTransactionAction(action)) {
+        return enabledWalletAccountIds.includes(action.transactionMetadata.accountId)
+      }
+
+      if (isRfoxClaimAction(action)) {
+        return enabledWalletAccountIds.includes(
+          action.rfoxClaimActionMetadata.request.stakingAssetAccountId,
+        )
+      }
+
       return action
     })
   },
@@ -48,10 +67,10 @@ export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletHasPendingActions = createDeepEqualOutputSelector(
+export const selectWalletPendingActions = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
-    return actions.filter(action => action.status === ActionStatus.Pending).length > 0
+    return actions.filter(action => action.status === ActionStatus.Pending)
   },
 )
 
@@ -79,7 +98,7 @@ export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
 )
 
 export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
+  selectActions,
   selectEnabledWalletAccountIds,
   (actions, enabledWalletAccountIds) => {
     return actions.filter(
@@ -94,12 +113,45 @@ export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutput
 )
 
 export const selectLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActions,
+  selectActions,
   selectCowSwapQuoteIdParamFromRequiredFilter,
   (actions, cowSwapQuoteId) => {
     return actions.find(
       action =>
         isLimitOrderAction(action) && action.limitOrderMetadata.cowSwapQuoteId === cowSwapQuoteId,
     )
+  },
+)
+
+export const selectLimitOrderActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      (action): action is LimitOrderAction =>
+        isLimitOrderAction(action) &&
+        enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId),
+    )
+  },
+)
+
+export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      (action): action is RfoxClaimAction =>
+        isRfoxClaimAction(action) &&
+        enabledWalletAccountIds.includes(
+          action.rfoxClaimActionMetadata.request.stakingAssetAccountId,
+        ),
+    )
+  },
+)
+
+export const selectPendingRfoxClaimActions = createDeepEqualOutputSelector(
+  selectRfoxClaimActionsByWallet,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending)
   },
 )

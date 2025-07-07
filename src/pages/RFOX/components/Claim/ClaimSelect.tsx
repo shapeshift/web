@@ -1,29 +1,25 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { arbitrumChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, foxAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { useGetUnstakingRequestsQuery } from '../../hooks/useGetUnstakingRequestsQuery'
+import { RfoxRoute } from '../../types'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
-import type { ClaimRouteProps, RfoxClaimQuote } from './types'
-import { ClaimRoutePaths } from './types'
+import type { ClaimRouteProps } from './types'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { RfoxTabIndex } from '@/pages/RFOX/Widget'
-
-type ClaimSelectProps = {
-  setConfirmedQuote: (quote: RfoxClaimQuote) => void
-}
 
 type NoClaimsAvailableProps = {
   isError?: boolean
@@ -56,70 +52,76 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError, setStepIndex }
   )
 }
 
-export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
-  headerComponent,
-  setConfirmedQuote,
-  setStepIndex,
-}) => {
+export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const navigate = useNavigate()
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
 
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+
+  const accountUnstakingRequests = useMemo(
+    () => allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? ''],
+    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId],
   )
-
-  const unstakingRequestsQuery = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
-
-  const handleClaimClick = useCallback(() => navigate(ClaimRoutePaths.Confirm), [navigate])
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
-    if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={arbitrumChainId} />
+    if (!stakingAssetAccountId) return <ChainNotSupported chainId={arbitrumChainId} />
+    if (!stakingAssetAccountId) return
 
     if (
-      unstakingRequestsQuery.isPending ||
-      unstakingRequestsQuery.isPaused ||
-      unstakingRequestsQuery.isFetching
+      allUnstakingRequestsQuery.isPending ||
+      allUnstakingRequestsQuery.isPaused ||
+      allUnstakingRequestsQuery.isFetching
     ) {
       return new Array(2).fill(null).map((_, index) => <Skeleton key={index} height={16} my={2} />)
     }
 
-    if (unstakingRequestsQuery.isError || !unstakingRequestsQuery.data.length) {
+    if (allUnstakingRequestsQuery.isError || !accountUnstakingRequests?.length) {
       return (
-        <NoClaimsAvailable isError={unstakingRequestsQuery.isError} setStepIndex={setStepIndex} />
+        <NoClaimsAvailable
+          isError={allUnstakingRequestsQuery.isError}
+          setStepIndex={setStepIndex}
+        />
       )
     }
 
-    return unstakingRequestsQuery.data.map(unstakingRequest => {
+    return accountUnstakingRequests.map(unstakingRequest => {
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
+
+      const handleClaimClick = (claimId: number) => {
+        navigate(`${RfoxRoute.Claim}/${claimId}/confirm`, {
+          state: {
+            selectedUnstakingRequest: unstakingRequest,
+          },
+        })
+      }
 
       return (
         <ClaimRow
           stakingAssetId={unstakingRequest.stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
-          amountCryptoBaseUnit={unstakingRequest.unstakingBalance.toString()}
+          amountCryptoBaseUnit={unstakingRequest.amountCryptoBaseUnit.toString()}
           status={status}
-          setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
-          onClaimClick={handleClaimClick}
+          // eslint-disable-next-line react-memo/require-usememo
+          onClaimClick={() => handleClaimClick(unstakingRequest.index)}
         />
       )
     })
   }, [
-    handleClaimClick,
     isConnected,
-    setConfirmedQuote,
     setStepIndex,
-    stakingAssetAccountAddress,
-    unstakingRequestsQuery,
+    allUnstakingRequestsQuery,
+    navigate,
+    stakingAssetAccountId,
+    accountUnstakingRequests,
   ])
 
   return (

@@ -1,4 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
+import type { CardFooterProps } from '@chakra-ui/react'
 import {
   Button,
   Card,
@@ -13,6 +14,7 @@ import {
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getChainShortName } from '@shapeshiftoss/utils'
+import type { ResolvedValues } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -44,6 +46,10 @@ type ClaimConfirmProps = {
 }
 
 const backIcon = <ArrowBackIcon />
+const cardFooterBgProp = { base: 'transparent', md: 'background.surface.raised.accent' }
+const assetPy = { base: 8, md: 32 }
+const slideTransitionStyle: ResolvedValues = { flex: 1, display: 'flex', flexDirection: 'column' }
+const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   activeClaim,
@@ -152,83 +158,87 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   if (!asset) return null
 
   return (
-    <SlideTransition>
-      <CardHeader display='flex' alignItems='center' gap={2}>
-        <Flex flex={1}>
-          <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
-        </Flex>
-        <Flex textAlign='center'>{translate('common.confirm')}</Flex>
-        <Flex flex={1} />
-      </CardHeader>
-      <CardBody>
-        <Card
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDir='column'
-          flex={1}
-          py={32}
-        >
-          <AssetIcon size='lg' assetId={destinationAsset?.assetId ?? asset.assetId} />
-          <Stack textAlign='center' mt={4} spacing={0}>
-            <Amount.Crypto
-              fontWeight='bold'
-              fontSize='md'
-              value={amountCryptoPrecision}
-              symbol={destinationAsset?.symbol ?? asset.symbol}
-            />
-            <Amount.Fiat fontSize='md' color='text.subtle' value={amountUserCurrency} />
-          </Stack>
-        </Card>
-      </CardBody>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        mt={2}
-        gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
-      >
-        <Stack spacing={4}>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
-            <Row.Value>{firstFourLastFour(activeClaim.destinationAddress)}</Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.gasFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!evmFeesResult.isLoading && !evmFeesResult.isPending}>
-                <Row.Value>
-                  <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat || '0.00'} />
-                </Row.Value>
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Button
-            size='lg'
-            mx={-2}
-            colorScheme={
-              !hasEnoughDestinationFeeBalance || claimMutation.isError || evmFeesResult.isError
-                ? 'red'
-                : 'blue'
-            }
-            isDisabled={
-              !evmFeesResult.isSuccess ||
-              evmFeesResult.isPending ||
-              claimMutation.isPending ||
-              !hasEnoughDestinationFeeBalance
-            }
-            isLoading={
-              evmFeesResult.isLoading || evmFeesResult.isPending || claimMutation.isPending
-            }
-            onClick={handleSubmit}
+    <Flex flexDir='column' flex={1}>
+      <SlideTransition style={slideTransitionStyle}>
+        <CardHeader display='flex' alignItems='center' gap={2}>
+          <Flex flex={1}>
+            <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
+          </Flex>
+          <Flex textAlign='center'>{translate('common.confirm')}</Flex>
+          <Flex flex={1} />
+        </CardHeader>
+        <CardBody>
+          <Card
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            flexDir='column'
+            flex={1}
+            py={assetPy}
           >
-            {confirmCopy}
-          </Button>
-        </Stack>
-      </CardFooter>
-    </SlideTransition>
+            <AssetIcon size='lg' assetId={destinationAsset?.assetId ?? asset.assetId} />
+            <Stack textAlign='center' mt={4} spacing={0}>
+              <Amount.Crypto
+                fontWeight='bold'
+                fontSize='md'
+                value={amountCryptoPrecision}
+                symbol={destinationAsset?.symbol ?? asset.symbol}
+              />
+              <Amount.Fiat fontSize='md' color='text.subtle' value={amountUserCurrency} />
+            </Stack>
+          </Card>
+        </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          mt={2}
+          gap={4}
+          px={6}
+          bg={cardFooterBgProp}
+          borderBottomRadius='xl'
+          position={footerPosition}
+          bottom='var(--mobile-nav-offset)'
+        >
+          <Stack spacing={4}>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
+              <Row.Value>{firstFourLastFour(activeClaim.destinationAddress)}</Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!evmFeesResult.isLoading && !evmFeesResult.isPending}>
+                  <Row.Value>
+                    <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat || '0.00'} />
+                  </Row.Value>
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Button
+              size='lg'
+              mx={-2}
+              colorScheme={
+                !hasEnoughDestinationFeeBalance || claimMutation.isError || evmFeesResult.isError
+                  ? 'red'
+                  : 'blue'
+              }
+              isDisabled={
+                !evmFeesResult.isSuccess ||
+                evmFeesResult.isPending ||
+                claimMutation.isPending ||
+                !hasEnoughDestinationFeeBalance
+              }
+              isLoading={
+                evmFeesResult.isLoading || evmFeesResult.isPending || claimMutation.isPending
+              }
+              onClick={handleSubmit}
+            >
+              {confirmCopy}
+            </Button>
+          </Stack>
+        </CardFooter>
+      </SlideTransition>
+    </Flex>
   )
 }

@@ -49,7 +49,12 @@ type RateGasRowProps = {
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
-const rowHover = { bg: 'background.surface.raised.base' }
+const rowHover = {
+  bg: {
+    base: 'transparent',
+    md: 'background.surface.raised.base',
+  },
+}
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
@@ -138,6 +143,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
       )
     }, [rate, buyAsset, sellAsset, shouldInvertRate, handleRateClick, deltaPercentageFormatted])
 
+    const dropdownBg = useMemo(() => {
+      return isOpen ? { base: 'transparent', md: 'background.surface.raised.base' } : 'transparent'
+    }, [isOpen])
+
     switch (true) {
       case isLoading:
         return (
@@ -169,7 +178,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
           <Stack
             fontWeight='medium'
             spacing={0}
-            bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
+            bg={dropdownBg}
             transitionProperty='common'
             transitionDuration='normal'
             fontSize='sm'
@@ -185,7 +194,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
               py={4}
               width='full'
             >
-              <Row fontSize='sm' flex={1}>
+              <Row fontSize='sm' flex={1} maxW='65%'>
                 <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
                   <Stack
                     width='full'
@@ -216,7 +225,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                 </Row.Value>
               </Row>
               <Flex gap={1} alignItems='center'>
-                <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                <Tooltip
+                  label={translate(
+                    networkFeeFiatUserCurrency
+                      ? 'trade.quote.gas'
+                      : 'trade.tooltip.continueSwapping',
+                  )}
+                >
                   <Box>
                     <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
                       <Row.Label fontSize='sm'>

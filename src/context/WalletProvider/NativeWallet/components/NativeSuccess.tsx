@@ -14,18 +14,16 @@ export const NativeSuccess = () => {
   const { isSuccessful } = useNativeSuccess({ vault: location.state.vault })
 
   useEffect(() => {
-    queryClient.invalidateQueries({
+    queryClient.resetQueries({
       queryKey: reactQueries.common.hdwalletNativeVaultsList().queryKey,
     })
-    queryClient.invalidateQueries({
+    queryClient.resetQueries({
       queryKey: ['native-create-vault'],
       exact: false,
-      refetchType: 'all',
     })
-    queryClient.invalidateQueries({
+    queryClient.resetQueries({
       queryKey: ['native-create-words'],
       exact: false,
-      refetchType: 'all',
     })
   }, [queryClient])
 

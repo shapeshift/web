@@ -1,3 +1,4 @@
+import type { FlexProps } from '@chakra-ui/react'
 import { Card, Flex, HStack, Icon } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import type { Asset } from '@shapeshiftoss/types'
@@ -32,6 +33,11 @@ const cardSx = {
   backgroundSize: '400% 400%',
   animation: `${animatedGradient} 15s ease infinite`,
 }
+
+const borderBottomRadius = { base: '0', md: 'xl' }
+const containerFlexDir: FlexProps['flexDir'] = { base: 'column-reverse', md: 'row' }
+const copyMaxWidth = { base: 'full', md: '65%' }
+const copyMarginTop = { base: 4, md: 0 }
 
 type YouGotMoreProps = {
   extraDeltaCryptoPrecision: string
@@ -105,9 +111,17 @@ export const YouGotMore = ({
 
   return (
     <>
-      <Card ref={cardRef} width='full' borderRadius='xl' p={4} pl={3} sx={cardSx}>
-        <Flex justifyContent='space-between' alignItems='center'>
-          <HStack maxWidth='65%'>
+      <Card
+        ref={cardRef}
+        width='full'
+        borderRadius='xl'
+        p={4}
+        pl={3}
+        sx={cardSx}
+        borderBottomRadius={borderBottomRadius}
+      >
+        <Flex justifyContent='space-between' alignItems='center' flexDir={containerFlexDir}>
+          <HStack maxWidth={copyMaxWidth} mt={copyMarginTop}>
             <Icon as={TbBolt} boxSize={8} color='white' />
             <Text
               translation='trade.foxSavings.youGotMore'

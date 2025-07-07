@@ -21,7 +21,7 @@ import {
 import { CowStatusMessage } from './constants'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
-import type { CowSwapGetTradesResponse } from './types'
+import type { CowSwapGetTradesResponse, CowSwapOrdersResponse } from './types'
 import { cowService } from './utils/cowService'
 import { getValuesFromQuoteResponse } from './utils/helpers/helpers'
 
@@ -121,7 +121,7 @@ export const cowApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID
     chainId,
-    accountId,
+    address,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
     config,
@@ -131,8 +131,9 @@ export const cowApi: SwapperApi = {
       chainId,
       assertGetEvmChainAdapter,
       fetchIsSmartContractAddressQuery,
-      accountId,
+      address,
     })
+
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
 
     const network = assertGetCowNetwork(chainId)
@@ -140,20 +141,46 @@ export const cowApi: SwapperApi = {
     // with cow we aren't able to get the tx hash until it's already completed, so we must use the
     // order uid to fetch the trades and use their existence as indicating "complete"
     // https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/6.-checking-order-status
-    const maybeTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
+    const tradesResponse = await cowService.get<CowSwapGetTradesResponse>(
       `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/trades`,
       { params: { orderUid: txHash } },
     )
 
-    if (maybeTradesResponse.isErr()) throw maybeTradesResponse.unwrapErr()
-    const { data: trades } = maybeTradesResponse.unwrap()
-    const buyTxHash = trades[0]?.txHash
+    if (tradesResponse.isErr()) throw tradesResponse.unwrapErr()
+    const { data: trades } = tradesResponse.unwrap()
 
-    if (buyTxHash) {
-      return {
-        status: TxStatus.Confirmed,
-        buyTxHash,
-        message: CowStatusMessage.Fulfilled,
+    if (trades.length) {
+      const buyTxHash = trades[0]?.txHash
+
+      if (buyTxHash) {
+        return {
+          status: TxStatus.Confirmed,
+          buyTxHash,
+          message: CowStatusMessage.Fulfilled,
+        }
+      }
+    } else {
+      const ordersResponse = await cowService.get<CowSwapOrdersResponse>(
+        `${config.VITE_COWSWAP_BASE_URL}/${network}/api/v1/orders/${txHash}`,
+      )
+
+      if (ordersResponse.isErr()) throw ordersResponse.unwrapErr()
+      const { data: order } = ordersResponse.unwrap()
+
+      switch (order.status) {
+        case 'cancelled':
+          return {
+            status: TxStatus.Failed,
+            buyTxHash: undefined,
+            message: CowStatusMessage.Cancelled,
+          }
+        case 'expired':
+          return {
+            status: TxStatus.Failed,
+            buyTxHash: undefined,
+            message: CowStatusMessage.Expired,
+          }
+        default:
       }
     }
 

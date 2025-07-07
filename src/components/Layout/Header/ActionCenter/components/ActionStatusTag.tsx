@@ -24,55 +24,55 @@ export const ActionStatusTag = ({ status }: ActionStatusTagProps) => {
       case ActionStatus.Open:
         return (
           <Tag size='sm' colorScheme='blue' {...defaultTagProps}>
-            {translate('notificationCenter.status.open')}
+            {translate('actionCenter.status.open')}
           </Tag>
         )
       case ActionStatus.Expired:
         return (
           <Tag size='sm' colorScheme='red' {...defaultTagProps}>
-            {translate('notificationCenter.status.expired')}
+            {translate('actionCenter.status.expired')}
           </Tag>
         )
       case ActionStatus.Cancelled:
         return (
           <Tag size='sm' colorScheme='red' {...defaultTagProps}>
-            {translate('notificationCenter.status.cancelled')}
+            {translate('actionCenter.status.cancelled')}
           </Tag>
         )
       case ActionStatus.Complete:
         return (
           <Tag size='sm' colorScheme='green' {...defaultTagProps}>
-            {translate('notificationCenter.status.confirmed')}
+            {translate('actionCenter.status.confirmed')}
           </Tag>
         )
       case ActionStatus.Pending:
         return (
           <Tag size='sm' colorScheme='yellow' {...defaultTagProps}>
-            {translate('notificationCenter.status.pending')}
+            {translate('actionCenter.status.pending')}
           </Tag>
         )
       case ActionStatus.Failed:
         return (
           <Tag size='sm' colorScheme='red' {...defaultTagProps}>
-            {translate('notificationCenter.status.failed')}
+            {translate('actionCenter.status.failed')}
           </Tag>
         )
       case ActionStatus.ClaimAvailable:
         return (
           <Tag size='sm' colorScheme='green' {...defaultTagProps}>
-            {translate('notificationCenter.status.claimAvailable')}
+            {translate('actionCenter.status.claimAvailable')}
           </Tag>
         )
       case ActionStatus.Claimed:
         return (
           <Tag size='sm' colorScheme='green' {...defaultTagProps}>
-            {translate('notificationCenter.status.claimed')}
+            {translate('actionCenter.status.claimed')}
           </Tag>
         )
       default:
         return (
           <Tag size='sm' colorScheme='gray' {...defaultTagProps}>
-            {translate('notificationCenter.status.unknown')}
+            {translate('actionCenter.status.unknown')}
           </Tag>
         )
     }

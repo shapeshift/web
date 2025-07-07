@@ -112,7 +112,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
                   <Stack gap={4}>
                     <ButtonGroup width='full' size='sm'>
                       <Button width='full' as={Link} isExternal href={txLink}>
-                        {translate('notificationCenter.viewTransaction')}
+                        {translate('actionCenter.viewTransaction')}
                       </Button>
                     </ButtonGroup>
                   </Stack>

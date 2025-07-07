@@ -27,10 +27,6 @@ import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
-import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
-import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
-import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
@@ -44,12 +40,7 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
-
-  useSwapActionSubscriber()
-  useLimitOrderActionSubscriber()
-  useAppUpdateActionSubscriber()
-  useRfoxClaimActionSubscriber()
+  const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -117,8 +108,8 @@ export const ActionCenter = memo(() => {
     if (pendingActions.length) {
       return (
         <Button
-          onClick={openDrawer}
-          aria-label={translate('notificationCenter.pendingTransactions', {
+          onClick={openActionCenter}
+          aria-label={translate('actionCenter.pendingTransactions', {
             count: pendingActions.length,
           })}
         >
@@ -130,7 +121,7 @@ export const ActionCenter = memo(() => {
             isIndeterminate
             me={2}
           />
-          {translate('notificationCenter.pendingTransactions', { count: pendingActions.length })}
+          {translate('actionCenter.pendingTransactions', { count: pendingActions.length })}
         </Button>
       )
     }
@@ -139,11 +130,11 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={openDrawer}
+          onClick={openActionCenter}
         />
       </Box>
     )
-  }, [openDrawer, translate, pendingActions])
+  }, [openActionCenter, translate, pendingActions])
 
   return (
     <>
@@ -162,7 +153,7 @@ export const ActionCenter = memo(() => {
             >
               <Flex alignItems='center' gap={2}>
                 <Icon as={TbBellFilled} color='text.subtle' />
-                {translate('notificationCenter.title')}
+                {translate('actionCenter.title')}
               </Flex>
             </DrawerHeader>
 

@@ -9,7 +9,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -375,83 +375,6 @@ export const LimitOrderInput = ({
     )
   }, [isCompact, isSmallerThanXl, handleShowLimitOrdersList])
 
-  const bodyContent = useMemo(() => {
-    return (
-      <SharedTradeInputBody
-        buyAsset={buyAsset}
-        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-        isLoading={isLoading}
-        sellAmountCryptoPrecision={
-          bnOrZero(sellAmountCryptoPrecision).isZero() ? '' : sellAmountCryptoPrecision
-        }
-        sellAmountUserCurrency={
-          bnOrZero(inputSellAmountUserCurrency).isZero() ? '' : inputSellAmountUserCurrency
-        }
-        sellAsset={sellAsset}
-        sellAccountId={sellAccountId}
-        onSwitchAssets={handleSwitchAssets}
-        isSwitchAssetsDisabled={isNativeEvmAsset(buyAsset.assetId)}
-        onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
-        onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
-        setSellAsset={setSellAsset}
-        setSellAccountId={setSellAccountId}
-        assetFilterPredicate={sellAssetFilterPredicate}
-        chainIdFilterPredicate={chainIdFilterPredicate}
-        selectedSellAssetChainId={selectedSellAssetChainId}
-        onSellAssetChainIdChange={setSelectedSellAssetChainId}
-      >
-        <Stack>
-          <LimitOrderBuyAsset
-            isLoading={isLoading}
-            asset={buyAsset}
-            accountId={buyAccountId}
-            onAccountIdChange={setBuyAccountId}
-            onSetBuyAsset={setBuyAsset}
-            assetFilterPredicate={buyAssetFilterPredicate}
-            chainIdFilterPredicate={chainIdFilterPredicate}
-            selectedChainId={selectedBuyAssetChainId}
-            onSelectedChainIdChange={setSelectedBuyAssetChainId}
-          />
-          <Divider />
-          <LimitOrderConfig
-            sellAsset={sellAsset}
-            buyAsset={buyAsset}
-            isLoading={isLoading}
-            marketPriceBuyAsset={marketPriceBuyAsset}
-          />
-        </Stack>
-      </SharedTradeInputBody>
-    )
-  }, [
-    buyAsset,
-    isInputtingFiatSellAmount,
-    isLoading,
-    sellAmountCryptoPrecision,
-    inputSellAmountUserCurrency,
-    sellAsset,
-    sellAccountId,
-    handleSwitchAssets,
-    setIsInputtingFiatSellAmount,
-    setSellAmountCryptoPrecision,
-    setSellAsset,
-    setSellAccountId,
-    sellAssetFilterPredicate,
-    chainIdFilterPredicate,
-    buyAccountId,
-    setBuyAccountId,
-    setBuyAsset,
-    buyAssetFilterPredicate,
-    marketPriceBuyAsset,
-    selectedBuyAssetChainId,
-    setSelectedBuyAssetChainId,
-    selectedSellAssetChainId,
-    setSelectedSellAssetChainId,
-  ])
-
-  const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
-    return bn(feeUsd).times(userCurrencyRate).toFixed(2, BigNumber.ROUND_HALF_UP)
-  }, [feeUsd, userCurrencyRate])
-
   const { quoteStatusTranslation, isError } = useMemo(() => {
     switch (true) {
       case isAccountsMetadataLoading && !(sellAccountId || buyAccountId):
@@ -498,6 +421,126 @@ export const LimitOrderInput = ({
     sellAssetBalanceCryptoBaseUnit,
     shouldShowTradeQuoteOrAwaitInput,
   ])
+
+  const networkFeesImpactDecimalPercentage = useMemo(() => {
+    if (isError) return
+    if (isLoading || isLimitOrderQuoteFetching) return
+    if (!quoteResponse?.quote) return
+
+    const { feeAmount } = quoteResponse.quote
+
+    const feeAmountCryptoPrecision = fromBaseUnit(feeAmount, sellAsset.precision)
+
+    return bn(feeAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed(2)
+  }, [
+    quoteResponse,
+    sellAsset.precision,
+    isLoading,
+    isLimitOrderQuoteFetching,
+    isError,
+    sellAmountCryptoPrecision,
+  ])
+
+  const networkFeesImpactCryptoPrecision = useMemo(() => {
+    if (isError) return
+    if (isLoading || isLimitOrderQuoteFetching) return
+    if (!networkFeesImpactDecimalPercentage) return
+
+    return bnOrZero(sellAmountCryptoPrecision)
+      .times(networkFeesImpactDecimalPercentage)
+      .decimalPlaces(sellAsset.precision)
+      .toString()
+  }, [
+    networkFeesImpactDecimalPercentage,
+    sellAmountCryptoPrecision,
+    isLoading,
+    sellAsset.precision,
+    isError,
+    isLimitOrderQuoteFetching,
+  ])
+
+  console.log({ buyAmountCryptoBaseUnit, isLoading })
+
+  const bodyContent = useMemo(() => {
+    return (
+      <SharedTradeInputBody
+        buyAsset={buyAsset}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        isLoading={isLoading}
+        sellAmountCryptoPrecision={
+          bnOrZero(sellAmountCryptoPrecision).isZero() ? '' : sellAmountCryptoPrecision
+        }
+        sellAmountUserCurrency={
+          bnOrZero(inputSellAmountUserCurrency).isZero() ? '' : inputSellAmountUserCurrency
+        }
+        sellAsset={sellAsset}
+        sellAccountId={sellAccountId}
+        onSwitchAssets={handleSwitchAssets}
+        isSwitchAssetsDisabled={isNativeEvmAsset(buyAsset.assetId)}
+        onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
+        onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
+        setSellAsset={setSellAsset}
+        setSellAccountId={setSellAccountId}
+        assetFilterPredicate={sellAssetFilterPredicate}
+        chainIdFilterPredicate={chainIdFilterPredicate}
+        selectedSellAssetChainId={selectedSellAssetChainId}
+        onSellAssetChainIdChange={setSelectedSellAssetChainId}
+      >
+        <Stack>
+          <LimitOrderBuyAsset
+            isLoading={isLoading}
+            asset={buyAsset}
+            accountId={buyAccountId}
+            onAccountIdChange={setBuyAccountId}
+            onSetBuyAsset={setBuyAsset}
+            assetFilterPredicate={buyAssetFilterPredicate}
+            chainIdFilterPredicate={chainIdFilterPredicate}
+            selectedChainId={selectedBuyAssetChainId}
+            onSelectedChainIdChange={setSelectedBuyAssetChainId}
+          />
+          <Divider />
+          <LimitOrderConfig
+            sellAsset={sellAsset}
+            buyAsset={buyAsset}
+            isLoading={isLoading}
+            marketPriceBuyAsset={marketPriceBuyAsset}
+            networkFeesImpactDecimalPercentage={networkFeesImpactDecimalPercentage}
+            networkFeesImpactCryptoPrecision={networkFeesImpactCryptoPrecision}
+          />
+        </Stack>
+      </SharedTradeInputBody>
+    )
+  }, [
+    buyAsset,
+    isInputtingFiatSellAmount,
+    isLoading,
+    sellAmountCryptoPrecision,
+    inputSellAmountUserCurrency,
+    sellAsset,
+    sellAccountId,
+    handleSwitchAssets,
+    setIsInputtingFiatSellAmount,
+    setSellAmountCryptoPrecision,
+    setSellAsset,
+    setSellAccountId,
+    sellAssetFilterPredicate,
+    chainIdFilterPredicate,
+    buyAccountId,
+    setBuyAccountId,
+    setBuyAsset,
+    buyAssetFilterPredicate,
+    marketPriceBuyAsset,
+    selectedBuyAssetChainId,
+    setSelectedBuyAssetChainId,
+    selectedSellAssetChainId,
+    setSelectedSellAssetChainId,
+    networkFeesImpactDecimalPercentage,
+    networkFeesImpactCryptoPrecision,
+  ])
+
+  const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
+    return bn(feeUsd).times(userCurrencyRate).toFixed(2, BigNumber.ROUND_HALF_UP)
+  }, [feeUsd, userCurrencyRate])
 
   const footerContent = useMemo(() => {
     const shouldInvertRate = priceDirection === PriceDirection.SellAssetDenomination

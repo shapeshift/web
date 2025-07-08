@@ -1103,6 +1103,7 @@
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
     "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
+    "highNetworkFeeImpact": "Network fee is %{percentage}% of your sell amount (%{cryptoImpact} %{sellAssetSymbol}). Your order may not execute.",
     "awaitingOrderPlacement": "Awaiting order placement on %{swapperName}",
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",

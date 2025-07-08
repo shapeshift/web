@@ -35,7 +35,8 @@ import { useLifetimeRewardsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQu
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const gridColumns = { base: 1, md: 2 }
 
@@ -52,6 +53,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
   stakingAssetId,
   stakingAssetAccountId,
 }) => {
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const translate = useTranslate()
 
@@ -115,11 +117,20 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
+  const arbitrumAsset = useAppSelector(state => selectAssetById(state, arbitrumAssetId))
+
   const handleGetAssetClick = useCallback(
     (assetId: AssetId) => () => {
+      const buyAsset = selectAssetById(store.getState(), assetId)
+      if (!arbitrumAsset || !buyAsset) return
+
       navigate(`/trade/${assetId}/${arbitrumAssetId}/0`)
+
+      dispatch(tradeInput.actions.setSellAsset(arbitrumAsset))
+      dispatch(tradeInput.actions.setBuyAsset(buyAsset))
+      dispatch(tradeInput.actions.setBuyAccountId(stakingAssetAccountId))
     },
-    [navigate],
+    [navigate, tradeInput, stakingAssetAccountId, arbitrumAsset, dispatch],
   )
 
   return (

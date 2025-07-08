@@ -37,7 +37,7 @@ type QuoteListProps = {
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 const cardBorderRadius = { base: '0', md: '2xl' }
 const cardHeight = {
-  base: 'calc(100vh - var(--mobile-nav-offset) - var(--safe-area-inset-bottom) - env(safe-area-inset-bottom) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
   md: 'inherit',
 }
 

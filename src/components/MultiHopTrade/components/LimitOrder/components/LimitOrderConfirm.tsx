@@ -102,15 +102,6 @@ export const LimitOrderConfirm = () => {
     }
   }, [isConnected, prevIsConnected, handleBack])
 
-  const eventData = getMixpanelLimitOrderEventData({
-    sellAsset,
-    buyAsset,
-    sellAmountCryptoPrecision,
-    buyAmountCryptoPrecision,
-  })
-
-  console.log({ eventData })
-
   const handleConfirm = useCallback(async () => {
     const quoteId = activeQuote?.response.id
     const accountId = activeQuote?.params.accountId
@@ -134,6 +125,12 @@ export const LimitOrderConfirm = () => {
     })
 
     // Track event in mixpanel
+    const eventData = getMixpanelLimitOrderEventData({
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoPrecision,
+      buyAmountCryptoPrecision,
+    })
     if (mixpanel && eventData) {
       mixpanel.track(MixPanelEvent.LimitOrderPlaced, eventData)
     }

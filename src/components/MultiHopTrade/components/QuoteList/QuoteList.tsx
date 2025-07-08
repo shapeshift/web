@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { CardProps, ResponsiveValue } from '@chakra-ui/react'
+import type { CardProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -16,7 +16,6 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { Property } from 'csstype'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -37,7 +36,7 @@ type QuoteListProps = {
 
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 const cardBorderRadius = { base: '0', md: '2xl' }
-const cardHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
+const cardHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'inherit' }
 
 export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardProps }) => {
   const translate = useTranslate()

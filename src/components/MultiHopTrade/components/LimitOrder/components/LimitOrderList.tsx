@@ -43,7 +43,7 @@ const textSelectedProps = {
 }
 
 const tabsMinHeight = {
-  base: 'calc(100vh - 60px)',
+  base: 'calc(100vh - 60px - env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
   md: 'auto',
 }
 

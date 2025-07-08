@@ -318,6 +318,8 @@ export enum CowNetwork {
   Xdai = 'xdai',
   ArbitrumOne = 'arbitrum_one',
   Base = 'base',
+  Avalanche = 'avalanche',
+  Polygon = 'polygon',
 }
 
 export type CowChainId =

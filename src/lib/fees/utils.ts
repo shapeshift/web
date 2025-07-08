@@ -6,13 +6,10 @@ import { DEFAULT_FEE_BPS } from './constant'
 type CalculateFeeUsdArgs = {
   inputAmountUsd: BigNumber.Value
 }
-type CalculateFeeUsdReturn = {
-  feeUsd: BigNumber
-}
 
-export const calculateFeeUsd = ({ inputAmountUsd }: CalculateFeeUsdArgs): CalculateFeeUsdReturn => {
+export const calculateFeeUsd = ({ inputAmountUsd }: CalculateFeeUsdArgs): BigNumber => {
   const feeBps = bn(DEFAULT_FEE_BPS)
   const feeUsd = bnOrZero(inputAmountUsd).times(feeBps.div(bn(10000)))
 
-  return { feeUsd }
+  return feeUsd
 }

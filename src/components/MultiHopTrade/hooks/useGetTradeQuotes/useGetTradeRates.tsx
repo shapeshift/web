@@ -25,7 +25,6 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { selectIsSnapshotApiQueriesRejected } from '@/state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -167,7 +166,6 @@ export const useGetTradeRates = () => {
 
   const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
-  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
@@ -188,7 +186,6 @@ export const useGetTradeRates = () => {
         sellAccountId,
         isBuyAssetChainSupported,
         receiveAddress,
-        isSnapshotApiQueriesRejected,
       },
     ],
     queryFn: async () => {

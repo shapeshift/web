@@ -1,13 +1,9 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
-import createCachedSelector from 're-reselect'
-import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
 
 import { snapshot } from './snapshot'
 
-import { calculateFeeUsd } from '@/lib/fees/utils'
 import type { ReduxState } from '@/state/reducer'
 import { selectAccountIdsByChainId } from '@/state/slices/portfolioSlice/selectors'
 
@@ -16,14 +12,14 @@ const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.querie
 export const selectIsSnapshotApiQueriesPending = createSelector(selectSnapshotApiQueries, queries =>
   Object.values(queries).some(query => query?.status === QueryStatus.pending),
 )
-export const selectIsSnapshotApiQueriesRejected = createSelector(
+const selectIsSnapshotApiQueriesRejected = createSelector(
   selectSnapshotApiQueries,
   queries =>
     Object.values(queries).some(query => query?.status === QueryStatus.rejected) &&
     !Object.values(queries).some(query => query?.status === QueryStatus.fulfilled),
 )
 
-export const selectVotingPower = createSelector(
+export const selectVotingPowerOrZero = createSelector(
   snapshot.selectors.selectVotingPower,
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,
@@ -36,18 +32,3 @@ export const selectVotingPower = createSelector(
     return votingPower
   },
 )
-
-type AffiliateFeesProps = {
-  inputAmountUsd: string | undefined
-}
-
-export const selectCalculatedFeeUsd: Selector<ReduxState, string> = createCachedSelector(
-  (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-  inputAmountUsd => {
-    const { feeUsd } = calculateFeeUsd({
-      inputAmountUsd: bnOrZero(inputAmountUsd),
-    })
-
-    return feeUsd.toFixed()
-  },
-)((_state, { inputAmountUsd }) => `${inputAmountUsd}`)

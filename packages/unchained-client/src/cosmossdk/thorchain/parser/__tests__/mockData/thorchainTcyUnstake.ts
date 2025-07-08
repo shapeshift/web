@@ -20,11 +20,22 @@ const tx: Tx = {
       index: '0',
       origin: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
       from: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
-      to: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
+      to: '',
       type: 'deposit',
       value: {
         amount: '0',
         denom: 'rune',
+      },
+    },
+    {
+      index: '0',
+      origin: 'thor128a8hqnkaxyqv7qwajpggmfyudh64jl3c32vyv',
+      from: 'thor128a8hqnkaxyqv7qwajpggmfyudh64jl3c32vyv',
+      to: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
+      type: 'tcy_unstake',
+      value: {
+        amount: '1207741513',
+        denom: 'tcy',
       },
     },
   ],

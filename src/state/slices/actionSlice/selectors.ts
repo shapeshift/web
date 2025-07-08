@@ -1,10 +1,11 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import type { LimitOrderAction, RfoxClaimAction } from './types'
+import type { GenericTransactionAction, LimitOrderAction, RfoxClaimAction } from './types'
 import {
   ActionStatus,
   ActionType,
+  GenericTransactionDisplayType,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSwapAction,
@@ -151,6 +152,26 @@ export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(
 
 export const selectPendingRfoxClaimActions = createDeepEqualOutputSelector(
   selectRfoxClaimActionsByWallet,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending)
+  },
+)
+
+export const selectEvergreenDepositActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      action =>
+        isGenericTransactionAction(action) &&
+        action.transactionMetadata.displayType === GenericTransactionDisplayType.ETHFOX &&
+        enabledWalletAccountIds.includes(action.transactionMetadata.accountId),
+    ) as GenericTransactionAction[]
+  },
+)
+
+export const selectPendingEvergreenDepositActions = createDeepEqualOutputSelector(
+  selectEvergreenDepositActionsByWallet,
   actions => {
     return actions.filter(action => action.status === ActionStatus.Pending)
   },

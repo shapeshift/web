@@ -1,6 +1,9 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -29,6 +32,12 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -38,13 +47,15 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   accountId,
   onNext,
 }) => {
   const { state, dispatch } = useContext(DepositContext)
+  const appDispatch = useAppDispatch()
+
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -128,6 +139,28 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
+      if (contractAddress === ETH_FOX_STAKING_EVERGREEN_CONTRACT && asset && accountId) {
+        const now = Date.now()
+        appDispatch(
+          actionSlice.actions.upsertAction({
+            id: uuidv4(),
+            createdAt: now,
+            updatedAt: now,
+            type: ActionType.GenericTransaction,
+            status: ActionStatus.Pending,
+            transactionMetadata: {
+              displayType: GenericTransactionDisplayType.ETHFOX,
+              txHash: txid,
+              chainId: asset.chainId,
+              accountId,
+              assetId: asset.assetId,
+              message: translate(`actionCenter.deposit.pending`, {
+                amount: fromBaseUnit(state.deposit.cryptoAmount, asset.precision),
+              }),
+            },
+          }),
+        )
+      }
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvent.DepositConfirm,
@@ -156,6 +189,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
+    accountId,
+    appDispatch,
     asset,
     assetReference,
     assets,

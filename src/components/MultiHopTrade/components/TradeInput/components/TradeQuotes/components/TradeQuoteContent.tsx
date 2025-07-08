@@ -12,6 +12,7 @@ import { TradeQuoteMetaItem } from './TradeQuoteMetaItem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM } from '@/components/MultiHopTrade/utils/getPriceImpactColor'
 import { Text } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -59,6 +60,15 @@ export const TradeQuoteContent = ({
     () => translate('trade.tooltip.inputOutputDifference'),
     [translate],
   )
+
+  const lossAfterRateAndFeesUserCurrencyColor = useMemo(() => {
+    if (!priceImpactDecimalPercentage) return undefined
+    // Slightly different from the price impact color - we use text.base instead of text.neutral
+    if (bn(priceImpactDecimalPercentage).lte(bn(ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM).div(100)))
+      return 'text.base'
+
+    return priceImpactColor
+  }, [priceImpactDecimalPercentage, priceImpactColor])
 
   const lossAfterRateAndFeesUserCurrency = useMemo(
     () =>
@@ -198,7 +208,7 @@ export const TradeQuoteContent = ({
                 />
                 <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
                   <Amount.Fiat
-                    color='text.subtle'
+                    color={lossAfterRateAndFeesUserCurrencyColor}
                     value={lossAfterRateAndFeesUserCurrency}
                     prefix='('
                     suffix=')'

@@ -111,8 +111,9 @@ export const Dashboard = memo(() => {
           isLazy
           size='sm'
           pt={0}
+          pb={2}
         >
-          <TabList bg='transparent' borderWidth={0} pt={0} gap={2}>
+          <TabList bg='transparent' borderWidth={0} pt={0} px={4} gap={2}>
             <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
             <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
           </TabList>

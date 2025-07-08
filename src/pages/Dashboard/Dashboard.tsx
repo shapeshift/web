@@ -66,7 +66,7 @@ const MobileHome = memo(() => {
 
   const pathTabIndex = useMemo(
     () => getTabIndexFromPath(location.pathname),
-    [getTabIndexFromPath, location.pathname],
+    [location.pathname],
   )
 
   const getPathFromTabIndex = useCallback((index: MobileTab) => {

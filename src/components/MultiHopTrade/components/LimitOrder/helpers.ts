@@ -3,10 +3,10 @@ import type { Asset, CowSwapError } from '@shapeshiftoss/types'
 import { OrderError } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
+import { useMemo } from 'react'
 
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { assertUnreachable } from '@/lib/utils'
-import { selectCalculatedFeeUsd } from '@/state/apis/snapshot/selectors'
 import type { ReduxState } from '@/state/reducer'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -109,9 +109,14 @@ export const getMixpanelLimitOrderEventData = ({
     .times(userCurrencyToUsdRate)
     .toString()
 
-  const feeParams = { inputAmountUsd: sellAmountBeforeFeesUsd }
-  const feeUsd = selectCalculatedFeeUsd(state, feeParams)
-  const shapeShiftFeeUserCurrency = bn(feeUsd).times(userCurrencyToUsdRate).toString()
+  const feeUsd = useMemo(
+    () =>
+      calculateFeeUsd({
+        inputAmountUsd: sellAmountBeforeFeesUsd,
+      }).feeUsd,
+    [sellAmountBeforeFeesUsd],
+  )
+  const shapeShiftFeeUserCurrency = feeUsd.times(userCurrencyToUsdRate).toString()
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
   const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)

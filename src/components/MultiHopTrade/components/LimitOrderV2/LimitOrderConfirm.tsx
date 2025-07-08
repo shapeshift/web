@@ -289,6 +289,13 @@ export const LimitOrderConfirm = () => {
       }
     }, [isConnected, orderSubmissionState, sellAsset?.symbol])
 
+  const eventData = getMixpanelLimitOrderEventData({
+    sellAsset,
+    buyAsset,
+    sellAmountCryptoPrecision,
+    buyAmountCryptoPrecision: quoteBuyAmountCryptoPrecision,
+  })
+
   const handleConfirm = useCallback(async () => {
     if (!isConnected) {
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -339,12 +346,6 @@ export const LimitOrderConfirm = () => {
         )
 
         // Track event in mixpanel
-        const eventData = getMixpanelLimitOrderEventData({
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoPrecision,
-          buyAmountCryptoPrecision: quoteBuyAmountCryptoPrecision,
-        })
         if (mixpanel && eventData) {
           mixpanel.track(MixPanelEvent.LimitOrderPlaced, eventData)
         }

@@ -36,7 +36,14 @@ type QuoteListProps = {
 
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 const cardBorderRadius = { base: '0', md: '2xl' }
-const cardHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'inherit' }
+const cardHeight = {
+  base: 'calc(100vh - var(--mobile-nav-offset) - var(--safe-area-inset-bottom) - env(safe-area-inset-bottom))',
+  md: 'inherit',
+}
+const cardHeaderPaddingTop = {
+  base: 'calc(var(--safe-area-inset-top) + env(safe-area-inset-top) + 12px)',
+  md: 4,
+}
 
 export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardProps }) => {
   const translate = useTranslate()
@@ -55,7 +62,13 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
 
   return (
     <Card {...cardProps} bg={cardBgProp} borderRadius={cardBorderRadius} height={cardHeight}>
-      <CardHeader px={4} pt={4} display='flex' alignItems='center' justifyContent='space-between'>
+      <CardHeader
+        px={4}
+        pt={cardHeaderPaddingTop}
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+      >
         <Flex alignItems={'center'} gap={2}>
           {onBack && <BackButton ml={-2} onClick={onBack} />}
           <Heading fontSize='md'>{translate('trade.availableSwappers')}</Heading>

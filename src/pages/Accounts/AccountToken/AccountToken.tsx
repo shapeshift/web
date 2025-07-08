@@ -1,5 +1,5 @@
 import type { StackDirection } from '@chakra-ui/react'
-import { Flex, Stack } from '@chakra-ui/react'
+import { Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
@@ -15,9 +15,9 @@ import { Main } from '@/components/Layout/Main'
 import { EarnOpportunities } from '@/components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { isMobile as isMobileApp } from '@/lib/globals'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
+import { breakpoints } from '@/theme/theme'
 
 export type MatchParams = {
   accountId: AccountId
@@ -32,6 +32,7 @@ const multiHopTradeDisplay = { base: 'none', md: 'flex' }
 
 export const AccountToken = () => {
   const { accountId, chainId, assetSubId, nftId } = useParams<MatchParams>()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   /**
    * if the user switches the wallet while visiting this page,
@@ -86,7 +87,7 @@ export const AccountToken = () => {
     </Stack>
   )
 
-  return isMobileApp ? (
+  return !isLargerThanMd ? (
     <Main alignItems='flex-start' width='full' headerComponent={header} isSubPage>
       {content}
     </Main>

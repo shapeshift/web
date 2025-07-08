@@ -33,7 +33,7 @@ const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', 
 
 const backButtonDisplay = { base: 'none', md: 'flex' }
 
-const justifyContent = { base: 'center', md: 'flex-start' }
+const justifyContent = { base: 'center', md: 'space-between' }
 
 const bodyAlign = { base: 'center', md: 'flex-start' }
 

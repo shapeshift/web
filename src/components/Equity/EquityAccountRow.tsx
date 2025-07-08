@@ -7,6 +7,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { EquityRow } from './EquityRow'
 
 import { AccountsIcon } from '@/components/Icons/Accounts'
+import { isMobile } from '@/lib/globals'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import {
   selectAccountNumberByAccountId,
@@ -46,8 +47,10 @@ export const EquityAccountRow = ({
     selectPortfolioUserCurrencyBalanceByFilter(state, filter),
   )
 
+  const basePath = isMobile ? '/accounts' : '/wallet/accounts'
+
   const path = generatePath(
-    assetId ? '/wallet/accounts/:accountId/:assetId' : '/wallet/accounts/:accountId',
+    assetId ? `${basePath}/:accountId/:assetId` : `${basePath}/:accountId`,
     filter,
   )
 

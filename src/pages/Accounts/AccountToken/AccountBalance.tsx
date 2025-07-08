@@ -29,6 +29,8 @@ type AccountBalanceProps = {
 const arrowBackIcon = <ArrowBackIcon />
 const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 
+const backButtonDisplay = { base: 'none', md: 'flex' }
+
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   assetId,
   accountId,
@@ -70,7 +72,12 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   return (
     <Card overflow='hidden'>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
-        <Button size='sm' leftIcon={arrowBackIcon} onClick={handleClick}>
+        <Button
+          size='sm'
+          leftIcon={arrowBackIcon}
+          onClick={handleClick}
+          display={backButtonDisplay}
+        >
           {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>

@@ -128,6 +128,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
       dispatch(tradeInput.actions.setSellAsset(arbitrumAsset))
       dispatch(tradeInput.actions.setBuyAsset(buyAsset))
+      dispatch(tradeInput.actions.setSellAccountId(stakingAssetAccountId))
       dispatch(tradeInput.actions.setBuyAccountId(stakingAssetAccountId))
     },
     [navigate, tradeInput, stakingAssetAccountId, arbitrumAsset, dispatch],

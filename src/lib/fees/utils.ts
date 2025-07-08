@@ -6,6 +6,7 @@ import { DEFAULT_FEE_BPS } from './constant'
 type CalculateFeeUsdArgs = {
   inputAmountUsd: BigNumber.Value
 }
+
 type CalculateFeeUsdReturn = {
   feeUsd: BigNumber
 }

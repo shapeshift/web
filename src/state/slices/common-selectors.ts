@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft, tcyAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
@@ -296,10 +296,8 @@ export const selectAssetsBySearchQuery = createCachedSelector(
 
     // Filters by low market-cap to avoid spew
     const filteredAssets = sortedAssets.filter(asset => {
-      // We don't have the market cap for TCY, but we want to show it
-      if (asset.assetId === tcyAssetId) return true
       const marketCap = marketDataUsd[asset.assetId]?.marketCap
-      return !marketCap || bnOrZero(marketCap).gte(10000)
+      return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
     })
     const matchedAssets = matchSorter(filteredAssets, searchQuery, {
       keys: [

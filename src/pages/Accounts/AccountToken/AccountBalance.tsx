@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Button, Card, CardBody, CardHeader, Flex, Tooltip } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, CardHeader, Flex, Tooltip } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
@@ -8,6 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { AssetActions } from '@/components/AssetHeader/AssetActions'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
@@ -15,6 +16,7 @@ import {
   selectAssetById,
   selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -29,6 +31,12 @@ type AccountBalanceProps = {
 const arrowBackIcon = <ArrowBackIcon />
 const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 
+const backButtonDisplay = { base: 'none', md: 'flex' }
+
+const justifyContent = { base: 'center', md: 'space-between' }
+
+const bodyAlign = { base: 'center', md: 'flex-start' }
+
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   assetId,
   accountId,
@@ -42,6 +50,11 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   // Add back in once we add the performance stuff in
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
+
+  const cryptoBalance =
+    useAppSelector(state =>
+      selectPortfolioCryptoPrecisionBalanceByFilter(state, assetAccountFilter),
+    ) ?? '0'
 
   const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceByFilter(s, assetAccountFilter),
@@ -69,8 +82,13 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   if (!asset) return null
   return (
     <Card overflow='hidden'>
-      <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
-        <Button size='sm' leftIcon={arrowBackIcon} onClick={handleClick}>
+      <CardHeader display='flex' justifyContent={justifyContent} alignItems='center'>
+        <Button
+          size='sm'
+          leftIcon={arrowBackIcon}
+          onClick={handleClick}
+          display={backButtonDisplay}
+        >
           {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>
@@ -83,18 +101,27 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
         fontWeight='bold'
         display='flex'
         flexDir={flexDirMdRow}
-        alignItems='flex-start'
+        alignItems={bodyAlign}
       >
         <Flex flexDir='column'>
+          {balanceContent}
           <Amount.Crypto
             color='text.subtle'
+            fontWeight='normal'
             value={cryptoHumanBalance}
             symbol={asset.symbol}
             lineHeight='shorter'
           />
-          {balanceContent}
         </Flex>
       </CardBody>
+      <CardFooter>
+        <AssetActions
+          assetId={assetId}
+          accountId={accountId}
+          cryptoBalance={cryptoBalance}
+          isMobile
+        />
+      </CardFooter>
       {/* 
       @TODO: Hide for now until we have the data to hook this up
       <CardFooter

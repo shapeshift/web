@@ -7,6 +7,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Link,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -23,10 +24,11 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { RawText } from '@/components/Text'
 import { bn } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
 import { RfoxRoute } from '@/pages/RFOX/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -50,6 +52,10 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, action.rfoxClaimActionMetadata.request.stakingAssetId),
+  )
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
   const formattedDate = useMemo(() => {
@@ -121,6 +127,42 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     translate,
   ])
 
+  const details = useMemo(() => {
+    if (!(stakingAsset && feeAsset)) return null
+
+    if (action.status === ActionStatus.ClaimAvailable)
+      return (
+        <Stack gap={4}>
+          <Button width='full' colorScheme='green' onClick={handleClaimClick}>
+            {translate('actionCenter.claim')}
+          </Button>
+        </Stack>
+      )
+
+    if (!action.rfoxClaimActionMetadata.txHash) return null
+
+    const txLink = getTxLink({
+      txId: action.rfoxClaimActionMetadata.txHash,
+      chainId: stakingAsset.chainId,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      address: undefined,
+      maybeSafeTx: undefined,
+    })
+
+    return (
+      <Button width='full' as={Link} isExternal href={txLink}>
+        {translate('actionCenter.viewTransaction')}
+      </Button>
+    )
+  }, [
+    action.rfoxClaimActionMetadata.txHash,
+    action.status,
+    feeAsset,
+    handleClaimClick,
+    stakingAsset,
+    translate,
+  ])
+
   return (
     <Stack
       spacing={4}
@@ -160,11 +202,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
           <Collapse in={isOpen}>
             <Card bg='transparent' mt={4} boxShadow='none'>
               <CardBody px={0} py={0}>
-                <Stack gap={4}>
-                  <Button width='full' colorScheme='green' onClick={handleClaimClick}>
-                    {translate('actionCenter.claim')}
-                  </Button>
-                </Stack>
+                {details}
               </CardBody>
             </Card>
           </Collapse>

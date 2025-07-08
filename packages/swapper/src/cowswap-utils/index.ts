@@ -40,6 +40,10 @@ export const getCowNetwork = (chainId: ChainId): CowNetwork | undefined => {
       return CowNetwork.ArbitrumOne
     case KnownChainIds.BaseMainnet:
       return CowNetwork.Base
+    case KnownChainIds.AvalancheMainnet:
+      return CowNetwork.Avalanche
+    case KnownChainIds.PolygonMainnet:
+      return CowNetwork.Polygon
     default:
       return
   }

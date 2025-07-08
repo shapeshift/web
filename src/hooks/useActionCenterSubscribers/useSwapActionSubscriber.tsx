@@ -22,6 +22,7 @@ import { SwapNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
+import { isMobile } from '@/lib/globals'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -34,6 +35,8 @@ import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
+const position = isMobile ? 'bottom' : 'bottom-right'
+
 export const useSwapActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
@@ -42,7 +45,7 @@ export const useSwapActionSubscriber = () => {
 
   const toast = useToast({
     duration: isDrawerOpen ? 5000 : null,
-    position: 'bottom-right',
+    position,
   })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
@@ -169,6 +172,7 @@ export const useSwapActionSubscriber = () => {
 
         toast({
           status: 'success',
+          position,
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()
@@ -214,6 +218,7 @@ export const useSwapActionSubscriber = () => {
 
         toast({
           status: 'error',
+          position,
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()

@@ -517,7 +517,7 @@ export const selectTradeAffiliateFeeUsd = createSelector(
   selectQuoteSellAmountUsd,
   selectActiveQuoteAffiliateBps,
   (sellAmountUsd, affiliateBps) => {
-    const { feeUsd } = calculateFeeUsd({
+    const feeUsd = calculateFeeUsd({
       inputAmountUsd: bnOrZero(sellAmountUsd),
     })
 

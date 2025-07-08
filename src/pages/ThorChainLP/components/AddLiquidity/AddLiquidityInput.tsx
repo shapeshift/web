@@ -990,7 +990,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .div(userCurrencyToUsdRate)
       .toFixed()
 
-    const { feeUsd } = calculateFeeUsd({
+    const feeUsd = calculateFeeUsd({
       inputAmountUsd: totalAmountUsd,
     })
 

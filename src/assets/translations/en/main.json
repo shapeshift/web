@@ -3001,9 +3001,9 @@
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
     },
     "deposit": {
-      "pending": "Your deposit of %{depositAmountAndSymbol} to %{contractAddress} is being processed.",
-      "complete": "Your deposit of %{depositAmountAndSymbol} to %{contractAddress} is complete.",
-      "failed": "Your deposit of %{depositAmountAndSymbol} to %{contractAddress} has failed."
+      "pending": "Your deposit of %{depositAmountAndSymbol} is being processed.",
+      "complete": "Your deposit of %{depositAmountAndSymbol} is complete.",
+      "failed": "Your deposit of %{depositAmountAndSymbol} has failed."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

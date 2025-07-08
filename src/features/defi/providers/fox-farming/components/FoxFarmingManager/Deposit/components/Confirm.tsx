@@ -28,7 +28,6 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -137,6 +136,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 
       if (contractAddress === ETH_FOX_STAKING_EVERGREEN_CONTRACT && asset && accountId) {
         const now = Date.now()
+
         appDispatch(
           actionSlice.actions.upsertAction({
             id: uuidv4(),
@@ -145,12 +145,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
             type: ActionType.EvergreenDeposit,
             status: ActionStatus.Pending,
             evergreenDepositMetadata: {
-              contractAddress,
-              depositAmountCryptoBaseUnit: state.deposit.cryptoAmount,
-              depositAmountCryptoPrecision: fromBaseUnit(
-                state.deposit.cryptoAmount,
-                asset.precision,
-              ),
+              depositAmountCryptoPrecision: state.deposit.cryptoAmount,
               lpAsset: asset,
               accountId,
               stakeTxHash: txid,

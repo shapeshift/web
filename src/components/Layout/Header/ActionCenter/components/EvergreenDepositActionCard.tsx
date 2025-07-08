@@ -15,6 +15,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
@@ -29,7 +30,7 @@ import { formatSmartDate } from '@/lib/utils/time'
 import type { EvergreenDepositAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -55,53 +56,41 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
     defaultIsOpen: action.status === ActionStatus.Pending,
   })
 
+  const translate = useTranslate()
+
   const { lpAsset, depositAmountCryptoPrecision, stakeTxHash, accountId } =
     action.evergreenDepositMetadata
 
-  const feeAsset = useAppSelector(state =>
-    selectAssetById(state, lpAsset.chainId === 'eip155:1' ? 'eip155:1/slip44:60' : ''),
-  )
-
   const depositNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
-    const contractLink = `${lpAsset.explorerAddressLink}${action.evergreenDepositMetadata.contractAddress}`
-
     return {
       depositAmountAndSymbol: (
         <Amount.Crypto
           value={depositAmountCryptoPrecision}
           symbol={lpAsset.symbol}
+          fontWeight='bold'
           fontSize='sm'
           maximumFractionDigits={6}
           omitDecimalTrailingZeros
           display='inline'
         />
       ),
-      contractAddress: (
-        <Link href={contractLink} isExternal fontSize='sm' display='inline' color='text.link'>
-          {action.evergreenDepositMetadata.contractAddress.slice(0, 6)}...
-        </Link>
-      ),
     }
-  }, [
-    depositAmountCryptoPrecision,
-    lpAsset.symbol,
-    lpAsset.explorerAddressLink,
-    action.evergreenDepositMetadata.contractAddress,
-  ])
+  }, [depositAmountCryptoPrecision, lpAsset.symbol])
 
   const title = useMemo(() => {
     switch (action.status) {
       case ActionStatus.Pending:
-        return 'notificationCenter.deposit.pending'
+        return 'actionCenter.deposit.pending'
       case ActionStatus.Complete:
-        return 'notificationCenter.deposit.complete'
+        return 'actionCenter.deposit.complete'
       case ActionStatus.Failed:
-        return 'notificationCenter.deposit.failed'
+        return 'actionCenter.deposit.failed'
       default:
         return ''
     }
   }, [action.status])
 
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, lpAsset.chainId))
   const txLink = useMemo(() => {
     if (!feeAsset || !stakeTxHash || !accountId) return
 
@@ -155,7 +144,7 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
                 <Stack spacing={3}>
                   {txLink && (
                     <Button as={Link} href={txLink} isExternal size='sm' width='full'>
-                      View Transaction
+                      {translate('actionCenter.viewTransaction')}
                     </Button>
                   )}
                 </Stack>

@@ -1,5 +1,5 @@
 import { CloseIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, HStack, Icon, Link, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { useMemo } from 'react'
 
@@ -39,38 +39,32 @@ export const EvergreenDepositNotification = ({
     [crossBgColor, crossColor],
   )
 
-  const { lpAsset, depositAmountCryptoPrecision, contractAddress } = action.evergreenDepositMetadata
+  const { lpAsset, depositAmountCryptoPrecision } = action.evergreenDepositMetadata
 
   const depositNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
-    const contractLink = `${lpAsset.explorerAddressLink}${contractAddress}`
-
     return {
       depositAmountAndSymbol: (
         <Amount.Crypto
           value={depositAmountCryptoPrecision}
           symbol={lpAsset.symbol}
           fontSize='sm'
+          fontWeight='bold'
           maximumFractionDigits={6}
           omitDecimalTrailingZeros
           display='inline'
         />
       ),
-      contractAddress: (
-        <Link href={contractLink} isExternal fontSize='sm' display='inline' color='text.link'>
-          {contractAddress.slice(0, 6)}...
-        </Link>
-      ),
     }
-  }, [depositAmountCryptoPrecision, lpAsset.symbol, lpAsset.explorerAddressLink, contractAddress])
+  }, [depositAmountCryptoPrecision, lpAsset.symbol])
 
   const depositTranslation = useMemo(() => {
     switch (action.status) {
       case ActionStatus.Pending:
-        return 'notificationCenter.deposit.pending'
+        return 'actionCenter.deposit.pending'
       case ActionStatus.Complete:
-        return 'notificationCenter.deposit.complete'
+        return 'actionCenter.deposit.complete'
       case ActionStatus.Failed:
-        return 'notificationCenter.deposit.failed'
+        return 'actionCenter.deposit.failed'
       default:
         return ''
     }

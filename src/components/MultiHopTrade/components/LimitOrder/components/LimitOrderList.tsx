@@ -42,6 +42,11 @@ const textSelectedProps = {
   color: 'text.base',
 }
 
+const tabsMinHeight = {
+  base: 'calc(100vh - 60px - env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
+  md: 'auto',
+}
+
 const tableStyles = {
   'tr:not(:last-of-type)': {
     borderBottom: '1px solid',
@@ -349,7 +354,14 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   return (
     <Card bg={cardBgProp} {...cardProps}>
       {onBack && (
-        <CardHeader px={4} display='flex' flexDirection='column' pb={0} width='100%'>
+        <CardHeader
+          px={4}
+          display='flex'
+          flexDirection='column'
+          pb={0}
+          width='100%'
+          position='sticky'
+        >
           <Flex width='100%' alignItems='center'>
             <Flex flex='1' justifyContent='flex-start'>
               <WithBackButton onBack={onBack} />
@@ -370,6 +382,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
         mt={4}
         pe={1}
         pb={8}
+        minH={tabsMinHeight}
         isLazy
       >
         <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>

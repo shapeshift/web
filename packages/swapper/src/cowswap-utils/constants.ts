@@ -26,6 +26,8 @@ export const SUPPORTED_CHAIN_IDS: ChainId[] = [
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.PolygonMainnet,
 ]
 
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'

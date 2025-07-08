@@ -29,16 +29,23 @@ import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWallet
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
+import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const mobileButtonRowDisplay = { base: 'flex', md: 'none' }
 const desktopButtonGroupDisplay = { base: 'none', md: 'flex' }
 const containerPadding = { base: 6, '2xl': 8 }
 const containerGap = { base: 6, md: 6 }
-const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column',
+  md: 'row',
+}
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
 const balanceFontSize = '4xl'
@@ -116,6 +123,9 @@ export const DashboardHeaderTop = memo(() => {
   const {
     state: { isConnected },
   } = useWallet()
+  const assetId = useRouteAssetId()
+  const accountId = useRouteAccountId()
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const navigate = useNavigate()
   const send = useModal('send')
@@ -129,12 +139,12 @@ export const DashboardHeaderTop = memo(() => {
 
   const handleSendClick = useCallback(() => {
     mixpanel?.track(MixPanelEvent.SendClick)
-    send.open({})
-  }, [send, mixpanel])
+    send.open({ assetId: asset?.assetId, accountId })
+  }, [mixpanel, send, asset?.assetId, accountId])
 
   const handleReceiveClick = useCallback(() => {
-    receive.open({})
-  }, [receive])
+    receive.open({ asset, accountId })
+  }, [receive, asset, accountId])
 
   const handleTradeClick = useCallback(() => {
     navigate(TradeRoutePaths.Input)
@@ -150,7 +160,8 @@ export const DashboardHeaderTop = memo(() => {
         mt={4}
         px={4}
         width='100%'
-        justifyContent='space-around'
+        justifyContent='center'
+        gap={2}
         display={mobileButtonRowDisplay}
       >
         <MobileActionButton

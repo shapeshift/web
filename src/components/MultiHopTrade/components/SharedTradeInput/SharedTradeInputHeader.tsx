@@ -146,6 +146,7 @@ export const SharedTradeInputHeader = ({
               fontSize='md'
               sx={mobileButtonsStyle}
               onClick={handleClickTrade}
+              type='button'
             >
               {translate('navBar.market')}
             </Box>
@@ -162,6 +163,7 @@ export const SharedTradeInputHeader = ({
                 ml={-2}
                 sx={mobileButtonsStyle}
                 onClick={handleClickLimitOrder}
+                type='button'
               >
                 {translate('limitOrder.heading')}
               </Box>
@@ -179,6 +181,7 @@ export const SharedTradeInputHeader = ({
                 ml={-2}
                 sx={mobileButtonsStyle}
                 onClick={handleClickClaim}
+                type='button'
               >
                 {translate('bridge.claim')}
               </Box>

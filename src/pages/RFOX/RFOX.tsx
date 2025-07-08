@@ -12,14 +12,13 @@ import { RFOXProvider } from '@/pages/RFOX/hooks/useRfoxContext'
 
 const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: '100%', md: '450px' }
-const mainPx = { base: 0, md: 4 }
 const mainPaddingBottom = { base: 16, md: 8 }
 
 const rFOXHeader = <RFOXHeader />
 
 export const RFOX: React.FC = () => (
   <RFOXProvider>
-    <Main pb={mainPaddingBottom} headerComponent={rFOXHeader} px={mainPx} isSubPage>
+    <Main pb={mainPaddingBottom} headerComponent={rFOXHeader} px={4} isSubPage>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview />

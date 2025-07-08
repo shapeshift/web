@@ -25,6 +25,7 @@ export type Route = {
   isViewOnly?: boolean
   category?: RouteCategory
   menuRightComponent?: React.ReactNode
+  relatedPaths?: string[]
 } & (
   | {
       mobileNav: boolean

@@ -155,6 +155,7 @@ export const routes: Route[] = [
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
+    relatedPaths: ['/trade', '/limit', '/claim'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,

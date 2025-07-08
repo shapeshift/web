@@ -70,8 +70,6 @@ type ActionGenericTransactionMetadata = {
 }
 
 type ActionEvergreenDepositMetadata = {
-  contractAddress: string
-  depositAmountCryptoBaseUnit: string
   depositAmountCryptoPrecision: string
   lpAsset: Asset
   accountId: AccountId
@@ -114,6 +112,11 @@ export type RfoxClaimAction = BaseAction & {
   }
 }
 
+export type EvergreenDepositAction = BaseAction & {
+  type: ActionType.EvergreenDeposit
+  evergreenDepositMetadata: ActionEvergreenDepositMetadata
+}
+
 export type Action =
   | SwapAction
   | LimitOrderAction
@@ -121,11 +124,6 @@ export type Action =
   | GenericTransactionAction
   | RfoxClaimAction
   | EvergreenDepositAction
-
-export type EvergreenDepositAction = BaseAction & {
-  type: ActionType.EvergreenDeposit
-  evergreenDepositMetadata: ActionEvergreenDepositMetadata
-}
 
 export type ActionState = {
   byId: Record<string, Action>

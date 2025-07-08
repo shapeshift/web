@@ -141,18 +141,16 @@ export const selectEvergreenDepositActionsByWallet = createDeepEqualOutputSelect
   selectEnabledWalletAccountIds,
   (actions, enabledWalletAccountIds) => {
     return actions.filter(
-      action =>
+      (action): action is EvergreenDepositAction =>
         isEvergreenDepositAction(action) &&
         enabledWalletAccountIds.includes(action.evergreenDepositMetadata.accountId),
-    ) as EvergreenDepositAction[]
+    )
   },
 )
 
 export const selectPendingEvergreenDepositActions = createDeepEqualOutputSelector(
   selectEvergreenDepositActionsByWallet,
-  actions => {
-    return actions.filter(action => action.status === ActionStatus.Pending)
-  },
+  actions => actions.filter(action => action.status === ActionStatus.Pending),
 )
 
 export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(

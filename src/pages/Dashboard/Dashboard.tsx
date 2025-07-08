@@ -54,15 +54,15 @@ enum MobileTab {
   Watchlist,
 }
 
+const getTabIndexFromPath = (pathname: string) => {
+  if (pathname.endsWith('/watchlist')) return MobileTab.Watchlist
+  return MobileTab.MyCrypto
+}
+
 const MobileHome = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
   const navigate = useNavigate()
-
-  const getTabIndexFromPath = useCallback((pathname: string) => {
-    if (pathname.endsWith('/watchlist')) return MobileTab.Watchlist
-    return MobileTab.MyCrypto
-  }, [])
 
   const pathTabIndex = useMemo(
     () => getTabIndexFromPath(location.pathname),

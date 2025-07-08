@@ -5,6 +5,7 @@ import { bn } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 
+import { calculateFeeUsd } from '@/lib/fees/utils'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { assertUnreachable } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'

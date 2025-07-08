@@ -19,7 +19,7 @@ const selectIsSnapshotApiQueriesRejected = createSelector(
     !Object.values(queries).some(query => query?.status === QueryStatus.fulfilled),
 )
 
-export const selectVotingPower = createSelector(
+export const selectVotingPowerOrZero = createSelector(
   snapshot.selectors.selectVotingPower,
   selectAccountIdsByChainId,
   selectIsSnapshotApiQueriesRejected,

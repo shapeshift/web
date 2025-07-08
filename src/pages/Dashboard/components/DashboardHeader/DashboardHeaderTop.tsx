@@ -160,7 +160,8 @@ export const DashboardHeaderTop = memo(() => {
         mt={4}
         px={4}
         width='100%'
-        justifyContent='space-around'
+        justifyContent='center'
+        gap={2}
         display={mobileButtonRowDisplay}
       >
         <MobileActionButton

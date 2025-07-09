@@ -655,6 +655,11 @@ export const selectShouldBlockQuoteRefresh = createSelector(
   },
 )
 
+export const selectIsRefreshPolling = createSelector(
+  tradeQuoteSlice.selectSlice,
+  tradeQuoteSlice => tradeQuoteSlice.isRefreshPolling,
+)
+
 export const selectIsActiveSwapperQuoteLoading = createSelector(
   selectIsTradeQuoteApiQueryPending,
   selectActiveSwapperName,

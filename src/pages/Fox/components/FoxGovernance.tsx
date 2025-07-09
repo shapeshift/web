@@ -27,7 +27,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import {
   selectIsSnapshotApiQueriesPending,
-  selectVotingPower,
+  selectVotingPowerOrZero,
 } from '@/state/apis/snapshot/selectors'
 import { snapshotApi, useGetProposalsQuery } from '@/state/apis/snapshot/snapshot'
 import { selectAssetById, selectWalletAccountIds } from '@/state/slices/selectors'
@@ -64,7 +64,7 @@ export const FoxGovernance = () => {
 
   const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPower = useAppSelector(selectVotingPowerOrZero)
   const isVotingPowerQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
 
   useEffect(() => {

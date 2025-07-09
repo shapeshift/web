@@ -19,16 +19,18 @@ export const tradeQuoteSlice = createSlice({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       sortOption: state.sortOption, // Preserve the sort option
-      refreshPendingUntil: state.refreshPendingUntil, // Maintain out quote refresh countdown
+      refreshPendingUntil: state.refreshPendingUntil, // Maintain our quote refresh state
       lastRefreshTime: state.lastRefreshTime,
+      isRefreshPolling: state.isRefreshPolling,
     })),
     clearTradeQuotes: create.reducer(state => ({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       activeQuoteMeta: state.activeQuoteMeta, // And the activeQuoteMeta too, or we'll lose the active quote when backing out from preview
       sortOption: state.sortOption, // Preserve the sort option
-      refreshPendingUntil: state.refreshPendingUntil, // Maintain out quote refresh countdown
+      refreshPendingUntil: state.refreshPendingUntil, // Maintain our quote refresh state
       lastRefreshTime: state.lastRefreshTime,
+      isRefreshPolling: state.isRefreshPolling,
     })),
     setIsTradeQuoteRequestAborted: create.reducer((state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
@@ -39,6 +41,9 @@ export const tradeQuoteSlice = createSlice({
     }),
     setRefreshPendingUntil: create.reducer((state, action: PayloadAction<number | null>) => {
       state.refreshPendingUntil = action.payload
+    }),
+    setIsRefreshPolling: create.reducer((state, action: PayloadAction<boolean>) => {
+      state.isRefreshPolling = action.payload
     }),
     upsertTradeQuotes: create.reducer(
       (

@@ -22,6 +22,7 @@ export type TradeQuoteSliceState = {
   sortOption: QuoteSortOption // the selected quote sorting option
   lastRefreshTime: number // timestamp of last quote refresh, used for polling countdown
   refreshPendingUntil: number | null // null if we're not pending refresh, number value means we are and represents max timeout
+  isRefreshPolling: boolean // true if the refresh interval is actively running
 }
 
 export enum HopExecutionState {

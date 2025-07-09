@@ -1,12 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   cosmosAssetId,
-  fromAssetId,
   mayachainAssetId,
   rujiAssetId,
   tcyAssetId,
   thorchainAssetId,
-  toAssetId,
 } from '@shapeshiftoss/caip'
 
 import type { Message } from '../types'
@@ -24,26 +22,13 @@ const assetIdByDenom = new Map<string, AssetId>([
   ['cacao', mayachainAssetId],
 ])
 
-export const getAssetIdByDenom = (denom: string, assetId: string): AssetId | undefined => {
+export const getAssetIdByDenom = (denom: string): AssetId | undefined => {
   if (assetIdByDenom.has(denom)) return assetIdByDenom.get(denom) as AssetId
-
-  const { chainId } = fromAssetId(assetId)
-
-  const [assetNamespace, assetReference] = denom.split('/')
-
-  if (assetNamespace === 'ibc' && assetReference) {
-    return toAssetId({ chainId, assetNamespace, assetReference })
-  }
-
-  console.warn(`unknown denom: ${denom}`)
-
-  return
 }
 
 export const metaData = (
   msg: Message,
   event: Record<string, Record<string, string>>,
-  assetId: string,
 ): TxMetadata | undefined => {
   switch (msg.type) {
     case 'delegate':
@@ -51,7 +36,7 @@ export const metaData = (
         parser: 'staking',
         method: msg.type,
         value: msg.value.amount,
-        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
+        assetId: getAssetIdByDenom(msg.value.denom) ?? '',
         delegator: msg.origin,
         destinationValidator: msg.to,
       }
@@ -60,7 +45,7 @@ export const metaData = (
         parser: 'staking',
         method: msg.type,
         value: msg.value.amount,
-        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
+        assetId: getAssetIdByDenom(msg.value.denom) ?? '',
         delegator: msg.origin,
         destinationValidator: msg.from,
       }
@@ -69,7 +54,7 @@ export const metaData = (
         parser: 'staking',
         method: msg.type,
         value: msg.value.amount,
-        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
+        assetId: getAssetIdByDenom(msg.value.denom) ?? '',
         delegator: msg.origin,
         sourceValidator: msg.from,
         destinationValidator: msg.to,
@@ -79,29 +64,9 @@ export const metaData = (
         parser: 'staking',
         method: msg.type,
         value: msg.value.amount,
-        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
+        assetId: getAssetIdByDenom(msg.value.denom) ?? '',
         delegator: msg.origin,
         destinationValidator: msg.to,
-      }
-    case 'transfer':
-      return {
-        parser: 'ibc',
-        method: msg.type,
-        value: msg.value.amount,
-        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
-        ibcSource: msg.origin,
-        ibcDestination: msg.to,
-        sequence: event['send_packet']['packet_sequence'],
-      }
-    case 'recv_packet':
-      return {
-        parser: 'ibc',
-        method: msg.type,
-        value: msg.value.amount,
-        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
-        ibcSource: msg.origin,
-        ibcDestination: msg.to,
-        sequence: event['recv_packet']['packet_sequence'],
       }
     case 'deposit':
       if (!event['add_liquidity']) return

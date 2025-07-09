@@ -295,6 +295,7 @@ export const mockStore: ReduxState = {
     sortOption: QuoteSortOption.BEST_RATE,
     lastRefreshTime: 0,
     refreshPendingUntil: null,
+    isRefreshPolling: false,
   },
   limitOrder: {
     activeQuote: undefined,

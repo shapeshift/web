@@ -45,6 +45,7 @@ export const initialState: TradeQuoteSliceState = {
   sortOption: QuoteSortOption.BEST_RATE,
   lastRefreshTime: Date.now(),
   refreshPendingUntil: Infinity, // Pending until all quotes finished for initial load
+  isRefreshPolling: false,
 }
 
 export const SWAPPER_USER_ERRORS = [

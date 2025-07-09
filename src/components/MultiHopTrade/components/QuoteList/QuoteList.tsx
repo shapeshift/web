@@ -25,6 +25,7 @@ import { BackButton } from '../WithBackButton'
 
 import { Display } from '@/components/Display'
 import { useQuoteSortOptions } from '@/state/slices/tradeQuoteSlice/hooks'
+import { selectIsRefreshPolling } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppSelector } from '@/state/store'
 const chevronDownIcon = <ChevronDownIcon />
@@ -54,6 +55,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
   )
 
   const sortByTextColor = useColorModeValue('blackAlpha.500', 'whiteAlpha.500')
+  const isRefreshPolling = useAppSelector(selectIsRefreshPolling)
 
   return (
     <Card {...cardProps} bg={cardBgProp} borderRadius={cardBorderRadius} height={cardHeight}>
@@ -90,7 +92,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
               </MenuOptionGroup>
             </MenuList>
           </Menu>
-          <QuoteTimer />
+          {isRefreshPolling && <QuoteTimer />}
         </Flex>
       </CardHeader>
       <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>

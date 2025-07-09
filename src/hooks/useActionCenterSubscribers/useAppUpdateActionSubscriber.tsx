@@ -1,7 +1,7 @@
 import stringify from 'fast-json-stable-stringify'
 import { useEffect, useMemo, useRef } from 'react'
 
-import { useAppToast } from '../useAppToast'
+import { useNotificationToast } from '../useNotificationToast'
 import type { Metadata } from '../useHasAppUpdated/useHasAppUpdated'
 import { useHasAppUpdated } from '../useHasAppUpdated/useHasAppUpdated'
 
@@ -21,7 +21,7 @@ export const useAppUpdateActionSubscriber = () => {
 
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
-  const toast = useAppToast({ duration: isDrawerOpen ? 5000 : null })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const currentVersionId = useMemo(
     () => (initialMetadata ? getAppUpdateId(initialMetadata) : undefined),

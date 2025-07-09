@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useAppToast } from '../useAppToast'
+import { useNotificationToast } from '../useNotificationToast'
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
@@ -50,7 +50,7 @@ export const useLimitOrderActionSubscriber = () => {
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const activeQuoteId = useAppSelector(selectActiveQuoteId)
   const { currentData: ordersResponse } = useLimitOrders()
-  const toast = useAppToast({ duration: isDrawerOpen ? 5000 : null })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
   const openLimitOrders = useAppSelector(selectOpenLimitOrderActionsFilteredByWallet)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)

@@ -14,7 +14,7 @@ import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useAppToast } from '../useAppToast'
+import { useNotificationToast } from '../useNotificationToast'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '../useWallet/useWallet'
 
@@ -41,7 +41,7 @@ export const useSwapActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
-  const toast = useAppToast({ duration: isDrawerOpen ? 5000 : null })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)

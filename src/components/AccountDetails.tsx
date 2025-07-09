@@ -1,4 +1,3 @@
-import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
@@ -6,7 +5,9 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
+import { AccountHeader } from './AccountHeader/AccountHeader'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
+import { Main } from './Layout/Main'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
@@ -22,7 +23,6 @@ type AccountDetailsProps = {
   route?: Route
 }
 
-const directionXlRow: StackDirection = { base: 'column', xl: 'row' }
 const flexMaxWidth = { base: 'full', xl: 'md' }
 const displayMdBlock = { base: 'none', md: 'flex' }
 
@@ -32,9 +32,11 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
   // When the asset is ETH, we want to use the built-in default buy asset (FOX)
   const defaultBuyAssetId = useMemo(() => (assetId === ethAssetId ? undefined : assetId), [assetId])
 
+  const header = useMemo(() => <AccountHeader />, [])
+
   if (!accountId || !assetId) return null
   return (
-    <Stack width='full' alignItems='flex-start' spacing={4} mx='auto' direction={directionXlRow}>
+    <Main width='full' alignItems='flex-start' mx='auto' headerComponent={header}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance
           assetId={assetId}
@@ -58,6 +60,6 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
       >
         <StandaloneTrade isCompact defaultBuyAssetId={defaultBuyAssetId} />
       </Flex>
-    </Stack>
+    </Main>
   )
 }

@@ -20,6 +20,7 @@ import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInpu
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { Accounts } from '@/pages/Accounts/Accounts'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
@@ -126,6 +127,17 @@ export const routes: Route[] = [
     mobileNav: true,
     hideDesktop: true,
     priority: 1,
+  },
+  {
+    path: '/accounts/*',
+    label: 'navBar.myWallet',
+    shortLabel: 'navBar.wallet',
+    icon: <WalletIcon />,
+    main: Accounts,
+    category: RouteCategory.Featured,
+    mobileNav: false,
+    priority: 5,
+    hide: true,
   },
   {
     path: '/wallet/*',

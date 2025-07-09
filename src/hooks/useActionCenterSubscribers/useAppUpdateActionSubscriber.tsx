@@ -1,9 +1,9 @@
 import stringify from 'fast-json-stable-stringify'
 import { useEffect, useMemo, useRef } from 'react'
 
-import { useNotificationToast } from '../useNotificationToast'
 import type { Metadata } from '../useHasAppUpdated/useHasAppUpdated'
 import { useHasAppUpdated } from '../useHasAppUpdated/useHasAppUpdated'
+import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { AppUpdateNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/AppUpdateNotification'

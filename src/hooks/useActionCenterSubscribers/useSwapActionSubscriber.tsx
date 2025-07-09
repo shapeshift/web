@@ -14,8 +14,8 @@ import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useNotificationToast } from '../useNotificationToast'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
+import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'

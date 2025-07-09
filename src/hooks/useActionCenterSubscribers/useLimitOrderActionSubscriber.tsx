@@ -5,8 +5,8 @@ import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useNotificationToast } from '../useNotificationToast'
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
+import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'

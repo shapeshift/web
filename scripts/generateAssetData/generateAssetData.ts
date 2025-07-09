@@ -31,6 +31,7 @@ import {
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
+import path from 'path'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
@@ -47,6 +48,87 @@ import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
+
+const ASSET_DIFF_PATH = path.join(__dirname, '../../asset-diff.md')
+
+interface AssetDiff {
+  added: Asset[]
+  removed: Asset[]
+  total: {
+    before: number
+    after: number
+  }
+}
+
+const calculateAssetDiff = (currentAssets: AssetsById, newAssets: AssetsById): AssetDiff => {
+  const currentAssetIds = new Set(Object.keys(currentAssets))
+  const newAssetIds = new Set(Object.keys(newAssets))
+
+  const addedAssetIds = [...newAssetIds].filter(id => !currentAssetIds.has(id))
+  const removedAssetIds = [...currentAssetIds].filter(id => !newAssetIds.has(id))
+
+  const added = addedAssetIds.map(id => newAssets[id]).filter(Boolean)
+  const removed = removedAssetIds.map(id => currentAssets[id]).filter(Boolean)
+
+  return {
+    added,
+    removed,
+    total: {
+      before: Object.keys(currentAssets).length,
+      after: Object.keys(newAssets).length,
+    },
+  }
+}
+
+const formatAssetDiff = (diff: AssetDiff): string => {
+  const { added, removed, total } = diff
+
+  let output = '# Asset Data Generation Summary\n\n'
+
+  output += `## Summary\n`
+  output += `- **Total assets before**: ${total.before}\n`
+  output += `- **Total assets after**: ${total.after}\n`
+  output += `- **Net change**: ${total.after - total.before > 0 ? '+' : ''}${
+    total.after - total.before
+  }\n\n`
+
+  if (added.length > 0) {
+    output += `## ✅ Added Assets (${added.length})\n\n`
+    added.forEach(asset => {
+      const { chainId } = fromAssetId(asset.assetId)
+      output += `- **${asset.name}** (${asset.symbol})\n`
+      output += `  - Asset ID: \`${asset.assetId}\`\n`
+      output += `  - Chain: ${chainId}\n`
+      if (asset.color && asset.color !== '#FFFFFF') {
+        output += `  - Color: ${asset.color}\n`
+      }
+      output += '\n'
+    })
+  }
+
+  if (removed.length > 0) {
+    output += `## ❌ Removed Assets (${removed.length})\n\n`
+    removed.forEach(asset => {
+      const { chainId } = fromAssetId(asset.assetId)
+      output += `- **${asset.name}** (${asset.symbol})\n`
+      output += `  - Asset ID: \`${asset.assetId}\`\n`
+      output += `  - Chain: ${chainId}\n`
+      output += '\n'
+    })
+  }
+
+  if (added.length === 0 && removed.length === 0) {
+    output += `## No Changes\n\nNo assets were added or removed in this update.\n`
+  }
+
+  return output
+}
+
+const writeAssetDiff = async (diff: AssetDiff): Promise<void> => {
+  const formattedDiff = formatAssetDiff(diff)
+  await fs.promises.writeFile(ASSET_DIFF_PATH, formattedDiff, 'utf8')
+  console.info(`Asset diff written to: ${ASSET_DIFF_PATH}`)
+}
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
@@ -265,11 +347,22 @@ const reEncodeAndWriteRelatedAssetIndex = (
 
 const main = async () => {
   try {
+    // Read the original asset data for comparison
+    const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+    const { assetData: currentAssetData } = decodeAssetData(encodedAssetData)
+
     // Read the original related asset index
     const originalRelatedAssetIndex = readRelatedAssetIndex()
 
     // Generate the new assetData and sortedAssetIds
-    const { sortedAssetIds: updatedSortedAssetIds } = await generateAssetData()
+    const { sortedAssetIds: updatedSortedAssetIds, assetData: newAssetData } =
+      await generateAssetData()
+
+    // Calculate the diff between current and new assets
+    const diff = calculateAssetDiff(currentAssetData, newAssetData)
+
+    // Write the diff to a file for CI consumption
+    await writeAssetDiff(diff)
 
     // We need to update the relatedAssetIndex to match the new asset ordering:
     // - The original relatedAssetIndex references assets by their index in the original
@@ -286,6 +379,13 @@ const main = async () => {
     await generateRelatedAssetIndex()
 
     console.info('Assets and related assets data generated.')
+    console.info(`Added: ${diff.added.length} assets`)
+    console.info(`Removed: ${diff.removed.length} assets`)
+    console.info(
+      `Total: ${diff.total.after} assets (${diff.total.after - diff.total.before > 0 ? '+' : ''}${
+        diff.total.after - diff.total.before
+      })`,
+    )
 
     process.exit(0)
   } catch (err) {

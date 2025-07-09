@@ -51,4 +51,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ZEROXEAN_PUBLIC_REPO_ONLY_GH_TOKEN }}
         run: |
           CURRENT_DATE=$(date +'%m/%d/%Y')
-          gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data $CURRENT_DATE" --body "Generated from CI."
+          
+          # Read the asset diff file if it exists, otherwise use default message
+          if [ -f "asset-diff.md" ]; then
+            PR_BODY=$(cat asset-diff.md)
+          else
+            PR_BODY="Generated from CI."
+          fi
+          
+          # Create PR with the diff as the body
+          gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data $CURRENT_DATE" --body "$PR_BODY"
+
+      - name: Clean up temporary files
+        run: |
+          # Remove the temporary asset diff file
+          rm -f asset-diff.md

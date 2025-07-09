@@ -36,7 +36,7 @@ export const getMixpanelEventData = () => {
   const assets = selectAssets(state)
   const shapeShiftFeeUserCurrency = selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency(state)
   const quoteSellAmountUsd = selectQuoteSellAmountUsd(state)
-  const { feeUsd: shapeshiftFeeUsd } = calculateFeeUsd({
+  const shapeshiftFeeUsd = calculateFeeUsd({
     inputAmountUsd: bnOrZero(quoteSellAmountUsd),
   })
   const sellAmountBeforeFeesUserCurrency = selectQuoteSellAmountUserCurrency(state)

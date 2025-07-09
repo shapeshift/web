@@ -20,7 +20,6 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
-import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import * as gnosis from './gnosis'
 import * as optimism from './optimism'
@@ -40,7 +39,6 @@ const generateColorMap = async () => {
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
-  const cosmosAssets = await cosmos.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -52,7 +50,6 @@ const generateColorMap = async () => {
     unfreeze(thorchain),
     unfreeze(mayachain),
     ...ethAssets,
-    ...cosmosAssets,
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,

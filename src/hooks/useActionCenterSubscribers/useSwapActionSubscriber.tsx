@@ -1,4 +1,4 @@
-import { usePrevious, useToast } from '@chakra-ui/react'
+import { usePrevious } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
@@ -14,6 +14,7 @@ import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { useAppToast } from '../useAppToast'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '../useWallet/useWallet'
 
@@ -22,7 +23,6 @@ import { SwapNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
-import { isMobile } from '@/lib/globals'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -35,18 +35,13 @@ import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-const position = isMobile ? 'bottom' : 'bottom-right'
-
 export const useSwapActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
-  const toast = useToast({
-    duration: isDrawerOpen ? 5000 : null,
-    position,
-  })
+  const toast = useAppToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
@@ -172,7 +167,6 @@ export const useSwapActionSubscriber = () => {
 
         toast({
           status: 'success',
-          position,
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()
@@ -218,7 +212,6 @@ export const useSwapActionSubscriber = () => {
 
         toast({
           status: 'error',
-          position,
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
               onClose()

@@ -1,7 +1,7 @@
-import { useToast } from '@chakra-ui/react'
 import stringify from 'fast-json-stable-stringify'
 import { useEffect, useMemo, useRef } from 'react'
 
+import { useAppToast } from '../useAppToast'
 import type { Metadata } from '../useHasAppUpdated/useHasAppUpdated'
 import { useHasAppUpdated } from '../useHasAppUpdated/useHasAppUpdated'
 
@@ -21,10 +21,7 @@ export const useAppUpdateActionSubscriber = () => {
 
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
-  const toast = useToast({
-    position: 'bottom-right',
-    duration: isDrawerOpen ? 5000 : null,
-  })
+  const toast = useAppToast({ duration: isDrawerOpen ? 5000 : null })
 
   const currentVersionId = useMemo(
     () => (initialMetadata ? getAppUpdateId(initialMetadata) : undefined),

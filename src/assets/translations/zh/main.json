@@ -217,6 +217,7 @@
     "availableAssets": "可用资产"
   },
   "updateToast": {
+    "body": "App 有可用的更新！",
     "cta": "重新加载应用程序",
     "keepKey": {
       "title": "KeepKey 更新可用",
@@ -248,6 +249,7 @@
       "marketCap": "市值",
       "volume": "交易量",
       "sparkLine": "迷你图",
+      "myCrypto": "我的加密货币",
       "empty": {
         "title": "蟋蟀的叫声...",
         "cta": "给你自己发送一些加密货币！"
@@ -490,6 +492,7 @@
     "eligibleOpportunities": "符合条件的机会",
     "defiBody": "探索不断增长的 DeFi 机会。",
     "netWorth": "净值",
+    "loadingAccounts": "已加载 %{portfolioAccountsLoaded} 个账户",
     "walletBalance": "钱包余额",
     "earnBalance": "赚取余额",
     "rewardsBalance": "奖励余额",
@@ -572,10 +575,10 @@
     "assetStakingBalance": "%{assetSymbol} 质押余额"
   },
   "navBar": {
+    "history": "历史",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "主页",
-    "activity": "活动",
     "myWallet": "我的钱包",
     "dashboard": "仪表板",
     "dashboardShort": "仪表板",
@@ -601,6 +604,7 @@
     "explore": "探索",
     "rewards": "奖励",
     "trade": "交易/跨链桥",
+    "market": "市场",
     "limitOrder": "限价订单",
     "claims": "领取",
     "tradeShort": "交易",
@@ -653,7 +657,6 @@
     "from": "从",
     "trade": "交易",
     "swap": "兑换",
-    "swapWith": "与 %{dex} 兑换",
     "amount": "数量",
     "for": "对于",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
@@ -845,6 +848,12 @@
       "warning": "高滑点容差可能会导致不利的交易。",
       "lowSlippage": "滑点低于 0.05% 可能会导致交易失败。"
     },
+    "quoteDisplay": {
+      "title": "报价显示",
+      "info": "选择您的报价显示样式。",
+      "basic": "基本",
+      "advanced": "高级"
+    },
     "sort": {
       "sortBy": "报价排序方式",
       "auto": "自动",
@@ -912,8 +921,6 @@
       "changeQuote": "更改报价",
       "rate": "这是该交易对的预期费率。",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
-      "priceImpactLabel": "价格影响：%{priceImpactPercentage}%",
-      "priceImpact": "你的交易对该池的市场价格的影响。",
       "priceImpactWarning": "考虑到池中当前的流动性，这种规模的交换可能会有很高的价格影响。您的输入代币与您将收到的输出代币之间可能会有巨大差异。",
       "minerFee": "这是在区块链上处理交易的费用，这不是 ShapeShift 收取的费用。",
       "protocol": "这是你的交易路径的协议。",
@@ -1040,7 +1047,10 @@
     "resetTitle": "代币额度重置",
     "fiatAmountOnChain": "%{chainName} 上的 %{amountFiatFormatted}",
     "quote": {
-      "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})"
+      "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
+      "gas": "完成此兑换交易所需的 gas。",
+      "slippage": "这是此报价的滑点。",
+      "timeEstimate": "这是此次兑换的预计完成时间。"
     },
     "awaitingPermit2Approval": "代币转移中",
     "awaitingSwap": "通过 %{swapperName} 进行交换中",
@@ -1261,6 +1271,9 @@
         "enterPassword": "输入你的密码以继续",
         "testTitle": "验证你的助记词",
         "title": "确认备份",
+        "description": "请点击下方助记词中的正确答案。",
+        "desktopDescription": "完成次快速测试以确定您已正确保存所有内容。",
+        "wordNumber": "第 #%{number} 个单词",
         "confirm": {
           "title": "备份钱包",
           "body": "在忘记您的钱包之前，您是否希望备份您的秘密恢复短语？",
@@ -1274,6 +1287,16 @@
         "success": {
           "title": "成功",
           "description": "您已经备份了您的钱包。请记得将您的秘密恢复短语存储在安全的地方。"
+        },
+        "error": {
+          "title": "错误",
+          "description": "您选择的一个或多个单词不正确。",
+          "reviewPhrase": "查看秘密恢复短语"
+        },
+        "skip": {
+          "title": "跳过此步骤？",
+          "description": "跳过备份意味着如果您失去对该设备的访问权限，您将无法恢复您的钱包。",
+          "confirmCta": "是的，我已经保存了我的助记词"
         }
       }
     },
@@ -1848,33 +1871,6 @@
       },
       "testPhrase": {
         "header": "验证您的秘密恢复短语",
-        "body": "以下哪一个是",
-        "1st": "第一个",
-        "2nd": "第二个",
-        "3rd": "第三个",
-        "4th": "第四个",
-        "5th": "第五个",
-        "6th": "第六个",
-        "7th": "第七个",
-        "8th": "第八个",
-        "9th": "第九个",
-        "10th": "第十个",
-        "11th": "第十一个",
-        "12th": "第十二个",
-        "13th": "第十三个",
-        "14th": "第十四个",
-        "15th": "第十五个",
-        "16th": "第十六个",
-        "17th": "第十七个",
-        "18th": "第十八个",
-        "19th": "第十九个",
-        "20th": "第二十个",
-        "21th": "第二十一个",
-        "22th": "第二十二个",
-        "23th": "第二十三个",
-        "24th": "第二十四个",
-        "body2": " 单词",
-        "body3": "在你的助记词中？",
         "button": "下一步"
       },
       "rename": {
@@ -2012,6 +2008,8 @@
       "nextStep": "接下来，您将需要确认您的秘密恢复短语中某些单词的位置。",
       "button": "继续确认",
       "success": {
+        "title": "成功加入！",
+        "description": "您已成功验证您的秘密恢复短语。请确保安全存储它——这是恢复您钱包的唯一方式。",
         "viewWallet": "查看钱包"
       }
     }
@@ -2621,7 +2619,8 @@
       "title": "开始建立您的关注列表",
       "body": "无论您在何处看到星形图标，您都可以使用它在这里添加资产。",
       "cta": "探索更多资产"
-    }
+    },
+    "title": "关注列表"
   },
   "explore": {
     "pools": {
@@ -2632,9 +2631,8 @@
       "title": "借贷",
       "body": "用你的资产作为抵押进行借贷。"
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "质押 FOX 可赚取 RUNE。"
+    "foxEcosystem": {
+      "body": "您的 FOX 综合信息面板。"
     },
     "tcy": {
       "title": "TCY",
@@ -2960,12 +2958,6 @@
     "limitPrice": "限价",
     "expires": "到期时间",
     "filled": "已成交",
-    "swap": {
-      "processing": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在处理中。",
-      "complete": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已完成。",
-      "failed": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已失败。",
-      "streaming": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在流式执行中。"
-    },
     "streaming": "流式交换中",
     "claim": "领取",
     "protocol": "协议",
@@ -2982,11 +2974,26 @@
       "claimAvailable": "可领取",
       "unknown": "未知"
     },
+    "emptyState": {
+      "title": "欢迎来到 ShapeShift",
+      "body1": "这是您的通知中心。",
+      "body2": "在这里找到您正在进行中的交易。",
+      "startSwapping": "开始兑换"
+    },
+    "swap": {
+      "processing": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在处理中。",
+      "complete": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已完成。",
+      "failed": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已失败。",
+      "streaming": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在流式执行中。"
+    },
     "limitOrder": {
       "placed": "以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单",
       "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已成交。",
       "cancelled": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已取消。",
       "expired": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已过期。"
+    },
+    "rfox": {
+      "unstakeConfirmed": "您取消质押的 %{amount} FOX 将能够在 %{cooldownPeriod} 后领取"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

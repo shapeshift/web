@@ -1,6 +1,6 @@
 import { Button, HStack, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react'
 import { isSome } from '@shapeshiftoss/utils'
-import { Suspense, useCallback } from 'react'
+import { Suspense, useCallback, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { matchPath, useLocation, useNavigate } from 'react-router'
 
@@ -116,8 +116,11 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
   const l1_address = maybeClaimMatch?.params?.l1_address
   // Prefer claim from navigation state, fallback to lookup
   const selectedClaim = location.state?.selectedClaim as Claim | undefined
-  const activeClaim = selectedClaim || claims.find(c => c.l1_address === l1_address)
-  const isOpen = !!l1_address
+  const activeClaim = useMemo(
+    () => selectedClaim || claims.find(c => c.l1_address === l1_address),
+    [claims, l1_address, selectedClaim],
+  )
+  const isOpen = useMemo(() => Boolean(activeClaim), [activeClaim])
 
   const handleClick = useCallback(
     (claim: Claim) => {

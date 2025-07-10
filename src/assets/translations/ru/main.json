@@ -2993,6 +2993,7 @@
       "expired": "Срок действия вашего ордера на покупку %{buyAmountAndSymbol} за %{sellAmountAndSymbol} истек."
     },
     "rfox": {
+      "unstakeConfirmed": "Ваш вывод со стейкинга в размере %{amount} FOX будет доступен для получения через %{cooldownPeriod}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

@@ -420,6 +420,8 @@ export const useSendThorTx = ({
     depositWithExpiryInputData,
     fromAddress,
     selectedCurrency,
+    toast,
+    translate,
   ])
 
   return {

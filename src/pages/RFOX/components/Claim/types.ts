@@ -1,20 +1,13 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { JSX } from 'react'
 
+// All routes below are sub-routes and should only be consumed when already in the context of /#/rfox/claim/
 export enum ClaimRoutePaths {
-  Select = '/claim',
-  Confirm = '/claim/confirm',
-  Status = '/claim/status',
+  Select = '',
+  Confirm = ':claimId/confirm',
+  Status = ':claimId/status',
 }
 
 export type ClaimRouteProps = {
   headerComponent?: JSX.Element
   setStepIndex: (index: number) => void
-}
-
-export type RfoxClaimQuote = {
-  stakingAssetAccountId: AccountId
-  stakingAssetId: AssetId
-  stakingAmountCryptoBaseUnit: string
-  index: number
 }

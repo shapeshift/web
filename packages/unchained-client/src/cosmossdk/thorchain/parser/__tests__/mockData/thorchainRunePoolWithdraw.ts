@@ -20,10 +20,21 @@ const tx: Tx = {
       index: '0',
       origin: 'thor1cwxrd57zs697k68njqvklsash74revw82mslx4',
       from: 'thor1cwxrd57zs697k68njqvklsash74revw82mslx4',
-      to: 'thor1cwxrd57zs697k68njqvklsash74revw82mslx4',
+      to: '',
       type: 'deposit',
       value: {
         amount: '0',
+        denom: 'rune',
+      },
+    },
+    {
+      index: '0',
+      origin: 'thor1rzqfv62dzu585607s5awqtgnvvwz5rzhdtv772',
+      from: 'thor1rzqfv62dzu585607s5awqtgnvvwz5rzhdtv772',
+      to: 'thor1cwxrd57zs697k68njqvklsash74revw82mslx4',
+      type: 'rune_pool_withdraw',
+      value: {
+        amount: '2669457604',
         denom: 'rune',
       },
     },

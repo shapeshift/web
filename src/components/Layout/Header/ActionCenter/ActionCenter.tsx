@@ -20,15 +20,13 @@ import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
+import { RfoxClaimActionCard } from './components/RfoxClaimActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 
 import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { useAppUpdateActionSubscriber } from '@/hooks/useActionCenterSubscriber/useAppUpdateActionSubscriber'
-import { useLimitOrderActionSubscriber } from '@/hooks/useActionCenterSubscriber/useLimitOrderActionSubscriber'
-import { useSwapActionSubscriber } from '@/hooks/useActionCenterSubscriber/useSwapActionSubscriber'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
@@ -42,11 +40,7 @@ const paddingProp = { base: 4, md: 6 }
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 export const ActionCenter = memo(() => {
-  const { isDrawerOpen, openDrawer, closeDrawer } = useActionCenterContext()
-
-  useSwapActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
-  useLimitOrderActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
-  useAppUpdateActionSubscriber({ onDrawerOpen: openDrawer, isDrawerOpen })
+  const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -92,6 +86,9 @@ export const ActionCenter = memo(() => {
           case ActionType.GenericTransaction: {
             return <GenericTransactionActionCard key={action.id} action={action} />
           }
+          case ActionType.RfoxClaim: {
+            return <RfoxClaimActionCard key={action.id} action={action} />
+          }
           default:
             return null
         }
@@ -111,8 +108,8 @@ export const ActionCenter = memo(() => {
     if (pendingActions.length) {
       return (
         <Button
-          onClick={openDrawer}
-          aria-label={translate('notificationCenter.pendingTransactions', {
+          onClick={openActionCenter}
+          aria-label={translate('actionCenter.pendingTransactions', {
             count: pendingActions.length,
           })}
         >
@@ -124,7 +121,7 @@ export const ActionCenter = memo(() => {
             isIndeterminate
             me={2}
           />
-          {translate('notificationCenter.pendingTransactions', { count: pendingActions.length })}
+          {translate('actionCenter.pendingTransactions', { count: pendingActions.length })}
         </Button>
       )
     }
@@ -133,11 +130,11 @@ export const ActionCenter = memo(() => {
         <IconButton
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
-          onClick={openDrawer}
+          onClick={openActionCenter}
         />
       </Box>
     )
-  }, [openDrawer, translate, pendingActions])
+  }, [openActionCenter, translate, pendingActions])
 
   return (
     <>
@@ -156,14 +153,14 @@ export const ActionCenter = memo(() => {
             >
               <Flex alignItems='center' gap={2}>
                 <Icon as={TbBellFilled} color='text.subtle' />
-                {translate('notificationCenter.title')}
+                {translate('actionCenter.title')}
               </Flex>
             </DrawerHeader>
 
-            <Box pe={2}>
+            <Box pe={2} height='100%'>
               <Box
                 overflow='auto'
-                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
+                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)))'
               >
                 {actionCardsOrEmpty}
               </Box>

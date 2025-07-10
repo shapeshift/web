@@ -29,13 +29,6 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
     ),
   )
 
-  if (txData && txData.parser === 'ibc') {
-    return (
-      <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
-        IBC
-      </Tag>
-    )
-  }
   if (isNft) {
     return (
       <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>

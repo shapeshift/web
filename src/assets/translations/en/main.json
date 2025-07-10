@@ -2949,7 +2949,7 @@
       "getValidator": "Failed to get validator."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Notifications",
     "viewTransaction": "View Transaction",
     "viewOrder": "View Order",
@@ -2972,6 +2972,7 @@
       "failed": "Failed",
       "pending": "Pending",
       "claimAvailable": "Claim Available",
+      "claimed": "Claimed",
       "unknown": "Unknown"
     },
     "emptyState": {
@@ -2993,7 +2994,10 @@
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
     "rfox": {
-      "unstakeConfirmed": "Your unstake of %{amount} FOX will be available to claim in %{cooldownPeriod}."
+      "unstakeConfirmed": "Your unstake of %{amount} %{symbol} will be available to claim in %{cooldownPeriod}.",
+      "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim.",
+      "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending.",
+      "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

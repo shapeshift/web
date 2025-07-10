@@ -7,8 +7,9 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
-import { useLimitOrdersQuery } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
+import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -33,15 +34,8 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
-type UseLimitOrderActionSubscriberProps = {
-  onDrawerOpen: () => void
-  isDrawerOpen: boolean
-}
-
-export const useLimitOrderActionSubscriber = ({
-  onDrawerOpen,
-  isDrawerOpen,
-}: UseLimitOrderActionSubscriberProps) => {
+export const useLimitOrderActionSubscriber = () => {
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
@@ -55,7 +49,7 @@ export const useLimitOrderActionSubscriber = ({
   const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const activeQuoteId = useAppSelector(selectActiveQuoteId)
-  const { currentData: ordersResponse } = useLimitOrdersQuery()
+  const { currentData: ordersResponse } = useLimitOrders()
   const toast = useToast({
     position: 'bottom-right',
     duration: isDrawerOpen ? 5000 : null,
@@ -179,7 +173,11 @@ export const useLimitOrderActionSubscriber = ({
 
         toast({
           render: props => (
-            <LimitOrderNotification handleClick={onDrawerOpen} action={updatedAction} {...props} />
+            <LimitOrderNotification
+              handleClick={openActionCenter}
+              action={updatedAction}
+              {...props}
+            />
           ),
         })
       }
@@ -191,7 +189,7 @@ export const useLimitOrderActionSubscriber = ({
     activeQuoteId,
     actions,
     toast,
-    onDrawerOpen,
+    openActionCenter,
   ])
 
   // Update limit order action status when limit order is filled, cancelled or expired
@@ -238,7 +236,11 @@ export const useLimitOrderActionSubscriber = ({
 
         toast({
           render: props => (
-            <LimitOrderNotification handleClick={onDrawerOpen} action={updatedAction} {...props} />
+            <LimitOrderNotification
+              handleClick={openActionCenter}
+              action={updatedAction}
+              {...props}
+            />
           ),
         })
 
@@ -270,7 +272,11 @@ export const useLimitOrderActionSubscriber = ({
 
         toast({
           render: props => (
-            <LimitOrderNotification handleClick={onDrawerOpen} action={updatedAction} {...props} />
+            <LimitOrderNotification
+              handleClick={openActionCenter}
+              action={updatedAction}
+              {...props}
+            />
           ),
         })
 
@@ -291,7 +297,11 @@ export const useLimitOrderActionSubscriber = ({
         // @TODO: replace title by the notification UI product prepared
         toast({
           render: props => (
-            <LimitOrderNotification handleClick={onDrawerOpen} action={updatedAction} {...props} />
+            <LimitOrderNotification
+              handleClick={openActionCenter}
+              action={updatedAction}
+              {...props}
+            />
           ),
         })
 
@@ -309,7 +319,11 @@ export const useLimitOrderActionSubscriber = ({
         // @TODO: replace title by the notification UI product prepared
         toast({
           render: props => (
-            <LimitOrderNotification handleClick={onDrawerOpen} action={updatedAction} {...props} />
+            <LimitOrderNotification
+              handleClick={openActionCenter}
+              action={updatedAction}
+              {...props}
+            />
           ),
         })
 
@@ -324,6 +338,6 @@ export const useLimitOrderActionSubscriber = ({
     openLimitOrders,
     translate,
     actions,
-    onDrawerOpen,
+    openActionCenter,
   ])
 }

@@ -7,10 +7,10 @@ import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetch } from './hooks/useAccountsFetch'
 
-import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import { useActionCenterSubscribers } from '@/hooks/useActionCenterSubscribers/useActionCenterSubscribers'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -61,8 +61,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Previously <TransactionsProvider />
   useTransactionsSubscriber()
-  // App-wide long-poll of limit orders
-  useLimitOrders()
+  useActionCenterSubscribers()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

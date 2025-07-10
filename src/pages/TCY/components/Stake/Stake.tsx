@@ -101,7 +101,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const { getValues } = useFormContext<StakeFormValues>()
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
   const toast = useToast({
     duration: isDrawerOpen ? 5000 : null,
@@ -147,7 +147,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
       render: ({ onClose, ...props }) => {
         const handleClick = () => {
           onClose()
-          openDrawer()
+          openActionCenter()
         }
         return (
           <GenericTransactionNotification
@@ -168,7 +168,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
     stakeTxid,
     accountId,
     isDrawerOpen,
-    openDrawer,
+    openActionCenter,
     toast,
     translate,
   ])

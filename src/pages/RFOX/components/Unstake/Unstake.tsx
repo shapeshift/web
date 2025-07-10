@@ -1,8 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -13,8 +12,6 @@ import { UnstakeRoutePaths } from './types'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { fromBaseUnit } from '@/lib/math'
-import { getUnstakingRequestCountQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -78,20 +75,12 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const location = useLocation()
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openDrawer } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
   const translate = useTranslate()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
-
-  const stakingAssetAccountAddress = useMemo(() => {
-    return confirmedQuote ? fromAccountId(confirmedQuote.stakingAssetAccountId).account : undefined
-  }, [confirmedQuote])
-
-  const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
-    stakingAssetAccountAddress,
-  })
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote?.stakingAssetId ?? ''),
@@ -115,9 +104,10 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
         updatedAt: Date.now(),
         transactionMetadata: {
           displayType: GenericTransactionDisplayType.RFOX,
-          message: translate('notificationCenter.rfox.unstakeConfirmed', {
+          message: translate('actionCenter.rfox.unstakeConfirmed', {
             amount: amountCryptoPrecision,
             cooldownPeriod,
+            symbol: stakingAsset.symbol,
           }),
           txHash: unstakeTxid,
           chainId: stakingAsset.chainId,
@@ -133,7 +123,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       render: ({ onClose, ...props }) => {
         const handleClick = () => {
           onClose()
-          openDrawer()
+          openActionCenter()
         }
 
         return (
@@ -151,34 +141,31 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
+        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
       queryKey: getStakingBalanceOfQueryKey({
         stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
+        accountId: confirmedQuote.stakingAssetAccountId,
       }),
     })
     await queryClient.invalidateQueries({
-      queryKey: getUnstakingRequestCountQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountAddress,
-      }),
+      queryKey: [
+        'getUnstakingRequests',
+        { stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId },
+      ],
     })
-    await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
   }, [
     confirmedQuote,
     unstakeTxid,
     dispatch,
     isDrawerOpen,
-    openDrawer,
+    openActionCenter,
     toast,
     translate,
     stakingAsset,
     queryClient,
-    stakingAssetAccountAddress,
-    unstakingRequestQueryKey,
   ])
 
   const renderUnstakeInput = useCallback(() => {

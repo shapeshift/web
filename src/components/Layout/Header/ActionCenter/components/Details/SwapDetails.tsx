@@ -20,7 +20,7 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, swap }) => {
       {txLink && (
         <ButtonGroup width='full' size='sm'>
           <Button width='full' as={Link} isExternal href={txLink}>
-            {translate('notificationCenter.viewTransaction')}
+            {translate('actionCenter.viewTransaction')}
           </Button>
         </ButtonGroup>
       )}

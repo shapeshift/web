@@ -13,21 +13,40 @@ type MobileNavLinkProps = ButtonProps &
     order?: number
   }
 export const MobileNavLink = memo((props: MobileNavLinkProps) => {
-  const { label, shortLabel, path, icon, order, disable: _disable, ...rest } = props
+  const { label, shortLabel, path, icon, order, disable: _disable, relatedPaths, ...rest } = props
   const translate = useTranslate()
   const location = useLocation()
   const navigate = useNavigate()
+
   const isActive = useMemo(() => {
-    const match = matchPath(
-      {
-        path,
-        end: false,
-        caseSensitive: false,
-      },
-      location.pathname,
-    )
+    if (!relatedPaths?.length) {
+      const match = matchPath(
+        {
+          path,
+          end: false,
+          caseSensitive: false,
+        },
+        location.pathname,
+      )
+
+      return !!match
+    }
+
+    const match = relatedPaths.find(tradingPath => {
+      const match = matchPath(
+        {
+          path: tradingPath,
+          end: false,
+          caseSensitive: false,
+        },
+        location.pathname,
+      )
+
+      return !!match
+    })
+
     return !!match
-  }, [path, location.pathname])
+  }, [location.pathname, path, relatedPaths])
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

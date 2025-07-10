@@ -7,7 +7,6 @@ import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-do
 
 import { MainNavLink } from './MainNavLink'
 
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import type { Route } from '@/Routes/helpers'
@@ -102,23 +101,18 @@ export const NavBar = (props: NavBarProps) => {
                   },
                   pathname,
                 ) ||
-                (item.path === TradeRoutePaths.Input &&
-                  (!!matchPath(
-                    {
-                      path: '/limit',
-                      end: false,
-                      caseSensitive: false,
-                    },
-                    pathname,
-                  ) ||
-                    !!matchPath(
-                      {
-                        path: '/claim',
-                        end: false,
-                        caseSensitive: false,
-                      },
-                      pathname,
-                    )))
+                (item.relatedPaths &&
+                  !!item.relatedPaths.find(
+                    relatedPath =>
+                      !!matchPath(
+                        {
+                          path: relatedPath,
+                          end: false,
+                          caseSensitive: false,
+                        },
+                        pathname,
+                      ),
+                  ))
               }
             />
           ))}

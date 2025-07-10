@@ -1,4 +1,4 @@
-import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import { CardBody, CardFooter, Collapse, Skeleton, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   foxAssetId,
@@ -41,7 +41,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { selectRuneAddress } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -53,6 +53,7 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const formControlProps = {
   borderRadius: 0,
@@ -88,6 +89,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const navigate = useNavigate()
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -97,12 +100,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setStakingAssetId: setSelectedStakingAssetId,
     selectedAssetAccountId,
     stakingAssetAccountId,
-    supportedStakingAssetIds,
   } = useRFOXContext()
 
   const stakingAssetIds = useMemo(() => {
     return supportedStakingAssetIds.concat(l1AssetId)
-  }, [supportedStakingAssetIds, l1AssetId])
+  }, [l1AssetId])
 
   const assets = useAppSelector(selectAssets)
 
@@ -121,7 +123,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   const { data: currentRuneAddress } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectRuneAddress,
   })
@@ -351,6 +353,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [setSelectedStakingAssetId],
   )
 
+  const assetSelectButtonProps = useMemo(() => {
+    return {
+      maxWidth: isSmallerThanMd ? '100%' : undefined,
+    }
+  }, [isSmallerThanMd])
+
   const assetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
@@ -359,9 +367,18 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         onAssetChange={handleAssetChange}
         assetIds={stakingAssetIds}
         onlyConnectedChains={true}
+        buttonProps={assetSelectButtonProps}
+        showChainDropdown={!isSmallerThanMd}
       />
     )
-  }, [selectedStakingAsset?.assetId, handleStakingAssetClick, handleAssetChange, stakingAssetIds])
+  }, [
+    assetSelectButtonProps,
+    handleAssetChange,
+    handleStakingAssetClick,
+    isSmallerThanMd,
+    selectedStakingAsset?.assetId,
+    stakingAssetIds,
+  ])
 
   const validateHasEnoughStakingAssetFeeBalance = useCallback(
     (input: string) => {

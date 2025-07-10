@@ -1,5 +1,5 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -31,7 +31,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAssetById,
@@ -68,19 +68,18 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const translate = useTranslate()
   const navigate = useNavigate()
 
-  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId, supportedStakingAssetIds } =
-    useRFOXContext()
+  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
 
   useEffect(() => {
     if (supportedStakingAssetIds.includes(stakingAssetId)) return
     setStakingAssetId(supportedStakingAssetIds[0])
-  }, [stakingAssetId, setStakingAssetId, supportedStakingAssetIds])
+  }, [stakingAssetId, setStakingAssetId])
 
   const assets = useAppSelector(selectAssets)
 
   const stakingAssets = useMemo(() => {
     return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
-  }, [assets, supportedStakingAssetIds])
+  }, [assets])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetMarketData = useAppSelector(state =>
@@ -99,11 +98,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
-  )
-
-  const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -131,7 +125,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         onlyConnectedChains={true}
       />
     )
-  }, [stakingAssetId, handleStakingAssetClick, handleAssetChange, supportedStakingAssetIds])
+  }, [stakingAssetId, handleStakingAssetClick, handleAssetChange])
 
   const methods = useForm<UnstakeInputValues>({
     defaultValues: defaultFormValues,
@@ -199,7 +193,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    accountId: stakingAssetAccountId,
     stakingAssetId,
     select: selectStakingBalance,
   })
@@ -356,7 +350,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       </SlideTransition>
     )
 
-  if (!stakingAssetAccountAddress)
+  if (!stakingAssetAccountId)
     return (
       <SlideTransition>
         <Stack>{headerComponent}</Stack>

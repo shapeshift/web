@@ -98,13 +98,13 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   return (
     <Stack gap={4}>
       <Row fontSize='sm'>
-        <Row.Label>{translate('notificationCenter.pair')}</Row.Label>
+        <Row.Label>{translate('actionCenter.pair')}</Row.Label>
         <Row.Value>
           <RawText>{pair}</RawText>
         </Row.Value>
       </Row>
       <Row fontSize='sm'>
-        <Row.Label>{translate('notificationCenter.limitPrice')}</Row.Label>
+        <Row.Label>{translate('actionCenter.limitPrice')}</Row.Label>
         <Row.Value>
           <HStack>
             <Amount.Crypto value='1.0' symbol={sellAsset?.symbol ?? ''} />
@@ -118,7 +118,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
       </Row>
       {expires ? (
         <Row fontSize='sm'>
-          <Row.Label>{translate('notificationCenter.expires')}</Row.Label>
+          <Row.Label>{translate('actionCenter.expires')}</Row.Label>
           <Row.Value>
             <TransactionDate blockTime={expires} />
           </Row.Value>
@@ -126,7 +126,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
       ) : null}
       {executionPrice ? (
         <Row fontSize='sm'>
-          <Row.Label>{translate('notificationCenter.executionPrice')}</Row.Label>
+          <Row.Label>{translate('actionCenter.executionPrice')}</Row.Label>
           <Row.Value>
             <HoverTooltip placement='top' label={executionPriceCryptoFormatted}>
               <Amount.Crypto
@@ -139,7 +139,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
         </Row>
       ) : null}
       <Row fontSize='sm'>
-        <Row.Label>{translate('notificationCenter.filled')}</Row.Label>
+        <Row.Label>{translate('actionCenter.filled')}</Row.Label>
         <Row.Value display='flex' alignItems='center' gap={2}>
           <Progress width='100px' size='xs' value={filledPercentageHuman} colorScheme='green' />
           <RawText>{formattedFilled}</RawText>
@@ -152,12 +152,12 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
           isExternal
           width='full'
         >
-          {translate('notificationCenter.viewOrder')}
+          {translate('actionCenter.viewOrder')}
           <ExternalLinkIcon ml='2' />
         </Button>
         {status === ActionStatus.Open && (
           <Button width='full' onClick={handleCancelOrder}>
-            {translate('notificationCenter.cancelOrder')}
+            {translate('actionCenter.cancelOrder')}
           </Button>
         )}
       </ButtonGroup>

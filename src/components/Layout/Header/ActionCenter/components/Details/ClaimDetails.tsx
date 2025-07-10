@@ -7,7 +7,7 @@ export const ClaimDetails = () => {
     <Stack gap={4}>
       <ButtonGroup width='full' size='sm'>
         <Button width='full' colorScheme='green'>
-          {translate('notificationCenter.claim')}
+          {translate('actionCenter.claim')}
         </Button>
       </ButtonGroup>
     </Stack>

@@ -217,7 +217,7 @@
     "availableAssets": "Actifs disponibles"
   },
   "updateToast": {
-    "body": "Une nouvelle version de l'app est disponible",
+    "body": "Une mise à jour de l'app est disponible !",
     "cta": "Rafraîchir l'app",
     "keepKey": {
       "title": "Mise à jour KeepKey disponible",
@@ -249,6 +249,7 @@
       "marketCap": "Capitalisation du marché",
       "volume": "Volume",
       "sparkLine": "Sparkline",
+      "myCrypto": "Mes Cryptos",
       "empty": {
         "title": "Bruits de grillons...",
         "cta": "Envoyez-vous un peu de crypto !"
@@ -491,7 +492,7 @@
     "eligibleOpportunities": "Opportunités éligibles",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
     "netWorth": "Patrimoine net",
-    "loadingAccounts": "%{portfolioAccountsLoaded} comptes chargés (%{opportunityAccountsLoaded} mis à jour avec les positions actuelles)",
+    "loadingAccounts": "%{portfolioAccountsLoaded} comptes chargés",
     "walletBalance": "Solde du porte-monnaie",
     "earnBalance": "Solde dans Gagner",
     "rewardsBalance": "Solde des récompenses",
@@ -574,10 +575,10 @@
     "assetStakingBalance": "Solde des mises en %{assetSymbol}"
   },
   "navBar": {
+    "history": "Historique",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "Accueil",
-    "activity": "Activité",
     "myWallet": "Mon porte-monnaie",
     "dashboard": "Tableau de bord",
     "dashboardShort": "Tabl. de bord",
@@ -603,6 +604,7 @@
     "explore": "Explorer",
     "rewards": "Récompenses",
     "trade": "Échanger/Bridger",
+    "market": "Marché",
     "limitOrder": "Ordres à cours limité",
     "claims": "Réclamations",
     "tradeShort": "Échanger",
@@ -655,7 +657,6 @@
     "from": "De",
     "trade": "Échange",
     "swap": "Échange",
-    "swapWith": "Échanger avec %{dex}",
     "amount": "Montant",
     "for": "pour",
     "emptyMessage": "Vos transactions %{status} apparaîtront ici.",
@@ -847,6 +848,12 @@
       "warning": "Des tolérances de glissement/slippage élevées peuvent entraîner des transactions défavorables.",
       "lowSlippage": "Un glissement/slippage inférieur à 0,05 % peut faire échouer la transaction."
     },
+    "quoteDisplay": {
+      "title": "Affichage des devis",
+      "info": "Choisissez votre style d'affichage des devis.",
+      "basic": "Basique",
+      "advanced": "Avancé"
+    },
     "sort": {
       "sortBy": "Trier les devis par",
       "auto": "Auto",
@@ -884,7 +891,7 @@
     "viewTransaction": "Voir la transaction",
     "noQuotesAvailable": "Aucun devis disponible",
     "noQuotesAvailableDescription": "Aucun devis n'a été trouvé pour le moment. Essayez de sélectionner une autre paire.",
-    "availableSwappers": "Devis disponibles",
+    "availableSwappers": "Échanges disponibles",
     "unavailableSwappers": "Échanges indisponibles",
     "unlimited": "Illimitée",
     "streamStatus": "Statut du stream",
@@ -914,8 +921,6 @@
       "changeQuote": "Changer de devis",
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
-      "priceImpactLabel": "Impact sur le prix : %{priceImpactPercentage} %",
-      "priceImpact": "L'impact de votre transaction sur le prix du marché de ce pool.",
       "priceImpactWarning": "Un échange de cette taille peut avoir un impact élevé sur le prix compte tenu de la liquidité actuelle du pool. Il peut y avoir une grande différence entre la valeur de votre jeton d'entrée et ce que vous recevrez pour le jeton de sortie",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "protocol": "C'est le protocole avec lequel votre échange est routé.",
@@ -1043,7 +1048,9 @@
     "fiatAmountOnChain": "%{amountFiatFormatted} sur %{chainName}",
     "quote": {
       "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userSlippageFormatted}) pour %{swapperName}",
-      "slippage": "Glissement/Slippage : %{slippageFormatted}"
+      "gas": "Le carburant pour compléter la transaction avec cet échange.",
+      "slippage": "C'est le glissement/slippage de ce devis.",
+      "timeEstimate": "Il s’agit du temps estimé nécessaire pour que cet échange se termine."
     },
     "awaitingPermit2Approval": "En attente de transfert de jetons",
     "awaitingSwap": "En attente d'échange via %{swapperName}",
@@ -1264,7 +1271,9 @@
         "enterPassword": "Entrez votre mot de passe pour continuer",
         "testTitle": "Vérifier votre Phrase de Récupération Secrète",
         "title": "Confirmer la sauvegarde",
-        "description": "Effectuez ce test rapide pour confirmer que vous avez tout enregistré correctement.",
+        "description": "Veuillez appuyer sur la bonne réponse correspondant à votre phrase de récupération.",
+        "desktopDescription": "Effectuez ce test rapide pour confirmer que vous avez tout enregistré correctement.",
+        "wordNumber": "Mot n° %{number}",
         "confirm": {
           "title": "Sauvegarder le porte-monnaie",
           "body": "Avant d’oublier votre porte-monnaie, souhaitez-vous sauvegarder votre phrase de récupération secrète ?",
@@ -1278,6 +1287,16 @@
         "success": {
           "title": "Succès",
           "description": "Vous avez sauvegardé votre porte-monnaie. N'oubliez pas de stocker votre Phrase de Récupération Secrète dans un endroit sûr."
+        },
+        "error": {
+          "title": "Incorrect",
+          "description": "Un ou plusieurs des mots sélectionnés étaient incorrects.",
+          "reviewPhrase": "Examiner la phrase de récupération secrète"
+        },
+        "skip": {
+          "title": "Sauter cette étape ?",
+          "description": "Sauter l'étape de sauvegarde signifie que vous ne pourrez pas récupérer votre porte-monnaie si vous perdez l'accès à votre appareil.",
+          "confirmCta": "Oui, j’ai sauvegardé ma phrase de récupération"
         }
       }
     },
@@ -1852,33 +1871,6 @@
       },
       "testPhrase": {
         "header": "Vérifier votre Phrase de Récupération Secrète",
-        "body": "Lequel de ces éléments est le",
-        "1st": "1er",
-        "2nd": "2ème",
-        "3rd": "3ème",
-        "4th": "4ème",
-        "5th": "5ème",
-        "6th": "6ème",
-        "7th": "7ème",
-        "8th": "8ème",
-        "9th": "9ème",
-        "10th": "10ème",
-        "11th": "11ème",
-        "12th": "12ème",
-        "13th": "13ème",
-        "14th": "14ème",
-        "15th": "15ème",
-        "16th": "16ème",
-        "17th": "17ème",
-        "18th": "18ème",
-        "19th": "19ème",
-        "20th": "20ème",
-        "21th": "21ème",
-        "22th": "22ème",
-        "23th": "23ème",
-        "24th": "24ème",
-        "body2": " mot",
-        "body3": "dans votre phrase secrète ?",
         "button": "Suivant"
       },
       "rename": {
@@ -2016,8 +2008,8 @@
       "nextStep": "Par la suite, il va vous être demandé de confirmer la position de certains mots dans votre Phrase de Récupération Secrète.",
       "button": "Continuer pour confirmer",
       "success": {
-        "title": "Sauvegarde confirmée",
-        "description": "Vous avez vérifié votre Phrase de Récupération Secrète. Conservez-la précieusement : c'est le seul moyen de récupérer votre porte-monnaie.",
+        "title": "C’est fait !",
+        "description": "Vous avez vérifié votre phrase secrète de récupération. Conservez-la précieusement : c'est le seul moyen de récupérer votre porte-monnaie.",
         "viewWallet": "Voir le porte-monnaie"
       }
     }
@@ -2627,7 +2619,8 @@
       "title": "Commencez à créer votre liste de suivi",
       "body": "Vous pouvez utiliser l'icône étoile partout où vous la voyez afin d'ajouter des actifs ici.",
       "cta": "Explorez plus d'actifs"
-    }
+    },
+    "title": "Liste de suivi"
   },
   "explore": {
     "pools": {
@@ -2638,9 +2631,8 @@
       "title": "Prêts",
       "body": "Empruntez grâce à vos actifs."
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "Misez des FOX, gagnez des RUNE."
+    "foxEcosystem": {
+      "body": "Votre tableau de bord pour tout ce qui concerne FOX."
     },
     "tcy": {
       "title": "TCY",
@@ -2866,11 +2858,11 @@
   },
   "markets": {
     "recommended": "Recommandé",
-    "watchlist": "Mes actifs suivis",
+    "watchlist": "Ma liste de suivi",
     "marketsBody": "Découvrez les cryptomonnaies les plus intéressantes. Suivez les meilleures performances, les jetons émergents, les opportunités DeFi et bien plus encore. Enregistrez, partagez et échangez vos favoris.",
     "watchlistEmpty": {
       "emptyTitle": "Aucun actif dans la liste de suivi",
-      "emptyBody": "Il semble que vous n'ayez pas encore ajouté d'actifs favori. Commencez à ajouter des actifs à votre liste de suivi dès maintenant pour les surveiller !"
+      "emptyBody": "Il semble que vous n'ayez pas encore ajouté d'actifs favoris. Commencez dès maintenant à ajouter des actifs à votre liste de suivi pour les surveiller !"
     },
     "emptyTitle": "Aucun actif trouvé",
     "emptyBody": "Aucun actif n'a été trouvé avec le filtre actuel. Affichez plus d'éléments en ajustant la chaîne sélectionnée.",
@@ -2966,12 +2958,6 @@
     "limitPrice": "Prix limite",
     "expires": "Expire",
     "filled": "Executé",
-    "swap": {
-      "processing": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de traitement.",
-      "complete": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est terminé.",
-      "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
-      "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming."
-    },
     "streaming": "En cours de streaming",
     "claim": "Réclamation",
     "protocol": "Protocole",
@@ -2988,11 +2974,26 @@
       "claimAvailable": "Réclamation disponible",
       "unknown": "Inconnu"
     },
+    "emptyState": {
+      "title": "Bienvenue sur ShapeShift",
+      "body1": "C'est votre centre d'actions.",
+      "body2": "Retrouvez ici les transactions en cours.",
+      "startSwapping": "Commencer à échanger"
+    },
+    "swap": {
+      "processing": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de traitement.",
+      "complete": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est terminé.",
+      "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
+      "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming."
+    },
     "limitOrder": {
       "placed": "Ordre à cours limité de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} placé",
       "complete": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a été exécuté avec succès.",
       "cancelled": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a été annulé.",
       "expired": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a expiré."
+    },
+    "rfox": {
+      "unstakeConfirmed": "Votre mise de %{amount} FOX pourra être réclamée dans %{cooldownPeriod}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

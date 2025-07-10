@@ -14,7 +14,6 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
-import { TCYClaimRoute } from '@/pages/TCY/types'
 import type { TcyClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
@@ -158,4 +157,3 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
     </ActionCard>
   )
 }
-

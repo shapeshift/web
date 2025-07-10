@@ -1,8 +1,8 @@
 import { Button, HStack, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react'
 import { isSome } from '@shapeshiftoss/utils'
-import { Suspense, useCallback, useState } from 'react'
+import { Suspense, useCallback } from 'react'
 import { FaGift } from 'react-icons/fa'
-import { matchPath, useLocation, useNavigate, useParams } from 'react-router'
+import { matchPath, useLocation, useNavigate } from 'react-router'
 
 import { useTCYClaims } from '../../queries/useTcyClaims'
 import type { TCYRouteProps } from '../../types'

@@ -142,16 +142,16 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       if (!txid) return
 
       setClaimTxid(txid)
-      navigate(TCYClaimRoute.Status)
+      navigate(TCYClaimRoute.Status, { state: { selectedClaim: claim } })
     },
   })
 
   const handleConfirm = useCallback(async () => {
     if (isSweepNeeded) {
-      return navigate(TCYClaimRoute.Sweep)
+      return navigate(TCYClaimRoute.Sweep, { state: { selectedClaim: claim } })
     }
     await handleClaim()
-  }, [handleClaim, isSweepNeeded, navigate])
+  }, [handleClaim, isSweepNeeded, navigate, claim])
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, claim.assetId))
 

@@ -92,8 +92,8 @@ const ClaimRoutes = ({
 
   const handleSweepSeen = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['isSweepNeeded'] })
-    navigate(TCYClaimRoute.Confirm)
-  }, [navigate, queryClient])
+    navigate(TCYClaimRoute.Confirm, { state: { selectedClaim: claim } })
+  }, [navigate, queryClient, claim])
 
   const handleSweepBack = useCallback(() => {
     navigate(-1)

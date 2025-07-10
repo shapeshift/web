@@ -15,7 +15,7 @@ import { bn } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { RfoxRoute } from '@/pages/RFOX/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -162,6 +162,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   return (
     <ActionCard
       type={action.type}
+      displayType={GenericTransactionDisplayType.RFOX}
       formattedDate={formattedDate}
       isCollapsable={true}
       isOpen={isOpen}

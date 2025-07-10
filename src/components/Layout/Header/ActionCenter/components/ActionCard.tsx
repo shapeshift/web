@@ -63,11 +63,9 @@ export const ActionCard = ({
       <Flex gap={4} alignItems='flex-start' px={4} py={4}>
         {icon}
         <Stack spacing={0} width='full'>
-          <HStack fontSize='sm' justifyContent='space-between' fontWeight='medium'>
+          <HStack fontSize='xs' justifyContent='space-between' fontWeight='medium'>
             <RawText>{displayType ?? type}</RawText>
-            <RawText fontSize='xs' color='text.subtle'>
-              {formattedDate}
-            </RawText>
+            <RawText color='text.subtle'>{formattedDate}</RawText>
           </HStack>
           <HStack onClick={handleClick}>
             <Stack spacing={1} width='full'>

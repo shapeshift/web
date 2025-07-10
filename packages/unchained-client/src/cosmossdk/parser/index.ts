@@ -59,7 +59,7 @@ export class BaseTransactionParser<T extends Tx> {
       data: parserResults?.data,
     }
 
-    tx.messages.forEach((msg, i) => {
+    tx.messages.forEach(msg => {
       const { from, to, value, origin } = msg
 
       // We use origin for fees because some txs have a different from and origin addresses
@@ -71,12 +71,12 @@ export class BaseTransactionParser<T extends Tx> {
         }
       }
 
-      const assetId = getAssetIdByDenom(value?.denom, this.assetId)
+      const assetId = getAssetIdByDenom(value?.denom)
 
       if (!assetId) return
 
       // attempt to get transaction metadata from the raw messages and events if not already found by a subparser
-      if (i === 0 && !parsedTx.data) parsedTx.data = metaData(msg, tx.events[msg.index], assetId)
+      if (!parsedTx.data) parsedTx.data = metaData(msg, tx.events[msg.index])
 
       const amount = new BigNumber(value?.amount ?? -1)
 

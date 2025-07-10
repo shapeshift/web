@@ -21,9 +21,7 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, swap, displayT
   return (
     <Stack gap={4}>
       {isStreaming && <StreamingSwapDetails swap={swap} />}
-      {displayType === SwapDisplayType.Bridge && !txLink && !isStreaming && (
-        <BridgeWithEtaDetails swap={swap} />
-      )}
+      {displayType === SwapDisplayType.Bridge && <BridgeWithEtaDetails swap={swap} />}
       {txLink && (
         <ButtonGroup width='full' size='sm'>
           <Button width='full' as={Link} isExternal href={txLink}>

@@ -28,8 +28,8 @@ export enum ActionStatus {
 }
 
 export enum SwapDisplayType {
-  Swap = 'swap',
-  Bridge = 'bridge',
+  Swap = 'Swap',
+  Bridge = 'Bridge',
 }
 
 type ActionSwapMetadata = {

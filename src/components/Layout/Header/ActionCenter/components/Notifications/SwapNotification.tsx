@@ -1,6 +1,8 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { SwapStatus } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import { ActionStatusIcon } from '../ActionStatusIcon'
@@ -10,6 +12,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { SwapDisplayType } from '@/state/slices/actionSlice/types'
 import { selectSwapActionBySwapId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
@@ -29,6 +32,8 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
   const action = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
 
+  const { displayType = SwapDisplayType.Swap } = action?.swapMetadata ?? {}
+
   const swapNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!swap) return
 
@@ -44,6 +49,11 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
           display='inline'
         />
       ),
+      sellChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.sellAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
       buyAmountAndSymbol: (
         <Amount.Crypto
           value={swap.expectedBuyAmountCryptoPrecision}
@@ -55,17 +65,23 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
           display='inline'
         />
       ),
+      buyChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.buyAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
     }
   }, [swap])
 
   const swapTitleTranslation = useMemo(() => {
-    if (!swap) return 'actionCenter.swap.processing'
+    const displayKey = displayType.toLowerCase()
+    if (!swap) return `actionCenter.${displayKey}.processing`
     if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
-    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
+    if (swap.status === SwapStatus.Success) return `actionCenter.${displayKey}.complete`
+    if (swap.status === SwapStatus.Failed) return `actionCenter.${displayKey}.failed`
 
-    return 'actionCenter.swap.processing'
-  }, [swap])
+    return `actionCenter.${displayKey}.processing`
+  }, [displayType, swap])
 
   if (!swap) return null
 

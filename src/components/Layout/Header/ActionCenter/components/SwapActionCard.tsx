@@ -1,5 +1,7 @@
 import { Box, useDisclosure } from '@chakra-ui/react'
 import { SwapStatus } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -62,6 +64,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
           display='inline'
         />
       ),
+      sellChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.sellAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
       buyAmountAndSymbol: (
         <Amount.Crypto
           value={swap.expectedBuyAmountCryptoPrecision}
@@ -73,21 +80,22 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
           display='inline'
         />
       ),
-      buyChainName: (
+      buyChainShortName: (
         <Box display='inline' fontWeight='bold'>
-          {swap.buyAsset.networkName}
+          {getChainShortName(swap.buyAsset.chainId as KnownChainIds)}
         </Box>
       ),
     }
   }, [swap])
 
   const title = useMemo(() => {
-    if (!swap) return `actionCenter.${displayType}.processing`
+    const displayKey = displayType.toLowerCase()
+    if (!swap) return `actionCenter.${displayKey}.processing`
     if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return `actionCenter.${displayType}.complete`
-    if (swap.status === SwapStatus.Failed) return `actionCenter.${displayType}.failed`
+    if (swap.status === SwapStatus.Success) return `actionCenter.${displayKey}.complete`
+    if (swap.status === SwapStatus.Failed) return `actionCenter.${displayKey}.failed`
 
-    return `actionCenter.${displayType}.processing`
+    return `actionCenter.${displayKey}.processing`
   }, [displayType, swap])
 
   const icon = useMemo(() => {
@@ -126,6 +134,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   return (
     <ActionCard
       type={action.type}
+      displayType={displayType}
       formattedDate={formattedDate}
       isCollapsable={isCollapsable}
       isOpen={isOpen}

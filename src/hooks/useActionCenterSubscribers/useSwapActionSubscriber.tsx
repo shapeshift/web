@@ -75,23 +75,22 @@ export const useSwapActionSubscriber = () => {
 
     if (existingSwapAction) return
 
-    activeSwap.swapperName === SwapperName.ArbitrumBridge &&
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: uuidv4(),
-          createdAt: activeSwap.createdAt,
-          updatedAt: activeSwap.updatedAt,
-          type: ActionType.Swap,
-          status: ActionStatus.Pending,
-          swapMetadata: {
-            swapId: activeSwap.id,
-            displayType:
-              activeSwap.swapperName === SwapperName.ArbitrumBridge
-                ? SwapDisplayType.Bridge
-                : SwapDisplayType.Swap,
-          },
-        }),
-      )
+    dispatch(
+      actionSlice.actions.upsertAction({
+        id: uuidv4(),
+        createdAt: activeSwap.createdAt,
+        updatedAt: activeSwap.updatedAt,
+        type: ActionType.Swap,
+        status: ActionStatus.Pending,
+        swapMetadata: {
+          swapId: activeSwap.id,
+          displayType:
+            activeSwap.swapperName === SwapperName.ArbitrumBridge
+              ? SwapDisplayType.Bridge
+              : SwapDisplayType.Swap,
+        },
+      }),
+    )
   }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(

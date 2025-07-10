@@ -142,7 +142,7 @@ export const LimitOrderInput = ({
 
   const priceDirection = useAppSelector(selectLimitPriceDirection)
 
-  const { feeUsd } = calculateFeeUsd({ inputAmountUsd: bnOrZero(inputSellAmountUsd) })
+  const feeUsd = calculateFeeUsd({ inputAmountUsd: bnOrZero(inputSellAmountUsd) })
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({

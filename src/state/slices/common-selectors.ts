@@ -297,7 +297,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
     // Filters by low market-cap to avoid spew
     const filteredAssets = sortedAssets.filter(asset => {
       const marketCap = marketDataUsd[asset.assetId]?.marketCap
-      return !marketCap || bnOrZero(marketCap).gte(1000)
+      return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
     })
     const matchedAssets = matchSorter(filteredAssets, searchQuery, {
       keys: [

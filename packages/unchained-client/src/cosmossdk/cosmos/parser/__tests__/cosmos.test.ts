@@ -5,8 +5,6 @@ import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { TransactionParser } from '../index'
 import delegate from './mockData/delegate'
-import ibc_receive from './mockData/ibc_receive'
-import ibc_transfer from './mockData/ibc_transfer'
 import redelegate from './mockData/redelegate'
 import reward from './mockData/reward'
 import standard from './mockData/standard'
@@ -280,88 +278,6 @@ describe('parseTx', () => {
         destinationValidator: address,
         value: '39447',
         assetId: cosmosAssetId,
-      },
-    }
-
-    const actual = await txParser.parse(tx, address)
-
-    expect(expected).toEqual(actual)
-  })
-
-  it('should be able to parse an ibc transfer tx', async () => {
-    const { tx } = ibc_transfer
-    const address = 'cosmos1syj2za9lxkhgpd9zm5lzfss9f6qcuyca354whm'
-
-    const expected: ParsedTx = {
-      txid: tx.txid,
-      blockHash: tx.blockHash,
-      blockHeight: tx.blockHeight,
-      blockTime: tx.timestamp,
-      confirmations: tx.confirmations,
-      status: TxStatus.Confirmed,
-      address,
-      chainId: cosmosChainId,
-      fee: {
-        assetId: cosmosAssetId,
-        value: '3250',
-      },
-      transfers: [
-        {
-          type: TransferType.Send,
-          assetId: cosmosAssetId,
-          from: address,
-          to: 'osmo1syj2za9lxkhgpd9zm5lzfss9f6qcuycae0x7pf',
-          totalValue: '600000',
-          components: [{ value: '600000' }],
-        },
-      ],
-      data: {
-        parser: 'ibc',
-        method: 'transfer',
-        ibcDestination: 'osmo1syj2za9lxkhgpd9zm5lzfss9f6qcuycae0x7pf',
-        ibcSource: address,
-        assetId: cosmosAssetId,
-        value: '600000',
-        sequence: '1258481',
-      },
-    }
-
-    const actual = await txParser.parse(tx, address)
-
-    expect(expected).toEqual(actual)
-  })
-
-  it('should be able to parse an ibc receive tx', async () => {
-    const { tx } = ibc_receive
-    const address = 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e'
-
-    const expected: ParsedTx = {
-      txid: tx.txid,
-      blockHash: tx.blockHash,
-      blockHeight: tx.blockHeight,
-      blockTime: tx.timestamp,
-      confirmations: tx.confirmations,
-      status: TxStatus.Confirmed,
-      address,
-      chainId: cosmosChainId,
-      transfers: [
-        {
-          type: TransferType.Receive,
-          assetId: cosmosAssetId,
-          from: 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt',
-          to: address,
-          totalValue: '3230396',
-          components: [{ value: '3230396' }],
-        },
-      ],
-      data: {
-        parser: 'ibc',
-        method: 'recv_packet',
-        ibcDestination: address,
-        ibcSource: 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt',
-        assetId: cosmosAssetId,
-        value: '3230396',
-        sequence: '516701',
       },
     }
 

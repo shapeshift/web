@@ -124,6 +124,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       !assetReference ||
       !walletState.wallet ||
       !asset ||
+      !accountId ||
       !foxFarmingOpportunity
     )
       return
@@ -134,7 +135,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
 
-      if (contractAddress === ETH_FOX_STAKING_EVERGREEN_CONTRACT && asset && accountId) {
+      if (contractAddress === ETH_FOX_STAKING_EVERGREEN_CONTRACT) {
         const now = Date.now()
 
         appDispatch(

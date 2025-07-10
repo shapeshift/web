@@ -217,6 +217,7 @@
     "availableAssets": "Verfügbare Vermögenswerte"
   },
   "updateToast": {
+    "body": "Es ist ein App Update verfügbar!",
     "cta": "App neu laden",
     "keepKey": {
       "title": "KeepKey Aktualisierung \n verfügbar",
@@ -248,6 +249,7 @@
       "marketCap": "Marktkapitalisierung",
       "volume": "Volumen",
       "sparkLine": "Sparkline",
+      "myCrypto": "Meine Krypto",
       "empty": {
         "title": "Grillengeräusche...",
         "cta": "Schicken Sie sich ein paar Krypto!"
@@ -490,6 +492,7 @@
     "eligibleOpportunities": "Berechtigte Gelegenheiten",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
     "netWorth": "Nettovermögen",
+    "loadingAccounts": "Geladene %{portfolioAccountsLoaded} Konten",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
     "rewardsBalance": "Belohnungssaldo",
@@ -572,10 +575,10 @@
     "assetStakingBalance": "%{assetSymbol} Staking Kontostand"
   },
   "navBar": {
+    "history": "Verlauf",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "Startseite",
-    "activity": "Aktivität",
     "myWallet": "Meine Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
@@ -601,6 +604,7 @@
     "explore": "Entdecken",
     "rewards": "Belohnung",
     "trade": "Handeln/Bridge",
+    "market": "Markt",
     "limitOrder": "Limit Bestellungen",
     "claims": "Ansprüche",
     "tradeShort": "Handeln",
@@ -653,7 +657,6 @@
     "from": "Von",
     "trade": "Handeln",
     "swap": "Tauschen",
-    "swapWith": "Mit %{dex} tauschen",
     "amount": "Betrag",
     "for": "für",
     "emptyMessage": "Ihre %{status} Transaktionen werden hier angezeigt.",
@@ -845,6 +848,12 @@
       "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
       "lowSlippage": "Eine gesetzte Marktabweichung unter 0,05 % kann zu einer fehlgeschlagenen Transaktion führen."
     },
+    "quoteDisplay": {
+      "title": "Angebotsanzeige",
+      "info": "Wählen Sie Ihren Anzeigestil.",
+      "basic": "Normal",
+      "advanced": "Fortgeschritten"
+    },
     "sort": {
       "sortBy": "Angebote sortieren nach",
       "auto": "Auto",
@@ -912,8 +921,6 @@
       "changeQuote": "Angebot ändern",
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
-      "priceImpactLabel": "Preisauswirkung: %{priceImpactPercentage}%",
-      "priceImpact": "Die Auswirkung Ihres Handels auf den Marktpreis dieses Pools.",
       "priceImpactWarning": "Ein Swap dieser Größenordnung kann angesichts der aktuellen Liquidität im Pool erhebliche Auswirkungen auf den Preis haben. Es kann einen großen Unterschied zwischen der Menge Ihres Eingabe-Tokens und dem, was Sie als Ausgabe-Token erhalten, geben",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
@@ -1040,7 +1047,10 @@
     "resetTitle": "Token Genehmigungsbetrag zurücksetzen",
     "fiatAmountOnChain": "%{amountFiatFormatted} auf %{chainName}",
     "quote": {
-      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen"
+      "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen",
+      "gas": "Die Gasgebühren, um die Transaktion dieses Swappers abzuschließen.",
+      "slippage": "Dies ist die Abweichung bei diesem Angebot.",
+      "timeEstimate": "Dies ist die geschätzte Zeit, die für die Fertigstellung dieses Austauschs benötigt wird."
     },
     "awaitingPermit2Approval": "Auf Token Übertragung warten",
     "awaitingSwap": "Warte auf Tausch über %{swapperName}",
@@ -1261,6 +1271,9 @@
         "enterPassword": "Geben Sie Ihr Passwort ein, um fortzufahren",
         "testTitle": "Überprüfen Sie Ihre geheime Wiederherstellungsphrase",
         "title": "Sicherung bestätigen",
+        "description": "Tippen Sie bitte unten auf die richtige Antwort auf die Seed Phrasen.",
+        "desktopDescription": "Führen Sie diesen Kurztest durch, um zu bestätigen, dass Sie alles richtig gespeichert haben.",
+        "wordNumber": "Wort Nr. %{number}",
         "confirm": {
           "title": "Wallet sichern",
           "body": "Bevor Sie Ihre Wallet abmelden, möchten Sie Ihre geheime Wiederherstellungsphrase sichern?",
@@ -1274,6 +1287,16 @@
         "success": {
           "title": "Erfolgreich",
           "description": "Sie haben Ihre Wallet gesichert. Denken Sie daran, Ihre geheime Wiederherstellungsphrase an einem sicheren Ort aufzubewahren."
+        },
+        "error": {
+          "title": "Falsch",
+          "description": "Ein oder mehrere der ausgewählten Wörter waren falsch.",
+          "reviewPhrase": "Überprüfen Sie die geheime Wiederherstellungsphrase"
+        },
+        "skip": {
+          "title": "Diesen Schritt überspringen?",
+          "description": "Wenn Sie die Sicherung überspringen, können Sie Ihr Wallet nicht wiederherstellen, wenn Sie den Zugriff auf Ihr Gerät verlieren.",
+          "confirmCta": "Ja, ich habe meine Seed Phrase gespeichert"
         }
       }
     },
@@ -1848,33 +1871,6 @@
       },
       "testPhrase": {
         "header": "Überprüfen Sie Ihre geheime Wiederherstellungsphrase",
-        "body": "Welche davon ist das",
-        "1st": "1.",
-        "2nd": "2.",
-        "3rd": "3.",
-        "4th": "4.",
-        "5th": "5.",
-        "6th": "6.",
-        "7th": "7.",
-        "8th": "8.",
-        "9th": "9.",
-        "10th": "10.",
-        "11th": "11.",
-        "12th": "12.",
-        "13th": "13.",
-        "14th": "14.",
-        "15th": "15.",
-        "16th": "16.",
-        "17th": "17.",
-        "18th": "18.",
-        "19th": "19.",
-        "20th": "20.",
-        "21th": "21.",
-        "22th": "22.",
-        "23th": "23.",
-        "24th": "24.",
-        "body2": "Wort",
-        "body3": "in Ihrer Geheimphrase?",
         "button": "Weiter"
       },
       "rename": {
@@ -2012,6 +2008,8 @@
       "nextStep": "Als Nächstes werden Sie aufgefordert, die Positionen bestimmter Wörter in Ihrer geheimen Wiederherstellungsphrase zu bestätigen.",
       "button": "Weiter zur Bestätigung",
       "success": {
+        "title": "Geschafft",
+        "description": "Sie haben Ihre geheime Wiederherstellungsphrase verifiziert. Bewahren Sie sie sicher auf – nur so können Sie Ihr Wallet wiederherstellen.",
         "viewWallet": "Wallet anzeigen"
       }
     }
@@ -2621,7 +2619,8 @@
       "title": "Beginnen Sie mit dem Aufbau Ihrer Merkliste",
       "body": "Überall, wo Sie das Sternsymbol sehen, können Sie es verwenden, um Assets hinzuzufügen.",
       "cta": "Weitere Assets entdecken"
-    }
+    },
+    "title": "Merkliste"
   },
   "explore": {
     "pools": {
@@ -2632,9 +2631,8 @@
       "title": "Ausleihen",
       "body": "Nehmen Sie einen Kredit auf Ihr Vermögen auf."
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "Stake FOX verdiene RUNE."
+    "foxEcosystem": {
+      "body": "Ihr Dashboard für alles rund um FOX."
     },
     "tcy": {
       "title": "TCY",
@@ -2960,12 +2958,6 @@
     "limitPrice": "Limitpreis",
     "expires": "Läuft ab",
     "filled": "Ausgeführt",
-    "swap": {
-      "processing": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} wird verarbeitet.",
-      "complete": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist abgeschlossen.",
-      "failed": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist fehlgeschlagen.",
-      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} läuft."
-    },
     "streaming": "in Bearbeitung",
     "claim": "Anspruch",
     "protocol": "Protokoll",
@@ -2982,11 +2974,26 @@
       "claimAvailable": "Anspruch verfügbar",
       "unknown": "Unbekannt"
     },
+    "emptyState": {
+      "title": "Willkommen bei ShapeShift",
+      "body1": "Dies ist Ihr Aktionsfeld.",
+      "body2": "Hier finden Sie laufende Transaktionen.",
+      "startSwapping": "Beginnen Sie zu Tauschen"
+    },
+    "swap": {
+      "processing": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} wird verarbeitet.",
+      "complete": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist abgeschlossen.",
+      "failed": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist fehlgeschlagen.",
+      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} läuft."
+    },
     "limitOrder": {
       "placed": "Limit-Order von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} aufgegeben",
       "complete": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} wurde erfolgreich ausgeführt.",
       "cancelled": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} wurde storniert.",
       "expired": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} ist abgelaufen."
+    },
+    "rfox": {
+      "unstakeConfirmed": "Ihr freier Anteil von %{amount} FOX kann in %{cooldownPeriod} eingefordert werden."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

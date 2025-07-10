@@ -459,8 +459,6 @@ export const LimitOrderInput = ({
     isLimitOrderQuoteFetching,
   ])
 
-  console.log({ buyAmountCryptoBaseUnit, isLoading })
-
   const bodyContent = useMemo(() => {
     return (
       <SharedTradeInputBody

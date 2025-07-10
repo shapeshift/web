@@ -20,7 +20,7 @@ const tx: Tx = {
       index: '0',
       origin: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
       from: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
-      to: 'thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt',
+      to: '',
       type: 'deposit',
       value: {
         amount: '10000000',

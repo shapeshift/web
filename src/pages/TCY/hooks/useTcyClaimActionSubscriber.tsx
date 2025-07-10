@@ -3,7 +3,6 @@ import { useEffect } from 'react'
 import { useTCYClaims } from '../queries/useTcyClaims'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { selectPendingTcyClaimActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isTcyClaimAction } from '@/state/slices/actionSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -11,32 +10,8 @@ export const useTcyClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
 
   const allTcyClaims = useTCYClaims('all')
-
-  const pendingTcyClaimActions = useAppSelector(selectPendingTcyClaimActions)
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
-
-  useEffect(() => {
-    if (!pendingTcyClaimActions.length) return
-    const now = Date.now()
-
-    pendingTcyClaimActions.forEach(action => {
-      if (!action.tcyClaimActionMetadata.txHash) return
-
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: action.id,
-          status: ActionStatus.Claimed,
-          type: ActionType.TcyClaim,
-          createdAt: action.createdAt,
-          updatedAt: now,
-          tcyClaimActionMetadata: {
-            ...action.tcyClaimActionMetadata,
-          },
-        }),
-      )
-    })
-  }, [pendingTcyClaimActions, dispatch])
 
   useEffect(() => {
     if (!allTcyClaims.length) return

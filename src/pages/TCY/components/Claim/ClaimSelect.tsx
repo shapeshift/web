@@ -112,9 +112,8 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
     .flat()
     .filter(isSome)
 
-  // Check if the current route matches /tcy/claim/:l1_address
-  const match = matchPath('/tcy/claim/:l1_address', location.pathname)
-  const l1_address = match?.params?.l1_address
+  const maybeClaimMatch = matchPath('/tcy/claim/:l1_address', location.pathname)
+  const l1_address = maybeClaimMatch?.params?.l1_address
   // Prefer claim from navigation state, fallback to lookup
   const selectedClaim = location.state?.selectedClaim as Claim | undefined
   const activeClaim = selectedClaim || claims.find(c => c.l1_address === l1_address)

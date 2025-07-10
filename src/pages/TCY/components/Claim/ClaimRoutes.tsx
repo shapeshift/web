@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { lazy, useCallback, useState } from 'react'
+import { lazy, useCallback, useMemo, useState } from 'react'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -8,6 +8,10 @@ import { TCYClaimRoute } from '../../types'
 import type { Claim } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { selectPendingTcyClaimActions } from '@/state/slices/actionSlice/selectors'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -65,6 +69,12 @@ const ClaimRoutes = ({
   const location = useLocation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const dispatch = useAppDispatch()
+  const pendingTcyClaimActions = useAppSelector(selectPendingTcyClaimActions)
+  const maybePendingAction = useMemo(
+    () => pendingTcyClaimActions.find(a => a.id === claim?.l1_address),
+    [pendingTcyClaimActions, claim],
+  )
 
   const renderClaimConfirm = useCallback(() => {
     if (!claim) return null
@@ -76,8 +86,27 @@ const ClaimRoutes = ({
     if (claim?.accountId) {
       await queryClient.invalidateQueries({ queryKey: ['tcy-claims', claim.accountId] })
       await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
+
+      if (!maybePendingAction) return
+
+      const createdAt = maybePendingAction.createdAt ?? Date.now()
+
+      // Dispatch claimed action
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: claim.l1_address,
+          status: ActionStatus.Claimed,
+          type: ActionType.TcyClaim,
+          createdAt,
+          updatedAt: Date.now(),
+          tcyClaimActionMetadata: {
+            claim,
+            txHash: txId,
+          },
+        }),
+      )
     }
-  }, [claim?.accountId, queryClient])
+  }, [claim, txId, queryClient, dispatch, maybePendingAction])
 
   const renderClaimStatus = useCallback(() => {
     return (

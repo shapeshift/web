@@ -33,15 +33,15 @@ import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector, useAppDispatch } from '@/state/store'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   claim: Claim
@@ -145,7 +145,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       if (!txid) return
 
       setClaimTxid(txid)
-      // Dispatch pending TCY claim action
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: claim.l1_address,
@@ -157,7 +157,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
             claim,
             txHash: txid,
           },
-        })
+        }),
       )
       navigate(TCYClaimRoute.Status, { state: { selectedClaim: claim } })
     },

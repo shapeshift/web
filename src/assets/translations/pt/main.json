@@ -1273,6 +1273,7 @@
         "title": "Confirmar backup",
         "description": "Toque na resposta correta para as frases-semente abaixo.",
         "desktopDescription": "Conclua este teste rápido para confirmar se você salvou tudo corretamente.",
+        "wordNumber": "Palavra #%{number}",
         "confirm": {
           "title": "Carteira de backup",
           "body": "Antes de esquecer sua carteira, você gostaria de fazer um backup de sua frase secreta de recuperação?",

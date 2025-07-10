@@ -39,7 +39,9 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppSelector, useAppDispatch } from '@/state/store'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 
 type ClaimConfirmProps = {
   claim: Claim
@@ -75,6 +77,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const {
     state: { isConnected },
   } = useWallet()
+  const dispatch = useAppDispatch()
   const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
@@ -142,6 +145,20 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       if (!txid) return
 
       setClaimTxid(txid)
+      // Dispatch pending TCY claim action
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: claim.l1_address,
+          status: ActionStatus.Pending,
+          type: ActionType.TcyClaim,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          tcyClaimActionMetadata: {
+            claim,
+            txHash: txid,
+          },
+        })
+      )
       navigate(TCYClaimRoute.Status, { state: { selectedClaim: claim } })
     },
   })

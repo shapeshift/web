@@ -90,7 +90,7 @@ const MobileHome = memo(() => {
     (index: MobileTab) => {
       setActiveTabIndex(index)
       const newPath = getPathFromTabIndex(index)
-      if (location.pathname !== newPath) navigate(newPath, { replace: true })
+      if (location.pathname !== newPath) navigate(newPath, { replace: false })
     },
     [location.pathname, navigate, getPathFromTabIndex],
   )

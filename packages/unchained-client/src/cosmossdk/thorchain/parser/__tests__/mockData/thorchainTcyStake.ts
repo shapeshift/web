@@ -20,11 +20,11 @@ const tx: Tx = {
       index: '0',
       origin: 'thor1s7naj6kzxpudy64zka8h5w7uffnzmhzluwtz83',
       from: 'thor1s7naj6kzxpudy64zka8h5w7uffnzmhzluwtz83',
-      to: 'thor128a8hqnkaxyqv7qwajpggmfyudh64jl3c32vyv',
+      to: '',
       type: 'deposit',
       value: {
         amount: '271800000000',
-        denom: 'thor.tcy',
+        denom: 'tcy',
       },
     },
   ],

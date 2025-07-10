@@ -278,8 +278,8 @@ const processRelatedAssetIds = async (
 }
 
 // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
-export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
-  console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
+export const generateRelatedAssetIndex = async () => {
+  console.log('generateRelatedAssetIndex() starting')
 
   const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
   const encodedRelatedAssetIndex = JSON.parse(
@@ -290,8 +290,7 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
   const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
   // Remove stale related asset data from the assetData where:
-  // a) rebuildAll is set
-  // b) the primary related asset no longer exists in the dataset
+  // a) the primary related asset no longer exists in the dataset
   Object.values(generatedAssetData).forEach(asset => {
     const relatedAssetKey = asset.relatedAssetKey
 
@@ -300,7 +299,7 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
     const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
 
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    if (rebuildAll || primaryRelatedAsset === undefined) {
+    if (primaryRelatedAsset === undefined) {
       delete relatedAssetIndex[relatedAssetKey]
       delete asset.relatedAssetKey
     }

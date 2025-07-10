@@ -38,7 +38,6 @@ import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from './constants'
-import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
@@ -50,7 +49,6 @@ import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
-  const cosmosAssets = await cosmos.getAssets()
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
@@ -74,7 +72,6 @@ const generateAssetData = async () => {
     unfreeze(mayachain),
     unfreeze(maya),
     ...ethAssets,
-    ...cosmosAssets,
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,

@@ -59,7 +59,7 @@ export class BaseTransactionParser<T extends Tx> {
       data: parserResults?.data,
     }
 
-    tx.messages.forEach((msg, i) => {
+    tx.messages.forEach(msg => {
       const { from, to, value, origin } = msg
 
       // We use origin for fees because some txs have a different from and origin addresses
@@ -71,12 +71,12 @@ export class BaseTransactionParser<T extends Tx> {
         }
       }
 
-      const assetId = getAssetIdByDenom(value?.denom, this.assetId)
+      const assetId = getAssetIdByDenom(value?.denom)
 
       if (!assetId) return
 
       // attempt to get transaction metadata from the raw messages and events if not already found by a subparser
-      if (i === 0 && !parsedTx.data) parsedTx.data = metaData(msg, tx.events[msg.index], assetId)
+      if (!parsedTx.data) parsedTx.data = metaData(msg, tx.events[msg.index])
 
       const amount = new BigNumber(value?.amount ?? -1)
 
@@ -101,34 +101,6 @@ export class BaseTransactionParser<T extends Tx> {
           type: TransferType.Receive,
           value: amount.toString(10),
         })
-      }
-
-      const isSpecialDepositEvent = (() => {
-        for (const event of ['rune_pool_withdraw', 'tcy_unstake']) {
-          if (tx.events[msg.index][event]) return true
-        }
-        return false
-      })()
-
-      // special case for rune pool withdraw transfer (no message emitted so parsing of events for transfer is required)
-      if (msg.type === 'deposit' && isSpecialDepositEvent) {
-        const transfer = tx.events[msg.index]['transfer']
-
-        const regex = /^(?<value>\d+)(?<denom>[a-zA-Z]+)$/
-        const match = transfer?.amount.match(regex)
-
-        if (match?.groups) {
-          const { value, denom } = match.groups
-
-          parsedTx.transfers = aggregateTransfer({
-            assetId: getAssetIdByDenom(denom, this.assetId) ?? assetId,
-            from: transfer.sender,
-            to: transfer.recipient,
-            transfers: parsedTx.transfers,
-            type: TransferType.Receive,
-            value,
-          })
-        }
       }
     })
 

@@ -685,7 +685,7 @@ describe('parseTx', () => {
         {
           type: TransferType.Send,
           from: address,
-          to: 'thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt',
+          to: '',
           assetId: thorchainAssetId,
           totalValue: '10000000',
           components: [{ value: '10000000' }],
@@ -727,7 +727,7 @@ describe('parseTx', () => {
         {
           type: TransferType.Send,
           from: address,
-          to: address,
+          to: '',
           assetId: thorchainAssetId,
           totalValue: '0',
           components: [{ value: '0' }],
@@ -777,7 +777,7 @@ describe('parseTx', () => {
         {
           type: TransferType.Send,
           from: address,
-          to: 'thor128a8hqnkaxyqv7qwajpggmfyudh64jl3c32vyv',
+          to: '',
           assetId: tcyAssetId,
           totalValue: '271800000000',
           components: [{ value: '271800000000' }],
@@ -816,7 +816,7 @@ describe('parseTx', () => {
         {
           type: TransferType.Send,
           from: address,
-          to: address,
+          to: '',
           assetId: thorchainAssetId,
           totalValue: '0',
           components: [{ value: '0' }],

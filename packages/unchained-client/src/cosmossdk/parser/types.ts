@@ -8,7 +8,6 @@ export type Tx = cosmossdk.Tx
 
 export type TxMetadata =
   | StakingMetadata
-  | IbcMetadata
   | LpMetadata
   | thorchain.TxMetadata
   | mayachain.TxMetadata
@@ -21,15 +20,6 @@ export interface StakingMetadata extends BaseTxMetadata {
   destinationValidator: string
   assetId: string
   value: string
-}
-
-export interface IbcMetadata extends BaseTxMetadata {
-  parser: 'ibc'
-  ibcDestination: string
-  ibcSource: string
-  assetId: string
-  value: string
-  sequence: string
 }
 
 export interface LpMetadata extends BaseTxMetadata {

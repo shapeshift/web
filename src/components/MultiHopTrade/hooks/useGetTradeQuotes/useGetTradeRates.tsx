@@ -53,7 +53,7 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
 export const TRADE_QUOTE_TIMER_UPDATE_MS = 100 // How often UI timer updates for smooth display
 const TRADE_QUOTE_CHECK_INTERVAL_MS = 1000 // How often to check if refresh is needed (internal only)
-export const TRADE_QUOTE_REFRESH_PENDING_TIMEOUT = 5000 // Maximum "pending" time when waiting for quotes to refresh
+export const TRADE_QUOTE_REFRESH_PENDING_TIMEOUT = 10_000 // Maximum "pending" time when waiting for quotes to refresh
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName

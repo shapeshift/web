@@ -15,11 +15,16 @@ type QuoteTimerProps = {
   size?: string | number
 }
 
+const getElapsed = (lastRefreshTime: number) => {
+  const elapsed = Date.now() - lastRefreshTime
+  return Math.max(0, TRADE_QUOTE_REFRESH_INTERVAL_MS - elapsed)
+}
+
 export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
   const lastRefreshTime = useAppSelector(selectLastRefreshTime)
   const isRefreshPending = useAppSelector(selectIsRefreshPending)
 
-  const [timeRemaining, setTimeRemaining] = useState(TRADE_QUOTE_REFRESH_INTERVAL_MS)
+  const [timeRemaining, setTimeRemaining] = useState(() => getElapsed(lastRefreshTime))
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,9 +32,7 @@ export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
         // During pending state, set timer to max in anticipation of restart (better animation)
         setTimeRemaining(TRADE_QUOTE_REFRESH_INTERVAL_MS)
       } else {
-        const elapsed = Date.now() - lastRefreshTime
-        const remaining = Math.max(0, TRADE_QUOTE_REFRESH_INTERVAL_MS - elapsed)
-        setTimeRemaining(remaining)
+        setTimeRemaining(getElapsed(lastRefreshTime))
       }
     }, TRADE_QUOTE_TIMER_UPDATE_MS)
 

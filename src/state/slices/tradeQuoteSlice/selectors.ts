@@ -650,8 +650,12 @@ export const selectShouldBlockQuoteRefresh = createSelector(
   selectIsTradeQuoteApiQueryPending,
   selectHasUserEnteredAmount,
   (isApiQueryPending, hasUserEnteredAmount) => {
-    const pendingArr = Object.values(isApiQueryPending)
-    return pendingArr.length === 0 || pendingArr.some(pending => pending) || !hasUserEnteredAmount
+    const isQueryPendingArr = Object.values(isApiQueryPending)
+    return (
+      isQueryPendingArr.length === 0 ||
+      isQueryPendingArr.some(pending => pending) ||
+      !hasUserEnteredAmount
+    )
   },
 )
 

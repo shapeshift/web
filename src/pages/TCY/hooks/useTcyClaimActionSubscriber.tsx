@@ -43,7 +43,5 @@ export const useTcyClaimActionSubscriber = () => {
         }),
       )
     })
-    // We definitely don't want to react on assets here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTcyClaims, dispatch, actionIds])
+  }, [allTcyClaims, dispatch, actionIds, actions])
 }

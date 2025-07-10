@@ -1,15 +1,13 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { assertAndProcessMemo, depositWithExpiry } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { getAddress, zeroAddress } from 'viem'
 
 import { fromThorBaseUnit, getThorchainTransactionType } from '..'
@@ -19,6 +17,7 @@ import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { assertUnreachable } from '@/lib/utils'
 import { assertGetThorchainChainAdapter } from '@/lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
@@ -86,8 +85,6 @@ export const useSendThorTx = ({
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
-  const toast = useToast()
-  const translate = useTranslate()
 
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -415,8 +412,6 @@ export const useSendThorTx = ({
     action,
     shouldUseDustAmount,
     amountOrDustCryptoBaseUnit,
-    toast,
-    translate,
     depositWithExpiryInputData,
     fromAddress,
     selectedCurrency,

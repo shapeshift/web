@@ -368,7 +368,7 @@ export const LimitOrderConfig = ({
         <Alert status='warning' mt={2} borderRadius='md'>
           <AlertIcon />
           <AlertTitle fontSize='sm'>
-            {translate('limitOrder.highNetworkFeeImpact', {
+            {translate('limitOrder.highCowFeeImpact', {
               percentage: bnOrZero(networkFeesImpactDecimalPercentage).times(100).toFixed(0),
               sellAssetSymbol: sellAsset.symbol,
               cryptoImpact: networkFeesImpactCryptoPrecision,

@@ -1,6 +1,6 @@
-import { CircularProgress } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import {
   TRADE_QUOTE_REFRESH_INTERVAL_MS,
   TRADE_QUOTE_TIMER_UPDATE_MS,

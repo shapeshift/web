@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useActionCenterContext } from '../ActionCenterContext'
 import { ActionCard } from './ActionCard'
@@ -56,17 +56,10 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
-      // Prevent card collapse
       e.stopPropagation()
-
-      // Close the drawer as early as possible
       closeDrawer()
-
-      navigate(TCYClaimRoute.Confirm, {
-        state: {
-          selectedClaim: action.tcyClaimActionMetadata.claim,
-        },
-      })
+      const claim = action.tcyClaimActionMetadata.claim
+      navigate(`/tcy/claim/${claim.l1_address}`, { state: { selectedClaim: claim } })
     },
     [navigate, closeDrawer, action.tcyClaimActionMetadata.claim],
   )

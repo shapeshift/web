@@ -1,7 +1,8 @@
-import { Button, HStack, Skeleton, SkeletonCircle, Stack, useDisclosure } from '@chakra-ui/react'
+import { Button, HStack, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react'
 import { isSome } from '@shapeshiftoss/utils'
 import { Suspense, useCallback, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
+import { matchPath, useLocation, useNavigate, useParams } from 'react-router'
 
 import { useTCYClaims } from '../../queries/useTcyClaims'
 import type { TCYRouteProps } from '../../types'
@@ -103,21 +104,32 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
   headerComponent,
   activeAccountNumber,
 }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [activeClaim, setActiveClaim] = useState<Claim | undefined>()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const claimsQueries = useTCYClaims(activeAccountNumber)
+  const claims = claimsQueries
+    .map(query => query.data)
+    .flat()
+    .filter(isSome)
+
+  // Check if the current route matches /tcy/claim/:l1_address
+  const match = matchPath('/tcy/claim/:l1_address', location.pathname)
+  const l1_address = match?.params?.l1_address
+  // Prefer claim from navigation state, fallback to lookup
+  const selectedClaim = location.state?.selectedClaim as Claim | undefined
+  const activeClaim = selectedClaim || claims.find(c => c.l1_address === l1_address)
+  const isOpen = !!l1_address
 
   const handleClick = useCallback(
     (claim: Claim) => {
-      setActiveClaim(claim)
-      onOpen()
+      navigate(`/tcy/claim/${claim.l1_address}`, { state: { selectedClaim: claim } })
     },
-    [onOpen],
+    [navigate],
   )
 
   const handleClose = useCallback(() => {
-    setActiveClaim(undefined)
-    onClose()
-  }, [onClose])
+    navigate('/tcy')
+  }, [navigate])
 
   return (
     <SlideTransition>

@@ -242,6 +242,7 @@ export const useSwapActionSubscriber = () => {
             ...swap,
             statusMessage: message,
             buyTxHash,
+            txLink: txLink === '' ? undefined : txLink,
           }),
         )
       }

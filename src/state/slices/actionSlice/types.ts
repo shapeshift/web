@@ -6,14 +6,13 @@ import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderIn
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 
 export enum ActionType {
-  Deposit = 'Deposit',
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
   GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
   RfoxClaim = 'RfoxClaim',
-  EvergreenDeposit = 'EvergreenDeposit',
+  EvergreenDeposit = 'Deposit',
 }
 
 export enum ActionStatus {

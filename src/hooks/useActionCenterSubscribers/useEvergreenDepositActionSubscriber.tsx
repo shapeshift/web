@@ -35,7 +35,7 @@ export const useEvergreenDepositActionSubscriber = () => {
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
   const pendingEvergreenActions = useAppSelector(selectPendingEvergreenDepositActions)
-  const txById = useAppSelector(selectTxs)
+  const txs = useAppSelector(selectTxs)
 
   // Watch transaction status directly for each pending action
   useEffect(() => {
@@ -47,7 +47,7 @@ export const useEvergreenDepositActionSubscriber = () => {
 
       const accountAddress = fromAccountId(accountId).account
       const serializedTxIndex = serializeTxIndex(accountId, stakeTxHash, accountAddress)
-      const transaction = txById[serializedTxIndex]
+      const transaction = txs[serializedTxIndex]
 
       if (
         !transaction ||
@@ -75,5 +75,5 @@ export const useEvergreenDepositActionSubscriber = () => {
         ),
       })
     })
-  }, [pendingEvergreenActions, isConnected, dispatch, toast, txById, openActionCenter])
+  }, [pendingEvergreenActions, isConnected, dispatch, toast, openActionCenter, txs])
 }

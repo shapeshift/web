@@ -2999,6 +2999,11 @@
       "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending.",
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
     },
+    "tcy": {
+      "claimReady": "Your TCY claim of %{amount} %{symbol} is ready",
+      "claimTxPending": "Your TCY claim of %{amount} %{symbol} is pending.",
+      "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
+    },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",

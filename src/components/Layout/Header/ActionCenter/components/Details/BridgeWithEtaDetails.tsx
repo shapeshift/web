@@ -1,8 +1,7 @@
 import { Progress } from '@chakra-ui/react'
-import { createApi } from '@reduxjs/toolkit/query'
 import type { Swap } from '@shapeshiftoss/swapper'
 import { SwapStatus } from '@shapeshiftoss/swapper'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Row } from '@/components/Row/Row'
@@ -24,12 +23,12 @@ export const BridgeWithEtaDetails: React.FC<BridgeWithEtaDetailsProps> = ({ swap
   const isSwapComplete = swap.status === SwapStatus.Success
 
   useEffect(() => {
-    const progressInterval = setInterval((): void => {
-      if (swap.status === SwapStatus.Success || estimatedExecutionTimeMs === undefined) {
-        setProgress(100)
-        return
-      }
+    if (isSwapComplete || !estimatedExecutionTimeMs) {
+      setProgress(100)
+      return
+    }
 
+    const progressInterval = setInterval(() => {
       const msSinceCreate = Date.now() - createdAt
 
       const derivedProgress = Math.min(
@@ -43,10 +42,12 @@ export const BridgeWithEtaDetails: React.FC<BridgeWithEtaDetailsProps> = ({ swap
     return () => {
       clearInterval(progressInterval)
     }
-  }, [createdAt, estimatedExecutionTimeMs, swap.status])
+  }, [createdAt, estimatedExecutionTimeMs, isSwapComplete])
 
-  const totalMinutes = Math.round((estimatedExecutionTimeMs ?? 0) / 1000 / 60)
-  const elapsedMinutes = Math.round((progress / 100) * totalMinutes)
+  const timeLeft = useMemo(() => {
+    const remainingMs = (estimatedExecutionTimeMs ?? 0) * (1 - progress / 100)
+    return Math.round(remainingMs / 60000)
+  }, [estimatedExecutionTimeMs, progress])
 
   return (
     <Row fontSize='sm' alignItems='center'>
@@ -57,10 +58,10 @@ export const BridgeWithEtaDetails: React.FC<BridgeWithEtaDetailsProps> = ({ swap
           size='xs'
           value={progress}
           colorScheme={isSwapComplete ? 'green' : 'blue'}
-          isAnimated={true}
+          isAnimated
           hasStripe={isSwapComplete ? false : true}
         />
-        {translate('actionCenter.bridge.progress', { totalMinutes, elapsedMinutes })}
+        {translate('actionCenter.bridge.progress', { timeLeft })}
       </Row.Value>
     </Row>
   )

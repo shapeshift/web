@@ -31,7 +31,7 @@ import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionType, SwapDisplayType } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType, SwapDisplayType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 

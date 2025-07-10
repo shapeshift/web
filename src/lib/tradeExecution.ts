@@ -116,9 +116,6 @@ export class TradeExecution {
 
       const hop = getHopByIndex(tradeQuote, stepIndex)
 
-      console.log('LES GOOOO')
-      console.log({ tradeQuote, stepIndex, hop })
-
       if (!hop) {
         throw new Error(`No hop found for stepIndex ${stepIndex}`)
       }

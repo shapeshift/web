@@ -1,4 +1,4 @@
-import { usePrevious, useToast } from '@chakra-ui/react'
+import { usePrevious } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
+import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
@@ -40,10 +41,7 @@ export const useSwapActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
-  const toast = useToast({
-    duration: isDrawerOpen ? 5000 : null,
-    position: 'bottom-right',
-  })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingSwapActions = useAppSelector(selectPendingSwapActions)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)

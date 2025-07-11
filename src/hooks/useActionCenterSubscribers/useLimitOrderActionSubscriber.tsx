@@ -1,4 +1,4 @@
-import { usePrevious, useToast } from '@chakra-ui/react'
+import { usePrevious } from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { v4 as uuidv4 } from 'uuid'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
+import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
@@ -33,7 +34,6 @@ import {
   selectOpenLimitOrderActionsFilteredByWallet,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
-
 export const useLimitOrderActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const dispatch = useAppDispatch()
@@ -50,10 +50,7 @@ export const useLimitOrderActionSubscriber = () => {
   const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const activeQuoteId = useAppSelector(selectActiveQuoteId)
   const { currentData: ordersResponse } = useLimitOrders()
-  const toast = useToast({
-    position: 'bottom-right',
-    duration: isDrawerOpen ? 5000 : null,
-  })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
   const openLimitOrders = useAppSelector(selectOpenLimitOrderActionsFilteredByWallet)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)

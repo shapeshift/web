@@ -1,9 +1,10 @@
 import { AnimatePresence } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
+import type { QuoteListProps } from './components/QuoteList/QuoteList'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
@@ -172,16 +173,23 @@ const StandaloneTradeRoutes = memo(
 
     const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
 
+    const wrappedQuoteList = useCallback(
+      (props: QuoteListProps) => (
+        <QuoteList {...props} showQuoteRefreshCountdown={shouldUseTradeRates} />
+      ),
+      [shouldUseTradeRates],
+    )
+
     const quoteListElement = useMemo(
       () => (
         <SlideTransitionRoute
           height={tradeInputRef.current?.offsetHeight ?? '660px'}
           width={tradeInputRef.current?.offsetWidth ?? 'full'}
-          component={QuoteList}
+          component={wrappedQuoteList}
           parentRoute={TradeRoutePaths.Input}
         />
       ),
-      [tradeInputRef],
+      [tradeInputRef, wrappedQuoteList],
     )
 
     const tradeInputElement = useMemo(

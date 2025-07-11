@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { AsyncQueuer } from '@tanstack/pacer'
 import merge from 'lodash/merge'
 
 import type { MarketDataById } from './types'
@@ -21,6 +22,7 @@ import type {
   FindPriceHistoryByAssetIdArgs,
   MarketDataState,
 } from '@/state/slices/marketDataSlice/types'
+import type { AppDispatch } from '@/state/store'
 
 export const initialState: MarketDataState = {
   crypto: {
@@ -150,6 +152,25 @@ export const marketData = createSlice({
   },
 })
 
+// Async queuer for market-data to control market-data fetching parallelism
+const queue = new AsyncQueuer(
+  async ({ assetId, dispatch }: { assetId: AssetId; dispatch: AppDispatch; priority: number }) => {
+    const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
+    if (currentMarketData) {
+      const payload = { [assetId]: currentMarketData }
+      dispatch(marketData.actions.setCryptoMarketData(payload))
+    }
+
+    return currentMarketData
+  },
+  {
+    concurrency: 25, // Process max. 25 AssetIds at once
+    wait: 5_000, // Wait at least 5 seconds between starting a new chunk
+    started: true, // Start processing immediately
+    getPriority: item => item.priority, // Higher numbers have higher priority
+  },
+)
+
 export const marketApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'marketApi',
@@ -168,19 +189,17 @@ export const marketApi = createApi({
         }
       },
     }),
+    // TODO(gomes): While adding queuer to this, noting we don't even care about this guy anymore and never did -
+    // all it does is fetch and dispatch into `marketData`, this doesn't need to be an RTK query
+    // Keeping this here for the time being to not make potential breaking changes, but this could well be a react-query to avoid layers of complexity
     findByAssetId: build.query<null, AssetId>({
       // named function for profiling+debugging purposes
       queryFn: async function findByAssetId(assetId: AssetId, { dispatch }) {
-        const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
-
-        if (currentMarketData) {
-          const payload = { [assetId]: currentMarketData }
-          dispatch(marketData.actions.setCryptoMarketData(payload))
-        }
+        queue.addItem({ assetId, dispatch, priority: 1 })
 
         return { data: null }
       },
-      keepUnusedDataFor: 5, // Invalidate cached asset market data after 5 seconds.
+      keepUnusedDataFor: 30, // Invalidate cached asset market data after 30 seconds.
     }),
     findPriceHistoryByAssetId: build.query<null, FindPriceHistoryByAssetIdArgs>({
       // named function for profiling+debugging purposes

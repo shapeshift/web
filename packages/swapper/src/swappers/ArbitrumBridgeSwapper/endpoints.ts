@@ -1,7 +1,7 @@
 import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } from '@arbitrum/sdk'
 import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
@@ -289,7 +289,7 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     const childTxStatus = await checkEvmSwapStatus({
       txHash: maybeBuyTxHash,
-      chainId: ethChainId,
+      chainId: arbitrumChainId,
       assertGetEvmChainAdapter,
       address,
       fetchIsSmartContractAddressQuery,

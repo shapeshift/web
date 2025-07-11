@@ -72,16 +72,6 @@ export const selectLastRefreshTime: Selector<ReduxState, number> = createSelecto
   tradeQuoteSlice => tradeQuoteSlice.lastRefreshTime,
 )
 
-export const selectRefreshPendingUntil: Selector<ReduxState, number | null> = createSelector(
-  tradeQuoteSlice.selectSlice,
-  tradeQuoteSlice => tradeQuoteSlice.refreshPendingUntil,
-)
-
-export const selectIsRefreshPending: Selector<ReduxState, boolean> = createSelector(
-  tradeQuoteSlice.selectSlice,
-  tradeQuoteSlice => tradeQuoteSlice.refreshPendingUntil !== null,
-)
-
 const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
@@ -643,19 +633,6 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   selectHasUserEnteredAmount,
   (loadingSwappers, hasUserEnteredAmount) => {
     return hasUserEnteredAmount && loadingSwappers.length > 0
-  },
-)
-
-export const selectShouldBlockQuoteRefresh = createSelector(
-  selectIsTradeQuoteApiQueryPending,
-  selectHasUserEnteredAmount,
-  (isApiQueryPending, hasUserEnteredAmount) => {
-    const isQueryPendingArr = Object.values(isApiQueryPending)
-    return (
-      isQueryPendingArr.length === 0 ||
-      isQueryPendingArr.some(pending => pending) ||
-      !hasUserEnteredAmount
-    )
   },
 )
 

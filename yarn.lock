@@ -11572,7 +11572,6 @@ __metadata:
     "@sniptt/monads": ^0.5.10
     "@solana/web3.js": ^1.98.0
     "@tanstack/pacer": ^0.9.0
-    "@tanstack/react-pacer": ^0.9.0
     "@tanstack/react-query": ^5.69.0
     "@tanstack/react-table": ^8.20.6
     "@tanstack/react-virtual": ^3.11.2
@@ -12457,7 +12456,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/pacer@npm:0.9.0, @tanstack/pacer@npm:^0.9.0":
+"@tanstack/pacer@npm:^0.9.0":
   version: 0.9.0
   resolution: "@tanstack/pacer@npm:0.9.0"
   dependencies:
@@ -12473,19 +12472,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-pacer@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@tanstack/react-pacer@npm:0.9.0"
-  dependencies:
-    "@tanstack/pacer": 0.9.0
-    "@tanstack/react-store": ^0.7.3
-  peerDependencies:
-    react: ">=16.8"
-    react-dom: ">=16.8"
-  checksum: fbc36389f7fe991ff299b215548216e187b87e2e25656fa43b46a2af40325c514d0a7faff9dd6b63964d87c2dc8859e59ccc6158fcc6c38c9ba0cfdb8f5e54c3
-  languageName: node
-  linkType: hard
-
 "@tanstack/react-query@npm:^5.69.0":
   version: 5.69.0
   resolution: "@tanstack/react-query@npm:5.69.0"
@@ -12494,19 +12480,6 @@ __metadata:
   peerDependencies:
     react: ^18 || ^19
   checksum: 3cbbdeabb832aa64bfeab987d41c88e0a93b37eec8bdc430bb3a46cce3729361c350657356db9eb4b9a589f9bb0e30ca2798e22a3cddb0cfb1ccc762cef4dda3
-  languageName: node
-  linkType: hard
-
-"@tanstack/react-store@npm:^0.7.3":
-  version: 0.7.3
-  resolution: "@tanstack/react-store@npm:0.7.3"
-  dependencies:
-    "@tanstack/store": 0.7.2
-    use-sync-external-store: ^1.5.0
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 50e70a2ff03915d60e6abcd4d8d14d61cf88dff748687addb6d48e5a943e703d94ba8ae6b365f879ec95a08544022af15cb78cc3d428e1f29de9f8ae2ff8af9f
   languageName: node
   linkType: hard
 
@@ -12534,7 +12507,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/store@npm:0.7.2, @tanstack/store@npm:^0.7.2":
+"@tanstack/store@npm:^0.7.2":
   version: 0.7.2
   resolution: "@tanstack/store@npm:0.7.2"
   checksum: 19466d51e40e7a4574e39a05d6a72cbf28b6b69fc1d176c10644e508571264f0b63a7e134194f4afc705ba4b6b38c6c3cd464647ebc30f0260fc9777647fedde
@@ -34353,7 +34326,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.0.0, use-sync-external-store@npm:^1.4.0, use-sync-external-store@npm:^1.5.0":
+"use-sync-external-store@npm:^1.0.0, use-sync-external-store@npm:^1.4.0":
   version: 1.5.0
   resolution: "use-sync-external-store@npm:1.5.0"
   peerDependencies:

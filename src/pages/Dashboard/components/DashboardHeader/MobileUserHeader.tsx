@@ -47,7 +47,12 @@ export const MobileUserHeader = ({
   )
 
   return (
-    <Flex justifyContent='space-between' width='100%' display={mobileButtonRowDisplay}>
+    <Flex
+      className='mobile-user-header'
+      justifyContent='space-between'
+      width='100%'
+      display={mobileButtonRowDisplay}
+    >
       <Flex align='center' onClick={onOpen}>
         <ProfileAvatar size='md' borderRadius='full' />
         <Text ml={2} fontWeight='semibold' fontSize='md'>

@@ -152,16 +152,47 @@ export const marketData = createSlice({
   },
 })
 
-// Async queuer for market-data to control market-data fetching parallelism
-const queue = new AsyncQueuer(
+// Async queuer to control findByAssetId() fetching parallelism
+const findbyAssetIdQueue = new AsyncQueuer(
   async ({ assetId, dispatch }: { assetId: AssetId; dispatch: AppDispatch; priority: number }) => {
     const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
     if (currentMarketData) {
       const payload = { [assetId]: currentMarketData }
       dispatch(marketData.actions.setCryptoMarketData(payload))
     }
+  },
+  {
+    concurrency: 25, // Process max. 25 AssetIds at once
+    wait: 5_000, // Wait at least 5 seconds between starting a new chunk
+    started: true, // Start processing immediately
+    getPriority: item => item.priority, // Higher numbers have higher priority
+  },
+)
 
-    return currentMarketData
+// Async queuer to control findPriceHistoryByAssetId() fetching parallelism
+const findPriceHistoryByAssetIdQueue = new AsyncQueuer(
+  async ({
+    args,
+    dispatch,
+  }: {
+    args: FindPriceHistoryByAssetIdArgs
+    dispatch: AppDispatch
+    priority: number
+  }) => {
+    const { assetId, timeframe } = args
+
+    const historyDataByAssetId = await getMarketServiceManager()
+      .findPriceHistoryByAssetId({
+        timeframe,
+        assetId,
+      })
+      .then(data => ({ [assetId]: data }))
+      .catch(e => {
+        console.error(e)
+        return { [assetId]: [] }
+      })
+
+    dispatch(marketData.actions.setCryptoPriceHistory({ timeframe, historyDataByAssetId }))
   },
   {
     concurrency: 25, // Process max. 25 AssetIds at once
@@ -194,8 +225,8 @@ export const marketApi = createApi({
     // Keeping this here for the time being to not make potential breaking changes, but this could well be a react-query to avoid layers of complexity
     findByAssetId: build.query<null, AssetId>({
       // named function for profiling+debugging purposes
-      queryFn: async function findByAssetId(assetId: AssetId, { dispatch }) {
-        queue.addItem({ assetId, dispatch, priority: 1 })
+      queryFn: function findByAssetId(assetId: AssetId, { dispatch }) {
+        findbyAssetIdQueue.addItem({ assetId, dispatch, priority: 1 })
 
         return { data: null }
       },
@@ -203,21 +234,12 @@ export const marketApi = createApi({
     }),
     findPriceHistoryByAssetId: build.query<null, FindPriceHistoryByAssetIdArgs>({
       // named function for profiling+debugging purposes
-      queryFn: async function findPriceHistoryByAssetId(args, { dispatch }) {
-        const { assetId, timeframe } = args
-
-        const historyDataByAssetId = await getMarketServiceManager()
-          .findPriceHistoryByAssetId({
-            timeframe,
-            assetId,
-          })
-          .then(data => ({ [assetId]: data }))
-          .catch(e => {
-            console.error(e)
-            return { [assetId]: [] }
-          })
-
-        dispatch(marketData.actions.setCryptoPriceHistory({ timeframe, historyDataByAssetId }))
+      queryFn: function findPriceHistoryByAssetId(args, { dispatch }) {
+        findPriceHistoryByAssetIdQueue.addItem({
+          args,
+          dispatch,
+          priority: 0,
+        })
 
         return { data: null }
       },

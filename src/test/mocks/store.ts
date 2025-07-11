@@ -155,6 +155,7 @@ export const mockStore: ReduxState = {
       ThorchainTcyActivity: false,
       MayaSwap: false,
       ButterSwap: false,
+      LazyTxHistory: false,
     },
     quoteDisplayOption: QuoteDisplayOption.Basic,
     selectedLocale: 'en',

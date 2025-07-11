@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { reloadWebview } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -51,6 +52,7 @@ const ClearCacheButton = ({
 }
 
 export const ClearCache = () => {
+  const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()
@@ -74,10 +76,13 @@ export const ClearCache = () => {
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())
     dispatch(txHistoryApi.util.resetApiState())
+
+    if (isLazyTxHistoryEnabled) return
+
     requestedAccountIds.forEach(requestedAccountId =>
       dispatch(txHistoryApi.endpoints.getAllTxHistory.initiate(requestedAccountId)),
     )
-  }, [dispatch, requestedAccountIds])
+  }, [dispatch, requestedAccountIds, isLazyTxHistoryEnabled])
 
   return (
     <SlideTransition>

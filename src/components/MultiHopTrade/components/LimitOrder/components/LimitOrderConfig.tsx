@@ -49,6 +49,8 @@ type LimitOrderConfigProps = {
   buyAsset: Asset
   isLoading: boolean
   marketPriceBuyAsset: string
+  networkFeesImpactDecimalPercentage?: string | undefined
+  networkFeesImpactCryptoPrecision?: string | undefined
 }
 
 export const LimitOrderConfig = ({
@@ -56,6 +58,8 @@ export const LimitOrderConfig = ({
   buyAsset,
   isLoading,
   marketPriceBuyAsset,
+  networkFeesImpactDecimalPercentage,
+  networkFeesImpactCryptoPrecision,
 }: LimitOrderConfigProps) => {
   const translate = useTranslate()
   const priceAmountRef = useRef<string | null>(null)
@@ -358,6 +362,29 @@ export const LimitOrderConfig = ({
     humanReadableExplanationComponents,
   ])
 
+  const maybeHighNetworkFeeWarning = useMemo(() => {
+    if (bnOrZero(networkFeesImpactDecimalPercentage).gt('0.3')) {
+      return (
+        <Alert status='warning' mt={2} borderRadius='md'>
+          <AlertIcon />
+          <AlertTitle fontSize='sm'>
+            {translate('limitOrder.highCowFeeImpact', {
+              percentage: bnOrZero(networkFeesImpactDecimalPercentage).times(100).toFixed(0),
+              sellAssetSymbol: sellAsset.symbol,
+              cryptoImpact: networkFeesImpactCryptoPrecision,
+            })}
+          </AlertTitle>
+        </Alert>
+      )
+    }
+    return null
+  }, [
+    networkFeesImpactDecimalPercentage,
+    networkFeesImpactCryptoPrecision,
+    sellAsset.symbol,
+    translate,
+  ])
+
   const marketPriceCryptoPrecision = useMemo(() => {
     if (bnOrZero(marketPriceBuyAsset).isZero()) return '0'
 
@@ -456,15 +483,18 @@ export const LimitOrderConfig = ({
             borderRadius='md'
             borderColor='whiteAlpha.300'
           >
-            <Flex alignItems='flex-start'>
-              <Box as='span' mr={2} mt={1}>
-                <InfoIcon boxSize={5} color='gray.500' />
-              </Box>
-              {limitOrderExplainer}
+            <Flex alignItems='flex-start' direction='column'>
+              <Flex alignItems='flex-start'>
+                <Box as='span' mr={2} mt={1}>
+                  <InfoIcon boxSize={5} color='gray.500' />
+                </Box>
+                {limitOrderExplainer}
+              </Flex>
             </Flex>
           </Box>
         )}
 
+      {maybeHighNetworkFeeWarning}
       {maybePriceWarning}
     </Stack>
   )

@@ -21,7 +21,6 @@ export const tradeQuoteSlice = createSlice({
       sortOption: state.sortOption, // Preserve the sort option
       refreshPendingUntil: state.refreshPendingUntil, // Maintain our quote refresh state
       lastRefreshTime: state.lastRefreshTime,
-      isRefreshPolling: state.isRefreshPolling,
     })),
     clearTradeQuotes: create.reducer(state => ({
       ...initialState,
@@ -30,10 +29,12 @@ export const tradeQuoteSlice = createSlice({
       sortOption: state.sortOption, // Preserve the sort option
       refreshPendingUntil: state.refreshPendingUntil, // Maintain our quote refresh state
       lastRefreshTime: state.lastRefreshTime,
-      isRefreshPolling: state.isRefreshPolling,
     })),
     setIsTradeQuoteRequestAborted: create.reducer((state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
+    }),
+    quotePollingReset: create.reducer(state => {
+      state.lastRefreshTime = Date.now()
     }),
     quoteRefreshFinished: create.reducer(state => {
       state.lastRefreshTime = Date.now()
@@ -41,9 +42,6 @@ export const tradeQuoteSlice = createSlice({
     }),
     setRefreshPendingUntil: create.reducer((state, action: PayloadAction<number | null>) => {
       state.refreshPendingUntil = action.payload
-    }),
-    setIsRefreshPolling: create.reducer((state, action: PayloadAction<boolean>) => {
-      state.isRefreshPolling = action.payload
     }),
     upsertTradeQuotes: create.reducer(
       (

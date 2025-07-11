@@ -49,7 +49,7 @@ const ScrollView = (props: FlexProps) => (
   <Flex
     flexDir='column'
     width='100vw'
-    height='calc(100dvh - var(--mobile-history-header-offset) - var(--mobile-nav-offset) - 1rem)'
+    height='calc(100dvh - var(--mobile-history-header-offset) - var(--mobile-nav-offset) - 1rem - env(safe-area-inset-top) - var(--safe-area-inset-top))'
     overflowY='auto'
     {...props}
   />

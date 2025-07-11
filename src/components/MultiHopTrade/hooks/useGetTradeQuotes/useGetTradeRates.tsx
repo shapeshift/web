@@ -37,8 +37,6 @@ import {
   selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,
   selectLastRefreshTime,
-  selectRefreshPendingUntil,
-  selectShouldBlockQuoteRefresh,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -53,7 +51,6 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
 export const TRADE_QUOTE_TIMER_UPDATE_MS = 100 // How often UI timer updates for smooth display
 const TRADE_QUOTE_CHECK_INTERVAL_MS = 1000 // How often to check if refresh is needed (internal only)
-export const TRADE_QUOTE_REFRESH_PENDING_TIMEOUT = 10_000 // Maximum "pending" time when waiting for quotes to refresh
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -292,22 +289,12 @@ export const useGetTradeRates = () => {
       const now = Date.now()
       const state = store.getState()
       const currentLastRefreshTime = selectLastRefreshTime(state)
-      const currentRefreshPendingUntil = selectRefreshPendingUntil(state)
       const elapsed = now - currentLastRefreshTime
 
       // Timer finished, trigger pending until loading done
-      if (
-        elapsed >= TRADE_QUOTE_REFRESH_INTERVAL_MS &&
-        currentRefreshPendingUntil === null &&
-        hasFocusRef.current
-      ) {
-        const pendingTimeoutTs = now + TRADE_QUOTE_REFRESH_PENDING_TIMEOUT
-        dispatch(tradeQuoteSlice.actions.setRefreshPendingUntil(pendingTimeoutTs))
+      if (elapsed >= TRADE_QUOTE_REFRESH_INTERVAL_MS && hasFocusRef.current) {
+        dispatch(tradeQuoteSlice.actions.quotePollingReset())
         refreshQuotesRef.current()
-      }
-
-      if (currentRefreshPendingUntil !== null && now > currentRefreshPendingUntil) {
-        dispatch(tradeQuoteSlice.actions.quoteRefreshFinished())
       }
     }, TRADE_QUOTE_CHECK_INTERVAL_MS)
 
@@ -315,28 +302,6 @@ export const useGetTradeRates = () => {
       clearInterval(interval)
     }
   }, [dispatch])
-
-  const currentRefreshPendingUntil = useAppSelector(selectRefreshPendingUntil)
-  const shouldBlockQuoteRefresh = useAppSelector(selectShouldBlockQuoteRefresh)
-
-  useEffect(() => {
-    // When pending and loading completes, restart the timer
-    if (currentRefreshPendingUntil !== null && !shouldBlockQuoteRefresh) {
-      dispatch(tradeQuoteSlice.actions.quoteRefreshFinished())
-    }
-  }, [currentRefreshPendingUntil, dispatch, shouldBlockQuoteRefresh])
-
-  useEffect(() => {
-    if (currentRefreshPendingUntil !== null) return
-    dispatch(tradeQuoteSlice.actions.quotePollingReset())
-  }, [
-    buyAsset.assetId,
-    sellAsset.assetId,
-    sellAmountCryptoPrecision,
-    userSlippageTolerancePercentageDecimal,
-    currentRefreshPendingUntil,
-    dispatch,
-  ]) // Watch these state values to determine if we want to force a countdown restart
 
   const hasTrackedInitialRatesReceived = useRef(false)
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

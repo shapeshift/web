@@ -382,6 +382,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const validateHasEnoughStakingAssetFeeBalance = useCallback(
     (input: string) => {
+      // Do NOT do ETH.ARB balance checks here if the user is going to bridge.
+      // Fees will be on mainnet, and estimate on the next step
+      if (isBridgeRequired) return true
       // Staking asset fee asset still loading, assume enough balance not to have a flash of error state on first render
       if (!stakingAssetFeeAsset) return true
       if (bnOrZero(input).isZero()) return true
@@ -410,6 +413,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     amountUserCurrency,
     stakeFees,
     trigger,
+    isBridgeRequired,
   ])
 
   const amountFieldInputRules = useMemo(() => {

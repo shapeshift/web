@@ -132,8 +132,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     const isAssetSpecificPath =
       pathname.startsWith(TradeRoutePaths.Input) &&
       !pathname.includes(TradeRoutePaths.Confirm) &&
-      !pathname.includes(TradeRoutePaths.VerifyAddresses) &&
-      !pathname.includes(TradeRoutePaths.QuoteList)
+      !pathname.includes(TradeRoutePaths.VerifyAddresses)
 
     return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])

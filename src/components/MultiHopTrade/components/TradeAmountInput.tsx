@@ -226,15 +226,13 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [cryptoAmount, cryptoAmountIntegerCount],
     )
 
-    const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
+    const { priceImpactColor, priceImpactPercentage } = usePriceImpact(activeQuote)
 
     // Only display price impact if we have one, for buy side only
     const shouldDisplayPriceImpact = useMemo(
       () =>
-        priceImpactPercentageAbsolute &&
-        activeQuote &&
-        assetId !== activeQuote?.steps[0].sellAsset.assetId,
-      [activeQuote, assetId, priceImpactPercentageAbsolute],
+        priceImpactPercentage && activeQuote && assetId !== activeQuote?.steps[0].sellAsset.assetId,
+      [activeQuote, assetId, priceImpactPercentage],
     )
 
     const handleOnChange = useCallback(() => {
@@ -467,7 +465,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                           prefix='('
                           suffix=')'
                           color={priceImpactColor ?? 'text.subtle'}
-                          value={priceImpactPercentageAbsolute?.div(100).times(-1).toString()}
+                          value={priceImpactPercentage?.div(100).times(-1).toString()}
                         />
                       </Skeleton>
                     </Flex>

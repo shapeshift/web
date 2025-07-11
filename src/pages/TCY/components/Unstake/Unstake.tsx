@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
@@ -14,6 +13,7 @@ import { TCYUnstakeRoute } from '../../types'
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   ActionStatus,
@@ -105,10 +105,7 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   const dispatch = useAppDispatch()
   const { getValues } = useFormContext<UnstakeFormValues>()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useToast({
-    duration: isDrawerOpen ? 5000 : null,
-    position: 'bottom-right',
-  })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const accountId = useAppSelector(state => {
     const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)

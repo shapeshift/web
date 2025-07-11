@@ -1,9 +1,10 @@
 import type { StyleProps } from '@chakra-ui/react'
 import type { BigNumber } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 
@@ -20,6 +21,11 @@ export const PriceImpact: FC<PriceImpactProps> = ({ color, priceImpactPercentage
     [translate],
   )
 
+  const priceImpactDecimalPercentage = useMemo(
+    () => priceImpactPercentage?.div(100),
+    [priceImpactPercentage],
+  )
+
   if (!priceImpactPercentage) return null
 
   return (
@@ -28,7 +34,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ color, priceImpactPercentage
         <Text translation='trade.priceImpact' />
       </Row.Label>
       <Row.Value>
-        <RawText color={color}>{priceImpactPercentage.toFixed(2)}%</RawText>
+        <Amount.Percent value={priceImpactDecimalPercentage?.times(-1).toString()} color={color} />
       </Row.Value>
     </Row>
   )

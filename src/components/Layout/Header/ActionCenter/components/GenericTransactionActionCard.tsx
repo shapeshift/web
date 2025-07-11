@@ -1,41 +1,20 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  CardBody,
-  Collapse,
-  Flex,
-  HStack,
-  Icon,
-  Link,
-  Stack,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { RawText } from '@/components/Text'
 import { getTxLink } from '@/lib/getTxLink'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
-
-const divider = <RawText color='text.subtle'>•</RawText>
-
-const hoverProps = {
-  bg: 'background.button.secondary.hover',
-  cursor: 'pointer',
-  textDecoration: 'none',
-}
 
 type GenericTransactionActionCardProps = {
   action: GenericTransactionAction
@@ -72,56 +51,41 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
+  const icon = useMemo(() => {
+    return (
+      <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
+        <ActionStatusIcon status={action.status} />
+      </AssetIconWithBadge>
+    )
+  }, [action.transactionMetadata.assetId, action.status])
+
+  const footer = useMemo(() => {
+    return (
+      <>
+        <ActionStatusTag status={action.status} />
+      </>
+    )
+  }, [action.status])
+
   return (
-    <Stack
-      spacing={4}
-      mx={2}
-      borderRadius='lg'
-      transitionProperty='common'
-      transitionDuration='fast'
-      _hover={hoverProps}
+    <ActionCard
+      formattedDate={formattedDate}
+      isCollapsable={!!txLink}
+      isOpen={isOpen}
+      type={action.type}
+      displayType={action.transactionMetadata.displayType}
+      description={action.transactionMetadata.message}
+      icon={icon}
+      footer={footer}
+      onToggle={onToggle}
     >
-      <Flex gap={4} alignItems='flex-start' px={4} py={4} onClick={onToggle}>
-        <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
-          <ActionStatusIcon status={action.status} />
-        </AssetIconWithBadge>
-        <Stack spacing={0} width='full'>
-          <HStack width='full'>
-            <Stack spacing={1} width='full'>
-              <RawText fontSize='sm' fontWeight={500} lineHeight='short'>
-                {action.transactionMetadata.message}
-              </RawText>
-              <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1} align='center'>
-                <ActionStatusTag status={action.status} />
-                <RawText>{formattedDate}</RawText>
-                <RawText>{action.transactionMetadata.displayType}</RawText>
-              </HStack>
-            </Stack>
-            <Icon
-              as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-              ml='auto'
-              my='auto'
-              fontSize='xl'
-              color='text.subtle'
-            />
-          </HStack>
-          {txLink && (
-            <Collapse in={isOpen}>
-              <Card bg='transparent' mt={4} boxShadow='none'>
-                <CardBody px={0} py={0}>
-                  <Stack gap={4}>
-                    <ButtonGroup width='full' size='sm'>
-                      <Button width='full' as={Link} isExternal href={txLink}>
-                        {translate('actionCenter.viewTransaction')}
-                      </Button>
-                    </ButtonGroup>
-                  </Stack>
-                </CardBody>
-              </Card>
-            </Collapse>
-          )}
-        </Stack>
-      </Flex>
-    </Stack>
+      <Stack gap={4}>
+        <ButtonGroup width='full' size='sm'>
+          <Button width='full' as={Link} isExternal href={txLink}>
+            {translate('actionCenter.viewTransaction')}
+          </Button>
+        </ButtonGroup>
+      </Stack>
+    </ActionCard>
   )
 }

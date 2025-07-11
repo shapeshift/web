@@ -19,24 +19,25 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
     return bnOrZero(_inputOutputDifferenceDecimalPercentage).times(100).toFixed()
   }, [_inputOutputDifferenceDecimalPercentage])
 
-  const priceImpactPercentageAbsolute = useMemo(() => {
+  const priceImpactPercentage = useMemo(() => {
     if (!inputOutputDifferenceDecimalPercentage) return
 
-    const percentageAbsolute = bnOrZero(inputOutputDifferenceDecimalPercentage)
-      ?.abs()
-      .toFixed(2, BigNumber.ROUND_DOWN)
+    const percentage = bnOrZero(inputOutputDifferenceDecimalPercentage).toFixed(
+      2,
+      BigNumber.ROUND_DOWN,
+    )
 
-    return bnOrZero(percentageAbsolute)
+    return bnOrZero(percentage)
   }, [inputOutputDifferenceDecimalPercentage])
 
-  const priceImpactColor = getPriceImpactColor(bnOrZero(priceImpactPercentageAbsolute).toFixed())
+  const priceImpactColor = getPriceImpactColor(bnOrZero(priceImpactPercentage).toFixed())
 
   const result = useMemo(
     () => ({
-      priceImpactPercentageAbsolute,
+      priceImpactPercentage,
       priceImpactColor,
     }),
-    [priceImpactPercentageAbsolute, priceImpactColor],
+    [priceImpactPercentage, priceImpactColor],
   )
 
   return result

@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import React, { lazy, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,6 +12,7 @@ import { StakeRoutePaths } from './types'
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { fromBaseUnit } from '@/lib/math'
 import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
@@ -103,7 +103,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const translate = useTranslate()
 
   // Get bridge quote from location.state

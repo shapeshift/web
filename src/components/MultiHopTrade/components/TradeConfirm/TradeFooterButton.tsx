@@ -70,10 +70,8 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { priceImpactPercentageAbsolute } = usePriceImpact(activeQuote)
-  const isModeratePriceImpact = priceImpactPercentageAbsolute?.gte(
-    ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM,
-  )
+  const { priceImpactPercentage } = usePriceImpact(activeQuote)
+  const isModeratePriceImpact = priceImpactPercentage?.gte(ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM)
 
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
     tradeId: activeQuote?.id ?? '',
@@ -258,7 +256,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     <>
       <WarningAcknowledgement
         message={translate('warningAcknowledgement.highSlippageTrade', {
-          slippagePercentage: bnOrZero(priceImpactPercentageAbsolute).toFixed(2).toString(),
+          slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
         })}
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={shouldShowWarningAcknowledgement}

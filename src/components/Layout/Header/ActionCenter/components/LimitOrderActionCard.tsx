@@ -1,19 +1,10 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import {
-  Card,
-  CardBody,
-  Collapse,
-  Flex,
-  HStack,
-  Icon,
-  Stack,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { useDisclosure } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
+import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 import { LimitOrderDetails } from './Details/LimitOrderDetails'
@@ -21,7 +12,6 @@ import { LimitOrderDetails } from './Details/LimitOrderDetails'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { RawText } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
@@ -29,13 +19,6 @@ import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
-
-const divider = <RawText color='text.subtle'>•</RawText>
-
-const hoverProps = {
-  bg: 'background.button.secondary.hover',
-  cursor: 'pointer',
-}
 
 type NotificationCardProps = {
   isCollapsable?: boolean
@@ -58,12 +41,6 @@ export const LimitOrderActionCard = ({
   const formattedDate = useMemo(() => {
     return formatSmartDate(updatedAt)
   }, [updatedAt])
-
-  const handleClick = useCallback(() => {
-    if (isCollapsable) {
-      onToggle()
-    }
-  }, [isCollapsable, onToggle])
 
   const limitOrderActionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!action) return
@@ -131,56 +108,52 @@ export const LimitOrderActionCard = ({
     return 'actionCenter.limitOrder.placed'
   }, [action])
 
+  const icon = useMemo(() => {
+    return (
+      <AssetIconWithBadge
+        assetId={action.limitOrderMetadata.buyAsset.assetId}
+        secondaryAssetId={action.limitOrderMetadata.sellAsset.assetId}
+        size='md'
+      >
+        <ActionStatusIcon status={status} />
+      </AssetIconWithBadge>
+    )
+  }, [
+    action.limitOrderMetadata.buyAsset.assetId,
+    action.limitOrderMetadata.sellAsset.assetId,
+    status,
+  ])
+
+  const description = useMemo(() => {
+    return (
+      <Text
+        fontSize='sm'
+        translation={limitOrderTitleTranslation}
+        components={limitOrderActionTranslationComponents}
+      />
+    )
+  }, [limitOrderTitleTranslation, limitOrderActionTranslationComponents])
+
+  const footer = useMemo(() => {
+    return (
+      <>
+        <ActionStatusTag status={status} />
+      </>
+    )
+  }, [status])
+
   return (
-    <Stack
-      spacing={4}
-      mx={2}
-      borderRadius='lg'
-      transitionProperty='common'
-      transitionDuration='fast'
-      _hover={isCollapsable ? hoverProps : undefined}
+    <ActionCard
+      type={type}
+      formattedDate={formattedDate}
+      isCollapsable={isCollapsable}
+      isOpen={isOpen}
+      onToggle={onToggle}
+      description={description}
+      icon={icon}
+      footer={footer}
     >
-      <Flex gap={4} alignItems='flex-start' px={4} py={4}>
-        <AssetIconWithBadge
-          assetId={action.limitOrderMetadata.buyAsset.assetId}
-          secondaryAssetId={action.limitOrderMetadata.sellAsset.assetId}
-          size='md'
-        >
-          <ActionStatusIcon status={status} />
-        </AssetIconWithBadge>
-        <Stack spacing={0} width='full'>
-          <HStack onClick={handleClick}>
-            <Stack spacing={1} width='full'>
-              <Text
-                fontSize='sm'
-                translation={limitOrderTitleTranslation}
-                components={limitOrderActionTranslationComponents}
-              />
-              <HStack fontSize='sm' color='text.subtle' divider={divider} gap={1}>
-                <ActionStatusTag status={status} />
-                <RawText>{formattedDate}</RawText>
-                <RawText>{type}</RawText>
-              </HStack>
-            </Stack>
-            {isCollapsable && (
-              <Icon
-                as={isOpen ? ChevronUpIcon : ChevronDownIcon}
-                ml='auto'
-                my='auto'
-                fontSize='xl'
-                color='text.subtle'
-              />
-            )}
-          </HStack>
-          <Collapse in={isOpen}>
-            <Card bg='transparent' mt={4}>
-              <CardBody px={0} py={0}>
-                <LimitOrderDetails action={action} order={order} onCancelOrder={onCancelOrder} />
-              </CardBody>
-            </Card>
-          </Collapse>
-        </Stack>
-      </Flex>
-    </Stack>
+      <LimitOrderDetails action={action} order={order} onCancelOrder={onCancelOrder} />
+    </ActionCard>
   )
 }

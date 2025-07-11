@@ -2,7 +2,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Tab, TabList, Tabs } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
 import type { SlideRenderProps } from 'react-swipeable-views-utils'
@@ -54,25 +54,46 @@ enum MobileTab {
   Watchlist,
 }
 
-export const Dashboard = memo(() => {
+const getTabIndexFromPath = (pathname: string) => {
+  if (pathname.endsWith('/watchlist')) return MobileTab.Watchlist
+  return MobileTab.MyCrypto
+}
+
+const MobileHome = memo(() => {
   const translate = useTranslate()
-  const [slideIndex, setSlideIndex] = useState(0)
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const {
-    dispatch: walletDispatch,
-    state: { isLoadingLocalWallet, isConnected },
-  } = useWallet()
+  const pathTabIndex = useMemo(() => getTabIndexFromPath(location.pathname), [location.pathname])
 
-  useEffect(() => {
-    if (isLoadingLocalWallet) return
-    if (isConnected) return
-
-    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [isLoadingLocalWallet, isConnected, walletDispatch])
-
-  const handleSlideIndexChange = useCallback((index: number) => {
-    setSlideIndex(index)
+  const getPathFromTabIndex = useCallback((index: MobileTab) => {
+    switch (index) {
+      case MobileTab.Watchlist:
+        return '/wallet/watchlist'
+      case MobileTab.MyCrypto:
+      default:
+        return '/wallet'
+    }
   }, [])
+
+  const [activeTabIndex, setActiveTabIndex] = useState<MobileTab>(() => pathTabIndex)
+
+  // Sync active tab to location pathname
+  useEffect(() => {
+    if (activeTabIndex === pathTabIndex) return
+
+    setActiveTabIndex(pathTabIndex)
+  }, [location.pathname, pathTabIndex, activeTabIndex])
+
+  // And the other way too i.e sync browser route to the active tab
+  const handleTabChange = useCallback(
+    (index: MobileTab) => {
+      setActiveTabIndex(index)
+      const newPath = getPathFromTabIndex(index)
+      if (location.pathname !== newPath) navigate(newPath, { replace: false })
+    },
+    [location.pathname, navigate, getPathFromTabIndex],
+  )
 
   const slideRenderer = useCallback((props: SlideRenderProps) => {
     const { index, key } = props
@@ -101,36 +122,57 @@ export const Dashboard = memo(() => {
     )
   }, [])
 
+  return (
+    <>
+      <Tabs
+        index={activeTabIndex}
+        onChange={handleTabChange}
+        variant='soft-rounded'
+        isLazy
+        size='sm'
+        pt={0}
+        pb={2}
+      >
+        <TabList bg='transparent' borderWidth={0} pt={0} px={4} gap={2}>
+          <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
+          <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
+        </TabList>
+      </Tabs>
+      <VirtualizedSwipableViews
+        index={activeTabIndex}
+        onChangeIndex={handleTabChange}
+        slideRenderer={slideRenderer}
+        slideCount={2}
+        overscanSlideBefore={1}
+        overscanSlideAfter={1}
+      />
+    </>
+  )
+})
+
+export const Dashboard = memo(() => {
+  const translate = useTranslate()
+
+  const {
+    dispatch: walletDispatch,
+    state: { isLoadingLocalWallet, isConnected },
+  } = useWallet()
+
+  useEffect(() => {
+    if (isLoadingLocalWallet) return
+    if (isConnected) return
+
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [isLoadingLocalWallet, isConnected, walletDispatch])
+
   const mobileHome = useMemo(
     () => (
       <ScrollView>
-        <Tabs
-          index={slideIndex}
-          onChange={handleSlideIndexChange}
-          variant='soft-rounded'
-          isLazy
-          size='sm'
-          pt={0}
-          pb={2}
-        >
-          <TabList bg='transparent' borderWidth={0} pt={0} px={4} gap={2}>
-            <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
-            <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
-          </TabList>
-        </Tabs>
-        <VirtualizedSwipableViews
-          index={slideIndex}
-          onChangeIndex={handleSlideIndexChange}
-          slideRenderer={slideRenderer}
-          slideCount={2}
-          overscanSlideBefore={1}
-          overscanSlideAfter={1}
-        />
+        <MobileHome />
       </ScrollView>
     ),
-    [slideIndex, handleSlideIndexChange, slideRenderer, translate],
+    [],
   )
-
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])
 
   return (

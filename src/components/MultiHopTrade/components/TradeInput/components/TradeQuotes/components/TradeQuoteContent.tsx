@@ -49,11 +49,11 @@ export const TradeQuoteContent = ({
     number: { toPercent },
   } = useLocaleFormatter()
 
-  const { priceImpactColor, priceImpactPercentageAbsolute } = usePriceImpact(tradeQuote)
+  const { priceImpactColor, priceImpactPercentage } = usePriceImpact(tradeQuote)
 
   const priceImpactDecimalPercentage = useMemo(
-    () => priceImpactPercentageAbsolute?.div(100),
-    [priceImpactPercentageAbsolute],
+    () => priceImpactPercentage?.div(100),
+    [priceImpactPercentage],
   )
 
   const priceImpactTooltipText = useMemo(
@@ -62,13 +62,16 @@ export const TradeQuoteContent = ({
   )
 
   const lossAfterRateAndFeesUserCurrencyColor = useMemo(() => {
-    if (!priceImpactDecimalPercentage) return undefined
+    if (!priceImpactPercentage) return undefined
     // Slightly different from the price impact color - we use text.base instead of text.neutral
-    if (bn(priceImpactDecimalPercentage).lte(bn(ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM).div(100)))
+    if (
+      bn(priceImpactPercentage).gte(0) &&
+      bn(priceImpactPercentage).lte(bn(ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM))
+    )
       return 'text.base'
 
     return priceImpactColor
-  }, [priceImpactDecimalPercentage, priceImpactColor])
+  }, [priceImpactPercentage, priceImpactColor])
 
   const lossAfterRateAndFeesUserCurrency = useMemo(
     () =>

@@ -1,6 +1,15 @@
-import type { TabProps } from '@chakra-ui/react'
-import { Box, Container, Tab, TabIndicator, TabList, Tabs, useDisclosure } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import type { FlexProps, TabProps } from '@chakra-ui/react'
+import {
+  Box,
+  Container,
+  Flex,
+  Tab,
+  TabIndicator,
+  TabList,
+  Tabs,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
@@ -18,7 +27,7 @@ import { DashboardDrawer } from '@/pages/Dashboard/components/DashboardHeader/Da
 import { MobileUserHeader } from '@/pages/Dashboard/components/DashboardHeader/MobileUserHeader'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 
-const mainPaddingBottom = { base: 16, md: 8 }
+const mainPaddingBottom = { base: 0, md: 8 }
 
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
@@ -32,6 +41,16 @@ const CustomTab = (props: TabProps) => (
     py={4}
     mr={6}
     _last={customTabLast}
+    {...props}
+  />
+)
+
+const ScrollView = (props: FlexProps) => (
+  <Flex
+    flexDir='column'
+    width='100vw'
+    height='calc(100dvh - var(--mobile-history-header-offset) - var(--mobile-nav-offset) - 1rem - env(safe-area-inset-top) - var(--safe-area-inset-top))'
+    overflowY='auto'
     {...props}
   />
 )
@@ -59,27 +78,63 @@ export const History = () => {
     setSlideIndex(index)
   }, [])
 
-  const slideRenderer = useCallback((props: SlideRenderProps) => {
-    const { index, key } = props
-    let content
-    const tab = mod(index, 2)
-    switch (tab) {
-      case HistoryTab.Activity:
-        content = <ActionCenter />
-        break
-      case HistoryTab.History:
-        content = <TransactionHistory />
-        break
-      default:
-        content = null
-        break
+  useLayoutEffect(() => {
+    const body = document.body
+    const tabsHeader = document.querySelector('.history-tabs-header')
+    const userHeader = document.querySelector('.mobile-user-header')
+    if (window.visualViewport) {
+      const vv = window.visualViewport
+      const fixPosition = () => {
+        if (body && tabsHeader && userHeader) {
+          body.style.setProperty(
+            '--mobile-history-header-offset',
+            `${tabsHeader.clientHeight + userHeader.clientHeight}px`,
+          )
+        }
+      }
+      vv.addEventListener('resize', fixPosition)
+      fixPosition()
+      return () => {
+        window.removeEventListener('resize', fixPosition)
+      }
     }
-    return (
-      <div id={`scroll-view-${key}`} key={key}>
-        {content}
-      </div>
-    )
   }, [])
+
+  const slideRenderer = useCallback(
+    (props: SlideRenderProps) => {
+      const { index, key } = props
+      let content
+      const tab = mod(index, 2)
+      if (slideIndex !== tab) return null
+
+      switch (tab) {
+        case HistoryTab.Activity:
+          content = (
+            <ScrollView>
+              <ActionCenter />
+            </ScrollView>
+          )
+          break
+        case HistoryTab.History:
+          content = (
+            <ScrollView>
+              <TransactionHistory />
+            </ScrollView>
+          )
+          break
+        default:
+          content = null
+          break
+      }
+
+      return (
+        <div id={`scroll-view-${key}`} key={key}>
+          {content}
+        </div>
+      )
+    },
+    [slideIndex],
+  )
 
   const mobileDrawer = useMemo(() => {
     if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
@@ -106,7 +161,7 @@ export const History = () => {
         />
       </Container>
       <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' pt={0} isLazy>
-        <Box borderBottomWidth={1} borderColor='border.base'>
+        <Box className='history-tabs-header' borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>
             <CustomTab>{translate('common.activity')}</CustomTab>
             <CustomTab>{translate('navBar.history')}</CustomTab>

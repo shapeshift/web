@@ -288,8 +288,6 @@ export const useGetTradeRates = () => {
 
   // Polling logic
   useEffect(() => {
-    dispatch(tradeQuoteSlice.actions.setIsRefreshPolling(true))
-
     const interval = setInterval(() => {
       const now = Date.now()
       const state = store.getState()
@@ -315,7 +313,6 @@ export const useGetTradeRates = () => {
 
     return () => {
       clearInterval(interval)
-      dispatch(tradeQuoteSlice.actions.setIsRefreshPolling(false))
     }
   }, [dispatch])
 
@@ -328,6 +325,18 @@ export const useGetTradeRates = () => {
       dispatch(tradeQuoteSlice.actions.quoteRefreshFinished())
     }
   }, [currentRefreshPendingUntil, dispatch, shouldBlockQuoteRefresh])
+
+  useEffect(() => {
+    if (currentRefreshPendingUntil !== null) return
+    dispatch(tradeQuoteSlice.actions.quotePollingReset())
+  }, [
+    buyAsset.assetId,
+    sellAsset.assetId,
+    sellAmountCryptoPrecision,
+    userSlippageTolerancePercentageDecimal,
+    currentRefreshPendingUntil,
+    dispatch,
+  ]) // Watch these state values to determine if we want to force a countdown restart
 
   const hasTrackedInitialRatesReceived = useRef(false)
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

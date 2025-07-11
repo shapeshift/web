@@ -217,7 +217,7 @@
     "availableAssets": "Kullanılabilir Varlıklar"
   },
   "updateToast": {
-    "body": "Uygulamanın yeni bir sürümü mevcut",
+    "body": "Uygulama güncellemesi mevcut!",
     "cta": "Uygulamayı Yeniden Yükle",
     "keepKey": {
       "title": "KeepKey Güncellemesi Mevcut",
@@ -249,6 +249,7 @@
       "marketCap": "Piyasa değeri",
       "volume": "Hacim",
       "sparkLine": "Sparkline",
+      "myCrypto": "Kriptom",
       "empty": {
         "title": "Pinpon sesleri...",
         "cta": "Kendinize biraz kripto gönderin!"
@@ -491,7 +492,7 @@
     "eligibleOpportunities": "Uygun Fırsatlar",
     "defiBody": "Büyüyen evrende DeFi fırsatlarını keşfedin.",
     "netWorth": "Net Değer",
-    "loadingAccounts": "Yüklenen %{portfolioAccountsLoaded} hesap (güncellenen %{opportunityAccountsLoaded} mevcut pozisyonlarla)",
+    "loadingAccounts": "Yüklenen %{portfolioAccountsLoaded} hesap",
     "walletBalance": "Cüzdan Bakiyesi",
     "earnBalance": "Kazanç Bakiyesi",
     "rewardsBalance": "Ödül Bakiyesi",
@@ -574,10 +575,10 @@
     "assetStakingBalance": "%{assetSymbol} Staking Bakiyesi"
   },
   "navBar": {
+    "history": "Geçmiş",
     "thorchain": "THORChain",
     "fox": "fox",
     "home": "Ana Sayfa",
-    "activity": "Aktivite",
     "myWallet": "Cüzdanım",
     "dashboard": "Gösterge Paneli",
     "dashboardShort": "Panel",
@@ -603,6 +604,7 @@
     "explore": "Keşfet",
     "rewards": "Ödüller",
     "trade": "Takas/Köprü",
+    "market": "Market",
     "limitOrder": "Limit Emirleri",
     "claims": "Toplanacaklar",
     "tradeShort": "Takas",
@@ -655,7 +657,6 @@
     "from": "İtibaren",
     "trade": "Takas",
     "swap": "Takas",
-    "swapWith": "%{dex} ile takas",
     "amount": "Tutar",
     "for": "için",
     "emptyMessage": "%{status} işlemleriniz burada görünecek.",
@@ -847,6 +848,12 @@
       "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
       "lowSlippage": "%0,05'in altındaki kayma işlemin başarısız olmasına neden olabilir."
     },
+    "quoteDisplay": {
+      "title": "Alıntı Görüntüleme",
+      "info": "Teklifinizin görüntülenme stilini seçin.",
+      "basic": "Basit",
+      "advanced": "Gelişmiş"
+    },
     "sort": {
       "sortBy": "Alıntıları Sırala",
       "auto": "Otomatik",
@@ -914,8 +921,6 @@
       "changeQuote": "Teklifi değiştir",
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
-      "priceImpactLabel": "Fiyat hareketi: %{priceImpactPercentage}%",
-      "priceImpact": "İşleminizin bu havuzun piyasa fiyatı üzerindeki etkisi.",
       "priceImpactWarning": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın fiyat etkisi yüksek olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
@@ -1043,7 +1048,9 @@
     "fiatAmountOnChain": "%{chainName} üzerinde %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz",
-      "slippage": "Kayma: %{slippageFormatted}"
+      "gas": "Bu takasçının işlemini tamamlamak için gereken gaz.",
+      "slippage": "Bu alıntıdaki kayma.",
+      "timeEstimate": "Bu takasın tamamlanması için tahmini süre."
     },
     "awaitingPermit2Approval": "Token transferini bekliyor",
     "awaitingSwap": "%{swapperName} üzerinden takas bekleniyor",
@@ -1264,7 +1271,9 @@
         "enterPassword": "Devam etmek için şifrenizi girin",
         "testTitle": "Gizli Kurtarma İfadenizi Doğrulayın",
         "title": "Yedeklemeyi Onayla",
-        "description": "Her şeyi doğru şekilde kaydettiğinizi doğrulamak için bu kısa testi tamamlayın.",
+        "description": "Lütfen aşağıdaki doğru tohum cümlelerinin üzerine tıklayın.",
+        "desktopDescription": "Her şeyi doğru şekilde kaydettiğinizi doğrulamak için bu kısa testi tamamlayın.",
+        "wordNumber": "Kelime #%{number}",
         "confirm": {
           "title": "Cüzdan yedekle",
           "body": "Cüzdanınızı unutmadan önce gizli kurtarma cümlenizi yedeklemek ister misiniz?",
@@ -1278,6 +1287,16 @@
         "success": {
           "title": "Başarılı",
           "description": "Cüzdanınızı yedeklediniz. Gizli Kurtarma İfadenizi güvenli bir yerde saklamayı unutmayın."
+        },
+        "error": {
+          "title": "Yanlış",
+          "description": "Seçilen kelimelerden bir veya daha fazlası yanlış.",
+          "reviewPhrase": "Gizli Kurtarma İfadesini İncele"
+        },
+        "skip": {
+          "title": "Bu adımı atlamak istiyor musunuz?",
+          "description": "Yedeklemeyi atlamak, cihazınıza erişiminizi kaybetmeniz durumunda cüzdanınızı kurtaramayacağınız anlamına gelir.",
+          "confirmCta": "Evet, tohum cümlemi kaydettim"
         }
       }
     },
@@ -1852,33 +1871,6 @@
       },
       "testPhrase": {
         "header": "Gizli Kurtarma İfadenizi Doğrulayın",
-        "body": "Bunlardan hangisi",
-        "1st": "1'inci",
-        "2nd": "2'inci",
-        "3rd": "3'üncü",
-        "4th": "4'üncü",
-        "5th": "5'inci",
-        "6th": "6'ıncı",
-        "7th": "7'inci",
-        "8th": "8'inci",
-        "9th": "9'uncu",
-        "10th": "10'uncu",
-        "11th": "11'inci",
-        "12th": "12'inci",
-        "13th": "13'üncü",
-        "14th": "14'üncü",
-        "15th": "15'inci",
-        "16th": "16'ıncı",
-        "17th": "17'inci",
-        "18th": "18'inci",
-        "19th": "19'uncu",
-        "20th": "20'inci",
-        "21th": "21'inci",
-        "22th": "22'inci",
-        "23th": "23'üncü",
-        "24th": "24'üncü",
-        "body2": " kelime",
-        "body3": "gizli ifadende?",
         "button": "Sonraki"
       },
       "rename": {
@@ -2016,8 +2008,8 @@
       "nextStep": "Daha sonra Gizli Kurtarma Cümlenizdeki belirli kelimelerin yerlerini onaylamanız istenecek.",
       "button": "Onaylamaya devam et",
       "success": {
-        "title": "Yedekleme Onaylandı",
-        "description": "Gizli Kurtarma İfadenizi doğruladınız. Güvenli bir şekilde sakladığınızdan emin olun; bu, cüzdanınızı kurtarmanın tek yoludur.",
+        "title": "İçerdesin",
+        "description": "Gizli Kurtarma Cümlenizi doğruladınız. Güvenli bir şekilde sakladığınızdan emin olun - bu, cüzdanınızı kurtarmanın tek yoludur.",
         "viewWallet": "Cüzdanı Görüntüle"
       }
     }
@@ -2627,7 +2619,8 @@
       "title": "İzleme listenizi oluşturmaya başlayın",
       "body": "Yıldız simgesini gördüğünüz her yerde, onu buraya öğe eklemek için onu kullanabilirsiniz.",
       "cta": "Daha fazla varlığı keşfedin"
-    }
+    },
+    "title": "İzleme listesi"
   },
   "explore": {
     "pools": {
@@ -2638,9 +2631,8 @@
       "title": "Borç Verme",
       "body": "Varlıklarınıza karşılık borç alın."
     },
-    "rfox": {
-      "title": "rFOX",
-      "body": "FOX stake ederek RUNE kazanın."
+    "foxEcosystem": {
+      "body": "FOX ile ilgili her şey için kontrol paneliniz."
     },
     "tcy": {
       "title": "TCY",
@@ -2966,12 +2958,6 @@
     "limitPrice": "Limit Fiyatı",
     "expires": "Sona Erme",
     "filled": "Dolduruldu",
-    "swap": {
-      "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız işleniyor.",
-      "complete": "%{sellAmountAndSymbol}'u %{buyAmountAndSymbol}'a dönüştürme işleminiz tamamlandı.",
-      "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız başarısız oldu.",
-      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayınlanıyor."
-    },
     "streaming": "Akış",
     "claim": "Talep",
     "protocol": "Protokol",
@@ -2988,11 +2974,26 @@
       "claimAvailable": "Talep Mevcut",
       "unknown": "Bilinmeyen"
     },
+    "emptyState": {
+      "title": "ShapeShift'e Hoşgeldiniz",
+      "body1": "Bu sizin eylem merkezinizdir.",
+      "body2": "Devam eden işlemleri burada bulabilirsiniz.",
+      "startSwapping": "Takasa Başla"
+    },
+    "swap": {
+      "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız işleniyor.",
+      "complete": "%{sellAmountAndSymbol}'u %{buyAmountAndSymbol}'a dönüştürme işleminiz tamamlandı.",
+      "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız başarısız oldu.",
+      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayınlanıyor."
+    },
     "limitOrder": {
       "placed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasında verilen limit emri",
       "complete": "%{buyAmountAndSymbol} için %{sellAmountAndSymbol} satın alma emriniz başarıyla gerçekleştirildi.",
       "cancelled": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz iptal edildi.",
       "expired": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz sona erdi."
+    },
+    "rfox": {
+      "unstakeConfirmed": "%{amount} FOX'luk unstake %{cooldownPeriod} içinde talep edilebilir hale gelecektir."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

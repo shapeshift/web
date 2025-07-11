@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
@@ -11,6 +10,7 @@ import { UnstakeRoutePaths } from './types'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { fromBaseUnit } from '@/lib/math'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
@@ -76,7 +76,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useToast({ duration: isDrawerOpen ? 5000 : null, position: 'bottom-right' })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const translate = useTranslate()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()

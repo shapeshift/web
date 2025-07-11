@@ -400,7 +400,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
       return true
     },
-    [stakingAssetFeeAsset, stakingAssetFeeAssetBalanceCryptoPrecision, approvalFees, stakeFees],
+    [
+      stakingAssetFeeAsset,
+      stakingAssetFeeAssetBalanceCryptoPrecision,
+      approvalFees,
+      stakeFees,
+      isBridgeRequired,
+    ],
   )
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
   useEffect(() => {
@@ -413,7 +419,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     amountUserCurrency,
     stakeFees,
     trigger,
-    isBridgeRequired,
   ])
 
   const amountFieldInputRules = useMemo(() => {

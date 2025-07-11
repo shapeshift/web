@@ -24,7 +24,7 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
+import { fetchTradeStatus } from '@/lib/tradeExecution'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'

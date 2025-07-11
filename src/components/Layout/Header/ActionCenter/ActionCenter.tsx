@@ -22,6 +22,7 @@ import { GenericTransactionActionCard } from './components/GenericTransactionAct
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { RfoxClaimActionCard } from './components/RfoxClaimActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
+import { TcyClaimActionCard } from './components/TcyClaimActionCard'
 
 import { Display } from '@/components/Display'
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
@@ -88,6 +89,9 @@ export const ActionCenter = memo(() => {
           }
           case ActionType.RfoxClaim: {
             return <RfoxClaimActionCard key={action.id} action={action} />
+          }
+          case ActionType.TcyClaim: {
+            return <TcyClaimActionCard key={action.id} action={action} />
           }
           default:
             return null

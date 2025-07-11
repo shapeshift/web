@@ -251,7 +251,7 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_FOX_PAGE,
   },
   {
-    path: '/tcy',
+    path: '/tcy/*',
     label: 'navBar.tcy',
     icon: <TCYIcon />,
     main: TCY,

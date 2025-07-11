@@ -33,13 +33,15 @@ import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   claim: Claim
@@ -75,6 +77,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const {
     state: { isConnected },
   } = useWallet()
+  const dispatch = useAppDispatch()
   const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
@@ -142,16 +145,30 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       if (!txid) return
 
       setClaimTxid(txid)
-      navigate(TCYClaimRoute.Status)
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: claim.l1_address,
+          status: ActionStatus.Pending,
+          type: ActionType.TcyClaim,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          tcyClaimActionMetadata: {
+            claim,
+            txHash: txid,
+          },
+        }),
+      )
+      navigate(TCYClaimRoute.Status, { state: { selectedClaim: claim } })
     },
   })
 
   const handleConfirm = useCallback(async () => {
     if (isSweepNeeded) {
-      return navigate(TCYClaimRoute.Sweep)
+      return navigate(TCYClaimRoute.Sweep, { state: { selectedClaim: claim } })
     }
     await handleClaim()
-  }, [handleClaim, isSweepNeeded, navigate])
+  }, [handleClaim, isSweepNeeded, navigate, claim])
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, claim.assetId))
 

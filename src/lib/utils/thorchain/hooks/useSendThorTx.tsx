@@ -1,31 +1,21 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import {
-  assertAndProcessMemo,
-  depositWithExpiry,
-  fetchSafeTransactionInfo,
-  SwapperName,
-} from '@shapeshiftoss/swapper'
+import { assertAndProcessMemo, depositWithExpiry } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { getAddress, zeroAddress } from 'viem'
 
 import { fromThorBaseUnit, getThorchainTransactionType } from '..'
 
 import type { SendInput } from '@/components/Modals/Send/Form'
 import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
-import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetThorchainChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -95,8 +85,6 @@ export const useSendThorTx = ({
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet
-  const toast = useToast()
-  const translate = useTranslate()
 
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -408,44 +396,6 @@ export const useSendThorTx = ({
       }
     })()
 
-    const maybeSafeTx = await fetchSafeTransactionInfo({
-      safeTxHash: _txId,
-      fetchIsSmartContractAddressQuery,
-      address: fromAccountId(accountId).account,
-      chainId: fromAccountId(accountId).chainId,
-    })
-
-    const _txIdLink = getTxLink({
-      defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-      txId: _txId ?? '',
-      stepSource: SwapperName.Thorchain,
-      maybeSafeTx,
-      address: fromAccountId(accountId).account,
-      chainId: fromAccountId(accountId).chainId,
-    })
-
-    // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet
-
-    // Also note confirmed TCY un/stakes (more to come) are currently handled by the action center, with new style bottom-right
-    // toasts, so we don't want to toast the Tx broadcasted one here, or the two diff toasts would look very odd to the user
-    // Toasts on Tx broadcasted are quite annoying for such a fast blocktime anyway, so they should probably all go away eventually anyway
-    if (!maybeSafeTx?.isSafeTxHash && !['stakeTcy', 'unstakeTcy'].includes(action)) {
-      toast({
-        title: translate('modals.send.transactionSent'),
-        description: _txId ? (
-          <Text>
-            <Link href={_txIdLink} isExternal>
-              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-            </Link>
-          </Text>
-        ) : undefined,
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
-    }
-
     setTxId(_txId)
     setSerializedTxIndex(_serializedTxIndex)
 
@@ -462,8 +412,6 @@ export const useSendThorTx = ({
     action,
     shouldUseDustAmount,
     amountOrDustCryptoBaseUnit,
-    toast,
-    translate,
     depositWithExpiryInputData,
     fromAddress,
     selectedCurrency,

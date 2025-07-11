@@ -29,9 +29,10 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppSelector } from '@/state/store'
 const chevronDownIcon = <ChevronDownIcon />
 
-type QuoteListProps = {
+export type QuoteListProps = {
   onBack?: () => void
   cardProps?: CardProps
+  showQuoteRefreshCountdown?: boolean
 }
 
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
@@ -41,7 +42,11 @@ const cardHeight = {
   md: 'inherit',
 }
 
-export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
+export const QuoteList: React.FC<QuoteListProps> = ({
+  onBack,
+  cardProps,
+  showQuoteRefreshCountdown = true,
+}) => {
   const translate = useTranslate()
 
   const currentSortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
@@ -90,7 +95,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, cardProps }) => {
               </MenuOptionGroup>
             </MenuList>
           </Menu>
-          <QuoteTimer />
+          {showQuoteRefreshCountdown && <QuoteTimer />}
         </Flex>
       </CardHeader>
       <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>

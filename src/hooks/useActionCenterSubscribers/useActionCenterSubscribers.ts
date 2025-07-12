@@ -1,4 +1,5 @@
 import { useAppUpdateActionSubscriber } from './useAppUpdateActionSubscriber'
+import { useEvergreenDepositActionSubscriber } from './useEvergreenDepositActionSubscriber'
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from './useSwapActionSubscriber'
 
@@ -9,4 +10,5 @@ export const useActionCenterSubscribers = () => {
   useLimitOrderActionSubscriber()
   useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()
+  useEvergreenDepositActionSubscriber()
 }

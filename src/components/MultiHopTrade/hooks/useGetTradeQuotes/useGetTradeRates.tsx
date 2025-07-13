@@ -303,6 +303,16 @@ export const useGetTradeRates = () => {
     }
   }, [dispatch])
 
+  useEffect(() => {
+    const handleFocus = () => dispatch(tradeQuoteSlice.actions.quotePollingReset())
+
+    window.addEventListener('focus', handleFocus)
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [dispatch])
+
   const hasTrackedInitialRatesReceived = useRef(false)
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 

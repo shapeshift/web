@@ -18,7 +18,7 @@ import { formatSmartDate } from '@/lib/utils/time'
 import type { EvergreenDepositAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
-import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -38,15 +38,17 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
 
   const translate = useTranslate()
 
-  const { lpAsset, depositAmountCryptoPrecision, stakeTxHash, accountId } =
+  const { lpAssetId, depositAmountCryptoPrecision, stakeTxHash, accountId } =
     action.evergreenDepositMetadata
+
+  const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
 
   const depositNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     return {
       depositAmountAndSymbol: (
         <Amount.Crypto
           value={depositAmountCryptoPrecision}
-          symbol={lpAsset.symbol}
+          symbol={lpAsset?.symbol ?? ''}
           fontWeight='bold'
           fontSize='sm'
           maximumFractionDigits={6}
@@ -55,7 +57,7 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
         />
       ),
     }
-  }, [depositAmountCryptoPrecision, lpAsset.symbol])
+  }, [depositAmountCryptoPrecision, lpAsset?.symbol])
 
   const title = useMemo(() => {
     switch (action.status) {
@@ -70,7 +72,7 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
     }
   }, [action.status])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, lpAsset.chainId))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, lpAsset?.chainId ?? ''))
   const txLink = useMemo(() => {
     if (!feeAsset || !stakeTxHash || !accountId) return
 

@@ -12,6 +12,8 @@ import { Text } from '@/components/Text/Text'
 import type { EvergreenDepositAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EvergreenDepositNotificationProps = {
   handleClick: () => void
@@ -23,14 +25,16 @@ export const EvergreenDepositNotification = ({
   action,
   onClose,
 }: EvergreenDepositNotificationProps) => {
-  const { lpAsset, depositAmountCryptoPrecision } = action.evergreenDepositMetadata
+  const { lpAssetId, depositAmountCryptoPrecision } = action.evergreenDepositMetadata
+
+  const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
 
   const depositNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     return {
       depositAmountAndSymbol: (
         <Amount.Crypto
           value={depositAmountCryptoPrecision}
-          symbol={lpAsset.symbol}
+          symbol={lpAsset?.symbol ?? ''}
           fontSize='sm'
           fontWeight='bold'
           maximumFractionDigits={6}
@@ -39,7 +43,7 @@ export const EvergreenDepositNotification = ({
         />
       ),
     }
-  }, [depositAmountCryptoPrecision, lpAsset.symbol])
+  }, [depositAmountCryptoPrecision, lpAsset?.symbol])
 
   const depositTranslation = useMemo(() => {
     switch (action.status) {

@@ -31,7 +31,7 @@ import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import { ActionStatus, ActionType, SwapDisplayType } from '@/state/slices/actionSlice/types'
+import { ActionType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -62,10 +62,7 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={
-                  Boolean(swap?.txLink) ||
-                  action.swapMetadata.displayType === SwapDisplayType.Bridge
-                }
+                isCollapsable={Boolean(swap?.txLink)}
               />
             )
           }

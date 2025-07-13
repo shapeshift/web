@@ -34,15 +34,13 @@ type SwapActionCardProps = {
 export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCardProps) => {
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const { displayType = SwapDisplayType.Swap, swapId } = action.swapMetadata
-
   const formattedDate = useMemo(() => {
     return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
   const swap = useMemo(() => {
-    return swapsById[swapId]
-  }, [swapId, swapsById])
+    return swapsById[action.swapMetadata.swapId]
+  }, [action, swapsById])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -89,14 +87,21 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   }, [swap])
 
   const title = useMemo(() => {
-    const displayKey = displayType.toLowerCase()
-    if (!swap) return `actionCenter.${displayKey}.processing`
-    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return `actionCenter.${displayKey}.complete`
-    if (swap.status === SwapStatus.Failed) return `actionCenter.${displayKey}.failed`
+    if (action.swapMetadata.displayType === SwapDisplayType.Bridge) {
+      if (!swap) return 'actionCenter.bridge.processing'
+      if (swap.status === SwapStatus.Success) return 'actionCenter.bridge.complete'
+      if (swap.status === SwapStatus.Failed) return 'actionCenter.bridge.failed'
 
-    return `actionCenter.${displayKey}.processing`
-  }, [displayType, swap])
+      return 'actionCenter.bridge.processing'
+    }
+
+    if (!swap) return 'actionCenter.swap.processing'
+    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
+    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
+    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
+
+    return 'actionCenter.swap.processing'
+  }, [action, swap])
 
   const icon = useMemo(() => {
     return (
@@ -134,7 +139,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   return (
     <ActionCard
       type={action.type}
-      displayType={displayType}
+      displayType={action.swapMetadata.displayType}
       formattedDate={formattedDate}
       isCollapsable={isCollapsable}
       isOpen={isOpen}
@@ -143,7 +148,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       description={description}
       icon={icon}
     >
-      <SwapDetails txLink={swap?.txLink} swap={swap} displayType={displayType} />
+      <SwapDetails txLink={swap?.txLink} swap={swap} />
     </ActionCard>
   )
 }

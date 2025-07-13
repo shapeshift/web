@@ -32,8 +32,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
   const action = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
 
-  const { displayType = SwapDisplayType.Swap } = action?.swapMetadata ?? {}
-
   const swapNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!swap) return
 
@@ -74,14 +72,21 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   }, [swap])
 
   const swapTitleTranslation = useMemo(() => {
-    const displayKey = displayType.toLowerCase()
-    if (!swap) return `actionCenter.${displayKey}.processing`
-    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return `actionCenter.${displayKey}.complete`
-    if (swap.status === SwapStatus.Failed) return `actionCenter.${displayKey}.failed`
+    if (action?.swapMetadata.displayType === SwapDisplayType.Bridge) {
+      if (!swap) return 'actionCenter.bridge.processing'
+      if (swap.status === SwapStatus.Success) return 'actionCenter.bridge.complete'
+      if (swap.status === SwapStatus.Failed) return 'actionCenter.bridge.failed'
 
-    return `actionCenter.${displayKey}.processing`
-  }, [displayType, swap])
+      return 'actionCenter.bridge.processing'
+    }
+
+    if (!swap) return 'actionCenter.swap.processing'
+    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
+    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
+    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
+
+    return 'actionCenter.swap.processing'
+  }, [action?.swapMetadata.displayType, swap])
 
   if (!swap) return null
 

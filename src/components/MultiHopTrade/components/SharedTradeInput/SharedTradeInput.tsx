@@ -1,6 +1,7 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent, JSX } from 'react'
+import { useMemo } from 'react'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedWidth } from '../TradeInput/hooks/useSharedWidth'
@@ -52,6 +53,16 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const inputWidth = useSharedWidth(tradeInputRef)
 
+  const isSideComponentOpen = useMemo(() => {
+    return !isCompact && !isSmallerThanXl && shouldOpenSideComponent
+  }, [isCompact, isSmallerThanXl, shouldOpenSideComponent])
+
+  // Styling to ensure we collapse the sidebar smoothly and don't chop off any box shadow
+  const overflowBoxStyles = useMemo(() => {
+    if (!isSideComponentOpen) return {}
+    return { overflow: 'hidden', padding: 0.5 }
+  }, [isSideComponentOpen])
+
   return (
     <Flex
       id='test-flex'
@@ -61,7 +72,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
     >
       <Center width='inherit'>
         <Box width={isSmallerThanXl || isStandalone ? '100%' : 'initial'} maxWidth='100%'>
-          <Box width='full' maxWidth='1000px' display='flex'>
+          <Box width='full' maxWidth='1000px' display='flex' {...overflowBoxStyles}>
             <Card
               flex={1}
               width={isSmallerThanXl || isStandalone ? 'full' : '500px'}

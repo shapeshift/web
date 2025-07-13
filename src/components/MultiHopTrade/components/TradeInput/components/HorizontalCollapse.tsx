@@ -22,7 +22,6 @@ export const HorizontalCollapse = ({
   const motionStyle = useMemo(
     (): MotionStyle => ({
       height,
-      overflow: 'hidden',
       whiteSpace: 'nowrap',
       position: 'relative',
     }),

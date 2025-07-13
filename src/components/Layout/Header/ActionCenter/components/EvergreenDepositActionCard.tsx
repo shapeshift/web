@@ -1,5 +1,4 @@
 import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -38,7 +37,7 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
 
   const translate = useTranslate()
 
-  const { lpAssetId, depositAmountCryptoPrecision, stakeTxHash, accountId } =
+  const { lpAssetId, depositAmountCryptoPrecision, stakeTxHash, chainId } =
     action.evergreenDepositMetadata
 
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
@@ -72,18 +71,18 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
     }
   }, [action.status])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, lpAsset?.chainId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const txLink = useMemo(() => {
-    if (!feeAsset || !stakeTxHash || !accountId) return
+    if (!feeAsset) return
 
     return getTxLink({
       txId: stakeTxHash,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-      address: fromAccountId(accountId).account,
-      chainId: fromAccountId(accountId).chainId,
+      chainId,
+      address: undefined,
       maybeSafeTx: undefined,
     })
-  }, [feeAsset, stakeTxHash, accountId])
+  }, [feeAsset, stakeTxHash, chainId])
 
   const icon = useMemo(() => {
     return (
@@ -103,13 +102,7 @@ export const EvergreenDepositActionCard = ({ action }: EvergreenDepositActionCar
     )
   }, [title, depositNotificationTranslationComponents])
 
-  const footer = useMemo(() => {
-    return (
-      <>
-        <ActionStatusTag status={action.status} />
-      </>
-    )
-  }, [action.status])
+  const footer = useMemo(() => <ActionStatusTag status={action.status} />, [action.status])
 
   return (
     <ActionCard

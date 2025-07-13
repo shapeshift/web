@@ -71,6 +71,7 @@ type ActionGenericTransactionMetadata = {
 type ActionEvergreenDepositMetadata = {
   depositAmountCryptoPrecision: string
   lpAssetId: AssetId
+  chainId: ChainId
   accountId: AccountId
   stakeTxHash: string
 }

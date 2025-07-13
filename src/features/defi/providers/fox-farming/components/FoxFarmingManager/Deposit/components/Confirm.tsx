@@ -148,6 +148,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
             evergreenDepositMetadata: {
               depositAmountCryptoPrecision: state.deposit.cryptoAmount,
               lpAssetId: asset.assetId,
+              chainId: asset.chainId,
               accountId,
               stakeTxHash: txid,
             },

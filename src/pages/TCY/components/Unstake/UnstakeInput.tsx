@@ -31,7 +31,9 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
+import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -89,7 +91,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
     name: 'fiatAmount',
   })
 
-  const { price: assetUserCurrencyRate } =
+  const { price: assetUserCurrencyRate = '0' } =
     useAppSelector(state =>
       selectMarketDataByFilter(state, { assetId: selectedStakingAsset?.assetId }),
     ) ?? {}
@@ -101,6 +103,16 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
   const accountId = accountNumberAccounts?.[thorchainChainId]
 
   const { data: tcyStaker } = useTcyStaker(accountId)
+
+  const stakedAmountCryptoPrecision = useMemo(
+    () => fromThorBaseUnit(tcyStaker?.amount ?? 0).toFixed(),
+    [tcyStaker?.amount, amountCryptoPrecision],
+  )
+
+  const stakedAmountFiatUserCurrency = useMemo(
+    () => bn(stakedAmountCryptoPrecision).times(assetUserCurrencyRate).toFixed(2),
+    [stakedAmountCryptoPrecision, assetUserCurrencyRate],
+  )
 
   const withdrawBps = useMemo(() => {
     if (!tcyStaker?.amount) return '0'
@@ -119,14 +131,13 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
       }
 
       const price = assetUserCurrencyRate ?? 0
-      const cryptoAmount = fieldName === 'fiatAmount' ? bnOrZero(inputValue).div(price) : inputValue
-      const fiatAmount =
-        fieldName === 'fiatAmount' ? inputValue : bnOrZero(inputValue).times(bnOrZero(price))
+      const cryptoAmount = inputValue
+      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
 
       setValue('amountCryptoPrecision', cryptoAmount.toString())
       setValue('fiatAmount', fiatAmount.toString())
     },
-    [fieldName, setValue, assetUserCurrencyRate],
+    [setValue, assetUserCurrencyRate],
   )
 
   const handleUnstakePercentChange = useCallback(
@@ -161,6 +172,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
     },
   )
 
+  console.log({ amountCryptoPrecision, fiatAmount })
   const toggleIsFiat = useCallback(() => {
     setFieldName(fieldName === 'fiatAmount' ? 'amountCryptoPrecision' : 'fiatAmount')
   }, [fieldName])
@@ -206,7 +218,6 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
       {headerComponent}
       <FormControl isInvalid={Boolean(errors.amountCryptoPrecision)}>
         <TradeAssetInput
-          accountId={accountId}
           assetId={selectedStakingAsset?.assetId ?? ''}
           assetSymbol={selectedStakingAsset?.symbol ?? ''}
           assetIcon={selectedStakingAsset?.icon ?? ''}
@@ -214,6 +225,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           label={translate('common.amount')}
           isAccountSelectionDisabled
           placeholder={translate('common.enterAmount')}
+          balance={stakedAmountCryptoPrecision}
           onToggleIsFiat={toggleIsFiat}
           onChange={handleAmountChange}
           isFiat={fieldName === 'fiatAmount'}
@@ -236,9 +248,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
             </Slider>
             <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
               <Amount.Fiat value={0} />
-              <Amount.Fiat
-                value={tcyStaker?.amount ? fromBaseUnit(tcyStaker.amount, THOR_PRECISION) : '0'}
-              />
+              <Amount.Fiat value={stakedAmountFiatUserCurrency} />
             </Flex>
           </Stack>
         </TradeAssetInput>

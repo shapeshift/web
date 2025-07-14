@@ -24,6 +24,7 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { fetchTradeStatus } from '@/lib/tradeExecution'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
@@ -270,9 +271,10 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     queryFn:
       l1TxHash && sellAsset?.chainId
         ? () =>
-            arbitrumBridgeApi.checkTradeStatus({
-              txHash: l1TxHash,
-              chainId: sellAsset.chainId,
+            fetchTradeStatus({
+              swapper: arbitrumBridgeApi,
+              sellTxHash: l1TxHash,
+              sellAssetChainId: sellAsset.chainId,
               stepIndex: 0,
               address: fromAccountId(confirmedQuote.sellAssetAccountId).account,
               swap: undefined,

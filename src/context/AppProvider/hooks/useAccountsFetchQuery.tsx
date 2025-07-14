@@ -164,7 +164,8 @@ export const useAccountsFetchQuery = () => {
               if (
                 (!enabledPortfolioAccounts[accountId]?.hasActivity &&
                   !portfolioAccounts[accountId]) ||
-                isSnapStatusUpdated
+                isSnapStatusUpdated ||
+                Object.keys(enabledPortfolioAccounts).length === 0
               ) {
                 dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
 

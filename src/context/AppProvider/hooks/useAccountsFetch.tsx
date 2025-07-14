@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 import { useAccountsFetchQuery } from './useAccountsFetchQuery'
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -12,6 +13,8 @@ export const useAccountsFetch = () => {
   const dispatch = useAppDispatch()
   const { wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+
+  const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 
   useEffect(() => {
     if (!wallet) return
@@ -29,10 +32,12 @@ export const useAccountsFetch = () => {
       dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     })
 
+    if (isLazyTxHistoryEnabled) return
+
     enabledWalletAccountIds.forEach(requestedAccountId => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
-  }, [dispatch, enabledWalletAccountIds])
+  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
 
   const query = useAccountsFetchQuery()
   return query

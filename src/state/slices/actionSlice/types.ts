@@ -6,13 +6,13 @@ import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderIn
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 
 export enum ActionType {
-  Deposit = 'Deposit',
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
   GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
   RfoxClaim = 'RfoxClaim',
+  EvergreenDeposit = 'Deposit',
 }
 
 export enum ActionStatus {
@@ -68,6 +68,14 @@ type ActionGenericTransactionMetadata = {
   assetId: AssetId
 }
 
+type ActionEvergreenDepositMetadata = {
+  depositAmountCryptoPrecision: string
+  lpAssetId: AssetId
+  chainId: ChainId
+  accountId: AccountId
+  stakeTxHash: string
+}
+
 export type BaseAction = {
   id: string
   type: ActionType
@@ -104,12 +112,18 @@ export type RfoxClaimAction = BaseAction & {
   }
 }
 
+export type EvergreenDepositAction = BaseAction & {
+  type: ActionType.EvergreenDeposit
+  evergreenDepositMetadata: ActionEvergreenDepositMetadata
+}
+
 export type Action =
   | SwapAction
   | LimitOrderAction
   | AppUpdateAction
   | GenericTransactionAction
   | RfoxClaimAction
+  | EvergreenDepositAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -136,4 +150,8 @@ export const isGenericTransactionAction = (action: Action): action is GenericTra
 
 export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => {
   return Boolean(action.type === ActionType.RfoxClaim && action.rfoxClaimActionMetadata)
+}
+
+export const isEvergreenDepositAction = (action: Action): action is EvergreenDepositAction => {
+  return Boolean(action.type === ActionType.EvergreenDeposit && action.evergreenDepositMetadata)
 }

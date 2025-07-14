@@ -172,7 +172,6 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
     },
   )
 
-  console.log({ amountCryptoPrecision, fiatAmount })
   const toggleIsFiat = useCallback(() => {
     setFieldName(fieldName === 'fiatAmount' ? 'amountCryptoPrecision' : 'fiatAmount')
   }, [fieldName])

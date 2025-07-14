@@ -12,7 +12,6 @@ import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { bn } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import type {
   GenericTransactionDisplayType,
@@ -33,7 +32,7 @@ type ClaimActionCardProps = {
   underlyingAssetId: AssetId
   txHash: string | undefined
   onClaimClick: () => void
-  amountCryptoPrecision: string
+  message: string
   displayType: GenericTransactionDisplayType
 }
 
@@ -43,7 +42,7 @@ export const ClaimActionCard = ({
   txHash,
   action,
   onClaimClick,
-  amountCryptoPrecision,
+  message,
   displayType,
 }: ClaimActionCardProps) => {
   const { closeDrawer } = useActionCenterContext()
@@ -124,37 +123,6 @@ export const ClaimActionCard = ({
       </Button>
     )
   }, [txHash, action.status, claimFeeAsset, handleClaimClick, claimAsset, translate])
-
-  const message = useMemo(() => {
-    if (!claimAsset) return null
-
-    // Yes, this may round down to 0 during testing if you unstake a fraction of FOX, but for *real* users, this is much better visually
-    // and it doesn't matter to be off from something like a penny to $0.1, this by no means is supposed to be the exact amount up to the 18dp
-    const amountCryptoHuman = bn(amountCryptoPrecision).toFixed(2)
-
-    switch (action.status) {
-      case ActionStatus.ClaimAvailable: {
-        return translate('actionCenter.rfox.unstakeReady', {
-          amount: amountCryptoHuman,
-          symbol: claimAsset.symbol,
-        })
-      }
-      case ActionStatus.Pending: {
-        return translate('actionCenter.rfox.unstakeTxPending', {
-          amount: amountCryptoHuman,
-          symbol: claimAsset.symbol,
-        })
-      }
-      case ActionStatus.Claimed: {
-        return translate('actionCenter.rfox.unstakeTxComplete', {
-          amount: amountCryptoHuman,
-          symbol: claimAsset.symbol,
-        })
-      }
-      default:
-        throw new Error(`Unsupported RFOX Claim Action status: ${action.status}`)
-    }
-  }, [amountCryptoPrecision, action.status, claimAsset, translate])
 
   return (
     <ActionCard

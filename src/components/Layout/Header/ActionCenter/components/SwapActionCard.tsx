@@ -41,7 +41,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   }, [action, swapsById])
 
   const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen: swap?.isStreaming && action.status === ActionStatus.Pending,
+    defaultIsOpen:
+      action.status === ActionStatus.Pending && Boolean(swap?.isStreaming || swap?.txLink),
   })
 
   const swapNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {

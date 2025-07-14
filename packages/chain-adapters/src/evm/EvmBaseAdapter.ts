@@ -414,7 +414,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       }),
     )
 
-    // Filter out null values (known transactions)
     const filteredTxs = transactions.filter(isSome)
 
     return {

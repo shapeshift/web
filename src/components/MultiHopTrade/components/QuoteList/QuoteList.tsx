@@ -56,8 +56,24 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
 
   const sortByTextColor = useColorModeValue('blackAlpha.500', 'whiteAlpha.500')
 
+  // Patch styling: border to remedy box shadow cut off in light mode
+  const isDarkMode = useColorModeValue(false, true)
+  const borderStyle = useMemo(
+    () =>
+      isDarkMode
+        ? {}
+        : { borderColor: 'border.base', borderWidth: '1px', borderBottomWidth: '2px' },
+    [isDarkMode],
+  )
+
   return (
-    <Card {...cardProps} bg={cardBgProp} borderRadius={cardBorderRadius} height={cardHeight}>
+    <Card
+      {...borderStyle}
+      {...cardProps}
+      bg={cardBgProp}
+      borderRadius={cardBorderRadius}
+      height={cardHeight}
+    >
       <CardHeader px={4} pt={4} display='flex' alignItems='center' justifyContent='space-between'>
         <Flex alignItems={'center'} gap={2}>
           {onBack && <BackButton ml={-2} onClick={onBack} />}

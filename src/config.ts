@@ -182,6 +182,7 @@ const validators = {
   VITE_COINCAP_API_KEY: str(),
   VITE_FEATURE_MAYA_SWAP: bool({ default: false }),
   VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
+  VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

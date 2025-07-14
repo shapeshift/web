@@ -24,7 +24,7 @@ import { DashboardDrawer } from '@/pages/Dashboard/components/DashboardHeader/Da
 import { MobileUserHeader } from '@/pages/Dashboard/components/DashboardHeader/MobileUserHeader'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 
-const mainPaddingBottom = { base: 16, md: 8 }
+const mainPaddingBottom = { base: 0, md: 8 }
 
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
@@ -83,7 +83,7 @@ export const History = () => {
         />
       </Container>
       <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' pt={0} isLazy>
-        <Box borderBottomWidth={1} borderColor='border.base'>
+        <Box className='history-tabs-header' borderBottomWidth={1} borderColor='border.base'>
           <TabList px={4}>
             <CustomTab>{translate('common.activity')}</CustomTab>
             <CustomTab>{translate('navBar.history')}</CustomTab>

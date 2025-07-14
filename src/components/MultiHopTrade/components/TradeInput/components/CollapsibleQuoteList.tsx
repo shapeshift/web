@@ -20,23 +20,16 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
   isLoading,
   ml,
 }) => {
-  // Patch styling: border to remedy box shadow cut off in light mode
-  const isDarkMode = useColorModeValue(false, true)
-  const borderStyle = useMemo(
-    () =>
-      isDarkMode
-        ? {}
-        : { borderColor: 'border.base', borderWidth: '1px', borderBottomWidth: '2px' },
-    [isDarkMode],
-  )
+  const borderColor = useColorModeValue('border.base', 'transparent') // Patch styling: border to remedy box shadow cut off in light mode
 
   const cardProps: CardProps = useMemo(
     () => ({
       ml,
       height,
-      ...borderStyle,
+      borderWidth: '1px',
+      borderColor,
     }),
-    [ml, height, borderStyle],
+    [ml, height, borderColor],
   )
 
   return (

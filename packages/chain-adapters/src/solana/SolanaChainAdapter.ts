@@ -17,7 +17,7 @@ import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, isSome } from '@shapeshiftoss/utils'
 import {
   createAssociatedTokenAccountInstruction,
   createTransferCheckedInstruction,
@@ -228,13 +228,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       )
 
       const txs = await Promise.all(
-        data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+        data.txs.map(tx => {
+          if (input.knownTxIds?.has(tx.txid)) {
+            return null
+          }
+
+          return requestQueue.add(() => this.parseTx(tx, input.pubkey))
+        }),
       )
+
+      const filteredTxs = txs.filter(isSome)
 
       return {
         cursor: data.cursor ?? '',
         pubkey: input.pubkey,
-        transactions: txs,
+        transactions: filteredTxs,
       }
     } catch (err) {
       return ErrorHandler(err)

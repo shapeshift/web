@@ -9,7 +9,7 @@ import { ClaimActionCard } from './ClaimActionCard'
 import { bn } from '@/lib/bignumber/bignumber'
 import { RfoxRoute } from '@/pages/RFOX/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -77,6 +77,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
   return (
     <ClaimActionCard
+      displayType={GenericTransactionDisplayType.RFOX}
       action={action}
       claimAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       underlyingAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}

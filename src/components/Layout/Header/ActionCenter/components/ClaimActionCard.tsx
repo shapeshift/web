@@ -13,8 +13,12 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
-import type { RfoxClaimAction, TcyClaimAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import type {
+  GenericTransactionDisplayType,
+  RfoxClaimAction,
+  TcyClaimAction,
+} from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -29,6 +33,7 @@ type ClaimActionCardProps = {
   txHash: string | undefined
   onClaimClick: () => void
   message: string
+  displayType: GenericTransactionDisplayType
 }
 
 export const ClaimActionCard = ({
@@ -38,6 +43,7 @@ export const ClaimActionCard = ({
   action,
   onClaimClick,
   message,
+  displayType,
 }: ClaimActionCardProps) => {
   const { closeDrawer } = useActionCenterContext()
   const translate = useTranslate()
@@ -121,7 +127,7 @@ export const ClaimActionCard = ({
   return (
     <ActionCard
       type={action.type}
-      displayType={GenericTransactionDisplayType.RFOX}
+      displayType={displayType}
       formattedDate={formattedDate}
       isCollapsable={true}
       isOpen={isOpen}

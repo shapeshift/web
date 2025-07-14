@@ -9,7 +9,7 @@ import { ClaimActionCard } from './ClaimActionCard'
 
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import type { TcyClaimAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -58,6 +58,7 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
 
   return (
     <ClaimActionCard
+      displayType={GenericTransactionDisplayType.TCY}
       action={action}
       claimAssetId={tcyAssetId}
       underlyingAssetId={action.tcyClaimActionMetadata.claim.assetId}

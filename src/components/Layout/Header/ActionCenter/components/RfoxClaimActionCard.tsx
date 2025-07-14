@@ -4,7 +4,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { useActionCenterContext } from '../ActionCenterContext'
 import { ClaimActionCard } from './ClaimActionCard'
 
 import { bn } from '@/lib/bignumber/bignumber'
@@ -23,19 +22,20 @@ type RfoxClaimActionCardProps = {
 export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const { closeDrawer } = useActionCenterContext()
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, action.rfoxClaimActionMetadata.request.stakingAssetId),
   )
 
   const handleClaimClick = useCallback(() => {
+    const index = action.rfoxClaimActionMetadata.request.index
+
     navigate(`${RfoxRoute.Claim}/${index}/confirm`, {
       state: {
         selectedUnstakingRequest: action.rfoxClaimActionMetadata.request,
       },
     })
-  }, [navigate, closeDrawer, action.rfoxClaimActionMetadata.request])
+  }, [action, navigate])
 
   const message = useMemo(() => {
     if (!stakingAsset) return null

@@ -3,6 +3,7 @@ import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/c
 import type { Bip44Params, CosmosSdkChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { isSome } from '@shapeshiftoss/utils'
 import { bech32 } from 'bech32'
 import PQueue from 'p-queue'
 
@@ -263,13 +264,21 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       )
 
       const txs = await Promise.all(
-        data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+        data.txs.map(tx => {
+          if (input.knownTxIds?.has(tx.txid)) {
+            return null
+          }
+
+          return requestQueue.add(() => this.parseTx(tx, input.pubkey))
+        }),
       )
+
+      const filteredTxs = txs.filter(isSome)
 
       return {
         cursor: data.cursor,
         pubkey: input.pubkey,
-        transactions: txs,
+        transactions: filteredTxs,
       }
     } catch (err) {
       return ErrorHandler(err)

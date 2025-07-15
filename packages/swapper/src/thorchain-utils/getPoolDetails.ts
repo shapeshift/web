@@ -4,7 +4,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperName } from '../types'
-import { getPoolAssetId } from './index'
+import { getPoolAssetId, isNativeAsset } from './index'
 import { thorService } from './service'
 import type { ThornodePoolResponse } from './types'
 
@@ -40,21 +40,33 @@ export const getPoolDetails = async (
   const buyPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
   const streamingInterval = (() => {
-    // TODO: One of the pools is a fee asset (RUNE/CACAO) - use the as-is 10 until we work out how best to handle this
-    if (!sellPool || !buyPool) return 10
+    const sellAssetDepthBps = (() => {
+      // Sell pool is the same as buy pool if selling native fee asset
+      if (isNativeAsset(sellAsset.assetId, swapperName)) return buyPool?.derived_depth_bps
+      return sellPool?.derived_depth_bps
+    })()
 
-    const sellAssetDepthBps = sellPool.derived_depth_bps
-    const buyAssetDepthBps = buyPool.derived_depth_bps
-    const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
+    const buyAssetDepthBps = (() => {
+      // Buy pool is the same as sell pool if buying native fee asset
+      if (isNativeAsset(buyAsset.assetId, swapperName)) return sellPool?.derived_depth_bps
+      return buyPool?.derived_depth_bps
+    })()
 
-    // Low health for the pools of this swap - use a longer streaming interval
-    if (swapDepthBps.lt(5000)) return 10
+    if (sellAssetDepthBps && buyAssetDepthBps) {
+      const swapDepthBps = bn(sellAssetDepthBps).plus(buyAssetDepthBps).div(2)
 
-    // Moderate health for the pools of this swap - use a moderate streaming interval
-    if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
+      // Low health for the pools of this swap - use a longer streaming interval
+      if (swapDepthBps.lt(5000)) return 10
 
-    // Pool is at 90%+ health - use a 1 block streaming interval
-    return 1
+      // Moderate health for the pools of this swap - use a moderate streaming interval
+      if (swapDepthBps.lt(9000) && swapDepthBps.gte(5000)) return 5
+
+      // Pool is at 90%+ health - use a 1 block streaming interval
+      return 1
+    }
+
+    // Default streaming interval if derived depth bps are not available
+    return 10
   })()
 
   return Ok({ buyPoolId, buyPool, sellPoolId, sellPool, streamingInterval })

@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import {
   TRADE_QUOTE_REFRESH_INTERVAL_MS,
   TRADE_QUOTE_TIMER_UPDATE_MS,
+  useGlobalPolling,
 } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
-import { selectLastRefreshTime } from '@/state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from '@/state/store'
 
 type QuoteTimerProps = {
   size?: string | number
@@ -17,18 +17,50 @@ const getElapsed = (lastRefreshTime: number) => {
   return Math.max(0, TRADE_QUOTE_REFRESH_INTERVAL_MS - elapsed)
 }
 
-export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
-  const lastRefreshTime = useAppSelector(selectLastRefreshTime)
+export const useQueryPollingStatus = () => {
+  const query = useGlobalPolling()
 
-  const [timeRemaining, setTimeRemaining] = useState(() => getElapsed(lastRefreshTime))
+  const pollingStatus = useMemo(() => {
+    if (!query) return null
+
+    const now = Date.now()
+    const timeUntilNextRefetch =
+      query.dataUpdatedAt && query.data
+        ? Math.max(0, query.dataUpdatedAt + query.data.lastExecutedTime - now)
+        : null
+
+    return {
+      isFetching: query.fetchStatus === 'fetching',
+      isPaused: query.fetchStatus === 'paused',
+      dataUpdatedAt: query.dataUpdatedAt,
+      errorUpdatedAt: query.errorUpdatedAt,
+      refetchInterval: query.data,
+      timeUntilNextRefetch,
+      lastRefetchTime: query.dataUpdatedAt,
+      nextRefetchTime:
+        query.dataUpdatedAt && query.data
+          ? query.dataUpdatedAt + query.data.lastExecutedTime
+          : null,
+    }
+  }, [query])
+
+  return pollingStatus
+}
+
+export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
+  const pollingStatus = useQueryPollingStatus()
+
+  const [timeRemaining, setTimeRemaining] = useState(() =>
+    getElapsed(pollingStatus?.lastRefetchTime ?? 0),
+  )
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeRemaining(getElapsed(lastRefreshTime))
+      setTimeRemaining(getElapsed(pollingStatus?.lastRefetchTime ?? 0))
     }, TRADE_QUOTE_TIMER_UPDATE_MS)
 
     return () => clearInterval(interval)
-  }, [lastRefreshTime])
+  }, [pollingStatus?.lastRefetchTime])
 
   return (
     <CircularProgress

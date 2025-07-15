@@ -4,7 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
@@ -38,7 +38,6 @@ import {
 import {
   selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,
-  selectLastRefreshTime,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -52,7 +51,33 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
  */
 export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
 export const TRADE_QUOTE_TIMER_UPDATE_MS = 100 // How often UI timer updates for smooth display
-const TRADE_QUOTE_CHECK_INTERVAL_MS = 1000 // How often to check if refresh is needed (internal only)
+export const TRADE_QUOTE_CHECK_INTERVAL_MS = 1000 // How often to check if refresh is needed (internal only)
+
+export const useGlobalPolling = () => {
+  const hasFocus = useHasFocus()
+  const previousHasFocus = usePrevious(hasFocus)
+  const dispatch = useAppDispatch()
+
+  const query = useQuery({
+    queryKey: ['tradeQuoteRefresh'],
+    queryFn: () => {
+      if (previousHasFocus && hasFocus) {
+        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+      }
+
+      console.log('executing', hasFocus, Date.now())
+
+      return { lastExecutedTime: Date.now() }
+    },
+    refetchInterval: TRADE_QUOTE_REFRESH_INTERVAL_MS,
+    refetchOnWindowFocus: 'always',
+    staleTime: TRADE_QUOTE_CHECK_INTERVAL_MS,
+    gcTime: 0,
+    enabled: hasFocus,
+  })
+
+  return query
+}
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -255,36 +280,7 @@ export const useGetTradeRates = () => {
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
 
-  const hasFocusRef = useRef(hasFocus)
-
-  // Update refs on every render to ensure interval always has latest values
-  hasFocusRef.current = hasFocus
-
-  // Polling logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now()
-      const state = store.getState()
-      const currentLastRefreshTime = selectLastRefreshTime(state)
-      const elapsed = now - currentLastRefreshTime
-
-      // Timer finished, trigger pending until loading done
-      if (elapsed >= TRADE_QUOTE_REFRESH_INTERVAL_MS && hasFocusRef.current) {
-        dispatch(tradeQuoteSlice.actions.quotePollingReset())
-        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
-      }
-    }, TRADE_QUOTE_CHECK_INTERVAL_MS)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [dispatch])
-
-  useEffect(() => {
-    if (!previousHasFocus && hasFocus) {
-      dispatch(tradeQuoteSlice.actions.quotePollingReset())
-    }
-  }, [dispatch, hasFocus, previousHasFocus])
+  useGlobalPolling()
 
   const hasTrackedInitialRatesReceived = useRef(false)
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

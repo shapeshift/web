@@ -1,6 +1,5 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
-import { SwapStatus } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
@@ -12,7 +11,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
-import { SwapDisplayType } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectSwapActionBySwapId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
@@ -72,21 +71,23 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   }, [swap])
 
   const swapTitleTranslation = useMemo(() => {
-    if (action?.swapMetadata.displayType === SwapDisplayType.Bridge) {
-      if (!swap) return 'actionCenter.bridge.processing'
-      if (swap.status === SwapStatus.Success) return 'actionCenter.bridge.complete'
-      if (swap.status === SwapStatus.Failed) return 'actionCenter.bridge.failed'
+    if (!action) return 'actionCenter.swap.processing'
+
+    if (action.swapMetadata.maybeArbitrumBridgeType !== undefined) {
+      if (action.status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+      if (action.status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
+      if (action.status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
 
       return 'actionCenter.bridge.processing'
     }
 
-    if (!swap) return 'actionCenter.swap.processing'
-    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
-    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
+    if (swap?.isStreaming && action.status === ActionStatus.Pending)
+      return 'actionCenter.swap.streaming'
+    if (action.status === ActionStatus.Complete) return 'actionCenter.swap.complete'
+    if (action.status === ActionStatus.Failed) return 'actionCenter.swap.failed'
 
     return 'actionCenter.swap.processing'
-  }, [action?.swapMetadata.displayType, swap])
+  }, [action, swap])
 
   if (!swap) return null
 

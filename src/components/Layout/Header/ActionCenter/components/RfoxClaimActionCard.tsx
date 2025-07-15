@@ -161,8 +161,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
   return (
     <ActionCard
-      type={action.type}
-      displayType={GenericTransactionDisplayType.RFOX}
+      typeTitle={GenericTransactionDisplayType.RFOX}
       formattedDate={formattedDate}
       isCollapsable={true}
       isOpen={isOpen}

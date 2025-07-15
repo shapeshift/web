@@ -18,6 +18,7 @@ export enum ActionType {
 export enum ActionStatus {
   Idle = 'Idle',
   Pending = 'Pending',
+  Initiated = 'Initiated',
   Complete = 'Complete',
   Failed = 'Failed',
   ClaimAvailable = 'ClaimAvailable',
@@ -27,14 +28,14 @@ export enum ActionStatus {
   Cancelled = 'Cancelled',
 }
 
-export enum SwapDisplayType {
-  Swap = 'Swap',
-  Bridge = 'Bridge',
+export enum ArbitrumBridgeType {
+  Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
 }
 
 type ActionSwapMetadata = {
   swapId: string
-  displayType: SwapDisplayType
+  maybeArbitrumBridgeType?: ArbitrumBridgeType
 }
 
 type ActionLimitOrderMetadata = {

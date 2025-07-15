@@ -1,3 +1,4 @@
+import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -20,6 +21,7 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
+import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -133,6 +135,8 @@ export const useGetTradeRates = () => {
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
   const hasFocus = useHasFocus()
+  const previousHasFocus = usePrevious(hasFocus)
+
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -240,47 +244,20 @@ export const useGetTradeRates = () => {
     [tradeRateInput],
   )
 
-  const cowSwapQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
-  const arbitrumBridgeQuery = useGetSwapperTradeQuoteOrRate(
-    getTradeQuoteArgs(SwapperName.ArbitrumBridge),
-  )
-  const portalsQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
-  const thorchainQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
-  const zrxQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
-  const chainflipQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
-  const jupiterQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
-  const relayQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
-  const mayachainQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
-  const butterSwapQuery = useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
 
-  const refreshQuotes = useCallback(() => {
-    cowSwapQuery.refetch()
-    arbitrumBridgeQuery.refetch()
-    portalsQuery.refetch()
-    thorchainQuery.refetch()
-    zrxQuery.refetch()
-    chainflipQuery.refetch()
-    jupiterQuery.refetch()
-    relayQuery.refetch()
-    mayachainQuery.refetch()
-    butterSwapQuery.refetch()
-  }, [
-    cowSwapQuery,
-    arbitrumBridgeQuery,
-    portalsQuery,
-    thorchainQuery,
-    zrxQuery,
-    chainflipQuery,
-    jupiterQuery,
-    relayQuery,
-    mayachainQuery,
-    butterSwapQuery,
-  ])
-  const refreshQuotesRef = useRef(refreshQuotes)
   const hasFocusRef = useRef(hasFocus)
 
   // Update refs on every render to ensure interval always has latest values
-  refreshQuotesRef.current = refreshQuotes
   hasFocusRef.current = hasFocus
 
   // Polling logic
@@ -294,7 +271,7 @@ export const useGetTradeRates = () => {
       // Timer finished, trigger pending until loading done
       if (elapsed >= TRADE_QUOTE_REFRESH_INTERVAL_MS && hasFocusRef.current) {
         dispatch(tradeQuoteSlice.actions.quotePollingReset())
-        refreshQuotesRef.current()
+        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
       }
     }, TRADE_QUOTE_CHECK_INTERVAL_MS)
 
@@ -304,14 +281,10 @@ export const useGetTradeRates = () => {
   }, [dispatch])
 
   useEffect(() => {
-    const handleFocus = () => dispatch(tradeQuoteSlice.actions.quotePollingReset())
-
-    window.addEventListener('focus', handleFocus)
-
-    return () => {
-      window.removeEventListener('focus', handleFocus)
+    if (!previousHasFocus && hasFocus) {
+      dispatch(tradeQuoteSlice.actions.quotePollingReset())
     }
-  }, [dispatch])
+  }, [dispatch, hasFocus, previousHasFocus])
 
   const hasTrackedInitialRatesReceived = useRef(false)
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

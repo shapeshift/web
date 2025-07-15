@@ -37,7 +37,7 @@ export const useGetSwapperTradeQuoteOrRate = ({
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [swapperName, tradeQuoteInput])
 
-  const { refetch } = useGetTradeQuoteQuery(tradeQuoteRequest, tradeQuoteOptions)
+  useGetTradeQuoteQuery(tradeQuoteRequest, tradeQuoteOptions)
 
   // skip tokens invalidate loading state of the original useGetTradeQuoteQuery hook
   // so to persist fetching state after an inflight request becomes skipped, we need to
@@ -57,5 +57,5 @@ export const useGetSwapperTradeQuoteOrRate = ({
     )
   }, [swapperName, dispatch, queryStateMeta.data])
 
-  return { ...queryStateMeta, refetch }
+  return queryStateMeta
 }

@@ -1,7 +1,7 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import type { LimitOrderAction, RfoxClaimAction, SwapAction } from './types'
+import type { LimitOrderAction, RfoxClaimAction, SwapAction, TcyClaimAction } from './types'
 import {
   ActionStatus,
   ActionType,
@@ -10,6 +10,7 @@ import {
   isPendingSwapAction,
   isRfoxClaimAction,
   isSwapAction,
+  isTcyClaimAction,
 } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -51,6 +52,10 @@ export const selectWalletActions = createDeepEqualOutputSelector(
         return enabledWalletAccountIds.includes(
           action.rfoxClaimActionMetadata.request.stakingAssetAccountId,
         )
+      }
+
+      if (isTcyClaimAction(action)) {
+        return enabledWalletAccountIds.includes(action.tcyClaimActionMetadata.claim.accountId)
       }
 
       return action
@@ -151,6 +156,25 @@ export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(
 
 export const selectPendingRfoxClaimActions = createDeepEqualOutputSelector(
   selectRfoxClaimActionsByWallet,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending)
+  },
+)
+
+export const selectTcyClaimActionsByWallet = createDeepEqualOutputSelector(
+  selectActions,
+  selectEnabledWalletAccountIds,
+  (actions, enabledWalletAccountIds) => {
+    return actions.filter(
+      (action): action is TcyClaimAction =>
+        isTcyClaimAction(action) &&
+        enabledWalletAccountIds.includes(action.tcyClaimActionMetadata.claim.accountId),
+    )
+  },
+)
+
+export const selectPendingTcyClaimActions = createDeepEqualOutputSelector(
+  selectTcyClaimActionsByWallet,
   actions => {
     return actions.filter(action => action.status === ActionStatus.Pending)
   },

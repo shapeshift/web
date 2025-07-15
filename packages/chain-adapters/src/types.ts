@@ -263,6 +263,7 @@ export interface TxHistoryInput {
   readonly pubkey: string
   readonly pageSize?: number
   readonly requestQueue?: PQueue
+  readonly knownTxIds?: Set<string>
 }
 
 export type GetAddressInputBase = {

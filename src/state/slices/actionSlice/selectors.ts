@@ -1,3 +1,5 @@
+import type { Swap } from '@shapeshiftoss/swapper'
+
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
@@ -86,6 +88,24 @@ export const selectPendingSwapActions = createDeepEqualOutputSelector(
   },
 )
 
+export const selectWalletSwapsById = createDeepEqualOutputSelector(
+  selectWalletActions,
+  swapSlice.selectors.selectSwapsById,
+  selectEnabledWalletAccountIds,
+  (walletActions, swapsById, enabledWalletAccountIds) =>
+    walletActions.filter(isSwapAction).reduce<Record<string, Swap>>((acc, action) => {
+      const swapId = action.swapMetadata.swapId
+      const relatedSwap = swapsById[swapId]
+
+      if (!relatedSwap?.sellAccountId) return acc
+      if (!enabledWalletAccountIds.includes(relatedSwap.sellAccountId)) return acc
+
+      acc[swapId] = relatedSwap
+
+      return acc
+    }, {}),
+)
+
 export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
@@ -117,14 +137,18 @@ export const selectOpenLimitOrderActionsFilteredByWallet = createDeepEqualOutput
   },
 )
 
-export const selectLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelector(
-  selectActions,
+export const selectWalletLimitOrderActionByCowSwapQuoteId = createDeepEqualOutputSelector(
+  selectWalletActions,
   selectCowSwapQuoteIdParamFromRequiredFilter,
   (actions, cowSwapQuoteId) => {
-    return actions.find(
+    const maybeAction = actions.find(
       action =>
         isLimitOrderAction(action) && action.limitOrderMetadata.cowSwapQuoteId === cowSwapQuoteId,
     )
+
+    if (!maybeAction || !isLimitOrderAction(maybeAction)) return
+
+    return maybeAction
   },
 )
 
@@ -137,6 +161,13 @@ export const selectLimitOrderActionsByWallet = createDeepEqualOutputSelector(
         isLimitOrderAction(action) &&
         enabledWalletAccountIds.includes(action.limitOrderMetadata.accountId),
     )
+  },
+)
+
+export const selectWalletGenericTransactionActions = createDeepEqualOutputSelector(
+  selectWalletActionsSorted,
+  actions => {
+    return actions.filter(isGenericTransactionAction)
   },
 )
 

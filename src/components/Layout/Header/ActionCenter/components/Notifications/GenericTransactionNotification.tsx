@@ -6,8 +6,7 @@ import { ActionStatusIcon } from '../ActionStatusIcon'
 import { NotificationWrapper } from './NotificationWrapper'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { selectWalletActionsSorted } from '@/state/slices/actionSlice/selectors'
-import { isGenericTransactionAction } from '@/state/slices/actionSlice/types'
+import { selectWalletGenericTransactionActions } from '@/state/slices/actionSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type GenericTransactionNotificationProps = {
@@ -20,14 +19,10 @@ export const GenericTransactionNotification = ({
   actionId,
   onClose,
 }: GenericTransactionNotificationProps) => {
-  const actions = useAppSelector(selectWalletActionsSorted)
-  const action = useMemo(
-    () => actions.find(a => a.id === actionId && a.type === 'GenericTransaction'),
-    [actions, actionId],
-  )
+  const actions = useAppSelector(selectWalletGenericTransactionActions)
+  const action = useMemo(() => actions.find(action => action.id === actionId), [actions, actionId])
 
   if (!action) return null
-  if (!isGenericTransactionAction(action)) return null
 
   return (
     <NotificationWrapper handleClick={handleClick} onClose={onClose}>

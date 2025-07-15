@@ -10,8 +10,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
-import { selectSwapActionBySwapId } from '@/state/slices/selectors'
-import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { selectSwapActionBySwapId, selectWalletSwapsById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SwapNotificationProps = {
@@ -20,7 +19,7 @@ type SwapNotificationProps = {
 } & RenderProps
 
 export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificationProps) => {
-  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
+  const swapsById = useAppSelector(selectWalletSwapsById)
 
   const swap = useMemo(() => {
     if (!swapId) return undefined

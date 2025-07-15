@@ -164,7 +164,7 @@ export const selectLimitOrderActionsByWallet = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletGenericTransactionActions = createDeepEqualOutputSelector(
+export const selectWalletGenericTransactionActionsSorted = createDeepEqualOutputSelector(
   selectWalletActionsSorted,
   actions => {
     return actions.filter(isGenericTransactionAction)

@@ -18,6 +18,8 @@ import { IconCircle } from '@/components/IconCircle'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectPortfolioLoadingStatus } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexAlignItems = { base: 'flex-start', md: 'center' }
@@ -28,14 +30,22 @@ export const useBridgeClaimNotification = () => {
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
   const toastIdRef = useRef<ToastId | undefined>(undefined)
+  const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
 
   const {
-    state: { deviceId: walletDeviceId },
+    state: { isLoadingLocalWallet, modal, isConnected, deviceId: walletDeviceId },
   } = useWallet()
 
   const prevDeviceId = usePrevious(walletDeviceId)
 
-  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({ skip: isDisabled })
+  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({
+    skip:
+      isDisabled ||
+      !isConnected ||
+      portfolioLoadingStatus === 'loading' ||
+      modal ||
+      isLoadingLocalWallet,
+  })
 
   useEffect(() => {
     // Immediately close previous toast if it exists on walletId change

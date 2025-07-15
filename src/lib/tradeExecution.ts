@@ -59,7 +59,7 @@ export const fetchTradeStatus = async ({
   sellTxHash: string
   sellAssetChainId: string
   address: string | undefined
-  swap: Swap
+  swap: Swap | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {

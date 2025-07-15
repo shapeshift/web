@@ -1103,6 +1103,7 @@
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
     "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
+    "highCowFeeImpact": "CoW fee is %{percentage}% of your sell amount (%{cryptoImpact} %{sellAssetSymbol}). Your order may not execute.",
     "awaitingOrderPlacement": "Awaiting order placement on %{swapperName}",
     "awaitingAllowanceApproval": "Awaiting allowance approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
@@ -2998,6 +2999,11 @@
       "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim.",
       "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending.",
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
+    },
+    "tcy": {
+      "claimReady": "Your TCY claim of %{amount} %{symbol} is ready",
+      "claimTxPending": "Your TCY claim of %{amount} %{symbol} is pending.",
+      "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

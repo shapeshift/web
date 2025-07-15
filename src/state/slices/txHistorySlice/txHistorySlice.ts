@@ -4,11 +4,12 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import orderBy from 'lodash/orderBy'
 import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
 
-import { getRelatedAssetIds, serializeTxIndex } from './utils'
+import { deserializeTxIndex, getRelatedAssetIds, serializeTxIndex } from './utils'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from '@/lib/utils'
@@ -203,15 +204,30 @@ export const txHistoryApi = createApi({
                 const pageSize = 10
                 const requestCursor = currentCursor
 
+                const state = getState() as State
+                const txsById = state.txHistory.txs.byId
+
+                // Passes the list of known (confirmed) Txids for the account to the adapter getHistory() fn, so we don't spam parseTx()
+                // which can be heavy in terms of parsing and of XHRs. If we already have a known confirmed Tx in the store, no need to re-parse it.
+                const knownTxIds = new Set<string>()
+                Object.entries(txsById).forEach(([txIndex, tx]) => {
+                  // Only include transactions for this specific account that are confirmed
+                  // Non-confirmed Txs may have more data at confirmed time e.g transfers, and we'll absolutely want to parse those
+                  if (
+                    deserializeTxIndex(txIndex).accountId === accountId &&
+                    tx.status === TxStatus.Confirmed
+                  ) {
+                    knownTxIds.add(tx.txid)
+                  }
+                })
+
                 const { cursor, transactions } = await getTxHistory({
                   cursor: requestCursor,
                   pubkey,
                   pageSize,
                   requestQueue,
+                  knownTxIds,
                 })
-
-                const state = getState() as State
-                const txsById = state.txHistory.txs.byId
 
                 const hasTx = transactions.some(
                   tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],

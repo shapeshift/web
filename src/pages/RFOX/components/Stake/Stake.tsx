@@ -1,6 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
 import React, { lazy, useCallback, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -104,7 +103,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
-  const translate = useTranslate()
 
   // Get bridge quote from location.state
   const maybeBridgeQuote = location.state as RfoxBridgeQuote | undefined
@@ -120,7 +118,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       confirmedQuote.stakingAmountCryptoBaseUnit,
       stakingAsset.precision,
     )
-    const symbol = stakingAsset.symbol
 
     dispatch(
       actionSlice.actions.upsertAction({
@@ -135,7 +132,8 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
           chainId: stakingAsset.chainId,
           accountId: confirmedQuote.stakingAssetAccountId,
           assetId: confirmedQuote.stakingAssetId,
-          message: translate('RFOX.stakeSuccess', { amount: amountCryptoPrecision, symbol }),
+          amountCryptoPrecision,
+          message: 'RFOX.stakeSuccess',
         },
       }),
     )
@@ -201,7 +199,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     isDrawerOpen,
     openActionCenter,
     toast,
-    translate,
     currentEpochMetadataQuery,
     queryClient,
     stakingAsset,

@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -77,7 +76,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
-  const translate = useTranslate()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
@@ -104,11 +102,9 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
         updatedAt: Date.now(),
         transactionMetadata: {
           displayType: GenericTransactionDisplayType.RFOX,
-          message: translate('actionCenter.rfox.unstakeConfirmed', {
-            amount: amountCryptoPrecision,
-            cooldownPeriod,
-            symbol: stakingAsset.symbol,
-          }),
+          amountCryptoPrecision,
+          cooldownPeriod,
+          message: 'actionCenter.rfox.unstakeConfirmed',
           txHash: unstakeTxid,
           chainId: stakingAsset.chainId,
           accountId: confirmedQuote.stakingAssetAccountId,
@@ -163,7 +159,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     isDrawerOpen,
     openActionCenter,
     toast,
-    translate,
     stakingAsset,
     queryClient,
   ])

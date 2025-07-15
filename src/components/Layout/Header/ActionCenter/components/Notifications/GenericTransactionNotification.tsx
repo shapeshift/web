@@ -21,9 +21,9 @@ export const GenericTransactionNotification = ({
   actionId,
   onClose,
 }: GenericTransactionNotificationProps) => {
+  const translate = useTranslate()
   const actions = useAppSelector(selectWalletGenericTransactionActionsSorted)
   const action = useMemo(() => actions.find(action => action.id === actionId), [actions, actionId])
-  const translate = useTranslate()
   const asset = useAppSelector(state =>
     selectAssetById(state, action?.transactionMetadata?.assetId ?? ''),
   )

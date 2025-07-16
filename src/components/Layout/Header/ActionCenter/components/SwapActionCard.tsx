@@ -42,7 +42,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
-  const isBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
+  const isArbitrumBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -90,7 +90,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   const title = useMemo(() => {
     const { status } = action
-    if (isBridge) {
+    if (isArbitrumBridge) {
       if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
@@ -103,7 +103,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     if (status === ActionStatus.Failed) return 'actionCenter.swap.failed'
 
     return 'actionCenter.swap.processing'
-  }, [action, isBridge, swap?.isStreaming])
+  }, [action, isArbitrumBridge, swap?.isStreaming])
 
   const icon = useMemo(() => {
     return (
@@ -140,7 +140,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   return (
     <ActionCard
-      displayType={isBridge ? GenericTransactionDisplayType.Bridge : undefined}
+      displayType={isArbitrumBridge ? GenericTransactionDisplayType.Bridge : undefined}
       type={action.type}
       formattedDate={formattedDate}
       isCollapsable={isCollapsable}

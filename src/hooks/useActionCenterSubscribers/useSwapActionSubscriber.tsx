@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -30,7 +30,7 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, ActionType, ArbitrumBridgeType } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -75,14 +75,6 @@ export const useSwapActionSubscriber = () => {
 
     if (existingSwapAction) return
 
-    let maybeArbitrumBridgeType
-    if (activeSwap.swapperName === SwapperName.ArbitrumBridge) {
-      maybeArbitrumBridgeType =
-        activeSwap.buyAsset.chainId === arbitrumChainId
-          ? ArbitrumBridgeType.Deposit
-          : ArbitrumBridgeType.Withdraw
-    }
-
     dispatch(
       actionSlice.actions.upsertAction({
         id: uuidv4(),
@@ -92,7 +84,6 @@ export const useSwapActionSubscriber = () => {
         status: ActionStatus.Pending,
         swapMetadata: {
           swapId: activeSwap.id,
-          maybeArbitrumBridgeType,
         },
       }),
     )
@@ -158,11 +149,11 @@ export const useSwapActionSubscriber = () => {
           actionSlice.actions.upsertAction({
             ...action,
             swapMetadata: {
-              ...action.swapMetadata,
               swapId: swap.id,
             },
             status:
-              action.swapMetadata.maybeArbitrumBridgeType === ArbitrumBridgeType.Withdraw
+              swap.swapperName === SwapperName.ArbitrumBridge &&
+              swap.buyAsset.chainId === ethChainId
                 ? ActionStatus.Initiated
                 : ActionStatus.Complete,
           }),
@@ -209,7 +200,6 @@ export const useSwapActionSubscriber = () => {
             ...action,
             status: ActionStatus.Failed,
             swapMetadata: {
-              ...action.swapMetadata,
               swapId: swap.id,
             },
           }),

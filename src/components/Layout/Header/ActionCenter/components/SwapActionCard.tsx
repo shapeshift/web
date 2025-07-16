@@ -1,4 +1,5 @@
 import { Box, useDisclosure } from '@chakra-ui/react'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
@@ -19,7 +20,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -40,6 +41,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   const swap = useMemo(() => {
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
+
+  const isBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -86,7 +89,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   }, [swap])
 
   const title = useMemo(() => {
-    if (action.swapMetadata.maybeArbitrumBridgeType !== undefined) {
+    if (isBridge) {
       if (action.status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
       if (action.status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (action.status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
@@ -100,7 +103,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     if (action.status === ActionStatus.Failed) return 'actionCenter.swap.failed'
 
     return 'actionCenter.swap.processing'
-  }, [action, swap])
+  }, [action.status, isBridge, swap?.isStreaming])
 
   const icon = useMemo(() => {
     return (
@@ -137,7 +140,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   return (
     <ActionCard
-      typeTitle={action.swapMetadata.maybeArbitrumBridgeType === undefined ? action.type : 'Bridge'}
+      displayType={isBridge ? GenericTransactionDisplayType.Bridge : undefined}
+      type={action.type}
       formattedDate={formattedDate}
       isCollapsable={isCollapsable}
       isOpen={isOpen}

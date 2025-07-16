@@ -1,7 +1,7 @@
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import type { LimitOrderAction, RfoxClaimAction, SwapAction, TcyClaimAction } from './types'
+import type { LimitOrderAction, RfoxClaimAction, TcyClaimAction } from './types'
 import {
   ActionStatus,
   ActionType,
@@ -98,7 +98,7 @@ export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
 
     if (!actionId) return
 
-    return actionsById[actionId] as SwapAction
+    return actionsById[actionId]
   },
 )
 

@@ -1,5 +1,6 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
@@ -71,9 +72,9 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   }, [swap])
 
   const swapTitleTranslation = useMemo(() => {
-    if (!action) return 'actionCenter.swap.processing'
+    if (!action || !swap) return 'actionCenter.swap.processing'
 
-    if (action.swapMetadata.maybeArbitrumBridgeType !== undefined) {
+    if (swap.swapperName === SwapperName.ArbitrumBridge) {
       if (action.status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
       if (action.status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (action.status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'

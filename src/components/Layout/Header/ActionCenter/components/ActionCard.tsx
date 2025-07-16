@@ -5,13 +5,15 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 
 import { RawText } from '@/components/Text'
+import type { ActionType, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 
 const divider = <RawText color='text.subtle'>•</RawText>
 
 type ActionCardProps = {
-  typeTitle: string
+  type: ActionType
+  displayType?: GenericTransactionDisplayType
   formattedDate: string
   isCollapsable?: boolean
   isOpen?: boolean
@@ -23,7 +25,8 @@ type ActionCardProps = {
 }
 
 export const ActionCard = ({
-  typeTitle,
+  type,
+  displayType,
   formattedDate,
   isCollapsable = false,
   isOpen,
@@ -61,7 +64,7 @@ export const ActionCard = ({
         {icon}
         <Stack spacing={0} width='full'>
           <HStack fontSize='xs' justifyContent='space-between' fontWeight='medium'>
-            <RawText>{typeTitle}</RawText>
+            <RawText>{displayType ?? type}</RawText>
             <RawText color='text.subtle'>{formattedDate}</RawText>
           </HStack>
           <HStack onClick={handleClick}>

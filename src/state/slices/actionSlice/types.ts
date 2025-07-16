@@ -30,14 +30,8 @@ export enum ActionStatus {
   Cancelled = 'Cancelled',
 }
 
-export enum ArbitrumBridgeType {
-  Deposit = 'Deposit',
-  Withdraw = 'Withdraw',
-}
-
 type ActionSwapMetadata = {
   swapId: string
-  maybeArbitrumBridgeType?: ArbitrumBridgeType
 }
 
 type ActionLimitOrderMetadata = {
@@ -66,6 +60,7 @@ type ActionAppUpdateMetadata = {
 export enum GenericTransactionDisplayType {
   TCY = 'TCY',
   RFOX = 'rFOX',
+  Bridge = 'Bridge',
 }
 
 type ActionGenericTransactionMetadata = {

@@ -144,7 +144,7 @@ export const LimitOrderActionCard = ({
 
   return (
     <ActionCard
-      typeTitle={type}
+      type={type}
       formattedDate={formattedDate}
       isCollapsable={isCollapsable}
       isOpen={isOpen}

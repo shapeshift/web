@@ -40,7 +40,7 @@ export const AppUpdateActionCard = ({ action }: AppUpdateActionCardProps) => {
 
   return (
     <ActionCard
-      typeTitle={action.type}
+      type={action.type}
       formattedDate={formattedDate}
       isCollapsable={true}
       isOpen={isOpen}

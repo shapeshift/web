@@ -10,8 +10,13 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ClaimStatus } from '@/components/ClaimRow/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
-import { selectArbitrumWithdrawTxs, selectAssetById } from '@/state/slices/selectors'
+import {
+  selectArbitrumWithdrawTxs,
+  selectAssetById,
+  selectPortfolioLoadingStatus,
+} from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
@@ -43,6 +48,18 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const arbitrumWithdrawTxs = useAppSelector(selectArbitrumWithdrawTxs)
+  const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
+
+  const {
+    state: { isLoadingLocalWallet, modal, isConnected },
+  } = useWallet()
+
+  const skip = useMemo(() => {
+    // consumer says we should skip so we skip
+    if (props?.skip) return true
+
+    return !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet
+  }, [isConnected, portfolioLoadingStatus, modal, isLoadingLocalWallet, props?.skip])
 
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
@@ -102,7 +119,7 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
         // Periodically refetch until the status is known to be ChildToParentMessageStatus.EXECUTED
         refetchInterval: (latestData: Query<ClaimStatusResult>) =>
           latestData?.state?.data?.status === ChildToParentMessageStatus.EXECUTED ? false : 60_000,
-        enabled: !Boolean(props?.skip),
+        enabled: !skip,
         staleTime: Infinity,
         gcTime: Infinity,
       }

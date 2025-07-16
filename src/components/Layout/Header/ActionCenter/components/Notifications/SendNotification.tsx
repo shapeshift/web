@@ -50,6 +50,9 @@ export const SendNotification = ({
     if (!transactionMetadata) return
     if (!txStatus || txStatus === prevTxStatus) return
 
+    // This may have already been upserted from the poller, ensure we don't overwrite it
+    if (action.status === ActionStatus.Complete) return
+
     if ((!prevTxStatus || prevTxStatus === TxStatus.Pending) && txStatus === TxStatus.Confirmed) {
       dispatch(
         actionSlice.actions.upsertAction({
@@ -63,7 +66,7 @@ export const SendNotification = ({
         }),
       )
     }
-  }, [txStatus, prevTxStatus])
+  }, [action, txStatus, prevTxStatus])
 
   const asset = useAppSelector(state =>
     selectAssetById(state, action?.transactionMetadata?.assetId ?? ''),
@@ -71,7 +74,6 @@ export const SendNotification = ({
 
   if (!action) return null
 
-  // TODO(gomes): wrt the below, we can effectively consume <GenericTransactionNotification /> directly instead of this JSX node
   return (
     <NotificationWrapper handleClick={handleClick} onClose={onClose}>
       <Stack spacing={3}>

@@ -21,6 +21,7 @@ import { SendNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -71,6 +72,8 @@ type SendFormProps = {
 const selectRedirect = <Navigate to={SendRoutes.Select} replace />
 
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
+  const send = useModal('send')
+  const qrCode = useModal('qrCode')
   const dispatch = useAppDispatch()
   const toast = useNotificationToast({ duration: null })
   const navigate = useNavigate()
@@ -107,6 +110,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     name: SendFormFields.AmountCryptoPrecision,
     control: methods.control,
   })
+
+  const handleClose = useCallback(() => {
+    send.close()
+    qrCode.close()
+  }, [qrCode, send])
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
@@ -158,7 +166,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         },
       })
 
-      navigate(SendRoutes.Status)
+      handleClose()
     },
     [handleFormSend, navigate, methods, mixpanel],
   )

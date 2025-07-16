@@ -11553,6 +11553,7 @@ __metadata:
     "@shapeshiftoss/utils": "workspace:^"
     "@sniptt/monads": ^0.5.10
     "@solana/web3.js": ^1.98.0
+    "@tanstack/pacer": ^0.9.0
     "@tanstack/react-query": ^5.69.0
     "@tanstack/react-table": ^8.20.6
     "@tanstack/react-virtual": ^3.11.2
@@ -12434,6 +12435,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/pacer@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@tanstack/pacer@npm:0.9.0"
+  dependencies:
+    "@tanstack/store": ^0.7.2
+  checksum: 729b2ca5e0da5b53f5dc9371f621a0c4c16c5e0120f2966cd759dde862901e9f7ca3da22b6ef6b8b4b1ff337c602a7b2e406ad5fbed22ff7e4a99ad065bf522d
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:5.69.0":
   version: 5.69.0
   resolution: "@tanstack/query-core@npm:5.69.0"
@@ -12473,6 +12483,13 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: a1136da0ec4c2ecbd4f996d8b84f228f0b8d851b15806e01049a160ad1d9b2eef0e0a491035fe017c6f84a0e125334f69ea23b32c180df23614ea4a8eeb7490c
+  languageName: node
+  linkType: hard
+
+"@tanstack/store@npm:^0.7.2":
+  version: 0.7.2
+  resolution: "@tanstack/store@npm:0.7.2"
+  checksum: 19466d51e40e7a4574e39a05d6a72cbf28b6b69fc1d176c10644e508571264f0b63a7e134194f4afc705ba4b6b38c6c3cd464647ebc30f0260fc9777647fedde
   languageName: node
   linkType: hard
 

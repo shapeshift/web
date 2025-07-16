@@ -1,4 +1,5 @@
 import type { CardProps } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 
 import { HorizontalCollapse } from '../../TradeInput/components/HorizontalCollapse'
@@ -19,12 +20,16 @@ export const CollapsibleLimitOrderList: React.FC<CollapsibleLimitOrderListProps>
   isLoading,
   ml,
 }) => {
+  const borderColor = useColorModeValue('border.base', 'transparent') // Patch styling: border to remedy box shadow cut off in light mode
+
   const cardProps: CardProps = useMemo(
     () => ({
       ml,
       height,
+      borderWidth: '1px',
+      borderColor,
     }),
-    [ml, height],
+    [ml, height, borderColor],
   )
 
   return (

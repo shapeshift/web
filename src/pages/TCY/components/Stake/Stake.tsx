@@ -3,7 +3,6 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -95,7 +94,6 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   headerComponent,
   activeAccountNumber,
 }) => {
-  const translate = useTranslate()
   const location = useLocation()
   const [stakeTxid, setStakeTxid] = useState<string>()
   const queryClient = useQueryClient()
@@ -128,10 +126,8 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
           chainId: thorchainChainId,
           accountId,
           assetId: tcyAssetId,
-          message: translate(`RFOX.stakeSuccess`, {
-            amount: amountCryptoPrecision,
-            symbol: 'TCY',
-          }),
+          amountCryptoPrecision,
+          message: 'RFOX.stakeSuccess',
         },
         status: ActionStatus.Complete,
         createdAt: Date.now(),
@@ -169,7 +165,6 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
     isDrawerOpen,
     openActionCenter,
     toast,
-    translate,
   ])
 
   const renderStakeInput = useCallback(() => {

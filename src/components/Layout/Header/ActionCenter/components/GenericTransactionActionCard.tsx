@@ -11,7 +11,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -25,6 +25,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, action.transactionMetadata.chainId),
   )
+  const asset = useAppSelector(state => selectAssetById(state, action.transactionMetadata.assetId))
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -74,7 +75,11 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       isOpen={isOpen}
       type={action.type}
       displayType={action.transactionMetadata.displayType}
-      description={action.transactionMetadata.message}
+      description={translate(action.transactionMetadata.message, {
+        ...action.transactionMetadata,
+        amount: action.transactionMetadata.amountCryptoPrecision,
+        symbol: asset?.symbol,
+      })}
       icon={icon}
       footer={footer}
       onToggle={onToggle}

@@ -26,8 +26,11 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { selectPendingSendActions } from '@/state/slices/actionSlice/selectors'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import {
+  selectPendingSendActions,
+  selectWalletActionsSorted,
+} from '@/state/slices/actionSlice/selectors'
+import { ActionStatus, isGenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectTxs } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -66,6 +69,11 @@ export const useSendActionSubscriber = () => {
           },
         }),
       )
+
+      const isActive = toast.isActive(txHash)
+
+      // No double-toasty
+      if (isActive) return
 
       toast({
         id: txHash,

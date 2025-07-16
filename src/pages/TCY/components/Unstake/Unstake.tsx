@@ -3,7 +3,6 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, useCallback, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -98,7 +97,6 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   headerComponent,
   activeAccountNumber,
 }) => {
-  const translate = useTranslate()
   const location = useLocation()
   const [unstakeTxid, setUnstakeTxid] = useState<string>()
   const queryClient = useQueryClient()
@@ -131,9 +129,8 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
           chainId: thorchainChainId,
           accountId,
           assetId: tcyAssetId,
-          message: translate(`TCY.unstakeStatus.successSubtitle`, {
-            amount: amountCryptoPrecision,
-          }),
+          amountCryptoPrecision,
+          message: 'TCY.unstakeStatus.successSubtitle',
         },
       }),
     )
@@ -169,7 +166,6 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
     isDrawerOpen,
     openActionCenter,
     toast,
-    translate,
   ])
 
   const renderUnstakeInput = useCallback(() => {

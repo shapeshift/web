@@ -2974,7 +2974,8 @@
       "pending": "Pending",
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "initiated": "Initiated"
     },
     "emptyState": {
       "title": "Welcome to ShapeShift",
@@ -2987,6 +2988,12 @@
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+    },
+    "bridge": {
+      "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
+      "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
+      "initiated": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has been initiated.",
+      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed."
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",

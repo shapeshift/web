@@ -59,7 +59,6 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
-  differenceFromBestQuoteDecimalPercentage: number
   quoteReceived: boolean
   isStreaming: boolean
   isLongtail: boolean
@@ -81,7 +80,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
 const getMixPanelDataFromApiQuotes = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
 ): GetMixPanelDataFromApiQuotesReturn => {
-  const bestInputOutputRatio = quotes[0]?.inputOutputRatio
   const state = store.getState()
   const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
   const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
@@ -93,14 +91,11 @@ const getMixPanelDataFromApiQuotes = (
 
   const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote: _quote, errors, swapperName, inputOutputRatio }) => {
+    .map(({ quote: _quote, errors, swapperName }) => {
       const quote = _quote as TradeQuote
 
-      const differenceFromBestQuoteDecimalPercentage =
-        (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
         swapperName,
-        differenceFromBestQuoteDecimalPercentage,
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
         isLongtail: quote?.isLongtail ?? false,

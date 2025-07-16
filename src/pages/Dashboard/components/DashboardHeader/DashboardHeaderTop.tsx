@@ -1,15 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  Text,
-  useColorModeValue,
-  useDisclosure,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Container, Flex, Text, useDisclosure, VStack } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
 import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
@@ -51,6 +42,8 @@ const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
 const balanceFontSize = '4xl'
 const customTabActive = { WebkitTapHighlightColor: 'transparent' }
 
+const mobileButtonJustifyContent = { base: 'space-between', sm: 'center' }
+
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
@@ -84,16 +77,11 @@ type MobileActionButtonProps = {
 }
 
 const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionButtonProps) => {
-  const buttonBg = useColorModeValue(undefined, 'rgba(127, 153, 251, 0.2)')
-  const colorScheme = useColorModeValue('blue', undefined)
-
   return (
     <Button
       size='md'
       width='80px'
       height='80px'
-      bg={buttonBg}
-      colorScheme={colorScheme}
       borderRadius='xl'
       alignItems='center'
       onClick={onClick}
@@ -157,10 +145,11 @@ export const DashboardHeaderTop = memo(() => {
   const mobileButtons = useMemo(
     () => (
       <Flex
-        mt={4}
+        mt={0}
         px={4}
+        pb={6}
         width='100%'
-        justifyContent='center'
+        justifyContent={mobileButtonJustifyContent}
         gap={2}
         display={mobileButtonRowDisplay}
       >
@@ -234,7 +223,7 @@ export const DashboardHeaderTop = memo(() => {
     <>
       <Display.Mobile>
         <>
-          <Container px={6} pt={4}>
+          <Container px={4} pt={4}>
             <MobileUserHeader
               onSearchOpen={onSearchOpen}
               handleQrCodeClick={handleQrCodeClick}

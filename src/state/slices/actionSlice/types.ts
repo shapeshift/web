@@ -20,6 +20,7 @@ export enum ActionType {
 export enum ActionStatus {
   Idle = 'Idle',
   Pending = 'Pending',
+  Initiated = 'Initiated',
   Complete = 'Complete',
   Failed = 'Failed',
   ClaimAvailable = 'ClaimAvailable',
@@ -59,6 +60,7 @@ type ActionAppUpdateMetadata = {
 export enum GenericTransactionDisplayType {
   TCY = 'TCY',
   RFOX = 'rFOX',
+  Bridge = 'Bridge',
   SEND = 'Send',
 }
 

@@ -20,6 +20,7 @@ export enum ActionType {
 export enum ActionStatus {
   Idle = 'Idle',
   Pending = 'Pending',
+  Initiated = 'Initiated',
   Complete = 'Complete',
   Failed = 'Failed',
   ClaimAvailable = 'ClaimAvailable',
@@ -59,6 +60,7 @@ type ActionAppUpdateMetadata = {
 export enum GenericTransactionDisplayType {
   TCY = 'TCY',
   RFOX = 'rFOX',
+  Bridge = 'Bridge',
 }
 
 type ActionGenericTransactionMetadata = {
@@ -68,6 +70,8 @@ type ActionGenericTransactionMetadata = {
   txHash: string
   chainId: ChainId
   assetId: AssetId
+  amountCryptoPrecision: string
+  cooldownPeriod?: string
 }
 
 export type BaseAction = {

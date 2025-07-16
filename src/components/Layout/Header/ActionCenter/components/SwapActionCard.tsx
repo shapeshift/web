@@ -89,21 +89,21 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   }, [swap])
 
   const title = useMemo(() => {
+    const { status } = action
     if (isBridge) {
-      if (action.status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
-      if (action.status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
-      if (action.status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+      if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
+      if (status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
 
       return 'actionCenter.bridge.processing'
     }
 
-    if (swap?.isStreaming && action.status === ActionStatus.Pending)
-      return 'actionCenter.swap.streaming'
-    if (action.status === ActionStatus.Complete) return 'actionCenter.swap.complete'
-    if (action.status === ActionStatus.Failed) return 'actionCenter.swap.failed'
+    if (swap?.isStreaming && status === ActionStatus.Pending) return 'actionCenter.swap.streaming'
+    if (status === ActionStatus.Complete) return 'actionCenter.swap.complete'
+    if (status === ActionStatus.Failed) return 'actionCenter.swap.failed'
 
     return 'actionCenter.swap.processing'
-  }, [action.status, isBridge, swap?.isStreaming])
+  }, [action, isBridge, swap?.isStreaming])
 
   const icon = useMemo(() => {
     return (

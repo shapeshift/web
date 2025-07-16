@@ -111,6 +111,8 @@ export const portfolio = createSlice({
       draftState.wallet.byId[walletId] = []
       draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
 
+      delete draftState.enabledAccountIds[walletId]
+
       // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
       // Theoretically, not doing so would make reloading these easier?
     }),

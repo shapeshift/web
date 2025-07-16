@@ -125,14 +125,15 @@ const WalletButton: FC<WalletButtonProps> = ({
   }, [ensName, walletInfo])
 
   const rightIcon = useMemo(() => <ChevronDownIcon />, [])
-  const leftIcon = useMemo(() => {
-    return (
+  const leftIcon = useMemo(
+    () => (
       <HStack>
         {!isConnected && <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
         <WalletImage walletInfo={maybeMipdProvider?.info || walletInfo} />
       </HStack>
-    )
-  }, [isConnected, maybeMipdProvider, walletInfo])
+    ),
+    [isConnected, maybeMipdProvider, walletInfo],
+  )
   const connectIcon = useMemo(() => <FaWallet />, [])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (

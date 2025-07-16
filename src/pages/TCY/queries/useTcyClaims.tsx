@@ -24,7 +24,7 @@ import { store, useAppSelector } from '@/state/store'
 
 export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
-    state: { isConnected, wallet, isLocked },
+    state: { isConnected, wallet },
   } = useWallet()
   const { isSnapInstalled } = useIsSnapInstalled()
 
@@ -45,10 +45,12 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
 
   return useSuspenseQueries({
     queries: accountIds.map(accountId => ({
-      queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
+      queryKey: ['tcy-claims', accountId, isConnected],
       queryFn: async (): Promise<Claim[]> => {
         if (!isConnected) return []
-        if (isLocked) return []
+        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+
+        if (isMetaMaskMultichainWallet && !isSnapInstalled) return []
 
         const activeAddresses = (
           await (() => {
@@ -67,10 +69,6 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
             })
             if (!accountMetadata) return []
             if (!wallet) return []
-
-            const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
-
-            if (isMetaMaskMultichainWallet && !isSnapInstalled) return []
 
             // Introspects THORChain savers to get the active address for a given xpub AccountId
             // Defaults to 0 if none found

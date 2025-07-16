@@ -34,35 +34,25 @@ export const useDiscoverAccounts = () => {
 
   useEffect(() => {
     if (!currentWalletId) return
-    if (!wallet) return
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
-    if (
-      isMetaMaskMultichainWallet &&
-      previousIsSnapInstalled === true &&
-      isSnapInstalled === false
-    ) {
+    if (previousIsSnapInstalled === true && isSnapInstalled === false) {
       dispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
+      console.log('clearWalletMetadata')
       queryClient.invalidateQueries({
         queryKey: ['useDiscoverAccounts'],
         exact: false,
       })
     }
 
-    if (
-      isMetaMaskMultichainWallet &&
-      previousIsSnapInstalled === false &&
-      isSnapInstalled === true
-    ) {
+    if (previousIsSnapInstalled === false && isSnapInstalled === true) {
       queryClient.invalidateQueries({
         queryKey: ['useDiscoverAccounts'],
         exact: false,
       })
     }
-  }, [currentWalletId, dispatch, wallet, previousIsSnapInstalled, isSnapInstalled, queryClient])
+  }, [currentWalletId, dispatch, previousIsSnapInstalled, isSnapInstalled, queryClient])
 
   const discoverAccounts = useCallback(async () => {
-    console.log('discoverAccounts')
     let chainIds = new Set(
       supportedChains.filter(chainId =>
         walletSupportsChain({
@@ -84,6 +74,11 @@ export const useDiscoverAccounts = () => {
 
     const accountMetadataByAccountId: AccountMetadataById = {}
     const chainIdsWithActivity = new Set<ChainId>()
+
+    console.log({
+      chainIds,
+      isSnapInstalled,
+    })
 
     // Discover accounts for each chain with activity-based stopping
     for (const chainId of chainIds) {
@@ -133,11 +128,20 @@ export const useDiscoverAccounts = () => {
           }),
         )
 
+        console.log({
+          chainAccountMetadata,
+        })
+
         Object.keys(chainAccountMetadata).forEach(accountId => {
           dispatch(portfolio.actions.enableAccountId(accountId))
         })
       }
     }
+
+    console.log({
+      chainIdsWithActivity,
+      accountMetadataByAccountId,
+    })
 
     return { accountMetadataByAccountId, chainIdsWithActivity }
   }, [dispatch, isSnapInstalled, supportedChains, wallet])

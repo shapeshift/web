@@ -1,19 +1,15 @@
-import { Box, Flex, HStack, Stack, usePrevious } from '@chakra-ui/react'
+import { usePrevious } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useDispatch } from 'react-redux'
 
-import { ActionStatusIcon } from '../ActionStatusIcon'
-import { NotificationWrapper } from './NotificationWrapper'
+import { GenericTransactionNotification } from './GenericTransactionNotification'
 
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectWalletActionsSorted } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, isGenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type GenericTransactionNotificationProps = {
@@ -27,7 +23,6 @@ export const SendNotification = ({
   onClose,
 }: GenericTransactionNotificationProps) => {
   const dispatch = useDispatch()
-  const translate = useTranslate()
   const actions = useAppSelector(selectWalletActionsSorted)
   const action = useMemo(
     () => actions.filter(isGenericTransactionAction).find(a => a.id === actionId),
@@ -68,30 +63,11 @@ export const SendNotification = ({
     }
   }, [action, txStatus, prevTxStatus, dispatch, transactionMetadata])
 
-  const asset = useAppSelector(state => selectAssetById(state, transactionMetadata?.assetId ?? ''))
-
-  if (!action || !transactionMetadata) return null
-
   return (
-    <NotificationWrapper handleClick={handleClick} onClose={onClose}>
-      <Stack spacing={3}>
-        <Flex alignItems='center' justifyContent='space-between' pe={6}>
-          <HStack spacing={2}>
-            <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
-              <ActionStatusIcon status={action.status} />
-            </AssetIconWithBadge>
-            <Box ml={2}>
-              <Box fontSize='sm' letterSpacing='0.02em'>
-                {translate(transactionMetadata.message, {
-                  ...transactionMetadata,
-                  amount: transactionMetadata.amountCryptoPrecision,
-                  symbol: asset?.symbol,
-                })}
-              </Box>
-            </Box>
-          </HStack>
-        </Flex>
-      </Stack>
-    </NotificationWrapper>
+    <GenericTransactionNotification
+      handleClick={handleClick}
+      actionId={actionId}
+      onClose={onClose}
+    />
   )
 }

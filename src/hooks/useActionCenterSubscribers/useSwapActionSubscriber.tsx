@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -151,7 +151,11 @@ export const useSwapActionSubscriber = () => {
             swapMetadata: {
               swapId: swap.id,
             },
-            status: ActionStatus.Complete,
+            status:
+              swap.swapperName === SwapperName.ArbitrumBridge &&
+              swap.buyAsset.chainId === ethChainId
+                ? ActionStatus.Initiated
+                : ActionStatus.Complete,
           }),
         )
 

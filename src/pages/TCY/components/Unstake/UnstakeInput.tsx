@@ -231,6 +231,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
           cryptoAmount={amountCryptoPrecision}
           fiatAmount={fiatAmount}
           isReadOnly
+          isAccountSelectionHidden
           formControlProps={formControlProps}
           rightComponent={ReadOnlyAsset}
           // eslint-disable-next-line react-memo/require-usememo

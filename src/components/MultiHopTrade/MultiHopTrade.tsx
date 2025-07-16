@@ -1,9 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom'
 
+import type { QuoteListProps } from './components/QuoteList/QuoteList'
 import { QuoteList } from './components/QuoteList/QuoteList'
 import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
@@ -138,17 +139,24 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
     return isTradeInputPath || isAssetSpecificPath
   }, [location.pathname])
 
+  const wrappedQuoteList = useCallback(
+    (props: QuoteListProps) => (
+      <QuoteList {...props} showQuoteRefreshCountdown={shouldUseTradeRates} />
+    ),
+    [shouldUseTradeRates],
+  )
+
   const tradeConfirm = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
   const quoteListElement = useMemo(
     () => (
       <SlideTransitionRoute
         height={tradeInputRef.current?.offsetHeight ?? '660px'}
         width={tradeInputRef.current?.offsetWidth ?? 'full'}
-        component={QuoteList}
+        component={wrappedQuoteList}
         parentRoute={TradeRoutePaths.Input}
       />
     ),
-    [tradeInputRef],
+    [wrappedQuoteList],
   )
 
   const tradeInputElement = useMemo(

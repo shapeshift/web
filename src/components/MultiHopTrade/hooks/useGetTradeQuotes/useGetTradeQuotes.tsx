@@ -8,11 +8,9 @@ import type {
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
   isThorTradeQuote,
   SwapperName,
-  swappers,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
@@ -329,9 +327,6 @@ export const useGetTradeQuotes = () => {
         tradeQuoteOrRateInput: tradeQuoteInput ?? reduxSkipToken,
         // Skip trade quotes fetching which aren't for the swapper we have a rate for
         skip: !swapperName || !shouldFetchTradeQuotes,
-        pollingInterval:
-          swappers[swapperName as SwapperName]?.pollingInterval ??
-          DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
     [shouldFetchTradeQuotes, tradeQuoteInput],

@@ -24,7 +24,6 @@ import type { Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
 
-export const DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const QUOTE_TIMEOUT_MS = 60_000
 export const TRADE_STATUS_POLL_INTERVAL_MILLISECONDS = 5_000
 
@@ -33,60 +32,46 @@ export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
 })
 
 // PartialRecord not used to ensure exhaustiveness
-export const swappers: Record<
-  SwapperName,
-  (SwapperApi & Swapper & { pollingInterval: number }) | undefined
-> = {
+export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> = {
   [SwapperName.Thorchain]: {
     ...thorchainSwapper,
     ...thorchainApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Mayachain]: {
     ...mayachainSwapper,
     ...mayachainApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Zrx]: {
     ...zrxSwapper,
     ...zrxApi,
-
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.CowSwap]: {
     ...cowSwapper,
     ...cowApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.ArbitrumBridge]: {
     ...arbitrumBridgeSwapper,
     ...arbitrumBridgeApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Portals]: {
     ...portalsSwapper,
     ...portalsApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Chainflip]: {
     ...chainflipSwapper,
     ...chainflipApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Jupiter]: {
     ...jupiterSwapper,
     ...jupiterApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Relay]: {
     ...relaySwapper,
     ...relayApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.ButterSwap]: {
     ...butterSwap,
     ...butterSwapApi,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,
 }

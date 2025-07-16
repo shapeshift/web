@@ -68,11 +68,9 @@ export const SendNotification = ({
     }
   }, [action, txStatus, prevTxStatus])
 
-  const asset = useAppSelector(state =>
-    selectAssetById(state, action?.transactionMetadata?.assetId ?? ''),
-  )
+  const asset = useAppSelector(state => selectAssetById(state, transactionMetadata?.assetId ?? ''))
 
-  if (!action) return null
+  if (!action || !transactionMetadata) return null
 
   return (
     <NotificationWrapper handleClick={handleClick} onClose={onClose}>
@@ -84,9 +82,9 @@ export const SendNotification = ({
             </AssetIconWithBadge>
             <Box ml={2}>
               <Box fontSize='sm' letterSpacing='0.02em'>
-                {translate(action.transactionMetadata.message, {
-                  ...action.transactionMetadata,
-                  amount: action.transactionMetadata.amountCryptoPrecision,
+                {translate(transactionMetadata.message, {
+                  ...transactionMetadata,
+                  amount: transactionMetadata.amountCryptoPrecision,
                   symbol: asset?.symbol,
                 })}
               </Box>

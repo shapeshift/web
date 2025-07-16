@@ -68,6 +68,8 @@ type ActionGenericTransactionMetadata = {
   txHash: string
   chainId: ChainId
   assetId: AssetId
+  amountCryptoPrecision: string
+  cooldownPeriod?: string
 }
 
 export type BaseAction = {

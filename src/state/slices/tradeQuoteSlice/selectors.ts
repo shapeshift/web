@@ -67,11 +67,6 @@ import {
 export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
   createSelector(tradeQuoteSlice.selectSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
 
-export const selectLastRefreshTime: Selector<ReduxState, number> = createSelector(
-  tradeQuoteSlice.selectSlice,
-  tradeQuoteSlice => tradeQuoteSlice.lastRefreshTime,
-)
-
 const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,

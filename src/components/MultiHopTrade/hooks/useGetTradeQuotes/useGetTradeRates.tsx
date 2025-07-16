@@ -1,10 +1,9 @@
-import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
@@ -12,7 +11,6 @@ import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOr
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
-import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -21,7 +19,6 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -42,42 +39,6 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
-
-/**
- * NOTE: This interval MUST be used consistently in:
- * - useGetTradeRates (refresh timing logic)
- * - QuoteTimer component (countdown display)
- * Changing one without the other will break synchronization!
- */
-export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
-export const TRADE_QUOTE_TIMER_UPDATE_MS = 100 // How often UI timer updates for smooth display
-export const TRADE_QUOTE_CHECK_INTERVAL_MS = 1000 // How often to check if refresh is needed (internal only)
-
-export const useGlobalPolling = () => {
-  const hasFocus = useHasFocus()
-  const previousHasFocus = usePrevious(hasFocus)
-  const dispatch = useAppDispatch()
-
-  const query = useQuery({
-    queryKey: ['tradeQuoteRefresh'],
-    queryFn: () => {
-      if (previousHasFocus && hasFocus) {
-        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
-      }
-
-      console.log('executing', hasFocus, Date.now())
-
-      return { lastExecutedTime: Date.now() }
-    },
-    refetchInterval: TRADE_QUOTE_REFRESH_INTERVAL_MS,
-    refetchOnWindowFocus: 'always',
-    staleTime: TRADE_QUOTE_CHECK_INTERVAL_MS,
-    gcTime: 0,
-    enabled: hasFocus,
-  })
-
-  return query
-}
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -158,9 +119,6 @@ export const useGetTradeRates = () => {
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
-
-  const hasFocus = useHasFocus()
-  const previousHasFocus = usePrevious(hasFocus)
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -269,6 +227,7 @@ export const useGetTradeRates = () => {
     [tradeRateInput],
   )
 
+  // TODO(0xdef1cafe): this is brittle
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
@@ -280,10 +239,9 @@ export const useGetTradeRates = () => {
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
 
-  useGlobalPolling()
-
-  const hasTrackedInitialRatesReceived = useRef(false)
+  // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const hasTrackedInitialRatesReceived = useRef(false)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {

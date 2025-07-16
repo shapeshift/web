@@ -1,6 +1,5 @@
 import { Box, Flex, HStack, Stack, usePrevious } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,11 +9,11 @@ import { ActionStatusIcon } from '../ActionStatusIcon'
 import { NotificationWrapper } from './NotificationWrapper'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectWalletActionsSorted } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, isGenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { selectAssetById, selectTxById } from '@/state/slices/selectors'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type GenericTransactionNotificationProps = {
@@ -40,28 +39,10 @@ export const SendNotification = ({
     [action?.transactionMetadata],
   )
 
-  const accountAddress = useMemo(() => {
-    if (!transactionMetadata) return
-
-    return fromAccountId(transactionMetadata.accountId).account
-  }, [transactionMetadata])
-
-  const serializedTxIndex = useMemo(() => {
-    if (!accountAddress) return
-    if (!transactionMetadata) return
-
-    const { accountId, txHash } = transactionMetadata
-
-    return accountId && txHash && accountAddress
-      ? serializeTxIndex(accountId, txHash, accountAddress)
-      : undefined
-  }, [accountAddress, transactionMetadata])
-
-  const tx = useAppSelector(state =>
-    serializedTxIndex ? selectTxById(state, serializedTxIndex) : undefined,
-  )
-
-  const txStatus = useMemo(() => tx?.status, [tx?.status])
+  const txStatus = useTxStatus({
+    accountId: transactionMetadata?.accountId ?? null,
+    txHash: transactionMetadata?.txHash ?? null,
+  })
   const prevTxStatus = usePrevious(txStatus)
 
   useEffect(() => {

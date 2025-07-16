@@ -2,6 +2,7 @@ import { usePrevious } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
+import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
@@ -19,28 +20,37 @@ export const useGlobalQuotePolling = () => {
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
+  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
   const dispatch = useAppDispatch()
 
-  const inputReactions = useMemo(
+  const inputQueryKeys = useMemo(
     () => ({
       buyAsset,
       sellAmountCryptoPrecision,
       sellAsset,
       userSlippageTolerancePercentageDecimal,
+      receiveAddress,
     }),
-    [buyAsset, sellAmountCryptoPrecision, sellAsset, userSlippageTolerancePercentageDecimal],
+    [
+      buyAsset,
+      receiveAddress,
+      sellAmountCryptoPrecision,
+      sellAsset,
+      userSlippageTolerancePercentageDecimal,
+    ],
   )
-  const previousInputReactions = usePrevious(inputReactions)
+  const previousInputReactions = usePrevious(inputQueryKeys)
 
   const hasFocus = useHasFocus()
   const previousHasFocus = usePrevious(hasFocus)
 
   const query = useQuery({
-    queryKey: ['tradeQuoteRefresh', inputReactions],
+    queryKey: ['tradeQuoteRefresh', inputQueryKeys],
     queryFn: () => {
       const isNotRefocus = previousHasFocus && hasFocus
-      const isNotInputChange = inputReactions === previousInputReactions // Reference compare enabled by useMemo
+      const isNotInputChange = inputQueryKeys === previousInputReactions // Reference compare enabled by useMemo
 
       // Only invalidate if this was triggered by an interval, not refocus or input change
       if (isNotRefocus && isNotInputChange) {

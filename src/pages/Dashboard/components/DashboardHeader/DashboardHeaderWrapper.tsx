@@ -1,12 +1,10 @@
-import type { BoxProps, ResponsiveValue } from '@chakra-ui/react'
+import type { BoxProps } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
-import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 
 import { useProfileAvatar } from '@/hooks/useProfileAvatar/useProfileAvatar'
 
-const headerPosition: ResponsiveValue<Property.Position> = { base: 'fixed', md: 'relative' }
 type DashboardHeaderWrapperProps = {
   position?: BoxProps['position']
 } & PropsWithChildren
@@ -34,7 +32,7 @@ export const DashboardHeaderWrapper: React.FC<DashboardHeaderWrapperProps> = ({
     <Box
       width='full'
       className='dashboard-header'
-      position={position ?? headerPosition}
+      position={position ?? 'relative'}
       top='0'
       zIndex='sticky'
       _after={headerAfter}

@@ -170,13 +170,22 @@ export const useLimitOrderActionSubscriber = () => {
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
         toast({
-          render: props => (
-            <LimitOrderNotification
-              handleClick={openActionCenter}
-              cowSwapQuoteId={activeQuoteId}
-              {...props}
-            />
-          ),
+          render: ({ onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              openActionCenter()
+            }
+
+            return (
+              <LimitOrderNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                cowSwapQuoteId={activeQuoteId}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
         })
       }
     }

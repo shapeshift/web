@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import {
   selectPortfolioAccounts,
   selectPortfolioTotalUserCurrencyBalance,
@@ -31,7 +31,7 @@ type WalletBalanceProps = {
 }
 export const WalletBalance: React.FC<WalletBalanceProps> = memo(
   ({ label = 'defi.netWorth', alignItems, balanceFontSize }) => {
-    const { isFetching: isAccountsMetadataFetching } = useAccountsFetchQuery()
+    const { isFetching: isAccountsMetadataFetching } = useDiscoverAccounts()
     const portfolioTotalUserCurrencyBalance = useAppSelector(
       selectPortfolioTotalUserCurrencyBalance,
     )

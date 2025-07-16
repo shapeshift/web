@@ -1,7 +1,5 @@
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
-import { btcAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { btcAssetId } from '@shapeshiftoss/caip'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,7 +22,6 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
-import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectEnabledWalletAccountIds,
@@ -99,19 +96,6 @@ export const Header = memo(() => {
   const previousConnectedRdns = usePrevious(connectedRdns)
   const currentWalletId = useAppSelector(selectWalletId)
   const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-  const hasNonEvmAccountIds = useMemo(
-    () => walletAccountIds.some(accountId => !isEvmChainId(fromAccountId(accountId).chainId)),
-    [walletAccountIds],
-  )
-
-  useEffect(() => {
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
-    if (!(currentWalletId && isMetaMaskMultichainWallet && isSnapInstalled === false)) return
-
-    // We have just detected that the user doesn't have the snap installed currently
-    // We need to check whether or not the user had previous non-EVM AccountIds and clear those
-    if (hasNonEvmAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
-  }, [appDispatch, currentWalletId, hasNonEvmAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
     if (!isCorrectVersion && isSnapInstalled) return
@@ -132,7 +116,6 @@ export const Header = memo(() => {
       }
       const walletId = currentWalletId
       if (!walletId) return
-      appDispatch(portfolio.actions.clearWalletMetadata(walletId))
       if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
         return snapModal.open({ isRemoved: true })
       }

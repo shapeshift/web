@@ -11,7 +11,7 @@ import { ChainRow } from './components/ChainRow'
 
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -92,7 +92,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
 const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
 
   // Don't use user-currency sorting until we're fully loaded - else this will keep on re-rendering forever and will

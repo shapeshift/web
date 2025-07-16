@@ -22,7 +22,7 @@ import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
 import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
@@ -95,7 +95,7 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)

@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 
-import { useAccountsFetchQuery } from './useAccountsFetchQuery'
+import { useDiscoverAccounts } from './useDiscoverAccounts'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -13,6 +14,9 @@ export const useAccountsFetch = () => {
   const dispatch = useAppDispatch()
   const { wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const { isSnapInstalled } = useIsSnapInstalled()
+
+  const query = useDiscoverAccounts()
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 
@@ -37,8 +41,7 @@ export const useAccountsFetch = () => {
     enabledWalletAccountIds.forEach(requestedAccountId => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
-  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
+  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled, isSnapInstalled])
 
-  const query = useAccountsFetchQuery()
   return query
 }

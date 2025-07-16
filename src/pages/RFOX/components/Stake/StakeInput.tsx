@@ -32,7 +32,7 @@ import { FormDivider } from '@/components/FormDivider'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -128,7 +128,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     select: selectRuneAddress,
   })
 
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
 
   const isBridgeRequired = selectedStakingAssetId === l1AssetId
 

@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
   useWalletSupportsChain,
@@ -36,7 +36,7 @@ export const useIsManualReceiveAddressRequired = ({
     selectAccountIdsByAssetId(state, { assetId: buyAsset.assetId }),
   )
 
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const walletSupportsBuyAssetChainAtRuntime = useWalletSupportsChainAtRuntime(
     buyAsset.chainId,

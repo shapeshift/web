@@ -87,7 +87,7 @@ export const selectPendingSwapActions = createDeepEqualOutputSelector(
   },
 )
 
-export const selectPendingSendActions = createDeepEqualOutputSelector(
+export const selectPendingWalletSendActions = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
     return actions.filter(isPendingSendAction)

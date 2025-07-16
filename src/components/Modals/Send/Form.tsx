@@ -15,8 +15,7 @@ import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { Status } from './views/Status'
 
-// import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SendNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SendNotification'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
@@ -72,10 +71,11 @@ type SendFormProps = {
 const selectRedirect = <Navigate to={SendRoutes.Select} replace />
 
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const send = useModal('send')
   const qrCode = useModal('qrCode')
   const dispatch = useAppDispatch()
-  const toast = useNotificationToast({ duration: null })
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const mixpanel = getMixPanel()
@@ -144,14 +144,12 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       toast({
         id: txHash,
-        // Never dismiss
-        duration: null,
+        duration: isDrawerOpen ? 5000 : null,
         status: 'success',
         render: ({ onClose, ...props }) => {
           const handleClick = () => {
             onClose()
-            // TODO(gomes): We don't have access to the ActionCenter context provider here, and will need to fix this to be able to do what we want here
-            // openActionCenter()
+            openActionCenter()
           }
 
           return (
@@ -168,7 +166,19 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       handleClose()
     },
-    [handleFormSend, navigate, methods, mixpanel],
+    [
+      handleFormSend,
+      methods,
+      mixpanel,
+      assetId,
+      dispatch,
+      formAccountId,
+      formAmountCryptoPrecision,
+      handleClose,
+      isDrawerOpen,
+      openActionCenter,
+      toast,
+    ],
   )
 
   const handleAssetSelect = useCallback(

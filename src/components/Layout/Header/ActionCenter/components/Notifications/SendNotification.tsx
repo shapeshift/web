@@ -66,7 +66,7 @@ export const SendNotification = ({
         }),
       )
     }
-  }, [action, txStatus, prevTxStatus])
+  }, [action, txStatus, prevTxStatus, dispatch, transactionMetadata])
 
   const asset = useAppSelector(state => selectAssetById(state, transactionMetadata?.assetId ?? ''))
 

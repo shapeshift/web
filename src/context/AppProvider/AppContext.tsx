@@ -1,8 +1,9 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { useQueries } from '@tanstack/react-query'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetch } from './hooks/useAccountsFetch'
@@ -18,8 +19,12 @@ import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fetchPortalsAccount } from '@/lib/portals/utils'
+import { isSome } from '@/lib/utils'
 import {
   marketApi,
+  marketData,
   useFindAllMarketDataQuery,
 } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -27,6 +32,7 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
   selectAssetIds,
+  selectEvmAccountIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectWalletId,
@@ -134,10 +140,56 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, prevWalletId, walletId])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
+
+  const evmAccountIds = useAppSelector(selectEvmAccountIds)
+
+  const portalsEvmAccounts = useQueries({
+    queries: evmAccountIds.map(accountId => {
+      const pubkey = fromAccountId(accountId).account
+      const chainId = fromAccountId(accountId).chainId
+
+      return {
+        queryFn: () => fetchPortalsAccount(chainId, pubkey),
+        queryKey: ['portalsAccount', chainId, pubkey],
+        staleTime: 30 * 1000,
+      }
+    }),
+  })
+
+  const portalsEvmAccountsData = useMemo(
+    () =>
+      portalsEvmAccounts
+        .map(({ data }) => data)
+        .filter(isSome)
+        .reduce((acc, current) => {
+          if (!current) return acc
+
+          acc = { ...acc, ...current }
+          return acc
+        }, {}),
+    [portalsEvmAccounts],
+  )
+
   useQueries({
     queries: portfolioAssetIds.map(assetId => ({
       queryKey: ['marketData', assetId],
       queryFn: async () => {
+        // Use portals account data if possible - avoids having to fire one request per every single EVM token held
+        const maybePortalsEvmAccountData = portalsEvmAccountsData?.[assetId]
+        if (maybePortalsEvmAccountData) {
+          const currentMarketData = {
+            price: bnOrZero(maybePortalsEvmAccountData.price).toFixed(),
+            marketCap: bnOrZero(maybePortalsEvmAccountData.liquidity).toFixed(),
+            volume: bnOrZero(maybePortalsEvmAccountData.metrics.volumeUsd1d).toFixed(),
+            changePercent24Hr: 0,
+            supply: bnOrZero(maybePortalsEvmAccountData.totalSupply).toFixed(),
+            maxSupply: undefined, // This endpoint doesn't provide max supply
+          }
+          const payload = { [assetId]: currentMarketData }
+          dispatch(marketData.actions.setCryptoMarketData(payload))
+          return null
+        }
+
         await dispatch(
           marketApi.endpoints.findByAssetId.initiate(assetId, {
             // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
@@ -151,7 +203,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       },
       // once the portfolio is loaded, fetch market data for all portfolio assets
       // and start refetch timer to keep market data up to date
-      enabled: !isConnected || portfolioLoadingStatus !== 'loading',
+      enabled:
+        (!isConnected || portfolioLoadingStatus !== 'loading') &&
+        !portalsEvmAccounts.some(({ isLoading }) => isLoading),
       refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,

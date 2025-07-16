@@ -16,6 +16,7 @@ import type {
 } from './types'
 
 import { getConfig } from '@/config'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { localAssetData } from '@/lib/asset-service'
 
@@ -301,6 +302,9 @@ export const fetchPortalsAccount = async (
   chainId: ChainId,
   owner: string,
 ): Promise<Record<AssetId, TokenInfo>> => {
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Unsupported chainId: ${chainId}`)
+
   const url = `${PORTALS_BASE_URL}/v2/account`
 
   const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
@@ -319,11 +323,15 @@ export const fetchPortalsAccount = async (
     })
 
     return data.balances.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
-      const assetId = toAssetId({
-        chainId,
-        assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-        assetReference: token.address,
-      })
+      const assetId =
+        token.address === zeroAddress
+          ? feeAssetId
+          : toAssetId({
+              chainId,
+              assetNamespace:
+                chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+              assetReference: token.address,
+            })
       acc[assetId] = token
       return acc
     }, {})

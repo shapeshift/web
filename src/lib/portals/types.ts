@@ -12,6 +12,7 @@ export type TokenInfo = {
   platform: string
   network: string
   liquidity: number
+  totalSupply: string | undefined
   metrics: {
     apy?: string
     volumeUsd1d?: string

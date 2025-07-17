@@ -9,8 +9,6 @@ import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
-import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
@@ -20,7 +18,7 @@ import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanc
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import { selectAssetById } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -92,9 +90,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const queryClient = useQueryClient()
   const { stakingAssetId } = useRFOXContext()
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
-  const dispatch = useAppDispatch()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   // Get bridge quote from location.state
   const maybeBridgeQuote = location.state as RfoxBridgeQuote | undefined
@@ -139,17 +134,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
         endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
       }),
     })
-  }, [
-    confirmedQuote,
-    stakeTxid,
-    dispatch,
-    isDrawerOpen,
-    openActionCenter,
-    toast,
-    currentEpochMetadataQuery,
-    queryClient,
-    stakingAsset,
-  ])
+  }, [confirmedQuote, stakeTxid, currentEpochMetadataQuery, queryClient, stakingAsset])
 
   const renderStakeInput = useCallback(() => {
     return (

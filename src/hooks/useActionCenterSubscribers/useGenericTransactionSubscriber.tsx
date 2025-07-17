@@ -8,7 +8,11 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingGenericTransactionActions } from '@/state/slices/actionSlice/selectors'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -21,10 +25,11 @@ export const useGenericTransactionSubscriber = () => {
   const pendingGenericTransactionActions = useAppSelector(selectPendingGenericTransactionActions)
   const txs = useAppSelector(selectTxs)
 
+  console.log({ pendingGenericTransactionActions })
   useEffect(() => {
     pendingGenericTransactionActions.forEach(action => {
       if (action.status !== ActionStatus.Pending) return
-      // RFOX only for now, TODO: more
+      // RFOX stake/unstake only for now, TODO: handle more
       if (action.transactionMetadata.displayType !== GenericTransactionDisplayType.RFOX) return
 
       const { accountId, txHash } = action.transactionMetadata
@@ -38,13 +43,18 @@ export const useGenericTransactionSubscriber = () => {
       // TODO(gomes): make sure we discriminate stake/unstake etc
       // we'll need an additional discriminator in `transactionMetadata`
 
+      const message =
+        action.transactionMetadata.type === ActionType.Deposit
+          ? 'RFOX.stakeSuccess'
+          : 'RFOX.unstakeSuccess'
+
       dispatch(
         actionSlice.actions.upsertAction({
           ...action,
           status: ActionStatus.Complete,
           transactionMetadata: {
             ...action.transactionMetadata,
-            message: 'RFOX.stakeSuccess',
+            message,
           },
         }),
       )
@@ -74,5 +84,5 @@ export const useGenericTransactionSubscriber = () => {
         },
       })
     })
-  }, [pendingGenericTransactionActions, dispatch, txs])
+  }, [pendingGenericTransactionActions, dispatch, txs, isDrawerOpen, openActionCenter, toast])
 }

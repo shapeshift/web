@@ -125,6 +125,7 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
         updatedAt: Date.now(),
         transactionMetadata: {
           displayType: GenericTransactionDisplayType.TCY,
+          type: ActionType.Withdraw,
           txHash: unstakeTxid,
           chainId: thorchainChainId,
           accountId,

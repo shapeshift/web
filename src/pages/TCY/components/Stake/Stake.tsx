@@ -121,6 +121,7 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
         id: stakeTxid,
         type: ActionType.GenericTransaction,
         transactionMetadata: {
+          type: ActionType.Deposit,
           displayType: GenericTransactionDisplayType.TCY,
           txHash: stakeTxid,
           chainId: thorchainChainId,

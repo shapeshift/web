@@ -8,6 +8,7 @@ import type { Claim } from '@/pages/TCY/components/Claim/types'
 
 export enum ActionType {
   Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
@@ -15,6 +16,7 @@ export enum ActionType {
   AppUpdate = 'AppUpdate',
   RfoxClaim = 'RfoxClaim',
   TcyClaim = 'TcyClaim',
+  Send = 'Send',
 }
 
 export enum ActionStatus {
@@ -64,6 +66,9 @@ export enum GenericTransactionDisplayType {
 }
 
 type ActionGenericTransactionMetadata = {
+  // i.e this is a generic transaction, but we also want to be able to discriminate this as to which kind of Tx this specifically is
+  type: ActionType.Deposit | ActionType.Withdraw | ActionType.Send
+  // i.e this is a generic transaction, but we also want to be able to display a lil something nicer to the user as a tag than just "Generic Transaction"
   displayType: GenericTransactionDisplayType
   message: string
   accountId: AccountId

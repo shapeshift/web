@@ -43,7 +43,6 @@ type UseRfoxUnstakeProps = {
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
   amountCryptoBaseUnit: string
-  cooldownPeriod: string
   methods: UseFormReturn<UnstakeInputValues> | undefined
   setUnstakeTxid: ((txId: string) => void) | undefined
   unstakeTxid: string | undefined
@@ -170,6 +169,7 @@ export const useRfoxUnstake = ({
           updatedAt: Date.now(),
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.RFOX,
+            type: ActionType.Withdraw,
             amountCryptoPrecision,
             cooldownPeriod,
             message: 'actionCenter.rfox.unstakeConfirmed',

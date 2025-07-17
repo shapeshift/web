@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Link, Text, useToast } from '@chakra-ui/react'
+import { Link, Text } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
@@ -252,6 +252,7 @@ export const useRfoxStake = ({
           createdAt: Date.now(),
           updatedAt: Date.now(),
           transactionMetadata: {
+            type: ActionType.Deposit,
             displayType: GenericTransactionDisplayType.RFOX,
             txHash: txId,
             chainId: stakingAsset.chainId,

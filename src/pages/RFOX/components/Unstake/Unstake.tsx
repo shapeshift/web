@@ -10,17 +10,10 @@ import { UnstakeRoutePaths } from './types'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { fromBaseUnit } from '@/lib/math'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
@@ -73,7 +66,6 @@ export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
 export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
   const queryClient = useQueryClient()
-  const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
@@ -86,12 +78,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const handleTxConfirmed = useCallback(async () => {
     if (!confirmedQuote || !unstakeTxid || !stakingAsset) return
-
-    const amountCryptoPrecision = fromBaseUnit(
-      confirmedQuote.unstakingAmountCryptoBaseUnit,
-      stakingAsset.precision,
-    )
-    const cooldownPeriod = confirmedQuote.cooldownPeriod
 
     // TODO(gomes): move me, too
     toast({
@@ -137,7 +123,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   }, [
     confirmedQuote,
     unstakeTxid,
-    dispatch,
     isDrawerOpen,
     openActionCenter,
     toast,

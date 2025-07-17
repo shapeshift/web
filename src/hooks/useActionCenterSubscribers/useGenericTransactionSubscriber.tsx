@@ -25,7 +25,6 @@ export const useGenericTransactionSubscriber = () => {
   const pendingGenericTransactionActions = useAppSelector(selectPendingGenericTransactionActions)
   const txs = useAppSelector(selectTxs)
 
-  console.log({ pendingGenericTransactionActions })
   useEffect(() => {
     pendingGenericTransactionActions.forEach(action => {
       if (action.status !== ActionStatus.Pending) return

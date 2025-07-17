@@ -47,7 +47,6 @@ export const ActionCenter = memo(() => {
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
 
   const actions = useAppSelector(selectWalletActionsSorted)
-  console.log({ actions })
 
   const pendingActions = useAppSelector(selectWalletPendingActions)
   const { ordersByActionId } = useLimitOrders()

@@ -42,13 +42,13 @@ export const Portfolio = memo(() => {
           <TCYCta />
         </Display.Desktop>
         <Card variant='dashboard'>
-          <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
-            <Display.Desktop>
+          <Display.Desktop>
+            <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
               <Heading as='h6'>
                 <Text translation='dashboard.portfolio.myAssets' />
               </Heading>
-            </Display.Desktop>
-          </CardHeader>
+            </CardHeader>
+          </Display.Desktop>
           <CardBody px={cardBodyPx} pt={0} pb={0}>
             {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
           </CardBody>

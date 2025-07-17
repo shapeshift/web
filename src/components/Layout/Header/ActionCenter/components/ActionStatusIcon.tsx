@@ -35,6 +35,7 @@ export const ActionStatusIcon = ({ status }: { status?: ActionStatus }) => {
           </IconWrapper>
         )
       case ActionStatus.ClaimAvailable:
+      case ActionStatus.Initiated:
       case ActionStatus.Complete:
         return (
           <IconWrapper bg='green.600'>

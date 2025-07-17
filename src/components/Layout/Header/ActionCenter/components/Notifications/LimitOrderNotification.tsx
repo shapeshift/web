@@ -1,5 +1,6 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
+import type { CowSwapQuoteId } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { ActionStatusIcon } from '../ActionStatusIcon'
@@ -9,21 +10,59 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
-import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { selectWalletLimitOrderActionByCowSwapQuoteId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type SwapNotificationProps = {
   handleClick: () => void
-  action: LimitOrderAction
+  cowSwapQuoteId: CowSwapQuoteId
 } & RenderProps
 
-export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNotificationProps) => {
-  const limitOrderNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
-    if (action.status === ActionStatus.Complete) {
+export const LimitOrderNotification = ({
+  handleClick,
+  cowSwapQuoteId,
+  onClose,
+}: SwapNotificationProps) => {
+  const action = useAppSelector(state =>
+    selectWalletLimitOrderActionByCowSwapQuoteId(state, { cowSwapQuoteId }),
+  )
+
+  const limitOrderNotificationTranslationComponents: TextPropTypes['components'] | undefined =
+    useMemo(() => {
+      if (!action) return
+
+      if (action.status === ActionStatus.Complete) {
+        return {
+          sellAmountAndSymbol: (
+            <Amount.Crypto
+              value={action.limitOrderMetadata.executedSellAmountCryptoPrecision}
+              symbol={action.limitOrderMetadata.sellAsset.symbol}
+              fontSize='sm'
+              fontWeight='bold'
+              maximumFractionDigits={6}
+              omitDecimalTrailingZeros
+              display='inline'
+            />
+          ),
+          buyAmountAndSymbol: (
+            <Amount.Crypto
+              value={action.limitOrderMetadata.executedBuyAmountCryptoPrecision}
+              symbol={action.limitOrderMetadata.buyAsset.symbol}
+              fontSize='sm'
+              fontWeight='bold'
+              maximumFractionDigits={6}
+              omitDecimalTrailingZeros
+              display='inline'
+            />
+          ),
+        }
+      }
+
       return {
         sellAmountAndSymbol: (
           <Amount.Crypto
-            value={action.limitOrderMetadata.executedSellAmountCryptoPrecision}
+            value={action.limitOrderMetadata.sellAmountCryptoPrecision}
             symbol={action.limitOrderMetadata.sellAsset.symbol}
             fontSize='sm'
             fontWeight='bold'
@@ -34,7 +73,7 @@ export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNot
         ),
         buyAmountAndSymbol: (
           <Amount.Crypto
-            value={action.limitOrderMetadata.executedBuyAmountCryptoPrecision}
+            value={action.limitOrderMetadata.buyAmountCryptoPrecision}
             symbol={action.limitOrderMetadata.buyAsset.symbol}
             fontSize='sm'
             fontWeight='bold'
@@ -44,33 +83,7 @@ export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNot
           />
         ),
       }
-    }
-
-    return {
-      sellAmountAndSymbol: (
-        <Amount.Crypto
-          value={action.limitOrderMetadata.sellAmountCryptoPrecision}
-          symbol={action.limitOrderMetadata.sellAsset.symbol}
-          fontSize='sm'
-          fontWeight='bold'
-          maximumFractionDigits={6}
-          omitDecimalTrailingZeros
-          display='inline'
-        />
-      ),
-      buyAmountAndSymbol: (
-        <Amount.Crypto
-          value={action.limitOrderMetadata.buyAmountCryptoPrecision}
-          symbol={action.limitOrderMetadata.buyAsset.symbol}
-          fontSize='sm'
-          fontWeight='bold'
-          maximumFractionDigits={6}
-          omitDecimalTrailingZeros
-          display='inline'
-        />
-      ),
-    }
-  }, [action])
+    }, [action])
 
   const limitOrderTitleTranslation = useMemo(() => {
     if (!action) return 'actionCenter.limitOrder.processing'
@@ -81,6 +94,8 @@ export const LimitOrderNotification = ({ handleClick, action, onClose }: SwapNot
 
     return 'actionCenter.limitOrder.placed'
   }, [action])
+
+  if (!action) return null
 
   return (
     <NotificationWrapper handleClick={handleClick} onClose={onClose}>

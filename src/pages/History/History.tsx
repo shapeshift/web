@@ -1,20 +1,17 @@
-import type { FlexProps, TabProps } from '@chakra-ui/react'
+import type { TabProps } from '@chakra-ui/react'
 import {
   Box,
   Container,
-  Flex,
   Tab,
   TabIndicator,
   TabList,
+  TabPanel,
+  TabPanels,
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import SwipeableViews from 'react-swipeable-views'
-import { mod } from 'react-swipeable-views-core'
-import type { SlideRenderProps } from 'react-swipeable-views-utils'
-import { virtualize } from 'react-swipeable-views-utils'
 
 import { ActionCenter } from '@/components/Layout/Header/ActionCenter/ActionCenter'
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
@@ -45,23 +42,6 @@ const CustomTab = (props: TabProps) => (
   />
 )
 
-const ScrollView = (props: FlexProps) => (
-  <Flex
-    flexDir='column'
-    width='100vw'
-    height='calc(100dvh - var(--mobile-history-header-offset) - var(--mobile-nav-offset) - 1rem - env(safe-area-inset-top) - var(--safe-area-inset-top))'
-    overflowY='auto'
-    {...props}
-  />
-)
-
-const VirtualizedSwipableViews = virtualize(SwipeableViews)
-
-enum HistoryTab {
-  Activity,
-  History,
-}
-
 export const History = () => {
   const translate = useTranslate()
   const [slideIndex, setSlideIndex] = useState(0)
@@ -77,64 +57,6 @@ export const History = () => {
   const handleSlideIndexChange = useCallback((index: number) => {
     setSlideIndex(index)
   }, [])
-
-  useLayoutEffect(() => {
-    const body = document.body
-    const tabsHeader = document.querySelector('.history-tabs-header')
-    const userHeader = document.querySelector('.mobile-user-header')
-    if (window.visualViewport) {
-      const vv = window.visualViewport
-      const fixPosition = () => {
-        if (body && tabsHeader && userHeader) {
-          body.style.setProperty(
-            '--mobile-history-header-offset',
-            `${tabsHeader.clientHeight + userHeader.clientHeight}px`,
-          )
-        }
-      }
-      vv.addEventListener('resize', fixPosition)
-      fixPosition()
-      return () => {
-        window.removeEventListener('resize', fixPosition)
-      }
-    }
-  }, [])
-
-  const slideRenderer = useCallback(
-    (props: SlideRenderProps) => {
-      const { index, key } = props
-      let content
-      const tab = mod(index, 2)
-      if (slideIndex !== tab) return null
-
-      switch (tab) {
-        case HistoryTab.Activity:
-          content = (
-            <ScrollView>
-              <ActionCenter />
-            </ScrollView>
-          )
-          break
-        case HistoryTab.History:
-          content = (
-            <ScrollView>
-              <TransactionHistory />
-            </ScrollView>
-          )
-          break
-        default:
-          content = null
-          break
-      }
-
-      return (
-        <div id={`scroll-view-${key}`} key={key}>
-          {content}
-        </div>
-      )
-    },
-    [slideIndex],
-  )
 
   const mobileDrawer = useMemo(() => {
     if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
@@ -153,7 +75,7 @@ export const History = () => {
         onToggle={onSearchToggle}
       />
       {mobileDrawer}
-      <Container px={6} pt={4}>
+      <Container px={4} pt={4}>
         <MobileUserHeader
           onSearchOpen={onSearchOpen}
           handleQrCodeClick={handleQrCodeclick}
@@ -168,14 +90,14 @@ export const History = () => {
           </TabList>
           <TabIndicator height='2px' bg='blue.500' borderRadius='1px' />
         </Box>
-        <VirtualizedSwipableViews
-          index={slideIndex}
-          onChangeIndex={handleSlideIndexChange}
-          slideRenderer={slideRenderer}
-          slideCount={2}
-          overscanSlideBefore={1}
-          overscanSlideAfter={1}
-        />
+        <TabPanels>
+          <TabPanel p={0} pt={4}>
+            <ActionCenter />
+          </TabPanel>
+          <TabPanel p={0} pt={4}>
+            <TransactionHistory />
+          </TabPanel>
+        </TabPanels>
       </Tabs>
     </Main>
   )

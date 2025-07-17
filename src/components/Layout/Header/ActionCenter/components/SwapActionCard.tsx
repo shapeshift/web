@@ -1,5 +1,7 @@
-import { useDisclosure } from '@chakra-ui/react'
-import { SwapStatus } from '@shapeshiftoss/swapper'
+import { Box, useDisclosure } from '@chakra-ui/react'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -18,7 +20,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -40,6 +42,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
+  const isArbitrumBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
+
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
       action.status === ActionStatus.Pending && Boolean(swap?.isStreaming || swap?.txLink),
@@ -60,6 +64,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
           display='inline'
         />
       ),
+      sellChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.sellAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
       buyAmountAndSymbol: (
         <Amount.Crypto
           value={swap.expectedBuyAmountCryptoPrecision}
@@ -71,17 +80,30 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
           display='inline'
         />
       ),
+      buyChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.buyAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
     }
   }, [swap])
 
   const title = useMemo(() => {
-    if (!swap) return 'actionCenter.swap.processing'
-    if (swap.isStreaming && swap.status === SwapStatus.Pending) return 'actionCenter.swap.streaming'
-    if (swap.status === SwapStatus.Success) return 'actionCenter.swap.complete'
-    if (swap.status === SwapStatus.Failed) return 'actionCenter.swap.failed'
+    const { status } = action
+    if (isArbitrumBridge) {
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+      if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
+      if (status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
+
+      return 'actionCenter.bridge.processing'
+    }
+
+    if (swap?.isStreaming && status === ActionStatus.Pending) return 'actionCenter.swap.streaming'
+    if (status === ActionStatus.Complete) return 'actionCenter.swap.complete'
+    if (status === ActionStatus.Failed) return 'actionCenter.swap.failed'
 
     return 'actionCenter.swap.processing'
-  }, [swap])
+  }, [action, isArbitrumBridge, swap?.isStreaming])
 
   const icon = useMemo(() => {
     return (
@@ -118,6 +140,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
 
   return (
     <ActionCard
+      displayType={isArbitrumBridge ? GenericTransactionDisplayType.Bridge : undefined}
       type={action.type}
       formattedDate={formattedDate}
       isCollapsable={isCollapsable}

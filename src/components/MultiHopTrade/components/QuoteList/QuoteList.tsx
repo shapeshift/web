@@ -19,6 +19,7 @@ import {
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { QuoteTimer } from '../TradeInput/components/QuoteTimer'
 import { TradeQuotes } from '../TradeInput/components/TradeQuotes/TradeQuotes'
 import { BackButton } from '../WithBackButton'
 
@@ -28,10 +29,10 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppSelector } from '@/state/store'
 const chevronDownIcon = <ChevronDownIcon />
 
-type QuoteListProps = {
+export type QuoteListProps = {
   onBack?: () => void
-  isLoading: boolean
   cardProps?: CardProps
+  showQuoteRefreshCountdown?: boolean
 }
 
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
@@ -41,13 +42,16 @@ const cardHeight = {
   md: 'inherit',
 }
 
-export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardProps }) => {
+export const QuoteList: React.FC<QuoteListProps> = ({
+  onBack,
+  cardProps,
+  showQuoteRefreshCountdown = true,
+}) => {
   const translate = useTranslate()
 
   const currentSortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
 
   const quoteSortOptions = useQuoteSortOptions()
-
   const selectedSortOption = useMemo(
     (): { label: string } | undefined =>
       quoteSortOptions.find(opt => opt.value === currentSortOption),
@@ -91,10 +95,11 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
               </MenuOptionGroup>
             </MenuList>
           </Menu>
+          {showQuoteRefreshCountdown && <QuoteTimer />}
         </Flex>
       </CardHeader>
       <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>
-        <TradeQuotes isLoading={isLoading} onBack={onBack} />
+        <TradeQuotes onBack={onBack} />
       </CardBody>
     </Card>
   )

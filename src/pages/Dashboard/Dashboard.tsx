@@ -1,12 +1,8 @@
 import type { FlexProps } from '@chakra-ui/react'
-import { Flex, Tab, TabList, Tabs } from '@chakra-ui/react'
+import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import SwipeableViews from 'react-swipeable-views'
-import { mod } from 'react-swipeable-views-core'
-import type { SlideRenderProps } from 'react-swipeable-views-utils'
-import { virtualize } from 'react-swipeable-views-utils'
 
 import { WatchlistTable } from '../Home/WatchlistTable'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
@@ -34,18 +30,8 @@ const notFound = <RawText>Not found</RawText>
 const dashboardHeader = <DashboardHeader />
 
 const ScrollView = (props: FlexProps) => (
-  <Flex
-    flexDir='column'
-    width='100vw'
-    pt='calc(var(--mobile-header-offset) + 1rem)'
-    pb='var(--mobile-nav-offset)'
-    height='100dvh'
-    overflowY='auto'
-    {...props}
-  />
+  <Flex flexDir='column' width='100vw' pb='var(--mobile-nav-offset)' {...props} />
 )
-
-const VirtualizedSwipableViews = virtualize(SwipeableViews)
 
 // Leverage the fact that enums don't exist in native JS and compile to 0 and 1 when accessed here
 // so we can have a declarative way to refer to the tab indexes instead of magic numbers
@@ -95,33 +81,6 @@ const MobileHome = memo(() => {
     [location.pathname, navigate, getPathFromTabIndex],
   )
 
-  const slideRenderer = useCallback((props: SlideRenderProps) => {
-    const { index, key } = props
-    let content
-    const tab = mod(index, 2)
-    switch (tab) {
-      case MobileTab.MyCrypto:
-        content = (
-          <Routes>
-            <Route path='' element={walletDashboard} />
-            <Route path='accounts/*' element={accounts} />
-          </Routes>
-        )
-        break
-      case MobileTab.Watchlist:
-        content = <WatchlistTable />
-        break
-      default:
-        content = null
-        break
-    }
-    return (
-      <div id={`scroll-view-${key}`} key={key}>
-        {content}
-      </div>
-    )
-  }, [])
-
   return (
     <>
       <Tabs
@@ -137,15 +96,18 @@ const MobileHome = memo(() => {
           <Tab _active={customTabActive}>{translate('dashboard.portfolio.myCrypto')}</Tab>
           <Tab _active={customTabActive}>{translate('watchlist.title')}</Tab>
         </TabList>
+        <TabPanels>
+          <TabPanel p={0} pt={2}>
+            <Routes>
+              <Route path='' element={walletDashboard} />
+              <Route path='accounts/*' element={accounts} />
+            </Routes>
+          </TabPanel>
+          <TabPanel p={0} pt={2}>
+            <WatchlistTable />
+          </TabPanel>
+        </TabPanels>
       </Tabs>
-      <VirtualizedSwipableViews
-        index={activeTabIndex}
-        onChangeIndex={handleTabChange}
-        slideRenderer={slideRenderer}
-        slideCount={2}
-        overscanSlideBefore={1}
-        overscanSlideAfter={1}
-      />
     </>
   )
 })
@@ -165,14 +127,7 @@ export const Dashboard = memo(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [isLoadingLocalWallet, isConnected, walletDispatch])
 
-  const mobileHome = useMemo(
-    () => (
-      <ScrollView>
-        <MobileHome />
-      </ScrollView>
-    ),
-    [],
-  )
+  const mobileHome = useMemo(() => <MobileHome />, [])
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])
 
   return (
@@ -190,12 +145,14 @@ export const Dashboard = memo(() => {
         </Main>
       </Display.Desktop>
       <Display.Mobile>
-        <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
-          <Routes>
-            <Route path='*' element={mobileHome} />
-            <Route path='earn' element={mobileEarn} />
-          </Routes>
-        </Main>
+        <ScrollView>
+          <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
+            <Routes>
+              <Route path='*' element={mobileHome} />
+              <Route path='earn' element={mobileEarn} />
+            </Routes>
+          </Main>
+        </ScrollView>
       </Display.Mobile>
     </>
   )

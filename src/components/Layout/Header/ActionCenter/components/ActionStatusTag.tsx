@@ -69,6 +69,12 @@ export const ActionStatusTag = ({ status }: ActionStatusTagProps) => {
             {translate('actionCenter.status.claimed')}
           </Tag>
         )
+      case ActionStatus.Initiated:
+        return (
+          <Tag size='sm' colorScheme='blue' {...defaultTagProps}>
+            {translate('actionCenter.status.initiated')}
+          </Tag>
+        )
       default:
         return (
           <Tag size='sm' colorScheme='gray' {...defaultTagProps}>

@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useAccountsFetch = () => {
   const dispatch = useAppDispatch()
-  const { wallet } = useWallet().state
+  const { isLoadingLocalWallet, modal, wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
@@ -26,6 +26,9 @@ export const useAccountsFetch = () => {
   // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
   // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
   useEffect(() => {
+    // Do not fetch accounts if the wallet modal is open or we're reconciliating local wallet - user is either inputting password, switching accounts, or their wallet is being rehydrated
+    if (modal || isLoadingLocalWallet) return
+
     const { getAllTxHistory } = txHistoryApi.endpoints
 
     enabledWalletAccountIds.forEach(accountId => {
@@ -37,7 +40,7 @@ export const useAccountsFetch = () => {
     enabledWalletAccountIds.forEach(requestedAccountId => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
-  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
+  }, [isLoadingLocalWallet, modal, dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
 
   const query = useAccountsFetchQuery()
   return query

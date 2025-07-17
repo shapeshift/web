@@ -65,7 +65,7 @@ export const useDiscoverAccounts = () => {
 
               hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
-              if (hasActivity) {
+              if (hasActivity || accountNumber === 0) {
                 accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata }) => {
                   chainAccountMetadata[accountId] = accountMetadata
                 })

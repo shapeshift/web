@@ -50,14 +50,6 @@ export const useDiscoverAccounts = () => {
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
-          console.log({
-            chainId,
-            isMetaMaskMultichainWallet,
-            isSnapInstalled,
-            wallet,
-            connectedRdns,
-          })
-
           const walletId = await wallet.getDeviceID()
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())

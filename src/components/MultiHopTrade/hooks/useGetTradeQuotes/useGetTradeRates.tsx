@@ -2,12 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
-import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  isThorTradeRate,
-  SwapperName,
-  swappers,
-} from '@shapeshiftoss/swapper'
+import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
@@ -16,7 +11,6 @@ import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOr
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
-import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -48,7 +42,6 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
-  differenceFromBestQuoteDecimalPercentage: number
   quoteReceived: boolean
   isStreaming: boolean
   isLongtail: boolean
@@ -70,7 +63,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
 const getMixPanelDataFromApiRates = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
 ): GetMixPanelDataFromApiQuotesReturn => {
-  const bestInputOutputRatio = quotes[0]?.inputOutputRatio
   const state = store.getState()
   const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
   const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
@@ -82,14 +74,11 @@ const getMixPanelDataFromApiRates = (
 
   const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote: _quote, errors, swapperName, inputOutputRatio }) => {
+    .map(({ quote: _quote, errors, swapperName }) => {
       const quote = _quote as TradeRate
 
-      const differenceFromBestQuoteDecimalPercentage =
-        (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
         swapperName,
-        differenceFromBestQuoteDecimalPercentage,
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
         isLongtail: quote?.isLongtail ?? false,
@@ -126,7 +115,6 @@ export const useGetTradeRates = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -163,8 +151,6 @@ export const useGetTradeRates = () => {
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
-
-  const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
@@ -231,12 +217,9 @@ export const useGetTradeRates = () => {
       return {
         swapperName,
         tradeQuoteOrRateInput: tradeRateInput ?? skipToken,
-        skip: !shouldRefetchTradeQuotes,
-        pollingInterval:
-          swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
-    [shouldRefetchTradeQuotes, tradeRateInput],
+    [tradeRateInput],
   )
 
   // TODO(0xdef1cafe): this is brittle

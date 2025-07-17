@@ -51,7 +51,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const { wallet, isConnected } = useWallet().state
+  const { isLoadingLocalWallet, modal, wallet, isConnected } = useWallet().state
   const assetIds = useAppSelector(selectAssetIds)
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useAppSelector(selectPortfolioAssetIds)
@@ -95,7 +95,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // load top 1000 assets market data
   // this is needed to sort assets by market cap
   // and covers most assets users will have
-  useFindAllMarketDataQuery()
+  useFindAllMarketDataQuery(undefined, {
+    skip: !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet,
+  })
 
   useDiscoverAccounts()
   usePortfolioFetch()
@@ -154,7 +156,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       },
       // once the portfolio is loaded, fetch market data for all portfolio assets
       // and start refetch timer to keep market data up to date
-      enabled: !isConnected || portfolioLoadingStatus !== 'loading',
+      enabled:
+        isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
       refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,

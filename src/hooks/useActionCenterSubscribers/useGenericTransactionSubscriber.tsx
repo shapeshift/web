@@ -22,7 +22,6 @@ export const useGenericTransactionSubscriber = () => {
   const txs = useAppSelector(selectTxs)
 
   useEffect(() => {
-    console.log({ pendingGenericTransactionActions })
     pendingGenericTransactionActions.forEach(action => {
       if (action.status !== ActionStatus.Pending) return
       // RFOX only for now, TODO: more
@@ -32,7 +31,6 @@ export const useGenericTransactionSubscriber = () => {
       const accountAddress = fromAccountId(accountId).account
       const serializedTxIndex = serializeTxIndex(accountId, txHash, accountAddress)
       const tx = txs[serializedTxIndex]
-      console.log({ tx })
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
@@ -50,6 +48,10 @@ export const useGenericTransactionSubscriber = () => {
           },
         }),
       )
+
+      // No double-toasty
+      if (toast.isActive(action.transactionMetadata.txHash)) return
+
       toast({
         id: action.transactionMetadata.txHash,
         duration: isDrawerOpen ? 5000 : null,

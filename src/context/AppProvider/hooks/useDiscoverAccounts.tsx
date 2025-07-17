@@ -9,14 +9,17 @@ import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { METAMASK_RDNS } from '@/lib/mipd'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
-import { store, useAppDispatch } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useDiscoverAccounts = () => {
   const dispatch = useAppDispatch()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { deviceId, wallet } = useWallet().state
   const { supportedChains } = usePlugins()
+  const connectedRdns = useAppSelector(selectWalletRdns)
 
   const supportedChainIds = useMemo(() => {
     return supportedChains.filter(chainId =>
@@ -36,13 +39,27 @@ export const useDiscoverAccounts = () => {
           chainId,
         ],
         queryFn: async () => {
-          if (!wallet || isLedger(wallet)) {
+          const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+
+          if (
+            !wallet ||
+            isLedger(wallet) ||
+            // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
+            (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
+          ) {
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
+          console.log({
+            chainId,
+            isMetaMaskMultichainWallet,
+            isSnapInstalled,
+            wallet,
+            connectedRdns,
+          })
+
           const walletId = await wallet.getDeviceID()
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
-          const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
           let accountNumber = 0

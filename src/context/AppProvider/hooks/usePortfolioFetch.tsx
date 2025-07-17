@@ -16,6 +16,7 @@ export const usePortfolioFetch = () => {
 
   useEffect(() => {
     if (!wallet) return
+    console.log('resetting portfolio')
 
     dispatch(portfolioApi.util.resetApiState())
     dispatch(txHistoryApi.util.resetApiState())

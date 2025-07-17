@@ -73,7 +73,6 @@ export const useSnapStatusHandler = () => {
       previousConnectedRdns === METAMASK_RDNS &&
       connectedRdns === METAMASK_RDNS
     ) {
-      console.log('clearing metadata')
       appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
       navigate(`/assets/${btcAssetId}`)
       queryClient.invalidateQueries({

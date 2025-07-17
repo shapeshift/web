@@ -121,7 +121,7 @@ export const useDiscoverAccounts = () => {
         gcTime: Infinity,
         enabled: Boolean(wallet && deviceId),
       })),
-    [dispatch, isSnapInstalled, wallet, deviceId, supportedChainIds],
+    [dispatch, isSnapInstalled, wallet, deviceId, supportedChainIds, connectedRdns],
   )
 
   const accountsDiscoveryQueries = useQueries({

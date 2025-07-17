@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { useTCYClaims } from '../queries/useTcyClaims'
+import { useTcyClaimSaversNotification } from './useTcyClaimSaversNotification'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType, isTcyClaimAction } from '@/state/slices/actionSlice/types'
@@ -8,6 +9,8 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTcyClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
+
+  useTcyClaimSaversNotification()
 
   const allTcyClaims = useTCYClaims('all')
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)

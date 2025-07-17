@@ -1,4 +1,5 @@
 import { useAppUpdateActionSubscriber } from './useAppUpdateActionSubscriber'
+import { useGenericTransactionSubscriber } from './useGenericTransactionSubscriber'
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
 import { useSwapActionSubscriber } from './useSwapActionSubscriber'
 
@@ -11,4 +12,5 @@ export const useActionCenterSubscribers = () => {
   useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()
   useTcyClaimActionSubscriber()
+  useGenericTransactionSubscriber()
 }

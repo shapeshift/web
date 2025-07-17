@@ -21,8 +21,15 @@ import {
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
+import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -30,12 +37,13 @@ import {
   selectTxById,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseRfoxUnstakeProps = {
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
   amountCryptoBaseUnit: string
+  cooldownPeriod: string
   methods: UseFormReturn<UnstakeInputValues> | undefined
   setUnstakeTxid: ((txId: string) => void) | undefined
   unstakeTxid: string | undefined
@@ -58,8 +66,11 @@ export const useRfoxUnstake = ({
   setUnstakeTxid,
   unstakeTxid,
 }: UseRfoxUnstakeProps): UseRfoxUnstakeReturn => {
+  const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
+
+  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
     return {
@@ -129,7 +140,8 @@ export const useRfoxUnstake = ({
         !stakingAssetAccountAddress ||
         !stakingAsset ||
         !callData ||
-        !adapter
+        !adapter ||
+        !amountCryptoPrecision
       )
         return
 
@@ -148,6 +160,26 @@ export const useRfoxUnstake = ({
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txId,
+          type: ActionType.GenericTransaction,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.RFOX,
+            amountCryptoPrecision,
+            cooldownPeriod,
+            message: 'actionCenter.rfox.unstakeConfirmed',
+            txHash: txId,
+            chainId: stakingAsset.chainId,
+            accountId: stakingAssetAccountId,
+            assetId: stakingAssetId,
+          },
+        }),
+      )
 
       return txId
     },

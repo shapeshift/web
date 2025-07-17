@@ -10,9 +10,7 @@ import { StakeRoutePaths } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { fromBaseUnit } from '@/lib/math'
 import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
@@ -21,12 +19,6 @@ import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
@@ -113,51 +105,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
 
   const handleTxConfirmed = useCallback(async () => {
     if (!confirmedQuote || !stakeTxid || !stakingAsset) return
-
-    const amountCryptoPrecision = fromBaseUnit(
-      confirmedQuote.stakingAmountCryptoBaseUnit,
-      stakingAsset.precision,
-    )
-
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: stakeTxid,
-        type: ActionType.GenericTransaction,
-        status: ActionStatus.Complete,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        transactionMetadata: {
-          displayType: GenericTransactionDisplayType.RFOX,
-          txHash: stakeTxid,
-          chainId: stakingAsset.chainId,
-          accountId: confirmedQuote.stakingAssetAccountId,
-          assetId: confirmedQuote.stakingAssetId,
-          amountCryptoPrecision,
-          message: 'RFOX.stakeSuccess',
-        },
-      }),
-    )
-    toast({
-      id: stakeTxid,
-      duration: isDrawerOpen ? 5000 : null,
-      status: 'success',
-      render: ({ onClose, ...props }) => {
-        const handleClick = () => {
-          onClose()
-          openActionCenter()
-        }
-
-        return (
-          <GenericTransactionNotification
-            // eslint-disable-next-line react-memo/require-usememo
-            handleClick={handleClick}
-            actionId={stakeTxid}
-            onClose={onClose}
-            {...props}
-          />
-        )
-      },
-    })
 
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({

@@ -93,25 +93,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     )
     const cooldownPeriod = confirmedQuote.cooldownPeriod
 
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: unstakeTxid,
-        type: ActionType.GenericTransaction,
-        status: ActionStatus.Complete,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        transactionMetadata: {
-          displayType: GenericTransactionDisplayType.RFOX,
-          amountCryptoPrecision,
-          cooldownPeriod,
-          message: 'actionCenter.rfox.unstakeConfirmed',
-          txHash: unstakeTxid,
-          chainId: stakingAsset.chainId,
-          accountId: confirmedQuote.stakingAssetAccountId,
-          assetId: confirmedQuote.stakingAssetId,
-        },
-      }),
-    )
+    // TODO(gomes): move me, too
     toast({
       id: unstakeTxid,
       duration: isDrawerOpen ? 5000 : null,

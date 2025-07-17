@@ -1,7 +1,5 @@
 import { useEffect } from 'react'
 
-import { useDiscoverAccounts } from './useDiscoverAccounts'
-
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -9,12 +7,10 @@ import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useAccountsFetch = () => {
+export const usePortfolioFetch = () => {
   const dispatch = useAppDispatch()
   const { wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-
-  const query = useDiscoverAccounts()
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 
@@ -40,6 +36,4 @@ export const useAccountsFetch = () => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
   }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
-
-  return query
 }

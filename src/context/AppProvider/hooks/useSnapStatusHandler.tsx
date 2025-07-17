@@ -39,12 +39,13 @@ export const useSnapStatusHandler = () => {
 
   useEffect(() => {
     if (!isCorrectVersion && isSnapInstalled) return
-    if (snapModal.isOpen) return
+    if (!currentWalletId) return
 
     if (
       previousSnapInstall === true &&
       isSnapInstalled === false &&
-      previousIsCorrectVersion === true
+      previousIsCorrectVersion === true &&
+      !snapModal.isOpen
     ) {
       if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
         // they uninstalled the snap
@@ -54,25 +55,26 @@ export const useSnapStatusHandler = () => {
           position: 'bottom',
         })
       }
-      const walletId = currentWalletId
-      if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
 
       queryClient.invalidateQueries({
         queryKey: ['useDiscoverAccounts', { deviceId, isSnapInstalled }],
-        exact: true,
+        exact: false,
         refetchType: 'all',
       })
       if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
         return snapModal.open({ isRemoved: true })
       }
     }
+
     if (
       previousSnapInstall === false &&
       isSnapInstalled === true &&
       previousConnectedRdns === METAMASK_RDNS &&
       connectedRdns === METAMASK_RDNS
     ) {
+      console.log('clearing metadata')
+      appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
       navigate(`/assets/${btcAssetId}`)
       queryClient.invalidateQueries({
         queryKey: ['useDiscoverAccounts', { deviceId, isSnapInstalled }],

@@ -7,9 +7,6 @@ import { Route, Switch } from 'wouter'
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
-import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -66,8 +63,6 @@ export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
 export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
   const queryClient = useQueryClient()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
@@ -78,29 +73,6 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const handleTxConfirmed = useCallback(async () => {
     if (!confirmedQuote || !unstakeTxid || !stakingAsset) return
-
-    // TODO(gomes): move me, too
-    toast({
-      id: unstakeTxid,
-      duration: isDrawerOpen ? 5000 : null,
-      status: 'success',
-      render: ({ onClose, ...props }) => {
-        const handleClick = () => {
-          onClose()
-          openActionCenter()
-        }
-
-        return (
-          <GenericTransactionNotification
-            // eslint-disable-next-line react-memo/require-usememo
-            handleClick={handleClick}
-            actionId={unstakeTxid}
-            onClose={onClose}
-            {...props}
-          />
-        )
-      },
-    })
 
     await queryClient.invalidateQueries({
       queryKey: getStakingInfoQueryKey({
@@ -120,15 +92,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
         { stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId },
       ],
     })
-  }, [
-    confirmedQuote,
-    unstakeTxid,
-    isDrawerOpen,
-    openActionCenter,
-    toast,
-    stakingAsset,
-    queryClient,
-  ])
+  }, [confirmedQuote, unstakeTxid, stakingAsset, queryClient])
 
   const renderUnstakeInput = useCallback(() => {
     return <UnstakeInput setConfirmedQuote={setConfirmedQuote} headerComponent={headerComponent} />

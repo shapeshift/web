@@ -40,9 +40,7 @@ export const useGenericTransactionSubscriber = () => {
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      // TODO(gomes): make sure we discriminate stake/unstake etc
-      // we'll need an additional discriminator in `transactionMetadata`
-
+      // TODO(gomes): refer to the todo above, for now this just handles RFOX stake/unstake - to-be-generalized when handling more providers/actions
       const message =
         action.transactionMetadata.type === ActionType.Deposit
           ? 'RFOX.stakeSuccess'

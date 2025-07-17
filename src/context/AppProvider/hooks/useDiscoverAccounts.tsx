@@ -1,68 +1,43 @@
-import { usePrevious } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo } from 'react'
+import { skipToken, useQuery } from '@tanstack/react-query'
+import { useCallback } from 'react'
 
 import { getAccountIdsWithActivityAndMetadata } from '@/components/ManageAccountsDrawer/helpers'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectWalletId } from '@/state/slices/common-selectors'
+import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useDiscoverAccounts = () => {
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const { isSnapInstalled } = useIsSnapInstalled()
-  const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   const { deviceId, wallet } = useWallet().state
-  const currentWalletId = useAppSelector(selectWalletId)
-  const queryClient = useQueryClient()
-
-  const isSnapStatusUpdated = useMemo(() => {
-    if (previousIsSnapInstalled === null && isSnapInstalled === true) return true
-    if (previousIsSnapInstalled === null && isSnapInstalled === false) return true
-    if (previousIsSnapInstalled === false && isSnapInstalled === true) return true
-    if (previousIsSnapInstalled === true && isSnapInstalled === false) return true
-    return false
-  }, [isSnapInstalled, previousIsSnapInstalled])
-
-  useEffect(() => {
-    if (!currentWalletId) return
-
-    if (previousIsSnapInstalled === true && isSnapInstalled === false) {
-      dispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
-      console.log('clearWalletMetadata')
-      queryClient.invalidateQueries({
-        queryKey: ['useDiscoverAccounts'],
-        exact: false,
-      })
-    }
-
-    if (previousIsSnapInstalled === false && isSnapInstalled === true) {
-      queryClient.invalidateQueries({
-        queryKey: ['useDiscoverAccounts'],
-        exact: false,
-      })
-    }
-  }, [currentWalletId, dispatch, previousIsSnapInstalled, isSnapInstalled, queryClient])
+  const enabledAccountIds = useAppSelector(selectEnabledWalletAccountIds)
 
   const discoverAccounts = useCallback(async () => {
     let chainIds = new Set(
       supportedChains.filter(chainId =>
-        walletSupportsChain({
-          chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: false,
-        }),
+        walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: false }),
       ),
     )
+    const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
+
+    if (enabledAccountIds.length > 0) {
+      return {
+        accountMetadataByAccountId: currentPortfolio.accountMetadata.byId,
+        chainIdsWithActivity: currentPortfolio.accountMetadata.ids.map(
+          id => fromAccountId(id).chainId,
+        ),
+      }
+    }
 
     if (!chainIds.size) return { accountMetadataByAccountId: {}, chainIdsWithActivity: new Set() }
     if (!wallet || isLedger(wallet))
@@ -75,13 +50,8 @@ export const useDiscoverAccounts = () => {
     const accountMetadataByAccountId: AccountMetadataById = {}
     const chainIdsWithActivity = new Set<ChainId>()
 
-    console.log({
-      chainIds,
-      isSnapInstalled,
-    })
-
-    // Discover accounts for each chain with activity-based stopping
-    for (const chainId of chainIds) {
+    // Helper function to discover accounts for a single chain
+    const discoverChainAccounts = async (chainId: ChainId) => {
       let accountNumber = 0
       let hasActivity = true
       const chainAccountMetadata: AccountMetadataById = {}
@@ -100,15 +70,12 @@ export const useDiscoverAccounts = () => {
             Boolean(isSnapInstalled),
           )
 
-          // Check if any account has activity
           hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
           if (hasActivity) {
             accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata }) => {
               chainAccountMetadata[accountId] = accountMetadata
             })
-
-            chainIdsWithActivity.add(chainId)
           }
 
           accountNumber++
@@ -118,42 +85,48 @@ export const useDiscoverAccounts = () => {
         }
       }
 
-      if (Object.keys(chainAccountMetadata).length > 0) {
-        Object.assign(accountMetadataByAccountId, chainAccountMetadata)
-
-        dispatch(
-          portfolio.actions.upsertAccountMetadata({
-            accountMetadataByAccountId: chainAccountMetadata,
-            walletId,
-          }),
-        )
-
-        console.log({
-          chainAccountMetadata,
-        })
-
-        Object.keys(chainAccountMetadata).forEach(accountId => {
-          dispatch(portfolio.actions.enableAccountId(accountId))
-        })
-      }
+      return { chainId, chainAccountMetadata }
     }
 
-    console.log({
-      chainIdsWithActivity,
-      accountMetadataByAccountId,
+    const chainDiscoveryPromises = Array.from(chainIds).map(chainId =>
+      discoverChainAccounts(chainId),
+    )
+
+    const results = await Promise.allSettled(chainDiscoveryPromises)
+
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        const { chainId, chainAccountMetadata } = result.value
+
+        if (Object.keys(chainAccountMetadata).length > 0) {
+          Object.assign(accountMetadataByAccountId, chainAccountMetadata)
+          chainIdsWithActivity.add(chainId)
+
+          dispatch(
+            portfolio.actions.upsertAccountMetadata({
+              accountMetadataByAccountId: chainAccountMetadata,
+              walletId,
+            }),
+          )
+
+          Object.keys(chainAccountMetadata).forEach(accountId => {
+            dispatch(portfolio.actions.enableAccountId(accountId))
+          })
+        }
+      } else {
+        console.error('Chain discovery failed:', result.reason)
+      }
     })
 
     return { accountMetadataByAccountId, chainIdsWithActivity }
-  }, [dispatch, isSnapInstalled, supportedChains, wallet])
+  }, [dispatch, isSnapInstalled, wallet, supportedChains, enabledAccountIds])
 
   const query = useQuery({
     queryKey: [
       'useDiscoverAccounts',
       {
         deviceId,
-        supportedChains,
         isSnapInstalled,
-        isSnapStatusUpdated,
       },
     ],
     queryFn: wallet && deviceId ? discoverAccounts : skipToken,

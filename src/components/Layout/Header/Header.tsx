@@ -1,8 +1,6 @@
-import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { Box, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,20 +13,9 @@ import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
-import { WalletActions } from '@/context/WalletProvider/actions'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { METAMASK_RDNS } from '@/lib/mipd'
-import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import {
-  selectEnabledWalletAccountIds,
-  selectPortfolioDegradedState,
-  selectWalletId,
-} from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { selectPortfolioDegradedState } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
 
 const WalletConnectToDappsHeaderButton = lazy(() =>
@@ -48,25 +35,17 @@ const paddingTopProp = {
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
-  const snapModal = useModal('snaps')
-  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
-  const previousSnapInstall = usePrevious(isSnapInstalled)
-  const previousIsCorrectVersion = usePrevious(isCorrectVersion)
-  const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const navigate = useNavigate()
   const {
-    state: { isConnected, wallet },
-    dispatch,
+    state: { isConnected },
   } = useWallet()
-  const appDispatch = useAppDispatch()
-  const translate = useTranslate()
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
-  const toast = useToast()
+
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])
@@ -91,69 +70,6 @@ export const Header = memo(() => {
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
-
-  const connectedRdns = useAppSelector(selectWalletRdns)
-  const previousConnectedRdns = usePrevious(connectedRdns)
-  const currentWalletId = useAppSelector(selectWalletId)
-  const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-
-  useEffect(() => {
-    if (!isCorrectVersion && isSnapInstalled) return
-    if (snapModal.isOpen) return
-
-    if (
-      previousSnapInstall === true &&
-      isSnapInstalled === false &&
-      previousIsCorrectVersion === true
-    ) {
-      if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
-        // they uninstalled the snap
-        toast({
-          status: 'success',
-          title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
-          position: 'bottom',
-        })
-      }
-      const walletId = currentWalletId
-      if (!walletId) return
-      if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
-        return snapModal.open({ isRemoved: true })
-      }
-    }
-    if (
-      previousSnapInstall === false &&
-      isSnapInstalled === true &&
-      previousConnectedRdns === METAMASK_RDNS &&
-      connectedRdns === METAMASK_RDNS
-    ) {
-      navigate(`/assets/${btcAssetId}`)
-
-      // they installed the snap
-      toast({
-        status: 'success',
-        title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
-        position: 'bottom',
-      })
-      return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-    }
-  }, [
-    appDispatch,
-    connectedRdns,
-    currentWalletId,
-    dispatch,
-    navigate,
-    isCorrectVersion,
-    isSnapInstalled,
-    previousConnectedRdns,
-    previousIsCorrectVersion,
-    previousSnapInstall,
-    showSnapModal,
-    snapModal,
-    toast,
-    translate,
-    wallet,
-    walletAccountIds,
-  ])
 
   // Hide the header on mobile
   if (!isLargerThanMd) return null

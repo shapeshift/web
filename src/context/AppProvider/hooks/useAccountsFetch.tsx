@@ -20,7 +20,6 @@ export const useAccountsFetch = () => {
 
   useEffect(() => {
     if (!wallet) return
-    console.log('resetting api state')
 
     dispatch(portfolioApi.util.resetApiState())
     dispatch(txHistoryApi.util.resetApiState())
@@ -30,10 +29,6 @@ export const useAccountsFetch = () => {
   // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
   useEffect(() => {
     const { getAllTxHistory } = txHistoryApi.endpoints
-
-    console.log({
-      enabledWalletAccountIds,
-    })
 
     enabledWalletAccountIds.forEach(accountId => {
       dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))

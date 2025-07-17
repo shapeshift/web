@@ -6,6 +6,7 @@ import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetch } from './hooks/useAccountsFetch'
+import { useSnapStatusHandler } from './hooks/useSnapStatusHandler'
 
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
@@ -62,6 +63,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Previously <TransactionsProvider />
   useTransactionsSubscriber()
   useActionCenterSubscribers()
+  useSnapStatusHandler()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

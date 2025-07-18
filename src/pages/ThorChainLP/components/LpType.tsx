@@ -1,7 +1,7 @@
 import type { RadioProps, TextProps } from '@chakra-ui/react'
 import { Box, Flex, HStack, Skeleton, Tooltip, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { rujiAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { JSX } from 'react'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle, BiSolidPlusCircle, BiSolidXCircle } from 'react-icons/bi'
@@ -261,6 +261,14 @@ export const LpType = ({
       const currentSideBalances = balancesByPosition?.[option.value as AsymSide | 'sym']
 
       const isDisabled = (() => {
+        // https://gitlab.com/thorchain/thornode/-/issues/2214
+        if (
+          (assetId === tcyAssetId || assetId === rujiAssetId) &&
+          (option.value === AsymSide.Asset || option.value === AsymSide.Rune)
+        ) {
+          return true
+        }
+
         if (isDeposit && hasAsymRunePosition && option.value === 'sym') return true
         if (!isWithdraw) return false
 
@@ -313,6 +321,7 @@ export const LpType = ({
   }, [
     getRadioProps,
     makeAssetIdsOption,
+    assetId,
     translate,
     isWithdraw,
     isSymPositionType,

@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import type { ButtonProps } from '@chakra-ui/react'
+import type { ButtonProps, FlexProps } from '@chakra-ui/react'
 import { Box, Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX, PropsWithChildren } from 'react'
@@ -16,6 +16,7 @@ export type ResultsEmptyProps = {
   ctaHref?: string | null
   ctaText?: string
   buttonProps?: ButtonProps
+  containerProps?: FlexProps
 } & PropsWithChildren
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -27,18 +28,27 @@ export const ResultsEmpty: React.FC<ResultsEmptyProps> = ({
   ctaHref,
   ctaText,
   buttonProps,
+  containerProps,
   children,
 }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
   const translate = useTranslate()
   return (
-    <Flex p={6} textAlign='center' alignItems='center' width='full' flexDir='column' gap={4}>
+    <Flex
+      p={6}
+      textAlign='center'
+      alignItems='center'
+      width='full'
+      flexDir='column'
+      gap={4}
+      {...containerProps}
+    >
       <Flex>
         <Circle bg={bgColor} size='40px'>
           {icon}
         </Circle>
       </Flex>
-      <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
+      <Flex alignItems='center' textAlign='center' flexDir='column' width='full' gap={2}>
         {typeof title === 'string' && (
           <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
         )}

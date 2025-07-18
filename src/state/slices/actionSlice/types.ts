@@ -61,6 +61,7 @@ export enum GenericTransactionDisplayType {
   TCY = 'TCY',
   RFOX = 'rFOX',
   Bridge = 'Bridge',
+  SEND = 'Send',
 }
 
 type ActionGenericTransactionMetadata = {
@@ -95,6 +96,13 @@ export type LimitOrderAction = BaseAction & {
 export type GenericTransactionAction = BaseAction & {
   type: ActionType.GenericTransaction
   transactionMetadata: ActionGenericTransactionMetadata
+}
+
+export type SendAction = BaseAction & {
+  type: ActionType.GenericTransaction
+  transactionMetadata: ActionGenericTransactionMetadata & {
+    displayType: GenericTransactionDisplayType.SEND
+  }
 }
 
 export type AppUpdateAction = BaseAction & {
@@ -137,6 +145,13 @@ export const isSwapAction = (action: Action): action is SwapAction => {
   )
 }
 
+export const isSendAction = (action: Action): action is SendAction => {
+  return Boolean(
+    action.type === ActionType.GenericTransaction &&
+      action.transactionMetadata.displayType === GenericTransactionDisplayType.SEND,
+  )
+}
+
 export const isLimitOrderAction = (action: Action): action is LimitOrderAction => {
   return Boolean(action.type === ActionType.LimitOrder && action.limitOrderMetadata)
 }
@@ -155,4 +170,8 @@ export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => 
 
 export const isTcyClaimAction = (action: Action): action is TcyClaimAction => {
   return Boolean(action.type === ActionType.TcyClaim && action.tcyClaimActionMetadata)
+}
+
+export const isPendingSendAction = (action: Action): action is SendAction => {
+  return Boolean(isSendAction(action) && action.status === ActionStatus.Pending)
 }

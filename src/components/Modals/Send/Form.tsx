@@ -16,6 +16,7 @@ import { Details } from './views/Details'
 import { Status } from './views/Status'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SendNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SendNotification'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
@@ -153,8 +154,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           }
 
           return (
-            <SendNotification
-              // eslint-disable-next-line react-memo/require-usememo
+            <GenericTransactionNotification
               handleClick={handleClick}
               actionId={txHash}
               onClose={onClose}

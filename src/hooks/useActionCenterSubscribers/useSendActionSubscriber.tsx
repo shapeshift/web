@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { SendNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SendNotification'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -63,8 +63,7 @@ export const useSendActionSubscriber = () => {
           }
 
           return (
-            <SendNotification
-              // eslint-disable-next-line react-memo/require-usememo
+            <GenericTransactionNotification
               handleClick={handleClick}
               actionId={txHash}
               onClose={onClose}

@@ -9,6 +9,7 @@ import {
   ActionType,
   isGenericTransactionAction,
   isLimitOrderAction,
+  isPendingSendAction,
   isPendingSwapAction,
   isRfoxClaimAction,
   isSwapAction,

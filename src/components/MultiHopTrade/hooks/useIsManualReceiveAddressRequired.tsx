@@ -36,7 +36,7 @@ export const useIsManualReceiveAddressRequired = ({
     selectAccountIdsByAssetId(state, { assetId: buyAsset.assetId }),
   )
 
-  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const walletSupportsBuyAssetChainAtRuntime = useWalletSupportsChainAtRuntime(
     buyAsset.chainId,
@@ -46,7 +46,7 @@ export const useIsManualReceiveAddressRequired = ({
   const shouldForceDisplayManualAddressEntry = useMemo(() => {
     if (isWalletReceiveAddressLoading) return false
     if (!isConnected) return false
-    if (isAccountsMetadataLoading && !sellAccountId) return false
+    if (isDiscoveringAccounts && !sellAccountId) return false
     if (manualReceiveAddress) return false
     if (!walletReceiveAddress) return true
     if (!walletSupportsBuyAssetChain) return true
@@ -59,7 +59,7 @@ export const useIsManualReceiveAddressRequired = ({
     return false
   }, [
     buyAssetAccountIds.length,
-    isAccountsMetadataLoading,
+    isDiscoveringAccounts,
     isConnected,
     isWalletReceiveAddressLoading,
     manualReceiveAddress,

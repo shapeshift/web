@@ -1023,3 +1023,10 @@ export const selectIsAnyAccountMetadataLoadedForChainId = createSelector(
     )
   },
 )
+
+export const selectIsAnyAccountMetadataLoading = createSelector(
+  portfolio.selectors.selectIsAccountMetadataLoadingByAccountId,
+  (isAccountMetadataLoadingByAccountId): boolean => {
+    return Object.values(isAccountMetadataLoadingByAccountId).some(isLoading => isLoading)
+  },
+)

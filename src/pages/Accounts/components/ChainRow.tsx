@@ -38,14 +38,14 @@ const hover = { borderColor: 'border.hover' }
 const stackPx = { base: 2, md: 4 }
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
-  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
   const { isOpen, onToggle } = useDisclosure()
   const navigate = useNavigate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
-    isAccountsMetadataLoading || isAnyMarketDataLoading
+    isDiscoveringAccounts || isAnyMarketDataLoading
       ? undefined
       : selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
   )

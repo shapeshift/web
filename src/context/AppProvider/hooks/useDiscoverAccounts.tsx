@@ -121,14 +121,10 @@ export const useDiscoverAccounts = () => {
   })
 
   const { isLoading, isFetching } = useMemo(() => {
-    return accountsDiscoveryQueries.reduce(
-      (acc, query) => {
-        acc.isLoading = acc.isLoading || query.isLoading
-        acc.isFetching = acc.isFetching || query.isFetching
-        return acc
-      },
-      { isLoading: false, isFetching: false },
-    )
+    return {
+      isLoading: accountsDiscoveryQueries.some(query => query.isLoading),
+      isFetching: accountsDiscoveryQueries.some(query => query.isFetching),
+    }
   }, [accountsDiscoveryQueries])
 
   return {

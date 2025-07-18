@@ -1,5 +1,4 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -10,7 +9,6 @@ import type { Claim, TcyClaimer } from '../components/Claim/types'
 
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
 import { getThorfiUtxoFromAddresses } from '@/lib/utils/thorchain'
@@ -26,7 +24,6 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
     state: { isConnected, wallet },
   } = useWallet()
-  const { isSnapInstalled } = useIsSnapInstalled()
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
@@ -48,9 +45,6 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
       queryKey: ['tcy-claims', accountId, isConnected],
       queryFn: async (): Promise<Claim[]> => {
         if (!isConnected) return []
-        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
-
-        if (isMetaMaskMultichainWallet && !isSnapInstalled) return []
 
         const activeAddresses = (
           await (() => {

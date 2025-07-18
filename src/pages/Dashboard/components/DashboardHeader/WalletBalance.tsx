@@ -9,6 +9,7 @@ import { Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import {
+  selectIsAnyAccountMetadataLoading,
   selectPortfolioAccounts,
   selectPortfolioTotalUserCurrencyBalance,
 } from '@/state/slices/selectors'
@@ -31,10 +32,11 @@ type WalletBalanceProps = {
 }
 export const WalletBalance: React.FC<WalletBalanceProps> = memo(
   ({ label = 'defi.netWorth', alignItems, balanceFontSize }) => {
-    const { isFetching: isAccountsMetadataFetching } = useDiscoverAccounts()
+    const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
     const portfolioTotalUserCurrencyBalance = useAppSelector(
       selectPortfolioTotalUserCurrencyBalance,
     )
+    const isAnyAccountMetadataLoading = useAppSelector(selectIsAnyAccountMetadataLoading)
 
     const walletAccounts = useAppSelector(selectPortfolioAccounts)
 
@@ -45,7 +47,7 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
         <Box position='relative'>
           <Text fontWeight='medium' translation={label} color='text.subtle' whiteSpace='nowrap' />
 
-          {isAccountsMetadataFetching && (
+          {(isDiscoveringAccounts || isAnyAccountMetadataLoading) && (
             <TooltipWithTouch
               label={translate('defi.loadingAccounts', {
                 portfolioAccountsLoaded: Object.keys(walletAccounts).length,

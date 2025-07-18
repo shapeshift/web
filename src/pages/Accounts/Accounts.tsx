@@ -92,13 +92,13 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
 const AccountsContent = () => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
-  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
 
   // Don't use user-currency sorting until we're fully loaded - else this will keep on re-rendering forever and will
   // both look janky (lots of reordering) and most importantly, barely usable
   const portfolioChainIdsSortedUserCurrency = useAppSelector(state =>
-    isAccountsMetadataLoading || isAnyMarketDataLoading
+    isDiscoveringAccounts || isAnyMarketDataLoading
       ? selectWalletConnectedChainIds(state)
       : selectWalletConnectedChainIdsSorted(state),
   )

@@ -95,7 +95,7 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
@@ -221,7 +221,7 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isAccountsMetadataLoading && !(sellAssetAccountId || buyAssetAccountId):
+      case isDiscoveringAccounts && !(sellAssetAccountId || buyAssetAccountId):
         return 'common.accountsLoading'
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
@@ -251,7 +251,7 @@ export const ConfirmSummary = ({
     quoteRequestErrors,
     quoteResponseErrors,
     activeQuoteErrors,
-    isAccountsMetadataLoading,
+    isDiscoveringAccounts,
     sellAssetAccountId,
     buyAssetAccountId,
     shouldShowTradeQuoteOrAwaitInput,

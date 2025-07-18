@@ -128,7 +128,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     select: selectRuneAddress,
   })
 
-  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const isBridgeRequired = selectedStakingAssetId === l1AssetId
 
@@ -489,7 +489,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   }, [isChainSupportedByWallet, translate])
 
   const submitButtonText = useMemo(() => {
-    if (isAccountsMetadataLoading) return translate('common.accountsLoading')
+    if (isDiscoveringAccounts) return translate('common.accountsLoading')
 
     if (errors.manualRuneAddress?.type === 'required') return translate('RFOX.selectRuneAddress')
 
@@ -504,7 +504,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     errors.amountFieldInput,
     errors.manualRuneAddress,
     translate,
-    isAccountsMetadataLoading,
+    isDiscoveringAccounts,
   ])
 
   if (!selectedStakingAsset) return null
@@ -519,7 +519,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       </SlideTransition>
     )
 
-  if (!stakingAssetAccountAddress && !isAccountsMetadataLoading)
+  if (!stakingAssetAccountAddress && !isDiscoveringAccounts)
     return (
       <SlideTransition>
         <Stack>{headerComponent}</Stack>
@@ -621,13 +621,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           borderBottomRadius='xl'
         >
           <ButtonWalletPredicate
-            isValidWallet={Boolean(isChainSupportedByWallet || isAccountsMetadataLoading)}
+            isValidWallet={Boolean(isChainSupportedByWallet || isDiscoveringAccounts)}
             isDisabled={Boolean(
               errors.amountFieldInput ||
                 (!runeAddress && !currentRuneAddress) ||
                 !isValidStakingAmount ||
                 !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
-                isAccountsMetadataLoading ||
+                isDiscoveringAccounts ||
                 !cooldownPeriod,
             )}
             size='lg'
@@ -639,7 +639,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 errors.amountFieldInput ||
                   // Required rewards input isn't an error per se
                   (errors.manualRuneAddress && errors.manualRuneAddress.type !== 'required'),
-              ) && !isAccountsMetadataLoading
+              ) && !isDiscoveringAccounts
                 ? 'red'
                 : 'blue'
             }

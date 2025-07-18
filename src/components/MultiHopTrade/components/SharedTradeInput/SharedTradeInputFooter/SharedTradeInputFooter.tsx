@@ -69,7 +69,7 @@ export const SharedTradeInputFooter = ({
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
 
-  const { isFetching: isAccountsMetadataLoading } = useDiscoverAccounts()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const isLoading = useMemo(() => {
     return isParentLoading || !buyAssetFeeAsset
@@ -78,19 +78,13 @@ export const SharedTradeInputFooter = ({
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       parentShouldDisablePreviewButton ||
-      (isAccountsMetadataLoading && !sellAccountId) ||
+      (isDiscoveringAccounts && !sellAccountId) ||
       // don't allow executing a quote with errors
       isError ||
       // don't execute trades while in loading state
       isLoading
     )
-  }, [
-    parentShouldDisablePreviewButton,
-    isAccountsMetadataLoading,
-    sellAccountId,
-    isError,
-    isLoading,
-  ])
+  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, sellAccountId, isError, isLoading])
 
   const buttonText = useMemo(() => {
     return <Text translation={quoteStatusTranslation} />
@@ -155,7 +149,7 @@ export const SharedTradeInputFooter = ({
         {children}
 
         <ButtonWalletPredicate
-          isLoading={isLoading || (isAccountsMetadataLoading && !sellAccountId)}
+          isLoading={isLoading || (isDiscoveringAccounts && !sellAccountId)}
           loadingText={isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}

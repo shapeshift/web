@@ -14,6 +14,5 @@ export const useActionCenterSubscribers = () => {
   useRfoxClaimActionSubscriber()
   useTcyClaimActionSubscriber()
   useGenericTransactionSubscriber()
-  // TODO(gomes): consolidate me with the above
   useSendActionSubscriber()
 }

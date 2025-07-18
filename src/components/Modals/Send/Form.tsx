@@ -126,7 +126,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       dispatch(
         actionSlice.actions.upsertAction({
           id: txHash,
-          type: ActionType.GenericTransaction,
+          type: ActionType.Send,
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.SEND,
             txHash,

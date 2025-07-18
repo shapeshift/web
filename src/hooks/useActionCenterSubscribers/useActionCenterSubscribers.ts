@@ -1,6 +1,7 @@
 import { useAppUpdateActionSubscriber } from './useAppUpdateActionSubscriber'
 import { useGenericTransactionSubscriber } from './useGenericTransactionSubscriber'
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
+import { useSendActionSubscriber } from './useSendActionSubscriber'
 import { useSwapActionSubscriber } from './useSwapActionSubscriber'
 
 import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
@@ -13,4 +14,6 @@ export const useActionCenterSubscribers = () => {
   useRfoxClaimActionSubscriber()
   useTcyClaimActionSubscriber()
   useGenericTransactionSubscriber()
+  // TODO(gomes): consolidate me with the above
+  useSendActionSubscriber()
 }

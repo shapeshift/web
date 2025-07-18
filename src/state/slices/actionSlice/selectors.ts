@@ -9,6 +9,7 @@ import {
   ActionType,
   isGenericTransactionAction,
   isLimitOrderAction,
+  isPendingSendAction,
   isPendingSwapAction,
   isRfoxClaimAction,
   isSwapAction,
@@ -104,6 +105,13 @@ export const selectWalletSwapsById = createDeepEqualOutputSelector(
 
       return acc
     }, {}),
+)
+
+export const selectPendingWalletSendActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(isPendingSendAction)
+  },
 )
 
 export const selectSwapActionBySwapId = createDeepEqualOutputSelector(

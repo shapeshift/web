@@ -1,4 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -14,16 +15,26 @@ import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { Status } from './views/Status'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
-import { store, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const status = <Status />
 const confirm = <Confirm />
@@ -60,6 +71,11 @@ type SendFormProps = {
 const selectRedirect = <Navigate to={SendRoutes.Select} replace />
 
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const send = useModal('send')
+  const qrCode = useModal('qrCode')
+  const dispatch = useAppDispatch()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const mixpanel = getMixPanel()
@@ -86,6 +102,19 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     name: SendFormFields.AssetId,
     control: methods.control,
   })
+  const formAccountId = useWatch<SendInput, SendFormFields.AccountId>({
+    name: SendFormFields.AccountId,
+    control: methods.control,
+  })
+  const formAmountCryptoPrecision = useWatch<SendInput, SendFormFields.AmountCryptoPrecision>({
+    name: SendFormFields.AmountCryptoPrecision,
+    control: methods.control,
+  })
+
+  const handleClose = useCallback(() => {
+    send.close()
+    qrCode.close()
+  }, [qrCode, send])
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
@@ -93,9 +122,63 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       if (!txHash) return
       mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
-      navigate(SendRoutes.Status)
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txHash,
+          type: ActionType.Send,
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.SEND,
+            txHash,
+            chainId: fromAccountId(formAccountId).chainId,
+            accountId: formAccountId,
+            assetId,
+            amountCryptoPrecision: formAmountCryptoPrecision,
+            message: 'modals.send.status.pendingBody',
+          },
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        }),
+      )
+
+      toast({
+        id: txHash,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txHash}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+
+      handleClose()
     },
-    [handleFormSend, navigate, methods, mixpanel],
+    [
+      handleFormSend,
+      methods,
+      mixpanel,
+      assetId,
+      dispatch,
+      formAccountId,
+      formAmountCryptoPrecision,
+      handleClose,
+      isDrawerOpen,
+      openActionCenter,
+      toast,
+    ],
   )
 
   const handleAssetSelect = useCallback(

@@ -133,7 +133,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // load top 1000 assets market data
   // this is needed to sort assets by market cap
   // and covers most assets users will have
-  const topAssetsMarketData = useFindAllMarketDataQuery(undefined, {
+  const topAssetsMarketDataQuery = useFindAllMarketDataQuery(undefined, {
     skip: !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet,
     pollingInterval: marketDataPollingInterval,
   })
@@ -142,10 +142,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const nonTopPortfolioAssetIds = useMemo(
     () =>
       portfolioAssetIds.filter(assetId => {
-        const isTopAsset = topAssetsMarketData.data?.[assetId]
+        const isTopAsset = topAssetsMarketDataQuery.data?.[assetId]
         return !isTopAsset
       }),
-    [portfolioAssetIds, topAssetsMarketData.data],
+    [portfolioAssetIds, topAssetsMarketDataQuery.data],
   )
 
   // and only fetch granular market-data for assets that are not already in the top assets market data
@@ -168,7 +168,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and start refetch timer to keep market data up to date
       enabled:
         isConnected &&
-        topAssetsMarketData.status !== 'pending' &&
+        topAssetsMarketDataQuery.status !== 'pending' &&
         portfolioLoadingStatus !== 'loading' &&
         !modal &&
         !isLoadingLocalWallet,

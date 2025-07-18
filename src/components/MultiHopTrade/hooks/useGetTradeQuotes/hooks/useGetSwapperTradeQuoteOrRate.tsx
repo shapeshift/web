@@ -9,14 +9,12 @@ import { useAppDispatch } from '@/state/store'
 export type UseGetSwapperTradeQuoteOrRateArgs = {
   swapperName: SwapperName | undefined
   tradeQuoteOrRateInput: GetTradeQuoteInput | GetTradeRateInput | typeof skipToken
-  skip: boolean
-  pollingInterval: number | undefined
+  skip?: boolean
 }
 
 export const useGetSwapperTradeQuoteOrRate = ({
   swapperName,
   tradeQuoteOrRateInput: tradeQuoteInput,
-  pollingInterval,
   skip,
 }: UseGetSwapperTradeQuoteOrRateArgs) => {
   const dispatch = useAppDispatch()
@@ -29,9 +27,8 @@ export const useGetSwapperTradeQuoteOrRate = ({
   const tradeQuoteOptions = useMemo(
     () => ({
       skip,
-      pollingInterval,
     }),
-    [pollingInterval, skip],
+    [skip],
   )
 
   const queryStateRequest = useMemo(() => {

@@ -12,6 +12,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
 import {
@@ -29,9 +30,9 @@ import {
   selectLimitOrderSubmissionMetadata,
 } from '@/state/slices/limitOrderSlice/selectors'
 import {
-  selectLimitOrderActionByCowSwapQuoteId,
   selectLimitOrderActionsByWallet,
   selectOpenLimitOrderActionsFilteredByWallet,
+  selectWalletLimitOrderActionByCowSwapQuoteId,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
@@ -94,7 +95,7 @@ export const useLimitOrderActionSubscriber = () => {
         LimitOrderSubmissionState.AwaitingLimitOrderSubmission &&
       previousLimitOrderState !== LimitOrderSubmissionState.AwaitingLimitOrderSubmission
     ) {
-      const action = selectLimitOrderActionByCowSwapQuoteId(store.getState(), {
+      const action = selectWalletLimitOrderActionByCowSwapQuoteId(store.getState(), {
         cowSwapQuoteId: activeQuoteId,
       })
 
@@ -180,8 +181,8 @@ export const useLimitOrderActionSubscriber = () => {
               <LimitOrderNotification
                 // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
+                cowSwapQuoteId={activeQuoteId}
                 onClose={onClose}
-                action={updatedAction}
                 {...props}
               />
             )
@@ -230,7 +231,7 @@ export const useLimitOrderActionSubscriber = () => {
           order.order.sellAmount,
         )
 
-        const updatedAction = {
+        const updatedAction: LimitOrderAction = {
           ...action,
           status: ActionStatus.Open,
           limitOrderMetadata: {
@@ -245,7 +246,7 @@ export const useLimitOrderActionSubscriber = () => {
           render: props => (
             <LimitOrderNotification
               handleClick={openActionCenter}
-              action={updatedAction}
+              cowSwapQuoteId={updatedAction.limitOrderMetadata.cowSwapQuoteId}
               {...props}
             />
           ),
@@ -255,7 +256,7 @@ export const useLimitOrderActionSubscriber = () => {
       }
 
       if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
-        const updatedAction = {
+        const updatedAction: LimitOrderAction = {
           ...action,
           limitOrderMetadata: {
             ...action.limitOrderMetadata,
@@ -281,7 +282,7 @@ export const useLimitOrderActionSubscriber = () => {
           render: props => (
             <LimitOrderNotification
               handleClick={openActionCenter}
-              action={updatedAction}
+              cowSwapQuoteId={updatedAction.limitOrderMetadata.cowSwapQuoteId}
               {...props}
             />
           ),
@@ -294,7 +295,7 @@ export const useLimitOrderActionSubscriber = () => {
         order.order.status === OrderStatus.CANCELLED &&
         action.status !== ActionStatus.Cancelled
       ) {
-        const updatedAction = {
+        const updatedAction: LimitOrderAction = {
           ...action,
           status: ActionStatus.Cancelled,
         }
@@ -306,7 +307,7 @@ export const useLimitOrderActionSubscriber = () => {
           render: props => (
             <LimitOrderNotification
               handleClick={openActionCenter}
-              action={updatedAction}
+              cowSwapQuoteId={updatedAction.limitOrderMetadata.cowSwapQuoteId}
               {...props}
             />
           ),
@@ -316,7 +317,7 @@ export const useLimitOrderActionSubscriber = () => {
       }
 
       if (order.order.status === OrderStatus.EXPIRED && action.status !== ActionStatus.Expired) {
-        const updatedAction = {
+        const updatedAction: LimitOrderAction = {
           ...action,
           status: ActionStatus.Expired,
         }
@@ -328,7 +329,7 @@ export const useLimitOrderActionSubscriber = () => {
           render: props => (
             <LimitOrderNotification
               handleClick={openActionCenter}
-              action={updatedAction}
+              cowSwapQuoteId={updatedAction.limitOrderMetadata.cowSwapQuoteId}
               {...props}
             />
           ),

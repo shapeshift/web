@@ -1005,16 +1005,7 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
   },
 )
 
-export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
-  portfolio.selectors.selectIsPortfolioGetAccountLoadingByAccountId,
-  selectChainIdParamFromFilter,
-  (isPortfolioGetAccountLoadingByAccountId, chainId): boolean => {
-    return Object.entries(isPortfolioGetAccountLoadingByAccountId).some(
-      ([accountId, isLoading]) => fromAccountId(accountId).chainId === chainId && isLoading,
-    )
-  },
-)
-export const selectIsAnyAccountMetadataLoadedForChainId = createSelector(
+export const selectIsAnyGetAccountPortfolioLoadedForChainId = createSelector(
   portfolio.selectors.selectIsPortfolioGetAccountLoadingByAccountId,
   selectChainIdParamFromFilter,
   (isPortfolioGetAccountLoadingByAccountId, chainId): boolean => {

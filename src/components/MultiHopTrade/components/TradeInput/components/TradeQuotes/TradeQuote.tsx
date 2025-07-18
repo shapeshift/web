@@ -1,17 +1,9 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Circle,
-  Flex,
-  Skeleton,
-  Tooltip,
-  useDisclosure,
-  useMediaQuery,
-} from '@chakra-ui/react'
+import { Box, Circle, Flex, Skeleton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
-import React, { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { TradeQuoteBadges } from './components/TradeQuoteBadges'
@@ -20,6 +12,7 @@ import { TradeQuoteContent } from './components/TradeQuoteContent'
 import { TradeQuoteExchangeRate } from './components/TradeQuoteExchangeRate'
 
 import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
@@ -44,7 +37,6 @@ import {
 } from '@/state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 type TradeQuoteProps = {
   isActive: boolean
@@ -59,40 +51,8 @@ type TradeQuoteProps = {
 export const TradeQuote: FC<TradeQuoteProps> = memo(
   ({ isActive, isBestRate, isFastest, isLowestGas, quoteData, isLoading, onBack }) => {
     const { quote, errors, inputOutputRatio } = quoteData
-    const {
-      isOpen: isTooltipOpen,
-      onToggle: onTooltipToggle,
-      onOpen: onTooltipOpen,
-      onClose: onTooltipClose,
-    } = useDisclosure()
     const dispatch = useAppDispatch()
     const translate = useTranslate()
-
-    const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-
-    const handleToolTipOpen = useCallback(
-      (e: React.MouseEvent) => {
-        e.preventDefault()
-        onTooltipOpen()
-      },
-      [onTooltipOpen],
-    )
-
-    const handleTooltipToggle = useCallback(
-      (e: React.TouchEvent) => {
-        e.preventDefault()
-        onTooltipToggle()
-      },
-      [onTooltipToggle],
-    )
-
-    const handleTooltipClose = useCallback(
-      (e: React.MouseEvent) => {
-        e.preventDefault()
-        onTooltipClose()
-      },
-      [onTooltipClose],
-    )
 
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
@@ -188,52 +148,28 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !quote || error !== undefined:
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
-            <Box
-              onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
-              onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
-              onTouchEnd={handleTooltipToggle}
+            <TooltipWithTouch
+              label={translate(
+                ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
+              )}
             >
-              <Tooltip
-                label={translate(
-                  ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
-                )}
-                isOpen={isTooltipOpen}
-              >
-                <Circle size={6}>
-                  <WarningIcon color='text.error' boxSize={4} />
-                </Circle>
-              </Tooltip>
-            </Box>
+              <Circle size={6}>
+                <WarningIcon color='text.error' boxSize={4} />
+              </Circle>
+            </TooltipWithTouch>
           )
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
-            <Box
-              onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
-              onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
-              onTouchEnd={handleTooltipToggle}
-            >
-              <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
-                <Circle size={6}>
-                  <WarningIcon color='text.error' boxSize={4} />
-                </Circle>
-              </Tooltip>
-            </Box>
+            <TooltipWithTouch label={translate('trade.rates.tags.negativeRatio')}>
+              <Circle size={6}>
+                <WarningIcon color='text.error' boxSize={4} />
+              </Circle>
+            </TooltipWithTouch>
           )
         default:
           return null
       }
-    }, [
-      errors,
-      quote,
-      isLargerThanMd,
-      handleToolTipOpen,
-      handleTooltipClose,
-      handleTooltipToggle,
-      translate,
-      isTooltipOpen,
-      hasAmountWithPositiveReceive,
-      isAmountEntered,
-    ])
+    }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered])
 
     const isDisabled = !quote || isLoading
     const showSwapperError = ![

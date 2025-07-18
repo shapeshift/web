@@ -1,7 +1,5 @@
 import { useEffect } from 'react'
 
-import { useAccountsFetchQuery } from './useAccountsFetchQuery'
-
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -9,7 +7,7 @@ import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useAccountsFetch = () => {
+export const usePortfolioFetch = () => {
   const dispatch = useAppDispatch()
   const { isLoadingLocalWallet, modal, wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
@@ -41,7 +39,4 @@ export const useAccountsFetch = () => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
   }, [isLoadingLocalWallet, modal, dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
-
-  const query = useAccountsFetchQuery()
-  return query
 }

@@ -22,7 +22,7 @@ import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
 import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
@@ -95,7 +95,7 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
@@ -221,7 +221,7 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isAccountsMetadataLoading && !(sellAssetAccountId || buyAssetAccountId):
+      case isDiscoveringAccounts && !(sellAssetAccountId || buyAssetAccountId):
         return 'common.accountsLoading'
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
@@ -251,7 +251,7 @@ export const ConfirmSummary = ({
     quoteRequestErrors,
     quoteResponseErrors,
     activeQuoteErrors,
-    isAccountsMetadataLoading,
+    isDiscoveringAccounts,
     sellAssetAccountId,
     buyAssetAccountId,
     shouldShowTradeQuoteOrAwaitInput,

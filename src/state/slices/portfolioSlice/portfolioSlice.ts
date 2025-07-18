@@ -36,9 +36,9 @@ export const portfolio = createSlice({
     clear: create.reducer(() => {
       return initialState
     }),
-    setIsAccountMetadataLoading: create.reducer(
+    setIsPortfolioGetAccountLoading: create.reducer(
       (state, { payload }: { payload: { accountId: AccountId; isLoading: boolean } }) => {
-        state.isAccountMetadataLoadingByAccountId[payload.accountId] = payload.isLoading
+        state.isPortfolioGetAccountLoadingByAccountId[payload.accountId] = payload.isLoading
       },
     ),
     setWalletMeta: create.reducer(
@@ -110,6 +110,8 @@ export const portfolio = createSlice({
       // Clear AccountIds that were previously associated with that wallet
       draftState.wallet.byId[walletId] = []
       draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
+
+      delete draftState.enabledAccountIds[walletId]
 
       // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
       // Theoretically, not doing so would make reloading these easier?
@@ -195,7 +197,8 @@ export const portfolio = createSlice({
     selectPortfolio: state => state,
     selectAccountsById: state => state.accounts.byId,
     selectAccountMetadataById: state => state.accountMetadata.byId,
-    selectIsAccountMetadataLoadingByAccountId: state => state.isAccountMetadataLoadingByAccountId,
+    selectIsPortfolioGetAccountLoadingByAccountId: state =>
+      state.isPortfolioGetAccountLoadingByAccountId,
     selectWalletId: state => state.connectedWallet?.id,
     selectWalletName: state => state.connectedWallet?.name,
     selectIsWalletConnected: state => state.connectedWallet !== undefined,
@@ -218,7 +221,7 @@ export const portfolioApi = createApi({
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
-        dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: true }))
+        dispatch(portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: true }))
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
         const assetIds = state.assets.ids
@@ -259,7 +262,9 @@ export const portfolioApi = createApi({
           })()
 
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
-          dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: false }))
+          dispatch(
+            portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: false }),
+          )
           return { data }
         } catch (e) {
           console.error(e)
@@ -267,7 +272,9 @@ export const portfolioApi = createApi({
           data.accounts.ids.push(accountId)
           data.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
           dispatch(portfolio.actions.upsertPortfolio(data))
-          dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: false }))
+          dispatch(
+            portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: false }),
+          )
           return { data }
         }
       },

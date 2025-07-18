@@ -163,13 +163,12 @@ export const useRfoxUnstake = ({
       dispatch(
         actionSlice.actions.upsertAction({
           id: txId,
-          type: ActionType.GenericTransaction,
+          type: ActionType.Withdraw,
           status: ActionStatus.Pending,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.RFOX,
-            type: ActionType.Withdraw,
             amountCryptoPrecision,
             cooldownPeriod,
             message: 'actionCenter.rfox.unstakeConfirmed',

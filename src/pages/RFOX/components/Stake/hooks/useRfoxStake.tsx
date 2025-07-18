@@ -247,12 +247,11 @@ export const useRfoxStake = ({
       dispatch(
         actionSlice.actions.upsertAction({
           id: txId,
-          type: ActionType.GenericTransaction,
+          type: ActionType.Deposit,
           status: ActionStatus.Pending,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           transactionMetadata: {
-            type: ActionType.Deposit,
             displayType: GenericTransactionDisplayType.RFOX,
             txHash: txId,
             chainId: stakingAsset.chainId,

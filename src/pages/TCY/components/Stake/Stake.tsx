@@ -119,9 +119,8 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
     dispatch(
       actionSlice.actions.upsertAction({
         id: stakeTxid,
-        type: ActionType.GenericTransaction,
+        type: ActionType.Deposit,
         transactionMetadata: {
-          type: ActionType.Deposit,
           displayType: GenericTransactionDisplayType.TCY,
           txHash: stakeTxid,
           chainId: thorchainChainId,

@@ -84,7 +84,9 @@ export const ActionCenter = memo(() => {
           case ActionType.AppUpdate: {
             return <AppUpdateActionCard key={action.id} action={action} />
           }
-          case ActionType.GenericTransaction: {
+          case ActionType.Deposit:
+          case ActionType.Withdraw:
+          case ActionType.Claim: {
             return <GenericTransactionActionCard key={action.id} action={action} />
           }
           case ActionType.RfoxClaim: {

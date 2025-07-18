@@ -119,13 +119,12 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
     dispatch(
       actionSlice.actions.upsertAction({
         id: unstakeTxid,
-        type: ActionType.GenericTransaction,
+        type: ActionType.Withdraw,
         status: ActionStatus.Complete,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         transactionMetadata: {
           displayType: GenericTransactionDisplayType.TCY,
-          type: ActionType.Withdraw,
           txHash: unstakeTxid,
           chainId: thorchainChainId,
           accountId,

@@ -12,7 +12,6 @@ export enum ActionType {
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
-  GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
   RfoxClaim = 'RfoxClaim',
   TcyClaim = 'TcyClaim',
@@ -66,9 +65,6 @@ export enum GenericTransactionDisplayType {
 }
 
 type ActionGenericTransactionMetadata = {
-  // i.e this is a generic transaction, but we also want to be able to discriminate this as to which kind of Tx this specifically is
-  type: ActionType.Deposit | ActionType.Withdraw | ActionType.Send
-  // i.e this is a generic transaction, but we also want to be able to display a lil something nicer to the user as a tag than just "Generic Transaction"
   displayType: GenericTransactionDisplayType
   message: string
   accountId: AccountId
@@ -98,7 +94,7 @@ export type LimitOrderAction = BaseAction & {
 }
 
 export type GenericTransactionAction = BaseAction & {
-  type: ActionType.GenericTransaction
+  type: ActionType.Deposit | ActionType.Withdraw | ActionType.Claim
   transactionMetadata: ActionGenericTransactionMetadata
 }
 
@@ -151,7 +147,7 @@ export const isPendingSwapAction = (action: Action): action is SwapAction => {
 }
 
 export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
-  return Boolean(action.type === ActionType.GenericTransaction && action.transactionMetadata)
+  return Boolean((action as GenericTransactionAction).transactionMetadata)
 }
 
 export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => {

@@ -41,9 +41,7 @@ export const useGenericTransactionSubscriber = () => {
 
       // TODO(gomes): refer to the todo above, for now this just handles RFOX stake/unstake - to-be-generalized when handling more providers/actions
       const message =
-        action.transactionMetadata.type === ActionType.Deposit
-          ? 'RFOX.stakeSuccess'
-          : 'RFOX.unstakeSuccess'
+        action.type === ActionType.Deposit ? 'RFOX.stakeSuccess' : 'RFOX.unstakeSuccess'
 
       dispatch(
         actionSlice.actions.upsertAction({

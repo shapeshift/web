@@ -1,6 +1,12 @@
 import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero, chainIdToFeeAssetId, toBaseUnit } from '@shapeshiftoss/utils'
+import {
+  bn,
+  bnOrZero,
+  chainIdToFeeAssetId,
+  convertDecimalPercentageToBasisPoints,
+  toBaseUnit,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -78,7 +84,9 @@ export const getTradeRate = async (
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,
   )
-  const slippage = bn(slippageTolerancePercentageDecimal).times(10000).toString()
+  const slippage = convertDecimalPercentageToBasisPoints(
+    slippageTolerancePercentageDecimal,
+  ).toString()
 
   const result = await getButterRoute({
     sellAsset,

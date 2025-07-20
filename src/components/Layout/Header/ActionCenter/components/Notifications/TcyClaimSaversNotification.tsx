@@ -28,7 +28,7 @@ export const TcyClaimSaversNotification = ({
             </AssetIconWithBadge>
 
             <Stack spacing={1}>
-              <Text fontSize='sm' translation={'TCY.claimSavers'} />
+              <Text fontSize='sm' translation={'TCY.claimNow'} />
               <Box flexGrow={0}>
                 <ActionStatusTag status={ActionStatus.ClaimAvailable} />
               </Box>

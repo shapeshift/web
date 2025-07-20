@@ -98,9 +98,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     [assetId, isSymAssetWithdraw],
   )
 
-  const isNativeThorchainAsset = useMemo(
-    () => fromAssetId(assetId).chainId === thorchainChainId,
-    [assetId],
+  const isNativeThorchainTx = useMemo(
+    () => fromAssetId(assetId).chainId === thorchainChainId || isSymAssetWithdraw,
+    [assetId, isSymAssetWithdraw],
   )
 
   const feeAsset = useAppSelector(state =>
@@ -271,7 +271,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (status === TxStatus.Confirmed || status === TxStatus.Failed) return
 
     // Consider native thorchain transactions pending after broadcast and start polling thorchain right away
-    if (isNativeThorchainAsset || isSymAssetWithdraw) {
+    if (isNativeThorchainTx) {
       if (status === TxStatus.Unknown) {
         setStatus(TxStatus.Pending)
         onStatusUpdate(TxStatus.Pending)
@@ -300,7 +300,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (tx.status === TxStatus.Confirmed) {
       ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, status, tx, txId, isNativeThorchainAsset, onStatusUpdate, isSymAssetWithdraw])
+  }, [mutateAsync, status, tx, txId, onStatusUpdate, isSymAssetWithdraw, isNativeThorchainTx])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -361,7 +361,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         poolAsset &&
         wallet &&
         memo &&
-        (isSymAssetWithdraw || isNativeThorchainAsset || inboundAddressData?.address)
+        (isNativeThorchainTx || inboundAddressData?.address)
       )
     ) {
       setIsSubmitting(false)
@@ -386,8 +386,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     poolAsset,
     wallet,
     memo,
-    isSymAssetWithdraw,
-    isNativeThorchainAsset,
+    isNativeThorchainTx,
     inboundAddressData?.address,
     executeTransaction,
     onStart,

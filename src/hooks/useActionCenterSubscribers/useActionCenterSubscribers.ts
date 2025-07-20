@@ -1,5 +1,6 @@
 import { useAppUpdateActionSubscriber } from './useAppUpdateActionSubscriber'
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
+import { useSendActionSubscriber } from './useSendActionSubscriber'
 import { useSwapActionSubscriber } from './useSwapActionSubscriber'
 
 import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
@@ -11,4 +12,5 @@ export const useActionCenterSubscribers = () => {
   useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()
   useTcyClaimActionSubscriber()
+  useSendActionSubscriber()
 }

@@ -1,4 +1,4 @@
-import { SearchIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
@@ -58,6 +58,7 @@ export const MobileUserHeader = ({
         <Text ml={2} fontWeight='semibold' fontSize='md'>
           {label ?? translate('common.connectWallet')}
         </Text>
+        <ChevronDownIcon ml={1} boxSize='20px' />
       </Flex>
       <Flex gap={2}>
         <IconButton

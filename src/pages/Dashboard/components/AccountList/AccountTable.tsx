@@ -1,5 +1,6 @@
-import type { ResponsiveValue } from '@chakra-ui/react'
+import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import {
+  Button,
   Stack,
   Stat,
   StatArrow,
@@ -17,9 +18,11 @@ import type { Column, Row } from 'react-table'
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
+import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AccountRowData } from '@/state/slices/selectors'
 import { selectIsPortfolioLoading, selectPortfolioAccountRows } from '@/state/slices/selectors'
@@ -29,9 +32,17 @@ type RowProps = Row<AccountRowData>
 
 const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', lg: 'left' }
 
+const buttonWidth = { base: 'full', lg: 'auto' }
+
+const emptyContainerProps: FlexProps = {
+  width: 'full',
+  px: 0,
+}
+
 export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
+  const receive = useModal('receive')
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
   }, [rowData])
@@ -135,6 +146,30 @@ export const AccountTable = memo(() => {
     )
   }, [])
 
+  const handleReceiveClick = useCallback(() => {
+    receive.open({})
+  }, [receive])
+
+  const renderEmptyComponent = useCallback(() => {
+    return (
+      <ResultsEmpty
+        title='dashboard.portfolio.empty.title'
+        body='dashboard.portfolio.empty.body'
+        containerProps={emptyContainerProps}
+      >
+        <Button
+          size='lg'
+          colorScheme='blue'
+          onClick={handleReceiveClick}
+          mt={4}
+          width={buttonWidth}
+        >
+          <Text translation='dashboard.portfolio.empty.cta' />
+        </Button>
+      </ResultsEmpty>
+    )
+  }, [handleReceiveClick])
+
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
       const { assetId } = row.original
@@ -153,6 +188,7 @@ export const AccountTable = memo(() => {
       onRowClick={handleRowClick}
       displayHeaders={isLargerThanMd}
       variant='clickable'
+      renderEmptyComponent={renderEmptyComponent}
       hasMore={hasMore}
       loadMore={next}
       scrollableTarget='scroll-view-0'

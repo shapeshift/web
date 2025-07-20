@@ -251,8 +251,9 @@
       "sparkLine": "Sparkline",
       "myCrypto": "My Crypto",
       "empty": {
-        "title": "Cricket noises...",
-        "cta": "Send yourself some crypto!"
+        "title": "Every journey starts with a first step",
+        "body": "Send yourself some crypto to get started.",
+        "cta": "Add Crypto"
       },
       "stakedInfo": "You cannot send or trade the amount staked"
     },

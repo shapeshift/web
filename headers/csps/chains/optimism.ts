@@ -10,6 +10,5 @@ export const csp: Csp = {
     env.VITE_OPTIMISM_NODE_URL,
     env.VITE_UNCHAINED_OPTIMISM_HTTP_URL,
     env.VITE_UNCHAINED_OPTIMISM_WS_URL,
-    'https://optimism.llamarpc.com',
   ],
 }

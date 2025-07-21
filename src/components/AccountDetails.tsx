@@ -4,7 +4,6 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
-import { AccountHeader } from './AccountHeader/AccountHeader'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { Main } from './Layout/Main'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
@@ -29,11 +28,9 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
   // When the asset is ETH, we want to use the built-in default buy asset (FOX)
   const defaultBuyAssetId = useMemo(() => (assetId === ethAssetId ? undefined : assetId), [assetId])
 
-  const header = useMemo(() => <AccountHeader />, [])
-
   if (!accountId || !assetId) return null
   return (
-    <Main width='full' alignItems='flex-start' mx='auto' headerComponent={header}>
+    <Main width='full' alignItems='flex-start' mx='auto'>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance assetId={assetId} accountId={accountId} />
         {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}

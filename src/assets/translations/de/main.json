@@ -250,10 +250,7 @@
       "volume": "Volumen",
       "sparkLine": "Sparkline",
       "myCrypto": "Meine Krypto",
-      "empty": {
-        "title": "Grillengeräusche...",
-        "cta": "Schicken Sie sich ein paar Krypto!"
-      },
+      "empty": {},
       "stakedInfo": "Staking gebundenes Kapital kann weder gesendet noch gehandelt werden"
     },
     "recentTransactions": {

@@ -250,10 +250,7 @@
       "volume": "ボリューム",
       "sparkLine": "スパークライン",
       "myCrypto": "自分のクリプト",
-      "empty": {
-        "title": "...",
-        "cta": "自分のウォレットに暗号通貨を送ってください!"
-      },
+      "empty": {},
       "stakedInfo": "ステークした金額を送金または取引することはできません"
     },
     "recentTransactions": {

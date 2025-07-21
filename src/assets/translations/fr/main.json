@@ -250,10 +250,7 @@
       "volume": "Volume",
       "sparkLine": "Sparkline",
       "myCrypto": "Mes Cryptos",
-      "empty": {
-        "title": "Bruits de grillons...",
-        "cta": "Envoyez-vous un peu de crypto !"
-      },
+      "empty": {},
       "stakedInfo": "Vous ne pouvez pas envoyer ou échanger le montant misé"
     },
     "recentTransactions": {

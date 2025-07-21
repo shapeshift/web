@@ -71,10 +71,7 @@
       "value": "Nilai",
       "priceChange": "Perubahan harga",
       "allocation": "Alokasi",
-      "empty": {
-        "title": "Suara kriket...",
-        "cta": "Kirimi diri Anda beberapa kripto!"
-      },
+      "empty": {},
       "stakedInfo": "Anda tidak dapat mengirim atau memperdagangkan jumlah yang dipertaruhkan"
     },
     "recentTransactions": {

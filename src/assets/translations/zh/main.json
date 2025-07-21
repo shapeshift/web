@@ -250,10 +250,7 @@
       "volume": "交易量",
       "sparkLine": "迷你图",
       "myCrypto": "我的加密货币",
-      "empty": {
-        "title": "蟋蟀的叫声...",
-        "cta": "给你自己发送一些加密货币！"
-      },
+      "empty": {},
       "stakedInfo": "您无法发送或交易已质押的数量"
     },
     "recentTransactions": {

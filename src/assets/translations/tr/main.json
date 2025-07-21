@@ -250,10 +250,7 @@
       "volume": "Hacim",
       "sparkLine": "Sparkline",
       "myCrypto": "Kriptom",
-      "empty": {
-        "title": "Pinpon sesleri...",
-        "cta": "Kendinize biraz kripto gönderin!"
-      },
+      "empty": {},
       "stakedInfo": "Stake edilen miktarı gönderemez veya takas edemezsiniz"
     },
     "recentTransactions": {

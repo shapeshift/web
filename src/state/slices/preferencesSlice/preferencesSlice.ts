@@ -4,6 +4,8 @@ import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 
+import type { WalletId } from '../portfolioSlice/portfolioSliceCommon'
+
 import { getConfig } from '@/config'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { simpleLocale } from '@/lib/browserLocale'
@@ -115,6 +117,7 @@ export type Preferences = {
   chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
+  hasSeenTcyClaimAlert: Record<WalletId, true | undefined>
   showSnapsModal: boolean
   snapInstalled: boolean
   watchedAssets: AssetId[]
@@ -194,6 +197,7 @@ const initialState: Preferences = {
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
   },
   selectedLocale: simpleLocale(),
+  hasSeenTcyClaimAlert: {},
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
@@ -275,6 +279,9 @@ export const preferences = createSlice({
     setQuoteDisplayOption: create.reducer((state, { payload }: { payload: QuoteDisplayOption }) => {
       state.quoteDisplayOption = payload
     }),
+    setHasSeenTcyClaimForWallet: create.reducer((state, { payload }: { payload: WalletId }) => {
+      state.hasSeenTcyClaimAlert[payload] = true
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -289,5 +296,6 @@ export const preferences = createSlice({
     selectSelectedHomeView: state => state.selectedHomeView,
     selectShowConsentBanner: state => state.showConsentBanner,
     selectQuoteDisplayOption: state => state.quoteDisplayOption,
+    selectHasSeenTcyClaimAlert: state => state.hasSeenTcyClaimAlert,
   },
 })

@@ -7,20 +7,22 @@ import { useNavigate } from 'react-router-dom'
 import { TcyClaimSaversNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/TcyClaimSaversNotification'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectTcyClaimActionsByWallet } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTcyClaimSaversNotification = () => {
   const toast = useToast()
   const navigate = useNavigate()
   const translate = useTranslate()
+  const dispatch = useAppDispatch()
 
-  const hasShownSessionToast = useRef(false)
+  const hasSeenTcyClaimAlert = useAppSelector(preferences.selectors.selectHasSeenTcyClaimAlert)
   const toastIdRef = useRef<ToastId | undefined>(undefined)
 
   const tcyClaimActions = useAppSelector(selectTcyClaimActionsByWallet)
   const {
-    state: { isConnected },
+    state: { isConnected, walletInfo },
   } = useWallet()
 
   useEffect(() => {
@@ -31,9 +33,10 @@ export const useTcyClaimSaversNotification = () => {
       toast.close(toastIdRef.current)
     }
 
-    if (!hasClaimable || hasShownSessionToast.current || !isConnected) return
+    if (!hasClaimable || !isConnected || !walletInfo || hasSeenTcyClaimAlert[walletInfo.deviceId])
+      return
 
-    hasShownSessionToast.current = true
+    dispatch(preferences.actions.setHasSeenTcyClaimForWallet(walletInfo.deviceId))
 
     const _toastIdRef = toast({
       render: ({ onClose }) => {
@@ -52,5 +55,14 @@ export const useTcyClaimSaversNotification = () => {
     })
 
     toastIdRef.current = _toastIdRef
-  }, [navigate, toast, translate, tcyClaimActions, isConnected])
+  }, [
+    navigate,
+    toast,
+    translate,
+    tcyClaimActions,
+    isConnected,
+    walletInfo,
+    dispatch,
+    hasSeenTcyClaimAlert,
+  ])
 }

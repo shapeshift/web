@@ -2,7 +2,7 @@ import { usePrevious, useToast } from '@chakra-ui/react'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { useQueries } from '@tanstack/react-query'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useAccountsFetch } from './hooks/useAccountsFetch'
@@ -89,6 +89,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
 
+  // load top 1000 assets market data
+  // this is needed to sort assets by market cap
+  // and covers most assets users will have
+  useFindAllMarketDataQuery(undefined, {
+    skip: !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet,
+  })
+
   // Master hook for accounts fetch
   useAccountsFetch()
 
@@ -129,28 +136,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, prevWalletId, walletId])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
-
-  // load top 1000 assets market data
-  // this is needed to sort assets by market cap
-  // and covers most assets users will have
-  const topAssetsMarketDataQuery = useFindAllMarketDataQuery(undefined, {
-    skip: !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet,
-    pollingInterval: marketDataPollingInterval,
-  })
-
-  // Filter out held portfolio AssetIds by "not being part of top assets market-data" criteria
-  const nonTopPortfolioAssetIds = useMemo(
-    () =>
-      portfolioAssetIds.filter(assetId => {
-        const isTopAsset = topAssetsMarketDataQuery.data?.[assetId]
-        return !isTopAsset
-      }),
-    [portfolioAssetIds, topAssetsMarketDataQuery.data],
-  )
-
-  // and only fetch granular market-data for assets that are not already in the top assets market data
   useQueries({
-    queries: nonTopPortfolioAssetIds.map(assetId => ({
+    queries: portfolioAssetIds.map(assetId => ({
       queryKey: ['marketData', assetId],
       queryFn: async () => {
         await dispatch(
@@ -167,11 +154,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // once the portfolio is loaded, fetch market data for all portfolio assets
       // and start refetch timer to keep market data up to date
       enabled:
-        isConnected &&
-        topAssetsMarketDataQuery.status !== 'pending' &&
-        portfolioLoadingStatus !== 'loading' &&
-        !modal &&
-        !isLoadingLocalWallet,
+        isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
       refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,

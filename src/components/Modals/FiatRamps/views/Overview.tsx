@@ -14,6 +14,7 @@ import {
   Stack,
   Text as RawText,
   useColorMode,
+  useMediaQuery,
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -56,6 +57,7 @@ import {
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type OverviewProps = {
   accountId: AccountId | undefined
@@ -292,6 +294,8 @@ export const Overview: React.FC<OverviewProps> = ({
     return fundsTranslation
   }, [asset, fundsTranslation, isConnected, isUnsupportedAsset, wallet])
 
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
   return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
@@ -325,7 +329,6 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
-            isDisabled={isFiatRampsModalOpen}
             onClick={handleSelectClick}
             rightIcon={chevronRightIcon}
           >

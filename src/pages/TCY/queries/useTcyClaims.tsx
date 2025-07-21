@@ -1,4 +1,4 @@
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -15,6 +15,7 @@ import { getThorfiUtxoFromAddresses } from '@/lib/utils/thorchain'
 import { isSupportedThorchainSaversAssetId } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountIdsByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
   selectEnabledWalletAccountIds,
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
@@ -101,16 +102,28 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
 
               return true
             })
-            .map(claimer => ({
-              ...claimer,
-              accountId,
-              amountThorBaseUnit: claimer.amount,
-              assetId: thorPoolAssetIdToAssetId(claimer.asset) ?? '',
-              l1_address:
-                claimer.asset === 'BCH.BCH'
-                  ? `bitcoincash:${claimer.l1_address}`
-                  : claimer.l1_address,
-            }))
+            .map(claimer => {
+              const l1AccountNumber = selectAccountNumberByAccountId(store.getState(), {
+                accountId,
+              })
+              const matchingRuneAccountId =
+                l1AccountNumber !== undefined
+                  ? accountIdsByAccountNumberAndChainId[l1AccountNumber]?.[thorchainChainId]?.[0]
+                  : undefined
+
+              return {
+                ...claimer,
+                accountId,
+                amountThorBaseUnit: claimer.amount,
+                assetId: thorPoolAssetIdToAssetId(claimer.asset) ?? '',
+                // Users do *not* necessarily have to claim to the matching RUNE AccountId for their L1 account, but we keep this here for the sake of convenience
+                matchingRuneAccountId,
+                l1_address:
+                  claimer.asset === 'BCH.BCH'
+                    ? `bitcoincash:${claimer.l1_address}`
+                    : claimer.l1_address,
+              }
+            })
         } catch {
           return []
         }

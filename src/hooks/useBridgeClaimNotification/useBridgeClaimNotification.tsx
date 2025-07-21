@@ -35,9 +35,7 @@ export const useBridgeClaimNotification = () => {
 
   const prevDeviceId = usePrevious(walletDeviceId)
 
-  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({
-    skip: isDisabled,
-  })
+  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({ skip: isDisabled })
 
   useEffect(() => {
     // Immediately close previous toast if it exists on walletId change

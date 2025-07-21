@@ -10,6 +10,5 @@ export const csp: Csp = {
     env.VITE_AVALANCHE_NODE_URL,
     env.VITE_UNCHAINED_AVALANCHE_HTTP_URL,
     env.VITE_UNCHAINED_AVALANCHE_WS_URL,
-    'https://api.avax.network/ext/bc/C/rpc',
   ],
 }

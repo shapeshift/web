@@ -10,6 +10,5 @@ export const csp: Csp = {
     env.VITE_POLYGON_NODE_URL,
     env.VITE_UNCHAINED_POLYGON_HTTP_URL,
     env.VITE_UNCHAINED_POLYGON_WS_URL,
-    'https://polygon.llamarpc.com',
   ],
 }

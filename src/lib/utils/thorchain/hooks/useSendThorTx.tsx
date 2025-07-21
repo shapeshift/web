@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 
-import { fromThorBaseUnit, getThorchainTransactionType } from '..'
+import { fromThorBaseUnit, getThorchainMsgDepositCoin, getThorchainTransactionType } from '..'
 
 import type { SendInput } from '@/components/Modals/Send/Form'
 import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
@@ -312,7 +312,7 @@ export const useSendThorTx = ({
             chainSpecific: {
               gas: fast.chainSpecific.gasLimit,
               fee: fast.txFee,
-              coin: memo.includes('tcy+') ? 'THOR.TCY' : undefined,
+              coin: getThorchainMsgDepositCoin(memo, assetId),
             },
           })
 
@@ -412,6 +412,7 @@ export const useSendThorTx = ({
     action,
     shouldUseDustAmount,
     amountOrDustCryptoBaseUnit,
+    assetId,
     depositWithExpiryInputData,
     fromAddress,
     selectedCurrency,

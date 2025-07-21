@@ -36,12 +36,7 @@ export const viemBscClient = createPublicClient({
 
 export const viemAvalancheClient = createPublicClient({
   chain: avalanche,
-  transport: fallback(
-    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L937
-    [env.VITE_AVALANCHE_NODE_URL, 'https://api.avax.network/ext/bc/C/rpc']
-      .filter(Boolean)
-      .map(url => http(url)),
-  ),
+  transport: fallback([env.VITE_AVALANCHE_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemArbitrumClient = createPublicClient({
@@ -51,12 +46,7 @@ export const viemArbitrumClient = createPublicClient({
 
 export const viemArbitrumNovaClient = createPublicClient({
   chain: arbitrumNova,
-  transport: fallback(
-    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1393
-    [env.VITE_ARBITRUM_NOVA_NODE_URL, 'https://nova.arbitrum.io/rpc']
-      .filter(Boolean)
-      .map(url => http(url)),
-  ),
+  transport: fallback([env.VITE_ARBITRUM_NOVA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemOptimismClient = createPublicClient({
@@ -66,10 +56,7 @@ export const viemOptimismClient = createPublicClient({
 
 export const viemGnosisClient = createPublicClient({
   chain: gnosis,
-  transport: fallback(
-    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1978
-    [env.VITE_GNOSIS_NODE_URL, 'https://rpc.gnosischain.com'].filter(Boolean).map(url => http(url)),
-  ),
+  transport: fallback([env.VITE_GNOSIS_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemPolygonClient = createPublicClient({

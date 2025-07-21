@@ -250,7 +250,11 @@
       "volume": "Volume",
       "sparkLine": "Sparkline",
       "myCrypto": "Mes Cryptos",
-      "empty": {},
+      "empty": {
+        "title": "Chaque voyage commence par un premier pas",
+        "body": "Envoyez-vous des cryptos pour commencer.",
+        "cta": "Ajouter des cryptos"
+      },
       "stakedInfo": "Vous ne pouvez pas envoyer ou échanger le montant misé"
     },
     "recentTransactions": {
@@ -812,8 +816,8 @@
     "claimFailed": "Erreur lors de la tentative de réclamation",
     "availableClaims": "Disponible",
     "noAvailableClaims": "Aucune réclamation disponible",
-    "pendingClaims": "En cours",
-    "noPendingClaims": "Aucune réclamation en cours",
+    "pendingClaims": "En attente",
+    "noPendingClaims": "Aucune réclamation en attente",
     "availableIn": "Disponible dans %{time}",
     "confirmAndClaim": "Confirmer et réclamer",
     "viewClaims": "Voir les réclamations",
@@ -1100,6 +1104,7 @@
     "noOpenOrders": "Aucun ordre ouvert pour le moment.",
     "noHistoricalOrders": "Aucun ordre dans l'historique pour le moment.",
     "limitPriceIsPercentLowerThanMarket": "Le prix limite est %{percent}% inférieur au prix du marché",
+    "highCowFeeImpact": "Les frais CoW s'élèvent à %{percentage}% du montant de votre vente (%{cryptoImpact} %{sellAssetSymbol}). Votre ordre pourrait ne pas être exécuté.",
     "awaitingOrderPlacement": "En attente du placement de l'ordre sur %{swapperName}",
     "awaitingAllowanceApproval": "En attente d'autorisation de l'allocation",
     "awaitingAllowanceReset": "En attente de réinitialisation de l'allocation",
@@ -2946,7 +2951,7 @@
       "getValidator": "Échec de l'obtention du validateur."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Notifications",
     "viewTransaction": "Voir la transaction",
     "viewOrder": "Voir l'ordre",
@@ -2956,12 +2961,12 @@
     "expires": "Expire",
     "filled": "Executé",
     "streaming": "En cours de streaming",
-    "claim": "Réclamation",
+    "claim": "Réclamer",
     "protocol": "Protocole",
     "streamingStatus": "Statut du stream",
     "executionPrice": "Prix d'exécution",
     "status": {
-      "title": "Statut",
+      "title": "Status",
       "open": "Ouvert",
       "expired": "Expiré",
       "cancelled": "Annulé",
@@ -2969,7 +2974,9 @@
       "failed": "Échoué",
       "pending": "En attente",
       "claimAvailable": "Réclamation disponible",
-      "unknown": "Inconnu"
+      "claimed": "Réclamé",
+      "unknown": "Inconnu",
+      "initiated": "Initié"
     },
     "emptyState": {
       "title": "Bienvenue sur ShapeShift",
@@ -2983,14 +2990,28 @@
       "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
       "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming."
     },
+    "bridge": {
+      "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",
+      "complete": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est terminé.",
+      "initiated": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a été initié.",
+      "failed": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a échoué."
+    },
     "limitOrder": {
       "placed": "Ordre à cours limité de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} placé",
-      "complete": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a été exécuté avec succès.",
+      "complete": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} été rempli avec succès.",
       "cancelled": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a été annulé.",
       "expired": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a expiré."
     },
     "rfox": {
-      "unstakeConfirmed": "Votre mise de %{amount} FOX pourra être réclamée dans %{cooldownPeriod}."
+      "unstakeConfirmed": "Vote démise de %{amount} %{symbol} sera disponible pour être réclamée dans %{cooldownPeriod}.",
+      "unstakeReady": "Votre démise de %{amount} %{symbol} est prête à être réclamée.",
+      "unstakeTxPending": "Votre démise de %{amount} %{symbol} est en attente.",
+      "unstakeTxComplete": "Votre démise de %{amount} %{symbol} est terminée."
+    },
+    "tcy": {
+      "claimReady": "Votre réclamation TCY de %{amount} %{symbol} est prête",
+      "claimTxPending": "Votre réclamation TCY de %{amount} %{symbol} est en attente.",
+      "claimTxComplete": "Votre réclamation TCY de %{amount} %{symbol} est terminée."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

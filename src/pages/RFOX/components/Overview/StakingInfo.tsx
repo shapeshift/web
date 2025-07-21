@@ -83,6 +83,8 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     select: selectStakingBalance,
   })
 
+  console.log({ stakingBalanceCryptoBaseUnitQuery })
+
   const stakingBalanceCryptoPrecision = useMemo(() => {
     if (!stakingBalanceCryptoBaseUnitQuery.data) return
     return fromBaseUnit(stakingBalanceCryptoBaseUnitQuery.data, stakingAsset?.precision ?? 0)

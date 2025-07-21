@@ -11,7 +11,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetActions } from '@/components/AssetHeader/AssetActions'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
-import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceFilter,
@@ -24,8 +23,6 @@ import { useAppSelector } from '@/state/store'
 type AccountBalanceProps = {
   assetId: AssetId
   accountId: AccountId
-  backPath?: string
-  backLabel?: string
 }
 
 const arrowBackIcon = <ArrowBackIcon />
@@ -37,12 +34,7 @@ const justifyContent = { base: 'center', md: 'space-between' }
 
 const bodyAlign = { base: 'center', md: 'flex-start' }
 
-export const AccountBalance: React.FC<AccountBalanceProps> = ({
-  assetId,
-  accountId,
-  backPath,
-  backLabel,
-}) => {
+export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, accountId }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -62,10 +54,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceFilter(s, assetAccountFilter),
   )
-  const handleClick = useCallback(
-    () => navigate(backPath ?? `/wallet/accounts/${accountId}`),
-    [navigate, backPath, accountId],
-  )
+  const handleClick = useCallback(() => navigate(-1), [navigate])
   const balanceContent = useMemo(() => {
     if (!marketData)
       return (
@@ -78,7 +67,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     return <Amount.Fiat fontSize='4xl' value={userCurrencyBalance} lineHeight={1} />
   }, [marketData, userCurrencyBalance, asset?.name, translate])
 
-  const accountLabel = accountIdToLabel(accountId)
   if (!asset) return null
   return (
     <Card overflow='hidden'>
@@ -89,7 +77,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={handleClick}
           display={backButtonDisplay}
         >
-          {backLabel ?? accountLabel}
+          {translate('common.back')}
         </Button>
         <Flex alignItems='center' gap={2}>
           <AssetIcon assetId={asset.assetId} height='30px' width='auto' />

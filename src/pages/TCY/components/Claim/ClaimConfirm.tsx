@@ -332,7 +332,11 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
         amountFooterComponent={amountFooterComponent}
       >
         {assetAccountHelper}
-        <ClaimAddressInput onActiveAddressChange={setRuneAddress} address={runeAddress} />
+        <ClaimAddressInput
+          onActiveAddressChange={setRuneAddress}
+          address={runeAddress}
+          matchingRuneAccountId={claim.matchingRuneAccountId}
+        />
       </ReusableConfirm>
     </FormProvider>
   )

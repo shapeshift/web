@@ -307,22 +307,19 @@ export const getThorchainTransactionType = (chainId: ChainId) => {
 export function getThorchainMsgDepositCoin(memo: string, assetId?: AssetId) {
   const [action] = memo.split(':')
 
-  if (!action) return
+  if (!action) return 'THOR.RUNE'
 
-  // Staking operations
-  if (action.toLowerCase() === 'tcy+') return 'THOR.TCY'
-
-  // Add liquidity / desposit operations
-  if (['add', 'a', '+'].includes(action.toLowerCase())) {
-    switch (assetId) {
-      case tcyAssetId:
-        return 'THOR.TCY'
-      case rujiAssetId:
-        return 'THOR.RUJI'
-      default:
-        return undefined
+  switch (action.toLowerCase()) {
+    case 'add':
+    case 'a':
+    case '+': {
+      if (assetId === tcyAssetId) return 'THOR.TCY'
+      if (assetId === rujiAssetId) return 'THOR.RUJI'
+      return 'THOR.RUNE'
     }
+    case 'tcy+':
+      return 'THOR.TCY'
+    default:
+      return 'THOR.RUNE'
   }
-
-  return undefined // RUNE
 }

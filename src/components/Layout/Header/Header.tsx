@@ -13,6 +13,7 @@ import { MobileNavBar } from './NavBar/MobileNavBar'
 import { UserMenu } from './NavBar/UserMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectPortfolioDegradedState } from '@/state/slices/selectors'
@@ -52,6 +53,7 @@ export const Header = memo(() => {
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
+  const { degradedChainIds } = useDiscoverAccounts()
 
   /**
    * FOR DEVELOPERS:
@@ -104,7 +106,9 @@ export const Header = memo(() => {
               columnGap={2}
             >
               <GlobalSeachButton />
-              {isLargerThanMd && isDegradedState && <DegradedStateBanner />}
+              {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
+                <DegradedStateBanner />
+              )}
               {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
                 <Suspense>
                   <WalletConnectToDappsHeaderButton />

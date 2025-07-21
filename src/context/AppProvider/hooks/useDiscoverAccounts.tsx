@@ -56,6 +56,7 @@ export const useDiscoverAccounts = () => {
 
           let accountNumber = 0
           let hasActivity = true
+          let isDegraded = false
           const chainAccountMetadata: AccountMetadataById = {}
 
           while (hasActivity) {
@@ -83,6 +84,7 @@ export const useDiscoverAccounts = () => {
               accountNumber++
             } catch (error) {
               console.error(`Error discovering accounts for chain ${chainId}:`, error)
+              isDegraded = true
               break
             }
           }
@@ -107,7 +109,12 @@ export const useDiscoverAccounts = () => {
             })
           }
 
-          return { accountMetadataByAccountId: chainAccountMetadata, hasActivity }
+          return {
+            accountMetadataByAccountId: chainAccountMetadata,
+            hasActivity,
+            isDegraded,
+            chainId,
+          }
         },
         staleTime: Infinity,
         gcTime: Infinity,
@@ -127,8 +134,17 @@ export const useDiscoverAccounts = () => {
     }
   }, [accountsDiscoveryQueries])
 
+  const degradedChainIds = useMemo(() => {
+    return accountsDiscoveryQueries
+      .filter(query => query.data?.isDegraded)
+      .map(query => {
+        return query.data?.chainId
+      })
+  }, [accountsDiscoveryQueries])
+
   return {
     isLoading,
     isFetching,
+    degradedChainIds,
   }
 }

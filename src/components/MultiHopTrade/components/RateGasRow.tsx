@@ -1,19 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from '@chakra-ui/icons'
 import type { FlexProps, StackProps } from '@chakra-ui/react'
-import {
-  Box,
-  Collapse,
-  Flex,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Skeleton,
-  Stack,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
@@ -28,6 +15,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { clickableLinkSx } from '@/theme/styles'
@@ -205,22 +193,9 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                   >
                     <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
                     {rateContent}
-                    <Popover
-                      trigger='hover'
-                      placement='top'
-                      isLazy
-                      openDelay={0}
-                      closeDelay={300}
-                      gutter={8}
-                    >
-                      <PopoverTrigger>
-                        <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
-                      </PopoverTrigger>
-                      <PopoverContent width='auto' maxWidth='300px' zIndex={9999}>
-                        <PopoverArrow />
-                        <PopoverBody p={3}>{feePopoverContent}</PopoverBody>
-                      </PopoverContent>
-                    </Popover>
+                    <TooltipWithTouch label={feePopoverContent} placement='top'>
+                      <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
+                    </TooltipWithTouch>
                   </Stack>
                 </Row.Value>
               </Row>

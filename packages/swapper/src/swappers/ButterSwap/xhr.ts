@@ -89,7 +89,7 @@ export const getButterRoute = async ({
     amount: sellAmountCryptoBaseUnit,
     type: 'exactIn',
     slippage,
-    entrance: 'Butter+',
+    entrance: 'shapeshift',
     affiliate,
   }
   const result = await butterService.get<RouteResponse>('/route', { params })

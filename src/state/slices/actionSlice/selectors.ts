@@ -179,6 +179,13 @@ export const selectWalletGenericTransactionActionsSorted = createDeepEqualOutput
   },
 )
 
+export const selectPendingGenericTransactionActions = createDeepEqualOutputSelector(
+  selectWalletGenericTransactionActionsSorted,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending)
+  },
+)
+
 export const selectRfoxClaimActionsByWallet = createDeepEqualOutputSelector(
   selectActions,
   selectEnabledWalletAccountIds,

@@ -93,7 +93,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllMarketDataQuery(undefined, {
-    skip: !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet,
+    skip: modal,
   })
 
   // Master hook for accounts fetch

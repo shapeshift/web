@@ -11,5 +11,6 @@ export type Claim = {
   l1_address: string
   amountThorBaseUnit: string
   assetId: AssetId
+  matchingRuneAccountId: AccountId | undefined
   accountId: AccountId
 }

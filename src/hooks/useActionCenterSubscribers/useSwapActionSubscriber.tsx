@@ -8,7 +8,7 @@ import {
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
 } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -23,6 +23,7 @@ import { SwapNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -31,8 +32,9 @@ import {
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
-import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useSwapActionSubscriber = () => {
@@ -144,6 +146,32 @@ export const useSwapActionSubscriber = () => {
         }),
       })
 
+      const serializedTxIndex = (() => {
+        if (!swap) return
+
+        const { buyAccountId } = swap
+
+        if (!buyAccountId || !buyTxHash) return
+
+        const accountAddress = fromAccountId(buyAccountId).account
+
+        return serializeTxIndex(buyAccountId, buyTxHash, accountAddress)
+      })()
+
+      const tx = selectTxById(store.getState(), serializedTxIndex ?? '')
+
+      const actualBuyAmountCryptoPrecision = (() => {
+        if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
+
+        const receiveTransfer = tx.transfers.find(
+          transfer =>
+            transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
+        )
+        return receiveTransfer?.value
+          ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
+          : undefined
+      })()
+
       if (status === TxStatus.Confirmed) {
         dispatch(
           actionSlice.actions.upsertAction({
@@ -162,6 +190,7 @@ export const useSwapActionSubscriber = () => {
         dispatch(
           swapSlice.actions.upsertSwap({
             ...swap,
+            actualBuyAmountCryptoPrecision,
             status: SwapStatus.Success,
             statusMessage: message,
             buyTxHash,

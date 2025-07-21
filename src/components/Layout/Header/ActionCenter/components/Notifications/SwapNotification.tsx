@@ -53,7 +53,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
       ),
       buyAmountAndSymbol: (
         <Amount.Crypto
-          value={swap.expectedBuyAmountCryptoPrecision}
+          value={swap.actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
           symbol={swap.buyAsset.symbol}
           fontSize='sm'
           fontWeight='bold'

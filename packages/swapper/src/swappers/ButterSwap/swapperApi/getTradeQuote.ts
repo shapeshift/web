@@ -1,6 +1,12 @@
 import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero, chainIdToFeeAssetId, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
+import {
+  bnOrZero,
+  chainIdToFeeAssetId,
+  convertDecimalPercentageToBasisPoints,
+  fromBaseUnit,
+  toBaseUnit,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
@@ -74,6 +80,16 @@ export const getTradeQuote = async (
     )
   }
 
+  // Disable same-chain swaps for ButterSwap
+  if (sellAsset.chainId === buyAsset.chainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Same-chain swaps are not supported by ButterSwap`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   if (!sendAddress) {
     return Err(
       makeSwapErrorRight({
@@ -86,7 +102,7 @@ export const getTradeQuote = async (
   const slippageDecimal =
     slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
-  const slippage = bn(slippageDecimal).times(10000).toString()
+  const slippage = convertDecimalPercentageToBasisPoints(slippageDecimal).toString()
 
   // Call ButterSwap /route API
   const routeResult = await getButterRoute({

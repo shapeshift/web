@@ -9,32 +9,21 @@ import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import {
   selectAssetById,
   selectEvmAccountIds,
   selectLimitOrderActionsByWallet,
-  selectPortfolioLoadingStatus,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 export const useLimitOrdersQuery = () => {
   const evmAccountIds = useAppSelector(selectEvmAccountIds)
-  const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
-  const {
-    state: { isLoadingLocalWallet, modal, isConnected },
-  } = useWallet()
 
   return useGetLimitOrdersQuery(evmAccountIds, {
     pollingInterval: 15_000,
     refetchOnMountOrArgChange: false,
-    skip:
-      !evmAccountIds.length ||
-      !isConnected ||
-      portfolioLoadingStatus === 'loading' ||
-      modal ||
-      isLoadingLocalWallet,
+    skip: !evmAccountIds.length,
   })
 }
 

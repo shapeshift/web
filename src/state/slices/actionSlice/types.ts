@@ -142,8 +142,7 @@ export const isSwapAction = (action: Action): action is SwapAction => {
 export const isSendAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(
     action.type === ActionType.Send &&
-      (action as GenericTransactionAction).transactionMetadata?.displayType ===
-        GenericTransactionDisplayType.SEND,
+      action.transactionMetadata?.displayType === GenericTransactionDisplayType.SEND,
   )
 }
 

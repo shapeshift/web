@@ -71,7 +71,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       ),
       buyAmountAndSymbol: (
         <Amount.Crypto
-          value={swap.expectedBuyAmountCryptoPrecision}
+          value={swap.actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
           symbol={swap.buyAsset.symbol}
           fontSize='sm'
           fontWeight='bold'

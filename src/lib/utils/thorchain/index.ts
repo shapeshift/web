@@ -4,6 +4,8 @@ import {
   cosmosChainId,
   fromAccountId,
   fromAssetId,
+  rujiAssetId,
+  tcyAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -300,4 +302,24 @@ export const getThorchainTransactionType = (chainId: ChainId) => {
   }
 
   throw new Error(`Unsupported ChainId ${chainId}`)
+}
+
+export function getThorchainMsgDepositCoin(memo: string, assetId?: AssetId) {
+  const [action] = memo.split(':')
+
+  if (!action) return 'THOR.RUNE'
+
+  switch (action.toLowerCase()) {
+    case 'add':
+    case 'a':
+    case '+': {
+      if (assetId === tcyAssetId) return 'THOR.TCY'
+      if (assetId === rujiAssetId) return 'THOR.RUJI'
+      return 'THOR.RUNE'
+    }
+    case 'tcy+':
+      return 'THOR.TCY'
+    default:
+      return 'THOR.RUNE'
+  }
 }

@@ -98,6 +98,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     [assetId, isSymAssetWithdraw],
   )
 
+  const isNativeThorchainTx = useMemo(
+    () => fromAssetId(assetId).chainId === thorchainChainId || isSymAssetWithdraw,
+    [assetId, isSymAssetWithdraw],
+  )
+
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(isRuneTx ? thorchainAssetId : assetId).chainId),
   )
@@ -265,8 +270,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     // - Failed means the inbound transaction failed and there is no reason to trigger the mutation as it will never be picked up by thorchain
     if (status === TxStatus.Confirmed || status === TxStatus.Failed) return
 
-    // Consider rune transactions pending after broadcast and start polling thorchain right away
-    if (isRuneTx) {
+    // Consider native thorchain transactions pending after broadcast and start polling thorchain right away
+    if (isNativeThorchainTx) {
       if (status === TxStatus.Unknown) {
         setStatus(TxStatus.Pending)
         onStatusUpdate(TxStatus.Pending)
@@ -295,7 +300,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (tx.status === TxStatus.Confirmed) {
       ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, status, tx, txId, isRuneTx, onStatusUpdate])
+  }, [mutateAsync, status, tx, txId, onStatusUpdate, isSymAssetWithdraw, isNativeThorchainTx])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -356,7 +361,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         poolAsset &&
         wallet &&
         memo &&
-        (isRuneTx || inboundAddressData?.address)
+        (isNativeThorchainTx || inboundAddressData?.address)
       )
     ) {
       setIsSubmitting(false)
@@ -381,7 +386,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     poolAsset,
     wallet,
     memo,
-    isRuneTx,
+    isNativeThorchainTx,
     inboundAddressData?.address,
     executeTransaction,
     onStart,

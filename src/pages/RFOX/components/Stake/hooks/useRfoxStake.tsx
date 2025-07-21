@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Link, Text, useToast } from '@chakra-ui/react'
+import { Link, Text } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
@@ -13,9 +13,12 @@ import { encodeFunctionData, erc20Abi } from 'viem'
 
 import type { StakeInputValues } from '../types'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
@@ -29,6 +32,12 @@ import {
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -37,7 +46,7 @@ import {
 } from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseRfoxStakeProps = {
   runeAddress: string | undefined
@@ -70,7 +79,9 @@ export const useRfoxStake = ({
   hasEnoughBalance,
   setStakeTxid,
 }: UseRfoxStakeProps): UseRfoxStakeReturn => {
-  const toast = useToast()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const dispatch = useAppDispatch()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const wallet = useWallet().state.wallet
@@ -211,7 +222,9 @@ export const useRfoxStake = ({
         !stakingAsset ||
         !adapter ||
         !stakeCallData ||
-        !setStakeTxid
+        !setStakeTxid ||
+        !stakingAssetAccountId ||
+        !amountCryptoPrecision
       )
         return
 
@@ -229,6 +242,47 @@ export const useRfoxStake = ({
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+      })
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txId,
+          type: ActionType.Deposit,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.RFOX,
+            txHash: txId,
+            chainId: stakingAsset.chainId,
+            accountId: stakingAssetAccountId,
+            assetId: stakingAssetId,
+            amountCryptoPrecision,
+            message: 'RFOX.stakePending',
+          },
+        }),
+      )
+
+      toast({
+        id: txId,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
       })
 
       return txId

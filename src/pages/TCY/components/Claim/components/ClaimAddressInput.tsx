@@ -29,13 +29,18 @@ const buttonProps = {
 type ClaimAddressInputProps = {
   onActiveAddressChange: (address: string | undefined) => void
   address?: string
+  matchingRuneAccountId: string | undefined
 }
 
 type AddressFormValues = {
   manualRuneAddress: string
 }
 
-export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddressInputProps) => {
+export const ClaimAddressInput = ({
+  onActiveAddressChange,
+  address,
+  matchingRuneAccountId,
+}: ClaimAddressInputProps) => {
   const translate = useTranslate()
   const { wallet } = useWallet().state
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -44,7 +49,9 @@ export const ClaimAddressInput = ({ onActiveAddressChange, address }: ClaimAddre
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
 
-  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(runeAccountIds[0])
+  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(
+    matchingRuneAccountId,
+  )
 
   // Local controller in case consumers don't have a form context
   const _methods = useForm<AddressFormValues>({

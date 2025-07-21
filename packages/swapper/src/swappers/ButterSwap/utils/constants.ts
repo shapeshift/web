@@ -1,4 +1,4 @@
-const BUTTERSWAP_AFFILIATE = '' // TODO: add affiliate
+const BUTTERSWAP_AFFILIATE = 'shapeshift'
 
 export const makeButterSwapAffiliate = (affiliateBps: string): string | undefined => {
   if (!BUTTERSWAP_AFFILIATE) return undefined

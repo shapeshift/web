@@ -18,7 +18,7 @@ import { AccountNumberRow } from './AccountNumberRow'
 import { Amount } from '@/components/Amount/Amount'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
@@ -38,14 +38,14 @@ const hover = { borderColor: 'border.hover' }
 const stackPx = { base: 2, md: 4 }
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
   const { isOpen, onToggle } = useDisclosure()
   const navigate = useNavigate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
-    isAccountsMetadataLoading || isAnyMarketDataLoading
+    isDiscoveringAccounts || isAnyMarketDataLoading
       ? undefined
       : selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
   )

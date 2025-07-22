@@ -12,7 +12,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
-import { isUtxoChainId } from '@/lib/utils/utxo'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectEnabledWalletAccountIds, selectWalletId } from '@/state/slices/common-selectors'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -44,8 +44,7 @@ export const useSnapStatusHandler = () => {
     if (previousConnectedRdns !== METAMASK_RDNS || connectedRdns !== METAMASK_RDNS) return
 
     const hasSnapSupportedChainIds = enabledWalletAccountIds.some(
-      id =>
-        isUtxoChainId(fromAccountId(id).chainId) || fromAccountId(id).chainId === thorchainChainId,
+      id => isUtxoAccountId(id) || fromAccountId(id).chainId === thorchainChainId,
     )
 
     if (

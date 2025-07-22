@@ -75,7 +75,7 @@ export const getTxBaseUrl = ({
     case SwapperName.ButterSwap:
       return isRelayer && relayerExplorerTxLink
         ? `${relayerExplorerTxLink}tx/`
-        : 'https://explorer.butterswap.io/tx/'
+        : defaultExplorerBaseUrl
     default:
       return defaultExplorerBaseUrl
   }

@@ -1,7 +1,11 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Box, Circle, Flex, Skeleton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
+import {
+  CHAINFLIP_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  TradeQuoteError as SwapperTradeQuoteError,
+} from '@shapeshiftoss/swapper'
 import type { FC, JSX } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -187,6 +191,12 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     }, [quote?.steps])
 
     const headerContent = useMemo(() => {
+      const isBoost =
+        quote?.steps[0].source &&
+        [CHAINFLIP_BOOST_SWAP_SOURCE, CHAINFLIP_DCA_BOOST_SWAP_SOURCE].includes(
+          quote?.steps[0].source,
+        )
+
       return (
         <Flex justifyContent='space-between' alignItems='center' flexGrow={1}>
           {quoteDisplayOption === QuoteDisplayOption.Advanced && quote && (
@@ -201,6 +211,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
                   isBestRate={quote && isBestRate}
                   isFastest={quote && isFastest}
                   isLowestGas={quote && isLowestGas}
+                  isStreaming={quote && quote.isStreaming}
+                  isBoost={quote && isBoost}
+                  swapperName={quoteData.swapperName}
                   quoteDisplayOption={quoteDisplayOption}
                 />
                 {errorIndicator}

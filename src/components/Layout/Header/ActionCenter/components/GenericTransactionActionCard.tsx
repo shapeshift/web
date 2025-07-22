@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
+import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -12,6 +13,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
+import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -53,12 +55,20 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
   const icon = useMemo(() => {
+    if (asset?.assetId === uniV2EthFoxArbitrumAssetId || asset?.assetId === foxEthLpAssetId) {
+      return (
+        <AssetIconWithBadge assetId={foxEthPair[0]} secondaryAssetId={foxEthPair[1]} size='md'>
+          <ActionStatusIcon status={action.status} />
+        </AssetIconWithBadge>
+      )
+    }
+
     return (
       <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
         <ActionStatusIcon status={action.status} />
       </AssetIconWithBadge>
     )
-  }, [action.transactionMetadata.assetId, action.status])
+  }, [asset, action.transactionMetadata.assetId, action.status])
 
   const footer = useMemo(() => {
     return (

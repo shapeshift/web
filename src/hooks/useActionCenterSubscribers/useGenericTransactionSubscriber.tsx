@@ -28,8 +28,6 @@ export const useGenericTransactionSubscriber = () => {
   useEffect(() => {
     pendingGenericTransactionActions.forEach(action => {
       if (action.status !== ActionStatus.Pending) return
-      // RFOX stake/unstake only for now, TODO: handle more
-      if (action.transactionMetadata.displayType !== GenericTransactionDisplayType.RFOX) return
 
       const { accountId, txHash } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
@@ -39,9 +37,27 @@ export const useGenericTransactionSubscriber = () => {
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      // TODO(gomes): refer to the todo above, for now this just handles RFOX stake/unstake - to-be-generalized when handling more providers/actions
-      const message =
-        action.type === ActionType.Deposit ? 'RFOX.stakeSuccess' : 'RFOX.unstakeSuccess'
+      const message = (() => {
+        if (action.type === ActionType.Deposit) {
+          switch (action.transactionMetadata.displayType) {
+            case GenericTransactionDisplayType.RFOX:
+              return 'RFOX.stakeSuccess'
+            default:
+              return 'actionCenter.deposit.complete'
+          }
+        }
+
+        if (action.type === ActionType.Withdraw) {
+          switch (action.transactionMetadata.displayType) {
+            case GenericTransactionDisplayType.RFOX:
+              return 'RFOX.unstakeSuccess'
+            default:
+              return // Not yet implemented
+          }
+        }
+      })()
+
+      if (!message) return
 
       dispatch(
         actionSlice.actions.upsertAction({

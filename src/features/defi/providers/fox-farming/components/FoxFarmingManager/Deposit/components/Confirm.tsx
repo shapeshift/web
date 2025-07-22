@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -29,6 +30,8 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -38,7 +41,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   accountId,
@@ -49,6 +52,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, assetReference } = query
+
+  const appDispatch = useAppDispatch()
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
@@ -119,7 +124,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       !assetReference ||
       !walletState.wallet ||
       !asset ||
-      !foxFarmingOpportunity
+      !foxFarmingOpportunity ||
+      !accountId
     )
       return
     try {
@@ -128,6 +134,26 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
+
+      const now = Date.now()
+      appDispatch(
+        actionSlice.actions.upsertAction({
+          id: uuidv4(),
+          createdAt: now,
+          updatedAt: now,
+          type: ActionType.Deposit,
+          status: ActionStatus.Pending,
+          transactionMetadata: {
+            message: 'actionCenter.deposit.pending',
+            amountCryptoPrecision: bnOrZero(state.deposit.cryptoAmount).decimalPlaces(6).toString(),
+            assetId: asset.assetId,
+            chainId: asset.chainId,
+            accountId,
+            txHash: txid,
+          },
+        }),
+      )
+
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvent.DepositConfirm,
@@ -156,6 +182,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
+    accountId,
+    appDispatch,
     asset,
     assetReference,
     assets,

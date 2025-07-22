@@ -118,7 +118,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     if (!stakingAsset) return
 
     await handleUnstake()
-    navigate(UnstakeRoutePaths.Status)
+    navigate(UnstakeRoutePaths.Input)
   }, [handleUnstake, navigate, stakingAsset])
 
   return (

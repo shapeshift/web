@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
@@ -7,10 +6,6 @@ import { Route, Switch } from 'wouter'
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
-import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
-import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
@@ -37,20 +32,7 @@ const UnstakeConfirm = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const UnstakeStatus = makeSuspenseful(
-  lazy(() =>
-    import('./UnstakeStatus').then(({ UnstakeStatus }) => ({
-      default: UnstakeStatus,
-    })),
-  ),
-  defaultBoxSpinnerStyle,
-)
-
-const UnstakeEntries = [
-  UnstakeRoutePaths.Input,
-  UnstakeRoutePaths.Confirm,
-  UnstakeRoutePaths.Status,
-]
+const UnstakeEntries = [UnstakeRoutePaths.Input, UnstakeRoutePaths.Confirm]
 
 export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
   return (
@@ -62,37 +44,9 @@ export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
 
 export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
-  const queryClient = useQueryClient()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
-
-  const stakingAsset = useAppSelector(state =>
-    selectAssetById(state, confirmedQuote?.stakingAssetId ?? ''),
-  )
-
-  const handleTxConfirmed = useCallback(async () => {
-    if (!confirmedQuote || !unstakeTxid || !stakingAsset) return
-
-    await queryClient.invalidateQueries({
-      queryKey: getStakingInfoQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
-      }),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: getStakingBalanceOfQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
-        accountId: confirmedQuote.stakingAssetAccountId,
-      }),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: [
-        'getUnstakingRequests',
-        { stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId },
-      ],
-    })
-  }, [confirmedQuote, unstakeTxid, stakingAsset, queryClient])
 
   const renderUnstakeInput = useCallback(() => {
     return <UnstakeInput setConfirmedQuote={setConfirmedQuote} headerComponent={headerComponent} />
@@ -111,28 +65,12 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     )
   }, [confirmedQuote, headerComponent, unstakeTxid])
 
-  const renderUnstakeStatus = useCallback(() => {
-    if (!confirmedQuote) return null
-    if (!unstakeTxid) return null
-
-    return (
-      <UnstakeStatus
-        txId={unstakeTxid}
-        setUnstakeTxid={setUnstakeTxid}
-        onTxConfirmed={handleTxConfirmed}
-        confirmedQuote={confirmedQuote}
-        headerComponent={headerComponent}
-      />
-    )
-  }, [confirmedQuote, handleTxConfirmed, headerComponent, unstakeTxid])
-
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
         <Switch location={location.pathname}>
           <Route path={UnstakeRoutePaths.Input}>{renderUnstakeInput()}</Route>
           <Route path={UnstakeRoutePaths.Confirm}>{renderUnstakeConfirm()}</Route>
-          <Route path={UnstakeRoutePaths.Status}>{renderUnstakeStatus()}</Route>
           <Route path='*'>{renderUnstakeInput()}</Route>
         </Switch>
       </Suspense>

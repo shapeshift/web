@@ -198,9 +198,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
             <Skeleton isLoaded={!isLoading}>
               <Flex alignItems='center' gap={2}>
                 <TradeQuoteBadges
-                  isBestRate={isBestRate}
-                  isFastest={isFastest}
-                  isLowestGas={isLowestGas}
+                  isBestRate={quote && isBestRate}
+                  isFastest={quote && isFastest}
+                  isLowestGas={quote && isLowestGas}
                   quoteDisplayOption={quoteDisplayOption}
                 />
                 {errorIndicator}

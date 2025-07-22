@@ -8,13 +8,14 @@ import type { Claim } from '@/pages/TCY/components/Claim/types'
 
 export enum ActionType {
   Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
   Claim = 'Claim',
   Swap = 'Swap',
   LimitOrder = 'LimitOrder',
-  GenericTransaction = 'GenericTransaction',
   AppUpdate = 'AppUpdate',
   RfoxClaim = 'RfoxClaim',
   TcyClaim = 'TcyClaim',
+  Send = 'Send',
 }
 
 export enum ActionStatus {
@@ -94,15 +95,8 @@ export type LimitOrderAction = BaseAction & {
 }
 
 export type GenericTransactionAction = BaseAction & {
-  type: ActionType.GenericTransaction
+  type: ActionType.Deposit | ActionType.Withdraw | ActionType.Claim | ActionType.Send
   transactionMetadata: ActionGenericTransactionMetadata
-}
-
-export type SendAction = BaseAction & {
-  type: ActionType.GenericTransaction
-  transactionMetadata: ActionGenericTransactionMetadata & {
-    displayType: GenericTransactionDisplayType.SEND
-  }
 }
 
 export type AppUpdateAction = BaseAction & {
@@ -145,10 +139,10 @@ export const isSwapAction = (action: Action): action is SwapAction => {
   )
 }
 
-export const isSendAction = (action: Action): action is SendAction => {
+export const isSendAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(
-    action.type === ActionType.GenericTransaction &&
-      action.transactionMetadata.displayType === GenericTransactionDisplayType.SEND,
+    action.type === ActionType.Send &&
+      action.transactionMetadata?.displayType === GenericTransactionDisplayType.SEND,
   )
 }
 
@@ -161,7 +155,7 @@ export const isPendingSwapAction = (action: Action): action is SwapAction => {
 }
 
 export const isGenericTransactionAction = (action: Action): action is GenericTransactionAction => {
-  return Boolean(action.type === ActionType.GenericTransaction && action.transactionMetadata)
+  return Boolean((action as GenericTransactionAction).transactionMetadata)
 }
 
 export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => {
@@ -172,6 +166,6 @@ export const isTcyClaimAction = (action: Action): action is TcyClaimAction => {
   return Boolean(action.type === ActionType.TcyClaim && action.tcyClaimActionMetadata)
 }
 
-export const isPendingSendAction = (action: Action): action is SendAction => {
+export const isPendingSendAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(isSendAction(action) && action.status === ActionStatus.Pending)
 }

@@ -6,12 +6,21 @@ import { supportedStakingAssetIds } from '../useRfoxContext'
 import type { UnstakingRequestAccountAssetData } from './utils'
 import { getUnstakingRequestsQueryFn } from './utils'
 
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
-import { selectAccountIdsByChainIdFilter } from '@/state/slices/selectors'
+import {
+  selectAccountIdsByChainIdFilter,
+  selectPortfolioLoadingStatus,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useGetUnstakingRequestsQuery = () => {
+  const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
+
+  const {
+    state: { isLoadingLocalWallet, modal, isConnected },
+  } = useWallet()
   // This always fetches unstaking data for all Arb AccountIds - consumers can filter by accountId as-needed
   // but this avoids the complexity, while supporting multi-account and making the chain switch seamless (no further loading needed)
   const stakingAssetAccountIds = useAppSelector(state =>
@@ -30,6 +39,9 @@ export const useGetUnstakingRequestsQuery = () => {
               stakingAssetAccountId,
               stakingAssetId,
             }),
+            enabled:
+              isConnected ||
+              (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
           }) as const,
       ),
     ),

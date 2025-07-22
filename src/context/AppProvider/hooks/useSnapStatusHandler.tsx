@@ -48,7 +48,7 @@ export const useSnapStatusHandler = () => {
     )
 
     if (
-      !isSnapInstalled &&
+      isSnapInstalled === false &&
       // User doesn't have any utxo or thorchain accounts but has snap installed
       // we assume they installed the snap and maybe outside of the app
       hasSnapSupportedChainIds

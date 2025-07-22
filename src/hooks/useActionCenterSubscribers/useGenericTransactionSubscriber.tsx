@@ -49,9 +49,19 @@ export const useGenericTransactionSubscriber = () => {
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      // TODO(gomes): refer to the todo above, for now this just handles RFOX stake/unstake - to-be-generalized when handling more providers/actions
-      const message =
-        action.type === ActionType.Deposit ? 'RFOX.stakeSuccess' : 'RFOX.unstakeSuccess'
+      // TODO(gomes): This should handle more than just RFOX things
+      const message = (() => {
+        switch (action.type) {
+          case ActionType.Deposit:
+            return 'RFOX.stakeSuccess'
+          case ActionType.Withdraw:
+            return 'RFOX.unstakeSuccess'
+          case ActionType.ChangeAddress:
+            return 'RFOX.changeAddressSuccess'
+          default:
+            throw new Error(`Unhandled action type: ${action.type}`)
+        }
+      })()
 
       const stakingAssetId = action.transactionMetadata.assetId
       const stakingAssetAccountId = action.transactionMetadata.accountId

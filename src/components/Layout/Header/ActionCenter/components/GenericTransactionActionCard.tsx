@@ -25,7 +25,9 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, action.transactionMetadata.chainId),
   )
-  const asset = useAppSelector(state => selectAssetById(state, action.transactionMetadata.assetId))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, action.transactionMetadata.assetId ?? ''),
+  )
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -79,6 +81,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
         ...action.transactionMetadata,
         amount: action.transactionMetadata.amountCryptoPrecision,
         symbol: asset?.symbol,
+        newAddress: action.transactionMetadata.newAddress,
       })}
       icon={icon}
       footer={footer}

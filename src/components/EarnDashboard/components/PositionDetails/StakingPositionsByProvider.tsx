@@ -19,6 +19,8 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { RFOX_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
+import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -49,6 +51,18 @@ type CalculateRewardFiatAmount = (args: CalculateRewardFiatAmountArgs) => number
 
 const widthMdAuto = { base: 'full', md: 'auto' }
 const widthMdFlexStart = { base: 'flex-end', md: 'flex-start' }
+
+// We're not getting the APY in RFOX resolver since we rely on a bunch of sequencial react-query hooks
+// So this handles RFOX specifically
+const RfoxApy: React.FC<{ stakingAssetId: AssetId }> = ({ stakingAssetId }) => {
+  const currentApyQuery = useCurrentApyQuery({ stakingAssetId })
+
+  return (
+    <Tag colorScheme='green'>
+      <Amount.Percent value={currentApyQuery?.data ?? '0'} />
+    </Tag>
+  )
+}
 
 const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   rewardsCryptoBaseUnit,
@@ -216,11 +230,17 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       {
         Header: translate('defi.apy'),
         accessor: 'apy',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Tag colorScheme='green'>
-            <Amount.Percent value={row.original.apy} />
-          </Tag>
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const isRfoxStaking = RFOX_STAKING_ASSET_IDS.includes(row.original.underlyingAssetId)
+
+          if (isRfoxStaking) return <RfoxApy stakingAssetId={row.original.underlyingAssetId} />
+
+          return (
+            <Tag colorScheme='green'>
+              <Amount.Percent value={row.original.apy} />
+            </Tag>
+          )
+        },
       },
       {
         Header: translate('defi.claimableRewards'),

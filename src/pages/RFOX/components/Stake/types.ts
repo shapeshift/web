@@ -7,7 +7,6 @@ import type { AddressSelectionValues } from '@/pages/RFOX/types'
 export enum StakeRoutePaths {
   Input = '/add/input',
   Confirm = '/add/confirm',
-  Status = '/add/status',
 }
 
 export type StakeRouteProps = {

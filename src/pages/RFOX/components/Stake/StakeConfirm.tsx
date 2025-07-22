@@ -268,7 +268,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     if (isApprovalRequired) return handleApprove()
 
     await handleStake()
-    navigate(StakeRoutePaths.Status)
+    navigate(StakeRoutePaths.Input)
   }, [handleStake, navigate, isApprovalRequired, handleApprove, stakingAsset])
 
   const stakeCards = useMemo(() => {

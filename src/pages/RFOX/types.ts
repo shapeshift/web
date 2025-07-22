@@ -1,7 +1,7 @@
 import type { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { Address, Log, ReadContractReturnType } from 'viem'
 
-import type { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from './constants'
+import type { stakeEvent, unstakeEvent } from './constants'
 
 export type AddressSelectionValues = {
   manualRuneAddress: string | undefined
@@ -74,10 +74,8 @@ export type EpochDetails = {
 }
 
 export type RFOXAccountLog =
-  | Log<bigint, number, false, typeof setRuneAddressEvent, false>
   | Log<bigint, number, false, typeof stakeEvent, false>
   | Log<bigint, number, false, typeof unstakeEvent, false>
-  | Log<bigint, number, false, typeof withdrawEvent, false>
 
 export type AbiStakingInfo = ReadContractReturnType<
   typeof RFOX_ABI,

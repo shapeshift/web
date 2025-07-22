@@ -55,7 +55,7 @@ export type ConnectWallet = {
 }
 
 export type Portfolio = {
-  isAccountMetadataLoadingByAccountId: Record<AccountId, boolean>
+  isPortfolioGetAccountLoadingByAccountId: Record<AccountId, boolean>
   /**
    * lookup of accountId -> accountMetadata
    */
@@ -75,7 +75,7 @@ export type Portfolio = {
 }
 
 export const initialState: Portfolio = {
-  isAccountMetadataLoadingByAccountId: {},
+  isPortfolioGetAccountLoadingByAccountId: {},
   accounts: {
     byId: {},
     ids: [],

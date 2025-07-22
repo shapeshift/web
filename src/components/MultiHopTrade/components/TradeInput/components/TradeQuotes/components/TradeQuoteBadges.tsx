@@ -66,7 +66,7 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
 
   const badgeCount = useMemo(
     () => badges.reduce((acc, curr) => (curr ? acc + 1 : acc), 0),
-    [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
+    [badges],
   )
   const hideLabel = useMemo(() => {
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
@@ -74,7 +74,7 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
     } else {
       return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
     }
-  }, [badgeCount, isLargerThanMd, quoteDisplayOption])
+  }, [badgeCount, badges.length, isLargerThanMd, quoteDisplayOption])
 
   if (badgeCount === 0) return null
 

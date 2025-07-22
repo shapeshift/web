@@ -49,8 +49,6 @@ export const getTxBaseUrl = ({
   stepSource,
   defaultExplorerBaseUrl,
   isOrder,
-  isRelayer,
-  relayerExplorerTxLink,
 }: GetTxBaseUrl): string => {
   switch (stepSource) {
     case Dex.CowSwap:
@@ -72,10 +70,6 @@ export const getTxBaseUrl = ({
       return mayachain.explorerTxLink
     case SwapperName.Relay:
       return 'https://relay.link/transaction/'
-    case SwapperName.ButterSwap:
-      return isRelayer && relayerExplorerTxLink
-        ? `${relayerExplorerTxLink}tx/`
-        : 'https://explorer.butterswap.io/tx/'
     default:
       return defaultExplorerBaseUrl
   }

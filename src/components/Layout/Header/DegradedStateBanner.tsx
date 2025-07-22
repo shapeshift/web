@@ -14,6 +14,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { isEmpty, uniq } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
@@ -24,9 +25,9 @@ import { useSelector } from 'react-redux'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText, Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectPortfolioErroredAccountIds } from '@/state/slices/selectors'
@@ -44,26 +45,22 @@ export const DegradedStateBanner = memo(() => {
   const erroredAccountIds = useSelector(selectPortfolioErroredAccountIds)
   const { degradedChainIds, isFetching: isDiscoverAccountsFetching } = useDiscoverAccounts()
   const { isSnapInstalled } = useIsSnapInstalled()
-  const {
-    state: { deviceId },
-  } = useWallet()
+  const { deviceId } = useWallet().state
   const queryClient = useQueryClient()
 
   const erroredChainIds = useMemo(() => {
     const erroredChains = uniq(
-      degradedChainIds.reduce(
+      degradedChainIds.filter(isSome).reduce(
         (acc, chainId) => {
           if (!chainId) return acc
 
-          const adapter = getChainAdapterManager().get(chainId)
+          const feeAssetId = assets[chainIdToFeeAssetId(chainId)]
 
-          if (!adapter) return acc
-
-          const feeAssetId = adapter.getFeeAssetId()
+          if (!feeAssetId) return acc
 
           acc.push({
-            name: assets[feeAssetId]?.networkName ?? assets[feeAssetId]?.name,
-            icon: assets[feeAssetId]?.networkIcon ?? assets[feeAssetId]?.icon,
+            name: feeAssetId.networkName ?? feeAssetId.name,
+            icon: feeAssetId.networkIcon ?? feeAssetId.icon,
           })
 
           return acc

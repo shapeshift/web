@@ -59,19 +59,20 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
+  const badges = useMemo(
+    () => [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
+    [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
+  )
+
   const badgeCount = useMemo(
-    () =>
-      [isBestRate, isFastest, isLowestGas, isStreaming, isBoost].reduce(
-        (acc, curr) => (curr ? acc + 1 : acc),
-        0,
-      ),
+    () => badges.reduce((acc, curr) => (curr ? acc + 1 : acc), 0),
     [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
   )
   const hideLabel = useMemo(() => {
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
       return badgeCount > 1
     } else {
-      return isLargerThanMd ? undefined : badgeCount > 2
+      return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
     }
   }, [badgeCount, isLargerThanMd, quoteDisplayOption])
 

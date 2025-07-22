@@ -232,6 +232,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isFastest,
       isLowestGas,
       errorIndicator,
+      quoteData.swapperName,
     ])
 
     const bodyContent = useMemo(() => {

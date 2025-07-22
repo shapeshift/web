@@ -9,6 +9,8 @@ import { NotificationWrapper } from './NotificationWrapper'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { Text } from '@/components/Text/Text'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { selectTcyClaimActionsByWallet } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type TCYClaimSaversNotificationProps = {
   handleClick: () => void
@@ -18,6 +20,14 @@ export const TcyClaimSaversNotification = ({
   handleClick,
   onClose,
 }: TCYClaimSaversNotificationProps) => {
+  const tcyClaimActions = useAppSelector(selectTcyClaimActionsByWallet)
+
+  const hasClaimable = tcyClaimActions.some(claim => claim.status === ActionStatus.ClaimAvailable)
+
+  if (!hasClaimable) {
+    return null
+  }
+
   return (
     <NotificationWrapper handleClick={handleClick} onClose={onClose}>
       <Stack spacing={3}>

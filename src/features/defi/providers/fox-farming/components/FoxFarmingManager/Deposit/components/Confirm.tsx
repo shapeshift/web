@@ -4,12 +4,15 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -49,9 +52,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, assetReference } = query
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
   const appDispatch = useAppDispatch()
 
@@ -136,9 +141,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       onOngoingFarmingTxIdChange(txid, contractAddress)
 
       const now = Date.now()
+      const actionId = uuidv4()
       appDispatch(
         actionSlice.actions.upsertAction({
-          id: uuidv4(),
+          id: actionId,
           createdAt: now,
           updatedAt: now,
           type: ActionType.Deposit,
@@ -154,7 +160,29 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         }),
       )
 
-      onNext(DefiStep.Status)
+      toast({
+        id: txid,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        position: 'bottom-right',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={actionId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+
       trackOpportunityEvent(
         MixPanelEvent.DepositConfirm,
         {
@@ -169,6 +197,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         },
         assets,
       )
+
+      navigate(-1)
     } catch (error) {
       console.error(error)
       toast({
@@ -190,8 +220,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     contractAddress,
     dispatch,
     foxFarmingOpportunity,
-    onNext,
+    isDrawerOpen,
+    navigate,
     onOngoingFarmingTxIdChange,
+    openActionCenter,
     stake,
     state,
     toast,

@@ -33,7 +33,7 @@ export const ROUTE_QUOTE: RouteResponse = {
       gasEstimatedTarget: '1159118',
       timeEstimated: 0,
       hash: '0x0f63cad26f956f243062811c999eb8e4c441ddfd0940eb3f4d2e43c9f0f220bf',
-      entrance: 'butter+',
+      entrance: 'shapeshift',
       timestamp: 1750545317395,
       hasLiquidity: true,
       srcChain: {

@@ -9,6 +9,7 @@ import {
   ActionType,
   isGenericTransactionAction,
   isLimitOrderAction,
+  isPendingSendAction,
   isPendingSwapAction,
   isRfoxClaimAction,
   isSwapAction,
@@ -106,6 +107,13 @@ export const selectWalletSwapsById = createDeepEqualOutputSelector(
     }, {}),
 )
 
+export const selectPendingWalletSendActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(isPendingSendAction)
+  },
+)
+
 export const selectSwapActionBySwapId = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
@@ -168,6 +176,13 @@ export const selectWalletGenericTransactionActionsSorted = createDeepEqualOutput
   selectWalletActionsSorted,
   actions => {
     return actions.filter(isGenericTransactionAction)
+  },
+)
+
+export const selectPendingGenericTransactionActions = createDeepEqualOutputSelector(
+  selectWalletGenericTransactionActionsSorted,
+  actions => {
+    return actions.filter(action => action.status === ActionStatus.Pending)
   },
 )
 

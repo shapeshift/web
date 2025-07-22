@@ -5,7 +5,9 @@ import { useQueries } from '@tanstack/react-query'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useAccountsFetch } from './hooks/useAccountsFetch'
+import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
+import { usePortfolioFetch } from './hooks/usePortfolioFetch'
+import { useSnapStatusHandler } from './hooks/useSnapStatusHandler'
 
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
@@ -62,6 +64,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Previously <TransactionsProvider />
   useTransactionsSubscriber()
   useActionCenterSubscribers()
+  useSnapStatusHandler()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {
@@ -93,11 +96,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllMarketDataQuery(undefined, {
-    skip: !isConnected || portfolioLoadingStatus === 'loading' || modal || isLoadingLocalWallet,
+    skip: modal,
   })
 
-  // Master hook for accounts fetch
-  useAccountsFetch()
+  useDiscoverAccounts()
+  usePortfolioFetch()
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {

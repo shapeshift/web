@@ -30,7 +30,7 @@ import { LimitOrderFooter } from './LimitOrderFooter'
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
-import { useAccountsFetchQuery } from '@/context/AppProvider/hooks/useAccountsFetchQuery'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useActions } from '@/hooks/useActions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
@@ -137,7 +137,7 @@ export const LimitOrderInput = ({
     setSelectedBuyAssetChainId,
   } = useActions(limitOrderInput.actions)
   const { setActiveQuote, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isNewLimitFlowEnabled = useFeatureFlag('NewLimitFlow')
 
   const priceDirection = useAppSelector(selectLimitPriceDirection)
@@ -377,7 +377,7 @@ export const LimitOrderInput = ({
 
   const { quoteStatusTranslation, isError } = useMemo(() => {
     switch (true) {
-      case isAccountsMetadataLoading && !(sellAccountId || buyAccountId):
+      case isDiscoveringAccounts && !(sellAccountId || buyAccountId):
         return { quoteStatusTranslation: 'common.accountsLoading', isError: false }
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
@@ -411,7 +411,7 @@ export const LimitOrderInput = ({
     buyAccountId,
     buyAsset.chainId,
     hasUserEnteredAmount,
-    isAccountsMetadataLoading,
+    isDiscoveringAccounts,
     isConnected,
     quoteResponseError,
     recipientAddress,

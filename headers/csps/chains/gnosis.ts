@@ -10,6 +10,5 @@ export const csp: Csp = {
     env.VITE_GNOSIS_NODE_URL,
     env.VITE_UNCHAINED_GNOSIS_HTTP_URL,
     env.VITE_UNCHAINED_GNOSIS_WS_URL,
-    'https://rpc.gnosischain.com',
   ],
 }

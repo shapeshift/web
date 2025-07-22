@@ -25,6 +25,7 @@ export const useRfoxClaimActionSubscriber = () => {
     if (!pendingRfoxClaimActions.length) return
     const now = Date.now()
 
+    // Consider claimed as soon as broadcasted for the sake of simplicity
     pendingRfoxClaimActions.forEach(action => {
       if (!action.rfoxClaimActionMetadata.txHash) return
       const asset = assets[action.rfoxClaimActionMetadata.request.stakingAssetId]

@@ -1,24 +1,22 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
 import type { StakeInputValues } from '../types'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
-import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
@@ -29,6 +27,12 @@ import {
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -37,7 +41,7 @@ import {
 } from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseRfoxStakeProps = {
   runeAddress: string | undefined
@@ -70,11 +74,12 @@ export const useRfoxStake = ({
   hasEnoughBalance,
   setStakeTxid,
 }: UseRfoxStakeProps): UseRfoxStakeReturn => {
-  const toast = useToast()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const dispatch = useAppDispatch()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const wallet = useWallet().state.wallet
-  const translate = useTranslate()
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
@@ -211,7 +216,9 @@ export const useRfoxStake = ({
         !stakingAsset ||
         !adapter ||
         !stakeCallData ||
-        !setStakeTxid
+        !setStakeTxid ||
+        !stakingAssetAccountId ||
+        !amountCryptoPrecision
       )
         return
 
@@ -229,6 +236,47 @@ export const useRfoxStake = ({
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+      })
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txId,
+          type: ActionType.Deposit,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.RFOX,
+            txHash: txId,
+            chainId: stakingAsset.chainId,
+            accountId: stakingAssetAccountId,
+            assetId: stakingAssetId,
+            amountCryptoPrecision,
+            message: 'RFOX.stakePending',
+          },
+        }),
+      )
+
+      toast({
+        id: txId,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
       })
 
       return txId
@@ -284,51 +332,6 @@ export const useRfoxStake = ({
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })
-
-  const { data: maybeSafeApprovalTx } = useSafeTxQuery({
-    maybeSafeTxHash: approvalTxHash ?? undefined,
-    accountId: stakingAssetAccountId,
-  })
-
-  const approvalTxLink = useMemo(() => {
-    if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountAddress)) return
-
-    return getTxLink({
-      stepSource: undefined,
-      defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
-      txId: approvalTxHash,
-      address: stakingAssetAccountAddress,
-      chainId: fromAssetId(stakingAssetId).chainId,
-      maybeSafeTx: maybeSafeApprovalTx,
-    })
-  }, [
-    approvalTxHash,
-    maybeSafeApprovalTx,
-    stakingAssetFeeAsset?.explorerTxLink,
-    stakingAssetAccountAddress,
-    stakingAssetId,
-  ])
-
-  useEffect(() => {
-    if (!approvalTxLink) return
-
-    toast({
-      title: translate('modals.send.transactionSent'),
-      description: (
-        <Text>
-          {stakingAssetFeeAsset?.explorerTxLink && (
-            <Link href={approvalTxLink} isExternal>
-              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-            </Link>
-          )}
-        </Text>
-      ),
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right',
-    })
-  }, [approvalTxHash, approvalTxLink, stakingAssetFeeAsset?.explorerTxLink, toast, translate])
 
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({

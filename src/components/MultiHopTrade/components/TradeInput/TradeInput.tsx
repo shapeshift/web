@@ -38,7 +38,7 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
-  selectIsAnyAccountMetadataLoadedForChainId,
+  selectIsAnyGetAccountPortfolioLoadedForChainId,
   selectUsdRateByAssetId,
   selectWalletId,
 } from '@/state/slices/selectors'
@@ -137,12 +137,15 @@ export const TradeInput = ({
   const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
-  const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
+  const isAnyGetAccountPortfolioLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
   )
-  const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
-    selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
+  const isAnyGetAccountPortfolioLoadedForChainId = useAppSelector(state =>
+    selectIsAnyGetAccountPortfolioLoadedForChainId(
+      state,
+      isAnyGetAccountPortfolioLoadedForChainIdFilter,
+    ),
   )
   const walletId = useAppSelector(selectWalletId)
 
@@ -158,13 +161,13 @@ export const TradeInput = ({
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
+      Boolean(walletId && !isAnyGetAccountPortfolioLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       Boolean(walletId && isWalletReceiveAddressLoading),
     [
       walletId,
-      isAnyAccountMetadataLoadedForChainId,
+      isAnyGetAccountPortfolioLoadedForChainId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,

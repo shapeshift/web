@@ -10,6 +10,5 @@ export const csp: Csp = {
     env.VITE_ARBITRUM_NODE_URL,
     env.VITE_UNCHAINED_ARBITRUM_HTTP_URL,
     env.VITE_UNCHAINED_ARBITRUM_WS_URL,
-    'https://arbitrum.llamarpc.com',
   ],
 }

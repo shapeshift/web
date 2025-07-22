@@ -198,7 +198,10 @@
     "others": "Others",
     "hardwareWallets": "Hardware Wallets",
     "dustAmount": "Dust Amount",
-    "marketDataUnavailable": "Market data is unavailable for %{asset}"
+    "marketDataUnavailable": "Market data is unavailable for %{asset}",
+    "streaming": "Streaming", 
+    "dca": "DCA",
+    "boost": "Boost"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -251,8 +254,9 @@
       "sparkLine": "Sparkline",
       "myCrypto": "My Crypto",
       "empty": {
-        "title": "Cricket noises...",
-        "cta": "Send yourself some crypto!"
+        "title": "Every journey starts with a first step",
+        "body": "Send yourself some crypto to get started.",
+        "cta": "Add Crypto"
       },
       "stakedInfo": "You cannot send or trade the amount staked"
     },
@@ -2960,7 +2964,6 @@
     "limitPrice": "Limit Price",
     "expires": "Expires",
     "filled": "Filled",
-    "streaming": "Streaming",
     "claim": "Claim",
     "protocol": "Protocol",
     "streamingStatus": "Streaming Status",

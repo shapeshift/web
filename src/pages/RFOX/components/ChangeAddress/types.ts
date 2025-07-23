@@ -6,7 +6,6 @@ import type { AddressSelectionValues } from '@/pages/RFOX/types'
 export enum ChangeAddressRoutePaths {
   Input = '/change-address/input',
   Confirm = '/change-address/confirm',
-  Status = '/change-address/status',
 }
 
 export type ChangeAddressRouteProps = {

@@ -25,6 +25,23 @@ import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+type DisplayTypeMessageMap = Partial<Record<GenericTransactionDisplayType, string>> & {
+  default?: string
+}
+
+const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>> = {
+  [ActionType.Deposit]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.stakeSuccess',
+    default: 'actionCenter.deposit.complete',
+  },
+  [ActionType.Withdraw]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.unstakeSuccess',
+  },
+  [ActionType.ChangeAddress]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.changeAddressSuccess',
+  },
+}
+
 export const useGenericTransactionSubscriber = () => {
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -47,25 +64,9 @@ export const useGenericTransactionSubscriber = () => {
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      const message = (() => {
-        if (action.type === ActionType.Deposit) {
-          switch (action.transactionMetadata.displayType) {
-            case GenericTransactionDisplayType.RFOX:
-              return 'RFOX.stakeSuccess'
-            default:
-              return 'actionCenter.deposit.complete'
-          }
-        }
-
-        if (action.type === ActionType.Withdraw) {
-          switch (action.transactionMetadata.displayType) {
-            case GenericTransactionDisplayType.RFOX:
-              return 'RFOX.unstakeSuccess'
-            default:
-              return // Not yet implemented
-          }
-        }
-      })()
+      const typeMessagesMap = displayTypeMessagesMap[action.type]
+      const message =
+        typeMessagesMap?.[action.transactionMetadata.displayType] ?? typeMessagesMap?.default
 
       if (!message) return
 

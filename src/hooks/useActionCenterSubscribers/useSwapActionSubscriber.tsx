@@ -32,7 +32,7 @@ import {
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
-import { selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
+import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -121,9 +121,7 @@ export const useSwapActionSubscriber = () => {
 
       const { chainId, account: address } = fromAccountId(swap.sellAccountId)
 
-      const swapBuyAsset = swap.buyAsset
-      const feeAsset = selectFeeAssetByChainId(store.getState(), swapBuyAsset.chainId)
-      const txHash = swap.metadata.relayerTxHash ?? swap.sellTxHash ?? buyTxHash
+      const txHash = swap.metadata.relayerTxHash ?? buyTxHash ?? swap.sellTxHash
 
       const maybeSafeTx = await fetchSafeTransactionInfo({
         address,
@@ -132,10 +130,15 @@ export const useSwapActionSubscriber = () => {
         fetchIsSmartContractAddressQuery,
       })
 
+      const defaultExplorerBaseUrl =
+        buyTxHash && buyTxHash !== swap.sellTxHash
+          ? swap.buyAsset.explorerTxLink
+          : swap.sellAsset.explorerTxLink
+
       const txLink = getTxLink({
         address,
         chainId,
-        defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+        defaultExplorerBaseUrl,
         maybeSafeTx,
         stepSource: swap.source,
         maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,

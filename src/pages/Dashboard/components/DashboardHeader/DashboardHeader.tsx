@@ -1,15 +1,22 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Container, Flex, Stack, useColorModeValue, useDisclosure } from '@chakra-ui/react'
 import type { Property } from 'csstype'
+import { useScroll } from 'framer-motion'
 import type { JSX } from 'react'
-import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { DashboardTab } from '../DashboardTab'
+import { DashboardDrawer } from './DashboardDrawer'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
 import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
+import { MobileUserHeader } from './MobileUserHeader'
 
 import { Display } from '@/components/Display'
+import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
+import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
+import { useModal } from '@/hooks/useModal/useModal'
+import { isMobile as isMobileApp } from '@/lib/globals'
 
 const paddingTop = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
@@ -39,6 +46,29 @@ export const DashboardHeader = memo(() => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
+
+  const qrCode = useModal('qrCode')
+  const ref = useRef<HTMLDivElement>(null)
+  const [y, setY] = useState(0)
+  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
+  const { scrollY } = useScroll()
+
+  useEffect(() => {
+    return scrollY.onChange(() => setY(scrollY.get()))
+  }, [scrollY])
+
+  const handleQrCodeClick = useCallback(() => {
+    qrCode.open({})
+  }, [qrCode])
+
+  const {
+    isOpen: isSearchOpen,
+    onClose: onSearchClose,
+    onOpen: onSearchOpen,
+    onToggle: onSearchToggle,
+  } = useDisclosure()
+
+  const { isOpen, onClose, onOpen } = useDisclosure()
 
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
 
@@ -133,18 +163,52 @@ export const DashboardHeader = memo(() => {
     }
   }, [])
 
+  const mobileDrawer = useMemo(() => {
+    if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+    return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
+  }, [isOpen, onClose])
+
   return (
-    <DashboardHeaderWrapper>
-      <Stack
-        spacing={0}
-        borderColor='border.base'
-        borderBottomWidth={borderBottomWidth}
-        pt={paddingTop}
-        mt={marginTop}
-      >
-        <DashboardHeaderTop />
-        <Display.Desktop>{tabs}</Display.Desktop>
-      </Stack>
-    </DashboardHeaderWrapper>
+    <>
+      <Display.Mobile>
+        <Container
+          px={4}
+          pt={4}
+          position='fixed'
+          top='0'
+          zIndex='banner'
+          bg={y > height ? 'background.surface.base' : 'transparent'}
+          transition='background-color 0.3s ease-in-out'
+          pb={4}
+          maxWidth='100%'
+        >
+          <MobileUserHeader
+            onSearchOpen={onSearchOpen}
+            handleQrCodeClick={handleQrCodeClick}
+            onOpen={onOpen}
+          />
+        </Container>
+
+        <GlobalSearchModal
+          isOpen={isSearchOpen}
+          onClose={onSearchClose}
+          onOpen={onSearchOpen}
+          onToggle={onSearchToggle}
+        />
+        {mobileDrawer}
+      </Display.Mobile>
+      <DashboardHeaderWrapper>
+        <Stack
+          spacing={0}
+          borderColor='border.base'
+          borderBottomWidth={borderBottomWidth}
+          pt={paddingTop}
+          mt={marginTop}
+        >
+          <DashboardHeaderTop />
+          <Display.Desktop>{tabs}</Display.Desktop>
+        </Stack>
+      </DashboardHeaderWrapper>
+    </>
   )
 })

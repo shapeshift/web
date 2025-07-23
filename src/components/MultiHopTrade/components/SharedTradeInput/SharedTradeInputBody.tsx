@@ -145,7 +145,7 @@ export const SharedTradeInputBody = ({
         onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
       />
-      <Flex alignItems='center' justifyContent='center' my={-2}>
+      <Flex alignItems='center' justifyContent='center' my={-2} className='swapper-divider'>
         <Divider />
         <CircularProgress
           color='blue.500'

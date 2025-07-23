@@ -16,6 +16,7 @@ export enum ActionType {
   RfoxClaim = 'RfoxClaim',
   TcyClaim = 'TcyClaim',
   Send = 'Send',
+  ChangeAddress = 'ChangeAddress',
 }
 
 export enum ActionStatus {
@@ -72,7 +73,8 @@ type ActionGenericTransactionMetadata = {
   txHash: string
   chainId: ChainId
   assetId: AssetId
-  amountCryptoPrecision: string
+  amountCryptoPrecision: string | undefined
+  newAddress?: string
   cooldownPeriod?: string
   thorMemo?: string
 }
@@ -96,7 +98,13 @@ export type LimitOrderAction = BaseAction & {
 }
 
 export type GenericTransactionAction = BaseAction & {
-  type: ActionType.Deposit | ActionType.Withdraw | ActionType.Claim | ActionType.Send
+  type:
+    | ActionType.Deposit
+    | ActionType.Withdraw
+    | ActionType.Claim
+    | ActionType.ChangeAddress
+    | ActionType.Send
+
   transactionMetadata: ActionGenericTransactionMetadata
 }
 

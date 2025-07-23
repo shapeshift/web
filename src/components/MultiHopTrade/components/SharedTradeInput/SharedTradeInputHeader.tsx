@@ -82,6 +82,7 @@ export const SharedTradeInputHeader = ({
       bg={cardHeaderBgProp}
       pt={cardPaddingTop}
       mt={cardMarginTop}
+      className='swapper-header'
     >
       <Display.Desktop>
         <Flex alignItems='center' justifyContent='space-between'>

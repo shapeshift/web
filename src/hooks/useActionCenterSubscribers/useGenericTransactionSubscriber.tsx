@@ -25,6 +25,22 @@ import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+type DisplayTypeMessageMap = Partial<Record<GenericTransactionDisplayType, string>>
+
+const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>> = {
+  [ActionType.Deposit]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.stakeSuccess',
+    [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.stakeComplete',
+  },
+  [ActionType.Withdraw]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.unstakeSuccess',
+    [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.unstakeComplete',
+  },
+  [ActionType.ChangeAddress]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.changeAddressSuccess',
+  },
+}
+
 export const useGenericTransactionSubscriber = () => {
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -52,29 +68,8 @@ export const useGenericTransactionSubscriber = () => {
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      const message = (() => {
-        if (action.type === ActionType.Deposit) {
-          switch (action.transactionMetadata.displayType) {
-            case GenericTransactionDisplayType.RFOX:
-              return 'RFOX.stakeSuccess'
-            case GenericTransactionDisplayType.TCY:
-              return 'actionCenter.tcy.stakeComplete'
-            default:
-              return // Not yet implemented
-          }
-        }
-
-        if (action.type === ActionType.Withdraw) {
-          switch (action.transactionMetadata.displayType) {
-            case GenericTransactionDisplayType.RFOX:
-              return 'RFOX.unstakeSuccess'
-            case GenericTransactionDisplayType.TCY:
-              return 'actionCenter.tcy.unstakeComplete'
-            default:
-              return // Not yet implemented
-          }
-        }
-      })()
+      const typeMessagesMap = displayTypeMessagesMap[action.type]
+      const message = typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return
 

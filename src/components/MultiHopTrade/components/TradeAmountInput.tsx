@@ -375,6 +375,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         isInvalid={!!errors}
         pt={3}
         pb={2}
+        className='trade-amount-input'
         {...formControlProps}
       >
         <Flex justifyContent='space-between' alignItems='center' px={6} width='full' mb={2}>

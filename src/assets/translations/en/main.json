@@ -38,6 +38,7 @@
     "goBack": "Go back",
     "connected": "Connected",
     "allocation": "Allocation",
+    "trendingTokens": "Trending Tokens",
     "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",

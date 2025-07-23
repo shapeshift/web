@@ -72,6 +72,7 @@ export enum MixPanelEvent {
   LimitOrderCanceled = 'Limit Order Canceled',
   SendClick = 'Send Click',
   SendBroadcast = 'Send Broadcast',
+  TrendingTokenClicked = 'Trending Token Clicked',
 }
 
 export type TrackOpportunityProps = {

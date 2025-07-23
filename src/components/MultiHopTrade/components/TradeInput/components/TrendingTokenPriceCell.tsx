@@ -22,9 +22,13 @@ export const TrendingTokenPriceCell = ({ assetId }: TrendingTokenPriceCellProps)
     const isPositive = bnOrZero(changePercent24Hr).gt(0)
 
     return (
-      <Tag colorScheme={isPositive ? 'green' : 'red'} width='max-content'>
+      <Tag colorScheme={isPositive ? 'green' : 'red'} width='max-content' px={1}>
         <TagLeftIcon as={isPositive ? RiArrowRightUpLine : RiArrowLeftDownLine} me={1} />
-        <Amount.Percent autoColor value={bnOrZero(changePercent24Hr).times(0.01).toString()} />
+        <Amount.Percent
+          autoColor
+          value={bnOrZero(changePercent24Hr).times(0.01).toString()}
+          fontSize='xs'
+        />
       </Tag>
     )
   }, [changePercent24Hr])

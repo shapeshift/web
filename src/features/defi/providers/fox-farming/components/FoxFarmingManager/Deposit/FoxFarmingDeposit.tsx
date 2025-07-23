@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
-import { Status } from './components/Status'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 

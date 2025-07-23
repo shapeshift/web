@@ -180,6 +180,7 @@ export const DashboardHeader = memo(() => {
           bg={y > height ? 'background.surface.base' : 'transparent'}
           transition='background-color 0.3s ease-in-out'
           pb={4}
+          maxWidth='100%'
         >
           <MobileUserHeader
             onSearchOpen={onSearchOpen}

@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
@@ -22,10 +23,12 @@ export const useLifetimeRewardsQuery = ({
     (data: Epoch[]): bigint => {
       if (!stakingAssetAccountId) return 0n
 
+      const { account: stakingAddress } = fromAccountId(stakingAssetAccountId)
+
       return data.reduce((acc, epoch) => {
         const distribution =
           epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-            ?.distributionsByStakingAddress[getAddress(stakingAssetAccountId)]
+            ?.distributionsByStakingAddress[getAddress(stakingAddress)]
 
         if (!distribution) return acc
 

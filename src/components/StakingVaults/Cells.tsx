@@ -35,7 +35,6 @@ type AssetCellProps = {
   opportunityName?: string
   isExternal?: boolean
   version?: string
-  showPercentage?: boolean
 } & StackProps
 
 const rowTitleBoxAfter = {
@@ -75,7 +74,6 @@ export const AssetCell = ({
   opportunityName,
   isExternal,
   version,
-  showPercentage,
   ...rest
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)

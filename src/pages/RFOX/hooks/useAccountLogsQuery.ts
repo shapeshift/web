@@ -5,7 +5,7 @@ import { skipToken } from '@tanstack/react-query'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 
-import { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from '../constants'
+import { stakeEvent, unstakeEvent } from '../constants'
 import { getStakingContract } from '../helpers'
 import type { RFOXAccountLog } from '../types'
 import { getRfoxContractCreationBlockNumber } from './helpers'
@@ -21,24 +21,40 @@ const fetchAccountLogs = async (
   stakingAssetAccountId: AccountId,
   stakingAssetId: AssetId,
 ): Promise<RFOXAccountLog[]> => {
-  const rfoxCreationBlockNumber = getRfoxContractCreationBlockNumber(
-    getStakingContract(stakingAssetId),
-  )
+  const creationBlockNumber = getRfoxContractCreationBlockNumber(getStakingContract(stakingAssetId))
 
   try {
-    const logsByEventType = await Promise.all(
-      [setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent].map(
-        (event): Promise<RFOXAccountLog[]> =>
-          client.getLogs({
-            address: getStakingContract(stakingAssetId),
-            event,
-            fromBlock: rfoxCreationBlockNumber,
-            args: {
-              account: getAddress(fromAccountId(stakingAssetAccountId).account),
-            },
-          }) as Promise<RFOXAccountLog[]>,
-      ),
-    )
+    const latestBlockNumber = await client.getBlockNumber()
+    const numChunks = 10
+    const totalBlocks = Number(latestBlockNumber) - Number(creationBlockNumber) + 1
+
+    const blockChunks: { from: bigint; to?: bigint }[] = []
+    for (let i = 0; i < numChunks; i++) {
+      const isLastChunk = i === numChunks - 1
+      const from = Number(creationBlockNumber) + Math.floor((totalBlocks * i) / numChunks)
+      const to = Number(creationBlockNumber) + Math.floor((totalBlocks * (i + 1)) / numChunks) - 1
+      blockChunks.push({ from: BigInt(from), ...(isLastChunk ? {} : { to: BigInt(to) }) })
+    }
+
+    const logsByEventType: RFOXAccountLog[][] = []
+    for (const event of [stakeEvent, unstakeEvent]) {
+      const chunkedLogs = await Promise.all(
+        blockChunks.map(
+          chunk =>
+            client.getLogs({
+              address: getStakingContract(stakingAssetId),
+              event,
+              fromBlock: chunk.from,
+              toBlock: chunk.to,
+              args: {
+                account: getAddress(fromAccountId(stakingAssetAccountId).account),
+              },
+            }) as Promise<RFOXAccountLog[]>,
+        ),
+      )
+
+      logsByEventType.push(chunkedLogs.flat())
+    }
 
     // Sort all logs by block number then log index
     const sortedLogs = logsByEventType.flat().sort((a, b) => {

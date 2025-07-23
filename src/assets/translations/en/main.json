@@ -2684,6 +2684,8 @@
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",
+    "changeAddressPending": "Changing RFOX Reward Address to %{newAddress}",
+    "changeAddressSuccess": "Changed RFOX Reward Address to %{newAddress}",
     "addressUpdated": "Address updated",
     "changeRewardAddressPending": "Changing Reward Address...",
     "changeRewardAddressSuccess": "You have successfully changed your THORChain Reward Address.",

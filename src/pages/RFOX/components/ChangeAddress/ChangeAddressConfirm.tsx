@@ -23,11 +23,14 @@ import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { RowProps } from '@/components/Row/Row'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { middleEllipsis } from '@/lib/utils'
 import {
@@ -36,6 +39,12 @@ import {
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
 import { getStakingContract } from '@/pages/RFOX/helpers'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -43,7 +52,7 @@ import {
   selectTxById,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
@@ -57,6 +66,9 @@ type ChangeAddressConfirmProps = {
 export const ChangeAddressConfirm: React.FC<
   ChangeAddressRouteProps & ChangeAddressConfirmProps
 > = ({ changeAddressTxid, setChangeAddressTxid, confirmedQuote }) => {
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const dispatch = useAppDispatch()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const wallet = useWallet().state.wallet
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -165,6 +177,49 @@ export const ChangeAddressConfirm: React.FC<
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
 
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txId,
+          type: ActionType.ChangeAddress,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.RFOX,
+            txHash: txId,
+            chainId: stakingAsset.chainId,
+            accountId: confirmedQuote.stakingAssetAccountId,
+            // This is a change address Tx - no amount / no asset are sent per se
+            amountCryptoPrecision: undefined,
+            assetId: confirmedQuote.stakingAssetId,
+            message: 'RFOX.changeAddressPending',
+            newAddress: confirmedQuote.newRuneAddress,
+          },
+        }),
+      )
+
+      toast({
+        id: txId,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+
       return txId
     },
     onSuccess: (txId: string | undefined) => {
@@ -180,7 +235,7 @@ export const ChangeAddressConfirm: React.FC<
 
   const handleSubmit = useCallback(async () => {
     await handleChangeAddress()
-    navigate(ChangeAddressRoutePaths.Status)
+    navigate(ChangeAddressRoutePaths.Input)
   }, [handleChangeAddress, navigate])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))

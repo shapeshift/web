@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
@@ -7,7 +6,6 @@ import { Route, Switch } from 'wouter'
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
 
-import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const suspenseFallback = <div>Loading...</div>
@@ -34,20 +32,7 @@ const ChangeAddressConfirm = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const ChangeAddressStatus = makeSuspenseful(
-  lazy(() =>
-    import('./ChangeAddressStatus').then(({ ChangeAddressStatus }) => ({
-      default: ChangeAddressStatus,
-    })),
-  ),
-  defaultBoxSpinnerStyle,
-)
-
-const ChangeAddressEntries = [
-  ChangeAddressRoutePaths.Input,
-  ChangeAddressRoutePaths.Confirm,
-  ChangeAddressRoutePaths.Status,
-]
+const ChangeAddressEntries = [ChangeAddressRoutePaths.Input, ChangeAddressRoutePaths.Confirm]
 
 export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   return (
@@ -59,19 +44,9 @@ export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerCompone
 
 export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
-  const queryClient = useQueryClient()
 
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
-
-  const handleTxConfirmed = useCallback(async () => {
-    await queryClient.invalidateQueries({
-      queryKey: getStakingInfoQueryKey({
-        stakingAssetId: confirmedQuote?.stakingAssetId,
-        stakingAssetAccountId: confirmedQuote?.stakingAssetAccountId,
-      }),
-    })
-  }, [confirmedQuote, queryClient])
 
   const renderChangeAddressInput = useCallback(() => {
     return (
@@ -92,28 +67,12 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
     )
   }, [changeAddressTxid, confirmedQuote, headerComponent])
 
-  const renderChangeAddressStatus = useCallback(() => {
-    if (!changeAddressTxid) return null
-    if (!confirmedQuote) return null
-
-    return (
-      <ChangeAddressStatus
-        txId={changeAddressTxid}
-        setChangeAddressTxid={setChangeAddressTxid}
-        confirmedQuote={confirmedQuote}
-        onTxConfirmed={handleTxConfirmed}
-        headerComponent={headerComponent}
-      />
-    )
-  }, [changeAddressTxid, confirmedQuote, handleTxConfirmed, headerComponent])
-
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
         <Switch location={location.pathname}>
           <Route path={ChangeAddressRoutePaths.Input}>{renderChangeAddressInput()}</Route>
           <Route path={ChangeAddressRoutePaths.Confirm}>{renderChangeAddressConfirm()}</Route>
-          <Route path={ChangeAddressRoutePaths.Status}>{renderChangeAddressStatus()}</Route>
           <Route path='*'>{renderChangeAddressInput()}</Route>
         </Switch>
       </Suspense>

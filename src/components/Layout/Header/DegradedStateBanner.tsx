@@ -14,6 +14,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
+import { useQueryClient } from '@tanstack/react-query'
 import { isEmpty, uniq } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
@@ -22,6 +24,10 @@ import { useSelector } from 'react-redux'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText, Text } from '@/components/Text'
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectPortfolioErroredAccountIds } from '@/state/slices/selectors'
@@ -37,6 +43,37 @@ export const DegradedStateBanner = memo(() => {
   const buttonBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const assets = useSelector(selectAssets)
   const erroredAccountIds = useSelector(selectPortfolioErroredAccountIds)
+  const { degradedChainIds, isFetching: isDiscoverAccountsFetching } = useDiscoverAccounts()
+  const { isSnapInstalled } = useIsSnapInstalled()
+  const { deviceId } = useWallet().state
+  const queryClient = useQueryClient()
+
+  const erroredChainIds = useMemo(() => {
+    const erroredChains = uniq(
+      degradedChainIds.filter(isSome).reduce(
+        (acc, chainId) => {
+          if (!chainId) return acc
+
+          const feeAssetId = assets[chainIdToFeeAssetId(chainId)]
+
+          if (!feeAssetId) return acc
+
+          acc.push({
+            name: feeAssetId.networkName ?? feeAssetId.name,
+            icon: feeAssetId.networkIcon ?? feeAssetId.icon,
+          })
+
+          return acc
+        },
+        [] as { name: string | undefined; icon: string | undefined }[],
+      ),
+    )
+
+    return {
+      names: erroredChains.map(chain => chain.name),
+      icons: erroredChains.map(chain => chain.icon),
+    }
+  }, [degradedChainIds, assets])
 
   const erroredAccounts = useMemo(() => {
     const initial = { names: [], icons: [] }
@@ -58,7 +95,20 @@ export const DegradedStateBanner = memo(() => {
     return { names, icons }
   }, [assets, erroredAccountIds])
 
+  const erroredChains = useMemo(() => {
+    return {
+      names: uniq([...erroredChainIds.names, ...erroredAccounts.names]),
+      icons: uniq([...erroredChainIds.icons, ...erroredAccounts.icons]),
+    }
+  }, [erroredChainIds, erroredAccounts.names, erroredAccounts.icons])
+
   const handleRetry = useCallback(() => {
+    degradedChainIds.forEach(chainId => {
+      queryClient.invalidateQueries({
+        queryKey: ['useDiscoverAccounts', { deviceId, isSnapInstalled }, chainId],
+      })
+    })
+
     erroredAccountIds.forEach(accountId =>
       dispatch(
         portfolioApi.endpoints.getAccount.initiate(
@@ -67,12 +117,12 @@ export const DegradedStateBanner = memo(() => {
         ),
       ),
     )
-  }, [dispatch, erroredAccountIds])
+  }, [dispatch, erroredAccountIds, deviceId, isSnapInstalled, degradedChainIds, queryClient])
 
   const renderIcons = useMemo(() => {
     return (
       <Flex gap={2} flexWrap='wrap'>
-        {erroredAccounts.icons.map((icon, index) => (
+        {erroredChains.icons.map((icon, index) => (
           <Tag
             key={`account-icon-${index}`}
             py={1}
@@ -82,14 +132,14 @@ export const DegradedStateBanner = memo(() => {
             gap={2}
           >
             <LazyLoadAvatar src={icon} size='2xs' />
-            <RawText>{erroredAccounts.names[index]}</RawText>
+            <RawText>{erroredChains.names[index]}</RawText>
           </Tag>
         ))}
       </Flex>
     )
-  }, [erroredAccounts])
+  }, [erroredChains])
 
-  if (!erroredAccounts?.names?.length) return null
+  if (!erroredChains?.names?.length) return null
 
   return (
     <Popover>
@@ -118,6 +168,7 @@ export const DegradedStateBanner = memo(() => {
             size='sm'
             borderRadius='lg'
             width='full'
+            isLoading={isDiscoverAccountsFetching}
           >
             {translate('errorPage.cta')}
           </Button>

@@ -55,6 +55,15 @@ export const useGenericTransactionSubscriber = () => {
     pendingGenericTransactionActions.forEach(async action => {
       if (action.status !== ActionStatus.Pending) return
 
+      // RFOX and TCY TODO: handle more
+      if (
+        ![GenericTransactionDisplayType.RFOX, GenericTransactionDisplayType.TCY].includes(
+          action.transactionMetadata.displayType,
+        )
+      ) {
+        return
+      }
+
       const { accountId, txHash, thorMemo } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
       const serializedTxIndex = serializeTxIndex(

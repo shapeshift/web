@@ -6,7 +6,6 @@ import type { TradeAmountInputFormValues } from '@/components/MultiHopTrade/comp
 export enum UnstakeRoutePaths {
   Input = '/remove/input',
   Confirm = '/remove/confirm',
-  Status = '/remove/status',
 }
 
 export type UnstakeRouteProps = {

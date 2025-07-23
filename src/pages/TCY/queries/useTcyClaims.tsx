@@ -1,4 +1,5 @@
 import { fromAccountId, fromAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -9,6 +10,7 @@ import type { Claim, TcyClaimer } from '../components/Claim/types'
 
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
 import { getThorfiUtxoFromAddresses } from '@/lib/utils/thorchain'
@@ -23,8 +25,9 @@ import { store, useAppSelector } from '@/state/store'
 
 export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
-    state: { isConnected, wallet },
+    state: { isConnected, wallet, isLocked },
   } = useWallet()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
@@ -43,7 +46,7 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
 
   return useSuspenseQueries({
     queries: accountIds.map(accountId => ({
-      queryKey: ['tcy-claims', accountId, isConnected],
+      queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
       queryFn: async (): Promise<Claim[]> => {
         if (!isConnected) return []
 
@@ -58,6 +61,11 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
             // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
             if (!isUtxoChainId(fromAccountId(accountId).chainId))
               return [fromAccountId(accountId).account]
+
+            const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+
+            // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
+            if (isMetaMaskMultichainWallet && !isSnapInstalled) return []
 
             const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
               accountId,

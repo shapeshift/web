@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query'
 import React, { lazy, useCallback, useState } from 'react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -9,16 +8,7 @@ import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
-import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
-import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
-import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
-import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
-import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
-import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -43,15 +33,6 @@ const StakeConfirm = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const StakeStatus = makeSuspenseful(
-  lazy(() =>
-    import('./StakeStatus').then(({ StakeStatus }) => ({
-      default: StakeStatus,
-    })),
-  ),
-  defaultBoxSpinnerStyle,
-)
-
 const BridgeConfirm = makeSuspenseful(
   lazy(() =>
     import('./Bridge/BridgeConfirm').then(({ BridgeConfirm }) => ({
@@ -70,7 +51,7 @@ const BridgeStatus = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm, StakeRoutePaths.Status]
+const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm]
 
 export const Stake: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
   return (
@@ -87,54 +68,10 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
   const [stakeTxid, setStakeTxid] = useState<string | undefined>()
 
-  const queryClient = useQueryClient()
   const { stakingAssetId } = useRFOXContext()
-  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
   // Get bridge quote from location.state
   const maybeBridgeQuote = location.state as RfoxBridgeQuote | undefined
-
-  const stakingAsset = useAppSelector(state =>
-    selectAssetById(state, confirmedQuote?.stakingAssetId ?? ''),
-  )
-
-  const handleTxConfirmed = useCallback(async () => {
-    if (!confirmedQuote || !stakeTxid || !stakingAsset) return
-
-    await queryClient.invalidateQueries({
-      queryKey: getStakingInfoQueryKey({
-        stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
-      }),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: getStakingBalanceOfQueryKey({
-        stakingAssetId: confirmedQuote.stakingAssetId,
-        accountId: confirmedQuote.stakingAssetAccountId,
-      }),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: getTimeInPoolQueryKey({
-        stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
-      }),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: getEpochHistoryQueryKey(),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: getEarnedQueryKey({
-        stakingAssetId: confirmedQuote.stakingAssetId,
-        stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
-      }),
-    })
-    await queryClient.invalidateQueries({
-      queryKey: getAffiliateRevenueQueryKey({
-        startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
-        endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
-      }),
-    })
-  }, [confirmedQuote, stakeTxid, currentEpochMetadataQuery, queryClient, stakingAsset])
 
   const renderStakeInput = useCallback(() => {
     return (
@@ -163,22 +100,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     )
   }, [confirmedQuote, headerComponent, stakeTxid, setStepIndex])
 
-  const renderStakeStatus = useCallback(() => {
-    if (!confirmedQuote) return null
-    if (!stakeTxid) return null
-
-    return (
-      <StakeStatus
-        txId={stakeTxid}
-        setStakeTxid={setStakeTxid}
-        confirmedQuote={confirmedQuote}
-        setStepIndex={setStepIndex}
-        onTxConfirmed={handleTxConfirmed}
-        headerComponent={headerComponent}
-      />
-    )
-  }, [confirmedQuote, handleTxConfirmed, headerComponent, stakeTxid, setStepIndex])
-
   const renderBridgeConfirm = useCallback(() => {
     if (!maybeBridgeQuote) return null
 
@@ -196,7 +117,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       <Switch location={location.pathname}>
         <Route path={StakeRoutePaths.Input}>{renderStakeInput()}</Route>
         <Route path={StakeRoutePaths.Confirm}>{renderStakeConfirm()}</Route>
-        <Route path={StakeRoutePaths.Status}>{renderStakeStatus()}</Route>
         <Route path={BridgeRoutePaths.Confirm}>{renderBridgeConfirm()}</Route>
         <Route path={BridgeRoutePaths.Status}>{renderBridgeStatus()}</Route>
       </Switch>

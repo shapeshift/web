@@ -66,7 +66,8 @@ export const useGenericTransactionSubscriber = () => {
 
       const typeMessagesMap = displayTypeMessagesMap[action.type]
       const message =
-        typeMessagesMap?.[action.transactionMetadata.displayType] ?? typeMessagesMap?.default
+        typeMessagesMap?.[action.transactionMetadata.displayType ?? 'default'] ??
+        typeMessagesMap?.default
 
       if (!message) return
 

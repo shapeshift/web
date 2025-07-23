@@ -1,6 +1,7 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { tcyAssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 
 import { ActionStatusIcon } from '../ActionStatusIcon'
 import { ActionStatusTag } from '../ActionStatusTag'
@@ -22,7 +23,10 @@ export const TcyClaimSaversNotification = ({
 }: TCYClaimSaversNotificationProps) => {
   const tcyClaimActions = useAppSelector(selectTcyClaimActionsByWallet)
 
-  const hasClaimable = tcyClaimActions.some(claim => claim.status === ActionStatus.ClaimAvailable)
+  const hasClaimable = useMemo(
+    () => tcyClaimActions.some(claim => claim.status === ActionStatus.ClaimAvailable),
+    [tcyClaimActions],
+  )
 
   if (!hasClaimable) {
     return null

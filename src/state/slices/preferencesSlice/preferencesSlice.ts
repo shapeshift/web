@@ -117,7 +117,7 @@ export type Preferences = {
   chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
-  hasSeenTcyClaimAlert: Record<WalletId, true | undefined>
+  hasWalletSeenTcyClaimAlert: Record<WalletId, true | undefined>
   showSnapsModal: boolean
   snapInstalled: boolean
   watchedAssets: AssetId[]
@@ -197,7 +197,7 @@ const initialState: Preferences = {
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
   },
   selectedLocale: simpleLocale(),
-  hasSeenTcyClaimAlert: {},
+  hasWalletSeenTcyClaimAlert: {},
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
@@ -280,7 +280,7 @@ export const preferences = createSlice({
       state.quoteDisplayOption = payload
     }),
     setHasSeenTcyClaimForWallet: create.reducer((state, { payload }: { payload: WalletId }) => {
-      state.hasSeenTcyClaimAlert[payload] = true
+      state.hasWalletSeenTcyClaimAlert[payload] = true
     }),
   }),
   selectors: {
@@ -296,6 +296,6 @@ export const preferences = createSlice({
     selectSelectedHomeView: state => state.selectedHomeView,
     selectShowConsentBanner: state => state.showConsentBanner,
     selectQuoteDisplayOption: state => state.quoteDisplayOption,
-    selectHasSeenTcyClaimAlert: state => state.hasSeenTcyClaimAlert,
+    selecthasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
   },
 })

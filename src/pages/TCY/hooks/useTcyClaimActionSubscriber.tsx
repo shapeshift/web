@@ -24,7 +24,7 @@ export const useTcyClaimActionSubscriber = () => {
   const allTcyClaims = useTCYClaims('all')
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
-  const hasSeenTcyClaimAlert = useAppSelector(preferences.selectors.selectHasSeenTcyClaimAlert)
+  const hasWalletSeenTcyClaimAlert = useAppSelector(preferences.selectors.selecthasWalletSeenTcyClaimAlert)
 
   useEffect(() => {
     if (!allTcyClaims.length) return
@@ -43,7 +43,7 @@ export const useTcyClaimActionSubscriber = () => {
       ) {
         if (
           walletInfo &&
-          !hasSeenTcyClaimAlert[walletInfo.deviceId] &&
+          !hasWalletSeenTcyClaimAlert[walletInfo.deviceId] &&
           !toast.isActive(TCY_TOAST_ID) // Just in case redux takes too much time to update
         ) {
           dispatch(preferences.actions.setHasSeenTcyClaimForWallet(walletInfo.deviceId))
@@ -86,7 +86,7 @@ export const useTcyClaimActionSubscriber = () => {
     actionIds,
     actions,
     walletInfo,
-    hasSeenTcyClaimAlert,
+    hasWalletSeenTcyClaimAlert,
     toast,
     navigate,
   ])

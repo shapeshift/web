@@ -1,8 +1,6 @@
-import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
-import { useQueryClient } from '@tanstack/react-query'
-import { lazy, useCallback, useState } from 'react'
-import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import { thorchainChainId } from '@shapeshiftoss/caip'
+import { lazy, useCallback } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -10,17 +8,8 @@ import type { TCYRouteProps } from '../../types'
 import { TCYUnstakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
-import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -40,15 +29,6 @@ const UnstakeConfirm = makeSuspenseful(
   lazy(() =>
     import('./UnstakeConfirm').then(({ UnstakeConfirm }) => ({
       default: UnstakeConfirm,
-    })),
-  ),
-  defaultBoxSpinnerStyle,
-)
-
-const UnstakeStatus = makeSuspenseful(
-  lazy(() =>
-    import('./UnstakeStatus').then(({ UnstakeStatus }) => ({
-      default: UnstakeStatus,
     })),
   ),
   defaultBoxSpinnerStyle,
@@ -98,75 +78,6 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   activeAccountNumber,
 }) => {
   const location = useLocation()
-  const [unstakeTxid, setUnstakeTxid] = useState<string>()
-  const queryClient = useQueryClient()
-  const dispatch = useAppDispatch()
-  const { getValues } = useFormContext<UnstakeFormValues>()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
-
-  const accountId = useAppSelector(state => {
-    const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
-    const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-    return accountNumberAccounts?.[thorchainChainId] ?? ''
-  })
-
-  const handleTxConfirmed = useCallback(async () => {
-    if (!unstakeTxid) throw new Error('Unstake Txid is required')
-
-    const amountCryptoPrecision = bnOrZero(getValues('amountCryptoPrecision')).toFixed()
-
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: unstakeTxid,
-        type: ActionType.Withdraw,
-        status: ActionStatus.Complete,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        transactionMetadata: {
-          displayType: GenericTransactionDisplayType.TCY,
-          txHash: unstakeTxid,
-          chainId: thorchainChainId,
-          accountId,
-          assetId: tcyAssetId,
-          amountCryptoPrecision,
-          message: 'TCY.unstakeStatus.successSubtitle',
-        },
-      }),
-    )
-
-    toast({
-      id: unstakeTxid,
-      duration: isDrawerOpen ? 5000 : null,
-      status: 'success',
-      render: ({ onClose, ...props }) => {
-        const handleClick = () => {
-          onClose()
-          openActionCenter()
-        }
-
-        return (
-          <GenericTransactionNotification
-            // eslint-disable-next-line react-memo/require-usememo
-            handleClick={handleClick}
-            actionId={unstakeTxid}
-            onClose={onClose}
-            {...props}
-          />
-        )
-      },
-    })
-    await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
-  }, [
-    queryClient,
-    getValues,
-    dispatch,
-    unstakeTxid,
-    accountId,
-    isDrawerOpen,
-    openActionCenter,
-    toast,
-  ])
 
   const renderUnstakeInput = useCallback(() => {
     return (
@@ -175,26 +86,14 @@ export const UnstakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: numb
   }, [headerComponent, activeAccountNumber])
 
   const renderUnstakeConfirm = useCallback(() => {
-    return <UnstakeConfirm setUnstakeTxid={setUnstakeTxid} />
+    return <UnstakeConfirm />
   }, [])
-
-  const renderUnstakeStatus = () => {
-    if (!unstakeTxid) return null
-    return (
-      <UnstakeStatus
-        txId={unstakeTxid}
-        setUnstakeTxid={setUnstakeTxid}
-        onTxConfirmed={handleTxConfirmed}
-      />
-    )
-  }
 
   return (
     <AnimatedSwitch>
       <Switch location={location.pathname}>
         <Route path={TCYUnstakeRoute.Input}>{renderUnstakeInput()}</Route>
         <Route path={TCYUnstakeRoute.Confirm}>{renderUnstakeConfirm()}</Route>
-        <Route path={TCYUnstakeRoute.Status}>{renderUnstakeStatus()}</Route>
       </Switch>
     </AnimatedSwitch>
   )

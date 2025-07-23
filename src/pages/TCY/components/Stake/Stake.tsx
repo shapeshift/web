@@ -1,8 +1,6 @@
-import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
-import { useQueryClient } from '@tanstack/react-query'
-import { lazy, useCallback, useState } from 'react'
-import { FormProvider, useForm, useFormContext } from 'react-hook-form'
+import { thorchainChainId } from '@shapeshiftoss/caip'
+import { lazy, useCallback } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
@@ -10,17 +8,8 @@ import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
-import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
 import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -40,15 +29,6 @@ const StakeConfirm = makeSuspenseful(
   lazy(() =>
     import('./StakeConfirm').then(({ StakeConfirm }) => ({
       default: StakeConfirm,
-    })),
-  ),
-  defaultBoxSpinnerStyle,
-)
-
-const StakeStatus = makeSuspenseful(
-  lazy(() =>
-    import('./StakeStatus').then(({ StakeStatus }) => ({
-      default: StakeStatus,
     })),
   ),
   defaultBoxSpinnerStyle,
@@ -95,77 +75,6 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   activeAccountNumber,
 }) => {
   const location = useLocation()
-  const [stakeTxid, setStakeTxid] = useState<string>()
-  const queryClient = useQueryClient()
-  const dispatch = useAppDispatch()
-  const { getValues } = useFormContext<StakeFormValues>()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-
-  const toast = useNotificationToast({
-    duration: isDrawerOpen ? 5000 : null,
-  })
-
-  const accountId = useAppSelector(state => {
-    const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
-    const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-    return accountNumberAccounts?.[thorchainChainId] ?? ''
-  })
-
-  const handleTxConfirmed = useCallback(async () => {
-    if (!stakeTxid) throw new Error('Stake Txid is required')
-
-    const amountCryptoPrecision = bnOrZero(getValues('amountCryptoPrecision')).toFixed()
-
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: stakeTxid,
-        type: ActionType.Deposit,
-        transactionMetadata: {
-          displayType: GenericTransactionDisplayType.TCY,
-          txHash: stakeTxid,
-          chainId: thorchainChainId,
-          accountId,
-          assetId: tcyAssetId,
-          amountCryptoPrecision,
-          message: 'RFOX.stakeSuccess',
-        },
-        status: ActionStatus.Complete,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      }),
-    )
-
-    toast({
-      id: stakeTxid,
-      duration: isDrawerOpen ? 5000 : null,
-      status: 'success',
-      render: ({ onClose, ...props }) => {
-        const handleClick = () => {
-          onClose()
-          openActionCenter()
-        }
-        return (
-          <GenericTransactionNotification
-            // eslint-disable-next-line react-memo/require-usememo
-            handleClick={handleClick}
-            actionId={stakeTxid}
-            onClose={onClose}
-            {...props}
-          />
-        )
-      },
-    })
-    await queryClient.invalidateQueries({ queryKey: ['tcy-staker'] })
-  }, [
-    queryClient,
-    getValues,
-    dispatch,
-    stakeTxid,
-    accountId,
-    isDrawerOpen,
-    openActionCenter,
-    toast,
-  ])
 
   const renderStakeInput = useCallback(() => {
     return (
@@ -174,22 +83,14 @@ export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number
   }, [headerComponent, activeAccountNumber])
 
   const renderStakeConfirm = useCallback(() => {
-    return <StakeConfirm setStakeTxid={setStakeTxid} />
+    return <StakeConfirm />
   }, [])
-
-  const renderStakeStatus = () => {
-    if (!stakeTxid) return null
-    return (
-      <StakeStatus txId={stakeTxid} setStakeTxid={setStakeTxid} onTxConfirmed={handleTxConfirmed} />
-    )
-  }
 
   return (
     <AnimatedSwitch>
       <Switch location={location.pathname}>
         <Route path={TCYStakeRoute.Input}>{renderStakeInput()}</Route>
         <Route path={TCYStakeRoute.Confirm}>{renderStakeConfirm()}</Route>
-        <Route path={TCYStakeRoute.Status}>{renderStakeStatus()}</Route>
       </Switch>
     </AnimatedSwitch>
   )

@@ -74,6 +74,7 @@ type ActionGenericTransactionMetadata = {
   assetId: AssetId
   amountCryptoPrecision: string
   cooldownPeriod?: string
+  thorMemo?: string
 }
 
 export type BaseAction = {

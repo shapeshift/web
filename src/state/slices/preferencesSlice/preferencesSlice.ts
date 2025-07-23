@@ -296,6 +296,6 @@ export const preferences = createSlice({
     selectSelectedHomeView: state => state.selectedHomeView,
     selectShowConsentBanner: state => state.showConsentBanner,
     selectQuoteDisplayOption: state => state.quoteDisplayOption,
-    selecthasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
+    selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
   },
 })

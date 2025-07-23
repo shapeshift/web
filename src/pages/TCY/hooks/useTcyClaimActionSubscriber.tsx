@@ -24,7 +24,9 @@ export const useTcyClaimActionSubscriber = () => {
   const allTcyClaims = useTCYClaims('all')
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
-  const hasWalletSeenTcyClaimAlert = useAppSelector(preferences.selectors.selecthasWalletSeenTcyClaimAlert)
+  const hasWalletSeenTcyClaimAlert = useAppSelector(
+    preferences.selectors.selectHasWalletSeenTcyClaimAlert,
+  )
 
   useEffect(() => {
     if (!allTcyClaims.length) return

@@ -17,7 +17,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
@@ -70,7 +70,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   setClaimTxid,
 }) => {
   const navigate = useNavigate()
-  const { claimId } = useParams<{ claimId: string }>()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const dispatch = useAppDispatch()
@@ -270,12 +269,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     const txHash = await handleClaim()
     if (!txHash) return
-    navigate(`${RfoxRoute.Claim}/${claimId}/status`, {
-      state: {
-        selectedUnstakingRequest,
-      },
-    })
-  }, [handleClaim, navigate, claimId, selectedUnstakingRequest])
+    navigate(`${RfoxRoute.Claim}/`)
+  }, [handleClaim, navigate])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

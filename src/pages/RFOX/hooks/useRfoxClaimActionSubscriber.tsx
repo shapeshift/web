@@ -1,3 +1,6 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
@@ -5,13 +8,12 @@ import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isRfoxClaimAction } from '@/state/slices/actionSlice/types'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectAssets, selectTxs } from '@/state/slices/selectors'
+import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-// Note: the is a slight misnomer here compared to what we conventionally call a subscriber in action center (a poller)
-// However, this *is* reactive on useGetUnstakingRequestsQuery(), with inner queries which do get invalidated, so it is a subscriber in a way, just different
-
 export const useRfoxClaimActionSubscriber = () => {
+  const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -20,16 +22,28 @@ export const useRfoxClaimActionSubscriber = () => {
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
+  const txs = useAppSelector(selectTxs)
 
   useEffect(() => {
     if (!pendingRfoxClaimActions.length) return
+
     const now = Date.now()
 
-    // Consider claimed as soon as broadcasted for the sake of simplicity
     pendingRfoxClaimActions.forEach(action => {
       if (!action.rfoxClaimActionMetadata.txHash) return
       const asset = assets[action.rfoxClaimActionMetadata.request.stakingAssetId]
       if (!asset) return
+
+      const stakingAssetAccountId = action.rfoxClaimActionMetadata.request.stakingAssetAccountId
+      const txHash = action.rfoxClaimActionMetadata.txHash
+      const accountAddress = fromAccountId(stakingAssetAccountId).account
+
+      const serializedTxIndex = serializeTxIndex(stakingAssetAccountId, txHash, accountAddress)
+
+      const tx = txs[serializedTxIndex]
+
+      if (!tx) return
+      if (tx.status !== TxStatus.Confirmed) return
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -43,10 +57,12 @@ export const useRfoxClaimActionSubscriber = () => {
           },
         }),
       )
+
+      queryClient.invalidateQueries({
+        queryKey: ['getUnstakingRequests', { stakingAssetAccountId }],
+      })
     })
-    // We definitely don't want to react on assets here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingRfoxClaimActions, dispatch])
+  }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
 
   useEffect(() => {
     if (!allUnstakingRequests.isSuccess) return

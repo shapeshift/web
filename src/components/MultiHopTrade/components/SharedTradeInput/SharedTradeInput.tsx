@@ -18,7 +18,7 @@ export type SideComponentProps = {
 
 type SharedTradeInputProps = {
   bodyContent: JSX.Element
-  footerContent: JSX.Element
+  footerContent: JSX.Element | null
   headerRightContent: JSX.Element
   isCompact: boolean | undefined
   isLoading: boolean

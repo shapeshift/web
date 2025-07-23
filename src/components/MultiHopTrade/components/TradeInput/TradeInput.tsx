@@ -22,6 +22,7 @@ import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { StreamingAcknowledgement } from './components/StreamingAcknowledgement'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
+import { TrendingTokens } from './components/TrendingTokens'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
@@ -472,29 +473,34 @@ export const TradeInput = ({
         selectedSellAssetChainId={selectedSellAssetChainId}
         onSellAssetChainIdChange={setSelectedSellAssetChainId}
       >
-        <TradeAssetInput
-          // Disable account selection when user set a manual receive address
-          isAccountSelectionHidden={Boolean(manualReceiveAddress)}
-          isReadOnly={true}
-          accountId={buyAssetAccountId}
-          assetId={buyAsset.assetId}
-          assetSymbol={buyAsset.symbol}
-          assetIcon={buyAsset.icon}
-          cryptoAmount={
-            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed() : '0'
-          }
-          fiatAmount={
-            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
-          }
-          percentOptions={emptyPercentOptions}
-          showInputSkeleton={isLoading}
-          showFiatSkeleton={isLoading}
-          label={translate('trade.youGet')}
-          onAccountIdChange={setBuyAssetAccountId}
-          formControlProps={formControlProps}
-          labelPostFix={buyTradeAssetSelect}
-          activeQuote={activeQuote}
-        />
+        <>
+          <TradeAssetInput
+            // Disable account selection when user set a manual receive address
+            isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+            isReadOnly={true}
+            accountId={buyAssetAccountId}
+            assetId={buyAsset.assetId}
+            assetSymbol={buyAsset.symbol}
+            assetIcon={buyAsset.icon}
+            cryptoAmount={
+              hasUserEnteredAmount
+                ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                : '0'
+            }
+            fiatAmount={
+              hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
+            }
+            percentOptions={emptyPercentOptions}
+            showInputSkeleton={isLoading}
+            showFiatSkeleton={isLoading}
+            label={translate('trade.youGet')}
+            onAccountIdChange={setBuyAssetAccountId}
+            formControlProps={formControlProps}
+            labelPostFix={buyTradeAssetSelect}
+            activeQuote={activeQuote}
+          />
+          {isSmallerThanMd && !hasUserEnteredAmount && <TrendingTokens />}
+        </>
       </SharedTradeInputBody>
     )
   }, [
@@ -523,9 +529,12 @@ export const TradeInput = ({
     selectedSellAssetChainId,
     setSelectedSellAssetChainId,
     activeQuote,
+    isSmallerThanMd,
   ])
 
   const footerContent = useMemo(() => {
+    if (isSmallerThanMd && !hasUserEnteredAmount) return null
+
     return (
       <ConfirmSummary
         isCompact={isCompact}
@@ -533,7 +542,14 @@ export const TradeInput = ({
         receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
       />
     )
-  }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
+  }, [
+    isCompact,
+    isLoading,
+    isSmallerThanMd,
+    manualReceiveAddress,
+    walletReceiveAddress,
+    hasUserEnteredAmount,
+  ])
 
   // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
   // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or

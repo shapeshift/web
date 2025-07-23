@@ -11,6 +11,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
+import { firstFourLastFour } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
@@ -27,7 +28,9 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, action.transactionMetadata.chainId),
   )
-  const asset = useAppSelector(state => selectAssetById(state, action.transactionMetadata.assetId))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, action.transactionMetadata.assetId ?? ''),
+  )
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
@@ -89,6 +92,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
         ...action.transactionMetadata,
         amount: action.transactionMetadata.amountCryptoPrecision,
         symbol: asset?.symbol,
+        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
       })}
       icon={icon}
       footer={footer}

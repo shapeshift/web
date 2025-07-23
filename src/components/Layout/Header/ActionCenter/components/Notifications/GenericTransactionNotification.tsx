@@ -8,6 +8,7 @@ import { ActionStatusIcon } from '../ActionStatusIcon'
 import { NotificationWrapper } from './NotificationWrapper'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { firstFourLastFour } from '@/lib/utils'
 import { selectWalletGenericTransactionActionsSorted } from '@/state/slices/actionSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -61,6 +62,7 @@ export const GenericTransactionNotification = ({
                   ...action.transactionMetadata,
                   amount: action.transactionMetadata.amountCryptoPrecision,
                   symbol: asset?.symbol,
+                  newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
                 })}
               </Box>
             </Box>

@@ -48,9 +48,7 @@ export const DashboardHeader = memo(() => {
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   const qrCode = useModal('qrCode')
-  const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
-  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
 
   useEffect(() => {
@@ -173,12 +171,11 @@ export const DashboardHeader = memo(() => {
       <Display.Mobile>
         <Container
           px={4}
-          pt={4}
           position='fixed'
           top='0'
+          pt='calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + var(--chakra-space-4))'
           zIndex='banner'
-          bg={y > height ? 'background.surface.base' : 'transparent'}
-          transition='background-color 0.3s ease-in-out'
+          bg={y > 0 ? 'background.surface.base' : 'transparent'}
           pb={4}
           maxWidth='100%'
         >

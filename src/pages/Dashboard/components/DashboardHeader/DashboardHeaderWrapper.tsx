@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { useProfileAvatar } from '@/hooks/useProfileAvatar/useProfileAvatar'
 
 const paddingTop = {
-  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 56px)',
+  base: 'calc(56px)',
   md: 0,
 }
 

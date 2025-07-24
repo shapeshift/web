@@ -25,7 +25,7 @@ import { selectAssets } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='16px' />
+const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 
 export const TrendingTokens = () => {
   const dispatch = useAppDispatch()
@@ -73,10 +73,11 @@ export const TrendingTokens = () => {
         <MenuOptionGroup type='radio' value={selectedCategory}>
           {categoriesOptions.map(category => (
             <MenuItemOption
+              key={category.value}
               value={category.value}
               // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleCategoryChange(category.value)}
-              fontSize='sm'
+              fontSize='md'
               iconPlacement='end'
               icon={checkedIcon}
               color={selectedCategory === category.value ? 'text.primary' : 'text.subtle'}
@@ -238,7 +239,10 @@ export const TrendingTokens = () => {
         height='auto'
         isDisablingPropagation={false}
       >
-        <Box py={4}>
+        <Box
+          py={4}
+          pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + var(--chakra-space-4))'
+        >
           <Box height='5px' width='36px' borderRadius='full' bg='gray.500' mb={4} mx='auto' />
           {categories}
         </Box>

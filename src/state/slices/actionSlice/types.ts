@@ -76,6 +76,7 @@ type ActionGenericTransactionMetadata = {
   amountCryptoPrecision: string | undefined
   newAddress?: string
   cooldownPeriod?: string
+  thorMemo?: string
 }
 
 export type BaseAction = {

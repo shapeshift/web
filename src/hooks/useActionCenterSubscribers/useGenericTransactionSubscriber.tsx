@@ -25,22 +25,18 @@ import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type DisplayTypeMessageMap = Partial<Record<GenericTransactionDisplayType, string>> & {
-  default?: string
-}
+type DisplayTypeMessageMap = Partial<Record<GenericTransactionDisplayType, string>>
 
 const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>> = {
   [ActionType.Deposit]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.stakeSuccess',
-    default: 'actionCenter.deposit.complete',
+    [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.stakeComplete',
   },
   [ActionType.Withdraw]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.unstakeSuccess',
-    default: 'actionCenter.withdrawal.complete',
+    [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.unstakeComplete',
   },
-  [ActionType.Claim]: {
-    default: 'actionCenter.claim.complete',
-  },
+  [ActionType.Claim]: {},
   [ActionType.ChangeAddress]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.changeAddressSuccess',
   },
@@ -60,18 +56,31 @@ export const useGenericTransactionSubscriber = () => {
     pendingGenericTransactionActions.forEach(async action => {
       if (action.status !== ActionStatus.Pending) return
 
-      const { accountId, txHash } = action.transactionMetadata
+      // RFOX and TCY TODO: handle more
+      if (
+        !action.transactionMetadata.displayType ||
+        ![GenericTransactionDisplayType.RFOX, GenericTransactionDisplayType.TCY].includes(
+          action.transactionMetadata.displayType,
+        )
+      ) {
+        return
+      }
+
+      const { accountId, txHash, thorMemo } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
-      const serializedTxIndex = serializeTxIndex(accountId, txHash, accountAddress)
+      const serializedTxIndex = serializeTxIndex(
+        accountId,
+        txHash,
+        accountAddress,
+        thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
+      )
       const tx = txs[serializedTxIndex]
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
       const typeMessagesMap = displayTypeMessagesMap[action.type]
-      const message =
-        typeMessagesMap?.[action.transactionMetadata.displayType ?? 'default'] ??
-        typeMessagesMap?.default
+      const message = typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return
 

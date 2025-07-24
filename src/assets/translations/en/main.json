@@ -3027,7 +3027,11 @@
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
     },
     "tcy": {
-      "claimReady": "Your TCY claim of %{amount} %{symbol} is ready",
+      "stakePending": "Your stake of %{amount} %{symbol} is processing...",
+      "unstakePending": "Your unstake of %{amount} %{symbol} is processing...",
+      "stakeComplete": "Your stake of %{amount} %{symbol} is complete.",
+      "unstakeComplete": "Your unstake of %{amount} %{symbol} is complete.",
+      "claimReady": "Your TCY claim of %{amount} %{symbol} is ready.",
       "claimTxPending": "Your TCY claim of %{amount} %{symbol} is pending.",
       "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
     },

@@ -5,6 +5,11 @@ import { useMemo } from 'react'
 
 import { useProfileAvatar } from '@/hooks/useProfileAvatar/useProfileAvatar'
 
+const paddingTop = {
+  base: '56px',
+  md: 0,
+}
+
 type DashboardHeaderWrapperProps = {
   position?: BoxProps['position']
 } & PropsWithChildren
@@ -26,6 +31,7 @@ export const DashboardHeaderWrapper: React.FC<DashboardHeaderWrapperProps> = ({
       height: '40%',
       top: 0,
       zIndex: -1,
+      width: 'calc(100% - 1px)',
     }
   }, [avatarImage])
   return (
@@ -37,7 +43,7 @@ export const DashboardHeaderWrapper: React.FC<DashboardHeaderWrapperProps> = ({
       zIndex='sticky'
       _after={headerAfter}
     >
-      <Box bg='background.surface.alpha' backdropFilter='blur(30px)'>
+      <Box bg='background.surface.alpha' backdropFilter='blur(30px)' pt={paddingTop}>
         {children}
       </Box>
     </Box>

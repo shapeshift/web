@@ -2996,6 +2996,11 @@
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
     },
+    "deposit": {
+      "pending": "Your deposit of %{amount} %{symbol} is being processed.",
+      "complete": "Your deposit of %{amount} %{symbol} is complete.",
+      "failed": "Your deposit of %{amount} %{symbol} has failed."
+    },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",

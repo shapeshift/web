@@ -67,7 +67,7 @@ export enum GenericTransactionDisplayType {
 }
 
 type ActionGenericTransactionMetadata = {
-  displayType: GenericTransactionDisplayType
+  displayType?: GenericTransactionDisplayType
   message: string
   accountId: AccountId
   txHash: string

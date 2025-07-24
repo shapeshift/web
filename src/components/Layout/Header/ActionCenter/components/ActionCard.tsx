@@ -70,7 +70,11 @@ export const ActionCard = ({
           <HStack onClick={handleClick}>
             <Stack spacing={1} width='full'>
               <HStack>
-                {typeof description === 'string' ? <RawText>{description}</RawText> : description}
+                {typeof description === 'string' ? (
+                  <RawText fontSize='sm'>{description}</RawText>
+                ) : (
+                  description
+                )}
                 {isCollapsable && (
                   <Icon
                     as={isOpen ? ChevronUpIcon : ChevronDownIcon}

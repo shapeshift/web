@@ -55,7 +55,6 @@ export const useGenericTransactionSubscriber = () => {
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
   const queryClient = useQueryClient()
 
-  console.log({ pendingGenericTransactionActions })
   useEffect(() => {
     pendingGenericTransactionActions.forEach(async action => {
       if (action.status !== ActionStatus.Pending) return
@@ -85,9 +84,7 @@ export const useGenericTransactionSubscriber = () => {
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      console.log({ action })
       const typeMessagesMap = displayTypeMessagesMap[action.type]
-      console.log({ typeMessagesMap })
       const message = typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return

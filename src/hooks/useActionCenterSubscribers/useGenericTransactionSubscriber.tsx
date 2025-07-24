@@ -14,6 +14,7 @@ import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
+import { getTcyStakerQueryKey } from '@/pages/TCY/queries/useTcyStaker'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingGenericTransactionActions } from '@/state/slices/actionSlice/selectors'
 import {
@@ -134,6 +135,10 @@ export const useGenericTransactionSubscriber = () => {
 
       await queryClient.invalidateQueries({
         queryKey: ['getUnstakingRequests', { stakingAssetAccountId }],
+      })
+
+      await queryClient.invalidateQueries({
+        queryKey: getTcyStakerQueryKey({ accountId: stakingAssetAccountId }),
       })
 
       // No double-toasty

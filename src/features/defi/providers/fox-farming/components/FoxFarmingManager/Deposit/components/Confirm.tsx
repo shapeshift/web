@@ -201,7 +201,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         assets,
       )
 
-      navigate('/fox')
+      navigate(-1)
     } catch (error) {
       console.error(error)
       toast({

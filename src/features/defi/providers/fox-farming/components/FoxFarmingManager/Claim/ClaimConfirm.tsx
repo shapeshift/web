@@ -193,7 +193,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         assets,
       )
 
-      navigate('/fox')
+      navigate(-1)
     } catch (error) {
       console.error(error)
       toast({

@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { Confirm } from './components/Confirm'
 import { ExpiredWithdraw } from './components/ExpiredWithdraw'
-import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
@@ -107,10 +106,6 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
-      },
-      [DefiStep.Status]: {
-        label: 'Status',
-        component: () => <Status accountId={accountId} />,
       },
     }
   }, [

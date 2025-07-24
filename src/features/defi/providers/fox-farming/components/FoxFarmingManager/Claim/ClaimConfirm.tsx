@@ -41,7 +41,11 @@ import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -143,6 +147,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
           type: ActionType.Claim,
           status: ActionStatus.Pending,
           transactionMetadata: {
+            displayType: GenericTransactionDisplayType.FoxFarm,
             message: 'actionCenter.claim.pending',
             amountCryptoPrecision: bnOrZero(amount).decimalPlaces(6).toString(),
             assetId: asset.assetId,

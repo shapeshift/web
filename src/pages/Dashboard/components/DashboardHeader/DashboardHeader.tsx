@@ -25,6 +25,7 @@ const paddingTop = {
 const marginTop = { base: 0, md: '-4.5rem' }
 const borderBottomWidth = { base: 0, md: 1 }
 
+// If we set this to 0, the transparent background will cause some weird flickering when scrolling back to 0 or opening the drawer
 const TRIGGER_BACKGROUND_HEIGHT_Y = 2
 
 export type TabItem = {

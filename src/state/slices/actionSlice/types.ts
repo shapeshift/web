@@ -77,6 +77,8 @@ type ActionGenericTransactionMetadata = {
   assetId: AssetId
   amountCryptoPrecision: string | undefined
   newAddress?: string
+  // k, time to abstract as part of this PR, dis too much
+  contractName?: string
   cooldownPeriod?: string
   thorMemo?: string
 }

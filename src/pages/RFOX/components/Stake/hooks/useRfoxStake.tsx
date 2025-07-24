@@ -375,14 +375,18 @@ export const useRfoxStake = ({
           createdAt: Date.now(),
           updatedAt: Date.now(),
           transactionMetadata: {
-            displayType: GenericTransactionDisplayType.RFOX,
+            displayType: GenericTransactionDisplayType.Approve,
             txHash: txId,
             chainId: stakingAsset.chainId,
             accountId: stakingAssetAccountId,
             amountCryptoPrecision,
             assetId: stakingAssetId,
-            message: `Approving RFOX staking to use ${amountCryptoPrecision} ${stakingAsset.symbol}`,
-            // TODO: approval metadata
+            contractName: 'RFOX',
+            message: translate('actionCenter.approve.approvalTxPending', {
+              contractName: 'RFOX',
+              amountCryptoPrecision,
+              symbol: stakingAsset.symbol,
+            }),
           },
         }),
       )

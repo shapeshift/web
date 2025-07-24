@@ -193,7 +193,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
 
-      navigate('/fox')
+      navigate(-1)
     } catch (error) {
       console.error(error)
     }

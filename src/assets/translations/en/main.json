@@ -2997,8 +2997,11 @@
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
-      "complete": "Your deposit of %{amount} %{symbol} is complete.",
-      "failed": "Your deposit of %{amount} %{symbol} has failed."
+      "complete": "Your deposit of %{amount} %{symbol} is complete."
+    },
+    "withdrawal": {
+      "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
     },
     "claim": {
       "cta": "Claim",

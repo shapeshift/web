@@ -2,12 +2,15 @@ import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -23,11 +26,14 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -37,16 +43,23 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const toast = useNotificationToast({
+    duration: isDrawerOpen ? 5000 : null,
+  })
+
+  const appDispatch = useAppDispatch()
 
   const assets = useAppSelector(selectAssets)
 
@@ -109,7 +122,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         state?.loading ||
         !state?.withdraw ||
         !opportunity ||
-        !underlyingAsset
+        !underlyingAsset ||
+        !accountId
       )
         return
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
@@ -117,8 +131,51 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
-      onNext(DefiStep.Status)
+
+      const now = Date.now()
+      appDispatch(
+        actionSlice.actions.upsertAction({
+          id: txid,
+          createdAt: now,
+          updatedAt: now,
+          type: ActionType.Withdraw,
+          status: ActionStatus.Pending,
+          transactionMetadata: {
+            message: 'actionCenter.withdrawal.pending',
+            amountCryptoPrecision: bnOrZero(state.withdraw.lpAmount).decimalPlaces(6).toString(),
+            assetId: underlyingAsset.assetId,
+            chainId: underlyingAsset.chainId,
+            accountId,
+            txHash: txid,
+          },
+        }),
+      )
+
+      toast({
+        id: txid,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        position: 'bottom-right',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txid}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+
       trackOpportunityEvent(
         MixPanelEvent.WithdrawConfirm,
         {
@@ -130,19 +187,26 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
         assets,
       )
+
+      navigate('/fox')
     } catch (error) {
       console.error(error)
     }
   }, [
+    accountId,
+    appDispatch,
     assets,
     contractAddress,
     dispatch,
-    onNext,
+    isDrawerOpen,
+    navigate,
     onOngoingFarmingTxIdChange,
+    openActionCenter,
     opportunity,
     rewardId,
     state?.loading,
     state?.withdraw,
+    toast,
     underlyingAsset,
     unstake,
     walletState.wallet,

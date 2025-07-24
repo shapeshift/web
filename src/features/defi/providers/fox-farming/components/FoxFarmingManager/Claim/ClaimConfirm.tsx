@@ -19,6 +19,8 @@ import { useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -38,6 +40,8 @@ import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -47,7 +51,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ClaimConfirmProps = {
   accountId: AccountId | undefined
@@ -61,6 +65,9 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
   const wallet = useWallet().state.wallet
+  const appDispatch = useAppDispatch()
+
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
   const assets = useAppSelector(selectAssets)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -118,23 +125,59 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   const toast = useToast()
 
   const handleConfirm = useCallback(async () => {
-    if (!wallet || !contractAddress || !accountAddress || !opportunity || !asset) return
+    if (!wallet || !contractAddress || !accountAddress || !opportunity || !asset || !accountId) {
+      return
+    }
+
     setLoading(true)
     try {
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
-      onOngoingFarmingTxIdChange(txid, contractAddress)
-      navigate('/status', {
-        state: {
-          txid,
-          assetId,
-          amount,
-          userAddress: accountAddress,
-          estimatedGas,
-          chainId,
-          contractAddress,
+
+      const now = Date.now()
+      appDispatch(
+        actionSlice.actions.upsertAction({
+          id: txid,
+          createdAt: now,
+          updatedAt: now,
+          type: ActionType.Claim,
+          status: ActionStatus.Pending,
+          transactionMetadata: {
+            message: 'actionCenter.claim.pending',
+            amountCryptoPrecision: bnOrZero(amount).decimalPlaces(6).toString(),
+            assetId: asset.assetId,
+            chainId: asset.chainId,
+            accountId,
+            txHash: txid,
+          },
+        }),
+      )
+
+      toast({
+        id: txid,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        position: 'bottom-right',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txid}
+              onClose={onClose}
+              {...props}
+            />
+          )
         },
       })
+
+      onOngoingFarmingTxIdChange(txid, contractAddress)
+
       trackOpportunityEvent(
         MixPanelEvent.ClaimConfirm,
         {
@@ -144,6 +187,8 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         },
         assets,
       )
+
+      navigate('/fox')
     } catch (error) {
       console.error(error)
       toast({
@@ -157,17 +202,18 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     }
   }, [
     accountAddress,
+    accountId,
     amount,
+    appDispatch,
     asset,
-    assetId,
     assets,
-    chainId,
     claimFiatAmount,
     claimRewards,
     contractAddress,
-    estimatedGas,
+    isDrawerOpen,
     navigate,
     onOngoingFarmingTxIdChange,
+    openActionCenter,
     opportunity,
     toast,
     translate,

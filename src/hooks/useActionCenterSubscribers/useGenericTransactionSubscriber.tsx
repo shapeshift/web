@@ -57,6 +57,7 @@ export const useGenericTransactionSubscriber = () => {
 
       // RFOX and TCY TODO: handle more
       if (
+        !action.transactionMetadata.displayType ||
         ![GenericTransactionDisplayType.RFOX, GenericTransactionDisplayType.TCY].includes(
           action.transactionMetadata.displayType,
         )

@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Box, Button, Container, Flex, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Container, Flex, Text, useDisclosure, VStack } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
 import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
@@ -8,17 +8,22 @@ import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { DashboardDrawer } from './DashboardDrawer'
+import { MobileUserHeader } from './MobileUserHeader'
 import { WalletBalance } from './WalletBalance'
 
 import { Display } from '@/components/Display'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
+import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from '@/lib/globals'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -94,6 +99,13 @@ const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionBu
 }
 
 export const DashboardHeaderTop = memo(() => {
+  const { isOpen, onClose, onOpen } = useDisclosure()
+  const {
+    isOpen: isSearchOpen,
+    onClose: onSearchClose,
+    onOpen: onSearchOpen,
+    onToggle: onSearchToggle,
+  } = useDisclosure()
   const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
@@ -106,8 +118,8 @@ export const DashboardHeaderTop = memo(() => {
   const navigate = useNavigate()
   const send = useModal('send')
   const receive = useModal('receive')
-  const fiatRamps = useModal('fiatRamps')
   const qrCode = useModal('qrCode')
+  const fiatRamps = useModal('fiatRamps')
 
   const handleQrCodeClick = useCallback(() => {
     qrCode.open({})
@@ -202,10 +214,22 @@ export const DashboardHeaderTop = memo(() => {
     ],
   )
 
+  const mobileDrawer = useMemo(() => {
+    if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+    return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
+  }, [isOpen, onClose])
+
   return (
     <>
       <Display.Mobile>
         <>
+          <Container px={4} pt={4}>
+            <MobileUserHeader
+              onSearchOpen={onSearchOpen}
+              handleQrCodeClick={handleQrCodeClick}
+              onOpen={onOpen}
+            />
+          </Container>
           <Container
             width='100%'
             display='grid'
@@ -220,6 +244,13 @@ export const DashboardHeaderTop = memo(() => {
             {desktopButtons}
           </Container>
           {mobileButtons}
+          {mobileDrawer}
+          <GlobalSearchModal
+            isOpen={isSearchOpen}
+            onClose={onSearchClose}
+            onOpen={onSearchOpen}
+            onToggle={onSearchToggle}
+          />
         </>
       </Display.Mobile>
       <Display.Desktop>

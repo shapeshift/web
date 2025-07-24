@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
-import { Status } from './components/Status'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
@@ -105,10 +104,6 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
-      },
-      [DefiStep.Status]: {
-        label: 'Status',
-        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [translate, contractAddress, accountId, handleAccountIdChange])

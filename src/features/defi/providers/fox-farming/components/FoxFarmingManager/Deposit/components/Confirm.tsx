@@ -1,7 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
@@ -141,10 +140,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       onOngoingFarmingTxIdChange(txid, contractAddress)
 
       const now = Date.now()
-      const actionId = uuidv4()
       appDispatch(
         actionSlice.actions.upsertAction({
-          id: actionId,
+          id: txid,
           createdAt: now,
           updatedAt: now,
           type: ActionType.Deposit,
@@ -175,7 +173,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
             <GenericTransactionNotification
               // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
-              actionId={actionId}
+              actionId={txid}
               onClose={onClose}
               {...props}
             />
@@ -198,7 +196,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         assets,
       )
 
-      navigate(-1)
+      navigate('/fox')
     } catch (error) {
       console.error(error)
       toast({

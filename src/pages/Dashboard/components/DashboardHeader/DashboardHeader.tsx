@@ -25,6 +25,8 @@ const paddingTop = {
 const marginTop = { base: 0, md: '-4.5rem' }
 const borderBottomWidth = { base: 0, md: 1 }
 
+const TRIGGER_BACKGROUND_HEIGHT_Y = 2
+
 export type TabItem = {
   label: string
   path: string
@@ -175,7 +177,7 @@ export const DashboardHeader = memo(() => {
           top='0'
           pt='calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + var(--chakra-space-4))'
           zIndex='banner'
-          bg={y > 0 ? 'background.surface.base' : 'transparent'}
+          bg={y > TRIGGER_BACKGROUND_HEIGHT_Y ? 'background.surface.base' : 'transparent'}
           pb={4}
           maxWidth='100%'
         >

@@ -5,6 +5,7 @@ import noop from 'lodash/noop'
 import range from 'lodash/range'
 import truncate from 'lodash/truncate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 
@@ -13,6 +14,7 @@ import { TrendingTokenPriceCell } from './TrendingTokenPriceCell'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
@@ -24,6 +26,8 @@ import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { selectAssets } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
 const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 
@@ -39,7 +43,11 @@ export const TrendingTokens = () => {
   const categoryHook = CATEGORY_TO_QUERY_HOOK[selectedCategory]
   const translate = useTranslate()
 
-  const { data: categoryQueryData, isLoading: isCategoryQueryDataLoading } = categoryHook({
+  const {
+    data: categoryQueryData,
+    isLoading: isCategoryQueryDataLoading,
+    isError: isCategoryQueryDataError,
+  } = categoryHook({
     enabled: true,
     orderBy: OrderDirection.Descending,
     sortBy:
@@ -172,21 +180,9 @@ export const TrendingTokens = () => {
     setIsOpen(false)
   }, [])
 
-  return (
-    <Box>
-      <Text
-        ref={titleRef}
-        color='text.primary'
-        fontWeight='bold'
-        translation='common.trendingTokens'
-        textDecoration='underline'
-        textUnderlineOffset='4px'
-        mb={2}
-        mt={2}
-        px={5}
-        onClick={handleOpenCategoriesDialog}
-      />
-      {isCategoryQueryDataLoading ? (
+  const content = useMemo(() => {
+    if (isCategoryQueryDataLoading) {
+      return (
         <Flex flexDir='column' width='100%' pb='var(--mobile-nav-offset)'>
           {range(5).map(index => (
             <Flex
@@ -212,26 +208,63 @@ export const TrendingTokens = () => {
             </Flex>
           ))}
         </Flex>
-      ) : (
-        <Flex
-          flexDir='column'
-          width='100%'
-          maxHeight={`calc(100vh - var(--mobile-nav-offset) - ${bodyHeaderHeight})`}
-          overflowY='scroll'
-          px={4}
-        >
-          <InfiniteTable
-            columns={columns}
-            data={assets ?? []}
-            onRowClick={handleRowClick}
-            displayHeaders={false}
-            variant='clickable'
-            loadMore={noop}
-            hasMore={false}
-            scrollableTarget='scroll-view-0'
-          />
-        </Flex>
-      )}
+      )
+    }
+
+    if (isCategoryQueryDataError || !assets?.length) {
+      return (
+        <ResultsEmpty
+          title={'markets.emptyTitle'}
+          body={'markets.emptyBodySwapper'}
+          icon={emptyIcon}
+        />
+      )
+    }
+
+    return (
+      <Flex
+        flexDir='column'
+        width='100%'
+        maxHeight={`calc(100vh - var(--mobile-nav-offset) - ${bodyHeaderHeight})`}
+        overflowY='scroll'
+        px={4}
+      >
+        <InfiniteTable
+          columns={columns}
+          data={assets ?? []}
+          onRowClick={handleRowClick}
+          displayHeaders={false}
+          variant='clickable'
+          loadMore={noop}
+          hasMore={false}
+          scrollableTarget='scroll-view-0'
+        />
+      </Flex>
+    )
+  }, [
+    assets,
+    bodyHeaderHeight,
+    columns,
+    handleRowClick,
+    isCategoryQueryDataError,
+    isCategoryQueryDataLoading,
+  ])
+
+  return (
+    <Box>
+      <Text
+        ref={titleRef}
+        color='text.primary'
+        fontWeight='bold'
+        translation='common.trendingTokens'
+        textDecoration='underline'
+        textUnderlineOffset='4px'
+        mb={2}
+        mt={2}
+        px={5}
+        onClick={handleOpenCategoriesDialog}
+      />
+      {content}
 
       <Dialog
         isOpen={isOpen}

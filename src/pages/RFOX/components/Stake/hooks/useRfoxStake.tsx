@@ -15,11 +15,9 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
-import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
@@ -337,11 +335,6 @@ export const useRfoxStake = ({
     refetchInterval: 15_000,
   })
 
-  const { data: maybeSafeApprovalTx } = useSafeTxQuery({
-    maybeSafeTxHash: approvalTxHash ?? undefined,
-    accountId: stakingAssetAccountId,
-  })
-
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
@@ -355,15 +348,6 @@ export const useRfoxStake = ({
       setApprovalTxHash(txId)
 
       if (!stakingAsset || !stakingAssetAccountId) return
-
-      const txLink = getTxLink({
-        stepSource: undefined,
-        defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
-        txId,
-        address: stakingAssetAccountAddress,
-        chainId: fromAssetId(stakingAssetId).chainId,
-        maybeSafeTx: maybeSafeApprovalTx,
-      })
 
       const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
 

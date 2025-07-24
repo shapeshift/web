@@ -200,7 +200,7 @@
     "hardwareWallets": "Hardware Wallets",
     "dustAmount": "Dust Amount",
     "marketDataUnavailable": "Market data is unavailable for %{asset}",
-    "streaming": "Streaming", 
+    "streaming": "Streaming",
     "dca": "DCA",
     "boost": "Boost"
   },
@@ -2967,7 +2967,6 @@
     "limitPrice": "Limit Price",
     "expires": "Expires",
     "filled": "Filled",
-    "claim": "Claim",
     "protocol": "Protocol",
     "streamingStatus": "Streaming Status",
     "executionPrice": "Execution Price",
@@ -2998,8 +2997,16 @@
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
-      "complete": "Your deposit of %{amount} %{symbol} is complete.",
-      "failed": "Your deposit of %{amount} %{symbol} has failed."
+      "complete": "Your deposit of %{amount} %{symbol} is complete."
+    },
+    "withdrawal": {
+      "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
+    },
+    "claim": {
+      "cta": "Claim",
+      "pending": "Your claim of %{amount} %{symbol} is being processed.",
+      "complete": "Your claim of %{amount} %{symbol} is complete."
     },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",

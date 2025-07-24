@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
@@ -33,39 +32,18 @@ const ClaimConfirm = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-const ClaimStatus = makeSuspenseful(
-  lazy(() =>
-    import('./ClaimStatus').then(({ ClaimStatus }) => ({
-      default: ClaimStatus,
-    })),
-  ),
-  defaultBoxSpinnerStyle,
-)
-
 export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   return <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation()
-  const queryClient = useQueryClient()
 
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
   const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
     | UnstakingRequest
     | undefined
-
-  const handleTxConfirmed = useCallback(async () => {
-    if (!selectedUnstakingRequest) return
-
-    await queryClient.invalidateQueries({
-      queryKey: [
-        'getUnstakingRequests',
-        { stakingAssetAccountId: selectedUnstakingRequest.stakingAssetAccountId },
-      ],
-    })
-  }, [selectedUnstakingRequest, queryClient])
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />
@@ -84,22 +62,6 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     )
   }, [claimTxid, selectedUnstakingRequest, headerComponent])
 
-  const renderClaimStatus = useCallback(() => {
-    if (!claimTxid) return null
-    if (!selectedUnstakingRequest) return null
-
-    return (
-      <ClaimStatus
-        accountId={selectedUnstakingRequest.stakingAssetAccountId}
-        txId={claimTxid}
-        setClaimTxid={setClaimTxid}
-        onTxConfirmed={handleTxConfirmed}
-        headerComponent={headerComponent}
-        selectedUnstakingRequest={selectedUnstakingRequest}
-      />
-    )
-  }, [claimTxid, handleTxConfirmed, headerComponent, selectedUnstakingRequest])
-
   const renderRedirect = useCallback(() => <Navigate to='' replace />, [])
 
   return (
@@ -108,7 +70,6 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
         <Routes>
           <Route path={ClaimRoutePaths.Select} element={renderClaimSelect()} />
           <Route path={ClaimRoutePaths.Confirm} element={renderClaimConfirm()} />
-          <Route path={ClaimRoutePaths.Status} element={renderClaimStatus()} />
           <Route path='*' element={renderRedirect()} />
         </Routes>
       </Suspense>

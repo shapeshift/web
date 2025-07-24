@@ -1,39 +1,94 @@
-import { Box, Flex, Skeleton } from '@chakra-ui/react'
+import { CheckIcon } from '@chakra-ui/icons'
+import { Box, Flex, Icon, Menu, MenuItemOption, MenuOptionGroup, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import range from 'lodash/range'
 import truncate from 'lodash/truncate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 
 import { TrendingTokenPriceCell } from './TrendingTokenPriceCell'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { useTrendingQuery } from '@/pages/Markets/hooks/useCoingeckoData'
+import { MarketsCategories } from '@/pages/Markets/constants'
+import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { selectAssets } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='16px' />
+
 export const TrendingTokens = () => {
-  const { data: trendingAssetsData, isLoading: isTrendingAssetsLoading } = useTrendingQuery({
-    enabled: true,
-  })
   const dispatch = useAppDispatch()
   const assetsById = useAppSelector(selectAssets)
   const [bodyHeaderHeight, setBodyHeaderHeight] = useState('0px')
   const titleRef = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<
+    Exclude<MarketsCategories, MarketsCategories.OneClickDefi>
+  >(MarketsCategories.Trending)
+  const categoryHook = CATEGORY_TO_QUERY_HOOK[selectedCategory]
+  const translate = useTranslate()
 
-  const trendingAssets = useMemo(() => {
-    return trendingAssetsData?.ids
+  const { data: categoryQueryData, isLoading: isCategoryQueryDataLoading } = categoryHook({
+    enabled: true,
+    orderBy: OrderDirection.Descending,
+    sortBy:
+      selectedCategory === MarketsCategories.MarketCap
+        ? SortOptionsKeys.MarketCap
+        : SortOptionsKeys.Volume,
+  })
+
+  const assets = useMemo(() => {
+    return categoryQueryData?.ids
       .slice(0, 10)
       .map(id => assetsById[id])
       .filter(isSome)
-  }, [assetsById, trendingAssetsData])
+  }, [assetsById, categoryQueryData])
+
+  const handleCategoryChange = useCallback((category: string) => {
+    setSelectedCategory(category as Exclude<MarketsCategories, MarketsCategories.OneClickDefi>)
+    setIsOpen(false)
+  }, [])
+
+  const categories = useMemo(() => {
+    const categoriesOptions = Object.values(MarketsCategories)
+      .filter(category => category !== MarketsCategories.OneClickDefi)
+      .map(category => ({
+        label: translate(`markets.categories.${category}.title`),
+        value: category,
+      }))
+
+    return (
+      <Menu>
+        <MenuOptionGroup type='radio' value={selectedCategory}>
+          {categoriesOptions.map(category => (
+            <MenuItemOption
+              value={category.value}
+              // eslint-disable-next-line react-memo/require-usememo
+              onClick={() => handleCategoryChange(category.value)}
+              fontSize='sm'
+              iconPlacement='end'
+              icon={checkedIcon}
+              color={selectedCategory === category.value ? 'text.primary' : 'text.subtle'}
+              fontWeight='bold'
+            >
+              {category.label}
+            </MenuItemOption>
+          ))}
+        </MenuOptionGroup>
+      </Menu>
+    )
+  }, [handleCategoryChange, selectedCategory, translate])
 
   const columns: Column<Asset>[] = useMemo(
     () => [
@@ -108,6 +163,14 @@ export const TrendingTokens = () => {
     return () => window.removeEventListener('resize', updateMaxHeight)
   }, [])
 
+  const handleOpenCategoriesDialog = useCallback(() => {
+    setIsOpen(true)
+  }, [])
+
+  const handleCloseCategoriesDialog = useCallback(() => {
+    setIsOpen(false)
+  }, [])
+
   return (
     <Box>
       <Text
@@ -117,10 +180,12 @@ export const TrendingTokens = () => {
         translation='common.trendingTokens'
         textDecoration='underline'
         textUnderlineOffset='4px'
-        mb={4}
+        mb={2}
+        mt={2}
         px={5}
+        onClick={handleOpenCategoriesDialog}
       />
-      {isTrendingAssetsLoading ? (
+      {isCategoryQueryDataLoading ? (
         <Flex flexDir='column' width='100%' pb='var(--mobile-nav-offset)'>
           {range(5).map(index => (
             <Flex
@@ -130,6 +195,7 @@ export const TrendingTokens = () => {
               justifyContent='space-between'
               px={4}
               mb={4}
+              py={4}
             >
               <Flex align='center'>
                 <Skeleton width='40px' height='40px' borderRadius='100%' me={2} />
@@ -155,7 +221,7 @@ export const TrendingTokens = () => {
         >
           <InfiniteTable
             columns={columns}
-            data={trendingAssets ?? []}
+            data={assets ?? []}
             onRowClick={handleRowClick}
             displayHeaders={false}
             variant='clickable'
@@ -165,6 +231,18 @@ export const TrendingTokens = () => {
           />
         </Flex>
       )}
+
+      <Dialog
+        isOpen={isOpen}
+        onClose={handleCloseCategoriesDialog}
+        height='auto'
+        isDisablingPropagation={false}
+      >
+        <Box py={4}>
+          <Box height='5px' width='36px' borderRadius='full' bg='gray.500' mb={4} mx='auto' />
+          {categories}
+        </Box>
+      </Dialog>
     </Box>
   )
 }

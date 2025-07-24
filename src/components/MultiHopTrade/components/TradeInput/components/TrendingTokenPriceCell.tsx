@@ -19,15 +19,15 @@ export const TrendingTokenPriceCell = ({ assetId }: TrendingTokenPriceCellProps)
   const textColor = useColorModeValue('black', 'white')
 
   const priceChange = useMemo(() => {
-    const isPositive = bnOrZero(changePercent24Hr).gt(0)
+    const isPositive = bnOrZero(changePercent24Hr).gte(0)
 
     return (
       <Tag colorScheme={isPositive ? 'green' : 'red'} width='max-content' px={1}>
         <TagLeftIcon as={isPositive ? RiArrowRightUpLine : RiArrowLeftDownLine} me={1} />
         <Amount.Percent
-          autoColor
           value={bnOrZero(changePercent24Hr).times(0.01).toString()}
           fontSize='xs'
+          color={isPositive ? 'green.500' : 'red.500'}
         />
       </Tag>
     )

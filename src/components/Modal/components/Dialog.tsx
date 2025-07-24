@@ -127,7 +127,9 @@ const DialogWindow: React.FC<DialogProps> = ({
               bg='rgba(0, 0, 0, 0.8)'
               position='fixed'
               inset={0}
-              zIndex='var(--chakra-zIndices-modal)'
+              // 1 zIndex under the content zIndex so we ensure it's always under the content
+              // if we use the same zIndex, if the user clicks too fast, the overlay isn't unrendered leaving it over the content
+              zIndex='1399'
               onClick={onClose}
             />
           ) : null}

@@ -37,6 +37,9 @@ const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>>
   [ActionType.Withdraw]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.unstakeSuccess',
   },
+  [ActionType.Claim]: {
+    default: 'actionCenter.claim.complete',
+  },
   [ActionType.ChangeAddress]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.changeAddressSuccess',
   },

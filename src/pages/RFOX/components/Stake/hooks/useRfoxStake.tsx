@@ -6,6 +6,7 @@ import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
 import type { StakeInputValues } from '../types'
@@ -14,9 +15,11 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
@@ -80,6 +83,7 @@ export const useRfoxStake = ({
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const wallet = useWallet().state.wallet
+  const translate = useTranslate()
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
@@ -333,6 +337,11 @@ export const useRfoxStake = ({
     refetchInterval: 15_000,
   })
 
+  const { data: maybeSafeApprovalTx } = useSafeTxQuery({
+    maybeSafeTxHash: approvalTxHash ?? undefined,
+    accountId: stakingAssetAccountId,
+  })
+
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
@@ -344,6 +353,61 @@ export const useRfoxStake = ({
     }),
     onSuccess: (txId: string) => {
       setApprovalTxHash(txId)
+
+      if (!stakingAsset || !stakingAssetAccountId) return
+
+      const txLink = getTxLink({
+        stepSource: undefined,
+        defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
+        txId,
+        address: stakingAssetAccountAddress,
+        chainId: fromAssetId(stakingAssetId).chainId,
+        maybeSafeTx: maybeSafeApprovalTx,
+      })
+
+      const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txId,
+          type: ActionType.Approve,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.RFOX,
+            txHash: txId,
+            chainId: stakingAsset.chainId,
+            accountId: stakingAssetAccountId,
+            amountCryptoPrecision,
+            assetId: stakingAssetId,
+            message: `Approving RFOX staking to use ${amountCryptoPrecision} ${stakingAsset.symbol}`,
+            // TODO: approval metadata
+          },
+        }),
+      )
+
+      toast({
+        id: txId,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
     },
   })
 

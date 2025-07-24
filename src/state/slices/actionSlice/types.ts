@@ -16,6 +16,7 @@ export enum ActionType {
   RfoxClaim = 'RfoxClaim',
   TcyClaim = 'TcyClaim',
   Send = 'Send',
+  Approve = 'Approve',
   ChangeAddress = 'ChangeAddress',
 }
 
@@ -64,6 +65,7 @@ export enum GenericTransactionDisplayType {
   RFOX = 'rFOX',
   Bridge = 'Bridge',
   SEND = 'Send',
+  Approve = 'Approve',
 }
 
 type ActionGenericTransactionMetadata = {
@@ -104,6 +106,7 @@ export type GenericTransactionAction = BaseAction & {
     | ActionType.Claim
     | ActionType.ChangeAddress
     | ActionType.Send
+    | ActionType.Approve
 
   transactionMetadata: ActionGenericTransactionMetadata
 }
@@ -152,6 +155,13 @@ export const isSendAction = (action: Action): action is GenericTransactionAction
   return Boolean(
     action.type === ActionType.Send &&
       action.transactionMetadata?.displayType === GenericTransactionDisplayType.SEND,
+  )
+}
+
+export const isApproveAction = (action: Action): action is GenericTransactionAction => {
+  return Boolean(
+    action.type === ActionType.Approve &&
+      action.transactionMetadata?.displayType === GenericTransactionDisplayType.Approve,
   )
 }
 

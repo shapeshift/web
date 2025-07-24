@@ -159,13 +159,6 @@ export const isSendAction = (action: Action): action is GenericTransactionAction
   )
 }
 
-export const isApproveAction = (action: Action): action is GenericTransactionAction => {
-  return Boolean(
-    action.type === ActionType.Approve &&
-      action.transactionMetadata?.displayType === GenericTransactionDisplayType.Approve,
-  )
-}
-
 export const isLimitOrderAction = (action: Action): action is LimitOrderAction => {
   return Boolean(action.type === ActionType.LimitOrder && action.limitOrderMetadata)
 }

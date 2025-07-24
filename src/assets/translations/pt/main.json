@@ -250,7 +250,11 @@
       "volume": "Volume",
       "sparkLine": "Brilho",
       "myCrypto": "Minha Cripto",
-      "empty": {},
+      "empty": {
+        "title": "Toda jornada começa com um primeiro passo",
+        "body": "Envie a si mesmo algumas criptos, para comeácr",
+        "cta": "Adicionar Cripto"
+      },
       "stakedInfo": "Você não pode enviar ou trocar ativos em depositados em stake"
     },
     "recentTransactions": {
@@ -1100,6 +1104,7 @@
     "noOpenOrders": "Ainda não há ordens abertas.",
     "noHistoricalOrders": "Nenhum histórico de ordens ainda.",
     "limitPriceIsPercentLowerThanMarket": "O preço limite é %{percent}% menor que o preço de mercado",
+    "highCowFeeImpact": "A taxa da CoW é de %{percentage}% do valor da sua venda (%{cryptoImpact} %{sellAssetSymbol}). Sua ordem pode não ser executada.",
     "awaitingOrderPlacement": "Aguardando colocação do pedido em %{swapperName}",
     "awaitingAllowanceApproval": "Aguardando aprovação da permissão",
     "awaitingAllowanceReset": "Aguardando redefinição da permissão",
@@ -2946,17 +2951,17 @@
       "getValidator": "Falha ao obter o validador."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Notificações",
-    "viewTransaction": "Ver Transação",
+    "viewTransaction": "Ver transação",
     "viewOrder": "Ver Ordem",
     "cancelOrder": "Cancelar Ordem",
     "pair": "Par",
     "limitPrice": "Preço Limite",
     "expires": "Expira",
-    "filled": "Preenchido",
-    "streaming": "Streaming",
-    "claim": "Resgate",
+    "filled": "Preenchida",
+    "streaming": "Streamando",
+    "claim": "Resgatar",
     "protocol": "Protocolo",
     "streamingStatus": "Status do Streaming",
     "executionPrice": "Preço de Execução",
@@ -2969,33 +2974,49 @@
       "failed": "Falhou",
       "pending": "Pendente",
       "claimAvailable": "Resgate Disponível",
-      "unknown": "Desconhecido"
+      "claimed": "Resgatado",
+      "unknown": "Desconhecido",
+      "initiated": "Iniciado"
     },
     "emptyState": {
-      "title": "Bem-vindo ao ShapeShift",
+      "title": "Bem-vindo a ShapeShift",
       "body1": "Este é o seu centro de ação.",
       "body2": "Encontre transações em andamento aqui.",
-      "startSwapping": "Comece a trocar"
+      "startSwapping": "Comece a fazer swaps"
     },
     "swap": {
       "processing": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} está sendo processado.",
-      "complete": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} foi concluído.",
+      "complete": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} foi completado.",
       "failed": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} falhou.",
       "streaming": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} está sendo transmitido."
     },
+    "bridge": {
+      "processing": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} está sendo processada.",
+      "complete": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} foi concluída.",
+      "initiated": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} foi iniciada.",
+      "failed": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} falhou."
+    },
     "limitOrder": {
-      "placed": "Ordem limite colocada de %{sellAmountAndSymbol} para %{buyAmountAndSymbol}",
-      "complete": "Sua ordem para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} foi atendida com sucesso.",
+      "placed": "Sua ordem limite colocada de %{sellAmountAndSymbol} para %{buyAmountAndSymbol}",
+      "complete": "Sua ordem para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} foi preenchida com sucesso.",
       "cancelled": "Sua ordem para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} foi cancelada.",
       "expired": "Sua ordem para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} expirou."
     },
     "rfox": {
-      "unstakeConfirmed": "Seu unstae não resgatdo de %{amount} FOX estará disponível para ser reivindicada em %{cooldownPeriod}."
+      "unstakeConfirmed": "Seu unstake de %{amount} %{symbol} estará disponível para resgate em %{cooldownPeriod}.",
+      "unstakeReady": "Seu unstake de %{amount} %{symbol} está pronto para resgate.",
+      "unstakeTxPending": "Seu unstake de %{amount} %{symbol} está pendente.",
+      "unstakeTxComplete": "Seu unstake de %{amount} %{symbol} está completo."
+    },
+    "tcy": {
+      "claimReady": "Seu resgate de TCY %{amount} %{symbol} está pronto.",
+      "claimTxPending": "Seu resgate de TCY %{amount} %{symbol} está pendente. ",
+      "claimTxComplete": "Seu resgate de TCY %{amount} %{symbol} foi completado."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pendente",
-    "orderCancelled": "Ordem cancelada",
-    "orderExpired": "Ordem expirada"
+    "orderCancelled": "Ordem Cancelada",
+    "orderExpired": "Ordem Expirada"
   }
 }

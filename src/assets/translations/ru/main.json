@@ -250,7 +250,11 @@
       "volume": "Объем",
       "sparkLine": "Sparkline",
       "myCrypto": "Моя криптовалюта",
-      "empty": {},
+      "empty": {
+        "title": "Каждое путешествие начинается с первого шага",
+        "body": "Отправьте себе немного криптовалюты, чтобы начать.",
+        "cta": "Добавить криптовалюту"
+      },
       "stakedInfo": "Вы не можете отправлять или обменивать средства в стейкинге "
     },
     "recentTransactions": {
@@ -1100,6 +1104,7 @@
     "noOpenOrders": "Открытых ордеров пока нет.",
     "noHistoricalOrders": "Исторических ордеров пока нет.",
     "limitPriceIsPercentLowerThanMarket": "Лимитная цена на %{percent}% ниже рыночной цены",
+    "highCowFeeImpact": "Комиссия CoW составляет %{percentage}% от суммы продажи (%{cryptoImpact} %{sellAssetSymbol}). Ваш ордер может быть не исполнен.",
     "awaitingOrderPlacement": "Ожидаем размещения ордера на %{swapperName}",
     "awaitingAllowanceApproval": "Ожидает утверждения разрешения ",
     "awaitingAllowanceReset": "Ожидание сброса разрешения",
@@ -2946,30 +2951,32 @@
       "getValidator": "Не удалось получить валидатора."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Уведомления",
-    "viewTransaction": "Посмотреть транзакцию",
+    "viewTransaction": "Посмотреть сделку",
     "viewOrder": "Посмотреть ордер",
     "cancelOrder": "Отменить ордер",
     "pair": "Пара",
     "limitPrice": "Лимитная цена",
-    "expires": "Срок действия:",
+    "expires": "Срок действия",
     "filled": "Заполненный",
-    "streaming": "Передача",
+    "streaming": "Потоковая передача",
     "claim": "Заявление",
     "protocol": "Протокол",
     "streamingStatus": "Состояние потоковой передачи",
-    "executionPrice": "Цена исполнения",
+    "executionPrice": "Цина виконання",
     "status": {
       "title": "Статус",
-      "open": "Открытые",
-      "expired": "Просроченные",
-      "cancelled": "Отменены",
+      "open": "Открыть",
+      "expired": "Просроченный",
+      "cancelled": "Отменено",
       "confirmed": "Подтверждено",
-      "failed": "Неудачный",
+      "failed": "Не удалось",
       "pending": "В ожидании",
       "claimAvailable": "Заявка доступна",
-      "unknown": "Неизвестный"
+      "claimed": "Заявлено",
+      "unknown": "Неизвестный",
+      "initiated": "Инициировано"
     },
     "emptyState": {
       "title": "Добро пожаловать в ShapeShift",
@@ -2981,7 +2988,13 @@
       "processing": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} находится в процессе обработки.",
       "complete": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершен.",
       "failed": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} не удался.",
-      "streaming": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} является текущим."
+      "streaming": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} является в процесе."
+    },
+    "bridge": {
+      "processing": "Ваш мост %{sellAmountAndSymbol}.%{sellChainShortName} на %{buyAmountAndSymbol}.%{buyChainShortName} находится в обработке.",
+      "complete": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} завершен.",
+      "initiated": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} был инициирован.",
+      "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу."
     },
     "limitOrder": {
       "placed": "Размещен лимитный ордер %{sellAmountAndSymbol} на %{buyAmountAndSymbol}.",
@@ -2990,7 +3003,15 @@
       "expired": "Срок действия вашего ордера на покупку %{buyAmountAndSymbol} за %{sellAmountAndSymbol} истек."
     },
     "rfox": {
-      "unstakeConfirmed": "Ваш вывод со стейкинга в размере %{amount} FOX будет доступен для получения через %{cooldownPeriod}."
+      "unstakeConfirmed": "Ваши снятия со стейкинга в размере %{amount} %{symbol} будут доступны для получения в течение %{cooldownPeriod}.",
+      "unstakeReady": "Ваше Снятие со стейкинга в размере %{amount} %{symbol} готово к получению.",
+      "unstakeTxPending": "Ваше Снятие со стейкинга %{amount} %{symbol} находится на рассмотрении.",
+      "unstakeTxComplete": "Снятие со стейкинга %{amount} %{symbol} завершено."
+    },
+    "tcy": {
+      "claimReady": "Ваше требование TCY в размере %{amount} %{symbol} готово",
+      "claimTxPending": "Ваше требование TCY на сумму %{amount} %{symbol} находится на рассмотрении.",
+      "claimTxComplete": "Ваше требование TCY в размере %{amount} %{symbol} выполнено."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

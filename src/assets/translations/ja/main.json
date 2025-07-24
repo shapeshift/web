@@ -250,7 +250,11 @@
       "volume": "ボリューム",
       "sparkLine": "スパークライン",
       "myCrypto": "自分のクリプト",
-      "empty": {},
+      "empty": {
+        "title": "すべての旅は最初の一歩から始まる",
+        "body": "始めるには、暗号通貨を入金してください。",
+        "cta": "暗号通貨を追加"
+      },
       "stakedInfo": "ステークした金額を送金または取引することはできません"
     },
     "recentTransactions": {
@@ -1100,6 +1104,7 @@
     "noOpenOrders": "未約定の注文はありません",
     "noHistoricalOrders": "注文履歴はまだありません。",
     "limitPriceIsPercentLowerThanMarket": "指値は市場価格より %{percent}% 低いです",
+    "highCowFeeImpact": "CoW手数料は売却額（%{cryptoImpact} %{sellAssetSymbol}）の%{percentage}%です。注文は執行されない可能性があります。",
     "awaitingOrderPlacement": "%{swapperName} での注文待ち",
     "awaitingAllowanceApproval": "利用許可の承認待ち",
     "awaitingAllowanceReset": "利用許可のリセット待ち",
@@ -2946,7 +2951,7 @@
       "getValidator": "バリデータを取得できませんでした。"
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "通知",
     "viewTransaction": "取引を表示",
     "viewOrder": "注文を表示",
@@ -2954,48 +2959,64 @@
     "pair": "ペア",
     "limitPrice": "指値価格",
     "expires": "有効期限",
-    "filled": "一杯です",
+    "filled": "成立",
     "streaming": "ストリーミング",
     "claim": "請求",
     "protocol": "プロトコル",
     "streamingStatus": "ストリーミングステータス",
     "executionPrice": "執行価格",
     "status": {
-      "title": "状態.",
-      "open": "開ける",
+      "title": "状態",
+      "open": "受付中",
       "expired": "期限切れ",
-      "cancelled": "キャンセル",
+      "cancelled": "キャンセルされた",
       "confirmed": "確認済み",
-      "failed": "失敗した",
+      "failed": "失敗",
       "pending": "保留中",
       "claimAvailable": "請求可能",
-      "unknown": "未知"
+      "claimed": "請求済み",
+      "unknown": "未知",
+      "initiated": "開始済み"
     },
     "emptyState": {
       "title": "ShapeShiftへようこそ",
       "body1": "これはアクション センターです。",
-      "body2": "進行中の取引はこちらで確認できます。",
+      "body2": "進行中の取引はここで見つかります。",
       "startSwapping": "交換を始める"
     },
     "swap": {
       "processing": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップを処理中です。",
-      "complete": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} への交換が完了しました。",
+      "complete": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップが完了しました。",
       "failed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップに失敗しました。",
       "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。"
     },
+    "bridge": {
+      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
+      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが完了しました。",
+      "initiated": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが開始されました。",
+      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。"
+    },
     "limitOrder": {
       "placed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} への指値注文が出されました",
-      "complete": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文が正常に約定しました。",
+      "complete": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文が正常に実行されました。",
       "cancelled": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文はキャンセルされました。",
       "expired": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文の有効期限が切れました。"
     },
     "rfox": {
-      "unstakeConfirmed": "%{amount} FOX のアンステークは %{cooldownPeriod} 後に請求可能になります。"
+      "unstakeConfirmed": "%{amount} %{symbol} のステーク解除は、%{cooldownPeriod} 内に請求できるようになります。",
+      "unstakeReady": "%{amount} %{symbol} のステーク解除を請求する準備ができました。",
+      "unstakeTxPending": "%{amount} %{symbol} のステーク解除が保留中です。",
+      "unstakeTxComplete": "%{amount} %{symbol} のステーク解除が完了しました。"
+    },
+    "tcy": {
+      "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です",
+      "claimTxPending": "%{amount} %{symbol} の TCY 請求は保留中です。",
+      "claimTxComplete": "%{amount} %{symbol} の TCY 請求が完了しました。"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} 保留中",
-    "orderCancelled": "注文はキャンセルされました",
+    "orderCancelled": "注文キャンセル済み",
     "orderExpired": "注文期限切れ"
   }
 }

@@ -251,8 +251,9 @@
       "sparkLine": "Sparkline",
       "myCrypto": "Meine Krypto",
       "empty": {
-        "title": "Grillengeräusche...",
-        "cta": "Schicken Sie sich ein paar Krypto!"
+        "title": "Jede Reise beginnt mit dem ersten Schritt",
+        "body": "Senden Sie sich selbst etwas Kryptowährung, um loszulegen.",
+        "cta": "Krypto hinzufügen"
       },
       "stakedInfo": "Staking gebundenes Kapital kann weder gesendet noch gehandelt werden"
     },
@@ -1103,6 +1104,7 @@
     "noOpenOrders": "Noch keine offenen Bestellungen.",
     "noHistoricalOrders": "Noch keine vorherigen  Bestellungen.",
     "limitPriceIsPercentLowerThanMarket": "Der Limitpreis liegt bei %{percent}% unter dem Marktpreis",
+    "highCowFeeImpact": "Die CoW-Gebühr beträgt %{percentage}% Ihres Verkaufsbetrags (%{cryptoImpact} %{sellAssetSymbol}). Ihre Bestellung wird möglicherweise nicht ausgeführt.",
     "awaitingOrderPlacement": "Warte auf Auftragserteilung bei %{swapperName}",
     "awaitingAllowanceApproval": "Warten auf OK von Genehmigungsbetrag",
     "awaitingAllowanceReset": "Warten auf Zurücksetzen des Genehmigungsbetrags",
@@ -2949,17 +2951,17 @@
       "getValidator": "Der Validierer konnte nicht abgerufen werden."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Benachrichtigungen",
     "viewTransaction": "Transaktion anzeigen",
-    "viewOrder": "Order anzeigen",
-    "cancelOrder": "Order stornieren",
+    "viewOrder": "Bestellung anzeigen",
+    "cancelOrder": "Bestellung stornieren",
     "pair": "Paar",
     "limitPrice": "Limitpreis",
     "expires": "Läuft ab",
     "filled": "Ausgeführt",
-    "streaming": "in Bearbeitung",
-    "claim": "Anspruch",
+    "streaming": "Streaming",
+    "claim": "Beanspruchen",
     "protocol": "Protokoll",
     "streamingStatus": "Streaming Status",
     "executionPrice": "Ausführungspreis",
@@ -2972,28 +2974,44 @@
       "failed": "Fehlgeschlagen",
       "pending": "Ausstehend",
       "claimAvailable": "Anspruch verfügbar",
-      "unknown": "Unbekannt"
+      "claimed": "Beansprucht",
+      "unknown": "Unbekannt",
+      "initiated": "Initiiert"
     },
     "emptyState": {
       "title": "Willkommen bei ShapeShift",
-      "body1": "Dies ist Ihr Aktionsfeld.",
+      "body1": "Dies ist Ihr Kontrollzentrum.",
       "body2": "Hier finden Sie laufende Transaktionen.",
       "startSwapping": "Beginnen Sie zu Tauschen"
     },
     "swap": {
-      "processing": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} wird verarbeitet.",
-      "complete": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist abgeschlossen.",
-      "failed": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} ist fehlgeschlagen.",
-      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} läuft."
+      "processing": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} wird verarbeitet.",
+      "complete": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} ist abgeschlossen.",
+      "failed": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} ist fehlgeschlagen.",
+      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} läuft."
+    },
+    "bridge": {
+      "processing": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wird verarbeitet.",
+      "complete": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist abgeschlossen.",
+      "initiated": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wurde initiiert.",
+      "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen."
     },
     "limitOrder": {
-      "placed": "Limit-Order von %{sellAmountAndSymbol} für %{buyAmountAndSymbol} aufgegeben",
+      "placed": "Limit Order für %{sellAmountAndSymbol} bis %{buyAmountAndSymbol} aufgegeben",
       "complete": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} wurde erfolgreich ausgeführt.",
       "cancelled": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} wurde storniert.",
       "expired": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} ist abgelaufen."
     },
     "rfox": {
-      "unstakeConfirmed": "Ihr freier Anteil von %{amount} FOX kann in %{cooldownPeriod} eingefordert werden."
+      "unstakeConfirmed": "Ihr nicht beanspruchter Anteil von %{amount} %{symbol} kann in %{cooldownPeriod} eingefordert werden.",
+      "unstakeReady": "Ihr nicht beanspruchter Anteil von %{amount} %{symbol} kann eingefordert werden.",
+      "unstakeTxPending": "Ihr nicht beanspruchter Anteil  von %{amount} %{symbol} steht noch aus.",
+      "unstakeTxComplete": "Ihr nicht beanspruchter Anteil  von %{amount} %{symbol} ist abgeschlossen."
+    },
+    "tcy": {
+      "claimReady": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist bereit",
+      "claimTxPending": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist ausstehend.",
+      "claimTxComplete": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist abgeschlossen."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

@@ -251,8 +251,9 @@
       "sparkLine": "Sparkline",
       "myCrypto": "Моя криптовалюта",
       "empty": {
-        "title": "Звуки цвіркуна...",
-        "cta": "Надішліть собі трішки криптовалюти!"
+        "title": "Кожна подорож починається з першого кроку",
+        "body": "Відправте собі трохи криптовалюти, щоб почати.",
+        "cta": "Додати криптовалюту"
       },
       "stakedInfo": "Ви не можете відправити або обміняти суму, яка знаходиться у стейкінгу"
     },
@@ -1103,6 +1104,7 @@
     "noOpenOrders": "Відкритих ордерів поки що немає.",
     "noHistoricalOrders": "Історичних замовлень поки що немає.",
     "limitPriceIsPercentLowerThanMarket": "Гранична ціна на %{percent}% нижча за ринкову",
+    "highCowFeeImpact": "Комісія CoW становить %{percentage}% від суми продажу (%{cryptoImpact} %{sellAssetSymbol}). Ваш ордер може не виконатися.",
     "awaitingOrderPlacement": "Очікує розміщення ордерів на %{swapperName}",
     "awaitingAllowanceApproval": "Очікуємо на затвердження дозволу",
     "awaitingAllowanceReset": "Очікування скидання дозволу",
@@ -2949,30 +2951,32 @@
       "getValidator": "Не вдалося отримати валідатора."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Сповіщення",
     "viewTransaction": "Переглянути транзакцію",
-    "viewOrder": "Подивитися замовлення",
+    "viewOrder": "Переглянути замовлення",
     "cancelOrder": "Скасувати замовлення",
     "pair": "Пара",
     "limitPrice": "Лімітна ціна",
     "expires": "Закінчується",
-    "filled": "Заповнено",
-    "streaming": "Трансляція",
-    "claim": "Претензія",
+    "filled": "Заповнено.",
+    "streaming": "Стрімінг",
+    "claim": "Клейм",
     "protocol": "Протокол",
-    "streamingStatus": "Стан потокової передачі",
+    "streamingStatus": "Стан передавання",
     "executionPrice": "Ціна виконання",
     "status": {
       "title": "Статус",
-      "open": "Відкрита",
-      "expired": "Закінчились",
-      "cancelled": "Скасована",
+      "open": "Відкрито",
+      "expired": "Скасовано",
+      "cancelled": "Скасовано",
       "confirmed": "Підтверджено",
-      "failed": "Не вдалося.",
+      "failed": "Не вдалося",
       "pending": "На розгляді",
-      "claimAvailable": "Претензія доступна",
-      "unknown": "Невідомо"
+      "claimAvailable": "Клейм доступний",
+      "claimed": "Забрано",
+      "unknown": "Невідомо",
+      "initiated": "Ініційовано"
     },
     "emptyState": {
       "title": "Ласкаво просимо до ShapeShift",
@@ -2984,21 +2988,35 @@
       "processing": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} обробляється.",
       "complete": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершено.",
       "failed": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершився невдало.",
-      "streaming": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} відбувається в реальному часі."
+      "streaming": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} відбувається в потоковому режимі."
+    },
+    "bridge": {
+      "processing": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} обробляється.",
+      "complete": "Ваш міст від %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} завершено.",
+      "initiated": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} було ініційовано.",
+      "failed": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} не вдався."
     },
     "limitOrder": {
-      "placed": "Обмежити угоду, розміщену на %{sellAmountAndSymbol} до %{buyAmountAndSymbol}.",
-      "complete": "Ваша угода на купівлю %{buyAmountAndSymbol} за %{sellAmountAndSymbol} успішно виконана.",
-      "cancelled": "Ваша угоду на купівлю %{buyAmountAndSymbol} за %{sellAmountAndSymbol} було скасовано.",
-      "expired": "Ваша угода на купівлю %{buyAmountAndSymbol} за %{sellAmountAndSymbol} закінчилась."
+      "placed": "Обмежити замовлення, розміщене на %{sellAmountAndSymbol} до %{buyAmountAndSymbol}",
+      "complete": "Ваше замовлення на купівлю %{buyAmountAndSymbol} за %{sellAmountAndSymbol} успішно виконано.",
+      "cancelled": "Ваше замовлення на купівлю %{buyAmountAndSymbol} за %{sellAmountAndSymbol} було скасовано.",
+      "expired": "Ваше замовлення на покупку %{buyAmountAndSymbol} за %{sellAmountAndSymbol} закінчився."
     },
     "rfox": {
-      "unstakeConfirmed": "Ваше зняття в розмірі %{amount} FOX буде доступний для клейму через %{cooldownPeriod}."
+      "unstakeConfirmed": "Ваше зняття зі стейкінгу%{amount} %{symbol} будуть доступні для клейму у %{cooldownPeriod}.",
+      "unstakeReady": "Ваше зняття зі стейкінгу %{amount} %{symbol} готове для клейму.",
+      "unstakeTxPending": "Ваше зняття зі стейкінгу %{amount} %{symbol} в процесі.",
+      "unstakeTxComplete": "Ваше зняття зі стейкінгу %{amount} %{symbol} готове."
+    },
+    "tcy": {
+      "claimReady": "Ваша заява на отримання TCY у розмірі %{amount} %{symbol} готова",
+      "claimTxPending": "Ваша заявка на TCY у розмірі %{amount} %{symbol}   знаходиться на розгляді.",
+      "claimTxComplete": "Ваша заявка на TCY у розмірі %{amount} %{symbol} завершена.."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
-    "pendingTransactions": "%{count} Очікує на розгляд",
-    "orderCancelled": "Угода скасована.",
-    "orderExpired": "Термін дії угоди закінчився"
+    "pendingTransactions": "%{count} На розгляді",
+    "orderCancelled": "Замовлення скасовано",
+    "orderExpired": "Термін дії замовлення закінчився"
   }
 }

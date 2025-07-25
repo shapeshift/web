@@ -15,7 +15,6 @@ type TrendingTokenPriceCellProps = {
 export const TrendingTokenPriceCell = ({ assetId }: TrendingTokenPriceCellProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const changePercent24Hr = marketData?.changePercent24Hr
-
   const textColor = useColorModeValue('black', 'white')
 
   const priceChange = useMemo(() => {
@@ -24,11 +23,7 @@ export const TrendingTokenPriceCell = ({ assetId }: TrendingTokenPriceCellProps)
     return (
       <Tag colorScheme={isPositive ? 'green' : 'red'} width='max-content' px={1}>
         <TagLeftIcon as={isPositive ? RiArrowRightUpLine : RiArrowLeftDownLine} me={1} />
-        <Amount.Percent
-          value={bnOrZero(changePercent24Hr).times(0.01).toString()}
-          fontSize='xs'
-          color={isPositive ? 'green.500' : 'red.500'}
-        />
+        <Amount.Percent value={bnOrZero(changePercent24Hr).times(0.01).toString()} fontSize='xs' />
       </Tag>
     )
   }, [changePercent24Hr])

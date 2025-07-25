@@ -1,5 +1,14 @@
-import { CheckIcon } from '@chakra-ui/icons'
-import { Box, Flex, Icon, Menu, MenuItemOption, MenuOptionGroup, Skeleton } from '@chakra-ui/react'
+import { CheckIcon, ChevronDownIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Flex,
+  Icon,
+  Menu,
+  MenuItemOption,
+  MenuOptionGroup,
+  Skeleton,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import range from 'lodash/range'
@@ -252,18 +261,15 @@ export const TrendingTokens = () => {
 
   return (
     <Box>
-      <Text
-        ref={titleRef}
-        color='text.primary'
-        fontWeight='bold'
-        translation='common.trendingTokens'
-        textDecoration='underline'
-        textUnderlineOffset='4px'
-        mb={2}
-        mt={2}
-        px={5}
-        onClick={handleOpenCategoriesDialog}
-      />
+      <Flex align='center' onClick={handleOpenCategoriesDialog} mb={2} mt={2} px={5}>
+        <Text
+          ref={titleRef}
+          color='text.primary'
+          fontWeight='bold'
+          translation='common.trendingTokens'
+        />
+        <ChevronDownIcon ml={1} boxSize='20px' color='text.subtle' />
+      </Flex>
       {content}
 
       <Dialog

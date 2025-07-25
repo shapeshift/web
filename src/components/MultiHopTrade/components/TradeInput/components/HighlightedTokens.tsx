@@ -35,6 +35,8 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
+const HIGHLIGHTED_TOKENS_LIMIT = 10
+
 export const HighlightedTokens = () => {
   const dispatch = useAppDispatch()
   const assetsById = useAppSelector(selectAssets)
@@ -45,7 +47,7 @@ export const HighlightedTokens = () => {
   const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
     preferences.selectors.selectHighlightedTokensFilters,
   )
-  const rows = useRows({ limit: 10 })
+  const rows = useRows({ limit: HIGHLIGHTED_TOKENS_LIMIT })
 
   const categoryHook =
     selectedCategory === MarketsCategories.OneClickDefi
@@ -95,7 +97,7 @@ export const HighlightedTokens = () => {
       if (!portalsAssets) return []
 
       return portalsAssets.ids
-        .slice(0, 10)
+        .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
         .map(id => assetsById[id])
         .filter(isSome)
     }
@@ -103,13 +105,13 @@ export const HighlightedTokens = () => {
     if (!categoryQueryData) return []
     if (selectedChainId === 'all')
       return categoryQueryData?.ids
-        .slice(0, 10)
+        .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
         .map(id => assetsById[id])
         .filter(isSome)
 
     return categoryQueryData.ids
       .filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
-      .slice(0, 10)
+      .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
       .map(id => assetsById[id])
       .filter(isSome)
   }, [assetsById, categoryQueryData, selectedChainId, portalsAssets, selectedCategory])
@@ -182,15 +184,19 @@ export const HighlightedTokens = () => {
     (row: Row<Asset>) => {
       const mixpanel = getMixPanel()
 
-      mixpanel?.track(MixPanelEvent.TrendingTokenClicked, {
+      mixpanel?.track(MixPanelEvent.HighlightedTokenClicked, {
         assetId: row.original.assetId,
         asset: row.original.symbol,
         name: row.original.name,
+        category: selectedCategory,
+        chainId: selectedChainId,
+        order: selectedOrder,
+        sort: selectedSort,
       })
 
       dispatch(tradeInput.actions.setBuyAsset(row.original))
     },
-    [dispatch],
+    [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
   )
 
   useEffect(() => {

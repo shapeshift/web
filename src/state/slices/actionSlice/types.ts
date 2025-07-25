@@ -16,6 +16,7 @@ export enum ActionType {
   RfoxClaim = 'RfoxClaim',
   TcyClaim = 'TcyClaim',
   Send = 'Send',
+  Approve = 'Approve',
   ChangeAddress = 'ChangeAddress',
 }
 
@@ -65,6 +66,7 @@ export enum GenericTransactionDisplayType {
   Bridge = 'Bridge',
   FoxFarm = 'FOX Farming',
   SEND = 'Send',
+  Approve = 'Approve',
 }
 
 type ActionGenericTransactionMetadata = {
@@ -76,6 +78,7 @@ type ActionGenericTransactionMetadata = {
   assetId: AssetId
   amountCryptoPrecision: string | undefined
   newAddress?: string
+  contractName?: string
   cooldownPeriod?: string
   thorMemo?: string
 }
@@ -105,6 +108,7 @@ export type GenericTransactionAction = BaseAction & {
     | ActionType.Claim
     | ActionType.ChangeAddress
     | ActionType.Send
+    | ActionType.Approve
 
   transactionMetadata: ActionGenericTransactionMetadata
 }

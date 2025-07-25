@@ -1,4 +1,7 @@
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import { MarketsCategories } from '@/pages/Markets/constants'
 import type { ReduxState } from '@/state/reducer'
 import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
 import {
@@ -170,6 +173,12 @@ export const mockStore: ReduxState = {
     watchedAssets: [],
     selectedHomeView: HomeMarketView.TopAssets,
     hasWalletSeenTcyClaimAlert: {},
+    highlightedTokensFilters: {
+      selectedCategory: MarketsCategories.Trending,
+      selectedOrder: OrderDirection.Descending,
+      selectedSort: SortOptionsKeys.Apy,
+      selectedChainId: 'all',
+    },
     // the following object is required by redux-persist
     _persist: {
       version: 0,

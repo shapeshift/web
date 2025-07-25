@@ -251,8 +251,9 @@
       "sparkLine": "迷你图",
       "myCrypto": "我的加密货币",
       "empty": {
-        "title": "蟋蟀的叫声...",
-        "cta": "给你自己发送一些加密货币！"
+        "title": "每段旅程都始于第一步",
+        "body": "给自己发送一些加密货币以开始使用。",
+        "cta": "添加加密货币"
       },
       "stakedInfo": "您无法发送或交易已质押的数量"
     },
@@ -1103,6 +1104,7 @@
     "noOpenOrders": "尚无未结订单。",
     "noHistoricalOrders": "尚无历史订单。",
     "limitPriceIsPercentLowerThanMarket": "限价低于市价 %{percent}%",
+    "highCowFeeImpact": "CoW 费用为您出售数量 (%{cryptoImpact} %{sellAssetSymbol}) 的 %{percentage}% 。您的订单可能无法执行。",
     "awaitingOrderPlacement": "在 %{swapperName} 上提交订单中",
     "awaitingAllowanceApproval": "额度授权中",
     "awaitingAllowanceReset": "额度重置中",
@@ -2949,7 +2951,7 @@
       "getValidator": "无法获取验证器。"
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "通知",
     "viewTransaction": "查看交易",
     "viewOrder": "查看订单",
@@ -2958,47 +2960,63 @@
     "limitPrice": "限价",
     "expires": "到期时间",
     "filled": "已成交",
-    "streaming": "流式交换中",
+    "streaming": "流式兑换中",
     "claim": "领取",
     "protocol": "协议",
-    "streamingStatus": "流式传输状态",
+    "streamingStatus": "流式兑换状态",
     "executionPrice": "执行价格",
     "status": {
       "title": "状态",
-      "open": "未结",
+      "open": "未成交",
       "expired": "已到期",
       "cancelled": "已取消",
       "confirmed": "已确认",
-      "failed": "已失败",
-      "pending": "待处理",
+      "failed": "失败",
+      "pending": "待处理中",
       "claimAvailable": "可领取",
-      "unknown": "未知"
+      "claimed": "已领取",
+      "unknown": "未知",
+      "initiated": "已发起"
     },
     "emptyState": {
-      "title": "欢迎来到 ShapeShift",
-      "body1": "这是您的通知中心。",
-      "body2": "在这里找到您正在进行中的交易。",
+      "title": "欢迎使用 ShapeShift",
+      "body1": "这是您的操作中心。",
+      "body2": "在这里找到您进行中的交易。",
       "startSwapping": "开始兑换"
     },
     "swap": {
-      "processing": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在处理中。",
-      "complete": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已完成。",
-      "failed": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易已失败。",
-      "streaming": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在流式执行中。"
+      "processing": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在进行中。",
+      "complete": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已完成。",
+      "failed": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
+      "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。"
+    },
+    "bridge": {
+      "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在进行中。",
+      "complete": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已完成。",
+      "initiated": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已发起。",
+      "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。"
     },
     "limitOrder": {
-      "placed": "以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单",
+      "placed": "使用 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单已下单",
       "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已成交。",
       "cancelled": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已取消。",
-      "expired": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已过期。"
+      "expired": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已到期。"
     },
     "rfox": {
-      "unstakeConfirmed": "您取消质押的 %{amount} FOX 将能够在 %{cooldownPeriod} 后领取"
+      "unstakeConfirmed": "您取消质押的 %{amount} %{symbol} 将在 %{cooldownPeriod} 后可领取。",
+      "unstakeReady": "您取消质押的 %{amount} %{symbol} 已可领取。",
+      "unstakeTxPending": "您取消质押的 %{amount} %{symbol} 待处理中。",
+      "unstakeTxComplete": "您取消质押的 %{amount} %{symbol} 已完成。"
+    },
+    "tcy": {
+      "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪",
+      "claimTxPending": "您领取的 %{amount} %{symbol} TCY 待处理中。",
+      "claimTxComplete": "您领取的 %{amount} %{symbol} TCY 已完成。"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
-    "pendingTransactions": "%{count} 待处理中",
+    "pendingTransactions": "%{count} 笔待处理交易",
     "orderCancelled": "订单已取消",
-    "orderExpired": "订单已过期"
+    "orderExpired": "订单已到期"
   }
 }

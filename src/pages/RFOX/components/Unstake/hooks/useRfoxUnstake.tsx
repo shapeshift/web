@@ -10,8 +10,11 @@ import { encodeFunctionData } from 'viem'
 
 import type { UnstakeInputValues } from '../types'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
@@ -68,6 +71,12 @@ export const useRfoxUnstake = ({
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
+
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+
+  const toast = useNotificationToast({
+    duration: isDrawerOpen ? 5000 : null,
+  })
 
   const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
 
@@ -171,7 +180,7 @@ export const useRfoxUnstake = ({
             displayType: GenericTransactionDisplayType.RFOX,
             amountCryptoPrecision,
             cooldownPeriod,
-            message: 'actionCenter.rfox.unstakeConfirmed',
+            message: 'RFOX.unstakePending',
             txHash: txId,
             chainId: stakingAsset.chainId,
             accountId: stakingAssetAccountId,
@@ -179,6 +188,27 @@ export const useRfoxUnstake = ({
           },
         }),
       )
+
+      toast({
+        id: txId,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
 
       return txId
     },

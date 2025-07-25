@@ -122,9 +122,6 @@ export const HighlightedTokens = () => {
         preferences.actions.setHighlightedTokensSelectedCategory(category as MarketsCategories),
       )
       setIsCategoryDialogOpen(false)
-      dispatch(
-        preferences.actions.setHighlightedTokensSelectedCategory(category as MarketsCategories),
-      )
     },
     [dispatch],
   )

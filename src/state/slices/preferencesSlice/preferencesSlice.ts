@@ -221,7 +221,7 @@ const initialState: Preferences = {
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories.Trending,
     selectedOrder: OrderDirection.Descending,
-    selectedSort: SortOptionsKeys.Apy,
+    selectedSort: SortOptionsKeys.Volume,
     selectedChainId: 'all',
   },
 }

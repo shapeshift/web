@@ -27,10 +27,10 @@ export const HighlightedTokensPriceCell = ({
   const textColor = useColorModeValue('black', 'white')
 
   const priceChange = useMemo(() => {
-    const isPositive = bnOrZero(changePercent24Hr).gte(0)
-
     if (selectedCategory === MarketsCategories.OneClickDefi) {
       const maybePortalsAsset = portalsAssets?.byId[assetId]
+      const apy = bnOrZero(maybePortalsAsset?.metrics.apy ?? 0)
+      const isPositive = apy.gte(0)
 
       return (
         <Tag colorScheme={isPositive ? 'green' : 'red'} width='max-content' px={1}>
@@ -44,6 +44,8 @@ export const HighlightedTokensPriceCell = ({
         </Tag>
       )
     }
+
+    const isPositive = bnOrZero(changePercent24Hr).gte(0)
 
     return (
       <Tag colorScheme={isPositive ? 'green' : 'red'} width='max-content' px={1}>

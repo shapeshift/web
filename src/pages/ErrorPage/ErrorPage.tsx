@@ -8,21 +8,11 @@ import { IconCircle } from '@/components/IconCircle'
 import { Layout } from '@/components/Layout/Layout'
 import { Main } from '@/components/Layout/Main'
 import { RawText } from '@/components/Text'
-import { persistor } from '@/state/store'
 
 export const ErrorPage: React.FC<FallbackProps> = () => {
   const translate = useTranslate()
 
-  const handleReset = useCallback(async () => {
-    try {
-      /**
-       * we've hit the error boundary - not good. it's possibly related to stale data
-       * in the redux store. purge the persisted data in the store.
-       */
-      await persistor.purge()
-    } catch (e) {
-      console.error(e)
-    }
+  const handleReset = useCallback(() => {
     /**
      * we have pretty complex state management (account and tx fetching) that we don't
      * want to try and recreate here to recover from an error.

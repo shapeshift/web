@@ -33,7 +33,11 @@ import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -148,6 +152,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           type: ActionType.Deposit,
           status: ActionStatus.Pending,
           transactionMetadata: {
+            displayType: GenericTransactionDisplayType.FoxFarm,
             message: 'actionCenter.deposit.pending',
             amountCryptoPrecision: bnOrZero(state.deposit.cryptoAmount).decimalPlaces(6).toString(),
             assetId: asset.assetId,
@@ -196,7 +201,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         assets,
       )
 
-      navigate('/fox')
+      navigate(-1)
     } catch (error) {
       console.error(error)
       toast({

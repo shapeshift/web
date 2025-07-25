@@ -71,10 +71,7 @@
       "value": "현 가치",
       "priceChange": "가격 변동",
       "allocation": "보유 비율",
-      "empty": {
-        "title": "짤랑거리는 소리만이 들립니다...",
-        "cta": "토큰이 하나도 없어요 😢"
-      },
+      "empty": {},
       "stakedInfo": "스테이킹된 금액을 보내거나 거래할 수 없습니다."
     },
     "recentTransactions": {

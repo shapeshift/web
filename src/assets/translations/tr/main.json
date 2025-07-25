@@ -251,8 +251,9 @@
       "sparkLine": "Sparkline",
       "myCrypto": "Kriptom",
       "empty": {
-        "title": "Pinpon sesleri...",
-        "cta": "Kendinize biraz kripto gönderin!"
+        "title": "Her yolculuk ilk adımla başlar",
+        "body": "Başlamak için kendinize biraz kripto gönderin.",
+        "cta": "Kripto Ekle"
       },
       "stakedInfo": "Stake edilen miktarı gönderemez veya takas edemezsiniz"
     },
@@ -1103,6 +1104,7 @@
     "noOpenOrders": "Henüz açık emir yok.",
     "noHistoricalOrders": "Henüz tarihi bir emir yok.",
     "limitPriceIsPercentLowerThanMarket": "Limit fiyatı piyasa fiyatından %{percent}% daha düşüktür",
+    "highCowFeeImpact": "CoW ücreti, satış tutarınızın %{percentage}%'idir (%{cryptoImpact} %{sellAssetSymbol}). Emriniz gerçekleştirilemeyebilir.",
     "awaitingOrderPlacement": "%{swapperName} üzerinde emir verilmesi bekleniyor",
     "awaitingAllowanceApproval": "Ödenek onayı bekleniyor",
     "awaitingAllowanceReset": "Ödeneğin sıfırlanması bekleniyor",
@@ -2949,56 +2951,72 @@
       "getValidator": "Doğrulayıcı alınamadı."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Bildirimler",
     "viewTransaction": "İşlemi Görüntüle",
     "viewOrder": "Siparişi Görüntüle",
     "cancelOrder": "Siparişi İptal Et",
     "pair": "Çift",
     "limitPrice": "Limit Fiyatı",
-    "expires": "Sona Erme",
+    "expires": "Son Tarih",
     "filled": "Dolduruldu",
-    "streaming": "Akış",
-    "claim": "Talep",
+    "streaming": "Yayınlanıyor",
+    "claim": "Topla",
     "protocol": "Protokol",
-    "streamingStatus": "Akış Durumu",
+    "streamingStatus": "Yayın Durumu",
     "executionPrice": "Uygulama Fiyatı",
     "status": {
       "title": "Durum",
       "open": "Açık",
-      "expired": "Süresi Dolmuş",
+      "expired": "Günü geçmiş",
       "cancelled": "İptal edildi",
       "confirmed": "Onaylandı",
-      "failed": "Başarısız",
-      "pending": "Bekleniyor",
-      "claimAvailable": "Talep Mevcut",
-      "unknown": "Bilinmeyen"
+      "failed": "Hatalı",
+      "pending": "Bekliyor",
+      "claimAvailable": "Talep Mevcuttur",
+      "claimed": "Talep edildi",
+      "unknown": "Bilinmeyen",
+      "initiated": "Başlatıldı"
     },
     "emptyState": {
-      "title": "ShapeShift'e Hoşgeldiniz",
+      "title": "ShapeShift'e hoş geldiniz",
       "body1": "Bu sizin eylem merkezinizdir.",
       "body2": "Devam eden işlemleri burada bulabilirsiniz.",
-      "startSwapping": "Takasa Başla"
+      "startSwapping": "Takasa Başlayın"
     },
     "swap": {
-      "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız işleniyor.",
-      "complete": "%{sellAmountAndSymbol}'u %{buyAmountAndSymbol}'a dönüştürme işleminiz tamamlandı.",
-      "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız başarısız oldu.",
-      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayınlanıyor."
+      "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz işleniyor.",
+      "complete": "%{sellAmountAndSymbol} ürününü %{buyAmountAndSymbol} ürününe dönüştürme işleminiz tamamlandı.",
+      "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz başarısız oldu.",
+      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında."
+    },
+    "bridge": {
+      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
+      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz tamamlandı.",
+      "initiated": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başlatıldı.",
+      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu."
     },
     "limitOrder": {
-      "placed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasında verilen limit emri",
-      "complete": "%{buyAmountAndSymbol} için %{sellAmountAndSymbol} satın alma emriniz başarıyla gerçekleştirildi.",
-      "cancelled": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz iptal edildi.",
+      "placed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasında limit emri verildi",
+      "complete": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz başarıyla gerçekleştirildi.",
+      "cancelled": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma siparişiniz iptal edildi.",
       "expired": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz sona erdi."
     },
     "rfox": {
-      "unstakeConfirmed": "%{amount} FOX'luk unstake %{cooldownPeriod} içinde talep edilebilir hale gelecektir."
+      "unstakeConfirmed": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme hakkınız %{cooldownPeriod} içinde talep edilebilir.",
+      "unstakeReady": "%{amount} %{symbol} tutarındaki hisse senedinizi talep etmeye hazırsınız.",
+      "unstakeTxPending": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme talebiniz beklemede.",
+      "unstakeTxComplete": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme işleminiz tamamlandı."
+    },
+    "tcy": {
+      "claimReady": "%{amount} %{symbol} tutarındaki TCY talebiniz hazır",
+      "claimTxPending": "%{amount} %{symbol} tutarındaki TCY talebiniz beklemede.",
+      "claimTxComplete": "%{amount} %{symbol} tutarındaki TCY talebiniz tamamlandı."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Bekliyor",
-    "orderCancelled": "Sipariş İptal Edildi",
-    "orderExpired": "Sipariş Süresi Doldu"
+    "orderCancelled": "İşlem İptal Edildi",
+    "orderExpired": "İşlem Süresi Doldu"
   }
 }

@@ -64,12 +64,13 @@ export enum GenericTransactionDisplayType {
   TCY = 'TCY',
   RFOX = 'rFOX',
   Bridge = 'Bridge',
+  FoxFarm = 'FOX Farming',
   SEND = 'Send',
   Approve = 'Approve',
 }
 
 type ActionGenericTransactionMetadata = {
-  displayType?: GenericTransactionDisplayType
+  displayType: GenericTransactionDisplayType
   message: string
   accountId: AccountId
   txHash: string

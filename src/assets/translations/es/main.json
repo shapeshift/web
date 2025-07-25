@@ -251,8 +251,9 @@
       "sparkLine": "Minigráfico",
       "myCrypto": "Mi Cripto",
       "empty": {
-        "title": "Ruido de grillos...",
-        "cta": "Envíate algo de cripto!"
+        "title": "Todo viaje comienza con un primer paso.",
+        "body": "Envíese algo de cripto para comenzar.",
+        "cta": "Agregar Cripto"
       },
       "stakedInfo": "No puede enviar ni intercambiar la cantidad staked"
     },
@@ -1103,6 +1104,7 @@
     "noOpenOrders": "No hay órdenes abiertas todavía",
     "noHistoricalOrders": "Aún no hay pedidos históricos.",
     "limitPriceIsPercentLowerThanMarket": "Precio límite es %{percent}% más bajo que precio de mercado",
+    "highCowFeeImpact": "La comisión de CoW es del %{percentage}% del importe de venta (%{cryptoImpact} %{sellAssetSymbol}). Es posible que su orden no se ejecute.",
     "awaitingOrderPlacement": "Esperando la colocación de la orden en %{swapperName}",
     "awaitingAllowanceApproval": "Esperando aprobación de la asignación",
     "awaitingAllowanceReset": "Esperando restablecimiento de la asignación",
@@ -2949,15 +2951,15 @@
       "getValidator": "No se pudo obtener validador."
     }
   },
-  "notificationCenter": {
+  "actionCenter": {
     "title": "Notificaciones",
     "viewTransaction": "Ver Transacción",
     "viewOrder": "Ver Orden",
     "cancelOrder": "Cancelar Orden",
-    "pair": "Emparejar",
+    "pair": "Par",
     "limitPrice": "Precio Límite",
     "expires": "Caduca",
-    "filled": "Completado",
+    "filled": "Completada",
     "streaming": "Transmitiendo",
     "claim": "Reclamar",
     "protocol": "Protocolo",
@@ -2971,8 +2973,10 @@
       "confirmed": "Confirmado",
       "failed": "Fallido",
       "pending": "Pendiente",
-      "claimAvailable": "Reclamación Disponible",
-      "unknown": "Desconocido"
+      "claimAvailable": "Reclamo Disponible",
+      "claimed": "Reclamado",
+      "unknown": "Desconocido",
+      "initiated": "Iniciado"
     },
     "emptyState": {
       "title": "Bienvenido a ShapeShift",
@@ -2981,24 +2985,38 @@
       "startSwapping": "Empezar a Intercambiar"
     },
     "swap": {
-      "processing": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está procesando.",
-      "complete": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha completado.",
-      "failed": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha fallado.",
-      "streaming": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está transmitiendo."
+      "processing": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está procesando.",
+      "complete": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se ha completado.",
+      "failed": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha fallado.",
+      "streaming": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está transmitiendo."
+    },
+    "bridge": {
+      "processing": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
+      "complete": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} está completo.",
+      "initiated": "Bridge iniciado de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName}.",
+      "failed": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} ha fallado."
     },
     "limitOrder": {
-      "placed": "Orden limitada colocada para %{sellAmountAndSymbol} a %{buyAmountAndSymbol}",
-      "complete": "Su pedido para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} se completó exitosamente.",
-      "cancelled": "Su orden de compra de %{buyAmountAndSymbol} por %{sellAmountAndSymbol} fue cancelada.",
-      "expired": "Su orden para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} expiró."
+      "placed": "Orden Limite colocada para %{sellAmountAndSymbol} a %{buyAmountAndSymbol}",
+      "complete": "Orden para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} se completó exitosamente.",
+      "cancelled": "Orden para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} fue cancelada.",
+      "expired": "Orden para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} expiró."
     },
     "rfox": {
-      "unstakeConfirmed": "Tu %{amount} FOX unstaking estará disponible para reclamar en %{cooldownPeriod}."
+      "unstakeConfirmed": "Unstake de %{amount} %{symbol} estará disponible para reclamar en %{cooldownPeriod}.",
+      "unstakeReady": "Unstake de %{amount} %{symbol} está listo para reclamar.",
+      "unstakeTxPending": "Unstake de %{amount} %{symbol} está pendiente.",
+      "unstakeTxComplete": "Unstake de %{amount} %{symbol} completado."
+    },
+    "tcy": {
+      "claimReady": "Su reclamo TCY de %{amount} %{symbol} está listo",
+      "claimTxPending": "Su reclamo TCY de %{amount} %{symbol} está pendiente.",
+      "claimTxComplete": "Su reclamo TCY de %{amount} %{symbol} ha completado."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pendiente",
-    "orderCancelled": "Pedido Cancelado",
-    "orderExpired": "Pedido Vencido"
+    "orderCancelled": "Orden Cancelada",
+    "orderExpired": "Orden Caducada"
   }
 }

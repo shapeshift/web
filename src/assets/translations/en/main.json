@@ -2875,6 +2875,7 @@
     },
     "emptyTitle": "No assets found",
     "emptyBody": "No assets were found with the current filter. See more assets by adjusting the selected chain.",
+    "emptyBodySwapper": "No assets were found with the current filter.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "One Click DeFi Assets",
@@ -3004,7 +3005,6 @@
       "complete": "Your withdrawal of %{amount} %{symbol} is complete."
     },
     "claim": {
-      "cta": "Claim",
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
       "complete": "Your claim of %{amount} %{symbol} is complete."
     },

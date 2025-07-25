@@ -1,9 +1,12 @@
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS, SwapperName } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import {
   AllowanceType,
   getApprovalAmountCryptoBaseUnit,
@@ -11,12 +14,20 @@ import {
 } from '@/hooks/queries/useApprovalFees'
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
+import { selectActiveQuoteSellAsset } from '@/state/slices/limitOrderSlice/selectors'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import { selectAccountNumberByAccountId } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseAllowanceApprovalProps = {
   activeQuote: LimitOrderActiveQuote | undefined
@@ -30,7 +41,10 @@ export const useAllowanceApproval = ({
   isQueryEnabled,
   isRefetchEnabled,
 }: UseAllowanceApprovalProps) => {
+  const translate = useTranslate()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const dispatch = useAppDispatch()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
 
@@ -93,7 +107,7 @@ export const useAllowanceApproval = ({
       }
       dispatch(limitOrderSlice.actions.setAllowanceApprovalTxPending(activeQuote.response.id))
     },
-    async onSuccess(txHash) {
+    onSuccess: async txHash => {
       if (!activeQuote?.response.id) {
         console.error('Attempting to approve with undefined quoteId')
         return
@@ -104,6 +118,62 @@ export const useAllowanceApproval = ({
           id: activeQuote.response.id,
         }),
       )
+
+      if (!activeQuote) return
+
+      // All limit order approvals are unlimited
+      const amountCryptoPrecision = 'Infinite ∞'
+
+      const sellAsset = selectActiveQuoteSellAsset(store.getState())
+
+      if (!sellAsset) return
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txHash,
+          type: ActionType.Approve,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.Approve,
+            txHash,
+            chainId: activeQuote.params.chainId,
+
+            accountId: activeQuote.params.accountId,
+            amountCryptoPrecision,
+            assetId: activeQuote.params.sellAssetId,
+            contractName: SwapperName.CowSwap,
+            message: translate('actionCenter.approve.approvalTxPending', {
+              contractName: SwapperName.CowSwap,
+              amountCryptoPrecision,
+              symbol: sellAsset.symbol,
+            }),
+          },
+        }),
+      )
+
+      toast({
+        id: txHash,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txHash}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
 
       const publicClient = assertGetViemClient(activeQuote?.params.chainId ?? '')
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })

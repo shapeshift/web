@@ -47,6 +47,8 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -58,6 +60,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -86,6 +89,12 @@ import type { Opportunity } from '@/pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from '@/pages/ThorChainLP/utils'
 import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import {
   selectAccountIdsByAssetId,
   selectAccountIdsByChainId,
@@ -144,6 +153,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
@@ -597,6 +608,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return serializeTxIndex(poolAssetAccountId, approvalTxId, poolAssetAccountAddress)
   }, [approvalTxId, poolAssetAccountAddress, poolAssetAccountId])
 
+  const approvalAmountCryptoBaseUnit = useMemo(
+    () =>
+      toBaseUnit(
+        isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
+        poolAsset?.precision ?? 0,
+        BigNumber.ROUND_UP,
+      ),
+    [actualAssetDepositAmountCryptoPrecision, isAllowanceResetRequired, poolAsset?.precision],
+  )
+
   const {
     mutate,
     isPending: isApprovalMutationPending,
@@ -605,17 +626,63 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ...reactQueries.mutations.approve({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
-      amountCryptoBaseUnit: toBaseUnit(
-        isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
-        poolAsset?.precision ?? 0,
-        BigNumber.ROUND_UP,
-      ),
+      amountCryptoBaseUnit: approvalAmountCryptoBaseUnit,
       wallet: wallet ?? undefined,
       from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
-    onSuccess: (txId: string) => {
-      setApprovalTxId(txId)
+    onSuccess: (txHash: string) => {
+      setApprovalTxId(txHash)
+
+      if (!poolAsset || !poolAssetAccountId) return
+
+      const amountCryptoPrecision = fromBaseUnit(approvalAmountCryptoBaseUnit, poolAsset.precision)
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txHash,
+          type: ActionType.Approve,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.Approve,
+            txHash,
+            chainId: poolAsset.chainId,
+            accountId: poolAssetAccountId,
+            amountCryptoPrecision,
+            assetId: poolAsset.assetId,
+            contractName: 'THORChain LP',
+            message: translate('actionCenter.approve.approvalTxPending', {
+              contractName: 'THORChain LP',
+              amountCryptoPrecision,
+              symbol: poolAsset.symbol,
+            }),
+          },
+        }),
+      )
+
+      toast({
+        id: txHash,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txHash}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
     },
   })
 

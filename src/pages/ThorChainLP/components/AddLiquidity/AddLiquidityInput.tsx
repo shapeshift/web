@@ -652,9 +652,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             accountId: poolAssetAccountId,
             amountCryptoPrecision,
             assetId: poolAsset.assetId,
-            contractName: 'THORCHain LP',
+            contractName: 'THORChain LP',
             message: translate('actionCenter.approve.approvalTxPending', {
-              contractName: 'THORCHain LP',
+              contractName: 'THORChain LP',
               amountCryptoPrecision,
               symbol: poolAsset.symbol,
             }),

@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { UseQueryResult } from '@tanstack/react-query'

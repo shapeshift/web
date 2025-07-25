@@ -1,14 +1,5 @@
 import { CheckIcon, ChevronDownIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Flex,
-  Icon,
-  Menu,
-  MenuItemOption,
-  MenuOptionGroup,
-  Skeleton,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Box, Flex, Icon, Menu, MenuItemOption, MenuOptionGroup, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import range from 'lodash/range'

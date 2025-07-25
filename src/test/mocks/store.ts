@@ -169,6 +169,7 @@ export const mockStore: ReduxState = {
     snapInstalled: false,
     watchedAssets: [],
     selectedHomeView: HomeMarketView.TopAssets,
+    hasWalletSeenTcyClaimAlert: {},
     // the following object is required by redux-persist
     _persist: {
       version: 0,

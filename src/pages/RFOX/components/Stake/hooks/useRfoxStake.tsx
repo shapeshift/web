@@ -6,6 +6,7 @@ import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
 import type { StakeInputValues } from '../types'
@@ -80,6 +81,7 @@ export const useRfoxStake = ({
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const wallet = useWallet().state.wallet
+  const translate = useTranslate()
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
@@ -344,6 +346,56 @@ export const useRfoxStake = ({
     }),
     onSuccess: (txId: string) => {
       setApprovalTxHash(txId)
+
+      if (!stakingAsset || !stakingAssetAccountId) return
+
+      const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txId,
+          type: ActionType.Approve,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.Approve,
+            txHash: txId,
+            chainId: stakingAsset.chainId,
+            accountId: stakingAssetAccountId,
+            amountCryptoPrecision,
+            assetId: stakingAssetId,
+            contractName: 'RFOX',
+            message: translate('actionCenter.approve.approvalTxPending', {
+              contractName: 'RFOX',
+              amountCryptoPrecision,
+              symbol: stakingAsset.symbol,
+            }),
+          },
+        }),
+      )
+
+      toast({
+        id: txId,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
     },
   })
 

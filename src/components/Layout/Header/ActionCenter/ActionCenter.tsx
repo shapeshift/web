@@ -88,6 +88,7 @@ export const ActionCenter = memo(() => {
           case ActionType.Deposit:
           case ActionType.Withdraw:
           case ActionType.ChangeAddress:
+          case ActionType.Approve:
           case ActionType.Claim: {
             return <GenericTransactionActionCard key={action.id} action={action} />
           }

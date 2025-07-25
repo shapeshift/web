@@ -1,17 +1,32 @@
+import { useToast } from '@chakra-ui/react'
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router'
 
 import { useTCYClaims } from '../queries/useTcyClaims'
 
+import { TcyClaimSaversNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/TcyClaimSaversNotification'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType, isTcyClaimAction } from '@/state/slices/actionSlice/types'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const TCY_TOAST_ID = 'tcyClaimAlert'
 
 export const useTcyClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
+  const toast = useToast()
+  const navigate = useNavigate()
+  const {
+    state: { walletInfo },
+  } = useWallet()
 
   const allTcyClaims = useTCYClaims('all')
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
+  const hasWalletSeenTcyClaimAlert = useAppSelector(
+    preferences.selectors.selectHasWalletSeenTcyClaimAlert,
+  )
 
   useEffect(() => {
     if (!allTcyClaims.length) return
@@ -27,8 +42,32 @@ export const useTcyClaimActionSubscriber = () => {
         maybeStoreAction &&
         isTcyClaimAction(maybeStoreAction) &&
         maybeStoreAction.status === ActionStatus.ClaimAvailable
-      )
+      ) {
+        if (
+          walletInfo &&
+          !hasWalletSeenTcyClaimAlert[walletInfo.deviceId] &&
+          !toast.isActive(TCY_TOAST_ID) // Just in case redux takes too much time to update
+        ) {
+          dispatch(preferences.actions.setHasSeenTcyClaimForWallet(walletInfo.deviceId))
+
+          toast({
+            render: ({ onClose }) => {
+              const handleClick = () => {
+                navigate('/tcy')
+                onClose()
+              }
+
+              // eslint-disable-next-line react-memo/require-usememo
+              return <TcyClaimSaversNotification handleClick={handleClick} onClose={onClose} />
+            },
+            id: TCY_TOAST_ID,
+            duration: null,
+            isClosable: true,
+            position: 'bottom-right',
+          })
+        }
         return
+      }
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -43,5 +82,14 @@ export const useTcyClaimActionSubscriber = () => {
         }),
       )
     })
-  }, [allTcyClaims, dispatch, actionIds, actions])
+  }, [
+    allTcyClaims,
+    dispatch,
+    actionIds,
+    actions,
+    walletInfo,
+    hasWalletSeenTcyClaimAlert,
+    toast,
+    navigate,
+  ])
 }

@@ -102,7 +102,7 @@ export const ClaimActionCard = ({
       return (
         <Stack gap={4}>
           <Button width='full' colorScheme='green' onClick={handleClaimClick}>
-            {translate('actionCenter.claim')}
+            {translate('common.claim')}
           </Button>
         </Stack>
       )

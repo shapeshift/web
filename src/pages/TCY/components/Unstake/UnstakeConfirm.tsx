@@ -1,4 +1,4 @@
-import { tcyAssetId } from '@shapeshiftoss/caip'
+import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -7,27 +7,32 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import { useTcyStaker } from '../../queries/useTcyStaker'
-import type { TCYRouteProps } from '../../types'
 import { TCYUnstakeRoute } from '../../types'
 import type { UnstakeFormValues } from './Unstake'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { toBaseUnit } from '@/lib/math'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type UnstakeConfirmProps = TCYRouteProps & {
-  setUnstakeTxid: (txId: string) => void
-}
-
-export const UnstakeConfirm: React.FC<UnstakeConfirmProps> = ({ setUnstakeTxid }) => {
+export const UnstakeConfirm: React.FC = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { watch } = useFormContext<UnstakeFormValues>()
+  const dispatch = useAppDispatch()
   const amountCryptoPrecision = watch('amountCryptoPrecision')
   const accountId = watch('accountId')
   const tcyMarketData = useAppSelector(state =>
@@ -43,6 +48,12 @@ export const UnstakeConfirm: React.FC<UnstakeConfirmProps> = ({ setUnstakeTxid }
   )
 
   const { data: tcyStaker } = useTcyStaker(accountId)
+
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+
+  const toast = useNotificationToast({
+    duration: isDrawerOpen ? 5000 : null,
+  })
 
   const amountThorBaseUnit = useMemo(
     () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
@@ -74,18 +85,55 @@ export const UnstakeConfirm: React.FC<UnstakeConfirmProps> = ({ setUnstakeTxid }
     mutationFn: async () => {
       const txid = await executeTransaction()
       if (!txid) throw new Error('Failed to broadcast transaction')
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txid,
+          type: ActionType.Withdraw,
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.TCY,
+            txHash: txid,
+            chainId: thorchainChainId,
+            accountId,
+            assetId: tcyAssetId,
+            amountCryptoPrecision,
+            message: 'actionCenter.tcy.unstakePending',
+            thorMemo: `tcy-:${withdrawBps}`,
+          },
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        }),
+      )
+
+      toast({
+        id: txid,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txid}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
       return txid
-    },
-    onSuccess: (txid: string | undefined) => {
-      if (!txid) return
-      setUnstakeTxid(txid)
-      navigate(TCYUnstakeRoute.Status)
     },
   })
 
   const handleConfirm = useCallback(async () => {
     await handleUnstake()
-  }, [handleUnstake])
+    navigate(TCYUnstakeRoute.Input)
+  }, [handleUnstake, navigate])
 
   const handleCancel = useCallback(() => {
     navigate(TCYUnstakeRoute.Input)

@@ -3,12 +3,15 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import type { StepComponentProps } from '@/components/DeFi/components/Steps'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -29,6 +32,12 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -38,7 +47,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   accountId,
@@ -46,9 +55,13 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const navigate = useNavigate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, assetReference } = query
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+
+  const appDispatch = useAppDispatch()
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
@@ -119,7 +132,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       !assetReference ||
       !walletState.wallet ||
       !asset ||
-      !foxFarmingOpportunity
+      !foxFarmingOpportunity ||
+      !accountId
     )
       return
     try {
@@ -128,7 +142,50 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
-      onNext(DefiStep.Status)
+
+      const now = Date.now()
+      appDispatch(
+        actionSlice.actions.upsertAction({
+          id: txid,
+          createdAt: now,
+          updatedAt: now,
+          type: ActionType.Deposit,
+          status: ActionStatus.Pending,
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.FoxFarm,
+            message: 'actionCenter.deposit.pending',
+            amountCryptoPrecision: bnOrZero(state.deposit.cryptoAmount).decimalPlaces(6).toString(),
+            assetId: asset.assetId,
+            chainId: asset.chainId,
+            accountId,
+            txHash: txid,
+          },
+        }),
+      )
+
+      toast({
+        id: txid,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'success',
+        position: 'bottom-right',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txid}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+
       trackOpportunityEvent(
         MixPanelEvent.DepositConfirm,
         {
@@ -143,6 +200,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         },
         assets,
       )
+
+      navigate(-1)
     } catch (error) {
       console.error(error)
       toast({
@@ -156,14 +215,18 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
+    accountId,
+    appDispatch,
     asset,
     assetReference,
     assets,
     contractAddress,
     dispatch,
     foxFarmingOpportunity,
-    onNext,
+    isDrawerOpen,
+    navigate,
     onOngoingFarmingTxIdChange,
+    openActionCenter,
     stake,
     state,
     toast,

@@ -25,6 +25,30 @@ import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+type DisplayTypeMessageMap = Partial<Record<GenericTransactionDisplayType, string>>
+
+const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>> = {
+  [ActionType.Deposit]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.stakeSuccess',
+    [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.stakeComplete',
+    [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.deposit.complete',
+  },
+  [ActionType.Withdraw]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.unstakeSuccess',
+    [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.unstakeComplete',
+    [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.withdrawal.complete',
+  },
+  [ActionType.Claim]: {
+    [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.claim.complete',
+  },
+  [ActionType.Approve]: {
+    [GenericTransactionDisplayType.Approve]: 'actionCenter.approve.approvalTxComplete',
+  },
+  [ActionType.ChangeAddress]: {
+    [GenericTransactionDisplayType.RFOX]: 'RFOX.changeAddressSuccess',
+  },
+}
+
 export const useGenericTransactionSubscriber = () => {
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -38,30 +62,37 @@ export const useGenericTransactionSubscriber = () => {
   useEffect(() => {
     pendingGenericTransactionActions.forEach(async action => {
       if (action.status !== ActionStatus.Pending) return
-      // RFOX stake/unstake only for now, TODO: handle more
-      if (action.transactionMetadata.displayType !== GenericTransactionDisplayType.RFOX) return
 
-      const { accountId, txHash } = action.transactionMetadata
+      // Approvals, RFOX and TCY TODO: handle more
+      if (
+        !action.transactionMetadata.displayType ||
+        ![
+          GenericTransactionDisplayType.RFOX,
+          GenericTransactionDisplayType.TCY,
+          GenericTransactionDisplayType.FoxFarm,
+          GenericTransactionDisplayType.Approve,
+        ].includes(action.transactionMetadata.displayType)
+      ) {
+        return
+      }
+
+      const { accountId, txHash, thorMemo } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
-      const serializedTxIndex = serializeTxIndex(accountId, txHash, accountAddress)
+      const serializedTxIndex = serializeTxIndex(
+        accountId,
+        txHash,
+        accountAddress,
+        thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
+      )
       const tx = txs[serializedTxIndex]
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return
 
-      // TODO(gomes): This should handle more than just RFOX things
-      const message = (() => {
-        switch (action.type) {
-          case ActionType.Deposit:
-            return 'RFOX.stakeSuccess'
-          case ActionType.Withdraw:
-            return 'RFOX.unstakeSuccess'
-          case ActionType.ChangeAddress:
-            return 'RFOX.changeAddressSuccess'
-          default:
-            throw new Error(`Unhandled action type: ${action.type}`)
-        }
-      })()
+      const typeMessagesMap = displayTypeMessagesMap[action.type]
+      const message = typeMessagesMap?.[action.transactionMetadata.displayType]
+
+      if (!message) return
 
       const stakingAssetId = action.transactionMetadata.assetId
       const stakingAssetAccountId = action.transactionMetadata.accountId

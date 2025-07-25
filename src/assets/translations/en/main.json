@@ -38,6 +38,7 @@
     "goBack": "Go back",
     "connected": "Connected",
     "allocation": "Allocation",
+    "trendingTokens": "Trending Tokens",
     "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
@@ -199,7 +200,7 @@
     "hardwareWallets": "Hardware Wallets",
     "dustAmount": "Dust Amount",
     "marketDataUnavailable": "Market data is unavailable for %{asset}",
-    "streaming": "Streaming", 
+    "streaming": "Streaming",
     "dca": "DCA",
     "boost": "Boost"
   },
@@ -2781,6 +2782,7 @@
     "timeStaked": "Time Staked",
     "timeStakedHelper": "The amount of time you have staked your %{symbol}",
     "stakingReward": "Staking Reward",
+    "claimNow": "You had a savers/lending position on Thorchain. You can claim your TCY now.",
     "claimsEmpty": {
       "emptyTitle": "No claims available",
       "emptyBody": "It appears you have no TCY claims available. Try with another wallet?",
@@ -2873,6 +2875,7 @@
     },
     "emptyTitle": "No assets found",
     "emptyBody": "No assets were found with the current filter. See more assets by adjusting the selected chain.",
+    "emptyBodySwapper": "No assets were found with the current filter.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "One Click DeFi Assets",
@@ -2965,7 +2968,6 @@
     "limitPrice": "Limit Price",
     "expires": "Expires",
     "filled": "Filled",
-    "claim": "Claim",
     "protocol": "Protocol",
     "streamingStatus": "Streaming Status",
     "executionPrice": "Execution Price",
@@ -2994,6 +2996,18 @@
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
     },
+    "deposit": {
+      "pending": "Your deposit of %{amount} %{symbol} is being processed.",
+      "complete": "Your deposit of %{amount} %{symbol} is complete."
+    },
+    "withdrawal": {
+      "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
+    },
+    "claim": {
+      "pending": "Your claim of %{amount} %{symbol} is being processed.",
+      "complete": "Your claim of %{amount} %{symbol} is complete."
+    },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
@@ -3013,9 +3027,17 @@
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
     },
     "tcy": {
-      "claimReady": "Your TCY claim of %{amount} %{symbol} is ready",
+      "stakePending": "Your stake of %{amount} %{symbol} is processing...",
+      "unstakePending": "Your unstake of %{amount} %{symbol} is processing...",
+      "stakeComplete": "Your stake of %{amount} %{symbol} is complete.",
+      "unstakeComplete": "Your unstake of %{amount} %{symbol} is complete.",
+      "claimReady": "Your TCY claim of %{amount} %{symbol} is ready.",
       "claimTxPending": "Your TCY claim of %{amount} %{symbol} is pending.",
       "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
+    },
+    "approve": {
+      "approvalTxPending": "Approving %{contractName} to use %{amountCryptoPrecision} %{symbol}.",
+      "approvalTxComplete": "Approved %{contractName} to use %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

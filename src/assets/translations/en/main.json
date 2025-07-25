@@ -3004,7 +3004,6 @@
       "complete": "Your withdrawal of %{amount} %{symbol} is complete."
     },
     "claim": {
-      "cta": "Claim",
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
       "complete": "Your claim of %{amount} %{symbol} is complete."
     },

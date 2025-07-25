@@ -11,6 +11,7 @@ import {
   Icon,
   Stack,
   useDisclosure,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
@@ -39,6 +40,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 export type SpotTradeSuccessProps = {
   handleBack: () => void
@@ -172,6 +174,8 @@ export const SpotTradeSuccess = ({
     actualBuyAmountCryptoPrecision,
   ])
 
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+
   if (!(buyAsset && sellAsset)) return null
 
   return (
@@ -208,6 +212,7 @@ export const SpotTradeSuccess = ({
             px={cardFooterPx}
             position={footerPosition}
             bottom='var(--mobile-nav-offset)'
+            backgroundColor={isSmallerThanMd ? 'background.surface.base' : undefined}
           >
             <SlideTransition>
               <HStack width='full' justifyContent='space-between'>

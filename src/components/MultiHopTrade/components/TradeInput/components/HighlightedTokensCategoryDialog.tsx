@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { MarketsCategories } from '@/pages/Markets/constants'
 
-type TrendingTokensCategoryDialogProps = {
+type HighlightedTokensCategoryDialogProps = {
   isOpen: boolean
   onClose: () => void
   selectedCategory: MarketsCategories
@@ -15,12 +15,12 @@ type TrendingTokensCategoryDialogProps = {
 
 const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 
-export const TrendingTokensCategoryDialog = ({
+export const HighlightedTokensCategoryDialog = ({
   isOpen,
   onClose,
   selectedCategory,
   handleCategoryChange,
-}: TrendingTokensCategoryDialogProps) => {
+}: HighlightedTokensCategoryDialogProps) => {
   const translate = useTranslate()
 
   const categories = useMemo(() => {

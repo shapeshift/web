@@ -11,17 +11,17 @@ import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type TrendingTokenPriceCellProps = {
+type HighlightedTokensPriceCellProps = {
   assetId: AssetId
   selectedCategory: MarketsCategories
   portalsAssets: PortalsAssets | undefined
 }
 
-export const TrendingTokenPriceCell = ({
+export const HighlightedTokensPriceCell = ({
   assetId,
   selectedCategory,
   portalsAssets,
-}: TrendingTokenPriceCellProps) => {
+}: HighlightedTokensPriceCellProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const changePercent24Hr = marketData?.changePercent24Hr
   const textColor = useColorModeValue('black', 'white')

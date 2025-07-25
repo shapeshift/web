@@ -1,17 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 
 import type { WalletId } from '../portfolioSlice/portfolioSliceCommon'
 
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { getConfig } from '@/config'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { simpleLocale } from '@/lib/browserLocale'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { MarketsCategories } from '@/pages/Markets/constants'
 
 dayjs.extend(localizedFormat)
 
@@ -123,6 +126,12 @@ export type Preferences = {
   watchedAssets: AssetId[]
   selectedHomeView: HomeMarketView
   quoteDisplayOption: QuoteDisplayOption
+  highlightedTokensFilters: {
+    selectedCategory: MarketsCategories
+    selectedOrder: OrderDirection
+    selectedSort: SortOptionsKeys
+    selectedChainId: ChainId | 'all'
+  }
 }
 
 const initialState: Preferences = {
@@ -209,6 +218,12 @@ const initialState: Preferences = {
   watchedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
   quoteDisplayOption: QuoteDisplayOption.Basic,
+  highlightedTokensFilters: {
+    selectedCategory: MarketsCategories.Trending,
+    selectedOrder: OrderDirection.Descending,
+    selectedSort: SortOptionsKeys.Apy,
+    selectedChainId: 'all',
+  },
 }
 
 export const preferences = createSlice({
@@ -282,6 +297,26 @@ export const preferences = createSlice({
     setHasSeenTcyClaimForWallet: create.reducer((state, { payload }: { payload: WalletId }) => {
       state.hasWalletSeenTcyClaimAlert[payload] = true
     }),
+    setHighlightedTokensSelectedCategory: create.reducer(
+      (state, { payload }: { payload: MarketsCategories }) => {
+        state.highlightedTokensFilters.selectedCategory = payload
+      },
+    ),
+    setHighlightedTokensSelectedOrder: create.reducer(
+      (state, { payload }: { payload: OrderDirection }) => {
+        state.highlightedTokensFilters.selectedOrder = payload
+      },
+    ),
+    setHighlightedTokensSelectedSort: create.reducer(
+      (state, { payload }: { payload: SortOptionsKeys }) => {
+        state.highlightedTokensFilters.selectedSort = payload
+      },
+    ),
+    setHighlightedTokensSelectedChainId: create.reducer(
+      (state, { payload }: { payload: ChainId | 'all' }) => {
+        state.highlightedTokensFilters.selectedChainId = payload
+      },
+    ),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -297,5 +332,6 @@ export const preferences = createSlice({
     selectShowConsentBanner: state => state.showConsentBanner,
     selectQuoteDisplayOption: state => state.quoteDisplayOption,
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
+    selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
   },
 })

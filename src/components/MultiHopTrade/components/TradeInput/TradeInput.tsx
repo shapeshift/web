@@ -20,9 +20,9 @@ import { TradeAssetInput } from '../TradeAssetInput'
 import { ArbitrumBridgeAcknowledgement } from './components/ArbitrumBridgeAcknowledgement'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
+import { HighlightedTokens } from './components/HighlightedTokens'
 import { StreamingAcknowledgement } from './components/StreamingAcknowledgement'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
-import { TrendingTokens } from './components/TrendingTokens'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
@@ -499,7 +499,7 @@ export const TradeInput = ({
             labelPostFix={buyTradeAssetSelect}
             activeQuote={activeQuote}
           />
-          {isSmallerThanMd && !hasUserEnteredAmount && <TrendingTokens />}
+          {isSmallerThanMd && !hasUserEnteredAmount && <HighlightedTokens />}
         </>
       </SharedTradeInputBody>
     )

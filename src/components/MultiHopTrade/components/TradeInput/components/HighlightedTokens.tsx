@@ -11,11 +11,11 @@ import { MdOutlineFilterAlt } from 'react-icons/md'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import type { Column, Row } from 'react-table'
 
-import { TrendingTokenPriceCell } from './TrendingTokenPriceCell'
-import { TrendingTokensCategoryDialog } from './TrendingTokensCategoryDialog'
-import { TrendingTokensFiltersDialog } from './TrendingTokensFiltersDialog'
+import { HighlightedTokensCategoryDialog } from './HighlightedTokensCategoryDialog'
+import { HighlightedTokensFiltersDialog } from './HighlightedTokensFiltersDialog'
+import { HighlightedTokensPriceCell } from './HighlightedTokensPriceCell'
 
-import { OrderDirection } from '@/components/OrderDropdown/types'
+import type { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
@@ -28,27 +28,23 @@ import { MarketsCategories, sortOptionsByCategory } from '@/pages/Markets/consta
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 import { useRows } from '@/pages/Markets/hooks/useRows'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
-export const TrendingTokens = () => {
+export const HighlightedTokens = () => {
   const dispatch = useAppDispatch()
   const assetsById = useAppSelector(selectAssets)
   const [bodyHeaderHeight, setBodyHeaderHeight] = useState('0px')
   const titleRef = useRef<HTMLDivElement>(null)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<MarketsCategories>(
-    MarketsCategories.Trending,
+  const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
+    preferences.selectors.selectHighlightedTokensFilters,
   )
-  const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)
-  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
-    (selectedCategory && sortOptionsByCategory[selectedCategory]?.[0]) ?? SortOptionsKeys.Volume,
-  )
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
   const rows = useRows({ limit: 10 })
 
   const categoryHook =
@@ -72,7 +68,9 @@ export const TrendingTokens = () => {
     isError: isPortalsAssetsError,
   } = usePortalsAssetsQuery({
     chainIds:
-      selectedChainId === 'all' ? rows[selectedCategory].supportedChainIds : [selectedChainId],
+      selectedChainId === 'all'
+        ? rows[selectedCategory].supportedChainIds ?? []
+        : [selectedChainId],
     enabled: selectedCategory === MarketsCategories.OneClickDefi,
     sortBy: selectedSort,
     orderBy: selectedOrder,
@@ -83,14 +81,14 @@ export const TrendingTokens = () => {
     const sortOptions = sortOptionsByCategory[selectedCategory]
 
     if (!sortOptions) {
-      setSelectedSort(SortOptionsKeys.Volume)
+      dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.Volume))
       return
     }
 
     if (selectedSort && !sortOptions.includes(selectedSort)) {
-      setSelectedSort(sortOptions[0])
+      dispatch(preferences.actions.setHighlightedTokensSelectedSort(sortOptions[0]))
     }
-  }, [selectedCategory, selectedSort])
+  }, [selectedCategory, selectedSort, dispatch])
 
   const filteredAssets = useMemo(() => {
     if (selectedCategory === MarketsCategories.OneClickDefi) {
@@ -116,22 +114,39 @@ export const TrendingTokens = () => {
       .filter(isSome)
   }, [assetsById, categoryQueryData, selectedChainId, portalsAssets, selectedCategory])
 
-  const handleCategoryChange = useCallback((category: string) => {
-    setSelectedCategory(category as MarketsCategories)
-    setIsCategoryDialogOpen(false)
-  }, [])
+  const handleCategoryChange = useCallback(
+    (category: string) => {
+      dispatch(
+        preferences.actions.setHighlightedTokensSelectedCategory(category as MarketsCategories),
+      )
+      setIsCategoryDialogOpen(false)
+      dispatch(
+        preferences.actions.setHighlightedTokensSelectedCategory(category as MarketsCategories),
+      )
+    },
+    [dispatch],
+  )
 
-  const handleSortChange = useCallback((sort: string) => {
-    setSelectedSort(sort as SortOptionsKeys)
-  }, [])
+  const handleSortChange = useCallback(
+    (sort: string) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedSort(sort as SortOptionsKeys))
+    },
+    [dispatch],
+  )
 
-  const handleOrderChange = useCallback((order: string) => {
-    setSelectedOrder(order as OrderDirection)
-  }, [])
+  const handleOrderChange = useCallback(
+    (order: string) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedOrder(order as OrderDirection))
+    },
+    [dispatch],
+  )
 
-  const handleChainIdChange = useCallback((chain: string | undefined) => {
-    setSelectedChainId(chain as ChainId)
-  }, [])
+  const handleChainIdChange = useCallback(
+    (chain: ChainId | 'all') => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedChainId(chain))
+    },
+    [dispatch],
+  )
 
   const columns: Column<Asset>[] = useMemo(
     () => [
@@ -152,7 +167,7 @@ export const TrendingTokens = () => {
         id: 'balance',
         justifyContent: { base: 'flex-end', lg: 'flex-start' },
         Cell: ({ row }: { row: Row<Asset> }) => (
-          <TrendingTokenPriceCell
+          <HighlightedTokensPriceCell
             assetId={row.original.assetId}
             selectedCategory={selectedCategory}
             portalsAssets={portalsAssets}
@@ -335,14 +350,14 @@ export const TrendingTokens = () => {
       </Flex>
       {content}
 
-      <TrendingTokensCategoryDialog
+      <HighlightedTokensCategoryDialog
         isOpen={isCategoryDialogOpen}
         onClose={handleCloseCategoriesDialog}
         selectedCategory={selectedCategory}
         handleCategoryChange={handleCategoryChange}
       />
 
-      <TrendingTokensFiltersDialog
+      <HighlightedTokensFiltersDialog
         isOpen={isFiltersDialogOpen}
         onClose={handleCloseFiltersDialog}
         selectedCategory={selectedCategory}

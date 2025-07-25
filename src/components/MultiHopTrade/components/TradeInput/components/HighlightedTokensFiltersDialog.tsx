@@ -15,18 +15,18 @@ import type { MarketsCategories } from '@/pages/Markets/constants'
 
 const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 
-type TrendingTokensFiltersDialogProps = {
+type HighlightedTokensFiltersDialogProps = {
   isOpen: boolean
   onClose: () => void
   selectedCategory: MarketsCategories
   selectedSort: SortOptionsKeys
   selectedOrder: OrderDirection
-  selectedChainId: ChainId
+  selectedChainId: ChainId | 'all'
   handleSortChange: (sort: SortOptionsKeys) => void
   handleOrderChange: (order: OrderDirection) => void
-  handleChainIdChange: (chainId: string | undefined) => void
+  handleChainIdChange: (chainId: ChainId | 'all') => void
 }
-export const TrendingTokensFiltersDialog = ({
+export const HighlightedTokensFiltersDialog = ({
   isOpen,
   onClose,
   selectedCategory,
@@ -36,7 +36,7 @@ export const TrendingTokensFiltersDialog = ({
   handleSortChange,
   handleOrderChange,
   handleChainIdChange,
-}: TrendingTokensFiltersDialogProps) => {
+}: HighlightedTokensFiltersDialogProps) => {
   const translate = useTranslate()
 
   const filters = useMemo(() => {

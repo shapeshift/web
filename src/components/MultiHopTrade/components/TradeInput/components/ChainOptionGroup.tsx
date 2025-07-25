@@ -16,7 +16,7 @@ const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 type ChainOptionGroupProps = {
   selectedCategory: MarketsCategories
   selectedChainId: ChainId | 'all'
-  handleChainChange: (chainId: string | undefined) => void
+  handleChainChange: (chainId: ChainId | 'all') => void
 }
 
 export const ChainOptionGroup = ({

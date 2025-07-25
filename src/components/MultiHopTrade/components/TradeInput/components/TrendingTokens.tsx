@@ -1,17 +1,20 @@
-import { CheckIcon, ChevronDownIcon } from '@chakra-ui/icons'
-import { Box, Flex, Icon, Menu, MenuItemOption, MenuOptionGroup, Skeleton } from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { Box, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import range from 'lodash/range'
 import truncate from 'lodash/truncate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { MdOutlineFilterAlt } from 'react-icons/md'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 
 import { TrendingTokenPriceCell } from './TrendingTokenPriceCell'
+import { TrendingTokensCategoryDialog } from './TrendingTokensCategoryDialog'
+import { TrendingTokensFiltersDialog } from './TrendingTokensFiltersDialog'
 
-import { Dialog } from '@/components/Modal/components/Dialog'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
@@ -21,83 +24,114 @@ import { Text } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { MarketsCategories } from '@/pages/Markets/constants'
+import { MarketsCategories, sortOptionsByCategory } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
+import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
+import { useRows } from '@/pages/Markets/hooks/useRows'
 import { selectAssets } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
-const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
-
 export const TrendingTokens = () => {
   const dispatch = useAppDispatch()
   const assetsById = useAppSelector(selectAssets)
   const [bodyHeaderHeight, setBodyHeaderHeight] = useState('0px')
   const titleRef = useRef<HTMLDivElement>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<
-    Exclude<MarketsCategories, MarketsCategories.OneClickDefi>
-  >(MarketsCategories.Trending)
-  const categoryHook = CATEGORY_TO_QUERY_HOOK[selectedCategory]
-  const translate = useTranslate()
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
+  const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<MarketsCategories>(
+    MarketsCategories.Trending,
+  )
+  const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)
+  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
+    (selectedCategory && sortOptionsByCategory[selectedCategory]?.[0]) ?? SortOptionsKeys.Volume,
+  )
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
+  const rows = useRows({ limit: 10 })
+
+  const categoryHook =
+    selectedCategory === MarketsCategories.OneClickDefi
+      ? CATEGORY_TO_QUERY_HOOK[MarketsCategories.Trending]
+      : CATEGORY_TO_QUERY_HOOK[selectedCategory]
 
   const {
     data: categoryQueryData,
     isLoading: isCategoryQueryDataLoading,
     isError: isCategoryQueryDataError,
   } = categoryHook({
-    enabled: true,
-    orderBy: OrderDirection.Descending,
-    sortBy:
-      selectedCategory === MarketsCategories.MarketCap
-        ? SortOptionsKeys.MarketCap
-        : SortOptionsKeys.Volume,
+    enabled: selectedCategory !== MarketsCategories.OneClickDefi,
+    orderBy: selectedOrder,
+    sortBy: selectedSort,
   })
 
-  const assets = useMemo(() => {
-    return categoryQueryData?.ids
+  const {
+    data: portalsAssets,
+    isLoading: isPortalsAssetsLoading,
+    isError: isPortalsAssetsError,
+  } = usePortalsAssetsQuery({
+    chainIds:
+      selectedChainId === 'all' ? rows[selectedCategory].supportedChainIds : [selectedChainId],
+    enabled: selectedCategory === MarketsCategories.OneClickDefi,
+    sortBy: selectedSort,
+    orderBy: selectedOrder,
+    minApy: '1',
+  })
+
+  useEffect(() => {
+    const sortOptions = sortOptionsByCategory[selectedCategory]
+
+    if (!sortOptions) {
+      setSelectedSort(SortOptionsKeys.Volume)
+      return
+    }
+
+    if (selectedSort && !sortOptions.includes(selectedSort)) {
+      setSelectedSort(sortOptions[0])
+    }
+  }, [selectedCategory, selectedSort])
+
+  const filteredAssets = useMemo(() => {
+    if (selectedCategory === MarketsCategories.OneClickDefi) {
+      if (!portalsAssets) return []
+
+      return portalsAssets.ids
+        .slice(0, 10)
+        .map(id => assetsById[id])
+        .filter(isSome)
+    }
+
+    if (!categoryQueryData) return []
+    if (selectedChainId === 'all')
+      return categoryQueryData?.ids
+        .slice(0, 10)
+        .map(id => assetsById[id])
+        .filter(isSome)
+
+    return categoryQueryData.ids
+      .filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
       .slice(0, 10)
       .map(id => assetsById[id])
       .filter(isSome)
-  }, [assetsById, categoryQueryData])
+  }, [assetsById, categoryQueryData, selectedChainId, portalsAssets, selectedCategory])
 
   const handleCategoryChange = useCallback((category: string) => {
-    setSelectedCategory(category as Exclude<MarketsCategories, MarketsCategories.OneClickDefi>)
-    setIsOpen(false)
+    setSelectedCategory(category as MarketsCategories)
+    setIsCategoryDialogOpen(false)
   }, [])
 
-  const categories = useMemo(() => {
-    const categoriesOptions = Object.values(MarketsCategories)
-      .filter(category => category !== MarketsCategories.OneClickDefi)
-      .map(category => ({
-        label: translate(`markets.categories.${category}.title`),
-        value: category,
-      }))
+  const handleSortChange = useCallback((sort: string) => {
+    setSelectedSort(sort as SortOptionsKeys)
+  }, [])
 
-    return (
-      <Menu>
-        <MenuOptionGroup type='radio' value={selectedCategory}>
-          {categoriesOptions.map(category => (
-            <MenuItemOption
-              key={category.value}
-              value={category.value}
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleCategoryChange(category.value)}
-              fontSize='md'
-              iconPlacement='end'
-              icon={checkedIcon}
-              color={selectedCategory === category.value ? 'text.primary' : 'text.subtle'}
-              fontWeight='bold'
-            >
-              {category.label}
-            </MenuItemOption>
-          ))}
-        </MenuOptionGroup>
-      </Menu>
-    )
-  }, [handleCategoryChange, selectedCategory, translate])
+  const handleOrderChange = useCallback((order: string) => {
+    setSelectedOrder(order as OrderDirection)
+  }, [])
+
+  const handleChainIdChange = useCallback((chain: string | undefined) => {
+    setSelectedChainId(chain as ChainId)
+  }, [])
 
   const columns: Column<Asset>[] = useMemo(
     () => [
@@ -118,11 +152,15 @@ export const TrendingTokens = () => {
         id: 'balance',
         justifyContent: { base: 'flex-end', lg: 'flex-start' },
         Cell: ({ row }: { row: Row<Asset> }) => (
-          <TrendingTokenPriceCell assetId={row.original.assetId} />
+          <TrendingTokenPriceCell
+            assetId={row.original.assetId}
+            selectedCategory={selectedCategory}
+            portalsAssets={portalsAssets}
+          />
         ),
       },
     ],
-    [],
+    [selectedCategory, portalsAssets],
   )
 
   const handleRowClick = useCallback(
@@ -173,18 +211,31 @@ export const TrendingTokens = () => {
   }, [])
 
   const handleOpenCategoriesDialog = useCallback(() => {
-    setIsOpen(true)
+    setIsCategoryDialogOpen(true)
   }, [])
 
   const handleCloseCategoriesDialog = useCallback(() => {
-    setIsOpen(false)
+    setIsCategoryDialogOpen(false)
+  }, [])
+
+  const handleOpenFiltersDialog = useCallback(() => {
+    setIsFiltersDialogOpen(true)
+  }, [])
+
+  const handleCloseFiltersDialog = useCallback(() => {
+    setIsFiltersDialogOpen(false)
   }, [])
 
   const content = useMemo(() => {
-    if (isCategoryQueryDataLoading) {
+    if (isCategoryQueryDataLoading || isPortalsAssetsLoading) {
       return (
-        <Flex flexDir='column' width='100%' pb='var(--mobile-nav-offset)'>
-          {range(5).map(index => (
+        <Flex
+          flexDir='column'
+          width='100%'
+          maxHeight={`calc(100vh - var(--mobile-nav-offset) - ${bodyHeaderHeight})`}
+          overflowY='scroll'
+        >
+          {range(3).map(index => (
             <Flex
               key={index}
               align='center'
@@ -192,7 +243,6 @@ export const TrendingTokens = () => {
               justifyContent='space-between'
               px={4}
               mb={4}
-              py={4}
             >
               <Flex align='center'>
                 <Skeleton width='40px' height='40px' borderRadius='100%' me={2} />
@@ -211,7 +261,11 @@ export const TrendingTokens = () => {
       )
     }
 
-    if (isCategoryQueryDataError || !assets?.length) {
+    if (
+      (selectedCategory !== MarketsCategories.OneClickDefi && isCategoryQueryDataError) ||
+      (selectedCategory === MarketsCategories.OneClickDefi && isPortalsAssetsError) ||
+      !filteredAssets?.length
+    ) {
       return (
         <ResultsEmpty
           title={'markets.emptyTitle'}
@@ -231,7 +285,7 @@ export const TrendingTokens = () => {
       >
         <InfiniteTable
           columns={columns}
-          data={assets ?? []}
+          data={filteredAssets ?? []}
           onRowClick={handleRowClick}
           displayHeaders={false}
           variant='clickable'
@@ -242,41 +296,63 @@ export const TrendingTokens = () => {
       </Flex>
     )
   }, [
-    assets,
+    filteredAssets,
     bodyHeaderHeight,
     columns,
     handleRowClick,
-    isCategoryQueryDataError,
     isCategoryQueryDataLoading,
+    isCategoryQueryDataError,
+    isPortalsAssetsLoading,
+    isPortalsAssetsError,
+    selectedCategory,
   ])
+
+  const title = useMemo(() => {
+    if (selectedCategory === MarketsCategories.OneClickDefi) {
+      return `markets.categories.${selectedCategory}.filterTitle`
+    }
+
+    if (selectedCategory === MarketsCategories.Trending) {
+      return 'common.trendingTokens'
+    }
+
+    return `markets.categories.${selectedCategory}.title`
+  }, [selectedCategory])
 
   return (
     <Box>
-      <Flex align='center' onClick={handleOpenCategoriesDialog} mb={2} mt={2} px={5}>
-        <Text
-          ref={titleRef}
-          color='text.primary'
-          fontWeight='bold'
-          translation='common.trendingTokens'
+      <Flex justifyContent='space-between' alignItems='center' mb={2} mt={2} px={5}>
+        <Flex align='center' onClick={handleOpenCategoriesDialog}>
+          <Text ref={titleRef} color='text.primary' fontWeight='bold' translation={title} />
+          <ChevronDownIcon ml={1} boxSize='20px' color='text.subtle' />
+        </Flex>
+        <Icon
+          as={MdOutlineFilterAlt}
+          boxSize='20px'
+          color='text.subtle'
+          onClick={handleOpenFiltersDialog}
         />
-        <ChevronDownIcon ml={1} boxSize='20px' color='text.subtle' />
       </Flex>
       {content}
 
-      <Dialog
-        isOpen={isOpen}
+      <TrendingTokensCategoryDialog
+        isOpen={isCategoryDialogOpen}
         onClose={handleCloseCategoriesDialog}
-        height='auto'
-        isDisablingPropagation={false}
-      >
-        <Box
-          py={4}
-          pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + var(--chakra-space-4))'
-        >
-          <Box height='5px' width='36px' borderRadius='full' bg='gray.500' mb={4} mx='auto' />
-          {categories}
-        </Box>
-      </Dialog>
+        selectedCategory={selectedCategory}
+        handleCategoryChange={handleCategoryChange}
+      />
+
+      <TrendingTokensFiltersDialog
+        isOpen={isFiltersDialogOpen}
+        onClose={handleCloseFiltersDialog}
+        selectedCategory={selectedCategory}
+        selectedSort={selectedSort}
+        selectedOrder={selectedOrder}
+        selectedChainId={selectedChainId}
+        handleSortChange={handleSortChange}
+        handleOrderChange={handleOrderChange}
+        handleChainIdChange={handleChainIdChange}
+      />
     </Box>
   )
 }

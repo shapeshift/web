@@ -14,12 +14,14 @@ import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
+import { getTcyStakerQueryKey } from '@/pages/TCY/queries/useTcyStaker'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingGenericTransactionActions } from '@/state/slices/actionSlice/selectors'
 import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  GenericTransactionQueryId,
 } from '@/state/slices/actionSlice/types'
 import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -76,7 +78,7 @@ export const useGenericTransactionSubscriber = () => {
         return
       }
 
-      const { accountId, txHash, thorMemo } = action.transactionMetadata
+      const { accountId, txHash, thorMemo, queryId, assetId } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
       const serializedTxIndex = serializeTxIndex(
         accountId,
@@ -94,9 +96,6 @@ export const useGenericTransactionSubscriber = () => {
 
       if (!message) return
 
-      const stakingAssetId = action.transactionMetadata.assetId
-      const stakingAssetAccountId = action.transactionMetadata.accountId
-
       dispatch(
         actionSlice.actions.upsertAction({
           ...action,
@@ -108,43 +107,53 @@ export const useGenericTransactionSubscriber = () => {
         }),
       )
 
-      await queryClient.invalidateQueries({
-        queryKey: getStakingInfoQueryKey({
-          stakingAssetId,
-          stakingAssetAccountId,
-        }),
-      })
-      await queryClient.invalidateQueries({
-        queryKey: getStakingBalanceOfQueryKey({
-          stakingAssetId,
-          accountId: stakingAssetAccountId,
-        }),
-      })
-      await queryClient.invalidateQueries({
-        queryKey: getTimeInPoolQueryKey({
-          stakingAssetId,
-          stakingAssetAccountId,
-        }),
-      })
-      await queryClient.invalidateQueries({
-        queryKey: getEpochHistoryQueryKey(),
-      })
-      await queryClient.invalidateQueries({
-        queryKey: getEarnedQueryKey({
-          stakingAssetId,
-          stakingAssetAccountId,
-        }),
-      })
-      await queryClient.invalidateQueries({
-        queryKey: getAffiliateRevenueQueryKey({
-          startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
-          endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
-        }),
-      })
+      // Invalidate data that's now updated
+      if (queryId === GenericTransactionQueryId.RFOX) {
+        await queryClient.invalidateQueries({
+          queryKey: getStakingInfoQueryKey({
+            stakingAssetId: assetId,
+            stakingAssetAccountId: accountId,
+          }),
+        })
+        await queryClient.invalidateQueries({
+          queryKey: getStakingBalanceOfQueryKey({
+            stakingAssetId: assetId,
+            accountId,
+          }),
+        })
+        await queryClient.invalidateQueries({
+          queryKey: getTimeInPoolQueryKey({
+            stakingAssetId: assetId,
+            stakingAssetAccountId: accountId,
+          }),
+        })
 
-      await queryClient.invalidateQueries({
-        queryKey: ['getUnstakingRequests', { stakingAssetAccountId }],
-      })
+        await queryClient.invalidateQueries({
+          queryKey: getEpochHistoryQueryKey(),
+        })
+
+        await queryClient.invalidateQueries({
+          queryKey: getEarnedQueryKey({
+            stakingAssetId: assetId,
+            stakingAssetAccountId: accountId,
+          }),
+        })
+
+        await queryClient.invalidateQueries({
+          queryKey: getAffiliateRevenueQueryKey({
+            startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
+            endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
+          }),
+        })
+
+        await queryClient.invalidateQueries({
+          queryKey: ['getUnstakingRequests', { stakingAssetAccountId: accountId }],
+        })
+      } else if (queryId === GenericTransactionQueryId.TCY) {
+        await queryClient.invalidateQueries({
+          queryKey: getTcyStakerQueryKey(accountId),
+        })
+      }
 
       // No double-toasty
       if (toast.isActive(action.transactionMetadata.txHash)) return

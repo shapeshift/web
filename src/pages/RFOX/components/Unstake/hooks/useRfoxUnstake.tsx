@@ -32,6 +32,7 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  GenericTransactionQueryId,
 } from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
@@ -178,6 +179,7 @@ export const useRfoxUnstake = ({
           updatedAt: Date.now(),
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.RFOX,
+            queryId: GenericTransactionQueryId.RFOX,
             amountCryptoPrecision,
             cooldownPeriod,
             message: 'RFOX.unstakePending',

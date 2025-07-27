@@ -69,8 +69,14 @@ export enum GenericTransactionDisplayType {
   Approve = 'Approve',
 }
 
+export enum GenericTransactionQueryId {
+  RFOX = 'rFOX',
+  TCY = 'TCY',
+}
+
 type ActionGenericTransactionMetadata = {
   displayType: GenericTransactionDisplayType
+  queryId?: GenericTransactionQueryId
   message: string
   accountId: AccountId
   txHash: string

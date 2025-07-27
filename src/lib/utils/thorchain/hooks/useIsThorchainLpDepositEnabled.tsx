@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { rujiAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { thorchainChainId } from '@shapeshiftoss/caip'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 
 import { useThorchainMimir } from './useThorchainMimir'
@@ -20,9 +20,6 @@ export const useIsLpDepositEnabled = (assetId: AssetId | undefined) => {
         // PAUSELPDEPOSIT- mimirs don't use the usual dot notation
         // e.g ETH.FLIP-0X826180541412D574CF1336D22C0C0A287822678A becomes PAUSELPDEPOSIT-ETH-FLIP-0X826180541412D574CF1336D22C0C0A287822678A
         const poolAssetId = (k.split('PAUSELPDEPOSIT-')[1] ?? '').replace('-', '.')
-
-        // TEMP - Monkey patch until upstream issue with RUJI/RUNE pool is fixed
-        if (assetId === rujiAssetId) return true
 
         return poolAssetId === thorchainAssetId && Boolean(v)
       })

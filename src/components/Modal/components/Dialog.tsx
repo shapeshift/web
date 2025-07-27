@@ -36,7 +36,7 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
-  z-index: var(--chakra-zIndices-modal);
+  z-index: var(--chakra-zIndices-overlay);
 `
 
 const DialogWindow: React.FC<DialogProps> = ({
@@ -127,7 +127,7 @@ const DialogWindow: React.FC<DialogProps> = ({
               bg='rgba(0, 0, 0, 0.8)'
               position='fixed'
               inset={0}
-              zIndex='var(--chakra-zIndices-modal)'
+              zIndex='overlay'
               onClick={onClose}
             />
           ) : null}

@@ -41,6 +41,9 @@ const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>>
   [ActionType.Claim]: {
     [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.claim.complete',
   },
+  [ActionType.Approve]: {
+    [GenericTransactionDisplayType.Approve]: 'actionCenter.approve.approvalTxComplete',
+  },
   [ActionType.ChangeAddress]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.changeAddressSuccess',
   },
@@ -60,13 +63,14 @@ export const useGenericTransactionSubscriber = () => {
     pendingGenericTransactionActions.forEach(async action => {
       if (action.status !== ActionStatus.Pending) return
 
-      // RFOX and TCY TODO: handle more
+      // Approvals, RFOX and TCY TODO: handle more
       if (
         !action.transactionMetadata.displayType ||
         ![
           GenericTransactionDisplayType.RFOX,
           GenericTransactionDisplayType.TCY,
           GenericTransactionDisplayType.FoxFarm,
+          GenericTransactionDisplayType.Approve,
         ].includes(action.transactionMetadata.displayType)
       ) {
         return

@@ -78,29 +78,35 @@ export const HighlightedTokens = () => {
     minApy: '1',
   })
 
-  const filteredAssets = useMemo(() => {
-    if (selectedCategory === MarketsCategories.OneClickDefi) {
-      if (!portalsAssets) return []
+  const oneClickDefiAssets = useMemo(() => {
+    if (selectedCategory !== MarketsCategories.OneClickDefi || !portalsAssets) return []
 
-      return portalsAssets.ids
+    return portalsAssets.ids
+      .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
+      .map(id => assetsById[id])
+      .filter(isSome)
+  }, [selectedCategory, portalsAssets, assetsById])
+
+  const categoryAssets = useMemo(() => {
+    if (selectedCategory === MarketsCategories.OneClickDefi || !categoryQueryData) return []
+
+    if (selectedChainId === 'all') {
+      return categoryQueryData.ids
         .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
         .map(id => assetsById[id])
         .filter(isSome)
     }
-
-    if (!categoryQueryData) return []
-    if (selectedChainId === 'all')
-      return categoryQueryData?.ids
-        .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
-        .map(id => assetsById[id])
-        .filter(isSome)
 
     return categoryQueryData.ids
       .filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
       .slice(0, HIGHLIGHTED_TOKENS_LIMIT)
       .map(id => assetsById[id])
       .filter(isSome)
-  }, [assetsById, categoryQueryData, selectedChainId, portalsAssets, selectedCategory])
+  }, [selectedCategory, categoryQueryData, selectedChainId, assetsById])
+
+  const filteredAssets = useMemo(() => {
+    return selectedCategory === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
+  }, [oneClickDefiAssets, categoryAssets, selectedCategory])
 
   const handleCategoryChange = useCallback(
     (category: MarketsCategories) => {
@@ -168,7 +174,7 @@ export const HighlightedTokens = () => {
       },
       {
         accessor: 'symbol',
-        id: 'balance',
+        id: 'symbol',
         justifyContent: { base: 'flex-end', lg: 'flex-start' },
         Cell: ({ row }: { row: Row<Asset> }) => (
           <HighlightedTokensPriceCell

@@ -15,46 +15,45 @@ type HighlightedTokensCategoryDialogProps = {
 
 const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 
+const Category = ({
+  category,
+  selectedCategory,
+  handleCategoryChange,
+}: {
+  category: MarketsCategories
+  selectedCategory: MarketsCategories
+  handleCategoryChange: (category: MarketsCategories) => void
+}) => {
+  const translate = useTranslate()
+  const label = useMemo(() => {
+    return category === MarketsCategories.OneClickDefi
+      ? translate(`markets.categories.${category}.filterTitle`)
+      : translate(`markets.categories.${category}.title`)
+  }, [category, translate])
+
+  return (
+    <MenuItemOption
+      key={category}
+      value={category}
+      // eslint-disable-next-line react-memo/require-usememo
+      onClick={() => handleCategoryChange(category)}
+      fontSize='md'
+      iconPlacement='end'
+      icon={checkedIcon}
+      color={selectedCategory === category ? 'text.primary' : 'text.subtle'}
+      fontWeight='bold'
+    >
+      {label}
+    </MenuItemOption>
+  )
+}
+
 export const HighlightedTokensCategoryDialog = ({
   isOpen,
   onClose,
   selectedCategory,
   handleCategoryChange,
 }: HighlightedTokensCategoryDialogProps) => {
-  const translate = useTranslate()
-
-  const categories = useMemo(() => {
-    const categoriesOptions = Object.values(MarketsCategories).map(category => ({
-      label:
-        category === MarketsCategories.OneClickDefi
-          ? translate(`markets.categories.${category}.filterTitle`)
-          : translate(`markets.categories.${category}.title`),
-      value: category,
-    }))
-
-    return (
-      <Menu>
-        <MenuOptionGroup type='radio' value={selectedCategory}>
-          {categoriesOptions.map(category => (
-            <MenuItemOption
-              key={category.value}
-              value={category.value}
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleCategoryChange(category.value)}
-              fontSize='md'
-              iconPlacement='end'
-              icon={checkedIcon}
-              color={selectedCategory === category.value ? 'text.primary' : 'text.subtle'}
-              fontWeight='bold'
-            >
-              {category.label}
-            </MenuItemOption>
-          ))}
-        </MenuOptionGroup>
-      </Menu>
-    )
-  }, [handleCategoryChange, selectedCategory, translate])
-
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
       <Box
@@ -62,7 +61,20 @@ export const HighlightedTokensCategoryDialog = ({
         pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + var(--chakra-space-4))'
       >
         <Box height='5px' width='36px' borderRadius='full' bg='gray.500' mb={4} mx='auto' />
-        {categories}
+        <Menu>
+          <MenuOptionGroup type='radio' value={selectedCategory}>
+            {Object.values(MarketsCategories).map(category => {
+              return (
+                <Category
+                  key={category}
+                  category={category}
+                  selectedCategory={selectedCategory}
+                  handleCategoryChange={handleCategoryChange}
+                />
+              )
+            })}
+          </MenuOptionGroup>
+        </Menu>
       </Box>
     </Dialog>
   )

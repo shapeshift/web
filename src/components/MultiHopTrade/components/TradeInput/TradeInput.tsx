@@ -472,6 +472,7 @@ export const TradeInput = ({
         chainIdFilterPredicate={chainIdFilterPredicate}
         selectedSellAssetChainId={selectedSellAssetChainId}
         onSellAssetChainIdChange={setSelectedSellAssetChainId}
+        subContent={isSmallerThanMd && !hasUserEnteredAmount ? <HighlightedTokens /> : undefined}
       >
         <>
           <TradeAssetInput
@@ -499,7 +500,6 @@ export const TradeInput = ({
             labelPostFix={buyTradeAssetSelect}
             activeQuote={activeQuote}
           />
-          {isSmallerThanMd && !hasUserEnteredAmount && <HighlightedTokens />}
         </>
       </SharedTradeInputBody>
     )

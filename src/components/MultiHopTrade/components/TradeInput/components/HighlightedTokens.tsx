@@ -1,12 +1,12 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { Box, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import { Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import range from 'lodash/range'
 import truncate from 'lodash/truncate'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { MdOutlineFilterAlt } from 'react-icons/md'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import type { Column, Row } from 'react-table'
@@ -24,7 +24,7 @@ import { Text } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { MarketsCategories, sortOptionsByCategory } from '@/pages/Markets/constants'
+import { MarketsCategories } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 import { useRows } from '@/pages/Markets/hooks/useRows'
@@ -40,10 +40,9 @@ const HIGHLIGHTED_TOKENS_LIMIT = 10
 export const HighlightedTokens = () => {
   const dispatch = useAppDispatch()
   const assetsById = useAppSelector(selectAssets)
-  const [bodyHeaderHeight, setBodyHeaderHeight] = useState('0px')
-  const titleRef = useRef<HTMLDivElement>(null)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
+
   const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
     preferences.selectors.selectHighlightedTokensFilters,
   )
@@ -79,19 +78,6 @@ export const HighlightedTokens = () => {
     minApy: '1',
   })
 
-  useEffect(() => {
-    const sortOptions = sortOptionsByCategory[selectedCategory]
-
-    if (!sortOptions) {
-      dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.Volume))
-      return
-    }
-
-    if (selectedSort && !sortOptions.includes(selectedSort)) {
-      dispatch(preferences.actions.setHighlightedTokensSelectedSort(sortOptions[0]))
-    }
-  }, [selectedCategory, selectedSort, dispatch])
-
   const filteredAssets = useMemo(() => {
     if (selectedCategory === MarketsCategories.OneClickDefi) {
       if (!portalsAssets) return []
@@ -117,25 +103,46 @@ export const HighlightedTokens = () => {
   }, [assetsById, categoryQueryData, selectedChainId, portalsAssets, selectedCategory])
 
   const handleCategoryChange = useCallback(
-    (category: string) => {
-      dispatch(
-        preferences.actions.setHighlightedTokensSelectedCategory(category as MarketsCategories),
-      )
+    (category: MarketsCategories) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedCategory(category))
+
+      switch (category) {
+        case MarketsCategories.TopMovers:
+          dispatch(
+            preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.PriceChange),
+          )
+          break
+        case MarketsCategories.OneClickDefi:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.Apy))
+          break
+        case MarketsCategories.MarketCap:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.MarketCap))
+          break
+        case MarketsCategories.RecentlyAdded:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.MarketCap))
+          break
+        default:
+          dispatch(
+            preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.PriceChange),
+          )
+          break
+      }
+
       setIsCategoryDialogOpen(false)
     },
     [dispatch],
   )
 
   const handleSortChange = useCallback(
-    (sort: string) => {
-      dispatch(preferences.actions.setHighlightedTokensSelectedSort(sort as SortOptionsKeys))
+    (sort: SortOptionsKeys) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedSort(sort))
     },
     [dispatch],
   )
 
   const handleOrderChange = useCallback(
-    (order: string) => {
-      dispatch(preferences.actions.setHighlightedTokensSelectedOrder(order as OrderDirection))
+    (order: OrderDirection) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedOrder(order))
     },
     [dispatch],
   )
@@ -168,13 +175,13 @@ export const HighlightedTokens = () => {
         Cell: ({ row }: { row: Row<Asset> }) => (
           <HighlightedTokensPriceCell
             assetId={row.original.assetId}
-            selectedCategory={selectedCategory}
+            selectedSort={selectedSort}
             portalsAssets={portalsAssets}
           />
         ),
       },
     ],
-    [selectedCategory, portalsAssets],
+    [portalsAssets, selectedSort],
   )
 
   const handleRowClick = useCallback(
@@ -196,38 +203,6 @@ export const HighlightedTokens = () => {
     [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
   )
 
-  useEffect(() => {
-    const updateMaxHeight = () => {
-      if (document.querySelector('.trade-amount-input')) {
-        const tradeAmountInputRect = document
-          .querySelector('.trade-amount-input')
-          ?.getBoundingClientRect()
-        const headerRect = document.querySelector('.swapper-header')?.getBoundingClientRect()
-        const swapperDividerRect = document
-          .querySelector('.swapper-divider')
-          ?.getBoundingClientRect()
-        const titleRect = titleRef.current?.getBoundingClientRect()
-        if (!tradeAmountInputRect || !headerRect || !swapperDividerRect || !titleRect) return
-
-        const bodyHeaderHeight =
-          tradeAmountInputRect.height * 2 +
-          headerRect.height +
-          swapperDividerRect.height +
-          titleRect.height
-        setBodyHeaderHeight(`${bodyHeaderHeight}px`)
-      }
-    }
-
-    // call once to set initial value
-    updateMaxHeight()
-
-    // update when window resizes
-    window.addEventListener('resize', updateMaxHeight)
-
-    // cleanup event listener
-    return () => window.removeEventListener('resize', updateMaxHeight)
-  }, [])
-
   const handleOpenCategoriesDialog = useCallback(() => {
     setIsCategoryDialogOpen(true)
   }, [])
@@ -247,12 +222,7 @@ export const HighlightedTokens = () => {
   const content = useMemo(() => {
     if (isCategoryQueryDataLoading || isPortalsAssetsLoading) {
       return (
-        <Flex
-          flexDir='column'
-          width='100%'
-          maxHeight={`calc(100vh - var(--mobile-nav-offset) - ${bodyHeaderHeight})`}
-          overflowY='scroll'
-        >
+        <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0}>
           {range(3).map(index => (
             <Flex
               key={index}
@@ -285,22 +255,18 @@ export const HighlightedTokens = () => {
       !filteredAssets?.length
     ) {
       return (
-        <ResultsEmpty
-          title={'markets.emptyTitle'}
-          body={'markets.emptyBodySwapper'}
-          icon={emptyIcon}
-        />
+        <Flex flex='1' alignItems='center' justifyContent='center' minHeight={0}>
+          <ResultsEmpty
+            title={'markets.emptyTitle'}
+            body={'markets.emptyBodySwapper'}
+            icon={emptyIcon}
+          />
+        </Flex>
       )
     }
 
     return (
-      <Flex
-        flexDir='column'
-        width='100%'
-        maxHeight={`calc(100vh - var(--mobile-nav-offset) - ${bodyHeaderHeight})`}
-        overflowY='scroll'
-        px={4}
-      >
+      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} px={4}>
         <InfiniteTable
           columns={columns}
           data={filteredAssets ?? []}
@@ -315,7 +281,6 @@ export const HighlightedTokens = () => {
     )
   }, [
     filteredAssets,
-    bodyHeaderHeight,
     columns,
     handleRowClick,
     isCategoryQueryDataLoading,
@@ -338,10 +303,10 @@ export const HighlightedTokens = () => {
   }, [selectedCategory])
 
   return (
-    <Box>
-      <Flex justifyContent='space-between' alignItems='center' mb={2} mt={2} px={5}>
+    <Flex flexDir='column' height='100%' flex='1' minHeight={0}>
+      <Flex justifyContent='space-between' alignItems='center' mb={2} mt={2} px={5} flex='0 0 auto'>
         <Flex align='center' onClick={handleOpenCategoriesDialog}>
-          <Text ref={titleRef} color='text.primary' fontWeight='bold' translation={title} />
+          <Text color='text.primary' fontWeight='bold' translation={title} />
           <ChevronDownIcon ml={1} boxSize='20px' color='text.subtle' />
         </Flex>
         <Icon
@@ -371,6 +336,6 @@ export const HighlightedTokens = () => {
         handleOrderChange={handleOrderChange}
         handleChainIdChange={handleChainIdChange}
       />
-    </Box>
+    </Flex>
   )
 }

@@ -42,6 +42,7 @@ type SharedTradeInputBodyProps = {
   setSellAccountId: (accountId: AccountId) => void
   selectedSellAssetChainId?: ChainId | 'All'
   onSellAssetChainIdChange?: (chainId: ChainId | 'All') => void
+  subContent?: JSX.Element
 }
 
 export const SharedTradeInputBody = ({
@@ -62,6 +63,7 @@ export const SharedTradeInputBody = ({
   setSellAccountId,
   selectedSellAssetChainId,
   onSellAssetChainIdChange,
+  subContent,
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
@@ -129,57 +131,64 @@ export const SharedTradeInputBody = ({
   )
 
   return (
-    <Stack spacing={0} flex='1'>
-      <SellAssetInput
-        accountId={sellAccountId}
-        asset={sellAsset}
-        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-        isLoading={isLoading}
-        placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
-        label={translate('trade.payWith')}
-        labelPostFix={sellTradeAssetSelect}
-        percentOptions={percentOptions}
-        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={sellAmountUserCurrency}
-        onChangeAccountId={setSellAccountId}
-        onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
-        onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
-      />
-      <Flex alignItems='center' justifyContent='center' my={-2} className='swapper-divider'>
-        <Divider />
-        <CircularProgress
-          color='blue.500'
-          thickness='4px'
-          size='34px'
-          trackColor='transparent'
-          isIndeterminate={isLoading}
-          borderRadius='full'
-        >
-          <CircularProgressLabel
-            fontSize='md'
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
+    <Flex flexDir='column' height='100%' minHeight={0}>
+      <Stack spacing={0} flex='0 0 auto'>
+        <SellAssetInput
+          accountId={sellAccountId}
+          asset={sellAsset}
+          isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+          isLoading={isLoading}
+          placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
+          label={translate('trade.payWith')}
+          labelPostFix={sellTradeAssetSelect}
+          percentOptions={percentOptions}
+          sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+          sellAmountUserCurrency={sellAmountUserCurrency}
+          onChangeAccountId={setSellAccountId}
+          onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
+          onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
+        />
+        <Flex alignItems='center' justifyContent='center' my={-2} className='swapper-divider'>
+          <Divider />
+          <CircularProgress
+            color='blue.500'
+            thickness='4px'
+            size='34px'
+            trackColor='transparent'
+            isIndeterminate={isLoading}
+            borderRadius='full'
           >
-            <IconButton
-              onClick={handleSwitchAssets}
-              isRound
-              size='sm'
-              position='relative'
-              variant='outline'
-              borderColor='border.base'
-              zIndex={1}
-              aria-label={translate('lending.switchAssets')}
-              icon={arrowUpDownIcon}
-              isDisabled={isSwitchAssetsDisabled}
-              color='text.subtle'
-            />
-          </CircularProgressLabel>
-        </CircularProgress>
+            <CircularProgressLabel
+              fontSize='md'
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+            >
+              <IconButton
+                onClick={handleSwitchAssets}
+                isRound
+                size='sm'
+                position='relative'
+                variant='outline'
+                borderColor='border.base'
+                zIndex={1}
+                aria-label={translate('lending.switchAssets')}
+                icon={arrowUpDownIcon}
+                isDisabled={isSwitchAssetsDisabled}
+                color='text.subtle'
+              />
+            </CircularProgressLabel>
+          </CircularProgress>
 
-        <Divider />
-      </Flex>
-      {children}
-    </Stack>
+          <Divider />
+        </Flex>
+        {children}
+      </Stack>
+      {subContent && (
+        <Flex flex='1' minHeight={0}>
+          {subContent}
+        </Flex>
+      )}
+    </Flex>
   )
 }

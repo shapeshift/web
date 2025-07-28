@@ -1,6 +1,6 @@
 ---
 description: Error Handling Best Practices for Code Reviews
-alwaysApply: false
+alwaysApply: true
 ---
 
 ## Monadic Error Handling

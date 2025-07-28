@@ -1,6 +1,6 @@
 ---
 description: Naming Conventions for Code Reviews
-alwaysApply: false
+alwaysApply: true
 ---
 
 ## Variable and Function Naming

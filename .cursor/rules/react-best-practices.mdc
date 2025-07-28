@@ -1,6 +1,6 @@
 ---
 description: React Best Practices for Code Reviews
-alwaysApply: false
+alwaysApply: true
 ---
 
 ## Memoization Patterns
@@ -83,164 +83,6 @@ export default MyComponent = () => {
 - **KEEP** component files under 150 lines when possible
 - **BREAK DOWN** large components into smaller, reusable pieces
 - **EXTRACT** complex logic into custom hooks
-
-## Component Splitting
-
-### ✅ REQUIRED: Split Large Components
-- **ALWAYS** split components that are over 100 lines
-- **ALWAYS** extract reusable UI pieces into separate components
-- **ALWAYS** split complex JSX in `useMemo` into separate components
-- **ALWAYS** extract form sections, list items, and modal content into separate components
-- **KEEP** small, simple components in the same file only if they're under 20 lines and specific to the parent
-
-### Examples:
-```typescript
-// ✅ GOOD - Split large component
-// TradeForm.tsx
-export const TradeForm = () => {
-  const [tradeInput, setTradeInput] = useState<TradeInput>()
-  
-  return (
-    <form>
-      <AssetSelector 
-        selectedAsset={tradeInput?.sellAsset}
-        onSelect={setSellAsset}
-      />
-      <AmountInput 
-        value={tradeInput?.amount}
-        onChange={setAmount}
-      />
-      <TradeSummary tradeInput={tradeInput} />
-      <TradeActions onExecute={handleExecute} />
-    </form>
-  )
-}
-
-// ✅ GOOD - Extracted components in separate files
-// components/AssetSelector/AssetSelector.tsx
-export const AssetSelector = ({ selectedAsset, onSelect }: AssetSelectorProps) => {
-  // Implementation
-}
-
-// ✅ GOOD - Small component in same file (under 20 lines)
-export const TradeForm = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  
-  const LoadingSpinner = () => (
-    <div className="loading">
-      <Spinner />
-      <span>Processing...</span>
-    </div>
-  )
-  
-  return (
-    <div>
-      {/* form content */}
-      {isLoading && <LoadingSpinner />}
-    </div>
-  )
-}
-```
-
-### ❌ BAD - Large, Monolithic Components:
-```typescript
-// ❌ BAD - Too much JSX in useMemo
-const TradeForm = () => {
-  const complexJSX = useMemo(() => (
-    <div>
-      <div className="asset-selector">
-        <label>Select Asset</label>
-        <select>
-          {assets.map(asset => (
-            <option key={asset.id} value={asset.id}>
-              {asset.name} ({asset.symbol})
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="amount-input">
-        <label>Amount</label>
-        <input type="number" />
-      </div>
-      <div className="trade-summary">
-        <h3>Trade Summary</h3>
-        <div className="summary-item">
-          <span>You pay:</span>
-          <span>{sellAmount} {sellAsset.symbol}</span>
-        </div>
-        <div className="summary-item">
-          <span>You receive:</span>
-          <span>{buyAmount} {buyAsset.symbol}</span>
-        </div>
-        <div className="summary-item">
-          <span>Fee:</span>
-          <span>{fee} {sellAsset.symbol}</span>
-        </div>
-      </div>
-      <div className="trade-actions">
-        <button onClick={handleExecute}>Execute Trade</button>
-        <button onClick={handleCancel}>Cancel</button>
-      </div>
-    </div>
-  ), [assets, sellAmount, buyAmount, fee, sellAsset, buyAsset])
-
-  return <form>{complexJSX}</form>
-}
-
-// ❌ BAD - Large component with everything in one file
-export const TradeForm = () => {
-  // 200+ lines of component logic
-  // Multiple complex JSX sections
-  // Multiple state management
-  // Multiple event handlers
-  // All in one component
-}
-```
-
-### ✅ REQUIRED: Extract Complex JSX from useMemo
-- **ALWAYS** extract complex JSX from `useMemo` into separate components
-- **ALWAYS** use `React.memo` for extracted components to maintain performance
-- **ALWAYS** pass only necessary props to extracted components
-
-```typescript
-// ✅ GOOD - Extracted complex JSX
-const TradeForm = () => {
-  const tradeSummary = useMemo(() => (
-    <TradeSummary 
-      sellAmount={sellAmount}
-      buyAmount={buyAmount}
-      sellAsset={sellAsset}
-      buyAsset={buyAsset}
-      fee={fee}
-    />
-  ), [sellAmount, buyAmount, sellAsset, buyAsset, fee])
-
-  return (
-    <form>
-      <AssetSelector />
-      <AmountInput />
-      {tradeSummary}
-      <TradeActions />
-    </form>
-  )
-}
-
-// ✅ GOOD - Memoized extracted component
-const TradeSummary = memo<TradeSummaryProps>(({ 
-  sellAmount, 
-  buyAmount, 
-  sellAsset, 
-  buyAsset, 
-  fee 
-}) => (
-  <div className="trade-summary">
-    <h3>Trade Summary</h3>
-    <SummaryItem label="You pay:" value={`${sellAmount} ${sellAsset.symbol}`} />
-    <SummaryItem label="You receive:" value={`${buyAmount} ${buyAsset.symbol}`} />
-    <SummaryItem label="Fee:" value={`${fee} ${sellAsset.symbol}`} />
-  </div>
-))
-```
 
 ## State Management
 
@@ -370,15 +212,11 @@ When reviewing React code, ensure:
 4. All hook dependencies are properly included
 5. Components use named exports only
 6. Files are under 200 lines when possible
-7. Large components (>100 lines) are split into smaller components
-8. Complex JSX in `useMemo` is extracted into separate components
-9. Reusable UI pieces are extracted into separate components
-10. Small components (<20 lines) can stay in same file if specific to parent
-11. Error boundaries are in place
-12. Async operations have proper error handling
-13. Large lists use virtualization
-14. Heavy components are lazy loaded
-15. TypeScript types are explicit and proper
+7. Error boundaries are in place
+8. Async operations have proper error handling
+9. Large lists use virtualization
+10. Heavy components are lazy loaded
+11. TypeScript types are explicit and proper
 
 ## ❌ Common Anti-Patterns to Flag
 
@@ -388,9 +226,6 @@ When reviewing React code, ensure:
 - Incomplete dependency arrays in hooks
 - Default exports for components
 - Large component files (>150 lines)
-- Large monolithic components (>100 lines) not split
-- Complex JSX in `useMemo` not extracted
-- Reusable UI pieces not extracted into separate components
 - Missing error boundaries
 - Unhandled async errors
 - Large lists without virtualization

@@ -1,7 +1,7 @@
 ---
 description: TypeScript Best Practices for Code Reviews
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
 
 ## Type Safety

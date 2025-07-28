@@ -1,5 +1,3 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -11,10 +9,14 @@ import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 import type { RfoxBridgeQuote } from '../types'
 import { useRfoxBridge } from './useRfoxBridge'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type {
   GetFeesWithWalletEip1559SupportArgs,
   MaybeGetFeesWithWalletEip1559Args,
@@ -22,9 +24,15 @@ import type {
 import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from '@/lib/utils/evm'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
-import { selectTxById } from '@/state/slices/selectors'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
+import { selectAssetById, selectTxById } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseRfoxBridgeApprovalProps = { confirmedQuote: RfoxBridgeQuote }
 type UseRfoxBridgeApprovalReturn = {
@@ -41,8 +49,10 @@ type UseRfoxBridgeApprovalReturn = {
 export const useRfoxBridgeApproval = ({
   confirmedQuote,
 }: UseRfoxBridgeApprovalProps): UseRfoxBridgeApprovalReturn => {
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
-  const toast = useToast()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
@@ -52,6 +62,8 @@ export const useRfoxBridgeApproval = ({
     () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
     [feeAsset],
   )
+
+  const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
 
   const allowanceQuery = useAllowance({
     assetId: confirmedQuote.sellAssetId,
@@ -86,21 +98,58 @@ export const useRfoxBridgeApproval = ({
     }),
     onSuccess: (txHash: string) => {
       setApprovalTxHash(txHash)
+
+      if (!sellAsset || !confirmedQuote.sellAssetAccountId) return
+
+      const amountCryptoPrecision = fromBaseUnit(
+        confirmedQuote.bridgeAmountCryptoBaseUnit,
+        sellAsset.precision,
+      )
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: txHash,
+          type: ActionType.Approve,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.Approve,
+            txHash,
+            chainId: sellAsset.chainId,
+            accountId: confirmedQuote.sellAssetAccountId,
+            amountCryptoPrecision,
+            assetId: confirmedQuote.sellAssetId,
+            contractName: 'Arbitrum Bridge',
+            message: translate('actionCenter.approve.approvalTxPending', {
+              contractName: 'Arbitrum Bridge',
+              amountCryptoPrecision,
+              symbol: sellAsset.symbol,
+            }),
+          },
+        }),
+      )
+
       toast({
-        title: translate('modals.send.transactionSent'),
-        description: (
-          <Text>
-            {feeAsset?.explorerTxLink && (
-              <Link href={`${feeAsset.explorerTxLink}${txHash}`} isExternal>
-                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-              </Link>
-            )}
-          </Text>
-        ),
+        id: txHash,
+        duration: isDrawerOpen ? 5000 : null,
         status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              // eslint-disable-next-line react-memo/require-usememo
+              handleClick={handleClick}
+              actionId={txHash}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
       })
     },
   })

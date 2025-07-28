@@ -157,7 +157,6 @@ export const HighlightedTokens = () => {
   const columns: Column<Asset>[] = useMemo(
     () => [
       {
-        Header: () => <Text translation='dashboard.portfolio.asset' />,
         accessor: 'assetId',
         disableSortBy: true,
         Cell: ({ row }: { row: Row<Asset> }) => (
@@ -168,7 +167,6 @@ export const HighlightedTokens = () => {
         ),
       },
       {
-        Header: () => <Text translation='dashboard.portfolio.balance' />,
         accessor: 'symbol',
         id: 'balance',
         justifyContent: { base: 'flex-end', lg: 'flex-start' },

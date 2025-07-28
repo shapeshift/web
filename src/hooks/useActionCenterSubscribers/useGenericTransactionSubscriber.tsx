@@ -62,7 +62,7 @@ export const useGenericTransactionSubscriber = () => {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    pendingGenericTransactionActions.forEach(async action => {
+    pendingGenericTransactionActions.forEach(action => {
       if (action.status !== ActionStatus.Pending) return
 
       // Approvals, RFOX and TCY TODO: handle more
@@ -109,48 +109,48 @@ export const useGenericTransactionSubscriber = () => {
 
       // Invalidate data that's now updated
       if (queryId === GenericTransactionQueryId.RFOX) {
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getStakingInfoQueryKey({
             stakingAssetId: assetId,
             stakingAssetAccountId: accountId,
           }),
         })
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getStakingBalanceOfQueryKey({
             stakingAssetId: assetId,
             accountId,
           }),
         })
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getTimeInPoolQueryKey({
             stakingAssetId: assetId,
             stakingAssetAccountId: accountId,
           }),
         })
 
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getEpochHistoryQueryKey(),
         })
 
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getEarnedQueryKey({
             stakingAssetId: assetId,
             stakingAssetAccountId: accountId,
           }),
         })
 
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getAffiliateRevenueQueryKey({
             startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
             endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
           }),
         })
 
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: ['getUnstakingRequests', { stakingAssetAccountId: accountId }],
         })
       } else if (queryId === GenericTransactionQueryId.TCY) {
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: getTcyStakerQueryKey(accountId),
         })
       }

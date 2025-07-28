@@ -2827,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "Amount",
-      "networkFee": "Network Fee",
-      "networkFeeTooltip": "Network Fee",
       "stake": "Stake",
       "amountPlaceholder": "Enter amount"
     },

@@ -44,7 +44,7 @@ export const butterSwapApi: SwapperApi = {
       value: BigInt(value).toString(),
       ...feeData,
       // Add 15% buffer to account for gas estimation inaccuracies in cross-chain swaps
-      gasLimit: bnOrZero(feeData.gasLimit).times(1.15).toFixed(),
+      gasLimit: bnOrZero(feeData.gasLimit).times(1.15).toFixed(0),
     })
   },
   getUnsignedSolanaTransaction,

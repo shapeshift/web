@@ -33,6 +33,7 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  GenericTransactionQueryId,
 } from '@/state/slices/actionSlice/types'
 import {
   selectAccountNumberByAccountId,
@@ -249,6 +250,7 @@ export const useRfoxStake = ({
           updatedAt: Date.now(),
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.RFOX,
+            queryId: GenericTransactionQueryId.RFOX,
             txHash: txId,
             chainId: stakingAsset.chainId,
             accountId: stakingAssetAccountId,

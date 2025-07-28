@@ -22,6 +22,7 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  GenericTransactionQueryId,
 } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
@@ -82,6 +83,7 @@ export const StakeConfirm: React.FC = () => {
           type: ActionType.Deposit,
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.TCY,
+            queryId: GenericTransactionQueryId.TCY,
             txHash: txid,
             chainId: thorchainChainId,
             accountId,

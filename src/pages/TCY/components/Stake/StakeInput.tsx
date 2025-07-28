@@ -18,6 +18,7 @@ import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/Button
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
@@ -61,6 +62,10 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const {
+    state: { isConnected },
+  } = useWallet()
+
   const selectedStakingAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
   const {
@@ -137,11 +142,6 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
     setFieldName(fieldName === 'fiatAmount' ? 'amountCryptoPrecision' : 'fiatAmount')
   }, [fieldName])
 
-  const tooltipBody = useCallback(
-    () => <RawText>{translate('TCY.stakeInput.networkFeeTooltip')}</RawText>,
-    [translate],
-  )
-
   const handleStake = useCallback(() => {
     navigate(TCYStakeRoute.Confirm)
   }, [navigate])
@@ -207,14 +207,16 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
         px={4}
         py={4}
       >
-        <Row px={2} fontSize='sm' Tooltipbody={tooltipBody}>
-          <Row.Label>{translate('TCY.stakeInput.networkFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!!estimatedFeesData}>
-              <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
+        {!bnOrZero(amountCryptoPrecision).isZero() && isConnected && (
+          <Row px={2} fontSize='sm'>
+            <Row.Label>{translate('trade.networkFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!!estimatedFeesData}>
+                <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? 0} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        )}
         <ButtonWalletPredicate
           isValidWallet={true}
           colorScheme={isValid ? 'blue' : 'red'}

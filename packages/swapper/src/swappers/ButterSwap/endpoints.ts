@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import BigNumber from 'bignumber.js'
+import { bnOrZero } from '@shapeshiftoss/utils'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
@@ -43,7 +43,8 @@ export const butterSwapApi: SwapperApi = {
       to,
       value: BigInt(value).toString(),
       ...feeData,
-      gasLimit: BigNumber.max(feeData.gasLimit).toFixed(),
+      // Add 15% buffer to account for gas estimation inaccuracies in cross-chain swaps
+      gasLimit: bnOrZero(feeData.gasLimit).times(1.15).toFixed(0),
     })
   },
   getUnsignedSolanaTransaction,

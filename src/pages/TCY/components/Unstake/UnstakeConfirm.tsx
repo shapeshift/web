@@ -23,6 +23,7 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  GenericTransactionQueryId,
 } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
@@ -92,6 +93,7 @@ export const UnstakeConfirm: React.FC = () => {
           type: ActionType.Withdraw,
           transactionMetadata: {
             displayType: GenericTransactionDisplayType.TCY,
+            queryId: GenericTransactionQueryId.TCY,
             txHash: txid,
             chainId: thorchainChainId,
             accountId,

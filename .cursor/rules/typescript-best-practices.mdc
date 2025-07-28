@@ -1,0 +1,465 @@
+---
+description: TypeScript Best Practices for Code Reviews
+globs:
+alwaysApply: false
+---
+
+## Type Safety
+
+### ✅ REQUIRED: Explicit Types
+- **ALWAYS** use explicit types for function parameters and return values
+- **ALWAYS** use interfaces for object shapes
+- **ALWAYS** use enums for constants
+- **NEVER** use `any` type unless absolutely necessary
+- **ALWAYS** use `unknown` instead of `any` when type is truly unknown
+
+### Examples:
+```typescript
+// ✅ GOOD - Explicit types
+interface TradeInput {
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmount: string
+  slippageTolerance: string
+}
+
+const executeTrade = async (input: TradeInput): Promise<TradeResult> => {
+  // implementation
+}
+
+// ✅ GOOD - Enum usage
+enum TradeStatus {
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed'
+}
+
+// ✅ GOOD - Proper unknown usage
+const handleUnknownData = (data: unknown): string => {
+  if (typeof data === 'string') {
+    return data
+  }
+  return 'unknown'
+}
+```
+
+### ❌ BAD - Poor Type Usage:
+```typescript
+// ❌ BAD - Missing types or using any
+const executeTrade = async (input: any) => {
+  // implementation
+}
+
+// ❌ BAD - Using any instead of unknown
+const handleUnknownData = (data: any): string => {
+  return data
+}
+```
+
+## Interface Design
+
+### ✅ REQUIRED: Well-Designed Interfaces
+- **ALWAYS** use interfaces for object shapes
+- **ALWAYS** make properties optional when they might not be present
+- **ALWAYS** use descriptive property names
+- **ALWAYS** use union types for multiple possible values
+
+### Examples:
+```typescript
+// ✅ GOOD - Well-designed interface
+interface Asset {
+  assetId: AssetId
+  name: string
+  symbol: string
+  chainId: ChainId
+  precision: number
+  color?: string // optional property
+  icon?: string // optional property
+}
+
+interface TradeQuote {
+  id: string
+  rate: string
+  sellAsset: Asset
+  buyAsset: Asset
+  feeData: QuoteFeeData
+  estimatedExecutionTimeMs?: number // optional
+}
+
+// ✅ GOOD - Union types
+type TradeType = 'swap' | 'bridge' | 'stake'
+type TradeStatus = 'pending' | 'success' | 'failed' | 'cancelled'
+```
+
+### ❌ BAD - Poor Interface Design:
+```typescript
+// ❌ BAD - Non-descriptive interface
+interface Data {
+  id: string
+  name: string
+  value: any
+}
+
+// ❌ BAD - No optional properties when needed
+interface TradeQuote {
+  id: string
+  rate: string
+  sellAsset: Asset
+  buyAsset: Asset
+  feeData: QuoteFeeData
+  estimatedExecutionTimeMs: number // should be optional
+}
+```
+
+## Generic Types
+
+### ✅ REQUIRED: Proper Generic Usage
+- **ALWAYS** use generics for reusable components and functions
+- **ALWAYS** provide meaningful generic parameter names
+- **ALWAYS** constrain generics when possible
+
+### Examples:
+```typescript
+// ✅ GOOD - Proper generic usage
+interface ApiResponse<T> {
+  data: T
+  status: number
+  message: string
+}
+
+const fetchData = async <T>(url: string): Promise<ApiResponse<T>> => {
+  // implementation
+}
+
+// ✅ GOOD - Constrained generics
+interface Identifiable {
+  id: string
+}
+
+const findById = <T extends Identifiable>(items: T[], id: string): T | undefined => {
+  return items.find(item => item.id === id)
+}
+
+// ✅ GOOD - Generic React components
+interface ListProps<T> {
+  items: T[]
+  renderItem: (item: T) => React.ReactNode
+  keyExtractor: (item: T) => string
+}
+
+export const List = <T,>({ items, renderItem, keyExtractor }: ListProps<T>) => {
+  return (
+    <div>
+      {items.map(item => (
+        <div key={keyExtractor(item)}>
+          {renderItem(item)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+### ❌ BAD - Poor Generic Usage:
+```typescript
+// ❌ BAD - No generics when needed
+const fetchData = async (url: string): Promise<any> => {
+  // implementation
+}
+
+// ❌ BAD - Unconstrained generics
+const findById = <T>(items: T[], id: string): T | undefined => {
+  return items.find(item => (item as any).id === id)
+}
+```
+
+## Type Guards
+
+### ✅ REQUIRED: Proper Type Guards
+- **ALWAYS** use type guards for runtime type checking
+- **ALWAYS** create custom type guards for complex types
+- **ALWAYS** use `is` prefix for type guard functions
+
+### Examples:
+```typescript
+// ✅ GOOD - Type guards
+const isAsset = (value: unknown): value is Asset => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'assetId' in value &&
+    'name' in value &&
+    'symbol' in value
+  )
+}
+
+const isTradeQuote = (value: unknown): value is TradeQuote => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'rate' in value &&
+    'sellAsset' in value &&
+    'buyAsset' in value
+  )
+}
+
+// ✅ GOOD - Using type guards
+const processData = (data: unknown) => {
+  if (isAsset(data)) {
+    // TypeScript knows data is Asset here
+    console.log(data.assetId)
+  } else if (isTradeQuote(data)) {
+    // TypeScript knows data is TradeQuote here
+    console.log(data.rate)
+  }
+}
+```
+
+### ❌ BAD - Poor Type Checking:
+```typescript
+// ❌ BAD - No type guards
+const processData = (data: unknown) => {
+  if (typeof data === 'object' && data !== null) {
+    // TypeScript doesn't know the type
+    console.log((data as any).assetId)
+  }
+}
+```
+
+## Utility Types
+
+### ✅ REQUIRED: Proper Utility Type Usage
+- **ALWAYS** use utility types for common transformations
+- **ALWAYS** use `Partial<T>` for optional properties
+- **ALWAYS** use `Pick<T, K>` and `Omit<T, K>` for property selection
+- **ALWAYS** use `Record<K, V>` for object types
+
+### Examples:
+```typescript
+// ✅ GOOD - Utility type usage
+interface User {
+  id: string
+  name: string
+  email: string
+  age: number
+}
+
+// Make all properties optional
+type PartialUser = Partial<User>
+
+// Pick specific properties
+type UserBasicInfo = Pick<User, 'id' | 'name'>
+
+// Omit specific properties
+type UserWithoutId = Omit<User, 'id'>
+
+// Record for object types
+type AssetMap = Record<AssetId, Asset>
+
+// ✅ GOOD - Complex utility types
+type TradeInputWithoutId = Omit<TradeInput, 'id'> & {
+  id?: string // make id optional
+}
+
+type AssetListProps = {
+  assets: Asset[]
+  onSelect: (asset: Asset) => void
+  isLoading?: boolean
+}
+```
+
+### ❌ BAD - Poor Utility Type Usage:
+```typescript
+// ❌ BAD - Manually creating types instead of using utilities
+interface PartialUser {
+  id?: string
+  name?: string
+  email?: string
+  age?: number
+}
+
+// ❌ BAD - Using any instead of Record
+type AssetMap = Record<string, any>
+```
+
+## Function Types
+
+### ✅ REQUIRED: Proper Function Types
+- **ALWAYS** use function types for callbacks
+- **ALWAYS** use `void` for functions that don't return values
+- **ALWAYS** use `never` for functions that never return
+
+### Examples:
+```typescript
+// ✅ GOOD - Function types
+type AssetSelector = (asset: Asset) => void
+type TradeExecutor = (input: TradeInput) => Promise<TradeResult>
+type ErrorHandler = (error: Error) => void
+
+// ✅ GOOD - Function interfaces
+interface TradeHandlers {
+  onSuccess: (result: TradeResult) => void
+  onError: (error: Error) => void
+  onCancel: () => void
+}
+
+// ✅ GOOD - Component props with function types
+interface AssetListProps {
+  assets: Asset[]
+  onSelect: (asset: Asset) => void
+  onRemove?: (assetId: AssetId) => void
+  renderItem?: (asset: Asset) => React.ReactNode
+}
+```
+
+### ❌ BAD - Poor Function Types:
+```typescript
+// ❌ BAD - Using any for function types
+type AssetSelector = (asset: any) => any
+
+// ❌ BAD - Missing return types
+const handleSelect = (asset: Asset) => {
+  // implementation
+}
+```
+
+## Enum Usage
+
+### ✅ REQUIRED: Proper Enum Usage
+- **ALWAYS** use enums for constants
+- **ALWAYS** use string enums for better debugging
+- **ALWAYS** use descriptive enum names
+
+### Examples:
+```typescript
+// ✅ GOOD - String enums
+enum TradeStatus {
+  Pending = 'pending',
+  Success = 'success',
+  Failed = 'failed',
+  Cancelled = 'cancelled'
+}
+
+enum TradeType {
+  Swap = 'swap',
+  Bridge = 'bridge',
+  Stake = 'stake'
+}
+
+enum ErrorCode {
+  InvalidInput = 'INVALID_INPUT',
+  NetworkError = 'NETWORK_ERROR',
+  InsufficientFunds = 'INSUFFICIENT_FUNDS'
+}
+
+// ✅ GOOD - Using enums
+const getStatusColor = (status: TradeStatus): string => {
+  switch (status) {
+    case TradeStatus.Success:
+      return 'green'
+    case TradeStatus.Failed:
+      return 'red'
+    case TradeStatus.Pending:
+      return 'yellow'
+    default:
+      return 'gray'
+  }
+}
+```
+
+### ❌ BAD - Poor Enum Usage:
+```typescript
+// ❌ BAD - Using strings instead of enums
+const TradeStatus = {
+  PENDING: 'pending',
+  SUCCESS: 'success',
+  FAILED: 'failed'
+} as const
+
+// ❌ BAD - Non-descriptive enum names
+enum Status {
+  P = 'pending',
+  S = 'success',
+  F = 'failed'
+}
+```
+
+## Type Assertions
+
+### ✅ REQUIRED: Safe Type Assertions
+- **ALWAYS** use type guards instead of type assertions when possible
+- **ALWAYS** use `as` instead of angle bracket syntax
+- **NEVER** use type assertions without proper validation
+
+### Examples:
+```typescript
+// ✅ GOOD - Safe type assertions
+const processResponse = (response: unknown) => {
+  if (isTradeQuote(response)) {
+    return response // TypeScript knows it's TradeQuote
+  }
+  throw new Error('Invalid response format')
+}
+
+// ✅ GOOD - Validated type assertion
+const getAssetFromResponse = (response: unknown): Asset => {
+  if (isAsset(response)) {
+    return response
+  }
+  throw new Error('Invalid asset format')
+}
+
+// ✅ GOOD - Using as with proper validation
+const element = document.getElementById('my-element') as HTMLInputElement
+if (element) {
+  console.log(element.value)
+}
+```
+
+### ❌ BAD - Unsafe Type Assertions:
+```typescript
+// ❌ BAD - Unsafe type assertion
+const processResponse = (response: unknown) => {
+  return response as TradeQuote // No validation
+}
+
+// ❌ BAD - Angle bracket syntax
+const element = <HTMLInputElement>document.getElementById('my-element')
+```
+
+## ✅ Code Review Checklist
+
+When reviewing TypeScript code, ensure:
+
+1. Explicit types are used for all functions and variables
+2. Interfaces are used for object shapes
+3. Enums are used for constants
+4. `any` type is avoided unless absolutely necessary
+5. Generic types are used appropriately
+6. Type guards are used for runtime type checking
+7. Utility types are used for common transformations
+8. Function types are properly defined
+9. String enums are used for better debugging
+10. Type assertions are safe and validated
+11. Optional properties are marked with `?`
+12. Union types are used for multiple possible values
+13. Constrained generics are used when possible
+14. `unknown` is used instead of `any` for truly unknown types
+
+## ❌ Common Anti-Patterns to Flag
+
+- Missing explicit types
+- Using `any` type unnecessarily
+- No type guards for runtime type checking
+- Manually creating types instead of using utility types
+- Unsafe type assertions without validation
+- Non-descriptive interface names
+- Missing optional properties when needed
+- Using strings instead of enums for constants
+- No generic constraints when possible
+- Missing return types for functions
+- Using angle bracket syntax for type assertions
+- No validation before type assertions
+- Generic names for generic parameters
+- No union types for multiple possible values

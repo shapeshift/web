@@ -1,0 +1,315 @@
+---
+description: Error Handling Best Practices for Code Reviews
+alwaysApply: false
+---
+
+## Monadic Error Handling
+
+### ✅ REQUIRED: Use Monadic Error Handling
+- **ALWAYS** use `Result<T, E>` pattern for error handling in swappers and APIs
+- **ALWAYS** use `Ok()` and `Err()` from `@sniptt/monads`
+- **NEVER** throw errors in swapper implementations unless absolutely necessary
+
+### Examples of Required Monadic Error Handling:
+
+```typescript
+// ✅ GOOD - Monadic error handling
+import { Result, Ok, Err } from '@sniptt/monads'
+
+const fetchData = async (): Promise<Result<Data, Error>> => {
+  try {
+    const response = await api.get('/data')
+    return Ok(response.data)
+  } catch (error) {
+    return Err(error as Error)
+  }
+}
+
+// ✅ GOOD - Using monadic results
+const result = await fetchData()
+if (result.isOk()) {
+  const data = result.unwrap()
+  // handle success
+} else {
+  const error = result.unwrapErr()
+  // handle error
+}
+```
+
+### ❌ BAD - Throwing Errors:
+```typescript
+// ❌ BAD - Throwing errors instead of monadic handling
+const fetchData = async (): Promise<Data> => {
+  const response = await api.get('/data')
+  if (!response.data) {
+    throw new Error('No data received')
+  }
+  return response.data
+}
+```
+
+## Custom Error Classes
+
+### ✅ REQUIRED: Use Custom Error Classes
+- **ALWAYS** use custom error classes from `@shapeshiftoss/errors`
+- **ALWAYS** provide meaningful error codes for internationalization
+- **ALWAYS** include relevant details in error objects
+
+### Examples:
+```typescript
+// ✅ GOOD - Custom error with details
+import { ValidationError } from '@shapeshiftoss/errors'
+
+throw new ValidationError('Invalid asset ID', {
+  details: { 
+    assetId: 'invalid-id',
+    expected: 'valid-caip-19-format',
+    actual: 'invalid-id'
+  },
+  code: 'ERR_INVALID_ASSET_ID'
+})
+
+// ✅ GOOD - Creating custom error classes
+import { createErrorClass } from '@shapeshiftoss/errors'
+
+const SwapperError = createErrorClass<{ swapperName: string }>('SwapperError')
+
+throw new SwapperError('Quote failed', {
+  details: { swapperName: 'Thorchain' },
+  code: 'ERR_QUOTE_FAILED'
+})
+```
+
+## Async Error Handling
+
+### ✅ REQUIRED: Proper Async Error Handling
+- **ALWAYS** wrap async operations in try-catch blocks
+- **ALWAYS** use `AsyncResultOf` utility for converting promises to Results
+- **ALWAYS** provide fallback error handling
+
+### Examples:
+```typescript
+// ✅ GOOD - Async error handling with Result
+import { AsyncResultOf } from '@shapeshiftoss/utils'
+
+const fetchQuote = async (): Promise<Result<Quote, SwapErrorRight>> => {
+  return AsyncResultOf(api.get('/quote'))
+    .mapErr(error => makeSwapErrorRight({
+      message: 'Failed to fetch quote',
+      cause: error,
+      code: TradeQuoteError.QueryFailed
+    }))
+}
+
+// ✅ GOOD - Try-catch with proper error handling
+const handleTrade = useCallback(async () => {
+  try {
+    const result = await executeTrade(tradeQuote)
+    setTradeStatus('success')
+  } catch (error) {
+    if (error instanceof ChainAdapterError) {
+      showErrorToast(error)
+    } else {
+      console.error('Unexpected error:', error)
+      showErrorToast(new Error('Trade failed'))
+    }
+  }
+}, [tradeQuote])
+```
+
+## Error Boundaries
+
+### ✅ REQUIRED: React Error Boundaries
+- **ALWAYS** wrap components in error boundaries
+- **ALWAYS** provide user-friendly fallback components
+- **ALWAYS** log errors for debugging
+
+### Examples:
+```typescript
+// ✅ GOOD - Error boundary implementation
+export const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [hasError, setHasError] = useState(false)
+
+  useEffect(() => {
+    const handleError = (error: Error) => {
+      console.error('Error caught by boundary:', error)
+      captureException(error)
+      setHasError(true)
+    }
+
+    window.addEventListener('error', handleError)
+    return () => window.removeEventListener('error', handleError)
+  }, [])
+
+  if (hasError) {
+    return <ErrorPage />
+  }
+
+  return <>{children}</>
+}
+```
+
+## Error Toast Handling
+
+### ✅ REQUIRED: User-Friendly Error Messages
+- **ALWAYS** use `useErrorToast` hook for displaying errors
+- **ALWAYS** provide translated error messages
+- **ALWAYS** handle different error types appropriately
+
+### Examples:
+```typescript
+// ✅ GOOD - Error toast with proper error handling
+import { useErrorToast } from '@/hooks/useErrorToast'
+import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
+
+export const useTradeExecution = () => {
+  const { showErrorToast } = useErrorToast()
+
+  const executeTrade = useCallback(async () => {
+    try {
+      await tradeExecution.exec()
+    } catch (error) {
+      // Handle specific error types
+      if (error instanceof ChainAdapterError) {
+        showErrorToast(error, error.metadata.translation, error.metadata.options)
+      } else if (error instanceof SolanaLogsError) {
+        showErrorToast(error, `trade.errors.${camelCase(error.name)}`)
+      } else {
+        showErrorToast(error, 'common.generalError')
+      }
+    }
+  }, [showErrorToast])
+
+  return { executeTrade }
+}
+```
+
+## Swapper Error Handling
+
+### ✅ REQUIRED: Swapper-Specific Error Handling
+- **ALWAYS** use `makeSwapErrorRight` for swapper errors
+- **ALWAYS** use `TradeQuoteError` enum for error codes
+- **ALWAYS** provide detailed error information
+
+### Examples:
+```typescript
+// ✅ GOOD - Swapper error handling
+import { makeSwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
+
+const getTradeQuote = async (): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  try {
+    const response = await api.get('/quote')
+    return Ok(response.data)
+  } catch (error) {
+    return Err(makeSwapErrorRight({
+      message: 'Failed to get trade quote',
+      cause: error,
+      code: TradeQuoteError.QueryFailed,
+      details: { endpoint: '/quote' }
+    }))
+  }
+}
+```
+
+## Timeout Error Handling
+
+### ✅ REQUIRED: Timeout Handling
+- **ALWAYS** use `timeoutMonadic` for API calls
+- **ALWAYS** provide appropriate timeout values
+- **ALWAYS** handle timeout errors gracefully
+
+### Examples:
+```typescript
+// ✅ GOOD - Timeout handling
+import { timeoutMonadic } from '@shapeshiftoss/utils'
+
+const getQuoteWithTimeout = async (): Promise<Result<Quote, SwapErrorRight>> => {
+  return timeoutMonadic(
+    api.get('/quote'),
+    QUOTE_TIMEOUT_MS,
+    QUOTE_TIMEOUT_ERROR
+  )
+}
+```
+
+## Error Validation
+
+### ✅ REQUIRED: Input Validation
+- **ALWAYS** validate inputs before processing
+- **ALWAYS** provide clear validation error messages
+- **ALWAYS** use early returns for validation failures
+
+### Examples:
+```typescript
+// ✅ GOOD - Input validation with early returns
+const validateTradeInput = (input: TradeInput): Result<void, ValidationError> => {
+  if (!input.sellAsset) {
+    return Err(new ValidationError('Sell asset is required', {
+      details: { field: 'sellAsset' },
+      code: 'ERR_MISSING_SELL_ASSET'
+    }))
+  }
+
+  if (bnOrZero(input.sellAmount).lte(0)) {
+    return Err(new ValidationError('Sell amount must be greater than 0', {
+      details: { amount: input.sellAmount },
+      code: 'ERR_INVALID_SELL_AMOUNT'
+    }))
+  }
+
+  return Ok(undefined)
+}
+```
+
+## Error Logging
+
+### ✅ REQUIRED: Proper Error Logging
+- **ALWAYS** log errors for debugging
+- **ALWAYS** use structured logging
+- **ALWAYS** include relevant context
+
+### Examples:
+```typescript
+// ✅ GOOD - Error logging with context
+const handleError = (error: unknown, context: Record<string, unknown>) => {
+  console.error('Trade execution failed:', {
+    error: error instanceof Error ? error.message : error,
+    context,
+    timestamp: new Date().toISOString()
+  })
+  
+  captureException(error, { extra: context })
+}
+```
+
+## ✅ Code Review Checklist
+
+When reviewing error handling code, ensure:
+
+1. Monadic error handling is used (`Result<T, E>`)
+2. Custom error classes are used appropriately
+3. Async operations have proper try-catch blocks
+4. Error boundaries are in place for React components
+5. User-friendly error messages are provided
+6. Swapper errors use `makeSwapErrorRight`
+7. Timeout handling is implemented
+8. Input validation is performed
+9. Errors are properly logged
+10. Error types are handled specifically
+11. Fallback error handling is provided
+12. Error codes are used for internationalization
+
+## ❌ Common Anti-Patterns to Flag
+
+- Throwing errors instead of using monadic patterns
+- Missing try-catch blocks for async operations
+- Generic error messages without context
+- Missing error boundaries
+- Not handling specific error types
+- Missing timeout handling
+- No input validation
+- Poor error logging
+- Using `any` for error types
+- Missing error codes for internationalization
+- No fallback error handling
+- Console.error without structured logging

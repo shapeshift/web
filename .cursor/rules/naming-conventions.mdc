@@ -1,0 +1,368 @@
+---
+description: Naming Conventions for Code Reviews
+alwaysApply: false
+---
+
+## Variable and Function Naming
+
+### ✅ REQUIRED: camelCase for Variables and Functions
+- **ALWAYS** use camelCase for variables, functions, and methods
+- **ALWAYS** use descriptive names that explain the purpose
+- **ALWAYS** use verb prefixes for functions that perform actions
+
+### Examples:
+```typescript
+// ✅ GOOD - Descriptive camelCase names
+const selectedAssetId = 'eip155:1/erc20:0x...'
+const handleAssetSelection = (assetId: AssetId) => { /* ... */ }
+const fetchTradeQuote = async () => { /* ... */ }
+const isTradeExecuting = false
+const hasEnoughBalance = true
+
+// ✅ GOOD - Verb prefixes for actions
+const validateTradeInput = (input: TradeInput) => { /* ... */ }
+const executeTrade = async () => { /* ... */ }
+const updateTradeStatus = (status: TradeStatus) => { /* ... */ }
+const calculateTradeFees = (amount: string) => { /* ... */ }
+```
+
+### ❌ BAD - Poor Naming:
+```typescript
+// ❌ BAD - Non-descriptive names
+const asset = 'eip155:1/erc20:0x...'
+const fn = (id: AssetId) => { /* ... */ }
+const get = async () => { /* ... */ }
+const flag = false
+const ok = true
+
+// ❌ BAD - Missing verb prefixes
+const tradeInput = (input: TradeInput) => { /* ... */ }
+const trade = async () => { /* ... */ }
+const status = (status: TradeStatus) => { /* ... */ }
+```
+
+## Type and Interface Naming
+
+### ✅ REQUIRED: PascalCase for Types and Interfaces
+- **ALWAYS** use PascalCase for types, interfaces, and enums
+- **ALWAYS** use descriptive names that indicate the structure
+- **ALWAYS** use suffixes like `Props`, `State`, `Config`, `Type` when appropriate
+
+### Examples:
+```typescript
+// ✅ GOOD - PascalCase with descriptive names
+interface AssetListProps {
+  assets: Asset[]
+  onSelect: (asset: Asset) => void
+  isLoading?: boolean
+}
+
+type TradeExecutionState = 'pending' | 'success' | 'failed'
+
+enum TradeQuoteError {
+  UnsupportedTradePair = 'UnsupportedTradePair',
+  NoRouteFound = 'NoRouteFound'
+}
+
+interface SwapperConfig {
+  baseUrl: string
+  timeout: number
+  retries: number
+}
+
+type TradeInput = {
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmount: string
+}
+```
+
+### ❌ BAD - Poor Type Naming:
+```typescript
+// ❌ BAD - Non-descriptive type names
+interface Props {
+  data: Asset[]
+  cb: (asset: Asset) => void
+  loading?: boolean
+}
+
+type State = 'pending' | 'success' | 'failed'
+
+enum Error {
+  Unsupported = 'Unsupported',
+  NoRoute = 'NoRoute'
+}
+```
+
+## File and Directory Naming
+
+### ✅ REQUIRED: kebab-case for Files and Directories
+- **ALWAYS** use kebab-case for file and directory names
+- **ALWAYS** use descriptive names that indicate the purpose
+- **ALWAYS** use appropriate file extensions
+
+### Examples:
+```typescript
+// ✅ GOOD - kebab-case file names
+// components/AssetList/AssetList.tsx
+// hooks/useTradeExecution/useTradeExecution.tsx
+```
+
+### ❌ BAD - Poor File Naming:
+```typescript
+// ❌ BAD - camelCase or PascalCase file names
+// components/AssetList/assetList.tsx
+// hooks/useTradeExecution/UseTradeExecution.tsx
+```
+
+## Component Naming
+
+### ✅ REQUIRED: PascalCase for Components
+- **ALWAYS** use PascalCase for React components
+- **ALWAYS** use descriptive names that indicate the component's purpose
+- **ALWAYS** match the component name to the file name
+
+### Examples:
+```typescript
+// ✅ GOOD - PascalCase component names
+export const AssetList: React.FC<AssetListProps> = ({ assets, onSelect }) => {
+  // implementation
+}
+
+export const TradeExecution: React.FC<TradeExecutionProps> = ({ trade }) => {
+  // implementation
+}
+
+export const AssetSearch: React.FC<AssetSearchProps> = ({ onSearch }) => {
+  // implementation
+}
+```
+
+### ❌ BAD - Poor Component Naming:
+```typescript
+// ❌ BAD - Non-descriptive component names
+export const Component: React.FC<Props> = ({ data, cb }) => {
+  // implementation
+}
+
+export const MyComponent: React.FC<MyProps> = ({ props }) => {
+  // implementation
+}
+```
+
+## Hook Naming
+
+### ✅ REQUIRED: use Prefix for Custom Hooks
+- **ALWAYS** use `use` prefix for custom hooks
+- **ALWAYS** use descriptive names that indicate the hook's purpose
+- **ALWAYS** use camelCase after the `use` prefix
+
+### Examples:
+```typescript
+// ✅ GOOD - use prefix with descriptive names
+export const useTradeExecution = () => {
+  // implementation
+}
+
+export const useAssetSearch = (searchTerm: string) => {
+  // implementation
+}
+
+export const useTradeQuote = (tradeInput: TradeInput) => {
+  // implementation
+}
+
+export const useErrorToast = () => {
+  // implementation
+}
+```
+
+### ❌ BAD - Poor Hook Naming:
+```typescript
+// ❌ BAD - Missing use prefix or non-descriptive names
+export const tradeExecution = () => {
+  // implementation
+}
+
+export const useHook = () => {
+  // implementation
+}
+
+export const useMyHook = () => {
+  // implementation
+}
+```
+
+## Constant Naming
+
+### ✅ REQUIRED: UPPER_SNAKE_CASE for Constants
+- **ALWAYS** use UPPER_SNAKE_CASE for constants and configuration values
+- **ALWAYS** use descriptive names that explain the value's purpose
+- **ALWAYS** group related constants together
+
+### Examples:
+```typescript
+// ✅ GOOD - UPPER_SNAKE_CASE constants
+export const QUOTE_TIMEOUT_MS = 60_000
+export const DEFAULT_SLIPPAGE_PERCENTAGE = '0.002'
+export const MAX_RETRY_ATTEMPTS = 3
+export const API_BASE_URL = 'https://api.shapeshift.com'
+export const SUPPORTED_CHAIN_IDS = [ethChainId, bscChainId]
+
+// ✅ GOOD - Grouped related constants
+export const TRADE_CONSTANTS = {
+  QUOTE_TIMEOUT_MS: 60_000,
+  DEFAULT_SLIPPAGE_PERCENTAGE: '0.002',
+  MAX_RETRY_ATTEMPTS: 3
+} as const
+```
+
+### ❌ BAD - Poor Constant Naming:
+```typescript
+// ❌ BAD - camelCase or non-descriptive constant names
+export const quoteTimeout = 60_000
+export const defaultSlippage = '0.002'
+export const maxRetries = 3
+export const apiUrl = 'https://api.shapeshift.com'
+```
+
+## Event Handler Naming
+
+### ✅ REQUIRED: handle Prefix for Event Handlers
+- **ALWAYS** use `handle` prefix for event handlers
+- **ALWAYS** use descriptive names that indicate the action
+- **ALWAYS** use camelCase after the `handle` prefix
+
+### Examples:
+```typescript
+// ✅ GOOD - handle prefix with descriptive names
+const handleAssetSelect = (assetId: AssetId) => {
+  setSelectedAsset(assetId)
+}
+
+const handleTradeExecute = async () => {
+  await executeTrade(tradeQuote)
+}
+
+const handleInputChange = (value: string) => {
+  setInputValue(value)
+}
+
+const handleFormSubmit = (data: FormData) => {
+  submitForm(data)
+}
+```
+
+### ❌ BAD - Poor Event Handler Naming:
+```typescript
+// ❌ BAD - Missing handle prefix or non-descriptive names
+const onSelect = (assetId: AssetId) => {
+  setSelectedAsset(assetId)
+}
+
+const execute = async () => {
+  await executeTrade(tradeQuote)
+}
+
+const onChange = (value: string) => {
+  setInputValue(value)
+}
+```
+
+## Boolean Variable Naming
+
+### ✅ REQUIRED: Descriptive Boolean Names
+- **ALWAYS** use descriptive boolean names that indicate the state
+- **ALWAYS** use `is`, `has`, `can`, `should` prefixes for clarity
+- **ALWAYS** use positive boolean names when possible
+
+### Examples:
+```typescript
+// ✅ GOOD - Descriptive boolean names
+const isLoading = true
+const hasEnoughBalance = false
+const canExecuteTrade = true
+const shouldShowError = false
+const isTradePending = true
+const hasValidInput = true
+const canConnectWallet = true
+```
+
+### ❌ BAD - Poor Boolean Naming:
+```typescript
+// ❌ BAD - Non-descriptive boolean names
+const loading = true
+const balance = false
+const trade = true
+const error = false
+const pending = true
+const valid = true
+const connect = true
+```
+
+## Import/Export Naming
+
+### ✅ REQUIRED: Consistent Import/Export Names
+- **ALWAYS** use named exports for components and functions
+- **ALWAYS** use descriptive import names
+- **ALWAYS** avoid renaming imports unless necessary
+
+### Examples:
+```typescript
+// ✅ GOOD - Named exports and descriptive imports
+export const AssetList = () => { /* ... */ }
+export const useTradeExecution = () => { /* ... */ }
+export const validateTradeInput = (input: TradeInput) => { /* ... */ }
+
+// ✅ GOOD - Descriptive import names
+import { AssetList } from '@/components/AssetList'
+import { useTradeExecution } from '@/hooks/useTradeExecution'
+import { validateTradeInput } from '@/utils/trade-helpers'
+```
+
+### ❌ BAD - Poor Import/Export Naming:
+```typescript
+// ❌ BAD - Default exports and non-descriptive imports
+export default AssetList = () => { /* ... */ }
+export default useTradeExecution = () => { /* ... */ }
+
+// ❌ BAD - Non-descriptive import names
+import { Component } from '@/components/AssetList'
+import { hook } from '@/hooks/useTradeExecution'
+```
+
+## ✅ Code Review Checklist
+
+When reviewing naming conventions, ensure:
+
+1. Variables and functions use camelCase
+2. Types and interfaces use PascalCase
+3. Files and directories use kebab-case
+4. Components use PascalCase
+5. Custom hooks use `use` prefix
+6. Constants use UPPER_SNAKE_CASE
+7. Event handlers use `handle` prefix
+8. Boolean variables are descriptive
+9. Import/export names are consistent
+10. Names are descriptive and meaningful
+11. No abbreviations unless widely understood
+12. No single-letter variable names (except in loops)
+13. No generic names like `data`, `props`, `item`
+14. Names indicate purpose and context
+
+## ❌ Common Anti-Patterns to Flag
+
+- Non-descriptive variable names (`data`, `item`, `obj`)
+- Single-letter variable names (except in loops)
+- Abbreviations that aren't widely understood
+- Generic function names (`fn`, `func`, `callback`)
+- Boolean names without `is`/`has`/`can` prefixes
+- Event handlers without `handle` prefix
+- Custom hooks without `use` prefix
+- Constants without UPPER_SNAKE_CASE
+- Types without PascalCase
+- Files without kebab-case
+- Components without PascalCase
+- Default exports for components
+- Renamed imports without good reason
+- Inconsistent naming patterns

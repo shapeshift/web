@@ -34,7 +34,10 @@ type SharedTradeInputProps = {
 }
 
 const cardBorderRadius = { base: '0', md: '2xl' }
-const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
+const cardMinHeight = {
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
+  md: 'initial',
+}
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
@@ -77,7 +80,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               minHeight={cardMinHeight}
               height={
                 !hasUserEnteredAmount && isSmallerThanXl
-                  ? 'calc(100vh - var(--mobile-nav-offset))'
+                  ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))'
                   : 'initial'
               }
             >

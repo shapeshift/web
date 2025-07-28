@@ -21,7 +21,7 @@ export const getMixPanel = (): MixPanelType | undefined => {
   try {
     Mixpanel.init(token, {
       autocapture: {
-        pageview: 'full-url',
+        pageview: 'url-with-path',
         click: true,
         input: true,
         scroll: false,

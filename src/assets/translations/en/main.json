@@ -2877,6 +2877,7 @@
     "categories": {
       "oneClickDefiAssets": {
         "title": "One Click DeFi Assets",
+        "filterTitle": "High Yield Tokens",
         "subtitle": "Discover the yield that suits you best! Shift effortlessly with Portals between Pools, Vaults, lending options, and LSDs."
       },
       "thorchainDefi": {

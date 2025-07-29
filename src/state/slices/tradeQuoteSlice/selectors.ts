@@ -586,6 +586,11 @@ export const selectIsTradeQuoteRequestAborted = createSelector(
   swappers => swappers.isTradeQuoteRequestAborted,
 )
 
+export const selectQuoteTimerResetTimestamp = createSelector(
+  tradeQuoteSlice.selectSlice,
+  state => state.quoteTimerResetTimestamp,
+)
+
 export const selectLoadingSwappers = createSelector(
   selectIsTradeQuoteApiQueryPending,
   selectTradeQuoteDisplayCache,

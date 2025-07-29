@@ -169,7 +169,7 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
-  sendAddress?: string | undefined
+  sendAddress?: undefined
   receiveAddress: string | undefined
   accountNumber: undefined
   quoteOrRate: 'rate'

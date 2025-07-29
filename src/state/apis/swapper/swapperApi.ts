@@ -261,7 +261,6 @@ export const swapperApi = createApi({
         const {
           swapperNames,
           sendAddress,
-          receiveAddress,
           sellAsset,
           buyAsset,
           affiliateBps,
@@ -269,10 +268,8 @@ export const swapperApi = createApi({
         } = batchRequest
 
         const isSolBuyAssetId = buyAsset.assetId === solAssetId
-        const isCrossAccountTrade =
-          sendAddress !== undefined &&
-          receiveAddress !== undefined &&
-          sendAddress.toLowerCase() !== receiveAddress.toLowerCase()
+        // TODO check if this is right or we need to fix types
+        const isCrossAccountTrade = false
         const featureFlags: FeatureFlags = preferences.selectors.selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(
           featureFlags,

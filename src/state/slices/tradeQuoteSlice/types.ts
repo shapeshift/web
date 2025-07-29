@@ -20,6 +20,7 @@ export type TradeQuoteSliceState = {
   tradeQuoteDisplayCache: ApiQuote[]
   isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
   sortOption: QuoteSortOption // the selected quote sorting option
+  quoteTimerResetTimestamp: number | undefined // timestamp when the quote timer should reset (start of countdown)
 }
 
 export enum HopExecutionState {

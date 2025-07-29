@@ -68,6 +68,8 @@ export const selectBatchTradeRateQueryLoadingState = createDeepEqualOutputSelect
       }
     }
 
+    console.log(latestQueryInfo)
+
     const isLoading = [QueryStatus.uninitialized, QueryStatus.pending, undefined].includes(
       latestQueryInfo.status,
     )

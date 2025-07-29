@@ -29,6 +29,9 @@ export const tradeQuoteSlice = createSlice({
     setIsTradeQuoteRequestAborted: create.reducer((state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
     }),
+    resetQuoteTimer: create.reducer(state => {
+      state.quoteTimerResetTimestamp = Date.now()
+    }),
     upsertTradeQuotes: create.reducer(
       (
         state,
@@ -42,10 +45,7 @@ export const tradeQuoteSlice = createSlice({
       },
     ),
     upsertBatchTradeQuotes: create.reducer(
-      (
-        state,
-        action: PayloadAction<Record<SwapperName, Record<string, ApiQuote>>>,
-      ) => {
+      (state, action: PayloadAction<Record<SwapperName, Record<string, ApiQuote>>>) => {
         Object.entries(action.payload).forEach(([swapperName, quotesById]) => {
           state.tradeQuotes[swapperName as SwapperName] = quotesById
         })

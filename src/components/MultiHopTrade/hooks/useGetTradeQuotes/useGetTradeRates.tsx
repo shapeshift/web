@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
+import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -125,6 +126,8 @@ export const useGetTradeRates = () => {
     state: { wallet },
   } = useWallet()
 
+  const hasFocus = useHasFocus()
+
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
@@ -229,12 +232,12 @@ export const useGetTradeRates = () => {
   })
 
   // Use the batch query to fetch all rates at once
-  const batchRatesQuery = useGetBatchTradeRatesQuery(batchTradeRateRequest ?? skipToken, {
-    pollingInterval: TRADE_QUOTE_REFRESH_INTERVAL_MS,
-    refetchOnFocus: true,
-    refetchOnReconnect: true,
-  })
-  console.log({ isFetching: batchRatesQuery.isFetching, isLoading: batchRatesQuery.isLoading })
+  const batchRatesQuery = useGetBatchTradeRatesQuery(
+    hasFocus && batchTradeRateRequest ? batchTradeRateRequest : skipToken,
+    {
+      pollingInterval: TRADE_QUOTE_REFRESH_INTERVAL_MS,
+    },
+  )
 
   // Update Redux state with batch results in a single dispatch
   useEffect(() => {

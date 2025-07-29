@@ -4,10 +4,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-
-import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
-import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
@@ -19,7 +16,8 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
+import { swapperApi } from '@/state/apis/swapper/swapperApi'
+import type { ApiQuote, BatchTradeRateRequest, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
@@ -39,6 +37,19 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+
+const ALL_SWAPPER_NAMES: SwapperName[] = [
+  SwapperName.CowSwap,
+  SwapperName.ArbitrumBridge,
+  SwapperName.Portals,
+  SwapperName.Thorchain,
+  SwapperName.Zrx,
+  SwapperName.Chainflip,
+  SwapperName.Jupiter,
+  SwapperName.Relay,
+  SwapperName.Mayachain,
+  SwapperName.ButterSwap,
+]
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -212,30 +223,28 @@ export const useGetTradeRates = () => {
     },
   })
 
-  const getTradeQuoteArgs = useCallback(
-    (swapperName: SwapperName): UseGetSwapperTradeQuoteOrRateArgs => {
-      return {
-        swapperName,
-        tradeQuoteOrRateInput: tradeRateInput ?? skipToken,
-      }
-    },
-    [tradeRateInput],
-  )
+  const batchTradeRateRequest = useMemo((): BatchTradeRateRequest | typeof skipToken => {
+    if (!tradeRateInput) return skipToken
 
-  // TODO(0xdef1cafe): this is brittle
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
+    return {
+      ...tradeRateInput,
+      swapperNames: ALL_SWAPPER_NAMES,
+    }
+  }, [tradeRateInput])
+
+  const { data: batchTradeRates, isLoading: isBatchTradeRatesLoading } =
+    swapperApi.useGetBatchTradeRatesQuery(batchTradeRateRequest)
+
+  // Dispatch batch results to Redux when they arrive
+  useEffect(() => {
+    if (batchTradeRates) {
+      dispatch(tradeQuoteSlice.actions.upsertBatchTradeQuotes(batchTradeRates))
+    }
+  }, [batchTradeRates, dispatch])
 
   // true if any debounce, input or swapper is fetching
-  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const isAnyTradeQuoteLoading =
+    useAppSelector(selectIsAnyTradeQuoteLoading) || isBatchTradeRatesLoading
   const hasTrackedInitialRatesReceived = useRef(false)
 
   // auto-select the best quote once all quotes have arrived

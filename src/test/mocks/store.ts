@@ -37,6 +37,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
 const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
   provided: {
     TradeQuote: {},
+    BatchTradeRate: {},
   },
 })
 

@@ -78,11 +78,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               bg={cardBgProp}
               borderRadius={cardBorderRadius}
               minHeight={cardMinHeight}
-              height={
-                !hasUserEnteredAmount && isSmallerThanXl
-                  ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))'
-                  : 'initial'
-              }
+              height={!hasUserEnteredAmount && isSmallerThanXl ? cardMinHeight.base : 'initial'}
             >
               <SharedTradeInputHeader
                 initialTab={tradeInputTab}

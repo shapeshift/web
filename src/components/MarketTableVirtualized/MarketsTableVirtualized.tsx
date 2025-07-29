@@ -109,7 +109,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       [navigate],
     )
 
-    // Memoize the trade translation to prevent re-renders
     const tradeTranslation = useMemo(
       () => translate('assets.assetCards.assetActions.trade'),
       [translate],

@@ -1,52 +1,31 @@
-import {
-  Box,
-  Button,
-  Stack,
-  Table,
-  Tag,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  useMediaQuery,
-} from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { Box, Button, Table, Tbody, Td, Th, Thead, Tr, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import type { VirtualItem } from '@tanstack/react-virtual'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { truncate } from 'lodash'
 import { memo, useCallback, useMemo, useRef } from 'react'
-import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { Amount } from '@/components/Amount/Amount'
-import { Display } from '@/components/Display'
-import { AssetCell } from '@/components/StakingVaults/Cells'
+import { AssetCell } from './AssetCell'
+import { ChangeCell } from './ChangeCell'
+import { PriceCell } from './PriceCell'
+import { SparkLineCell } from './SparkLineCell'
+import { TradeButtonCell } from './TradeButtonCell'
+import { VolumeCell } from './VolumeCell'
+
 import { Text } from '@/components/Text'
 import { isMobile as isMobileApp } from '@/lib/globals'
-import { SparkLine } from '@/pages/Buy/components/Sparkline'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
-import { selectMarketDataUserCurrency } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const ROW_HEIGHT = 70
-
-const arrowUp = <RiArrowRightUpFill />
-const arrowDown = <RiArrowRightDownFill />
 
 const tableSizeSx = { base: 'sm', md: 'md' }
 const gridTemplateColumnsSx = {
   base: '70% 30%',
   md: '2fr 1fr 1fr 1fr 1fr 80px',
-}
-
-const assetCellSx = {
-  maxWidth: '350px',
 }
 
 // Hide virtual list container scrollbar across all major browsers
@@ -98,7 +77,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const translate = useTranslate()
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-    const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
 
     const parentRef = useRef<HTMLDivElement>(null)
 
@@ -130,18 +108,19 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       },
       [navigate],
     )
+
+    const tradeTranslation = useMemo(
+      () => translate('assets.assetCards.assetActions.trade'),
+      [translate],
+    )
+
     const columns = useMemo<ColumnDef<Asset>[]>(
       () => [
         {
           accessorKey: 'assetId',
           header: () => <Text translation='dashboard.portfolio.asset' />,
           cell: ({ row }) => (
-            <Box sx={assetCellSx}>
-              <AssetCell
-                assetId={row.original.assetId}
-                subText={truncate(row.original.symbol, { length: 6 })}
-              />
-            </Box>
+            <AssetCell assetId={row.original.assetId} symbol={row.original.symbol} />
           ),
         },
         ...(isLargerThanMd
@@ -149,13 +128,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
               {
                 id: 'sparkline',
                 cell: ({ row }: { row: Row<Asset> }) => (
-                  <Box width='full'>
-                    <SparkLine
-                      assetId={row.original.assetId}
-                      themeColor={row.original.color}
-                      height={35}
-                    />
-                  </Box>
+                  <SparkLineCell assetId={row.original.assetId} themeColor={row.original.color} />
                 ),
               },
             ]
@@ -163,29 +136,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         {
           id: 'price',
           header: () => <Text ml='auto' translation='dashboard.portfolio.price' />,
-          cell: ({ row }) => {
-            const change = bnOrZero(
-              marketDataUserCurrencyById[row.original.assetId]?.changePercent24Hr ?? '0',
-            ).times(0.01)
-            const colorScheme = change.isPositive() ? 'green' : 'red'
-            const icon = change.isPositive() ? arrowUp : arrowDown
-            return (
-              // Already memoized
-              // eslint-disable-next-line react-memo/require-usememo
-              <Stack alignItems='flex-end'>
-                <Amount.Fiat
-                  fontWeight='semibold'
-                  value={marketDataUserCurrencyById[row.original.assetId]?.price ?? '0'}
-                />
-                <Display.Mobile>
-                  <Tag colorScheme={colorScheme} gap={1} size='sm'>
-                    {icon}
-                    <Amount.Percent value={change.abs().toString()} />
-                  </Tag>
-                </Display.Mobile>
-              </Stack>
-            )
-          },
+          cell: ({ row }) => <PriceCell assetId={row.original.assetId} />,
         },
         ...(isLargerThanMd
           ? [
@@ -193,15 +144,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                 id: 'change',
                 header: () => <Text translation='dashboard.portfolio.priceChange' />,
                 cell: ({ row }: { row: Row<Asset> }) => (
-                  <Amount.Percent
-                    fontWeight='semibold'
-                    value={bnOrZero(
-                      marketDataUserCurrencyById[row.original.assetId]?.changePercent24Hr ?? '0',
-                    )
-                      .times(0.01)
-                      .toString()}
-                    autoColor
-                  />
+                  <ChangeCell assetId={row.original.assetId} />
                 ),
               },
             ]
@@ -212,10 +155,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
                 id: 'volume',
                 header: () => <Text translation='dashboard.portfolio.volume' />,
                 cell: ({ row }: { row: Row<Asset> }) => (
-                  <Amount.Fiat
-                    fontWeight='semibold'
-                    value={marketDataUserCurrencyById[row.original.assetId]?.volume ?? '0'}
-                  />
+                  <VolumeCell assetId={row.original.assetId} />
                 ),
               },
             ]
@@ -225,16 +165,19 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
               {
                 id: 'trade',
                 cell: ({ row }: { row: Row<Asset> }) => (
-                  <Button data-asset-id={row.original.assetId} onClick={handleTradeClick}>
-                    {translate('assets.assetCards.assetActions.trade')}
-                  </Button>
+                  <TradeButtonCell
+                    assetId={row.original.assetId}
+                    onClick={handleTradeClick}
+                    translation={tradeTranslation}
+                  />
                 ),
               },
             ]
           : []),
       ],
-      [handleTradeClick, isLargerThanMd, marketDataUserCurrencyById, translate],
+      [handleTradeClick, isLargerThanMd, tradeTranslation],
     )
+
     const table = useReactTable({
       data: rows,
       columns,

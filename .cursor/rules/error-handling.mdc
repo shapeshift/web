@@ -8,7 +8,7 @@ alwaysApply: true
 ### ✅ REQUIRED: Use Monadic Error Handling
 - **ALWAYS** use `Result<T, E>` pattern for error handling in swappers and APIs
 - **ALWAYS** use `Ok()` and `Err()` from `@sniptt/monads`
-- **NEVER** throw errors in swapper API implementations unless absolutely necessary, but UI can throw errors as it will use the react error boundary
+**AVOID** throwing within swapper API implementations; return `Err()` instead. UI layers may still throw (caught by React error boundaries).
 
 ### Examples of Required Monadic Error Handling:
 

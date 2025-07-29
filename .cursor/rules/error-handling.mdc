@@ -128,8 +128,6 @@ const handleTrade = useCallback(async () => {
 ```typescript
 // ✅ GOOD - Error boundary implementation
 export const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [hasError, setHasError] = useState(false)
-
   return (
     <ReactErrorBoundary
       fallback={<ErrorPage />}

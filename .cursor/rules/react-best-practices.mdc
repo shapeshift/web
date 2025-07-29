@@ -111,9 +111,8 @@ export const MyComponent = () => {
 }
 
 // ❌ BAD - Default export
-export default MyComponent = () => {
-  return <div>Content</div>
-}
+const MyComponent = () => <div>Content</div>
+export default MyComponent
 ```
 
 ### ✅ REQUIRED: Small Component Files

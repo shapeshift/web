@@ -336,7 +336,7 @@ const handleSelect = (asset: Asset) => {
 ## Enum Usage
 
 ### ✅ REQUIRED: Proper Enum Usage
-- **ALWAYS** use enums for constants
+- **PREFER** use enums for constants, specially on types, statuses, codes...
 - **ALWAYS** use string enums for better debugging
 - **ALWAYS** use descriptive enum names
 

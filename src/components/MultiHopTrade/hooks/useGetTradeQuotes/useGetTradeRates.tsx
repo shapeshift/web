@@ -4,10 +4,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-
-import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
-import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
@@ -19,6 +16,7 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
+import { useGetBatchTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -106,6 +104,19 @@ const getMixPanelDataFromApiRates = (
   }
 }
 
+const ALL_SWAPPER_NAMES = [
+  SwapperName.CowSwap,
+  SwapperName.ArbitrumBridge,
+  SwapperName.Portals,
+  SwapperName.Thorchain,
+  SwapperName.Zrx,
+  SwapperName.Chainflip,
+  SwapperName.Jupiter,
+  SwapperName.Relay,
+  SwapperName.Mayachain,
+  SwapperName.ButterSwap,
+]
+
 export const useGetTradeRates = () => {
   const dispatch = useAppDispatch()
   const {
@@ -155,9 +166,9 @@ export const useGetTradeRates = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  const { data: tradeRateInput } = useQuery({
+  const { data: batchTradeRateRequest } = useQuery({
     queryKey: [
-      'getTradeRateInput',
+      'getBatchTradeRateRequest',
       {
         buyAsset,
         sellAmountCryptoPrecision,
@@ -189,7 +200,7 @@ export const useGetTradeRates = () => {
 
       const affiliateBps = DEFAULT_FEE_BPS
 
-      const updatedTradeRateInput = (await getTradeQuoteOrRateInput({
+      const tradeRateInput = (await getTradeQuoteOrRateInput({
         sellAsset,
         sellAccountNumber,
         sellAccountType: sellAccountMetadata?.accountType,
@@ -208,31 +219,23 @@ export const useGetTradeRates = () => {
             : undefined,
       })) as GetTradeRateInput
 
-      return updatedTradeRateInput
+      return {
+        ...tradeRateInput,
+        swapperNames: ALL_SWAPPER_NAMES,
+      }
     },
   })
 
-  const getTradeQuoteArgs = useCallback(
-    (swapperName: SwapperName): UseGetSwapperTradeQuoteOrRateArgs => {
-      return {
-        swapperName,
-        tradeQuoteOrRateInput: tradeRateInput ?? skipToken,
-      }
-    },
-    [tradeRateInput],
-  )
+  // Use the batch query to fetch all rates at once
+  const batchRatesQuery = useGetBatchTradeRatesQuery(batchTradeRateRequest ?? skipToken)
+  console.log({ isFetching: batchRatesQuery.isFetching, isLoading: batchRatesQuery.isLoading })
 
-  // TODO(0xdef1cafe): this is brittle
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Relay))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Mayachain))
-  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ButterSwap))
+  // Update Redux state with batch results in a single dispatch
+  useEffect(() => {
+    if (!batchRatesQuery.data) return
+
+    dispatch(tradeQuoteSlice.actions.upsertBatchTradeQuotes(batchRatesQuery.data))
+  }, [batchRatesQuery.data, dispatch])
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
@@ -256,7 +259,7 @@ export const useGetTradeRates = () => {
   // If the trade input changes, we need to reset the tracking flag
   useEffect(() => {
     hasTrackedInitialRatesReceived.current = false
-  }, [tradeRateInput])
+  }, [batchTradeRateRequest])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {

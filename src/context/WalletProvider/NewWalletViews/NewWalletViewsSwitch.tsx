@@ -55,6 +55,16 @@ const modalSize = {
   base: 'full',
 }
 
+const containerMinHeight = {
+  base: '650px',
+  md: '800px',
+}
+
+const containerMaxHeight = {
+  base: '650px',
+  md: 'inherit',
+}
+
 const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPanelProps) => {
   const location = useLocation()
   const {
@@ -349,7 +359,7 @@ export const NewWalletViewsSwitch = () => {
             >
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
-            <Flex minH='800px' w={containerWidth}>
+            <Flex minH={containerMinHeight} maxH={containerMaxHeight} w={containerWidth}>
               <Suspense fallback={defaultSuspenseFallback}>
                 <Routes>
                   {/* Always display sections for the root route, no matter the viewport */}

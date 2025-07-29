@@ -54,7 +54,7 @@ export const useGlobalQuotePolling = () => {
 
       // Only invalidate if this was triggered by an interval, not refocus or input change
       if (isNotRefocus && isNotInputChange) {
-        dispatch(swapperApi.util.invalidateTags(['BatchTradeRate']))
+        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
       }
 
       return { lastExecutedTime: Date.now() }

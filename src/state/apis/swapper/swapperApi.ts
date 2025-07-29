@@ -42,7 +42,7 @@ export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swapperApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
-  tagTypes: ['TradeQuote', 'BatchTradeRate'],
+  tagTypes: ['TradeQuote'],
   endpoints: build => ({
     getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteOrRateRequest>({
       queryFn: async (tradeQuoteInput: TradeQuoteOrRateRequest, { dispatch, getState }) => {
@@ -301,18 +301,38 @@ export const swapperApi = createApi({
           mixPanel: getMixPanel(),
         }
 
-        // Process all enabled swappers in parallel
+        // Process all enabled swappers in parallel with 5-second timeout per swapper
         const swapperResults = await Promise.allSettled(
           enabledSwapperNames.map(async swapperName => {
             console.log(`Get rate for - ${swapperName}`)
-            const rateResult = await getTradeRates(
-              {
-                ...batchRequest,
-                affiliateBps,
-              } as GetTradeRateInput,
-              swapperName,
-              swapperDeps,
+
+            // Create timeout promise for this swapper
+            const timeoutPromise = new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('Swapper timeout')), 5000),
             )
+
+            // Race the swapper call against timeout
+            const rateResult = await Promise.race([
+              getTradeRates(
+                {
+                  ...batchRequest,
+                  affiliateBps,
+                } as GetTradeRateInput,
+                swapperName,
+                swapperDeps,
+              ),
+              timeoutPromise,
+            ]).catch(error => {
+              if (error.message === 'Swapper timeout') {
+                // Return a structured timeout error similar to swapper error format
+                return {
+                  isErr: () => true,
+                  unwrapErr: () => ({ code: TradeQuoteValidationError.SwapperTimeout }),
+                  swapperName,
+                }
+              }
+              throw error
+            })
 
             if (rateResult === undefined) {
               console.log(`Finished - ${swapperName}, no result`)
@@ -481,7 +501,7 @@ export const swapperApi = createApi({
       },
       providesTags: (_result, _error, batchRequest) =>
         batchRequest.swapperNames.map(swapperName => ({
-          type: 'BatchTradeRate' as const,
+          type: 'TradeQuote' as const,
           id: swapperName,
         })),
     }),

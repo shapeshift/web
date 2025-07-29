@@ -1,17 +1,20 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   getHopExecutionStateSummaryStepTranslation,
+  isPermit2Hop,
   StepperStep as StepperStepEnum,
 } from '../helpers'
 import { useCurrentHopIndex } from '../hooks/useCurrentHopIndex'
 import { useHopProgress } from '../hooks/useHopProgress'
 import { useStepperSteps } from '../hooks/useStepperSteps'
+import { useTradeButtonProps } from '../hooks/useTradeButtonProps'
+import { useTradeNetworkFeeCryptoBaseUnit } from '../hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { StepperStep } from '../StepperStep'
 import { ExpandedStepperSteps } from './ExpandedStepperSteps'
 
@@ -26,7 +29,7 @@ import {
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const collapseStyle = { width: '100%' }
@@ -103,6 +106,67 @@ export const ExpandableStepperSteps = ({
     if (swapProgressStatus === 'failed') return 'red'
   }, [swapProgressStatus])
 
+  const tradeButtonProps = useTradeButtonProps({
+    // Satify TS, if we are here, we have a quote already, and we don't want to make this optional in every other hooks consumed in the tree
+    tradeQuoteStep: activeTradeQuote?.steps[currentHopIndex] as TradeQuoteStep,
+    currentHopIndex,
+    activeTradeId: activeTradeId ?? '',
+    isExactAllowance: true,
+  })
+
+  const isPermit2 = useMemo(() => {
+    return isPermit2Hop(activeTradeQuote?.steps[currentHopIndex] as TradeQuoteStep)
+  }, [activeTradeQuote?.steps, currentHopIndex])
+
+  const hopExecutionMetadata = useAppSelector(state =>
+    hopExecutionMetadataFilter
+      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
+      : undefined,
+  )
+
+  const {
+    isLoading: isNetworkFeeCryptoBaseUnitLoading,
+    isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
+  } = useTradeNetworkFeeCryptoBaseUnit({
+    hopIndex: currentHopIndex,
+    enabled:
+      (currentTradeStep === StepperStepEnum.FirstHopSwap ||
+        currentTradeStep === StepperStepEnum.LastHopSwap) &&
+      // Stop fetching once the Tx is executed for this step
+      hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
+      hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation,
+  })
+
+  const isCircularProgressIndeterminate = useMemo(() => {
+    if (!confirmedTradeExecutionState) return true
+
+    return (
+      swapTxState === TransactionExecutionState.Pending ||
+      confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+      tradeButtonProps?.isLoading ||
+      isNetworkFeeCryptoBaseUnitLoading ||
+      isNetworkFeeCryptoBaseUnitRefetching ||
+      (swapperName === SwapperName.Zrx &&
+        isPermit2 &&
+        !activeTradeQuote?.steps[currentHopIndex]?.permit2Eip712 &&
+        ![TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+          confirmedTradeExecutionState,
+        ) &&
+        !activeQuoteError)
+    )
+  }, [
+    confirmedTradeExecutionState,
+    swapTxState,
+    tradeButtonProps?.isLoading,
+    isPermit2,
+    activeQuoteError,
+    activeTradeQuote?.steps,
+    currentHopIndex,
+    swapperName,
+    isNetworkFeeCryptoBaseUnitLoading,
+    isNetworkFeeCryptoBaseUnitRefetching,
+  ])
+
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
       case confirmedTradeExecutionState === TradeExecutionState.TradeComplete:
@@ -121,11 +185,11 @@ export const ExpandableStepperSteps = ({
       default:
         return (
           <Center boxSize='32px' borderWidth='2px' borderColor='border.base' borderRadius='full'>
-            <CircularProgress size='20px' isIndeterminate />
+            <CircularProgress size='20px' isIndeterminate={isCircularProgressIndeterminate} />
           </Center>
         )
     }
-  }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
+  }, [confirmedTradeExecutionState, activeQuoteError, swapTxState, isCircularProgressIndeterminate])
 
   const firstHopMetadataFilter = useMemo(
     () => ({

@@ -1,6 +1,5 @@
 ---
 description: TypeScript Best Practices for Code Reviews
-globs:
 alwaysApply: true
 ---
 
@@ -8,19 +7,28 @@ alwaysApply: true
 
 ### ✅ REQUIRED: Explicit Types
 - **ALWAYS** use explicit types for function parameters and return values
-- **ALWAYS** use interfaces for object shapes
+- **ALWAYS** use explicit types for object shapes (interfaces or type aliases)
 - **ALWAYS** use enums for constants
 - **NEVER** use `any` type unless absolutely necessary
 - **ALWAYS** use `unknown` instead of `any` when type is truly unknown
 
 ### Examples:
 ```typescript
-// ✅ GOOD - Explicit types
+// ✅ GOOD - Explicit types with interface
 interface TradeInput {
   sellAsset: Asset
   buyAsset: Asset
   sellAmount: string
   slippageTolerance: string
+}
+
+// ✅ GOOD - Explicit types with type alias
+type TransactionRow = {
+  type: TransactionRowType
+  amount: string
+  txHash: string
+  status: TransactionStatus
+  timestamp: number
 }
 
 const executeTrade = async (input: TradeInput): Promise<TradeResult> => {
@@ -56,10 +64,10 @@ const handleUnknownData = (data: any): string => {
 }
 ```
 
-## Interface Design
+## Type Definitions
 
-### ✅ REQUIRED: Well-Designed Interfaces
-- **ALWAYS** use interfaces for object shapes
+### ✅ REQUIRED: Well-Designed Type Definitions
+- **ALWAYS** use explicit types for object shapes (interfaces or type aliases)
 - **ALWAYS** make properties optional when they might not be present
 - **ALWAYS** use descriptive property names
 - **ALWAYS** use union types for multiple possible values
@@ -77,7 +85,8 @@ interface Asset {
   icon?: string // optional property
 }
 
-interface TradeQuote {
+// ✅ GOOD - Well-designed type alias
+type TradeQuote = {
   id: string
   rate: string
   sellAsset: Asset
@@ -91,17 +100,17 @@ type TradeType = 'swap' | 'bridge' | 'stake'
 type TradeStatus = 'pending' | 'success' | 'failed' | 'cancelled'
 ```
 
-### ❌ BAD - Poor Interface Design:
+### ❌ BAD - Poor Type Definitions:
 ```typescript
-// ❌ BAD - Non-descriptive interface
-interface Data {
+// ❌ BAD - Non-descriptive type
+type Data = {
   id: string
   name: string
   value: any
 }
 
 // ❌ BAD - No optional properties when needed
-interface TradeQuote {
+type TradeQuote = {
   id: string
   rate: string
   sellAsset: Asset
@@ -433,7 +442,7 @@ const element = <HTMLInputElement>document.getElementById('my-element')
 When reviewing TypeScript code, ensure:
 
 1. Explicit types are used for all functions and variables
-2. Interfaces are used for object shapes
+2. Explicit types are used for object shapes (interfaces or type aliases)
 3. Enums are used for constants
 4. `any` type is avoided unless absolutely necessary
 5. Generic types are used appropriately
@@ -454,7 +463,7 @@ When reviewing TypeScript code, ensure:
 - No type guards for runtime type checking
 - Manually creating types instead of using utility types
 - Unsafe type assertions without validation
-- Non-descriptive interface names
+- Non-descriptive type names
 - Missing optional properties when needed
 - Using strings instead of enums for constants
 - No generic constraints when possible

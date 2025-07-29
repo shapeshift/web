@@ -130,22 +130,17 @@ const handleTrade = useCallback(async () => {
 export const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [hasError, setHasError] = useState(false)
 
-  useEffect(() => {
-    const handleError = (error: Error) => {
-      console.error('Error caught by boundary:', error)
-      captureException(error)
-      setHasError(true)
-    }
-
-    window.addEventListener('error', handleError)
-    return () => window.removeEventListener('error', handleError)
-  }, [])
-
-  if (hasError) {
-    return <ErrorPage />
-  }
-
-  return <>{children}</>
+  return (
+    <ReactErrorBoundary
+      fallback={<ErrorPage />}
+      onError={(error, info) => {
+        console.error(error, info)
+        captureException(error)
+      }}
+    >
+      {children}
+    </ReactErrorBoundary>
+  )
 }
 ```
 

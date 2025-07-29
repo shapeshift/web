@@ -103,15 +103,15 @@ enum Error {
 
 ### Examples:
 ```typescript
-// ✅ GOOD - kebab-case file names
+// ✅ GOOD - camelCase for hooks/helpers and PascalCase file names for TSX components
 // components/AssetList/AssetList.tsx
 // hooks/useTradeExecution/useTradeExecution.tsx
 ```
 
 ### ❌ BAD - Poor File Naming:
 ```typescript
-// ❌ BAD - camelCase or PascalCase file names
-// components/AssetList/assetList.tsx
+// ❌ BAD - kebab-case or PascalCase file names
+// components/AssetList/asset-list.tsx
 // hooks/useTradeExecution/UseTradeExecution.tsx
 ```
 

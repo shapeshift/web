@@ -10599,6 +10599,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rrweb/types@npm:^2.0.0-alpha.18":
+  version: 2.0.0-alpha.18
+  resolution: "@rrweb/types@npm:2.0.0-alpha.18"
+  checksum: 330adfcc1162131e250d024b070011c7e04edf0cf2da87456aa2f837db1cd969077a772c3db1f92197356e2d00c6e052e681fe103dabcfe652bcaea0cb7267f9
+  languageName: node
+  linkType: hard
+
+"@rrweb/utils@npm:^2.0.0-alpha.18":
+  version: 2.0.0-alpha.18
+  resolution: "@rrweb/utils@npm:2.0.0-alpha.18"
+  checksum: 849a2f35f9fdd90d9df1d5daa920440769afb4a5cae79a7a05a743abd5c063c01f2200b00ec5d8a7e71466fa5a09c37d499873ede29f53dbb04578cf54e4ba18
+  languageName: node
+  linkType: hard
+
 "@rtsao/scc@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
@@ -11658,7 +11672,7 @@ __metadata:
     lodash: ^4.17.21
     match-sorter: ^6.3.0
     mipd: ^0.0.7
-    mixpanel-browser: ^2.45.0
+    mixpanel-browser: ^2.67.0
     module-alias: ^2.2.3
     msw: ^0.36.5
     multiformats: ^9.6.3
@@ -12847,6 +12861,13 @@ __metadata:
   version: 0.0.0
   resolution: "@types/country-data@npm:0.0.0"
   checksum: 8f9ee8fb8357b5df240453471f2522d315cf7acaf229dad0cd5ea739e621bbbad0bce6f551478b54da35b36cfb51b03bdf6f9dac3c3057047076a6548f4e2bf9
+  languageName: node
+  linkType: hard
+
+"@types/css-font-loading-module@npm:0.0.7":
+  version: 0.0.7
+  resolution: "@types/css-font-loading-module@npm:0.0.7"
+  checksum: a074d3b824b2232160f2353daf1cc62937e4a24154d13607f14f93feaaac6abcf069c8ae02c1396840950fa02c1b3f19ce0f119321f9735905bfb3cd4b9b2021
   languageName: node
   linkType: hard
 
@@ -15519,6 +15540,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@xstate/fsm@npm:^1.4.0":
+  version: 1.6.5
+  resolution: "@xstate/fsm@npm:1.6.5"
+  checksum: da24fa4f40479223da34714640cea64ec894bbfeb2281a0a870af68882ae1d6fb6d724d6e5c0d4e6929728c699b92858f7389ef7d6a5d00ac66ba8cde3934eed
+  languageName: node
+  linkType: hard
+
 "@xstate/react@npm:^1.6.3":
   version: 1.6.3
   resolution: "@xstate/react@npm:1.6.3"
@@ -16975,6 +17003,13 @@ __metadata:
   version: 0.1.0
   resolution: "base32.js@npm:0.1.0"
   checksum: e1ac2c4c405794bfb30e47c708718544091055371c61040c3d85aba56dd699646f1ae840fb686df9f6da8d9fdee9bbe0a07d04be79d2c13e9bb39595aedecb78
+  languageName: node
+  linkType: hard
+
+"base64-arraybuffer@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "base64-arraybuffer@npm:1.0.2"
+  checksum: 15e6400d2d028bf18be4ed97702b11418f8f8779fb8c743251c863b726638d52f69571d4cc1843224da7838abef0949c670bde46936663c45ad078e89fee5c62
   languageName: node
   linkType: hard
 
@@ -27081,7 +27116,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mitt@npm:^3.0.1":
+"mitt@npm:^3.0.0, mitt@npm:^3.0.1":
   version: 3.0.1
   resolution: "mitt@npm:3.0.1"
   checksum: b55a489ac9c2949ab166b7f060601d3b6d893a852515ae9eca4e11df01c013876df777ea109317622b5c1c60e8aae252558e33c8c94e14124db38f64a39614b1
@@ -27095,10 +27130,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mixpanel-browser@npm:^2.45.0":
-  version: 2.45.0
-  resolution: "mixpanel-browser@npm:2.45.0"
-  checksum: 43722dd5019ece65302e933f3d5812ea015aff8525b3ba5347da9cd8694871ed85179047bf2bc7f47cd58c050158ea4ce84cc2810e128988c151fe4457f52f55
+"mixpanel-browser@npm:^2.67.0":
+  version: 2.67.0
+  resolution: "mixpanel-browser@npm:2.67.0"
+  dependencies:
+    rrweb: 2.0.0-alpha.18
+  checksum: c09f1b009e87273b943062fe547e1867523e7e8ba76ec37602fc59b96e737dbb63be6d7c365d4afbefae40fb765b2ddcf3f2addc20bea76db7364f8501e4501c
   languageName: node
   linkType: hard
 
@@ -27407,6 +27444,15 @@ __metadata:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: 7d0eda657002738aa5206107bd0580aead6c95c460ef1bdd0b1a87a9c7ae6277ac2e9b945306aaa5b32c6dcb7feaf462d0f552e7f8b5718abfc6ead5c94a71b3
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:^3.3.11":
+  version: 3.3.11
+  resolution: "nanoid@npm:3.3.11"
+  bin:
+    nanoid: bin/nanoid.cjs
+  checksum: 3be20d8866a57a6b6d218e82549711c8352ed969f9ab3c45379da28f405363ad4c9aeb0b39e9abc101a529ca65a72ff9502b00bf74a912c4b64a9d62dfd26c29
   languageName: node
   linkType: hard
 
@@ -28917,6 +28963,17 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 1cdd0c298849df6cd65f7e646a3ba36870a37b65f55fd59d1a165539c263e9b4872a402bf4ed1ca1bc31f58b68b2835545e33ea1a23b161a1f8aa6d5ded81e78
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.38":
+  version: 8.5.6
+  resolution: "postcss@npm:8.5.6"
+  dependencies:
+    nanoid: ^3.3.11
+    picocolors: ^1.1.1
+    source-map-js: ^1.2.1
+  checksum: 20f3b5d673ffeec2b28d65436756d31ee33f65b0a8bedb3d32f556fbd5973be38c3a7fb5b959a5236c60a5db7b91b0a6b14ffaac0d717dce1b903b964ee1c1bb
   languageName: node
   linkType: hard
 
@@ -31087,6 +31144,40 @@ pvutils@latest:
     utf-8-validate:
       optional: true
   checksum: c93cd2e5b348ecfc6a4714d88b34c23470d086cecde5d1ba459750f9f1269c6e8edf80f3c628bab423f8720a49a653093e52821b9b0779fb79e041313d0e7173
+  languageName: node
+  linkType: hard
+
+"rrdom@npm:^2.0.0-alpha.18":
+  version: 2.0.0-alpha.18
+  resolution: "rrdom@npm:2.0.0-alpha.18"
+  dependencies:
+    rrweb-snapshot: ^2.0.0-alpha.18
+  checksum: 1e98e655e730d9da878a2af1632d105a706ea012d158f72a5da1ea37e02288e08e1634281cfdc5f0c5fe5017c9d866d22fb159559c04b340466d0cc485b90e3a
+  languageName: node
+  linkType: hard
+
+"rrweb-snapshot@npm:^2.0.0-alpha.18":
+  version: 2.0.0-alpha.18
+  resolution: "rrweb-snapshot@npm:2.0.0-alpha.18"
+  dependencies:
+    postcss: ^8.4.38
+  checksum: 3e9ac045f22c174791a56c31698f13168942a087f3dfd241c10e9bc81ff4597c11ea95cbe1069aa1f91404dda2d87803bcbcb0c6a4fbe7b7224cdf90506a3a29
+  languageName: node
+  linkType: hard
+
+"rrweb@npm:2.0.0-alpha.18":
+  version: 2.0.0-alpha.18
+  resolution: "rrweb@npm:2.0.0-alpha.18"
+  dependencies:
+    "@rrweb/types": ^2.0.0-alpha.18
+    "@rrweb/utils": ^2.0.0-alpha.18
+    "@types/css-font-loading-module": 0.0.7
+    "@xstate/fsm": ^1.4.0
+    base64-arraybuffer: ^1.0.1
+    mitt: ^3.0.0
+    rrdom: ^2.0.0-alpha.18
+    rrweb-snapshot: ^2.0.0-alpha.18
+  checksum: ce12bd9ec254113a5407315118869cfbefb8c162878ce6f4ccb77bc9cd42423df9d9609c06bdd64572a0c5f83b6751a1558edaa63fb711a88b29d692c1708944
   languageName: node
   linkType: hard
 

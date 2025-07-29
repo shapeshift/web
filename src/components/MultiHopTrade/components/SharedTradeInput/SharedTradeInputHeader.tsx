@@ -34,7 +34,7 @@ const cardPaddingTop = {
   md: 4,
 }
 const cardMarginTop = {
-  base: 'calc(-1 * env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  base: 'calc(-1 * calc(env(safe-area-inset-top) + var(--safe-area-inset-top)))',
   md: 0,
 }
 

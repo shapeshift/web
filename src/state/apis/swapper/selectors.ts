@@ -4,6 +4,7 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 
 import type { TradeQuoteOrRateRequest } from './types'
 
+import { TRADE_QUOTE_REFRESH_INTERVAL_MS } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
@@ -38,5 +39,53 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
     }
 
     return isLoadingBySwapperName
+  },
+)
+
+export const selectBatchTradeRateQueryLoadingState = createDeepEqualOutputSelector(
+  selectSwapperApiQueries,
+  queries => {
+    let latestQueryInfo
+    let latestStartedTimeStamp = 0
+
+    // Find the most recent batch trade rate query
+    for (const [queryKey, queryInfo] of Object.entries(queries)) {
+      if (!queryKey.startsWith('getBatchTradeRates')) continue
+
+      const startedTimeStamp = queryInfo?.startedTimeStamp ?? 0
+      if (startedTimeStamp > latestStartedTimeStamp) {
+        latestStartedTimeStamp = startedTimeStamp
+        latestQueryInfo = queryInfo
+      }
+    }
+
+    if (!latestQueryInfo) {
+      return {
+        isLoading: false,
+        isFetching: false,
+        lastFulfilledTime: undefined,
+        timeRemaining: 0,
+      }
+    }
+
+    const isLoading = [QueryStatus.uninitialized, QueryStatus.pending, undefined].includes(
+      latestQueryInfo.status,
+    )
+
+    const isFetching = latestQueryInfo.status === QueryStatus.pending
+
+    const lastFulfilledTime = latestQueryInfo.fulfilledTimeStamp
+
+    // Calculate time remaining until next refresh
+    const timeRemaining = lastFulfilledTime
+      ? Math.max(0, lastFulfilledTime + TRADE_QUOTE_REFRESH_INTERVAL_MS - Date.now())
+      : 0
+
+    return {
+      isLoading,
+      isFetching,
+      lastFulfilledTime,
+      timeRemaining,
+    }
   },
 )

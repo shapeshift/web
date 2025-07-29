@@ -38,6 +38,8 @@ import {
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
+export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
+
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
   quoteReceived: boolean
@@ -227,7 +229,11 @@ export const useGetTradeRates = () => {
   })
 
   // Use the batch query to fetch all rates at once
-  const batchRatesQuery = useGetBatchTradeRatesQuery(batchTradeRateRequest ?? skipToken)
+  const batchRatesQuery = useGetBatchTradeRatesQuery(batchTradeRateRequest ?? skipToken, {
+    pollingInterval: TRADE_QUOTE_REFRESH_INTERVAL_MS,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  })
   console.log({ isFetching: batchRatesQuery.isFetching, isLoading: batchRatesQuery.isLoading })
 
   // Update Redux state with batch results in a single dispatch

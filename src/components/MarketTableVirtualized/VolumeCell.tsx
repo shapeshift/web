@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'
 import { selectMarketDataUserCurrency } from '@/state/slices/selectors'
@@ -10,7 +10,10 @@ type VolumeCellProps = {
 
 export const VolumeCell = memo<VolumeCellProps>(({ assetId }) => {
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
-  const volume = marketDataUserCurrencyById[assetId]?.volume ?? '0'
+
+  const volume = useMemo(() => {
+    return marketDataUserCurrencyById[assetId]?.volume ?? '0'
+  }, [marketDataUserCurrencyById, assetId])
 
   return <Amount.Fiat fontWeight='semibold' value={volume} />
 })

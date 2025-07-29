@@ -118,12 +118,6 @@ export const ExpandableStepperSteps = ({
     return isPermit2Hop(activeTradeQuote?.steps[currentHopIndex] as TradeQuoteStep)
   }, [activeTradeQuote?.steps, currentHopIndex])
 
-  const hopExecutionMetadata = useAppSelector(state =>
-    hopExecutionMetadataFilter
-      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
-      : undefined,
-  )
-
   const {
     isLoading: isNetworkFeeCryptoBaseUnitLoading,
     isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
@@ -133,9 +127,30 @@ export const ExpandableStepperSteps = ({
       (currentTradeStep === StepperStepEnum.FirstHopSwap ||
         currentTradeStep === StepperStepEnum.LastHopSwap) &&
       // Stop fetching once the Tx is executed for this step
-      hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
-      hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation,
+      hopExecutionState === HopExecutionState.AwaitingSwap &&
+      swapTxState === TransactionExecutionState.AwaitingConfirmation,
   })
+
+  const isPermit2Loading = useMemo(() => {
+    if (!confirmedTradeExecutionState) return true
+
+    return (
+      swapperName === SwapperName.Zrx &&
+      isPermit2 &&
+      !activeTradeQuote?.steps[currentHopIndex]?.permit2Eip712 &&
+      ![TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+        confirmedTradeExecutionState,
+      ) &&
+      !activeQuoteError
+    )
+  }, [
+    isPermit2,
+    activeTradeQuote?.steps,
+    currentHopIndex,
+    confirmedTradeExecutionState,
+    activeQuoteError,
+    swapperName,
+  ])
 
   const isCircularProgressIndeterminate = useMemo(() => {
     if (!confirmedTradeExecutionState) return true
@@ -146,23 +161,13 @@ export const ExpandableStepperSteps = ({
       tradeButtonProps?.isLoading ||
       isNetworkFeeCryptoBaseUnitLoading ||
       isNetworkFeeCryptoBaseUnitRefetching ||
-      (swapperName === SwapperName.Zrx &&
-        isPermit2 &&
-        !activeTradeQuote?.steps[currentHopIndex]?.permit2Eip712 &&
-        ![TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-          confirmedTradeExecutionState,
-        ) &&
-        !activeQuoteError)
+      isPermit2Loading
     )
   }, [
     confirmedTradeExecutionState,
     swapTxState,
     tradeButtonProps?.isLoading,
-    isPermit2,
-    activeQuoteError,
-    activeTradeQuote?.steps,
-    currentHopIndex,
-    swapperName,
+    isPermit2Loading,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
   ])

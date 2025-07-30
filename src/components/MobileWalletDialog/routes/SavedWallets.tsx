@@ -59,6 +59,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [onClose, settings])
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const accountManagementPopover = useModal('manageAccounts')
+  const mobileWalletDialog = useModal('mobileWalletDialog')
   const navigate = useNavigate()
 
   const handleBackupMenuItemClick = useCallback(async () => {
@@ -76,8 +77,9 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [navigate, state])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
-    accountManagementPopover.open({})
-  }, [accountManagementPopover])
+    accountManagementPopover.open({ onBack: mobileWalletDialog.open })
+    onClose()
+  }, [accountManagementPopover, onClose, mobileWalletDialog])
 
   const handleClickSupport = useCallback(() => {
     feedbackSupport.open({})
@@ -91,6 +93,11 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const handleImportClick = useCallback(() => {
     navigate(MobileWalletDialogRoutes.Import)
   }, [navigate])
+
+  const handleDisconnectClick = useCallback(() => {
+    disconnect()
+    onClose()
+  }, [disconnect, onClose])
 
   const mobileWalletFooter = useMemo(() => {
     return (
@@ -186,7 +193,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
         />
         <MainNavLink
           size='sm'
-          onClick={disconnect}
+          onClick={handleDisconnectClick}
           label={translate('connectWallet.menu.disconnect')}
           leftIcon={closeIcon}
           color='red.500'

@@ -86,9 +86,10 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
     input: GetFeeDataInput<KnownChainIds.OptimismMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.OptimismMainnet>> {
     try {
-      const req = await this.buildEstimateGasRequest(input)
+      const { gasLimit, l1GasLimit } = await this.api.estimateGas({
+        estimateGasBody: this.buildEstimateGasBody(input),
+      })
 
-      const { gasLimit, l1GasLimit } = await this.api.estimateGas(req)
       const { fast, average, slow } = await this.getGasFeeData()
 
       return {

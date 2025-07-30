@@ -36,7 +36,7 @@ type SharedTradeInputProps = {
 const cardBorderRadius = { base: '0', md: '2xl' }
 const cardMinHeight = {
   base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
-  md: 'initial',
+  sm: 'initial',
 }
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 
@@ -54,6 +54,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   onSubmit,
   isStandalone,
 }) => {
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const inputWidth = useSharedWidth(tradeInputRef)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
@@ -78,7 +79,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               bg={cardBgProp}
               borderRadius={cardBorderRadius}
               minHeight={cardMinHeight}
-              height={!hasUserEnteredAmount && isSmallerThanXl ? cardMinHeight.base : 'initial'}
+              height={!hasUserEnteredAmount && isSmallerThanMd ? cardMinHeight.base : 'initial'}
             >
               <SharedTradeInputHeader
                 initialTab={tradeInputTab}

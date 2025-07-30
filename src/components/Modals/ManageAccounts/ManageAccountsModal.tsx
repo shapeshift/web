@@ -7,11 +7,13 @@ import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { ManageAccountsDrawer } from '@/components/ManageAccountsDrawer/ManageAccountsDrawer'
 import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
+  DialogHeaderLeft,
   DialogHeaderMiddle,
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
@@ -66,7 +68,11 @@ const ConnectedChain = ({
   )
 }
 
-export const ManageAccountsModal = () => {
+type ManageAccountsModalProps = {
+  onBack?: () => void
+}
+
+export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
   const { close, isOpen } = useModal('manageAccounts')
@@ -108,6 +114,11 @@ export const ManageAccountsModal = () => {
   // don't allow users to close the modal until at least one chain is connected
   const disableClose = walletConnectedChainIdsSorted.length === 0
 
+  const handleGoBack = useCallback(() => {
+    onBack?.()
+    close()
+  }, [close, onBack])
+
   return (
     <>
       <Dialog
@@ -123,6 +134,11 @@ export const ManageAccountsModal = () => {
           chainId={selectedChainId}
         />
         <DialogHeader>
+          {onBack ? (
+            <DialogHeaderLeft>
+              <DialogBackButton onClick={handleGoBack} />
+            </DialogHeaderLeft>
+          ) : null}
           <DialogHeaderMiddle>
             <Box minWidth='50px'>
               <RawText as='h3' fontWeight='semibold' textAlign='center'>

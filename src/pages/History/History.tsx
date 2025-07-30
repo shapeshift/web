@@ -53,17 +53,23 @@ export const History = () => {
     onToggle: onSearchToggle,
   } = useDisclosure()
   const qrCode = useModal('qrCode')
+  const mobileWalletDialog = useModal('mobileWalletDialog')
 
   const handleSlideIndexChange = useCallback((index: number) => {
     setSlideIndex(index)
   }, [])
 
   const mobileDrawer = useMemo(() => {
-    if (isMobileApp) return <MobileWalletDialog isOpen={isOpen} onClose={onClose} />
+    if (isMobileApp) return null
     return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
   }, [isOpen, onClose])
 
   const handleQrCodeclick = useCallback(() => qrCode.open({}), [qrCode])
+
+  const handleUserHeaderClick = useCallback(() => {
+    if (isMobileApp) return mobileWalletDialog.open({})
+    onOpen()
+  }, [mobileWalletDialog, onOpen])
 
   return (
     <Main pb={mainPaddingBottom} pt={0}>
@@ -79,7 +85,7 @@ export const History = () => {
         <MobileUserHeader
           onSearchOpen={onSearchOpen}
           handleQrCodeClick={handleQrCodeclick}
-          onOpen={onOpen}
+          onOpen={handleUserHeaderClick}
         />
       </Container>
       <Tabs index={slideIndex} onChange={handleSlideIndexChange} variant='unstyled' pt={0} isLazy>

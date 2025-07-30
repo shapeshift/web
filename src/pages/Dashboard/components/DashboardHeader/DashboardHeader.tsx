@@ -14,8 +14,6 @@ import { MobileUserHeader } from './MobileUserHeader'
 
 import { Display } from '@/components/Display'
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
-import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
-import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isMobile as isMobileApp } from '@/lib/globals'
 
@@ -51,7 +49,9 @@ export const DashboardHeader = memo(() => {
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
+  const mobileWalletDialog = useModal('mobileWalletDialog')
   const qrCode = useModal('qrCode')
+
   const [y, setY] = useState(0)
   const { scrollY } = useScroll()
 
@@ -166,16 +166,18 @@ export const DashboardHeader = memo(() => {
   }, [])
 
   const mobileDrawer = useMemo(() => {
-    if (isMobileApp)
-      return (
-        <MobileWalletDialog
-          isOpen={isOpen}
-          onClose={onClose}
-          defaultRoute={MobileWalletDialogRoutes.Saved}
-        />
-      )
+    // Inside mobile app, we use the global modal provider for the mobile wallet dialog, so we don't need to render the drawer here
+    if (isMobileApp) return null
+
+    // But on responsive we use the regular drawer
     return <DashboardDrawer isOpen={isOpen} onClose={onClose} />
   }, [isOpen, onClose])
+
+  const handleUserHeaderClick = useCallback(() => {
+    if (isMobileApp) return mobileWalletDialog.open({})
+
+    onOpen()
+  }, [mobileWalletDialog, onOpen])
 
   return (
     <>
@@ -193,7 +195,7 @@ export const DashboardHeader = memo(() => {
           <MobileUserHeader
             onSearchOpen={onSearchOpen}
             handleQrCodeClick={handleQrCodeClick}
-            onOpen={onOpen}
+            onOpen={handleUserHeaderClick}
           />
         </Container>
 

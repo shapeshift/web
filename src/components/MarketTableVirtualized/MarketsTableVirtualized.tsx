@@ -87,7 +87,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       getScrollElement: () => parentRef.current,
       estimateSize: () => ROW_HEIGHT,
       // Render approximately 1vh (or more if on mobile) of items in advance to avoid blank page flickers when scrolling
-      overscan: 13,
+      overscan: 26,
     })
 
     // Only fetch market data for visible rows

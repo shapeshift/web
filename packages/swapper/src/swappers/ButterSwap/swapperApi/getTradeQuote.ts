@@ -250,7 +250,7 @@ export const getTradeQuote = async (
       to: buildTx.to,
       data: buildTx.data,
       value: buildTx.value,
-      gasLimit: route.gasEstimatedTarget,
+      gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
       ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
     },
   }

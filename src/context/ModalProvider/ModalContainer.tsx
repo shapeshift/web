@@ -189,6 +189,14 @@ const LedgerOpenAppModal = makeSuspenseful(
   ),
 )
 
+const MobileWalletDialogModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/MobileWalletDialog/MobileWalletDialog').then(({ MobileWalletDialog }) => ({
+      default: MobileWalletDialog,
+    })),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -212,6 +220,7 @@ export const MODALS: Modals = {
   ledgerOpenApp: LedgerOpenAppModal,
   manageAccounts: ManageAccountsModal,
   rateChanged: RateChangedModal,
+  mobileWalletDialog: MobileWalletDialogModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

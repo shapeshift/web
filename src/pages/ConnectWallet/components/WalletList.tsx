@@ -69,6 +69,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
 
         const revoker: RevocableWallet | null = await (async () => {
           try {
+            onIsWaitingForRedirection?.(true)
             const walletRevoker = await getWallet(deviceId)
             return walletRevoker
           } catch {
@@ -77,6 +78,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
         })()
 
         if (!revoker) {
+          onIsWaitingForRedirection?.(false)
           setIsInitializingWallet(false)
           return
         }
@@ -112,7 +114,6 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
           localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
           revoker.revoke()
-          onIsWaitingForRedirection?.(true)
         } catch (e) {
           setError('walletProvider.shapeShift.load.error.pair')
         }
@@ -193,7 +194,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
     isInitializingWallet,
   ])
 
-  return isLoading ? (
+  return isLoading || state.isLoadingLocalWallet ? (
     <Center py={6}>
       <Spinner />
     </Center>

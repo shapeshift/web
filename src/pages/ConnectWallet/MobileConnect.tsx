@@ -91,6 +91,17 @@ export const MobileConnect = () => {
   }, [setDefaultRoute, onOpen])
 
   const query = useQuery<{ returnUrl: string }>()
+
+  useEffect(() => {
+    if (state.isLoadingLocalWallet) {
+      setIsWaitingForRedirection(true)
+    }
+
+    if (!state.isLoadingLocalWallet && !hasWallet) {
+      setIsWaitingForRedirection(false)
+    }
+  }, [state.isLoadingLocalWallet, hasWallet])
+
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
     // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
@@ -110,8 +121,8 @@ export const MobileConnect = () => {
         })
       : query?.returnUrl
     if (hasWallet) {
-      setIsWaitingForRedirection(false)
       navigate(path ?? TradeRoutePaths.Input)
+      setIsWaitingForRedirection(false)
     }
   }, [navigate, hasWallet, query, state, dispatch, setIsWaitingForRedirection])
 
@@ -198,19 +209,23 @@ export const MobileConnect = () => {
         <BodyStack>
           <Stack textAlign='center' spacing={2}>
             <Heading>{translate('connectWalletPage.welcomeBack')}</Heading>
-            <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
+            {!isWaitingForRedirection && !state.isLoadingLocalWallet ? (
+              <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
+            ) : null}
           </Stack>
           <Stack>
-            {isWaitingForRedirection ? (
+            {isWaitingForRedirection || state.isLoadingLocalWallet ? (
               <Center py={6}>
                 <Spinner />
               </Center>
             ) : (
-              <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
+              <>
+                <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
+                <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
+                  {translate('connectWalletPage.createOrImport')}
+                </Button>
+              </>
             )}
-            <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
-              {translate('connectWalletPage.createOrImport')}
-            </Button>
             {error && (
               <Alert status='error'>
                 <AlertIcon />
@@ -233,6 +248,7 @@ export const MobileConnect = () => {
     wallets,
     isWaitingForRedirection,
     handleIsWaitingForRedirection,
+    state.isLoadingLocalWallet,
   ])
 
   return (

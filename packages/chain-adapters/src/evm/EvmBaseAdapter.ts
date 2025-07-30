@@ -676,7 +676,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const req = this.buildEstimateGasRequest(input)
 
-      const { gasLimit } = await this.providers.http.estimateGas(req)
+      const { gasLimit } = await this.providers.http.estimateGas({ estimateGasBody: req })
       const { fast, average, slow } = await this.getGasFeeData()
 
       return {

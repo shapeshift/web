@@ -17,7 +17,6 @@ import { ActionCenter } from '@/components/Layout/Header/ActionCenter/ActionCent
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { DashboardDrawer } from '@/pages/Dashboard/components/DashboardHeader/DashboardDrawer'

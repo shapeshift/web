@@ -36,7 +36,7 @@ type SharedTradeInputProps = {
 const cardBorderRadius = { base: '0', md: '2xl' }
 const cardMinHeight = {
   base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
-  sm: 'initial',
+  md: 'initial',
 }
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 

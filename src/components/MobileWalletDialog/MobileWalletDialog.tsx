@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Navigate } from 'react-router'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -13,10 +13,9 @@ import { SavedWallets } from './routes/SavedWallets'
 import { MobileWalletDialogRoutes } from './types'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
+import { useModal } from '@/hooks/useModal/useModal'
 
-type MobileWalletDialogProps = {
-  isOpen: boolean
-  onClose: () => void
+export type MobileWalletDialogProps = {
   defaultRoute?: MobileWalletDialogRoutes
 }
 
@@ -61,14 +60,23 @@ const MobileDialogRoutes = ({
 }
 
 export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
-  isOpen,
-  onClose,
   defaultRoute = MobileWalletDialogRoutes.Saved,
 }) => {
+  const mobileWalletDialog = useModal('mobileWalletDialog')
+
+  const handleClose = useCallback(() => {
+    mobileWalletDialog.close()
+  }, [mobileWalletDialog])
+
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation={false}>
+    <Dialog
+      isOpen={mobileWalletDialog.isOpen}
+      onClose={handleClose}
+      height='auto'
+      isDisablingPropagation={false}
+    >
       <MemoryRouter>
-        <MobileDialogRoutes defaultRoute={defaultRoute} onClose={onClose} />
+        <MobileDialogRoutes defaultRoute={defaultRoute} onClose={handleClose} />
       </MemoryRouter>
     </Dialog>
   )

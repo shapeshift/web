@@ -12,7 +12,6 @@ import {
   Link,
   Spinner,
   Stack,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -28,13 +27,13 @@ import OrangeFox from '@/assets/orange-fox.svg'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { FadeTransition } from '@/components/FadeTransition'
 import { LanguageSelector } from '@/components/LanguageSelector'
-import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { SlideTransitionY } from '@/components/SlideTransitionY'
 import { RawText, Text } from '@/components/Text'
 import { listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useQuery } from '@/hooks/useQuery/useQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -74,21 +73,17 @@ export const MobileConnect = () => {
   const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const navigate = useNavigate()
-  const { isOpen, onClose, onOpen } = useDisclosure()
-  const [defaultRoute, setDefaultRoute] = useState<MobileWalletDialogRoutes>(
-    MobileWalletDialogRoutes.Saved,
-  )
+
+  const mobileWalletDialog = useModal('mobileWalletDialog')
   const [isWaitingForRedirection, setIsWaitingForRedirection] = useState<boolean>(false)
 
   const handleOpenCreateWallet = useCallback(() => {
-    setDefaultRoute(MobileWalletDialogRoutes.Create)
-    onOpen()
-  }, [onOpen])
+    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Create })
+  }, [mobileWalletDialog])
 
   const handleImport = useCallback(() => {
-    setDefaultRoute(MobileWalletDialogRoutes.Import)
-    onOpen()
-  }, [setDefaultRoute, onOpen])
+    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Import })
+  }, [mobileWalletDialog])
 
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
@@ -333,7 +328,6 @@ export const MobileConnect = () => {
           </>
         )}
       </AnimatePresence>
-      <MobileWalletDialog isOpen={isOpen} onClose={onClose} defaultRoute={defaultRoute} />
     </Flex>
   )
 }

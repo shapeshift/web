@@ -1,8 +1,8 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
-import { isThorTradeRate, SwapperName } from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput, SwapperName, TradeRate } from '@shapeshiftoss/swapper'
+import { isThorTradeRate } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -17,7 +17,7 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
-import type { ApiQuote, BatchTradeRateRequest, TradeQuoteError } from '@/state/apis/swapper/types'
+import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
@@ -37,19 +37,6 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
-
-const ALL_SWAPPER_NAMES: SwapperName[] = [
-  SwapperName.CowSwap,
-  SwapperName.ArbitrumBridge,
-  SwapperName.Portals,
-  SwapperName.Thorchain,
-  SwapperName.Zrx,
-  SwapperName.Chainflip,
-  SwapperName.Jupiter,
-  SwapperName.Relay,
-  SwapperName.Mayachain,
-  SwapperName.ButterSwap,
-]
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -223,17 +210,8 @@ export const useGetTradeRates = () => {
     },
   })
 
-  const batchTradeRateRequest = useMemo((): BatchTradeRateRequest | typeof skipToken => {
-    if (!tradeRateInput) return skipToken
-
-    return {
-      ...tradeRateInput,
-      swapperNames: ALL_SWAPPER_NAMES,
-    }
-  }, [tradeRateInput])
-
   const { data: batchTradeRates, isLoading: isBatchTradeRatesLoading } =
-    swapperApi.useGetBatchTradeRatesQuery(batchTradeRateRequest)
+    swapperApi.useGetBatchTradeRatesQuery(tradeRateInput ?? skipToken)
 
   // Dispatch batch results to Redux when they arrive
   useEffect(() => {

@@ -606,6 +606,7 @@ export const selectLoadingSwappers = createSelector(
 export const selectUserAvailableTradeQuotes = createSelector(
   selectTradeQuoteDisplayCache,
   tradeQuoteDisplayCache => {
+    console.log({ tradeQuoteDisplayCache })
     return tradeQuoteDisplayCache.filter(
       quoteData =>
         SWAPPER_USER_ERRORS.includes(quoteData.errors[0]?.error) || !quoteData.errors.length,

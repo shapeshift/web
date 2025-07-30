@@ -8,6 +8,7 @@ import {
   SwapperName,
   TradeType,
 } from '@shapeshiftoss/swapper'
+import { mapValues } from 'lodash'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
@@ -25,11 +26,7 @@ import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries/thornode'
 import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
 import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type {
-  ApiQuote,
-  BatchTradeRateRequest,
-  TradeQuoteOrRateRequest,
-} from '@/state/apis/swapper/types'
+import type { ApiQuote, TradeQuoteOrRateRequest } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { getEnabledSwappers } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
@@ -37,6 +34,8 @@ import { selectAssets } from '@/state/slices/assetsSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+
+const BULK_FETCH_RATE_TIMEOUT = 5000
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -253,13 +252,11 @@ export const swapperApi = createApi({
     }),
     getBatchTradeRates: build.query<
       Record<SwapperName, Record<string, ApiQuote>>,
-      BatchTradeRateRequest
+      GetTradeRateInput
     >({
-      queryFn: async (batchRequest: BatchTradeRateRequest, { dispatch, getState }) => {
-        console.log('START BATCH RATE')
+      queryFn: async (batchRequest: GetTradeRateInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const {
-          swapperNames,
           sendAddress,
           sellAsset,
           buyAsset,
@@ -268,8 +265,10 @@ export const swapperApi = createApi({
         } = batchRequest
 
         const isSolBuyAssetId = buyAsset.assetId === solAssetId
-        // TODO check if this is right or we need to fix types
+
+        // No send address so always false
         const isCrossAccountTrade = false
+
         const featureFlags: FeatureFlags = preferences.selectors.selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(
           featureFlags,
@@ -277,8 +276,9 @@ export const swapperApi = createApi({
           isSolBuyAssetId,
         )
 
-        // Filter to only enabled swappers
-        const enabledSwapperNames = swapperNames.filter(swapperName => enabledSwappers[swapperName])
+        const enabledSwapperNames = (Object.keys(enabledSwappers) as SwapperName[]).filter(
+          name => enabledSwappers[name],
+        )
 
         if (enabledSwapperNames.length === 0)
           return { data: {} as Record<SwapperName, Record<string, ApiQuote>> }
@@ -301,42 +301,22 @@ export const swapperApi = createApi({
           mixPanel: getMixPanel(),
         }
 
-        // Process all enabled swappers in parallel with 5-second timeout per swapper
         const swapperResults = await Promise.allSettled(
           enabledSwapperNames.map(async swapperName => {
             console.log(`Get rate for - ${swapperName}`)
 
-            // Create timeout promise for this swapper
-            const timeoutPromise = new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error('Swapper timeout')), 5000),
+            const rateResult = await getTradeRates(
+              {
+                ...batchRequest,
+                affiliateBps,
+              } as GetTradeRateInput,
+              swapperName,
+              swapperDeps,
+              BULK_FETCH_RATE_TIMEOUT,
             )
 
-            // Race the swapper call against timeout
-            const rateResult = await Promise.race([
-              getTradeRates(
-                {
-                  ...batchRequest,
-                  affiliateBps,
-                } as GetTradeRateInput,
-                swapperName,
-                swapperDeps,
-              ),
-              timeoutPromise,
-            ]).catch(error => {
-              if (error.message === 'Swapper timeout') {
-                // Return a structured timeout error similar to swapper error format
-                return {
-                  isErr: () => true,
-                  unwrapErr: () => ({ code: TradeQuoteValidationError.SwapperTimeout }),
-                  swapperName,
-                }
-              }
-              throw error
-            })
-
             if (rateResult === undefined) {
-              console.log(`Finished - ${swapperName}, no result`)
-              return { swapperName, quotes: [] }
+              return { data: {} }
             }
 
             const quotesWithInputOutputRatios = (rateResult => {
@@ -462,25 +442,13 @@ export const swapperApi = createApi({
           }),
         )
 
-        // Aggregate results by swapper
-        const result: Record<SwapperName, Record<string, ApiQuote>> = {
-          [SwapperName.CowSwap]: {},
-          [SwapperName.ArbitrumBridge]: {},
-          [SwapperName.Portals]: {},
-          [SwapperName.Thorchain]: {},
-          [SwapperName.Zrx]: {},
-          [SwapperName.Chainflip]: {},
-          [SwapperName.Jupiter]: {},
-          [SwapperName.Relay]: {},
-          [SwapperName.Mayachain]: {},
-          [SwapperName.ButterSwap]: {},
-          [SwapperName.Test]: {},
-        }
+        // Aggregate results by swapper, init to empty
+        const result = mapValues(enabledSwappers, () => ({}))
 
         swapperResults.forEach((promiseResult, index) => {
           const swapperName = enabledSwapperNames[index]
 
-          if (promiseResult.status === 'fulfilled') {
+          if (promiseResult.status === 'fulfilled' && promiseResult.value.quotes) {
             const { quotes } = promiseResult.value
             result[swapperName] = quotes.reduce(
               (acc, quote) => {
@@ -499,11 +467,7 @@ export const swapperApi = createApi({
 
         return { data: result }
       },
-      providesTags: (_result, _error, batchRequest) =>
-        batchRequest.swapperNames.map(swapperName => ({
-          type: 'TradeQuote' as const,
-          id: swapperName,
-        })),
+      providesTags: ['TradeQuote'],
     }),
   }),
 })

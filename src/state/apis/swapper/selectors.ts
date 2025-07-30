@@ -4,14 +4,61 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 
 import type { TradeQuoteOrRateRequest } from './types'
 
+import { getEnabledSwappers } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 const selectSwapperApiQueries = (state: ReduxState) => state.swapperApi.queries
 
-export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
+export const selectBatchTradeRateQueryLoadingState = createDeepEqualOutputSelector(
   selectSwapperApiQueries,
   queries => {
+    let latestQueryInfo
+    let latestStartedTimeStamp = 0
+
+    // Find the most recent batch trade rate query
+    for (const [queryKey, queryInfo] of Object.entries(queries)) {
+      if (!queryKey.startsWith('getBatchTradeRates')) continue
+
+      const startedTimeStamp = queryInfo?.startedTimeStamp ?? 0
+      if (startedTimeStamp > latestStartedTimeStamp) {
+        latestStartedTimeStamp = startedTimeStamp
+        latestQueryInfo = queryInfo
+      }
+    }
+
+    if (!latestQueryInfo) {
+      return {
+        isLoading: false,
+        isFetching: false,
+        lastFulfilledTime: undefined,
+        timeRemaining: 0,
+      }
+    }
+
+    const isLoading = [QueryStatus.uninitialized, QueryStatus.pending, undefined].includes(
+      latestQueryInfo.status,
+    )
+
+    const isFetching = latestQueryInfo.status === QueryStatus.pending
+
+    return {
+      isLoading,
+      isFetching,
+    }
+  },
+)
+
+export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
+  selectSwapperApiQueries,
+  preferences.selectors.selectFeatureFlags,
+  selectBatchTradeRateQueryLoadingState,
+  (queries, featureFlags, loadingState) => {
+    if (loadingState.isLoading || loadingState.isFetching) {
+      return getEnabledSwappers(featureFlags, false, false)
+    }
+
     const isLoadingBySwapperName: PartialRecord<SwapperName, boolean> = {}
     const latestTimestamps: PartialRecord<SwapperName, number> = {}
 

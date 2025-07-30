@@ -59,7 +59,3 @@ export type TradeQuoteOrRateRequest = { swapperName: SwapperName } & (
   | GetTradeQuoteInput
   | GetTradeRateInput
 )
-
-export type BatchTradeRateRequest = GetTradeRateInput & {
-  swapperNames: SwapperName[]
-}

@@ -116,6 +116,8 @@ export enum TradeQuoteError {
   FinalQuoteMaxSlippageExceeded = 'FinalQuoteMaxSlippageExceeded',
   // Execution reverted at final quote time, as returned by the active quote swapper's API upstream
   FinalQuoteExecutionReverted = 'FinalQuoteExecutionReverted',
+  // Fetch quotes didn't get swapper quote in time and aborted
+  SwapperTimeout = 'SwapperTimeout',
   // catch-all for unknown issues
   UnknownError = 'UnknownError',
 }

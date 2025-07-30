@@ -1,37 +1,20 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { solAssetId } from '@shapeshiftoss/caip'
-import type { GetTradeRateInput, SwapperDeps, ThorEvmTradeQuote } from '@shapeshiftoss/swapper'
-import {
-  getChainIdBySwapper,
-  getTradeQuotes,
-  getTradeRates,
-  SwapperName,
-  TradeType,
-} from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
+import { getTradeQuotes, getTradeRates } from '@shapeshiftoss/swapper'
 import { mapValues } from 'lodash'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { validateTradeQuote } from './helpers/validateTradeQuote'
+import {
+  createApiQuote,
+  createSwapperDeps,
+  hydrateMarketData,
+  processQuoteResultWithRatios,
+} from './helpers/swapperApiHelpers'
 
-import { getConfig } from '@/config'
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { assertGetChainAdapter } from '@/lib/utils'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
-import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
-import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries/thornode'
-import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
-import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteOrRateRequest } from '@/state/apis/swapper/types'
-import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { getEnabledSwappers } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
-import { selectAssets } from '@/state/slices/assetsSlice/selectors'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
@@ -71,22 +54,9 @@ export const swapperApi = createApi({
         if (!isSwapperEnabled) return { data: {} }
 
         // hydrate crypto market data for buy and sell assets
-        await Promise.all([
-          dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId)),
-          dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId)),
-        ])
+        await hydrateMarketData(dispatch, sellAsset.assetId, buyAsset.assetId)
 
-        const swapperDeps: SwapperDeps = {
-          assetsById: selectAssets(state),
-          assertGetChainAdapter,
-          assertGetEvmChainAdapter,
-          assertGetUtxoChainAdapter,
-          assertGetCosmosSdkChainAdapter,
-          assertGetSolanaChainAdapter,
-          fetchIsSmartContractAddressQuery,
-          config: getConfig(),
-          mixPanel: getMixPanel(),
-        }
+        const swapperDeps = createSwapperDeps(state)
 
         const getQuoteResult = () => {
           if (quoteOrRate === 'rate') {
@@ -120,120 +90,18 @@ export const swapperApi = createApi({
           return { data: {} }
         }
 
-        const quoteWithInputOutputRatios = (quoteResult => {
-          if (quoteResult.isErr()) {
-            const error = quoteResult.unwrapErr()
-            return [
-              {
-                quote: undefined,
-                error,
-                inputOutputRatio: -Infinity,
-                swapperName: quoteResult.swapperName,
-              },
-            ]
-          }
-
-          return quoteResult.unwrap().map(quote => {
-            const inputOutputRatio = getInputOutputRatioFromQuote({
-              // We need to get the freshest state after fetching market data above
-              state: getState() as ReduxState,
-              quote,
-              swapperName: quoteResult.swapperName,
-            })
-            return {
-              quote,
-              error: undefined,
-              inputOutputRatio,
-              swapperName: quoteResult.swapperName,
-            }
-          })
-        })(quoteResult)
+        const quoteWithInputOutputRatios = processQuoteResultWithRatios(quoteResult, getState)
 
         const unorderedQuotes: ApiQuote[] = await Promise.all(
-          quoteWithInputOutputRatios.map(async quoteData => {
-            const { quote, swapperName, inputOutputRatio, error } = quoteData
-            const tradeType = (quote as ThorEvmTradeQuote)?.tradeType
-
-            // use the quote source as the ID so user selection can persist through polling
-            const quoteSource = quoteData.quote?.steps[0].source ?? quoteData.swapperName
-
-            const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
-              // allow swapper errors to flow through
-              if (error !== undefined) {
-                return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
-              }
-
-              const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
-                [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
-                  // We only need to fetch inbound_address and mimir for THORChain and MAYAChain - this avoids overfetching for other swappers
-                  if (![SwapperName.Thorchain, SwapperName.Mayachain].includes(swapperName))
-                    return true
-
-                  const chainId = getChainIdBySwapper(swapperName)
-
-                  const inboundAddresses = await queryClient.fetchQuery({
-                    ...getInboundAddressesQuery(chainId),
-                    // Go stale instantly
-                    staleTime: 0,
-                    // Never store queries in cache since we always want fresh data
-                    gcTime: 0,
-                  })
-
-                  const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
-
-                  const mimir = await queryClient.fetchQuery({
-                    ...getMimirQuery(chainId),
-                    staleTime: thorchainBlockTimeMs,
-                  })
-
-                  return selectIsTradingActive({
-                    assetId,
-                    inboundAddressResponse,
-                    swapperName,
-                    mimir,
-                  })
-                }),
-              )
-              return {
-                isTradingActiveOnSellPool:
-                  tradeType === TradeType.LongTailToL1 || isTradingActiveOnSellPool,
-                isTradingActiveOnBuyPool:
-                  tradeType === TradeType.L1ToLongTail || isTradingActiveOnBuyPool,
-              }
-            })()
-
-            if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
-              return {
-                id: quoteSource,
-                quote,
-                swapperName,
-                inputOutputRatio,
-                errors: [{ error: TradeQuoteValidationError.QueryFailed }],
-                warnings: [],
-                isStale: false,
-              }
-            }
-
-            const { errors, warnings } = validateTradeQuote(state, {
-              swapperName,
-              quote,
-              error,
-              isTradingActiveOnSellPool,
-              isTradingActiveOnBuyPool,
+          quoteWithInputOutputRatios.map(quoteData =>
+            createApiQuote(quoteData, state, {
+              sellAssetId: sellAsset.assetId,
+              buyAssetId: buyAsset.assetId,
               sendAddress,
-              inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
               quoteOrRate: tradeQuoteInput.quoteOrRate,
-            })
-            return {
-              id: quoteSource,
-              quote,
-              swapperName,
-              inputOutputRatio,
-              errors,
-              warnings,
-              isStale: false,
-            }
-          }),
+            }),
+          ),
         )
 
         const tradeQuotesById = unorderedQuotes.reduce(
@@ -281,22 +149,9 @@ export const swapperApi = createApi({
         )
 
         // Hydrate crypto market data for buy and sell assets once for all swappers
-        await Promise.all([
-          dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId)),
-          dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId)),
-        ])
+        await hydrateMarketData(dispatch, sellAsset.assetId, buyAsset.assetId)
 
-        const swapperDeps: SwapperDeps = {
-          assetsById: selectAssets(state),
-          assertGetChainAdapter,
-          assertGetEvmChainAdapter,
-          assertGetUtxoChainAdapter,
-          assertGetCosmosSdkChainAdapter,
-          assertGetSolanaChainAdapter,
-          fetchIsSmartContractAddressQuery,
-          config: getConfig(),
-          mixPanel: getMixPanel(),
-        }
+        const swapperDeps = createSwapperDeps(state)
 
         const swapperResults = await Promise.allSettled(
           enabledSwapperNames.map(async swapperName => {
@@ -314,121 +169,18 @@ export const swapperApi = createApi({
               return { data: {} }
             }
 
-            const quotesWithInputOutputRatios = (rateResult => {
-              if (rateResult.isErr()) {
-                const error = rateResult.unwrapErr()
-                return [
-                  {
-                    quote: undefined,
-                    error,
-                    inputOutputRatio: -Infinity,
-                    swapperName: rateResult.swapperName,
-                  },
-                ]
-              }
-
-              return rateResult.unwrap().map(quote => {
-                const inputOutputRatio = getInputOutputRatioFromQuote({
-                  state: getState() as ReduxState,
-                  quote,
-                  swapperName: rateResult.swapperName,
-                })
-                return {
-                  quote,
-                  error: undefined,
-                  inputOutputRatio,
-                  swapperName: rateResult.swapperName,
-                }
-              })
-            })(rateResult)
+            const quotesWithInputOutputRatios = processQuoteResultWithRatios(rateResult, getState)
 
             const processedQuotes: ApiQuote[] = await Promise.all(
-              quotesWithInputOutputRatios.map(async quoteData => {
-                const { quote, swapperName, inputOutputRatio, error } = quoteData
-                const tradeType = (quote as unknown as ThorEvmTradeQuote)?.tradeType
-
-                const quoteSource = quoteData.quote?.steps[0].source ?? quoteData.swapperName
-
-                const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
-                  if (error !== undefined) {
-                    return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
-                  }
-
-                  const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
-                    [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
-                      if (![SwapperName.Thorchain, SwapperName.Mayachain].includes(swapperName))
-                        return true
-
-                      const chainId = getChainIdBySwapper(swapperName)
-
-                      const inboundAddresses = await queryClient.fetchQuery({
-                        ...getInboundAddressesQuery(chainId),
-                        staleTime: 0,
-                        gcTime: 0,
-                      })
-
-                      const inboundAddressResponse = selectInboundAddressData(
-                        inboundAddresses,
-                        assetId,
-                      )
-
-                      const mimir = await queryClient.fetchQuery({
-                        ...getMimirQuery(chainId),
-                        staleTime: thorchainBlockTimeMs,
-                      })
-
-                      return selectIsTradingActive({
-                        assetId,
-                        inboundAddressResponse,
-                        swapperName,
-                        mimir,
-                      })
-                    }),
-                  )
-                  return {
-                    isTradingActiveOnSellPool:
-                      tradeType === TradeType.LongTailToL1 || isTradingActiveOnSellPool,
-                    isTradingActiveOnBuyPool:
-                      tradeType === TradeType.L1ToLongTail || isTradingActiveOnBuyPool,
-                  }
-                })()
-
-                if (
-                  isTradingActiveOnSellPool === undefined ||
-                  isTradingActiveOnBuyPool === undefined
-                ) {
-                  return {
-                    id: quoteSource,
-                    quote,
-                    swapperName,
-                    inputOutputRatio,
-                    errors: [{ error: TradeQuoteValidationError.QueryFailed }],
-                    warnings: [],
-                    isStale: false,
-                  }
-                }
-
-                const { errors, warnings } = validateTradeQuote(state, {
-                  swapperName,
-                  quote,
-                  error,
-                  isTradingActiveOnSellPool,
-                  isTradingActiveOnBuyPool,
+              quotesWithInputOutputRatios.map(quoteData =>
+                createApiQuote(quoteData, state, {
+                  sellAssetId: sellAsset.assetId,
+                  buyAssetId: buyAsset.assetId,
                   sendAddress,
-                  inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit,
                   quoteOrRate: 'rate',
-                })
-
-                return {
-                  id: quoteSource,
-                  quote,
-                  swapperName,
-                  inputOutputRatio,
-                  errors,
-                  warnings,
-                  isStale: false,
-                }
-              }),
+                }),
+              ),
             )
 
             return { swapperName, quotes: processedQuotes }

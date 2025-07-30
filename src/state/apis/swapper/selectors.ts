@@ -1,4 +1,5 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
+import { solAssetId } from '@shapeshiftoss/caip'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
 
@@ -8,10 +9,11 @@ import { getEnabledSwappers } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 
 const selectSwapperApiQueries = (state: ReduxState) => state.swapperApi.queries
 
-export const selectBatchTradeRateQueryLoadingState = createDeepEqualOutputSelector(
+export const selectIsBatchTradeRateQueryLoading = createDeepEqualOutputSelector(
   selectSwapperApiQueries,
   queries => {
     let latestQueryInfo
@@ -28,35 +30,27 @@ export const selectBatchTradeRateQueryLoadingState = createDeepEqualOutputSelect
       }
     }
 
-    if (!latestQueryInfo) {
-      return {
-        isLoading: false,
-        isFetching: false,
-        lastFulfilledTime: undefined,
-        timeRemaining: 0,
-      }
-    }
+    if (!latestQueryInfo) return false
 
-    const isLoading = [QueryStatus.uninitialized, QueryStatus.pending, undefined].includes(
+    return [QueryStatus.uninitialized, QueryStatus.pending, undefined].includes(
       latestQueryInfo.status,
     )
-
-    const isFetching = latestQueryInfo.status === QueryStatus.pending
-
-    return {
-      isLoading,
-      isFetching,
-    }
   },
 )
 
 export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
   selectSwapperApiQueries,
   preferences.selectors.selectFeatureFlags,
-  selectBatchTradeRateQueryLoadingState,
-  (queries, featureFlags, loadingState) => {
-    if (loadingState.isLoading || loadingState.isFetching) {
-      return getEnabledSwappers(featureFlags, false, false)
+  selectInputBuyAsset,
+  selectIsBatchTradeRateQueryLoading,
+  (queries, featureFlags, buyAsset, isBatchTradeRateQueryLoading) => {
+    if (isBatchTradeRateQueryLoading) {
+      const isSolBuyAssetId = buyAsset.assetId === solAssetId
+
+      // No send address so always false
+      const isCrossAccountTrade = false
+
+      return getEnabledSwappers(featureFlags, isCrossAccountTrade, isSolBuyAssetId)
     }
 
     const isLoadingBySwapperName: PartialRecord<SwapperName, boolean> = {}

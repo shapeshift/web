@@ -280,9 +280,6 @@ export const swapperApi = createApi({
           name => enabledSwappers[name],
         )
 
-        if (enabledSwapperNames.length === 0)
-          return { data: {} as Record<SwapperName, Record<string, ApiQuote>> }
-
         // Hydrate crypto market data for buy and sell assets once for all swappers
         await Promise.all([
           dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId)),
@@ -303,8 +300,6 @@ export const swapperApi = createApi({
 
         const swapperResults = await Promise.allSettled(
           enabledSwapperNames.map(async swapperName => {
-            console.log(`Get rate for - ${swapperName}`)
-
             const rateResult = await getTradeRates(
               {
                 ...batchRequest,
@@ -436,8 +431,6 @@ export const swapperApi = createApi({
               }),
             )
 
-            console.log(`Finished - ${swapperName}`, processedQuotes)
-
             return { swapperName, quotes: processedQuotes }
           }),
         )
@@ -445,25 +438,21 @@ export const swapperApi = createApi({
         // Aggregate results by swapper, init to empty
         const result = mapValues(enabledSwappers, () => ({}))
 
-        swapperResults.forEach((promiseResult, index) => {
-          const swapperName = enabledSwapperNames[index]
+        swapperResults.forEach(promiseResult => {
+          if (promiseResult.status !== 'fulfilled') return
 
-          if (promiseResult.status === 'fulfilled' && promiseResult.value.quotes) {
-            const { quotes } = promiseResult.value
-            result[swapperName] = quotes.reduce(
-              (acc, quote) => {
-                acc[quote.id] = quote
-                return acc
-              },
-              {} as Record<string, ApiQuote>,
-            )
-          } else {
-            // Swapper failed, return empty result
-            result[swapperName] = {} as Record<string, ApiQuote>
-          }
+          const { quotes, swapperName } = promiseResult.value
+
+          if (quotes === undefined) return
+
+          result[swapperName] = quotes.reduce(
+            (acc, quote) => {
+              acc[quote.id] = quote
+              return acc
+            },
+            {} as Record<string, ApiQuote>,
+          )
         })
-
-        console.log({ aggregateResult: result })
 
         return { data: result }
       },

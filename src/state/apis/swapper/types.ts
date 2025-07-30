@@ -32,7 +32,6 @@ export enum TradeQuoteValidationError {
   IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
   QuoteSellAmountInvalid = 'QuoteSellAmountInvalid',
   QueryFailed = 'QueryFailed',
-  SwapperTimeout = 'SwapperTimeout',
   UnknownError = 'UnknownError',
 }
 

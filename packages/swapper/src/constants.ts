@@ -28,7 +28,7 @@ export const QUOTE_TIMEOUT_MS = 60_000
 export const TRADE_STATUS_POLL_INTERVAL_MILLISECONDS = 5_000
 
 export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
-  code: TradeQuoteError.SwapperTimeout,
+  code: TradeQuoteError.Timeout,
   message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,
 })
 

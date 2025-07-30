@@ -21,10 +21,7 @@ import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
 import { Text } from '@/components/Text'
-import {
-  selectBatchTradeRateQueryLoadingState,
-  selectIsTradeQuoteApiQueryPending,
-} from '@/state/apis/swapper/selectors'
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'

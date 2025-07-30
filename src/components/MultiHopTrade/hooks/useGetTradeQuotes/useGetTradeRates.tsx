@@ -16,7 +16,8 @@ import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { swapperApi } from '@/state/apis/swapper/swapperApi'
+import { selectIsBatchTradeRateQueryLoading } from '@/state/apis/swapper/selectors'
+import { useGetBatchTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -32,7 +33,6 @@ import {
 } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
-  selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -210,8 +210,9 @@ export const useGetTradeRates = () => {
     },
   })
 
-  const { data: batchTradeRates, isLoading: isBatchTradeRatesLoading } =
-    swapperApi.useGetBatchTradeRatesQuery(tradeRateInput ?? skipToken)
+  const { data: batchTradeRates } = useGetBatchTradeRatesQuery(tradeRateInput ?? skipToken)
+
+  const isBatchTradeRatesLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
 
   // Dispatch batch results to Redux when they arrive
   useEffect(() => {
@@ -220,15 +221,12 @@ export const useGetTradeRates = () => {
     }
   }, [batchTradeRates, dispatch])
 
-  // true if any debounce, input or swapper is fetching
-  const isAnyTradeQuoteLoading =
-    useAppSelector(selectIsAnyTradeQuoteLoading) || isBatchTradeRatesLoading
   const hasTrackedInitialRatesReceived = useRef(false)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteMeta || isAnyTradeQuoteLoading) return
+    if (activeQuoteMeta) return
 
     const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
 
@@ -238,7 +236,7 @@ export const useGetTradeRates = () => {
     }
 
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteMeta, isAnyTradeQuoteLoading, dispatch])
+  }, [activeQuoteMeta, dispatch])
 
   // If the trade input changes, we need to reset the tracking flag
   useEffect(() => {
@@ -247,7 +245,7 @@ export const useGetTradeRates = () => {
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isAnyTradeQuoteLoading) return
+    if (isBatchTradeRatesLoading) return
     if (!mixpanel || !sortedTradeQuotes.length) return
 
     // We only want to fire the RatesReceived event once, not on every quote refresh
@@ -256,5 +254,5 @@ export const useGetTradeRates = () => {
       mixpanel.track(MixPanelEvent.RatesReceived, quoteData)
       hasTrackedInitialRatesReceived.current = true
     }
-  }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
+  }, [sortedTradeQuotes, mixpanel, isBatchTradeRatesLoading])
 }

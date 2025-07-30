@@ -50,7 +50,7 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.maxSlippageExceededWithExpectedSlippage'
       case SwapperTradeQuoteError.FinalQuoteExecutionReverted:
         return 'trade.errors.executionRevertedWithExpectedSlippage'
-      case TradeQuoteValidationError.SwapperTimeout:
+      case SwapperTradeQuoteError.Timeout:
         return 'trade.errors.swapperTimeout'
       case TradeQuoteValidationError.UnknownError:
       case SwapperTradeQuoteError.UnknownError:

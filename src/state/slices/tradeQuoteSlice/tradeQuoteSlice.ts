@@ -43,8 +43,7 @@ export const tradeQuoteSlice = createSlice({
     ),
     upsertBatchTradeQuotes: create.reducer(
       (state, action: PayloadAction<Record<SwapperName, Record<string, ApiQuote>>>) => {
-        const batchResults = action.payload
-        Object.entries(batchResults).forEach(([swapperName, quotesById]) => {
+        Object.entries(action.payload).forEach(([swapperName, quotesById]) => {
           state.tradeQuotes[swapperName as SwapperName] = quotesById ?? {}
         })
       },

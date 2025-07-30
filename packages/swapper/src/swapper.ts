@@ -63,7 +63,7 @@ export const getTradeRates = async (
       swapper.getTradeRate(getTradeRateInput, deps),
       quoteTimeout,
       makeSwapErrorRight({
-        code: TradeQuoteError.SwapperTimeout,
+        code: TradeQuoteError.Timeout,
         message: `quote timed out after ${quoteTimeout / 1000}s`,
       }),
     )

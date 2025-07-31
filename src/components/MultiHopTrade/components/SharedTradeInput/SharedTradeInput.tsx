@@ -6,6 +6,8 @@ import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHead
 import { useSharedWidth } from '../TradeInput/hooks/useSharedWidth'
 
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
+import { selectHasUserEnteredAmount } from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 export type SideComponentProps = {
@@ -32,7 +34,10 @@ type SharedTradeInputProps = {
 }
 
 const cardBorderRadius = { base: '0', md: '2xl' }
-const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
+const cardMinHeight = {
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
+  md: 'initial',
+}
 const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
@@ -49,8 +54,10 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   onSubmit,
   isStandalone,
 }) => {
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const inputWidth = useSharedWidth(tradeInputRef)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
   return (
     <Flex
@@ -72,6 +79,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               bg={cardBgProp}
               borderRadius={cardBorderRadius}
               minHeight={cardMinHeight}
+              height={!hasUserEnteredAmount && isSmallerThanMd ? cardMinHeight.base : 'initial'}
             >
               <SharedTradeInputHeader
                 initialTab={tradeInputTab}

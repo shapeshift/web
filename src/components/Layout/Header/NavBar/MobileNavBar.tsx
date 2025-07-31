@@ -51,7 +51,7 @@ export const MobileNavBar = memo(() => {
         gridTemplateColumns='1fr 1fr 1fr 1fr'
         zIndex='banner'
         alignItems='center'
-        paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px + var(--safe-area-inset-bottom))'
+        paddingBottom='calc(env(safe-area-inset-bottom, 16px) + var(--safe-area-inset-bottom))'
         bg='background.surface.base'
         display={displayProp}
         className='mobile-nav'

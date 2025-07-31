@@ -19,7 +19,17 @@ export const getMixPanel = (): MixPanelType | undefined => {
   }
 
   try {
-    Mixpanel.init(token)
+    Mixpanel.init(token, {
+      autocapture: {
+        pageview: 'url-with-path',
+        click: true,
+        input: true,
+        scroll: false,
+        submit: true,
+        capture_text_content: false,
+      },
+      record_sessions_percent: 1,
+    })
     _mixPanel = Mixpanel
     // identify once per session
     _mixPanel.identify()

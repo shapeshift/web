@@ -34,7 +34,7 @@ const cardPaddingTop = {
   md: 4,
 }
 const cardMarginTop = {
-  base: 'calc(-1 * env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  base: 'calc(-1 * calc(env(safe-area-inset-top) + var(--safe-area-inset-top)))',
   md: 0,
 }
 
@@ -83,6 +83,7 @@ export const SharedTradeInputHeader = ({
       pt={cardPaddingTop}
       mt={cardMarginTop}
       className='swapper-header'
+      flex='0 0 auto'
     >
       <Display.Desktop>
         <Flex alignItems='center' justifyContent='space-between'>

@@ -343,7 +343,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  protected buildEstimateGasRequest({
+  protected buildEstimateGasBody({
     to,
     value,
     chainSpecific: { contractAddress, from, data },
@@ -674,9 +674,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const req = this.buildEstimateGasRequest(input)
+      const { gasLimit } = await this.providers.http.estimateGas({
+        estimateGasBody: this.buildEstimateGasBody(input),
+      })
 
-      const { gasLimit } = await this.providers.http.estimateGas(req)
       const { fast, average, slow } = await this.getGasFeeData()
 
       return {

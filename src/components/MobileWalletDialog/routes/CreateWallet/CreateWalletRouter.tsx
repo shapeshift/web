@@ -24,25 +24,40 @@ type CreateWalletRouterProps = {
   defaultRoute: MobileWalletDialogRoutes
 }
 
+type CreateWalletRoutesProps = {
+  onClose: () => void
+  defaultRoute: MobileWalletDialogRoutes
+  onRedirectToDefaultRoute: () => void
+}
+
 export const CreateWalletRouter = ({ onClose, defaultRoute }: CreateWalletRouterProps) => {
+  const navigate = useNavigate()
+
+  const handleRedirectToDefaultRoute = useCallback(() => {
+    navigate(defaultRoute)
+  }, [defaultRoute, navigate])
+
   return (
     <SlideTransition>
       <MemoryRouter>
         <AnimatePresence mode='wait' initial={false}>
-          <CreateWalletRoutes onClose={onClose} defaultRoute={defaultRoute} />
+          <CreateWalletRoutes
+            onClose={onClose}
+            defaultRoute={defaultRoute}
+            onRedirectToDefaultRoute={handleRedirectToDefaultRoute}
+          />
         </AnimatePresence>
       </MemoryRouter>
     </SlideTransition>
   )
 }
 
-const CreateWalletRoutes = ({ onClose, defaultRoute }: CreateWalletRouterProps) => {
+const CreateWalletRoutes = ({
+  onClose,
+  defaultRoute,
+  onRedirectToDefaultRoute,
+}: CreateWalletRoutesProps) => {
   const location = useLocation()
-  const navigate = useNavigate()
-
-  const handleRedirectToHome = useCallback(() => {
-    navigate(MobileWalletDialogRoutes.Saved)
-  }, [navigate])
 
   const createSuccess = useMemo(() => <CreateSuccess onClose={onClose} />, [onClose])
   const createWallet = useMemo(
@@ -50,10 +65,10 @@ const CreateWalletRoutes = ({ onClose, defaultRoute }: CreateWalletRouterProps) 
       <CreateWallet
         isDefaultRoute={defaultRoute === MobileWalletDialogRoutes.Create}
         onClose={onClose}
-        handleRedirectToHome={handleRedirectToHome}
+        handleRedirectToHome={onRedirectToDefaultRoute}
       />
     ),
-    [defaultRoute, handleRedirectToHome, onClose],
+    [defaultRoute, onClose, onRedirectToDefaultRoute],
   )
 
   const createWordsError = useMemo(() => <CreateWordsError onClose={onClose} />, [onClose])

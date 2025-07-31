@@ -83,7 +83,7 @@ export const TradeQuoteIconLoader: React.FC<TradeQuoteIconLoaderProps> = ({
 
           return (
             <Flex
-              key={index}
+              key={`${swapperName}-${index}`}
               width={`${ICON_WITH_WRAP_WIDTH_PX}px`}
               height={`${ICON_WITH_WRAP_WIDTH_PX}px`}
               marginRight={`${MARGIN_RIGHT_PX}px`}

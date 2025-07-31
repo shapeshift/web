@@ -25,7 +25,6 @@ import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries
 import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
 import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from '@/state/apis/swapper/types'
-import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import type { ReduxState } from '@/state/reducer'
 import { selectAssets } from '@/state/slices/assetsSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -161,18 +160,6 @@ export const createApiQuote = async (
     error,
     tradeType,
   )
-
-  if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
-    return {
-      id: quoteSource,
-      quote,
-      swapperName,
-      inputOutputRatio,
-      errors: [{ error: TradeQuoteValidationError.QueryFailed }],
-      warnings: [],
-      isStale: false,
-    }
-  }
 
   const { errors, warnings } = validateTradeQuote(state, {
     swapperName,

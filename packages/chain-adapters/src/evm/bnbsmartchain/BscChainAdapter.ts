@@ -78,9 +78,10 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
     input: GetFeeDataInput<KnownChainIds.BnbSmartChainMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.BnbSmartChainMainnet>> {
     try {
-      const req = await this.buildEstimateGasRequest(input)
+      const { gasLimit } = await this.providers.http.estimateGas({
+        estimateGasBody: this.buildEstimateGasBody(input),
+      })
 
-      const { gasLimit } = await this.providers.http.estimateGas(req)
       const { fast, average, slow, baseFeePerGas } = await this.getGasFeeData()
 
       // Binance official JSON-RPC endpoint has a minimum enforced gas price of 3 Gwei

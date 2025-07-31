@@ -12,7 +12,6 @@ import {
   Link,
   Spinner,
   Stack,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -28,13 +27,13 @@ import OrangeFox from '@/assets/orange-fox.svg'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { FadeTransition } from '@/components/FadeTransition'
 import { LanguageSelector } from '@/components/LanguageSelector'
-import { MobileWalletDialog } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { SlideTransitionY } from '@/components/SlideTransitionY'
 import { RawText, Text } from '@/components/Text'
 import { listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useQuery } from '@/hooks/useQuery/useQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -74,23 +73,30 @@ export const MobileConnect = () => {
   const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const navigate = useNavigate()
-  const { isOpen, onClose, onOpen } = useDisclosure()
-  const [defaultRoute, setDefaultRoute] = useState<MobileWalletDialogRoutes>(
-    MobileWalletDialogRoutes.Saved,
-  )
+
+  const mobileWalletDialog = useModal('mobileWalletDialog')
   const [isWaitingForRedirection, setIsWaitingForRedirection] = useState<boolean>(false)
 
   const handleOpenCreateWallet = useCallback(() => {
-    setDefaultRoute(MobileWalletDialogRoutes.Create)
-    onOpen()
-  }, [onOpen])
+    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Create })
+  }, [mobileWalletDialog])
 
   const handleImport = useCallback(() => {
-    setDefaultRoute(MobileWalletDialogRoutes.Import)
-    onOpen()
-  }, [setDefaultRoute, onOpen])
+    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Import })
+  }, [mobileWalletDialog])
 
   const query = useQuery<{ returnUrl: string }>()
+
+  useEffect(() => {
+    if (state.isLoadingLocalWallet) {
+      setIsWaitingForRedirection(true)
+    }
+
+    if (!state.isLoadingLocalWallet && !hasWallet) {
+      setIsWaitingForRedirection(false)
+    }
+  }, [state.isLoadingLocalWallet, hasWallet])
+
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
     // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
@@ -110,8 +116,8 @@ export const MobileConnect = () => {
         })
       : query?.returnUrl
     if (hasWallet) {
-      setIsWaitingForRedirection(false)
       navigate(path ?? TradeRoutePaths.Input)
+      setIsWaitingForRedirection(false)
     }
   }, [navigate, hasWallet, query, state, dispatch, setIsWaitingForRedirection])
 
@@ -198,19 +204,23 @@ export const MobileConnect = () => {
         <BodyStack>
           <Stack textAlign='center' spacing={2}>
             <Heading>{translate('connectWalletPage.welcomeBack')}</Heading>
-            <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
+            {!isWaitingForRedirection && !state.isLoadingLocalWallet ? (
+              <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
+            ) : null}
           </Stack>
           <Stack>
-            {isWaitingForRedirection ? (
+            {isWaitingForRedirection || state.isLoadingLocalWallet ? (
               <Center py={6}>
                 <Spinner />
               </Center>
             ) : (
-              <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
+              <>
+                <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
+                <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
+                  {translate('connectWalletPage.createOrImport')}
+                </Button>
+              </>
             )}
-            <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
-              {translate('connectWalletPage.createOrImport')}
-            </Button>
             {error && (
               <Alert status='error'>
                 <AlertIcon />
@@ -233,6 +243,7 @@ export const MobileConnect = () => {
     wallets,
     isWaitingForRedirection,
     handleIsWaitingForRedirection,
+    state.isLoadingLocalWallet,
   ])
 
   return (
@@ -333,7 +344,6 @@ export const MobileConnect = () => {
           </>
         )}
       </AnimatePresence>
-      <MobileWalletDialog isOpen={isOpen} onClose={onClose} defaultRoute={defaultRoute} />
     </Flex>
   )
 }

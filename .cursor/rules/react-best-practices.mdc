@@ -1,0 +1,249 @@
+---
+description: React Best Practices for Code Reviews
+alwaysApply: true
+---
+
+## Memoization Patterns
+
+### ✅ REQUIRED: Aggressive Memoization
+- **ALWAYS** use `useMemo` for expensive computations, object/array creations, and filtered data
+- **ALWAYS** use `useMemo` for derived values and computed properties
+- **ALWAYS** use `useMemo` for conditional values and simple transformations
+- **ALWAYS** use `useCallback` for event handlers and functions passed as props
+- **ALWAYS** use `useCallback` for any function that could be passed as a prop or dependency
+
+### Examples of Required Memoization:
+
+```typescript
+// ✅ GOOD - Memoized expensive computation
+const filteredAssets = useMemo(() => 
+  assets.filter(asset => asset.chainId === selectedChainId), 
+  [assets, selectedChainId]
+)
+
+// ✅ GOOD - Memoized derived values
+const position = useMemo(() => {
+  return isLargerThanMd ? 'bottom-right' : 'bottom'
+}, [isLargerThanMd])
+
+// ✅ GOOD - Memoized conditional values
+const isDisabled = useMemo(() => {
+  return !hasEnoughBalance || isTradeExecuting
+}, [hasEnoughBalance, isTradeExecuting])
+
+// ✅ GOOD - Memoized simple transformations
+const formattedAmount = useMemo(() => {
+  return formatNumber(amount, precision)
+}, [amount, precision])
+
+// ✅ GOOD - Memoized event handler
+const handleAssetChange = useCallback((assetId: AssetId) => {
+  setSelectedAsset(assetId)
+}, [])
+
+// ✅ GOOD - Memoized function that could be passed as prop
+const handleSubmit = useCallback((data: FormData) => {
+  submitForm(data, userId)
+}, [userId])
+```
+
+### ❌ BAD - Missing Memoization:
+```typescript
+// ❌ BAD - Expensive computation not memoized
+const filteredAssets = assets.filter(asset => asset.chainId === selectedChainId)
+
+// ❌ BAD - Derived value not memoized
+const position = isLargerThanMd ? 'bottom-right' : 'bottom'
+
+// ❌ BAD - Conditional value not memoized
+const isDisabled = !hasEnoughBalance || isTradeExecuting
+
+// ❌ BAD - Simple transformation not memoized
+const formattedAmount = formatNumber(amount, precision)
+
+// ❌ BAD - Event handler not memoized
+const handleAssetChange = (assetId: AssetId) => {
+  setSelectedAsset(assetId)
+}
+
+// ❌ BAD - Function that could be passed as prop not memoized
+const handleSubmit = (data: FormData) => {
+  submitForm(data, userId)
+}
+```
+
+## Hook Dependencies
+
+### ✅ REQUIRED: Proper Hook Dependencies
+- **ALWAYS** include all dependencies in `useEffect`, `useMemo`, `useCallback` dependency arrays
+- **NEVER** use `// eslint-disable-next-line react-hooks/exhaustive-deps` unless absolutely necessary
+- **ALWAYS** explain why dependencies are excluded if using eslint disable
+
+### Examples:
+```typescript
+// ✅ GOOD - All dependencies included
+useEffect(() => {
+  fetchData(userId, selectedAsset)
+}, [userId, selectedAsset])
+
+// ✅ GOOD - Properly memoized callback with dependencies
+const handleSubmit = useCallback((data: FormData) => {
+  submitForm(data, userId)
+}, [userId])
+
+// ✅ GOOD - Memoized value with all dependencies
+const processedData = useMemo(() => 
+  processData(rawData, filters), 
+  [rawData, filters]
+)
+```
+
+## Component Structure
+
+### ✅ REQUIRED: Named Exports Only
+- **ALWAYS** use named exports for components
+- **NEVER** use default exports for components
+
+```typescript
+// ✅ GOOD - Named export
+export const MyComponent = () => {
+  return <div>Content</div>
+}
+
+// ❌ BAD - Default export
+const MyComponent = () => <div>Content</div>
+export default MyComponent
+```
+
+### ✅ REQUIRED: Small Component Files
+- **KEEP** component files under 200 lines when possible
+- **BREAK DOWN** large components into smaller, reusable pieces
+- **EXTRACT** complex logic into custom hooks
+
+## State Management
+
+### ✅ REQUIRED: Proper State Lifting
+- **USE** local state for component-level state
+- **LIFT** state up when needed across multiple components
+- **USE** Context for avoiding prop drilling
+- **USE** Redux only for global state shared across multiple places
+
+### Examples:
+```typescript
+// ✅ GOOD - Local state for component-specific data
+const [isOpen, setIsOpen] = useState(false)
+
+// ✅ GOOD - Context for avoiding prop drilling
+const ModalContext = createContext<ModalContextType>()
+
+// ✅ GOOD - Redux for global state
+const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    setUser: (state, action) => {
+      state.user = action.payload
+    }
+  }
+})
+```
+
+## Error Handling
+
+### ✅ REQUIRED: Proper Error Boundaries
+- **ALWAYS** wrap components in error boundaries for production
+- **ALWAYS** handle async errors properly
+- **ALWAYS** provide user-friendly error messages
+
+```typescript
+// ✅ GOOD - Error boundary usage
+<ErrorBoundary FallbackComponent={ErrorPage}>
+  <App />
+</ErrorBoundary>
+
+// ✅ GOOD - Async error handling
+const handleAsyncOperation = useCallback(async () => {
+  try {
+    const result = await apiCall()
+    setData(result)
+  } catch (error) {
+    showErrorToast(error)
+  }
+}, [])
+```
+
+## Performance Patterns
+
+### ✅ REQUIRED: Virtualization for Large Lists
+- **ALWAYS** use virtualization for lists with 100+ items
+- **ALWAYS** implement proper key props for list items
+
+```typescript
+// ✅ GOOD - Virtualized list
+import { FixedSizeList } from 'react-window'
+
+const VirtualizedList = ({ items }) => (
+  <FixedSizeList
+    height={400}
+    itemCount={items.length}
+    itemSize={50}
+  >
+    {({ index, style }) => (
+      <div style={style}>
+        {items[index]}
+      </div>
+    )}
+  </FixedSizeList>
+)
+```
+
+### ✅ REQUIRED: Lazy Loading
+- **ALWAYS** lazy load heavy components
+- **ALWAYS** use React.lazy for code splitting
+
+```typescript
+// ✅ GOOD - Lazy loading
+const HeavyComponent = lazy(() => import('./HeavyComponent'))
+
+// ✅ GOOD - Suspense wrapper
+<Suspense fallback={<Skeleton />}>
+  <HeavyComponent />
+</Suspense>
+```
+
+## ✅ Code Review Checklist
+
+When reviewing React code, ensure:
+
+1. All expensive computations are memoized with `useMemo`
+2. All derived values and conditional values are memoized with `useMemo`
+3. All simple transformations are memoized with `useMemo`
+4. All event handlers are memoized with `useCallback`
+5. All functions that could be passed as props are memoized with `useCallback`
+6. Components receiving props are wrapped with `memo`
+7. All hook dependencies are properly included
+8. Components use named exports only
+9. Files are under 200 lines when possible
+10. Error boundaries are in place
+11. Async operations have proper error handling
+12. Large lists use virtualization
+13. Heavy components are lazy loaded
+14. TypeScript types are explicit and proper
+
+## ❌ Common Anti-Patterns to Flag
+
+- Missing `useMemo` for expensive computations
+- Missing `useMemo` for derived values and conditional values
+- Missing `useMemo` for simple transformations
+- Missing `useCallback` for event handlers
+- Missing `useCallback` for functions that could be passed as props
+- Missing `memo` for components with props
+- Incomplete dependency arrays in hooks
+- Default exports for components
+- Large component files (>200 lines)
+- Missing error boundaries
+- Unhandled async errors
+- Large lists without virtualization
+- Heavy components without lazy loading
+- Use of `any` type
+- Missing TypeScript types

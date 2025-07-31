@@ -316,6 +316,7 @@ export type TradeQuoteStep = {
     to: string
     data: string
     value: Hex
+    gasLimit: string
   }
 }
 

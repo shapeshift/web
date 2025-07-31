@@ -69,12 +69,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
-  const isLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
   const allSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
-  const isLoadingAndBlank =
-    availableTradeQuotesDisplayCache.length === 0 &&
-    unavailableTradeQuotesDisplayCache.length === 0 &&
-    isLoading
+  const isLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
 
   const bestQuotesByCategory = useMemo(
     () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
@@ -185,7 +181,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
             <AnimatePresence>{availableQuotes}</AnimatePresence>
           </LayoutGroup>
 
-          {!availableQuotes.length && !isLoadingAndBlank ? (
+          {!availableQuotes.length && !isLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'
@@ -205,7 +201,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
-          {isLoadingAndBlank ? (
+          {isLoading ? (
             <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
               <TradeQuoteIconLoader swapperNames={allSwapperNames} />
               <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>

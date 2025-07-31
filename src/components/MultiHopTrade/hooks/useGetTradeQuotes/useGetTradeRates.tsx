@@ -17,7 +17,7 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { selectIsBatchTradeRateQueryLoading } from '@/state/apis/swapper/selectors'
-import { useGetBatchTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
+import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -210,14 +210,14 @@ export const useGetTradeRates = () => {
     },
   })
 
-  const { data: batchTradeRates } = useGetBatchTradeRatesQuery(tradeRateInput ?? skipToken)
+  const { data: batchTradeRates } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
 
   const isBatchTradeRatesLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
 
   // Dispatch batch results to Redux when they arrive
   useEffect(() => {
     if (batchTradeRates) {
-      dispatch(tradeQuoteSlice.actions.upsertBatchTradeQuotes(batchTradeRates))
+      dispatch(tradeQuoteSlice.actions.upsertTradeQuotes(batchTradeRates))
     }
   }, [batchTradeRates, dispatch])
 

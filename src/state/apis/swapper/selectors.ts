@@ -21,7 +21,7 @@ export const selectIsBatchTradeRateQueryLoading = createDeepEqualOutputSelector(
 
     // Find the most recent batch trade rate query
     for (const [queryKey, queryInfo] of Object.entries(queries)) {
-      if (!queryKey.startsWith('getBatchTradeRates')) continue
+      if (!queryKey.startsWith('getTradeRates')) continue
 
       const startedTimeStamp = queryInfo?.startedTimeStamp ?? 0
       if (startedTimeStamp > latestStartedTimeStamp) {

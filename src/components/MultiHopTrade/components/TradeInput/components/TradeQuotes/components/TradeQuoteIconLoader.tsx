@@ -14,8 +14,6 @@ const ICON_MAX_SPACE_PX = ICON_WITH_WRAP_WIDTH_PX + MARGIN_RIGHT_PX
 
 export const VISIBLE_WIDTH = ICON_MAX_SPACE_PX * TOTAL_ICON_VISIBLE
 
-const TRANSITION_TIMING = '0.5s cubic-bezier(0.4, 0, 0.2, 1)'
-
 type TradeQuoteIconLoaderProps = {
   swapperNames: SwapperName[]
   className?: string
@@ -71,7 +69,7 @@ export const TradeQuoteIconLoader: React.FC<TradeQuoteIconLoaderProps> = ({
     >
       <Flex
         alignItems='center'
-        transition={`transform ${TRANSITION_TIMING}`}
+        transition={'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)'}
         transform={`translateX(${
           (ICON_INITIAL_OFFSET - currentCenterIndex) * ICON_MAX_SPACE_PX
         }px)`}
@@ -90,7 +88,9 @@ export const TradeQuoteIconLoader: React.FC<TradeQuoteIconLoaderProps> = ({
               borderRadius='full'
               backgroundColor={isCenterItem ? backgroundColor : undefined}
               borderColor={isCenterItem ? borderColor : 'transparent'}
-              transition={`border-color ${TRANSITION_TIMING}, background-color ${TRANSITION_TIMING}`}
+              transition={
+                'border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+              }
               borderWidth='1px'
               flexShrink={0}
               alignItems='center'
@@ -102,7 +102,7 @@ export const TradeQuoteIconLoader: React.FC<TradeQuoteIconLoaderProps> = ({
                 borderRadius='full'
                 alignItems='center'
                 justifyContent='center'
-                transition={`all ${TRANSITION_TIMING}`}
+                transition={'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'}
                 opacity={isCenterItem ? 1 : 0.6}
                 transform={`scale(${isCenterItem ? 1.3 : 1})`}
                 flexShrink={0}

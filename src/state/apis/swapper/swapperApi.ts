@@ -118,10 +118,7 @@ export const swapperApi = createApi({
         { type: 'TradeQuote' as const, id: tradeQuoteRequest.swapperName },
       ],
     }),
-    getBatchTradeRates: build.query<
-      Record<SwapperName, Record<string, ApiQuote>>,
-      GetTradeRateInput
-    >({
+    getTradeRates: build.query<Record<SwapperName, Record<string, ApiQuote>>, GetTradeRateInput>({
       queryFn: async (batchRequest: GetTradeRateInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const {
@@ -213,4 +210,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetBatchTradeRatesQuery } = swapperApi
+export const { useGetTradeQuoteQuery, useGetTradeRatesQuery } = swapperApi

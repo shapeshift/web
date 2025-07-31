@@ -9,8 +9,8 @@ const ICON_INITIAL_OFFSET = Math.floor(TOTAL_ICON_VISIBLE / 2)
 
 const ICON_WITH_WRAP_WIDTH_PX = 52
 const INNER_ICON_WIDTH_PX = 32
-const MARGIN_RIGHT_PX = 12
-const ICON_MAX_SPACE_PX = ICON_WITH_WRAP_WIDTH_PX + MARGIN_RIGHT_PX
+const MARGIN_PX = 4
+const ICON_MAX_SPACE_PX = ICON_WITH_WRAP_WIDTH_PX + MARGIN_PX * 2
 
 export const VISIBLE_WIDTH = ICON_MAX_SPACE_PX * TOTAL_ICON_VISIBLE
 
@@ -84,7 +84,7 @@ export const TradeQuoteIconLoader: React.FC<TradeQuoteIconLoaderProps> = ({
               key={`${swapperName}-${index}`}
               width={`${ICON_WITH_WRAP_WIDTH_PX}px`}
               height={`${ICON_WITH_WRAP_WIDTH_PX}px`}
-              marginRight={`${MARGIN_RIGHT_PX}px`}
+              margin={`0 ${MARGIN_PX}px`}
               borderRadius='full'
               backgroundColor={isCenterItem ? backgroundColor : undefined}
               borderColor={isCenterItem ? borderColor : 'transparent'}

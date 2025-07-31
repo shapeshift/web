@@ -71,6 +71,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
   const allSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
   const isLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
+  const hasQuotes =
+    availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
 
   const bestQuotesByCategory = useMemo(
     () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
@@ -201,7 +203,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
-          {isLoading ? (
+          {!hasQuotes && isLoading ? (
             <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
               <TradeQuoteIconLoader swapperNames={allSwapperNames} />
               <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>

@@ -11,8 +11,8 @@ import {
 } from '@chakra-ui/react'
 import { dogeAssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
+import { LayoutGroup, motion } from 'framer-motion'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -136,6 +136,20 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     onBack,
   ])
 
+  const [showNoResult, setShowNoResults] = useState(false)
+
+  // This is dumb but there's a state where the quotes get cleared and rates request hasn't been kicked off yet (not loading)
+  // We don't want to flash the no results so we wait 500ms before showing it
+  useEffect(() => {
+    if (availableQuotes.length > 0 && showNoResult) {
+      setShowNoResults(false)
+    } else if (availableQuotes.length === 0 && !showNoResult) {
+      setTimeout(() => {
+        setShowNoResults(true)
+      }, 500)
+    }
+  }, [availableQuotes, showNoResult])
+
   const unavailableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
@@ -179,11 +193,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         minHeight='full'
       >
         <Flex flexDirection='column' gap={2} flexGrow='1'>
-          <LayoutGroup>
-            <AnimatePresence>{availableQuotes}</AnimatePresence>
-          </LayoutGroup>
+          <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {!availableQuotes.length && !isLoading ? (
+          {showNoResult && !isLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'

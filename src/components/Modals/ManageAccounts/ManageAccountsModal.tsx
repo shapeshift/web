@@ -121,13 +121,7 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
 
   return (
     <>
-      <Dialog
-        isOpen={isOpen}
-        onClose={close}
-        isDisablingPropagation={false}
-        isFullScreen={false}
-        height='auto'
-      >
+      <Dialog isOpen={isOpen} onClose={close} isFullScreen={false} height='auto'>
         <ManageAccountsDrawer
           isOpen={isDrawerOpen}
           onClose={handleDrawerClose}

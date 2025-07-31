@@ -72,7 +72,7 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 
-const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
+export const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
   preferences.selectors.selectFeatureFlags,
   featureFlags => {
     // cross account trade logic is irrelevant here, so we can set the flags to false here

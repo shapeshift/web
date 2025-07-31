@@ -841,6 +841,10 @@
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
+    "fetchingQuotes": {
+      "title": "Fetching Quotes",
+      "description": "Fetching quotes for this pair, this can take up to ~5 seconds"
+    },
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",

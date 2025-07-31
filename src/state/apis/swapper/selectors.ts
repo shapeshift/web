@@ -50,6 +50,7 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
       // No send address so always false
       const isCrossAccountTrade = false
 
+      // If we're doing a bulk request then everything that's enabled is loading
       return getEnabledSwappers(featureFlags, isCrossAccountTrade, isSolBuyAssetId)
     }
 

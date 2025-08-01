@@ -38,11 +38,11 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
     selectAccountIdsByChainIdFilter(state, { chainId: thorchainChainId }),
   )
 
-  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountIds[0])
+  const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(undefined)
 
   const handleChange = useCallback(
     (accountId: string) => {
-      setDefaultAccountId(accountId)
+      setSelectedAccountId(accountId)
       const accountNumber = selectAccountNumberByAccountId(store.getState(), { accountId })
       if (accountNumber === undefined) throw new Error('Account number not found')
       onAccountNumberChange(accountNumber)
@@ -57,16 +57,16 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
       <Flex alignItems='center' gap={2}>
         <Text translation='common.activeAccount' fontWeight='medium' />
 
-        {defaultAccountId && <InlineCopyButton value={fromAccountId(defaultAccountId).account} />}
+        {selectedAccountId && <InlineCopyButton value={fromAccountId(selectedAccountId).account} />}
         <AccountDropdown
-          defaultAccountId={defaultAccountId}
+          autoSelectHighestBalance
           assetId={thorchainAssetId}
           onChange={handleChange}
           buttonProps={buttonProps}
         />
       </Flex>
     )
-  }, [accountIds, handleChange, defaultAccountId])
+  }, [accountIds, handleChange, selectedAccountId])
 
   return (
     <>

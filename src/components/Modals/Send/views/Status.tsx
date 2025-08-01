@@ -167,8 +167,9 @@ export const Status: React.FC = () => {
       address: fromAccountId(accountId).account,
       chainId: fromAccountId(accountId).chainId,
       maybeSafeTx,
+      txStatus,
     })
-  }, [accountId, feeAsset, maybeSafeTx, txHash])
+  }, [accountId, feeAsset, maybeSafeTx, txHash, txStatus])
   return (
     <Card width='full'>
       <SharedStatus txLink={txLink} body={bodyContent} onClose={handleClose} />

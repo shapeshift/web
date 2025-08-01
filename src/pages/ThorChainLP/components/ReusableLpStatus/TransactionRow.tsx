@@ -342,8 +342,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         maybeSafeTx: undefined,
         address: undefined,
         chainId: undefined,
+        txStatus: tx?.status,
       }),
-    [txId],
+    [txId, tx?.status],
   )
 
   const handleSignTx = useCallback(async () => {

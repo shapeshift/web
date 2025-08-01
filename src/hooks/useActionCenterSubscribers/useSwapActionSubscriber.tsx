@@ -147,6 +147,7 @@ export const useSwapActionSubscriber = () => {
           isRelayer: true,
           relayerExplorerTxLink: swap.metadata.relayerExplorerTxLink,
         }),
+        txStatus: status,
       })
 
       const serializedTxIndex = (() => {

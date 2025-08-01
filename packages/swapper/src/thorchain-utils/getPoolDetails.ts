@@ -3,7 +3,8 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorRight, SwapperName } from '../types'
+import type { SwapErrorRight } from '../types'
+import { SwapperName } from '../types'
 import { getPoolAssetId, isNativeAsset } from './index'
 import { thorService } from './service'
 import type { ThornodePoolResponse } from './types'
@@ -40,6 +41,9 @@ export const getPoolDetails = async (
   const buyPool = poolsResponse.find(pool => pool.asset === buyPoolId)
 
   const streamingInterval = (() => {
+    // https://discord.com/channels/915368890475880468/1105576530354118706/1270235165062594560
+    if (swapperName === SwapperName.Mayachain) return 3
+
     const sellAssetDepthBps = (() => {
       // Sell pool is the same as buy pool if selling native fee asset
       if (isNativeAsset(sellAsset.assetId, swapperName)) return buyPool?.derived_depth_bps

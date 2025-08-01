@@ -61,6 +61,7 @@ export const QrCodeScanner = ({
 
   const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = useCallback(
     (_errorMessage, error) => {
+      alert(_errorMessage)
       alert(JSON.stringify(error))
       if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
         // https://github.com/mebjas/html5-qrcode/issues/320

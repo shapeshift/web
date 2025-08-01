@@ -61,6 +61,7 @@ export const QrCodeScanner = ({
 
   const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = useCallback(
     (_errorMessage, error) => {
+      alert(JSON.stringify(error))
       if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
         // https://github.com/mebjas/html5-qrcode/issues/320
         // 'NotFoundException: No MultiFormat Readers were able to detect the code' errors are thrown on every frame until a valid QR is detected, don't handle these

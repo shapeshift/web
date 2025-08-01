@@ -1,4 +1,4 @@
-import { Box, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
@@ -16,7 +16,6 @@ export type DialogProps = {
   onClose: () => void
   height?: string
   isFullScreen?: boolean
-  isDisablingPropagation?: boolean
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
@@ -45,7 +44,6 @@ const DialogWindow: React.FC<DialogProps> = ({
   height,
   isFullScreen,
   children,
-  isDisablingPropagation = true,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
@@ -75,30 +73,6 @@ const DialogWindow: React.FC<DialogProps> = ({
     setIsOpen(isOpen)
   }, [isOpen, setIsOpen])
 
-  // This is a workaround to prevent the body to be pointer-events: none when the dialog is open if isDisablingPropagation is false
-  useEffect(() => {
-    if (!isDialogOpen) return
-    if (isDisablingPropagation) return
-
-    const originalPointerEvents = document.body.style.pointerEvents
-    const focusGuardedElements = document.querySelectorAll<HTMLElement>('*[data-radix-focus-guard]')
-
-    const raf = window.requestAnimationFrame(() => {
-      document.body.style.pointerEvents = 'auto'
-      focusGuardedElements.forEach(element => {
-        element.style.pointerEvents = 'auto'
-      })
-    })
-
-    return () => {
-      window.cancelAnimationFrame(raf)
-      document.body.style.pointerEvents = originalPointerEvents
-      focusGuardedElements.forEach(element => {
-        element.style.pointerEvents = 'inherit'
-      })
-    }
-  }, [isDialogOpen, isDisablingPropagation])
-
   // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
   useLayoutEffect(() => {
     if (!isMobile || isLargerThanMd) return
@@ -118,20 +92,11 @@ const DialogWindow: React.FC<DialogProps> = ({
         repositionInputs={isFullScreen ? true : false}
         open={isDialogOpen}
         onClose={onClose}
-        activeSnapPoint={isDisablingPropagation ? snapPoint : undefined}
-        modal={false}
+        activeSnapPoint={snapPoint}
+        modal
       >
         <Drawer.Portal>
-          {!isDisablingPropagation ? (
-            <Box
-              bg='rgba(0, 0, 0, 0.8)'
-              position='fixed'
-              inset={0}
-              zIndex='overlay'
-              onClick={onClose}
-            />
-          ) : null}
-          {isDisablingPropagation ? <CustomDrawerOverlay onClick={onClose} /> : null}
+          <CustomDrawerOverlay onClick={onClose} />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>

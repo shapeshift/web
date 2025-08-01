@@ -75,8 +75,9 @@ export const ReusableStatus = ({
         chainId: fromAccountId(accountId).chainId,
         maybeSafeTx,
         stepSource: SwapperName.Thorchain,
+        txStatus: thorTxStatus,
       }),
-    [accountId, maybeSafeTx, tcyAsset?.explorerTxLink, txId],
+    [accountId, maybeSafeTx, tcyAsset?.explorerTxLink, txId, thorTxStatus],
   )
 
   const handleViewTransaction = useCallback(() => {

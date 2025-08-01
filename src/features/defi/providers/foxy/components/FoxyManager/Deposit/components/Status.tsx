@@ -119,8 +119,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       address: fromAccountId(accountId).account,
       chainId: fromAccountId(accountId).chainId,
       maybeSafeTx,
+      txStatus: state?.deposit.txStatus === 'success' ? TxStatus.Confirmed : undefined,
     })
-  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid, state?.deposit.txStatus])
 
   const usedGasOrEstimateCryptoPrecision = useMemo(() => {
     if (maybeSafeTx?.transaction?.gasUsed)

@@ -70,8 +70,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       maybeSafeTx,
       address: fromAccountId(accountId).account,
       chainId: fromAccountId(accountId).chainId,
+      txStatus: status,
     })
-  }, [accountId, asset, maybeSafeTx, txId])
+  }, [accountId, asset, maybeSafeTx, txId, status])
 
   const handleSignTx = useCallback(async () => {
     if (!isActionable || !onSignAndBroadcast) return

@@ -117,8 +117,9 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       tradeId: txHash,
       address: fromAccountId(activeQuote.params.accountId).account,
       chainId: fromAccountId(activeQuote.params.accountId).chainId,
+      txStatus,
     })
-  }, [activeQuote.params.accountId, feeAsset, maybeSafeTx, txHash])
+  }, [activeQuote.params.accountId, feeAsset, maybeSafeTx, txHash, txStatus])
 
   const hasSufficientBalanceForGas = useMemo(() => {
     if (approvalNetworkFeeCryptoBaseUnit === undefined) {

@@ -11,7 +11,7 @@ import {
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { Dex } from '@shapeshiftoss/unchained-client'
+import { Dex, TxStatus } from '@shapeshiftoss/unchained-client'
 import { mayachain, thorchain } from '@shapeshiftoss/utils'
 
 type GetTxBaseUrl = {
@@ -20,6 +20,7 @@ type GetTxBaseUrl = {
   isOrder?: boolean
   isRelayer?: boolean
   relayerExplorerTxLink?: string | undefined
+  txStatus?: TxStatus
 }
 
 // An eip-3770 compliant mapping of ChainId to chain shortname
@@ -43,6 +44,7 @@ type GetTxLink = GetTxBaseUrl &
     maybeChainflipSwapId?: string | undefined
     isRelayer?: boolean
     relayerExplorerTxLink?: string | undefined
+    txStatus?: TxStatus
   }
 
 export const getTxBaseUrl = ({
@@ -51,7 +53,12 @@ export const getTxBaseUrl = ({
   isOrder,
   isRelayer,
   relayerExplorerTxLink,
+  txStatus,
 }: GetTxBaseUrl): string => {
+  if (!txStatus || txStatus === TxStatus.Unknown) {
+    return defaultExplorerBaseUrl
+  }
+
   switch (stepSource) {
     case Dex.CowSwap:
     case SwapperName.CowSwap:
@@ -92,6 +99,7 @@ export const getTxLink = ({
   maybeChainflipSwapId,
   isRelayer,
   relayerExplorerTxLink,
+  txStatus,
 }: GetTxLink): string => {
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
@@ -102,6 +110,7 @@ export const getTxLink = ({
     isOrder,
     isRelayer,
     relayerExplorerTxLink,
+    txStatus,
   })
 
   if (!isSafeTxHash) {

@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -13,6 +14,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { firstFourLastFour } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
@@ -52,8 +54,14 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
+      txStatus: action.status === ActionStatus.Pending ? TxStatus.Unknown : TxStatus.Confirmed,
     })
-  }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
+  }, [
+    action.transactionMetadata.txHash,
+    action.transactionMetadata.chainId,
+    feeAsset,
+    action.status,
+  ])
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 

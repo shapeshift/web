@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -289,6 +290,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             accountId={firstHopSellAccountId}
             stepSource={undefined} // no swapper base URL here, this is an allowance Tx
             quoteSwapperName={activeTradeQuote.swapperName}
+            txStatus={TxStatus.Unknown}
           />
         )}
       </Flex>
@@ -329,6 +331,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
               accountId={firstHopSellAccountId}
               stepSource={undefined} // no swapper base URL here, this is an allowance Tx
               quoteSwapperName={activeTradeQuote.swapperName}
+              txStatus={TxStatus.Unknown}
             />
           )}
         </>
@@ -398,6 +401,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   accountId={firstHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
+                  txStatus={
+                    firstHopSwap.state !== TransactionExecutionState.Pending &&
+                    firstHopSwap.state !== TransactionExecutionState.AwaitingConfirmation
+                      ? TxStatus.Confirmed
+                      : undefined
+                  }
                 />
               )}
               {firstHopSwap.relayerTxHash && (
@@ -409,6 +418,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   quoteSwapperName={activeTradeQuote.swapperName}
                   isRelayer={true}
                   relayerExplorerTxLink={firstHopSwap.relayerExplorerTxLink}
+                  txStatus={
+                    firstHopSwap.state !== TransactionExecutionState.Pending &&
+                    firstHopSwap.state !== TransactionExecutionState.AwaitingConfirmation
+                      ? TxStatus.Confirmed
+                      : undefined
+                  }
                 />
               )}
               {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
@@ -419,6 +434,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   accountId={firstHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
+                  txStatus={TxStatus.Unknown}
                 />
               )}
             </VStack>
@@ -438,6 +454,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     tradeQuoteFirstHop,
     activeSwap?.status,
     firstHopSwap.relayerExplorerTxLink,
+    firstHopSwap.state,
   ])
 
   const lastHopAllowanceResetTitle = useMemo(() => {
@@ -451,6 +468,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             accountId={lastHopSellAccountId}
             stepSource={undefined} // no swapper base URL here, this is an allowance Tx
             quoteSwapperName={activeTradeQuote.swapperName}
+            txStatus={TxStatus.Unknown}
           />
         )}
       </Flex>
@@ -484,6 +502,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                 accountId={lastHopSellAccountId}
                 stepSource={undefined} // no swapper base URL here, this is an allowance Tx
                 quoteSwapperName={activeTradeQuote.swapperName}
+                txStatus={TxStatus.Unknown}
               />
             )}
           </>
@@ -531,6 +550,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   accountId={lastHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
+                  txStatus={
+                    lastHopSwap.state !== TransactionExecutionState.Pending &&
+                    lastHopSwap.state !== TransactionExecutionState.AwaitingConfirmation
+                      ? TxStatus.Confirmed
+                      : undefined
+                  }
                 />
               )}
               {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
@@ -540,6 +565,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
                   accountId={lastHopSellAccountId}
                   stepSource={stepSource}
                   quoteSwapperName={activeTradeQuote.swapperName}
+                  txStatus={TxStatus.Unknown}
                 />
               )}
             </VStack>
@@ -557,6 +583,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     activeTradeQuote.swapperName,
     tradeQuoteSecondHop,
     activeSwap?.status,
+    lastHopSwap.state,
   ])
 
   return (

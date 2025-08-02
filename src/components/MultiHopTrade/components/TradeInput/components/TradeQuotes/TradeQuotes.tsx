@@ -10,27 +10,30 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { dogeAssetId } from '@shapeshiftoss/caip'
-import type { SwapperName } from '@shapeshiftoss/swapper'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
+import { LayoutGroup, motion } from 'framer-motion'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
+import { TradeQuoteIconLoader, VISIBLE_WIDTH } from './components/TradeQuoteIconLoader'
 import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
 import { Text } from '@/components/Text'
-import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import {
+  selectIsBatchTradeRateQueryLoading,
+  selectIsTradeQuoteApiQueryPending,
+} from '@/state/apis/swapper/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 import { getBestQuotesByCategory } from '@/state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,
+  selectEnabledSwappersIgnoringCrossAccountTrade,
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
-  selectLoadingSwappers,
   selectSortedTradeQuotes,
   selectUserAvailableTradeQuotes,
   selectUserUnavailableTradeQuotes,
@@ -61,12 +64,15 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperResponseAvailable)
   const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
   const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
-  const loadingSwappers = useAppSelector(selectLoadingSwappers)
   const translate = useTranslate()
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
+  const allSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
+  const isLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
+  const hasQuotes =
+    availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
 
   const bestQuotesByCategory = useMemo(
     () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
@@ -130,6 +136,20 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     onBack,
   ])
 
+  const [showNoResult, setShowNoResults] = useState(false)
+
+  // This is dumb but there's a state where the quotes get cleared and rates request hasn't been kicked off yet (not loading)
+  // We don't want to flash the no results so we wait 500ms before showing it
+  useEffect(() => {
+    if (availableQuotes.length > 0 && showNoResult) {
+      setShowNoResults(false)
+    } else if (availableQuotes.length === 0 && !showNoResult) {
+      setTimeout(() => {
+        setShowNoResults(true)
+      }, 500)
+    }
+  }, [availableQuotes, showNoResult])
+
   const unavailableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
@@ -159,42 +179,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     [unavailableTradeQuotesDisplayCache],
   )
 
-  // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
-  // only show these placeholders when quotes aren't already visible in the list
-  const fetchingSwappers = useMemo(() => {
-    if (isTradeQuoteRequestAborted) {
-      return []
-    }
-
-    return loadingSwappers.map(swapperName => {
-      // Attempt to match other quote identifiers to MotionBox can animate.
-      // Typically the identifier is the swapper name but not always.
-      const id = swapperName
-      const quoteData = {
-        id,
-        quote: undefined,
-        swapperName: swapperName as SwapperName,
-        inputOutputRatio: 0,
-        errors: [],
-        warnings: [],
-        isStale: true,
-      }
-      return (
-        <MotionBox key={id} layout {...motionBoxProps}>
-          <TradeQuote
-            isActive={false}
-            isLoading={true}
-            key={id}
-            // eslint doesn't understand useMemo not possible to use inside map
-            // eslint-disable-next-line react-memo/require-usememo
-            quoteData={quoteData}
-            onBack={onBack}
-          />
-        </MotionBox>
-      )
-    })
-  }, [isTradeQuoteRequestAborted, loadingSwappers, onBack])
-
   return (
     <Flex position='relative' minHeight='full'>
       <Flex
@@ -209,14 +193,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         minHeight='full'
       >
         <Flex flexDirection='column' gap={2} flexGrow='1'>
-          <LayoutGroup>
-            <AnimatePresence>
-              {availableQuotes}
-              {fetchingSwappers}
-            </AnimatePresence>
-          </LayoutGroup>
+          <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {!availableQuotes.length && !fetchingSwappers.length ? (
+          {showNoResult && !isLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'
@@ -236,8 +215,26 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
+          {!hasQuotes && isLoading ? (
+            <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
+              <TradeQuoteIconLoader swapperNames={allSwapperNames} />
+              <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>
+                <Text
+                  translation='trade.fetchingQuotes.title'
+                  fontWeight='medium'
+                  paddingBottom={1}
+                />
+                <Text
+                  fontSize='sm'
+                  fontWeight='medium'
+                  whiteSpace='normal'
+                  translation='trade.fetchingQuotes.description'
+                  color='text.subtle'
+                />
+              </Box>
+            </Flex>
+          ) : null}
         </Flex>
-
         <Accordion allowMultiple ref={unavailableAccordionRef}>
           <AccordionItem borderBottom='none' borderTop='1px solid' borderColor='border.base'>
             <h2>

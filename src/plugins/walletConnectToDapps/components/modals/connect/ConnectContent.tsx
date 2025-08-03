@@ -13,6 +13,7 @@ import {
   Link,
   VStack,
 } from '@chakra-ui/react'
+import type { ClipboardEventHandler } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -66,16 +67,21 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
     (uri: string) => {
       setValue('uri', uri)
       toggleQrCodeView()
-      // Blur the input to close keyboard on mobile
-      setTimeout(blurInput, 100)
+      blurInput() // Blur the input to close keyboard on mobile
     },
     [setValue, toggleQrCodeView, blurInput],
   )
 
-  const handleInputPaste = useCallback(() => {
-    // Blur input after paste to close keyboard on mobile
-    setTimeout(blurInput, 100)
-  }, [blurInput])
+  const handleInputPaste: ClipboardEventHandler<HTMLInputElement> = useCallback(
+    e => {
+      e.preventDefault()
+      const clipboardText = e.clipboardData?.getData('text') || ''
+      setValue('uri', clipboardText)
+      // Blur input after paste to close keyboard on mobile
+      blurInput()
+    },
+    [blurInput, setValue],
+  )
 
   const uri = useWatch({ control, name: 'uri' })
   const isValidUri = isWalletConnectV2Uri(uri)

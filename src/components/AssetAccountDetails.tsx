@@ -9,16 +9,19 @@ import { AssetChart } from './AssetHeader/AssetChart'
 import { AssetDescription } from './AssetHeader/AssetDescription'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetMarketData } from './AssetHeader/AssetMarketData'
+import { Display } from './Display'
 import { Equity } from './Equity/Equity'
 import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
+import { SpamWarningBanner } from './SpamWarning/SpamWarningBanner'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import type { Route } from '@/Routes/helpers'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,6 +38,8 @@ const contentPaddingY = { base: 0, md: 8 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
+  const isSpamMarked = spamMarkedAssetIds.includes(assetId)
   const assetIds = useMemo(() => [assetId], [assetId])
 
   const assetHeader = useMemo(
@@ -51,6 +56,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
+          <Display.Mobile>{isSpamMarked && <SpamWarningBanner assetId={assetId} />}</Display.Mobile>
           <MaybeChartUnavailable assetIds={assetIds} />
           <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}

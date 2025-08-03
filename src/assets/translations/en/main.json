@@ -176,6 +176,11 @@
     "orderBy": "Order By",
     "filterBy": "Filter By",
     "filterAndSort": "Filter and Sort",
+    "more": "More",
+    "favoriteAsset": "Favorite Asset",
+    "viewOnExplorer": "View on explorer",
+    "reportAsSpam": "Report as spam",
+    "reportAsNotSpam": "Report as not spam",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -2031,6 +2036,9 @@
     }
   },
   "assets": {
+    "spamWarning": {
+      "message": "This asset is hidden because ShapeShift believes it is spam."
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Balance",

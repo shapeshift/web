@@ -210,7 +210,7 @@ export const getTradeQuote = async (
 
     const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups?.map(
+    const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
       lookup => lookup.accountKey.toString(),
     )
 

@@ -232,14 +232,9 @@ export const getTradeQuote = async (
       addressLookupTableAccounts,
     }).instructions
 
-    // Extract address lookup table addresses
-    const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups?.map(
-      lookup => lookup.accountKey.toString(),
-    )
-
     return {
       instructions,
-      addressLookupTableAddresses,
+      addressLookupTableAddresses: addressLookupTableAccountKeys,
     }
   })()
 

@@ -1,20 +1,16 @@
-import { Box, Button, Portal, Stack } from '@chakra-ui/react'
+import { Box, Button, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { FaEye, FaFlag, FaStar } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { DialogFooter } from '@/components/Modal/components/DialogFooter'
-import {
-  DialogHeader,
-  DialogHeaderMiddle,
-  DialogHeaderRight,
-} from '@/components/Modal/components/DialogHeader'
-import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { SlideTransition } from '@/components/SlideTransition'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+import { DialogBackButton } from '../Modal/components/DialogBackButton'
+import { DialogHeader } from '../Modal/components/DialogHeader'
+import { DialogTitle } from '../Modal/components/DialogTitle'
 
 const starIcon = <FaStar />
 const eyeIcon = <FaEye />
@@ -22,10 +18,15 @@ const flagIcon = <FaFlag />
 
 type MoreActionsDrawerProps = {
   assetId: AssetId
+  isOpen: boolean
   onClose: () => void
 }
 
-export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({ assetId, onClose }) => {
+export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
+  assetId,
+  isOpen,
+  onClose,
+}) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
 
@@ -50,64 +51,49 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({ assetId, o
   }, [assetId, dispatch, onClose])
 
   return (
-    <Portal>
-      <Box
-        position='fixed'
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        bg='blackAlpha.600'
-        zIndex={1400}
-        onClick={onClose}
-      >
-        <Box
-          position='fixed'
-          bottom={0}
-          left={0}
-          right={0}
-          bg='gray.900'
-          borderTopRadius='lg'
-          onClick={e => e.stopPropagation()}
-        >
-          <SlideTransition>
-            <DialogBody>
-              <Stack spacing={0} pb={4}>
-                <Button
-                  variant='ghost'
-                  colorScheme='blue'
-                  leftIcon={starIcon}
-                  onClick={handleFavoriteAsset}
-                  justifyContent='flex-start'
-                >
-                  {translate('common.favoriteAsset')}
-                </Button>
-                <Button
-                  variant='ghost'
-                  colorScheme='blue'
-                  leftIcon={eyeIcon}
-                  onClick={handleViewOnExplorer}
-                  justifyContent='flex-start'
-                >
-                  {translate('common.viewOnExplorer')}
-                </Button>
-                <Button
-                  variant='ghost'
-                  colorScheme={isSpamMarked ? 'blue' : 'red'}
-                  leftIcon={flagIcon}
-                  onClick={handleToggleSpam}
-                  justifyContent='flex-start'
-                >
-                  {isSpamMarked
-                    ? translate('common.reportAsNotSpam')
-                    : translate('common.reportAsSpam')}
-                </Button>
-              </Stack>
-            </DialogBody>
-            <DialogFooter />
-          </SlideTransition>
-        </Box>
-      </Box>
-    </Portal>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+      <DialogHeader padding={0}>
+        <DialogHeader.Middle>
+          <DialogTitle color='transparent'>More asset actions</DialogTitle>
+        </DialogHeader.Middle>
+      </DialogHeader>
+      <DialogBody pb={4}>
+        <Stack spacing={0}>
+          <Button
+            variant='ghost'
+            colorScheme='blue'
+            leftIcon={starIcon}
+            onClick={handleFavoriteAsset}
+            justifyContent='flex-start'
+            size='lg'
+            py={4}
+          >
+            {translate('common.favoriteAsset')}
+          </Button>
+          <Button
+            variant='ghost'
+            colorScheme='blue'
+            leftIcon={eyeIcon}
+            onClick={handleViewOnExplorer}
+            justifyContent='flex-start'
+            size='lg'
+            py={4}
+          >
+            {translate('common.viewOnExplorer')}
+          </Button>
+          <Button
+            variant='ghost'
+            colorScheme={isSpamMarked ? 'blue' : 'red'}
+            leftIcon={flagIcon}
+            onClick={handleToggleSpam}
+            justifyContent='flex-start'
+            size='lg'
+            py={4}
+          >
+            {isSpamMarked ? translate('common.reportAsNotSpam') : translate('common.reportAsSpam')}
+          </Button>
+        </Stack>
+      </DialogBody>
+    </Dialog>
   )
 }

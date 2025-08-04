@@ -186,7 +186,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
             </Flex>
           )}
         </Flex>
-        {isMoreActionsOpen && <MoreActionsDrawer assetId={assetId} onClose={handleMoreClose} />}
+        <MoreActionsDrawer assetId={assetId} isOpen={isMoreActionsOpen} onClose={handleMoreClose} />
       </>
     )
   }

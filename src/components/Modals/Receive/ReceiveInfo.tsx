@@ -26,6 +26,8 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
 
+import { ReceiveRoutes } from './ReceiveCommon'
+
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -38,6 +40,7 @@ import { QRCode } from '@/components/QRCode/QRCode'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { firstFourLastFour } from '@/lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
@@ -46,6 +49,7 @@ import { useAppSelector } from '@/state/store'
 type ReceivePropsType = {
   asset: Asset
   accountId?: AccountId
+  isBackToSelect: boolean
 }
 
 const accountDropdownButtonProps = { variant: 'solid', width: 'full', mt: 4 }
@@ -53,13 +57,14 @@ const receiveAddressHover = { color: 'blue.500' }
 const receiveAddressActive = { color: 'blue.800' }
 const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'white' }
 
-export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
+export const ReceiveInfo = ({ asset, accountId, isBackToSelect }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
   const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string | null>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
+  const { close: closeReceiveModal } = useModal('receive')
   const chainAdapterManager = getChainAdapterManager()
   const navigate = useNavigate()
   const { chainId, name, symbol } = asset
@@ -152,8 +157,8 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   }, [receiveAddress, symbol, toast, translate])
 
   const handleBack = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
+    isBackToSelect ? navigate(ReceiveRoutes.Select) : closeReceiveModal()
+  }, [closeReceiveModal, isBackToSelect, navigate])
 
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],

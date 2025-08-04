@@ -717,7 +717,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }, new Array<AddressLookupTableAccount>())
   }
 
-  private async getAddressLookupTableAccounts(
+  public async getAddressLookupTableAccounts(
     addresses: string[],
   ): Promise<SolanaAddressLookupTableAccountInfo[]> {
     const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)

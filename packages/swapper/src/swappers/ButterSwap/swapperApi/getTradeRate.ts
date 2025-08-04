@@ -62,19 +62,6 @@ export const getTradeRate = async (
     )
   }
 
-  // Yes, this is supposed to be supported as per checks above, but currently is explicitly disabled, this can be confirmed by hitting
-  // Butter supported chains endpoit or trying to get a quote
-  // Disabling this explicitly for the time being, since the PR that brings Solana support (https://github.com/shapeshift/web/pull/9840)
-  // wasn't able to be tested yet
-  if (sellAsset.chainId === solanaChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Solana chain sells are currently unsupported`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
   // Disable same-chain swaps for ButterSwap, as we cannot collect affiliate fees for them
   if (sellAsset.chainId === buyAsset.chainId) {
     return Err(

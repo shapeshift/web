@@ -56,7 +56,9 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
-          <Display.Mobile>{isSpamMarked && <SpamWarningBanner assetId={assetId} />}</Display.Mobile>
+          <Display.Mobile>
+            {isSpamMarked && <SpamWarningBanner assetId={assetId} mx={6} />}
+          </Display.Mobile>
           <MaybeChartUnavailable assetIds={assetIds} />
           <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}

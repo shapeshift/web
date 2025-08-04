@@ -2037,8 +2037,9 @@
     }
   },
   "assets": {
-    "spamWarning": {
-      "message": "This asset is hidden because ShapeShift believes it is spam."
+    "spam": {
+      "warning": "This asset is hidden because ShapeShift believes it is spam.",
+      "marked": "This asset is marked as spam."
     },
     "assetDetails": {
       "assetHeader": {

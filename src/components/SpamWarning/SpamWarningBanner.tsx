@@ -1,20 +1,19 @@
-import { WarningIcon } from '@chakra-ui/icons'
-import { Button, Card, CardBody, Flex, Stack } from '@chakra-ui/react'
+import type { CardProps } from '@chakra-ui/react'
+import { Button, Card, CardBody, Divider, Flex, Icon, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
+import { TbAlertTriangle } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { RawText } from '@/components/Text'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from '@/state/store'
 
-const warningIcon = <WarningIcon />
-
 type SpamWarningBannerProps = {
   assetId: AssetId
-}
+} & CardProps
 
-export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId }) => {
+export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId, ...cardProps }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
 
@@ -24,25 +23,28 @@ export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId })
 
   return (
     <Card
-      borderRadius='lg'
-      bg='yellow.500'
       color='black'
+      bg='yellow.500'
       border='1px solid'
+      rounded='lg'
       borderColor='yellow.600'
-      mb={4}
+      {...cardProps}
     >
-      <CardBody px={4} py={3}>
-        <Stack spacing={3}>
-          <Flex alignItems='center' gap={2}>
-            {warningIcon}
+      <CardBody padding={0}>
+        <Stack>
+          <Flex alignItems='center' gap={2} mb={2}>
+            <Icon as={TbAlertTriangle} fontSize='2xl' />
             <RawText fontWeight='medium' fontSize='sm'>
-              {translate('assets.spamWarning.message')}
+              {translate('assets.spam.warning')}
             </RawText>
           </Flex>
+          <Divider />
           <Button
             size='sm'
-            colorScheme='blackAlpha'
-            variant='solid'
+            width='full'
+            borderRadius='none'
+            colorScheme='black'
+            variant='ghost'
             onClick={handleReportAsNotSpam}
             alignSelf='flex-start'
           >
@@ -53,4 +55,3 @@ export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId })
     </Card>
   )
 }
-

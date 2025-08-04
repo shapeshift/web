@@ -200,8 +200,8 @@ export const getTradeQuote = async (
   })
 
   // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
-  const solanaTransactionMetadata = await (async () => {
-    if (sellAsset.chainId !== solanaChainId) return
+  const maybeSolanaTransactionMetadata = await (async () => {
+    if (sellAsset.chainId !== solanaChainId) return Ok(undefined)
 
     const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
     const versionedTransaction = VersionedTransaction.deserialize(
@@ -210,33 +210,50 @@ export const getTradeQuote = async (
 
     const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
-      lookup => lookup.accountKey.toString(),
-    )
+    try {
+      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
+        lookup => lookup.accountKey.toString(),
+      )
 
-    const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
-      addressLookupTableAccountKeys,
-    )
+      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+        addressLookupTableAccountKeys,
+      )
 
-    const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
-      info =>
-        new AddressLookupTableAccount({
-          key: new PublicKey(info.key),
-          state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+        info =>
+          new AddressLookupTableAccount({
+            key: new PublicKey(info.key),
+            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+          }),
+      )
+
+      // Decompile VersionedMessage with address lookup tables to get instructions
+      // This is required to properly resolve all account addresses in the transaction
+      // Without lookup tables, the transaction would fail during execution
+      // Reference: https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
+      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+        addressLookupTableAccounts,
+      }).instructions
+
+      return Ok({
+        instructions,
+        addressLookupTableAddresses: addressLookupTableAccountKeys,
+      })
+    } catch (error) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[getTradeQuote] Error decompiling VersionedMessage: ${error}`,
+          code: TradeQuoteError.UnknownError,
         }),
-    )
-
-    // Decompile VersionedMessage to get instructions
-    // https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
-    const instructions = TransactionMessage.decompile(versionedTransaction.message, {
-      addressLookupTableAccounts,
-    }).instructions
-
-    return {
-      instructions,
-      addressLookupTableAddresses: addressLookupTableAccountKeys,
+      )
     }
   })()
+
+  if (sellAsset.chainId === solanaChainId && maybeSolanaTransactionMetadata?.isErr()) {
+    return Err(maybeSolanaTransactionMetadata.unwrapErr())
+  }
+
+  const solanaTransactionMetadata = maybeSolanaTransactionMetadata?.unwrap()
 
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
@@ -259,7 +276,9 @@ export const getTradeQuote = async (
       value: buildTx.value,
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
     },
-    ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
+    ...(solanaTransactionMetadata && {
+      solanaTransactionMetadata,
+    }),
   }
 
   const tradeQuote: TradeQuote = {

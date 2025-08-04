@@ -1,20 +1,26 @@
-import { Box, Button, Stack } from '@chakra-ui/react'
+import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { FaEye, FaFlag, FaStar } from 'react-icons/fa'
+import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { Dialog } from '@/components/Modal/components/Dialog'
-import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
 import { DialogBackButton } from '../Modal/components/DialogBackButton'
 import { DialogHeader } from '../Modal/components/DialogHeader'
 import { DialogTitle } from '../Modal/components/DialogTitle'
 
-const starIcon = <FaStar />
-const eyeIcon = <FaEye />
-const flagIcon = <FaFlag />
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const starIcon = <TbStar />
+const fullStarIcon = <TbStarFilled />
+const linkIcon = <TbExternalLink />
+const flagIcon = <TbFlag />
 
 type MoreActionsDrawerProps = {
   assetId: AssetId
@@ -30,22 +36,34 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   const translate = useTranslate()
   const dispatch = useAppDispatch()
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
+  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
+
   const isSpamMarked = spamMarkedAssetIds.includes(assetId)
+  const isWatchlistMarked = watchlistAssetIds.includes(assetId)
 
   const handleFavoriteAsset = useCallback(() => {
-    console.log('Favorite asset clicked:', assetId)
     dispatch(preferences.actions.toggleWatchedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
 
-  const handleViewOnExplorer = useCallback(() => {
-    console.log('View on explorer clicked:', assetId)
-    onClose()
-  }, [assetId, onClose])
+  const href = (() => {
+    if (!asset) return
+    const { assetReference } = fromAssetId(asset.assetId)
+
+    if (isNft(asset.assetId)) {
+      const [token] = assetReference.split('/')
+      return `${asset.explorer}/token/${token}?a=${asset.id}`
+    }
+
+    if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
+
+    return asset.explorer
+  })()
 
   const handleToggleSpam = useCallback(() => {
-    console.log('Toggle spam clicked:', assetId)
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
@@ -57,38 +75,46 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
           <DialogTitle color='transparent'>More asset actions</DialogTitle>
         </DialogHeader.Middle>
       </DialogHeader>
-      <DialogBody pb={4}>
+      <DialogBody pb={4} pl={0} pr={0}>
         <Stack spacing={0}>
           <Button
             variant='ghost'
-            colorScheme='blue'
-            leftIcon={starIcon}
+            px={6}
+            leftIcon={isWatchlistMarked ? fullStarIcon : starIcon}
             onClick={handleFavoriteAsset}
             justifyContent='flex-start'
+            height={14}
             size='lg'
-            py={4}
+            fontSize='md'
           >
-            {translate('common.favoriteAsset')}
+            {isWatchlistMarked
+              ? translate('common.unfavoriteAsset')
+              : translate('common.favoriteAsset')}
           </Button>
+          <Link href={href} isExternal>
+            <Button
+              variant='ghost'
+              px={6}
+              height={14}
+              leftIcon={linkIcon}
+              onClick={onClose}
+              justifyContent='flex-start'
+              size='lg'
+              fontSize='md'
+            >
+              {translate('common.viewOnExplorer')}
+            </Button>
+          </Link>
           <Button
             variant='ghost'
-            colorScheme='blue'
-            leftIcon={eyeIcon}
-            onClick={handleViewOnExplorer}
-            justifyContent='flex-start'
-            size='lg'
-            py={4}
-          >
-            {translate('common.viewOnExplorer')}
-          </Button>
-          <Button
-            variant='ghost'
-            colorScheme={isSpamMarked ? 'blue' : 'red'}
+            px={6}
+            height={14}
+            color='red.400'
             leftIcon={flagIcon}
             onClick={handleToggleSpam}
             justifyContent='flex-start'
             size='lg'
-            py={4}
+            fontSize='md'
           >
             {isSpamMarked ? translate('common.reportAsNotSpam') : translate('common.reportAsSpam')}
           </Button>

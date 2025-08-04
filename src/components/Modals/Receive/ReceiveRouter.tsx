@@ -20,7 +20,6 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-
   const currentAsset = selectedAsset ?? defaultAsset
 
   const handleAssetSelect = useCallback(
@@ -38,10 +37,10 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
         <ReceiveInfo
           asset={currentAsset}
           accountId={accountId}
-          isBackToSelect={selectedAsset !== undefined}
+          onBack={selectedAsset !== undefined ? () => navigate(ReceiveRoutes.Select) : undefined}
         />
       ) : null,
-    [currentAsset, accountId, selectedAsset],
+    [currentAsset, accountId, selectedAsset, navigate],
   )
 
   const selectAssetRouterElement = useMemo(

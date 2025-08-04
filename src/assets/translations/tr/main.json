@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme işleminiz tamamlandı."
     },
     "tcy": {
-      "claimReady": "%{amount} %{symbol} tutarındaki TCY talebiniz hazır",
+      "claimReady": "%{amount} %{symbol} tutarındaki TCY talebiniz hazır.",
       "claimTxPending": "%{amount} %{symbol} tutarındaki TCY talebiniz beklemede.",
       "claimTxComplete": "%{amount} %{symbol} tutarındaki TCY talebiniz tamamlandı."
     },

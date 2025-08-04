@@ -332,7 +332,7 @@
           "risks": "Чи існують ризики?"
         },
         "bodies": {
-          "rateFluctuationInfo": "Ставка %{assetName} ви заробляєте, річний відсоток доходу (APR), як правило, коливається в діапазоні від 7% до 20%..",
+          "rateFluctuationInfo": "Ставка %{assetName} ви заробляєте, річний відсоток доходу (APR), як правило, коливається в діапазоні від 7% до 20%.",
           "amountStakingInfo": "Ви можете стейкати будь-яку кількість %{assetName}, і вони одразу ж почнуть заробляти винагороду.",
           "withdrawInfo": "Ви можете зняти свої винагороди в будь-який час, для цього потрібно буде сплатити невелику комісію за газ, приблизно $0.01.",
           "unbondingInfo": "Коли ви знімаєте токени, вони залишаються заблокованими протягом %{unbondingDays} днів, протягом яких вони не будуть заробляти винагороди. Після завершення %{unbondingDays} днів, %{assetName} повернеться на ваш Основний гаманець.",
@@ -3009,9 +3009,9 @@
       "unstakeTxComplete": "Ваше зняття зі стейкінгу %{amount} %{symbol} готове."
     },
     "tcy": {
-      "claimReady": "Ваша заява на отримання TCY у розмірі %{amount} %{symbol} готова",
+      "claimReady": "Ваша заява на отримання TCY у розмірі %{amount} %{symbol} готова.",
       "claimTxPending": "Ваша заявка на TCY у розмірі %{amount} %{symbol}   знаходиться на розгляді.",
-      "claimTxComplete": "Ваша заявка на TCY у розмірі %{amount} %{symbol} завершена.."
+      "claimTxComplete": "Ваша заявка на TCY у розмірі %{amount} %{symbol} завершена."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

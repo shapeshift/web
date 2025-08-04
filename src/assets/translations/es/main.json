@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "Unstake de %{amount} %{symbol} completado."
     },
     "tcy": {
-      "claimReady": "Su reclamo TCY de %{amount} %{symbol} está listo",
+      "claimReady": "Su reclamo TCY de %{amount} %{symbol} está listo.",
       "claimTxPending": "Su reclamo TCY de %{amount} %{symbol} está pendiente.",
       "claimTxComplete": "Su reclamo TCY de %{amount} %{symbol} ha completado."
     },

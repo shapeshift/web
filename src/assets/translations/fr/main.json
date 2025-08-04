@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "Votre démise de %{amount} %{symbol} est terminée."
     },
     "tcy": {
-      "claimReady": "Votre réclamation TCY de %{amount} %{symbol} est prête",
+      "claimReady": "Votre réclamation TCY de %{amount} %{symbol} est prête.",
       "claimTxPending": "Votre réclamation TCY de %{amount} %{symbol} est en attente.",
       "claimTxComplete": "Votre réclamation TCY de %{amount} %{symbol} est terminée."
     },

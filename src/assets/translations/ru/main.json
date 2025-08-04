@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "Снятие со стейкинга %{amount} %{symbol} завершено."
     },
     "tcy": {
-      "claimReady": "Ваше требование TCY в размере %{amount} %{symbol} готово",
+      "claimReady": "Ваше требование TCY в размере %{amount} %{symbol} готово.",
       "claimTxPending": "Ваше требование TCY на сумму %{amount} %{symbol} находится на рассмотрении.",
       "claimTxComplete": "Ваше требование TCY в размере %{amount} %{symbol} выполнено."
     },

@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "%{amount} %{symbol} のステーク解除が完了しました。"
     },
     "tcy": {
-      "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です",
+      "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です。",
       "claimTxPending": "%{amount} %{symbol} の TCY 請求は保留中です。",
       "claimTxComplete": "%{amount} %{symbol} の TCY 請求が完了しました。"
     },

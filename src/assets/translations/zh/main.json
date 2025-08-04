@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "您取消质押的 %{amount} %{symbol} 已完成。"
     },
     "tcy": {
-      "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪",
+      "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪。",
       "claimTxPending": "您领取的 %{amount} %{symbol} TCY 待处理中。",
       "claimTxComplete": "您领取的 %{amount} %{symbol} TCY 已完成。"
     },

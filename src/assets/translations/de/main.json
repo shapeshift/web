@@ -3009,7 +3009,7 @@
       "unstakeTxComplete": "Ihr nicht beanspruchter Anteil  von %{amount} %{symbol} ist abgeschlossen."
     },
     "tcy": {
-      "claimReady": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist bereit",
+      "claimReady": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist bereit.",
       "claimTxPending": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist ausstehend.",
       "claimTxComplete": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist abgeschlossen."
     },

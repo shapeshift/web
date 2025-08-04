@@ -9,7 +9,12 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
+import {
+  AddressLookupTableAccount,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
@@ -195,7 +200,7 @@ export const getTradeQuote = async (
   })
 
   // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
-  const solanaTransactionMetadata = (() => {
+  const solanaTransactionMetadata = await (async () => {
     if (sellAsset.chainId !== solanaChainId) return
 
     const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
@@ -203,9 +208,29 @@ export const getTradeQuote = async (
       new Uint8Array(Buffer.from(txData, 'hex')),
     )
 
+    const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+    const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups?.map(
+      lookup => lookup.accountKey.toString(),
+    )
+
+    const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+      addressLookupTableAccountKeys,
+    )
+
+    const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+      info =>
+        new AddressLookupTableAccount({
+          key: new PublicKey(info.key),
+          state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+        }),
+    )
+
     // Decompile VersionedMessage to get instructions
     // https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
-    const instructions = TransactionMessage.decompile(versionedTransaction.message).instructions
+    const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+      addressLookupTableAccounts,
+    }).instructions
 
     // Extract address lookup table addresses
     const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups?.map(
@@ -238,8 +263,8 @@ export const getTradeQuote = async (
       data: buildTx.data,
       value: buildTx.value,
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-      ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
     },
+    ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
   }
 
   const tradeQuote: TradeQuote = {

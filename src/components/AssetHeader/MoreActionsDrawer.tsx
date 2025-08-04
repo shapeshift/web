@@ -1,13 +1,11 @@
-import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import { Button, Link, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
-import { FaEye, FaFlag, FaStar } from 'react-icons/fa'
 import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { DialogBackButton } from '../Modal/components/DialogBackButton'
 import { DialogHeader } from '../Modal/components/DialogHeader'
 import { DialogTitle } from '../Modal/components/DialogTitle'
 

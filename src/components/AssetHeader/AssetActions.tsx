@@ -161,7 +161,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
               colorScheme='blue'
             />
           </Flex>
-          {assetSupportsBuy ? (
+          {assetSupportsBuy && (
             <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
               <IconButton
                 icon={faCreditCardIcon}
@@ -173,18 +173,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({
                 colorScheme='blue'
               />
             </Flex>
-          ) : (
-            <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
-              <IconButton
-                icon={moreIcon}
-                size='lg'
-                aria-label={translate('common.more')}
-                _after={IconButtonAfter}
-                onClick={handleMoreClick}
-                colorScheme='blue'
-              />
-            </Flex>
           )}
+
+          <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
+            <IconButton
+              icon={moreIcon}
+              size='lg'
+              aria-label={translate('common.more')}
+              _after={IconButtonAfter}
+              onClick={handleMoreClick}
+              colorScheme='blue'
+            />
+          </Flex>
         </Flex>
         <MoreActionsDrawer assetId={assetId} isOpen={isMoreActionsOpen} onClose={handleMoreClose} />
       </>

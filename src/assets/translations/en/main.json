@@ -843,7 +843,7 @@
     "noRateAvailable": "No rate available.",
     "fetchingQuotes": {
       "title": "Fetching Quotes",
-      "description": "Fetching quotes for this pair, this can take up to ~5 seconds"
+      "description": "Fetching quotes for this pair, this can take up to %{maxTimeSeconds} seconds"
     },
     "previewTrade": "Preview Trade",
     "rate": "Rate",

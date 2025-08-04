@@ -18,7 +18,7 @@ import type { ReduxState } from '@/state/reducer'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
-const BULK_FETCH_RATE_TIMEOUT = 5000
+export const BULK_FETCH_RATE_TIMEOUT_MS = 5000
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -159,7 +159,7 @@ export const swapperApi = createApi({
               } as GetTradeRateInput,
               swapperName,
               swapperDeps,
-              BULK_FETCH_RATE_TIMEOUT,
+              BULK_FETCH_RATE_TIMEOUT_MS,
             )
 
             if (rateResult === undefined) {

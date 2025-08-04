@@ -12,6 +12,7 @@ import {
 import { dogeAssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import { LayoutGroup, motion } from 'framer-motion'
+import type { InterpolationOptions } from 'node-polyglot'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -25,6 +26,7 @@ import {
   selectIsBatchTradeRateQueryLoading,
   selectIsTradeQuoteApiQueryPending,
 } from '@/state/apis/swapper/selectors'
+import { BULK_FETCH_RATE_TIMEOUT_MS } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
@@ -40,6 +42,11 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const loadingMessageTranslation = [
+  'trade.fetchingQuotes.description',
+  { maxTimeSeconds: Math.round(BULK_FETCH_RATE_TIMEOUT_MS / 1000) },
+] as [string, InterpolationOptions]
 
 const MotionBox = motion(Box)
 
@@ -69,8 +76,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
-  const allSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
-  const isLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
+  const loaderSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
+  const isBatchTradeRateQueryLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
   const hasQuotes =
     availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
 
@@ -195,7 +202,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {showNoResult && !isLoading ? (
+          {showNoResult && !isBatchTradeRateQueryLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'
@@ -215,9 +222,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
-          {!hasQuotes && isLoading ? (
+          {!hasQuotes && isBatchTradeRateQueryLoading ? (
             <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
-              <TradeQuoteIconLoader swapperNames={allSwapperNames} />
+              <TradeQuoteIconLoader swapperNames={loaderSwapperNames} />
               <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>
                 <Text
                   translation='trade.fetchingQuotes.title'
@@ -228,7 +235,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
                   fontSize='sm'
                   fontWeight='medium'
                   whiteSpace='normal'
-                  translation='trade.fetchingQuotes.description'
+                  translation={loadingMessageTranslation}
                   color='text.subtle'
                 />
               </Box>

@@ -236,7 +236,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
               sellAssetChainId: fromAccountId(lastHopSellAccountId).chainId,
               address: fromAccountId(lastHopSellAccountId).account,
               swap: activeSwap,
-              stepIndex: 0,
+              stepIndex: 1,
               config: getConfig(),
             })
         : skipToken,

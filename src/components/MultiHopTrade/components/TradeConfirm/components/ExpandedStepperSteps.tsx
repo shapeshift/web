@@ -11,9 +11,16 @@ import {
   usePrevious,
   VStack,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import {
+  swappers,
+  SwapStatus,
+  TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
+  TransactionExecutionState,
+} from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -28,10 +35,12 @@ import { TxLabel } from '../TxLabel'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { RATE_CHANGED_BPS_THRESHOLD } from '@/components/Modals/RateChanged/RateChanged'
 import { RawText, Text } from '@/components/Text'
+import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useTxStatus } from '@/hooks/useTxStatus/useTxStatus'
 import { bn } from '@/lib/bignumber/bignumber'
+import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { selectSwapById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
@@ -196,23 +205,54 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   )
   const prevFirstHopAmountCryptoBaseUnit = usePrevious(firstHopAmountCryptoBaseUnit)
 
-  const firstHopSellTxStatus = useTxStatus({
-    accountId: firstHopSellAccountId ?? null,
-    txHash: firstHopSwap.sellTxHash ?? null,
+  const swapper = swappers[activeTradeQuote.swapperName]
+
+  const { data: firstHopSellTradeStatus } = useQuery({
+    queryKey: tradeStatusQueryKey(activeSwapId ?? '', firstHopSwap.sellTxHash ?? ''),
+    queryFn:
+      swapper && firstHopSwap.sellTxHash && activeSwapId && firstHopSellAccountId
+        ? () =>
+            fetchTradeStatus({
+              swapper,
+              sellTxHash: firstHopSwap.sellTxHash ?? '',
+              sellAssetChainId: fromAccountId(firstHopSellAccountId).chainId,
+              address: fromAccountId(firstHopSellAccountId).account,
+              swap: activeSwap,
+              stepIndex: 0,
+              config: getConfig(),
+            })
+        : skipToken,
+    staleTime: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
+    gcTime: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   })
 
-  const lastHopSellTxStatus = useTxStatus({
-    accountId: lastHopSellAccountId ?? null,
-    txHash: lastHopSwap.sellTxHash ?? null,
+  const { data: lastHopSellTradeStatus } = useQuery({
+    queryKey: tradeStatusQueryKey(activeSwapId ?? '', lastHopSwap.sellTxHash ?? ''),
+    queryFn:
+      swapper && lastHopSwap.sellTxHash && activeSwapId && lastHopSellAccountId
+        ? () =>
+            fetchTradeStatus({
+              swapper,
+              sellTxHash: lastHopSwap.sellTxHash ?? '',
+              sellAssetChainId: fromAccountId(lastHopSellAccountId).chainId,
+              address: fromAccountId(lastHopSellAccountId).account,
+              swap: activeSwap,
+              stepIndex: 0,
+              config: getConfig(),
+            })
+        : skipToken,
+
+    staleTime: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
+    gcTime: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   })
 
   const isFirstHopSellTxSeen = useMemo(() => {
-    return firstHopSellTxStatus && firstHopSellTxStatus !== TxStatus.Unknown
-  }, [firstHopSellTxStatus])
+    return firstHopSellTradeStatus && firstHopSellTradeStatus?.status !== TxStatus.Unknown
+  }, [firstHopSellTradeStatus])
 
   const isLastHopSellTxSeen = useMemo(() => {
-    return lastHopSellTxStatus && lastHopSellTxStatus !== TxStatus.Unknown
-  }, [lastHopSellTxStatus])
+    return lastHopSellTradeStatus && lastHopSellTradeStatus.status !== TxStatus.Unknown
+  }, [lastHopSellTradeStatus])
 
   useEffect(() => {
     if (currentTradeStep !== StepperStep.FirstHopSwap) return

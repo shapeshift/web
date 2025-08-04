@@ -105,7 +105,6 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         maybeSafeTx: undefined,
         address: undefined,
         chainId: undefined,
-        txStatus: tx.status,
       })
 
       return {

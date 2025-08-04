@@ -168,7 +168,6 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
       maybeSafeTx,
       address: fromAccountId(accountId).account,
       chainId: fromAccountId(accountId).chainId,
-      txStatus: tx.status,
     })
   }, [tx, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
 
@@ -248,7 +247,6 @@ export const useTxDetailsQuery = (txId: string | undefined): TxDetails | undefin
       maybeSafeTx,
       address: fromAccountId(accountId).account,
       chainId: fromAccountId(accountId).chainId,
-      txStatus: data.status,
     })
   }, [data, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
 

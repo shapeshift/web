@@ -82,15 +82,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       maybeSafeTx,
       address: fromAccountId(activeClaim.accountId).account,
       chainId: fromAccountId(activeClaim.accountId).chainId,
-      txStatus: claimTxStatus,
     })
-  }, [
-    activeClaim.accountId,
-    activeClaim.destinationExplorerTxLink,
-    claimTxHash,
-    maybeSafeTx,
-    claimTxStatus,
-  ])
+  }, [activeClaim.accountId, activeClaim.destinationExplorerTxLink, claimTxHash, maybeSafeTx])
 
   return (
     <SlideTransition>

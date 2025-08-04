@@ -2,7 +2,6 @@ import { Link } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useChainflipSwapIdQuery } from '@/hooks/queries/useChainflipSwapIdQuery'
@@ -18,7 +17,6 @@ export const TxLabel = ({
   isBuyTxHash,
   isRelayer,
   relayerExplorerTxLink,
-  txStatus,
 }: {
   txHash: string
   explorerBaseUrl: string
@@ -28,7 +26,6 @@ export const TxLabel = ({
   isBuyTxHash?: boolean
   isRelayer?: boolean
   relayerExplorerTxLink?: string | undefined
-  txStatus?: TxStatus
 }) => {
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,
@@ -50,7 +47,6 @@ export const TxLabel = ({
     maybeChainflipSwapId,
     isRelayer,
     relayerExplorerTxLink,
-    txStatus,
   })
 
   return txLink ? (

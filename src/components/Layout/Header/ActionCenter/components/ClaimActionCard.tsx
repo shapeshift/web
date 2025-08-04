@@ -1,7 +1,6 @@
 import { Button, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
@@ -116,7 +115,6 @@ export const ClaimActionCard = ({
       defaultExplorerBaseUrl: claimFeeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
-      txStatus: action.status === ActionStatus.Pending ? TxStatus.Unknown : TxStatus.Confirmed,
     })
 
     return (

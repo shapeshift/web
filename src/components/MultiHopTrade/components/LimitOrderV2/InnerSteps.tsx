@@ -10,7 +10,6 @@ import {
   StepStatus,
 } from '@chakra-ui/react'
 import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type Polyglot from 'node-polyglot'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -162,7 +161,6 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
             accountId={sellAccountId}
             stepSource={undefined} // no swapper base URL here, this is an allowance Tx
             quoteSwapperName={SwapperName.CowSwap}
-            txStatus={TxStatus.Unknown}
           />
         )}
       </Flex>
@@ -180,7 +178,6 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
             accountId={sellAccountId}
             stepSource={undefined} // no swapper base URL here, this is an allowance Tx
             quoteSwapperName={SwapperName.CowSwap}
-            txStatus={TxStatus.Unknown}
           />
         )}
       </Flex>

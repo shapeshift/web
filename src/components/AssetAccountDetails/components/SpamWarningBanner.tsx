@@ -1,5 +1,5 @@
 import type { CardProps } from '@chakra-ui/react'
-import { Button, Card, CardBody, Divider, Flex, Icon, Stack } from '@chakra-ui/react'
+import { Box, Button, Card, CardBody, Divider, Flex, Icon } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { TbAlertTriangle } from 'react-icons/tb'
@@ -31,26 +31,27 @@ export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId, .
       {...cardProps}
     >
       <CardBody padding={0}>
-        <Stack>
-          <Flex alignItems='center' gap={2} mb={2}>
+        <Box>
+          <Flex alignItems='center' gap={2} p={2}>
             <Icon as={TbAlertTriangle} fontSize='2xl' />
             <RawText fontWeight='medium' fontSize='sm'>
               {translate('assets.spam.warning')}
             </RawText>
           </Flex>
-          <Divider />
+          <Divider borderColor='blackAlpha.300' />
           <Button
-            size='sm'
+            size='md'
+            fontSize='sm'
             width='full'
-            borderRadius='none'
+            borderRadius='lg'
             colorScheme='black'
-            variant='ghost'
+            color='black'
             onClick={handleReportAsNotSpam}
             alignSelf='flex-start'
           >
             {translate('common.reportAsNotSpam')}
           </Button>
-        </Stack>
+        </Box>
       </CardBody>
     </Card>
   )

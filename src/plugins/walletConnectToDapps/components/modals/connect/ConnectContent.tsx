@@ -13,7 +13,8 @@ import {
   Link,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import type { ClipboardEventHandler } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -47,6 +48,8 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
 }) => {
   const translate = useTranslate()
   const [isQrCodeView, setIsQrCodeView] = useState<boolean>(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
   const toggleQrCodeView = useCallback(() => setIsQrCodeView(v => !v), [])
 
   const handleForm = useCallback((values: FormValues) => handleConnect(values.uri), [handleConnect])
@@ -56,12 +59,28 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
     defaultValues: { uri: initialUri },
   })
 
+  const blurInput = useCallback(() => {
+    inputRef.current?.blur()
+  }, [])
+
   const handleQrScanSuccess = useCallback(
     (uri: string) => {
       setValue('uri', uri)
       toggleQrCodeView()
+      blurInput() // Blur the input to close keyboard on mobile
     },
-    [setValue, toggleQrCodeView],
+    [setValue, toggleQrCodeView, blurInput],
+  )
+
+  const handleInputPaste: ClipboardEventHandler<HTMLInputElement> = useCallback(
+    e => {
+      e.preventDefault()
+      const clipboardText = e.clipboardData?.getData('text') || ''
+      setValue('uri', clipboardText)
+      // Blur input after paste to close keyboard on mobile
+      blurInput()
+    },
+    [blurInput, setValue],
   )
 
   const uri = useWatch({ control, name: 'uri' })
@@ -78,6 +97,16 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
         return `${commonString}.connect`
     }
   }, [isValidUri, uri])
+
+  const { ref: registerRef, ...registerProps } = register('uri')
+
+  const handleRefCallback = useCallback(
+    (e: HTMLInputElement | null) => {
+      registerRef(e)
+      inputRef.current = e
+    },
+    [registerRef],
+  )
 
   if (isQrCodeView) {
     return <QrCodeScanner onSuccess={handleQrScanSuccess} onBack={toggleQrCodeView} />
@@ -117,7 +146,8 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
                   />
                 </InputRightElement>
                 <Input
-                  {...register('uri')}
+                  {...registerProps}
+                  ref={handleRefCallback}
                   autoComplete={'off'}
                   type='text'
                   placeholder={translate(
@@ -125,6 +155,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
                   )}
                   autoFocus // eslint-disable-line jsx-a11y/no-autofocus
                   variant='filled'
+                  onPaste={handleInputPaste}
                 />
               </InputGroup>
               <FormErrorMessage>{formState.errors?.uri?.message}</FormErrorMessage>

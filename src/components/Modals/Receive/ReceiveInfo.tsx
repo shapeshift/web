@@ -30,8 +30,9 @@ import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogHeader, DialogHeaderRight } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import { QRCode } from '@/components/QRCode/QRCode'
@@ -46,6 +47,7 @@ import { useAppSelector } from '@/state/store'
 type ReceivePropsType = {
   asset: Asset
   accountId?: AccountId
+  onBack?: () => void
 }
 
 const accountDropdownButtonProps = { variant: 'solid', width: 'full', mt: 4 }
@@ -53,7 +55,7 @@ const receiveAddressHover = { color: 'blue.500' }
 const receiveAddressActive = { color: 'blue.800' }
 const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'white' }
 
-export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
+export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
   const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false)
@@ -151,10 +153,6 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
-  const handleBack = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
-
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],
     [name, symbol],
@@ -164,12 +162,17 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   return (
     <>
       <DialogHeader>
-        <DialogHeader.Left>
-          <DialogBackButton onClick={handleBack} />
-        </DialogHeader.Left>
+        {onBack && (
+          <DialogHeader.Left>
+            <DialogBackButton onClick={onBack} />
+          </DialogHeader.Left>
+        )}
         <DialogHeader.Middle>
           <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>
         </DialogHeader.Middle>
+        <DialogHeaderRight>
+          <DialogCloseButton />
+        </DialogHeaderRight>
       </DialogHeader>
       {wallet && chainAdapter ? (
         <>

@@ -176,12 +176,6 @@
     "orderBy": "Order By",
     "filterBy": "Filter By",
     "filterAndSort": "Filter and Sort",
-    "more": "More",
-    "favoriteAsset": "Favorite Asset",
-    "unfavoriteAsset": "Unfavorite Asset",
-    "viewOnExplorer": "View on explorer",
-    "reportAsSpam": "Report as spam",
-    "reportAsNotSpam": "Report as not spam",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -208,7 +202,8 @@
     "marketDataUnavailable": "Market data is unavailable for %{asset}",
     "streaming": "Streaming",
     "dca": "DCA",
-    "boost": "Boost"
+    "boost": "Boost",
+    "viewOnExplorer": "View on explorer"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -2037,9 +2032,14 @@
     }
   },
   "assets": {
+    "more": "More",
+    "favoriteAsset": "Favorite Asset",
+    "unfavoriteAsset": "Unfavorite Asset",
     "spam": {
       "warning": "This asset is hidden because ShapeShift believes it is spam.",
-      "marked": "This asset is marked as spam."
+      "marked": "This asset is marked as spam.",
+      "reportAsSpam": "Report as spam",
+      "reportAsNotSpam": "Report as not spam"
     },
     "assetDetails": {
       "assetHeader": {

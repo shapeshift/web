@@ -86,8 +86,8 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
             fontSize='md'
           >
             {isWatchlistMarked
-              ? translate('common.unfavoriteAsset')
-              : translate('common.favoriteAsset')}
+              ? translate('assets.unfavoriteAsset')
+              : translate('assets.favoriteAsset')}
           </Button>
           <Link href={href} isExternal>
             <Button
@@ -114,7 +114,9 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
             size='lg'
             fontSize='md'
           >
-            {isSpamMarked ? translate('common.reportAsNotSpam') : translate('common.reportAsSpam')}
+            {isSpamMarked
+              ? translate('assets.spam.reportAsNotSpam')
+              : translate('assets.spam.reportAsSpam')}
           </Button>
         </Stack>
       </DialogBody>

@@ -47,9 +47,8 @@ export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId, .
             colorScheme='black'
             color='black'
             onClick={handleReportAsNotSpam}
-            alignSelf='flex-start'
           >
-            {translate('common.reportAsNotSpam')}
+            {translate('assets.spam.reportAsNotSpam')}
           </Button>
         </Box>
       </CardBody>

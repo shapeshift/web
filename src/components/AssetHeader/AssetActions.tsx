@@ -1,4 +1,4 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { MoreActionsDrawer } from './MoreActionsDrawer'
 
-import SendIconSvg from '@/assets/send.svg'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -42,7 +41,7 @@ const stackWidthProps = { base: 'full', md: 'auto' }
 const buttonFlexProps = { base: 1, md: 'auto' }
 const buttonWidthProps = { base: '100%', md: 'auto' }
 
-const sendIcon = <img src={SendIconSvg} alt='send' width='16' height='16' />
+const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const swapIcon = <SwapIcon />
 const faCreditCardIcon = <FaCreditCard />
@@ -129,8 +128,9 @@ export const AssetActions: React.FC<AssetActionProps> = ({
           {isValidChainId && (
             <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
               <IconButton
-                icon={sendIcon}
+                icon={arrowUpIcon}
                 size='lg'
+                isRound
                 aria-label={translate('common.send')}
                 _after={IconButtonAfter}
                 onClick={handleSendClick}
@@ -144,6 +144,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
             <IconButton
               icon={arrowDownIcon}
               size='lg'
+              isRound
               aria-label={translate('common.receive')}
               _after={IconButtonAfter}
               onClick={handleReceiveClick}
@@ -155,6 +156,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
             <IconButton
               icon={swapIcon}
               size='lg'
+              isRound
               aria-label={translate('navBar.tradeShort')}
               _after={IconButtonAfter}
               onClick={handleTradeClick}
@@ -166,6 +168,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
               <IconButton
                 icon={faCreditCardIcon}
                 size='lg'
+                isRound
                 aria-label={translate('navBar.buyCryptoShort')}
                 _after={IconButtonAfter}
                 onClick={handleBuySellClick}
@@ -179,7 +182,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
             <IconButton
               icon={moreIcon}
               size='lg'
-              aria-label={translate('common.more')}
+              isRound
+              aria-label={translate('assets.more')}
               _after={IconButtonAfter}
               onClick={handleMoreClick}
               colorScheme='blue'

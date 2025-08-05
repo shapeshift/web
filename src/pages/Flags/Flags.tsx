@@ -2,6 +2,7 @@ import type { StackDirection } from '@chakra-ui/react'
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   Card,
   CardBody,
@@ -21,6 +22,7 @@ import { FlagRow } from './FlagRow'
 
 import { Main } from '@/components/Layout/Main'
 import { RawText } from '@/components/Text'
+import { useLongPress } from '@/hooks/useLongPress'
 import { slices } from '@/state/reducer'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -54,6 +56,20 @@ export const Flags = () => {
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
+  const [boxColor, setBoxColor] = useState('blue')
+
+  const longPressProps = useLongPress({
+    onLongPress: () => {
+      setBoxColor('red')
+      // Could trigger haptic feedback here
+    },
+    onPress: () => {
+      setBoxColor('green')
+    },
+    delay: 600,
+    threshold: 15,
+    enableStyles: true, // Default is true
+  })
 
   const handleApply = useCallback(() => {
     try {
@@ -100,6 +116,16 @@ export const Flags = () => {
                 Apply
               </Button>
               <Button onClick={handleResetPreferences}>Reset Flags to Default</Button>
+              <Box
+                {...longPressProps}
+                bg={boxColor}
+                p={6}
+                borderRadius='md'
+                textAlign='center'
+                color='black'
+              >
+                Press and hold me
+              </Box>
             </HStack>
           </CardFooter>
         </Card>

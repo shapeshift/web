@@ -75,6 +75,10 @@ const defiIcon = <DefiIcon />
 
 const pageProps = { paddingTop: 4 }
 
+const carouselOptions = {
+  loop: true,
+}
+
 export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -181,7 +185,7 @@ export const Explore = memo(() => {
         {!isSearching ? (
           <>
             <Flex flexDir='column' gap={6}>
-              <Carousel showDots>
+              <Carousel autoPlay={true} showDots options={carouselOptions}>
                 <ExploreCard
                   title='navBar.foxEcosystem'
                   body='explore.foxEcosystem.body'

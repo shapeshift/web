@@ -22,7 +22,7 @@ export const Carousel = ({
 }: CarouselProps) => {
   const translate = useTranslate()
   const autoplayRef = useRef(
-    Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
   )
   const [viewportRef, embla] = useEmblaCarousel(options, [autoplayRef.current, AutoHeight()])
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)

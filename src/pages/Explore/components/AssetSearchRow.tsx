@@ -85,7 +85,6 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     const rightContent = useMemo(() => {
       if (portalAsset) {
         const volume = bnOrZero(marketData?.volume)
-        console.log({ portalAsset })
 
         return (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>

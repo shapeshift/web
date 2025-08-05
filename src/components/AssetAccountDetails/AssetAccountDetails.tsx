@@ -21,7 +21,7 @@ import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTr
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import type { Route } from '@/Routes/helpers'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectIsSpamMarkedByAssetId } from '@/state/slices/preferencesSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -38,8 +38,7 @@ const contentPaddingY = { base: 0, md: 8 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
-  const isSpamMarked = spamMarkedAssetIds.includes(assetId)
+  const isSpamMarked = useAppSelector(state => selectIsSpamMarkedByAssetId(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
   const assetHeader = useMemo(

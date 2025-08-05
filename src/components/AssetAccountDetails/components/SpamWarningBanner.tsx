@@ -17,7 +17,7 @@ export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId, .
   const translate = useTranslate()
   const dispatch = useAppDispatch()
 
-  const handleReportAsNotSpam = useCallback(() => {
+  const handleToggleSpam = useCallback(() => {
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
   }, [assetId, dispatch])
 
@@ -46,7 +46,7 @@ export const SpamWarningBanner: React.FC<SpamWarningBannerProps> = ({ assetId, .
             borderRadius='lg'
             colorScheme='black'
             color='black'
-            onClick={handleReportAsNotSpam}
+            onClick={handleToggleSpam}
           >
             {translate('assets.spam.reportAsNotSpam')}
           </Button>

@@ -86,24 +86,24 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
             size='lg'
             fontSize='md'
           >
-            {isWatchlistMarked
-              ? translate('assets.unfavoriteAsset')
-              : translate('assets.favoriteAsset')}
+            {isWatchlistMarked ? translate('watchlist.remove') : translate('watchlist.add')}
           </Button>
-          <Link href={explorerHref} isExternal>
-            <Button
-              variant='ghost'
-              px={6}
-              height={14}
-              leftIcon={linkIcon}
-              onClick={onClose}
-              justifyContent='flex-start'
-              size='lg'
-              fontSize='md'
-            >
-              {translate('common.viewOnExplorer')}
-            </Button>
-          </Link>
+          {explorerHref !== undefined && (
+            <Link href={explorerHref} isExternal>
+              <Button
+                variant='ghost'
+                px={6}
+                height={14}
+                leftIcon={linkIcon}
+                onClick={onClose}
+                justifyContent='flex-start'
+                size='lg'
+                fontSize='md'
+              >
+                {translate('common.viewOnExplorer')}
+              </Button>
+            </Link>
+          )}
           <Button
             variant='ghost'
             px={6}

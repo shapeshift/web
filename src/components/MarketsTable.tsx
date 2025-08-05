@@ -14,6 +14,7 @@ import { ReactTableNoPager } from '@/components/ReactTable/ReactTableNoPager'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
+import { useModal } from '@/hooks/useModal/useModal'
 import { SparkLine } from '@/pages/Buy/components/Sparkline'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import {
@@ -41,6 +42,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const assetIds = useMemo(() => rows.map(row => row.assetId), [rows])
 
@@ -142,12 +144,20 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
     ],
     [handleTradeClick, marketDataUserCurrencyById, translate],
   )
+  const handleRowLongPress = useCallback(
+    (row: Row<Asset>) => {
+      const { assetId } = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
   return (
     <Stack px={paddingX} pb={6}>
       <ReactTableNoPager
         columns={columns}
         data={data}
         onRowClick={onRowClick}
+        onRowLongPress={handleRowLongPress}
         displayHeaders={isLargerThanMd}
         variant='clickable'
         isLoading={isAnyMarketDataLoading}

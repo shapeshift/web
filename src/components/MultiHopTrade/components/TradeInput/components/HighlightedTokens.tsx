@@ -21,6 +21,7 @@ import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -42,6 +43,7 @@ export const HighlightedTokens = () => {
   const assetsById = useAppSelector(selectAssets)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
     preferences.selectors.selectHighlightedTokensFilters,
@@ -207,6 +209,14 @@ export const HighlightedTokens = () => {
     [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
   )
 
+  const handleRowLongPress = useCallback(
+    (row: Row<Asset>) => {
+      const { assetId } = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   const handleOpenCategoriesDialog = useCallback(() => {
     setIsCategoryDialogOpen(true)
   }, [])
@@ -275,6 +285,7 @@ export const HighlightedTokens = () => {
           columns={columns}
           data={filteredAssets ?? []}
           onRowClick={handleRowClick}
+          onRowLongPress={handleRowLongPress}
           displayHeaders={false}
           variant='clickable'
           loadMore={noop}
@@ -284,14 +295,15 @@ export const HighlightedTokens = () => {
       </Flex>
     )
   }, [
+    isCategoryQueryDataLoading,
+    isPortalsAssetsLoading,
+    selectedCategory,
+    isCategoryQueryDataError,
+    isPortalsAssetsError,
     filteredAssets,
     columns,
     handleRowClick,
-    isCategoryQueryDataLoading,
-    isCategoryQueryDataError,
-    isPortalsAssetsLoading,
-    isPortalsAssetsError,
-    selectedCategory,
+    handleRowLongPress,
   ])
 
   const title = useMemo(() => {

@@ -43,6 +43,7 @@ export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
   const receive = useModal('receive')
+  const assetActionsDrawer = useModal('assetActionsDrawer')
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
   }, [rowData])
@@ -179,6 +180,14 @@ export const AccountTable = memo(() => {
     [navigate],
   )
 
+  const handleRowLongPress = useCallback(
+    (row: Row<AccountRowData>) => {
+      const { assetId } = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   return loading ? (
     loadingRows
   ) : (
@@ -186,6 +195,7 @@ export const AccountTable = memo(() => {
       columns={columns}
       data={data}
       onRowClick={handleRowClick}
+      onRowLongPress={handleRowLongPress}
       displayHeaders={isLargerThanMd}
       variant='clickable'
       renderEmptyComponent={renderEmptyComponent}

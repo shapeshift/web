@@ -197,6 +197,14 @@ const MobileWalletDialogModal = makeSuspenseful(
   ),
 )
 
+const AssetActionsDrawer = makeSuspenseful(
+  lazy(() =>
+    import('@/components/AssetHeader/AssetActionsDrawer').then(({ AssetActionsDrawer }) => ({
+      default: AssetActionsDrawer,
+    })),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -221,6 +229,7 @@ export const MODALS: Modals = {
   manageAccounts: ManageAccountsModal,
   rateChanged: RateChangedModal,
   mobileWalletDialog: MobileWalletDialogModal,
+  assetActionsDrawer: AssetActionsDrawer,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

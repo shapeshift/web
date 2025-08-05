@@ -19,7 +19,9 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
-import { useLongPress } from 'use-long-press'
+import { LongPressEventType, useLongPress } from 'use-long-press'
+
+import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -79,9 +81,13 @@ export const InfiniteTable = <T extends {}>({
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
-  const longPressHandlers = useLongPress((_, { context: row }) => {
-    onRowLongPress?.(row as Row<T>)
-  })
+  const longPressHandlers = useLongPress(
+    (_, { context: row }) => {
+      pulseAndroid()
+      onRowLongPress?.(row as Row<T>)
+    },
+    { detect: LongPressEventType.Touch },
+  )
   const tableColumns = useMemo(
     () =>
       isLoading

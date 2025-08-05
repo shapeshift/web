@@ -19,13 +19,13 @@ const fullStarIcon = <TbStarFilled />
 const linkIcon = <TbExternalLink />
 const flagIcon = <TbFlag />
 
-type MoreActionsDrawerProps = {
+type AssetActionsDrawerProps = {
   assetId?: AssetId
   isOpen: boolean
   onClose: () => void
 }
 
-export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
+export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({
   assetId,
   isOpen,
   onClose,
@@ -73,6 +73,11 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     return asset.explorer
   }, [asset])
 
+  const handleLinkClick = useCallback(() => {
+    // onClose needs to be called after href handling, moves to end of callstack
+    setTimeout(onClose, 0)
+  }, [onClose])
+
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader padding={0} /> {/* For grab handle */}
@@ -84,6 +89,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
             leftIcon={isWatchlistMarked ? fullStarIcon : starIcon}
             onClick={handleWatchAsset}
             justifyContent='flex-start'
+            width='full'
             height={14}
             size='lg'
             fontSize='md'
@@ -96,8 +102,9 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
                 variant='ghost'
                 px={6}
                 height={14}
+                width='full'
                 leftIcon={linkIcon}
-                onClick={onClose}
+                onClick={handleLinkClick}
                 justifyContent='flex-start'
                 size='lg'
                 fontSize='md'
@@ -109,6 +116,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
           <Button
             variant='ghost'
             px={6}
+            width='full'
             height={14}
             color='red.400'
             leftIcon={flagIcon}

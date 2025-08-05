@@ -7,7 +7,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
-import { useLongPress } from 'use-long-press'
+import { LongPressEventType, useLongPress } from 'use-long-press'
 
 import { AssetCell } from './AssetCell'
 import { ChangeCell } from './ChangeCell'
@@ -20,6 +20,7 @@ import { Text } from '@/components/Text'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
+import { pulseAndroid } from '@/utils/pulseAndroid'
 
 const ROW_HEIGHT = 70
 
@@ -80,9 +81,13 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
-    const longPressHandlers = useLongPress((_, { context: row }) => {
-      onRowLongPress?.(row as Row<Asset>)
-    })
+    const longPressHandlers = useLongPress(
+      (_, { context: row }) => {
+        pulseAndroid()
+        onRowLongPress?.(row as Row<Asset>)
+      },
+      { detect: LongPressEventType.Touch },
+    )
 
     const parentRef = useRef<HTMLDivElement>(null)
 

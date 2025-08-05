@@ -17,7 +17,8 @@ import type { Column, Row } from 'react-table'
 
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
-import { MoreActionsDrawer } from '@/components/AssetHeader/MoreActionsDrawer'
+import { AssetActionsDrawer } from '@/components/AssetHeader/AssetActionsDrawer'
+import { Display } from '@/components/Display'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
@@ -204,11 +205,13 @@ export const AccountTable = memo(() => {
         loadMore={next}
         scrollableTarget='scroll-view-0'
       />
-      <MoreActionsDrawer
-        assetId={selectedAssetIdForMenu}
-        isOpen={selectedAssetIdForMenu !== undefined}
-        onClose={handleCloseAssetMenu}
-      />
+      <Display.Mobile>
+        <AssetActionsDrawer
+          assetId={selectedAssetIdForMenu}
+          isOpen={selectedAssetIdForMenu !== undefined}
+          onClose={handleCloseAssetMenu}
+        />
+      </Display.Mobile>
     </>
   )
 })

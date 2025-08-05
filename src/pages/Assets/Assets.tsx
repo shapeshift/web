@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { MoreActionsDrawer } from '@/components/AssetHeader/MoreActionsDrawer'
+import { AssetActionsDrawer } from '@/components/AssetHeader/AssetActionsDrawer'
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -78,7 +78,7 @@ export const Assets = () => {
         onRowClick={handleRowClick}
         onRowLongPress={handleRowLongPress}
       />
-      <MoreActionsDrawer
+      <AssetActionsDrawer
         assetId={selectedAssetIdForMenu}
         isOpen={selectedAssetIdForMenu !== undefined}
         onClose={handleCloseAssetMenu}

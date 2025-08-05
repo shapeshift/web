@@ -8,7 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
-import { MoreActionsDrawer } from './AssetHeader/MoreActionsDrawer'
+import { AssetActionsDrawer } from './AssetHeader/AssetActionsDrawer'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
@@ -169,11 +169,13 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
           </Button>
         )}
       </Stack>
-      <MoreActionsDrawer
-        assetId={selectedAssetIdForMenu}
-        isOpen={selectedAssetIdForMenu !== undefined}
-        onClose={handleCloseAssetMenu}
-      />
+      <Display.Mobile>
+        <AssetActionsDrawer
+          assetId={selectedAssetIdForMenu}
+          isOpen={selectedAssetIdForMenu !== undefined}
+          onClose={handleCloseAssetMenu}
+        />
+      </Display.Mobile>
     </>
   )
 })

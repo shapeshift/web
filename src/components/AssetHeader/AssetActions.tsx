@@ -41,11 +41,11 @@ const stackWidthProps = { base: 'full', md: 'auto' }
 const buttonFlexProps = { base: 1, md: 'auto' }
 const buttonWidthProps = { base: '100%', md: 'auto' }
 
+const moreIcon = <FaEllipsisH />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const swapIcon = <SwapIcon />
 const faCreditCardIcon = <FaCreditCard />
-const moreIcon = <FaEllipsisH />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -177,7 +177,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({
               />
             </Flex>
           )}
-
           <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
             <IconButton
               icon={moreIcon}
@@ -234,7 +233,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
       <Flex direction='row' gap={2} flexWrap='wrap'>
         <Button
           onClick={handleSendClick}
-          leftIcon={sendIcon}
+          leftIcon={arrowUpIcon}
           width={buttonWidthProps}
           isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId)}
           data-test='asset-action-send'

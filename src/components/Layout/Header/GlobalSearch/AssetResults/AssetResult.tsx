@@ -41,7 +41,10 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
       onClick(asset)
     }, [asset, onClick])
 
-    const isSpamAsset = spamMarkedAssetIds.includes(asset.assetId)
+    const isSpamAsset = useMemo(
+      () => spamMarkedAssetIds.includes(asset.assetId),
+      [asset.assetId, spamMarkedAssetIds],
+    )
 
     return (
       <ResultButton
@@ -64,7 +67,12 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
               </RawText>
               {isSpamAsset && (
                 <TooltipWithTouch label={translate('assets.spam.marked')}>
-                  <Icon as={TbAlertTriangle} color='yellow.500' strokeWidth={2} mb={-0.5} />
+                  <Icon
+                    as={TbAlertTriangle}
+                    color='yellow.500'
+                    strokeWidth={2}
+                    mb={-0.5 /* eyeball margin hack because of tooltip */}
+                  />
                 </TooltipWithTouch>
               )}
             </Flex>

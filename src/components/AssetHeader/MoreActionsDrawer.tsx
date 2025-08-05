@@ -1,8 +1,8 @@
-import { Button, Link, Stack } from '@chakra-ui/react'
+import { Button, Link, Stack, VisuallyHidden } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
@@ -39,15 +39,26 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
 
-  const isSpamMarked = spamMarkedAssetIds.includes(assetId)
-  const isWatchlistMarked = watchlistAssetIds.includes(assetId)
+  const isSpamMarked = useMemo(
+    () => spamMarkedAssetIds.includes(assetId),
+    [assetId, spamMarkedAssetIds],
+  )
+  const isWatchlistMarked = useMemo(
+    () => watchlistAssetIds.includes(assetId),
+    [assetId, watchlistAssetIds],
+  )
 
-  const handleFavoriteAsset = useCallback(() => {
+  const handleWatchAsset = useCallback(() => {
     dispatch(preferences.actions.toggleWatchedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
 
-  const href = (() => {
+  const handleToggleSpam = useCallback(() => {
+    dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
+    onClose()
+  }, [assetId, dispatch, onClose])
+
+  const explorerHref = useMemo(() => {
     if (!asset) return
     const { assetReference } = fromAssetId(asset.assetId)
 
@@ -59,27 +70,18 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
 
     return asset.explorer
-  })()
-
-  const handleToggleSpam = useCallback(() => {
-    dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
-    onClose()
-  }, [assetId, dispatch, onClose])
+  }, [asset])
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
-      <DialogHeader padding={0}>
-        <DialogHeader.Middle>
-          <DialogTitle color='transparent'>More asset actions</DialogTitle>
-        </DialogHeader.Middle>
-      </DialogHeader>
-      <DialogBody pb={4} pl={0} pr={0}>
+      <DialogHeader padding={0} /> {/* For grab handle */}
+      <DialogBody py={4} pl={0} pr={0}>
         <Stack spacing={0}>
           <Button
             variant='ghost'
             px={6}
             leftIcon={isWatchlistMarked ? fullStarIcon : starIcon}
-            onClick={handleFavoriteAsset}
+            onClick={handleWatchAsset}
             justifyContent='flex-start'
             height={14}
             size='lg'
@@ -89,7 +91,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
               ? translate('assets.unfavoriteAsset')
               : translate('assets.favoriteAsset')}
           </Button>
-          <Link href={href} isExternal>
+          <Link href={explorerHref} isExternal>
             <Button
               variant='ghost'
               px={6}

@@ -142,7 +142,7 @@ export const Carousel = ({
           </Box>
         </Box>
         {(showDots || showArrows) && scrollSnaps.length > 1 && (
-          <Flex justifyContent='space-between' alignItems='center' mt={4} width='full'>
+          <Flex justifyContent='space-between' alignItems='center' mt={2} width='full'>
             {showArrows && (
               <Arrow
                 aria-label={translate('common.carousel.prev')}

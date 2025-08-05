@@ -1,11 +1,28 @@
+import { SearchIcon } from '@chakra-ui/icons'
 import type { CardProps } from '@chakra-ui/react'
-import { Card, CardBody, Center, Stack } from '@chakra-ui/react'
-import type { JSX } from 'react'
-import { memo, useCallback } from 'react'
-import { RiExchangeFundsLine } from 'react-icons/ri'
+import {
+  Box,
+  Card,
+  CardBody,
+  Center,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Stack,
+} from '@chakra-ui/react'
+import type { FormEvent, JSX } from 'react'
+import { memo, useCallback, useMemo } from 'react'
+import { useForm } from 'react-hook-form'
+import { RiArrowRightUpLine, RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { AssetSearchRow } from './components/AssetSearchRow'
+import { CategoryCard } from './components/CategoryCard'
+
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
+import { Carousel } from '@/components/Carousel/Carousel'
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { PoolsIcon } from '@/components/Icons/Pools'
@@ -14,6 +31,9 @@ import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
+import { MarketsCategories } from '@/pages/Markets/constants'
+import { selectAssetsBySearchQuery } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 type ExploreCardProps = {
   title: string
@@ -25,18 +45,23 @@ const activeCard = {
   opacity: 0.5,
 }
 
+const linkIcon = <RiArrowRightUpLine />
+
 const ExploreCard: React.FC<ExploreCardProps> = props => {
   const { title, body, icon, ...rest } = props
   return (
     <Card _active={activeCard} {...rest}>
       <CardBody display='flex' flexDir='column' alignItems='flex-start'>
-        <Center fontSize='4xl' width='auto' mb={6}>
+        <Center fontSize='4xl' width='auto' mb={2} opacity={0.3}>
           {icon}
         </Center>
         <Stack>
           <Text fontWeight='bold' translation={title} />
           <Text color='whiteAlpha.700' translation={body} />
         </Stack>
+        <Center fontSize='lg' width='auto' opacity={0.3} position='absolute' right={4} top={4}>
+          {linkIcon}
+        </Center>
       </CardBody>
     </Card>
   )
@@ -53,6 +78,19 @@ const pageProps = { paddingTop: 4 }
 export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
+
+  const { register, watch } = useForm<{ search: string }>({
+    mode: 'onChange',
+    defaultValues: {
+      search: '',
+    },
+  })
+
+  const searchString = watch('search')
+  const isSearching = useMemo(() => searchString.length > 0, [searchString])
+
+  const searchFilter = useMemo(() => ({ searchQuery: searchString, limit: 20 }), [searchString])
+  const assetResults = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
 
   const handlePoolsClick = useCallback(() => {
     navigate('/pools')
@@ -74,6 +112,50 @@ export const Explore = memo(() => {
     navigate('/wallet/earn')
   }, [navigate])
 
+  const handleAssetClick = useCallback(
+    (asset: any) => {
+      navigate(`/assets/${asset.assetId}`)
+    },
+    [navigate],
+  )
+
+  const inputProps = useMemo(
+    () => ({
+      ...register('search'),
+      type: 'text',
+      placeholder: translate('common.searchNameOrAddress'),
+      pl: 10,
+      variant: 'filled',
+      autoComplete: 'off',
+      autoFocus: false,
+      transitionProperty: 'none',
+    }),
+    [register, translate],
+  )
+
+  const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
+
+  const containerHeight = useMemo(() => {
+    return isSearching
+      ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 98px - 1rem)'
+      : 'auto'
+  }, [isSearching])
+
+  const searchContent = useMemo(() => {
+    if (!isSearching) return null
+
+    return (
+      <AssetList
+        flex='1 1 auto'
+        assets={assetResults}
+        handleClick={handleAssetClick}
+        disableUnsupported={false}
+        minHeight={0}
+        rowComponent={AssetSearchRow}
+      />
+    )
+  }, [assetResults, handleAssetClick, isSearching])
+
   return (
     <>
       <PageHeader>
@@ -81,53 +163,83 @@ export const Explore = memo(() => {
           <PageHeader.Title>{translate('navBar.explore')}</PageHeader.Title>
         </PageHeader.Middle>
       </PageHeader>
-      <Main
-        px={4}
-        pt={0}
-        gap={4}
-        display='flex'
-        flexDir='column'
-        flex={1}
-        width='full'
-        pb='calc(env(safe-area-inset-bottom) + 6rem + var(--safe-area-inset-bottom))'
-        pageProps={pageProps}
-      >
+      <Main px={4} pt={0} gap={4} width='full' pageProps={pageProps}>
         <SEO title={translate('navBar.explore')} />
-        <ExploreCard
-          title='navBar.foxEcosystem'
-          body='explore.foxEcosystem.body'
-          icon={foxIcon}
-          bg='linear-gradient(303deg, #3761F9 29.13%, #0CC 105.38%);'
-          onClick={handleFoxClick}
-        />
-        <ExploreCard
-          title='explore.pools.title'
-          body='explore.pools.body'
-          icon={poolsIcon}
-          bg='linear-gradient(159deg, #319795 2.01%, #215063 86%);'
-          onClick={handlePoolsClick}
-        />
-        <ExploreCard
-          title='explore.lending.title'
-          body='explore.lending.body'
-          icon={lendingIcon}
-          bg='linear-gradient(161deg, #D69E2E 6.22%, #935F22 87.07%)'
-          onClick={handleLendingClick}
-        />
-        <ExploreCard
-          title='explore.tcy.title'
-          body='explore.tcy.body'
-          icon={tcyIcon}
-          bg='linear-gradient(159deg, #319795 2.01%, #215063 86%);'
-          onClick={handleTCYClick}
-        />
-        <ExploreCard
-          title='navBar.defi'
-          body='defi.myPositionsBody'
-          icon={defiIcon}
-          bg='linear-gradient(161deg, #D6BCFA 6.22%, #553C9A 87.07%)'
-          onClick={handleEarnClick}
-        />
+
+        <Box display='flex' flexDir='column' flex='1 1 auto' height={containerHeight} mb={2}>
+          <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>
+            <InputGroup size='md'>
+              <InputLeftElement pointerEvents='none' zIndex={1}>
+                <SearchIcon color='text.subtle' fontSize='md' />
+              </InputLeftElement>
+              <Input {...inputProps} />
+            </InputGroup>
+          </Box>
+          {searchContent}
+        </Box>
+
+        {!isSearching ? (
+          <>
+            <Flex flexDir='column' gap={6}>
+              <Carousel showDots>
+                <ExploreCard
+                  title='navBar.foxEcosystem'
+                  body='explore.foxEcosystem.body'
+                  icon={foxIcon}
+                  onClick={handleFoxClick}
+                />
+                <ExploreCard
+                  title='explore.pools.title'
+                  body='explore.pools.body'
+                  icon={poolsIcon}
+                  onClick={handlePoolsClick}
+                />
+                <ExploreCard
+                  title='explore.lending.title'
+                  body='explore.lending.body'
+                  icon={lendingIcon}
+                  onClick={handleLendingClick}
+                />
+                <ExploreCard
+                  title='explore.tcy.title'
+                  body='explore.tcy.body'
+                  icon={tcyIcon}
+                  onClick={handleTCYClick}
+                />
+                <ExploreCard
+                  title='navBar.defi'
+                  body='defi.myPositionsBody'
+                  icon={defiIcon}
+                  onClick={handleEarnClick}
+                />
+              </Carousel>
+            </Flex>
+
+            <CategoryCard
+              category={MarketsCategories.Trending}
+              title={translate('common.trendingTokens')}
+              maxAssets={3}
+            />
+
+            <CategoryCard
+              category={MarketsCategories.TopMovers}
+              title={translate('markets.categories.topMovers.title')}
+              maxAssets={3}
+            />
+
+            <CategoryCard
+              category={MarketsCategories.MarketCap}
+              title={translate('markets.categories.marketCap.title')}
+              maxAssets={3}
+            />
+
+            <CategoryCard
+              category={MarketsCategories.OneClickDefi}
+              title={translate('markets.categories.oneClickDefiAssets.title')}
+              maxAssets={3}
+            />
+          </>
+        ) : null}
       </Main>
     </>
   )

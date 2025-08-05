@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { MoreActionsDrawer } from '@/components/AssetHeader/MoreActionsDrawer'
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -54,6 +55,8 @@ export const Assets = () => {
     setSelectedAssetIdForMenu(assetId)
   }, [])
 
+  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
+
   return (
     <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>
       <SEO title={translate('navBar.assets')} />
@@ -74,6 +77,11 @@ export const Assets = () => {
         rows={rows}
         onRowClick={handleRowClick}
         onRowLongPress={handleRowLongPress}
+      />
+      <MoreActionsDrawer
+        assetId={selectedAssetIdForMenu}
+        isOpen={selectedAssetIdForMenu !== undefined}
+        onClose={handleCloseAssetMenu}
       />
     </Main>
   )

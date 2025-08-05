@@ -19,6 +19,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
+import { useLongPress } from 'use-long-press'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -27,6 +28,7 @@ type ReactTableProps<T extends {}> = {
   rowDataTestKey?: keyof T
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
+  onRowLongPress?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
@@ -64,6 +66,7 @@ export const InfiniteTable = <T extends {}>({
   rowDataTestKey,
   rowDataTestPrefix,
   onRowClick,
+  onRowLongPress,
   initialState,
   renderSubComponent,
   renderEmptyComponent,
@@ -76,6 +79,9 @@ export const InfiniteTable = <T extends {}>({
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
+  const longPressHandlers = useLongPress((_, { context: row }) => {
+    onRowLongPress?.(row as Row<T>)
+  })
   const tableColumns = useMemo(
     () =>
       isLoading
@@ -102,6 +108,7 @@ export const InfiniteTable = <T extends {}>({
       return (
         <Fragment key={row.id}>
           <Tr
+            {...longPressHandlers(row)}
             {...row.getRowProps()}
             key={row.id}
             tabIndex={row.index}
@@ -146,6 +153,7 @@ export const InfiniteTable = <T extends {}>({
   }, [
     rows,
     prepareRow,
+    longPressHandlers,
     rowDataTestKey,
     rowDataTestPrefix,
     onRowClick,

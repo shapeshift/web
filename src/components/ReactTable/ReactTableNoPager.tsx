@@ -71,7 +71,7 @@ export const ReactTableNoPager = <T extends {}>({
     [columns, isLoading],
   )
 
-  const handlers = useLongPress((_, { context: row }) => {
+  const longPressHandlers = useLongPress((_, { context: row }) => {
     onRowLongPress?.(row as Row<T>)
   })
 
@@ -92,7 +92,7 @@ export const ReactTableNoPager = <T extends {}>({
         <Fragment key={row.id}>
           <Tr
             {...row.getRowProps()}
-            {...handlers(row)}
+            {...longPressHandlers(row)}
             key={row.id}
             tabIndex={row.index}
             // we need to pass an arg here, so we need an anonymous function wrapper
@@ -136,7 +136,7 @@ export const ReactTableNoPager = <T extends {}>({
   }, [
     rows,
     prepareRow,
-    handlers,
+    longPressHandlers,
     rowDataTestKey,
     rowDataTestPrefix,
     onRowClick,

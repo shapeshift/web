@@ -10,13 +10,14 @@ import {
 } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { range, truncate } from 'lodash'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
+import { MoreActionsDrawer } from '@/components/AssetHeader/MoreActionsDrawer'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
@@ -43,6 +44,7 @@ export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
   const receive = useModal('receive')
+  const [selectedAssetIdForMenu, setSelectedAssetIdForMenu] = useState<string | undefined>()
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
   }, [rowData])
@@ -179,19 +181,34 @@ export const AccountTable = memo(() => {
     [navigate],
   )
 
+  const handleRowLongPress = useCallback((row: Row<AccountRowData>) => {
+    const { assetId } = row.original
+    setSelectedAssetIdForMenu(assetId)
+  }, [])
+
+  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
+
   return loading ? (
     loadingRows
   ) : (
-    <InfiniteTable
-      columns={columns}
-      data={data}
-      onRowClick={handleRowClick}
-      displayHeaders={isLargerThanMd}
-      variant='clickable'
-      renderEmptyComponent={renderEmptyComponent}
-      hasMore={hasMore}
-      loadMore={next}
-      scrollableTarget='scroll-view-0'
-    />
+    <>
+      <InfiniteTable
+        columns={columns}
+        data={data}
+        onRowClick={handleRowClick}
+        onRowLongPress={handleRowLongPress}
+        displayHeaders={isLargerThanMd}
+        variant='clickable'
+        renderEmptyComponent={renderEmptyComponent}
+        hasMore={hasMore}
+        loadMore={next}
+        scrollableTarget='scroll-view-0'
+      />
+      <MoreActionsDrawer
+        assetId={selectedAssetIdForMenu}
+        isOpen={selectedAssetIdForMenu !== undefined}
+        onClose={handleCloseAssetMenu}
+      />
+    </>
   )
 })

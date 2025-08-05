@@ -80,7 +80,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
-    const handlers = useLongPress((_, { context: row }) => {
+    const longPressHandlers = useLongPress((_, { context: row }) => {
       onRowLongPress?.(row as Row<Asset>)
     })
 
@@ -212,7 +212,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             // eslint-disable-next-line react-memo/require-usememo
             onClick={() => onRowClick(row)}
             sx={gridSx}
-            {...handlers(row)}
+            {...longPressHandlers(row)}
           >
             {row.getVisibleCells().map(cell => {
               const textAlign = (() => {
@@ -230,7 +230,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           </Tr>
         )
       },
-      [handlers, onRowClick, tableRows],
+      [longPressHandlers, onRowClick, tableRows],
     )
 
     return (

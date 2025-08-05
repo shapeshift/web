@@ -15,6 +15,7 @@ import { HighlightedTokensCategoryDialog } from './HighlightedTokensCategoryDial
 import { HighlightedTokensFiltersDialog } from './HighlightedTokensFiltersDialog'
 import { HighlightedTokensPriceCell } from './HighlightedTokensPriceCell'
 
+import { MoreActionsDrawer } from '@/components/AssetHeader/MoreActionsDrawer'
 import type { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
@@ -42,6 +43,7 @@ export const HighlightedTokens = () => {
   const assetsById = useAppSelector(selectAssets)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
+  const [selectedAssetIdForMenu, setSelectedAssetIdForMenu] = useState<string | undefined>()
 
   const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
     preferences.selectors.selectHighlightedTokensFilters,
@@ -207,6 +209,13 @@ export const HighlightedTokens = () => {
     [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
   )
 
+  const handleRowLongPress = useCallback((row: Row<Asset>) => {
+    const { assetId } = row.original
+    setSelectedAssetIdForMenu(assetId)
+  }, [])
+
+  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
+
   const handleOpenCategoriesDialog = useCallback(() => {
     setIsCategoryDialogOpen(true)
   }, [])
@@ -275,6 +284,7 @@ export const HighlightedTokens = () => {
           columns={columns}
           data={filteredAssets ?? []}
           onRowClick={handleRowClick}
+          onRowLongPress={handleRowLongPress}
           displayHeaders={false}
           variant='clickable'
           loadMore={noop}
@@ -284,14 +294,15 @@ export const HighlightedTokens = () => {
       </Flex>
     )
   }, [
+    isCategoryQueryDataLoading,
+    isPortalsAssetsLoading,
+    selectedCategory,
+    isCategoryQueryDataError,
+    isPortalsAssetsError,
     filteredAssets,
     columns,
     handleRowClick,
-    isCategoryQueryDataLoading,
-    isCategoryQueryDataError,
-    isPortalsAssetsLoading,
-    isPortalsAssetsError,
-    selectedCategory,
+    handleRowLongPress,
   ])
 
   const title = useMemo(() => {
@@ -339,6 +350,12 @@ export const HighlightedTokens = () => {
         handleSortChange={handleSortChange}
         handleOrderChange={handleOrderChange}
         handleChainIdChange={handleChainIdChange}
+      />
+
+      <MoreActionsDrawer
+        assetId={selectedAssetIdForMenu}
+        isOpen={selectedAssetIdForMenu !== undefined}
+        onClose={handleCloseAssetMenu}
       />
     </Flex>
   )

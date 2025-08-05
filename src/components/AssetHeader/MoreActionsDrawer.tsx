@@ -20,7 +20,7 @@ const linkIcon = <TbExternalLink />
 const flagIcon = <TbFlag />
 
 type MoreActionsDrawerProps = {
-  assetId: AssetId
+  assetId?: AssetId
   isOpen: boolean
   onClose: () => void
 }
@@ -33,26 +33,28 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   const translate = useTranslate()
   const dispatch = useAppDispatch()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
 
   const isSpamMarked = useMemo(
-    () => spamMarkedAssetIds.includes(assetId),
+    () => assetId !== undefined && spamMarkedAssetIds.includes(assetId),
     [assetId, spamMarkedAssetIds],
   )
   const isWatchlistMarked = useMemo(
-    () => watchlistAssetIds.includes(assetId),
+    () => assetId !== undefined && watchlistAssetIds.includes(assetId),
     [assetId, watchlistAssetIds],
   )
 
   const handleWatchAsset = useCallback(() => {
+    if (assetId === undefined) return
     dispatch(preferences.actions.toggleWatchedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
 
   const handleToggleSpam = useCallback(() => {
+    if (assetId === undefined) return
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])

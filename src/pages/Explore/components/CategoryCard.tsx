@@ -171,7 +171,13 @@ export const CategoryCard = ({
   ])
 
   return (
-    <Flex flexDir='column' width='100%' my={6}>
+    <Flex
+      flexDir='column'
+      width={layout === 'horizontal' ? 'calc(100% + 32px)' : '100%'}
+      my={6}
+      mx={layout === 'horizontal' ? -4 : 0}
+      pl={layout === 'horizontal' ? 4 : 0}
+    >
       <CText color='text.primary' fontWeight='bold' fontSize='lg' mb={2}>
         {title}
       </CText>

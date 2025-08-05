@@ -185,7 +185,7 @@ export const Explore = memo(() => {
         {!isSearching ? (
           <>
             <Flex flexDir='column' gap={6}>
-              <Carousel autoPlay={true} showDots options={carouselOptions}>
+              <Carousel autoPlay showDots options={carouselOptions}>
                 <ExploreCard
                   title='navBar.foxEcosystem'
                   body='explore.foxEcosystem.body'

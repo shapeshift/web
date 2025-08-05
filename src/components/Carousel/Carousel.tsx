@@ -22,7 +22,12 @@ export const Carousel = ({
 }: CarouselProps) => {
   const translate = useTranslate()
   const autoplayRef = useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
+    Autoplay({
+      delay: 5000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      playOnInit: autoPlay,
+    }),
   )
   const [viewportRef, embla] = useEmblaCarousel(options, [autoplayRef.current, AutoHeight()])
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
@@ -60,13 +65,6 @@ export const Carousel = ({
     setScrollSnaps(embla.scrollSnapList())
     embla.on('select', onSelect)
   }, [embla, setScrollSnaps, onSelect])
-
-  useEffect(() => {
-    if (!embla) return
-    if (autoPlay) {
-      autoplayRef.current && autoplayRef.current.play()
-    }
-  }, [autoPlay, embla])
 
   useEffect(() => {
     if (!embla) return

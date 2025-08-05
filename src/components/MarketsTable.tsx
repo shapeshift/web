@@ -148,6 +148,9 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
         columns={columns}
         data={data}
         onRowClick={onRowClick}
+        onRowLongPress={row => {
+          console.log({ row })
+        }}
         displayHeaders={isLargerThanMd}
         variant='clickable'
         isLoading={isAnyMarketDataLoading}

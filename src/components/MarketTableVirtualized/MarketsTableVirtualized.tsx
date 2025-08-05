@@ -7,6 +7,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import { useLongPress } from 'use-long-press'
 
 import { AssetCell } from './AssetCell'
 import { ChangeCell } from './ChangeCell'
@@ -70,13 +71,18 @@ const gridSx = {
 type MarketsTableVirtualizedProps = {
   rows: Asset[]
   onRowClick: (arg: Row<Asset>) => void
+  onRowLongPress?: (arg: Row<Asset>) => void
 }
 
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
-  ({ rows, onRowClick }) => {
+  ({ rows, onRowClick, onRowLongPress }) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+    const handlers = useLongPress((_, { context: row }) => {
+      onRowLongPress?.(row as Row<Asset>)
+    })
 
     const parentRef = useRef<HTMLDivElement>(null)
 
@@ -206,6 +212,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             // eslint-disable-next-line react-memo/require-usememo
             onClick={() => onRowClick(row)}
             sx={gridSx}
+            {...handlers(row)}
           >
             {row.getVisibleCells().map(cell => {
               const textAlign = (() => {
@@ -223,7 +230,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           </Tr>
         )
       },
-      [onRowClick, tableRows],
+      [handlers, onRowClick, tableRows],
     )
 
     return (

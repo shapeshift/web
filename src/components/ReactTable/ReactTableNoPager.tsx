@@ -17,6 +17,7 @@ import { Fragment, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, IdType, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
+import { useLongPress } from 'use-long-press'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -25,6 +26,7 @@ type ReactTableProps<T extends {}> = {
   rowDataTestKey?: keyof T
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
+  onRowLongPress?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
@@ -47,6 +49,7 @@ export const ReactTableNoPager = <T extends {}>({
   rowDataTestKey,
   rowDataTestPrefix,
   onRowClick,
+  onRowLongPress,
   initialState,
   renderSubComponent,
   renderEmptyComponent,
@@ -56,6 +59,7 @@ export const ReactTableNoPager = <T extends {}>({
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
+
   const tableColumns = useMemo(
     () =>
       isLoading
@@ -66,6 +70,11 @@ export const ReactTableNoPager = <T extends {}>({
         : columns,
     [columns, isLoading],
   )
+
+  const handlers = useLongPress((_, { context: row }) => {
+    onRowLongPress?.(row as Row<T>)
+  })
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, visibleColumns } =
     useTable<T>(
       {
@@ -83,6 +92,7 @@ export const ReactTableNoPager = <T extends {}>({
         <Fragment key={row.id}>
           <Tr
             {...row.getRowProps()}
+            {...handlers(row)}
             key={row.id}
             tabIndex={row.index}
             // we need to pass an arg here, so we need an anonymous function wrapper
@@ -126,6 +136,7 @@ export const ReactTableNoPager = <T extends {}>({
   }, [
     rows,
     prepareRow,
+    handlers,
     rowDataTestKey,
     rowDataTestPrefix,
     onRowClick,

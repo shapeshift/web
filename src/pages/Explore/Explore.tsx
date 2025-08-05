@@ -11,6 +11,7 @@ import {
   InputLeftElement,
   Stack,
 } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import type { FormEvent, JSX } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
@@ -117,7 +118,7 @@ export const Explore = memo(() => {
   }, [navigate])
 
   const handleAssetClick = useCallback(
-    (asset: any) => {
+    (asset: Asset) => {
       navigate(`/assets/${asset.assetId}`)
     },
     [navigate],

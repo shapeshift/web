@@ -298,7 +298,7 @@ export const preferences = createSlice({
         state.spamMarkedAssets = state.spamMarkedAssets.concat(payload)
       }
 
-      getMixPanel()?.track(MixPanelEvent.ToggleWatchAsset, {
+      getMixPanel()?.track(MixPanelEvent.ToggleIsSpamAsset, {
         assetId: payload,
         isAdding: !isSpamMarked,
       })

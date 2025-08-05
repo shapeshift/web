@@ -52,7 +52,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
     <Flex alignItems='center' justifyContent='space-between' height={10} {...flexProps}>
       <Flex width={hideAssetBalance ? '100%' : 'inherit'} alignItems='center' gap={4}>
         <LazyLoadAvatar src={iconSrc} size='xs' />
-        <Text as='span' textOverflow='ellipsis' overflow='hidden'>
+        <Text as='span' textOverflow='ellipsis' overflow='hidden' lineHeight='normal'>
           {feeAsset.networkName ?? feeAsset.name}
         </Text>
         {!hideSymbol && mainImplementationAsset.symbol !== asset.symbol && ` (${asset.symbol})`}

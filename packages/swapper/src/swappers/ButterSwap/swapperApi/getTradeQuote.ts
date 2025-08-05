@@ -9,7 +9,12 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { TransactionMessage, VersionedTransaction } from '@solana/web3.js'
+import {
+  AddressLookupTableAccount,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
@@ -62,19 +67,6 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `BTC sells are currently unsupported`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
-  // Yes, this is supposed to be supported as per checks above, but currently is explicitly disabled, this can be confirmed by hitting
-  // Butter supported chains endpoit or trying to get a quote
-  // Disabling this explicitly for the time being, since the PR that brings Solana support (https://github.com/shapeshift/web/pull/9840)
-  // wasn't able to be tested yet
-  if (sellAsset.chainId === solanaChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Solana chain sells are currently unsupported`,
         code: TradeQuoteError.UnsupportedChain,
       }),
     )
@@ -208,28 +200,60 @@ export const getTradeQuote = async (
   })
 
   // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
-  const solanaTransactionMetadata = (() => {
-    if (sellAsset.chainId !== solanaChainId) return
+  const maybeSolanaTransactionMetadata = await (async () => {
+    if (sellAsset.chainId !== solanaChainId) return Ok(undefined)
 
     const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
     const versionedTransaction = VersionedTransaction.deserialize(
       new Uint8Array(Buffer.from(txData, 'hex')),
     )
 
-    // Decompile VersionedMessage to get instructions
-    // https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
-    const instructions = TransactionMessage.decompile(versionedTransaction.message).instructions
+    const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    // Extract address lookup table addresses
-    const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups?.map(
-      lookup => lookup.accountKey.toString(),
-    )
+    try {
+      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
+        lookup => lookup.accountKey.toString(),
+      )
 
-    return {
-      instructions,
-      addressLookupTableAddresses,
+      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+        addressLookupTableAccountKeys,
+      )
+
+      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+        info =>
+          new AddressLookupTableAccount({
+            key: new PublicKey(info.key),
+            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+          }),
+      )
+
+      // Decompile VersionedMessage with address lookup tables to get instructions
+      // This is required to properly resolve all account addresses in the transaction
+      // Without lookup tables, the transaction would fail during execution
+      // Reference: https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
+      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+        addressLookupTableAccounts,
+      }).instructions
+
+      return Ok({
+        instructions,
+        addressLookupTableAddresses: addressLookupTableAccountKeys,
+      })
+    } catch (error) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[getTradeQuote] Error decompiling VersionedMessage: ${error}`,
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
     }
   })()
+
+  if (sellAsset.chainId === solanaChainId && maybeSolanaTransactionMetadata?.isErr()) {
+    return Err(maybeSolanaTransactionMetadata.unwrapErr())
+  }
+
+  const solanaTransactionMetadata = maybeSolanaTransactionMetadata?.unwrap()
 
   const step = {
     buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
@@ -251,8 +275,10 @@ export const getTradeQuote = async (
       data: buildTx.data,
       value: buildTx.value,
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-      ...(solanaTransactionMetadata && { solanaTransactionMetadata }),
     },
+    ...(solanaTransactionMetadata && {
+      solanaTransactionMetadata,
+    }),
   }
 
   const tradeQuote: TradeQuote = {

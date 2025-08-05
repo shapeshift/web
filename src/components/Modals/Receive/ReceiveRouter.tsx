@@ -1,8 +1,8 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { useCallback, useMemo, useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 
@@ -16,9 +16,11 @@ type ReceiveRouterProps = {
   accountId?: AccountId
 }
 export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
+  const defaultAsset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const currentAsset = selectedAsset ?? defaultAsset
 
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
@@ -29,24 +31,26 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
     [navigate],
   )
 
-  useEffect(() => {
-    if (!selectedAsset && !asset) {
-      navigate(ReceiveRoutes.Select)
-    } else if (asset) {
-      setSelectedAsset(asset)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const receiveInfoElement = useMemo(
-    () => (selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null),
-    [selectedAsset, accountId],
+    () =>
+      currentAsset ? (
+        <ReceiveInfo
+          asset={currentAsset}
+          accountId={accountId}
+          onBack={selectedAsset !== undefined ? () => navigate(ReceiveRoutes.Select) : undefined}
+        />
+      ) : null,
+    [currentAsset, accountId, selectedAsset, navigate],
   )
 
   const selectAssetRouterElement = useMemo(
     () => <SelectAssetRouter onClick={handleAssetSelect} />,
     [handleAssetSelect],
   )
+
+  if (!currentAsset && pathname !== ReceiveRoutes.Select) {
+    return <Navigate to={ReceiveRoutes.Select} />
+  }
 
   return (
     <AnimatePresence mode='wait' initial={false}>

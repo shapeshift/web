@@ -140,7 +140,7 @@ export const useSwapActionSubscriber = () => {
         chainId,
         defaultExplorerBaseUrl,
         maybeSafeTx,
-        stepSource: swap.source,
+        stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
         maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {

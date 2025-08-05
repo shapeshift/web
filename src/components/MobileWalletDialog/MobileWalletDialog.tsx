@@ -69,12 +69,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({
   }, [mobileWalletDialog])
 
   return (
-    <Dialog
-      isOpen={mobileWalletDialog.isOpen}
-      onClose={handleClose}
-      height='auto'
-      isDisablingPropagation={false}
-    >
+    <Dialog isOpen={mobileWalletDialog.isOpen} onClose={handleClose} height='auto'>
       <MemoryRouter>
         <MobileDialogRoutes defaultRoute={defaultRoute} onClose={handleClose} />
       </MemoryRouter>

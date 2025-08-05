@@ -1,6 +1,6 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -57,7 +57,7 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
       <Flex alignItems='center' gap={2}>
         <Text translation='common.activeAccount' fontWeight='medium' />
 
-        <InlineCopyButton value={''} />
+        {defaultAccountId && <InlineCopyButton value={fromAccountId(defaultAccountId).account} />}
         <AccountDropdown
           defaultAccountId={defaultAccountId}
           assetId={thorchainAssetId}

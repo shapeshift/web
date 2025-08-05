@@ -12,6 +12,8 @@ import type {
   TradeQuote,
   TradeRate,
 } from './types'
+import { TradeQuoteError } from './types'
+import { makeSwapErrorRight } from './utils'
 
 export const getTradeQuotes = async (
   getTradeQuoteInput: GetTradeQuoteInputWithWallet,
@@ -47,6 +49,7 @@ export const getTradeRates = async (
   getTradeRateInput: GetTradeRateInput,
   swapperName: SwapperName,
   deps: SwapperDeps,
+  quoteTimeoutMs: number = QUOTE_TIMEOUT_MS,
 ): Promise<RateResult | undefined> => {
   if (bnOrZero(getTradeRateInput.affiliateBps).lt(0)) return
   if (getTradeRateInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
@@ -58,8 +61,11 @@ export const getTradeRates = async (
   try {
     const quote = await timeoutMonadic<TradeRate[], SwapErrorRight>(
       swapper.getTradeRate(getTradeRateInput, deps),
-      QUOTE_TIMEOUT_MS,
-      QUOTE_TIMEOUT_ERROR,
+      quoteTimeoutMs,
+      makeSwapErrorRight({
+        code: TradeQuoteError.Timeout,
+        message: `quote timed out after ${quoteTimeoutMs / 1000}s`,
+      }),
     )
 
     return {

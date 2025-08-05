@@ -45,6 +45,11 @@ export const breakpoints = {
 
 const styles = {
   global: (props: StyleFunctionProps) => ({
+    '.woot-widget-holder': {
+      background: '#f9f9fb',
+      paddingTop: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 16px)',
+      paddingBottom: 'calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + 16px)',
+    },
     body: {
       '--safe-area-inset-top': '0px',
       '--safe-area-inset-bottom': '0px',

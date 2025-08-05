@@ -159,7 +159,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const portfolioAssetIdsDelta = difference(portfolioAssetIds, assetIds)
 
     return portfolioAssetIdsDelta
-  }, [findAllQueryData])
+  }, [
+    findAllQueryData,
+    isConnected,
+    isLoadingLocalWallet,
+    modal,
+    portfolioAssetIds,
+    portfolioLoadingStatus,
+  ])
 
   useQueries({
     queries: findByAssetIdPayload.map(assetId => ({

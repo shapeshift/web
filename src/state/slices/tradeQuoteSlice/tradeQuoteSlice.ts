@@ -29,7 +29,7 @@ export const tradeQuoteSlice = createSlice({
     setIsTradeQuoteRequestAborted: create.reducer((state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
     }),
-    upsertTradeQuotes: create.reducer(
+    upsertTradeQuote: create.reducer(
       (
         state,
         action: PayloadAction<{
@@ -39,6 +39,13 @@ export const tradeQuoteSlice = createSlice({
       ) => {
         const { swapperName, quotesById } = action.payload
         state.tradeQuotes[swapperName] = quotesById ?? {}
+      },
+    ),
+    upsertTradeQuotes: create.reducer(
+      (state, action: PayloadAction<Record<SwapperName, Record<string, ApiQuote>>>) => {
+        Object.entries(action.payload).forEach(([swapperName, quotesById]) => {
+          state.tradeQuotes[swapperName as SwapperName] = quotesById ?? {}
+        })
       },
     ),
     setActiveQuote: create.reducer((state, action: PayloadAction<ApiQuote | undefined>) => {

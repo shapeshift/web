@@ -841,6 +841,10 @@
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
+    "fetchingQuotes": {
+      "title": "Fetching Quotes",
+      "description": "Fetching quotes for this pair, this can take up to %{maxTimeSeconds} seconds"
+    },
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
@@ -997,7 +1001,8 @@
       "executionRevertedWithExpectedSlippage": "Execution reverted during execution. This may be due to insufficient slippage tolerance. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance.",
       "slippageToleranceExceeded": "Slippage tolerance exceeded.",
       "underMinimumAmount": "One or more of the assets in this trade are below the minimum amount required for this trade.",
-      "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected."
+      "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected.",
+      "swapperTimeout": "Request timed out."
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",

@@ -8,7 +8,8 @@ import { FaCreditCard, FaEllipsisH } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { MoreActionsDrawer } from './MoreActionsDrawer'
+import { Display } from '../Display'
+import { AssetActionsDrawer } from './AssetActionsDrawer'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
@@ -189,7 +190,13 @@ export const AssetActions: React.FC<AssetActionProps> = ({
             />
           </Flex>
         </Flex>
-        <MoreActionsDrawer assetId={assetId} isOpen={isMoreActionsOpen} onClose={handleMoreClose} />
+        <Display.Mobile>
+          <AssetActionsDrawer
+            assetId={assetId}
+            isOpen={isMoreActionsOpen}
+            onClose={handleMoreClose}
+          />
+        </Display.Mobile>
       </>
     )
   }

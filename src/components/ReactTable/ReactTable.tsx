@@ -18,8 +18,11 @@ import { Fragment, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Cell, Column, ColumnInstance, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
+import { useLongPress } from 'use-long-press'
 
 import { RawText } from '@/components/Text'
+import { defaultLongPressConfig } from '@/constants/longPress'
+import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -28,6 +31,7 @@ type ReactTableProps<T extends {}> = {
   rowDataTestKey?: keyof T
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
+  onRowLongPress?: (row: Row<T>) => void
   initialState?: Partial<TableState<T>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
@@ -67,6 +71,7 @@ const RowWrap = <T extends {}>({
   rowDataTestKey,
   rowDataTestPrefix,
   onRowClick,
+  onRowLongPress,
   renderSubComponent,
   visibleColumns,
 }: {
@@ -74,12 +79,18 @@ const RowWrap = <T extends {}>({
   rowDataTestKey: string | number | symbol | undefined
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
+  onRowLongPress?: (row: Row<T>) => void
   renderSubComponent?: (row: Row<T>) => React.ReactNode
   visibleColumns: ColumnInstance<T>[]
 }) => {
   const handleClick = useCallback(() => {
     onRowClick?.(row)
   }, [onRowClick, row])
+
+  const longPressHandlers = useLongPress((_, { context: row }) => {
+    pulseAndroid()
+    onRowLongPress?.(row as Row<T>)
+  }, defaultLongPressConfig)
 
   const rowProps = useMemo(() => row.getRowProps(), [row])
 
@@ -94,6 +105,7 @@ const RowWrap = <T extends {}>({
     <Fragment>
       <Tr
         {...rowProps}
+        {...longPressHandlers(row)}
         key={row.id}
         tabIndex={row.index}
         onClick={handleClick}
@@ -123,6 +135,7 @@ export const ReactTable = <T extends {}>({
   rowDataTestKey,
   rowDataTestPrefix,
   onRowClick,
+  onRowLongPress,
   initialState,
   renderSubComponent,
   renderEmptyComponent,
@@ -186,6 +199,7 @@ export const ReactTable = <T extends {}>({
           rowDataTestKey={rowDataTestKey}
           rowDataTestPrefix={rowDataTestPrefix}
           onRowClick={onRowClick}
+          onRowLongPress={onRowLongPress}
           renderSubComponent={renderSubComponent}
           visibleColumns={visibleColumns}
         />
@@ -197,6 +211,7 @@ export const ReactTable = <T extends {}>({
     rowDataTestKey,
     rowDataTestPrefix,
     onRowClick,
+    onRowLongPress,
     renderSubComponent,
     visibleColumns,
   ])

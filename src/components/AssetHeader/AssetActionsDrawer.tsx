@@ -19,13 +19,13 @@ const fullStarIcon = <TbStarFilled />
 const linkIcon = <TbExternalLink />
 const flagIcon = <TbFlag />
 
-type MoreActionsDrawerProps = {
-  assetId: AssetId
+type AssetActionsDrawerProps = {
+  assetId?: AssetId
   isOpen: boolean
   onClose: () => void
 }
 
-export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
+export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({
   assetId,
   isOpen,
   onClose,
@@ -33,26 +33,28 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   const translate = useTranslate()
   const dispatch = useAppDispatch()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
 
   const isSpamMarked = useMemo(
-    () => spamMarkedAssetIds.includes(assetId),
+    () => assetId !== undefined && spamMarkedAssetIds.includes(assetId),
     [assetId, spamMarkedAssetIds],
   )
   const isWatchlistMarked = useMemo(
-    () => watchlistAssetIds.includes(assetId),
+    () => assetId !== undefined && watchlistAssetIds.includes(assetId),
     [assetId, watchlistAssetIds],
   )
 
   const handleWatchAsset = useCallback(() => {
+    if (assetId === undefined) return
     dispatch(preferences.actions.toggleWatchedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
 
   const handleToggleSpam = useCallback(() => {
+    if (assetId === undefined) return
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
@@ -71,6 +73,11 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     return asset.explorer
   }, [asset])
 
+  const handleLinkClick = useCallback(() => {
+    // onClose needs to be called after href handling, moves to end of callstack
+    setTimeout(onClose, 0)
+  }, [onClose])
+
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader padding={0} /> {/* For grab handle */}
@@ -82,6 +89,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
             leftIcon={isWatchlistMarked ? fullStarIcon : starIcon}
             onClick={handleWatchAsset}
             justifyContent='flex-start'
+            width='full'
             height={14}
             size='lg'
             fontSize='md'
@@ -94,8 +102,9 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
                 variant='ghost'
                 px={6}
                 height={14}
+                width='full'
                 leftIcon={linkIcon}
-                onClick={onClose}
+                onClick={handleLinkClick}
                 justifyContent='flex-start'
                 size='lg'
                 fontSize='md'
@@ -107,6 +116,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
           <Button
             variant='ghost'
             px={6}
+            width='full'
             height={14}
             color='red.400'
             leftIcon={flagIcon}

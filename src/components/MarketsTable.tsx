@@ -2,11 +2,13 @@ import { Button, Flex, Stack, Tag, useMediaQuery } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { truncate } from 'lodash'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
+
+import { AssetActionsDrawer } from './AssetHeader/AssetActionsDrawer'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
@@ -41,6 +43,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
+  const [selectedAssetIdForMenu, setSelectedAssetIdForMenu] = useState<string | undefined>()
 
   const assetIds = useMemo(() => rows.map(row => row.assetId), [rows])
 
@@ -142,21 +145,37 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
     ],
     [handleTradeClick, marketDataUserCurrencyById, translate],
   )
+  const handleRowLongPress = useCallback((row: Row<Asset>) => {
+    const { assetId } = row.original
+    setSelectedAssetIdForMenu(assetId)
+  }, [])
+
+  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
   return (
-    <Stack px={paddingX} pb={6}>
-      <ReactTableNoPager
-        columns={columns}
-        data={data}
-        onRowClick={onRowClick}
-        displayHeaders={isLargerThanMd}
-        variant='clickable'
-        isLoading={isAnyMarketDataLoading}
-      />
-      {hasMore && (
-        <Button onClick={next} isDisabled={!hasMore}>
-          {translate('common.loadMore')}
-        </Button>
-      )}
-    </Stack>
+    <>
+      <Stack px={paddingX} pb={6}>
+        <ReactTableNoPager
+          columns={columns}
+          data={data}
+          onRowClick={onRowClick}
+          onRowLongPress={handleRowLongPress}
+          displayHeaders={isLargerThanMd}
+          variant='clickable'
+          isLoading={isAnyMarketDataLoading}
+        />
+        {hasMore && (
+          <Button onClick={next} isDisabled={!hasMore}>
+            {translate('common.loadMore')}
+          </Button>
+        )}
+      </Stack>
+      <Display.Mobile>
+        <AssetActionsDrawer
+          assetId={selectedAssetIdForMenu}
+          isOpen={selectedAssetIdForMenu !== undefined}
+          onClose={handleCloseAssetMenu}
+        />
+      </Display.Mobile>
+    </>
   )
 })

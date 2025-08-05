@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { AssetActionsDrawer } from '@/components/AssetHeader/AssetActionsDrawer'
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -22,6 +23,7 @@ export const Assets = () => {
   const navigate = useNavigate()
   const assetsNoSpam = useAppSelector(selectAssetsNoSpam)
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+  const [selectedAssetIdForMenu, setSelectedAssetIdForMenu] = useState<string | undefined>()
 
   const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
     if (!filterValue) return rows
@@ -47,6 +49,14 @@ export const Assets = () => {
     },
     [navigate],
   )
+
+  const handleRowLongPress = useCallback((row: Row<Asset>) => {
+    const { assetId } = row.original
+    setSelectedAssetIdForMenu(assetId)
+  }, [])
+
+  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
+
   return (
     <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>
       <SEO title={translate('navBar.assets')} />
@@ -63,7 +73,18 @@ export const Assets = () => {
           </Flex>
         </PageHeader>
       </Display.Mobile>
-      <MarketsTableVirtualized rows={rows} onRowClick={handleRowClick} />
+      <MarketsTableVirtualized
+        rows={rows}
+        onRowClick={handleRowClick}
+        onRowLongPress={handleRowLongPress}
+      />
+      <Display.Mobile>
+        <AssetActionsDrawer
+          assetId={selectedAssetIdForMenu}
+          isOpen={selectedAssetIdForMenu !== undefined}
+          onClose={handleCloseAssetMenu}
+        />
+      </Display.Mobile>
     </Main>
   )
 }

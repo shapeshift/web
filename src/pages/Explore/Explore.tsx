@@ -224,7 +224,8 @@ export const Explore = memo(() => {
             <CategoryCard
               category={MarketsCategories.TopMovers}
               title={translate('markets.categories.topMovers.title')}
-              maxAssets={3}
+              layout='horizontal'
+              maxAssets={10}
             />
 
             <CategoryCard

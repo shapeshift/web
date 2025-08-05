@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
+import { useTranslate } from 'react-polyglot'
 import type { ListChildComponentProps } from 'react-window'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -12,6 +13,7 @@ import type { AssetData } from '@/components/AssetSearch/components/AssetList'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
+import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -27,6 +29,7 @@ const assetIconPairProps = {
 type AssetSearchRowProps = ListChildComponentProps<AssetData> &
   ButtonProps & {
     showNetworkIcon?: boolean
+    portalsAssets?: PortalsAssets
   }
 
 export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
@@ -35,8 +38,10 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     index,
     style,
     showNetworkIcon,
+    portalsAssets,
     ...rest
   }) => {
+    const translate = useTranslate()
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const textColor = useColorModeValue('black', 'white')
     const {
@@ -46,6 +51,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     const assetId = asset?.assetId
     const isSupported = wallet && isAssetSupportedByWallet(assetId ?? '', wallet)
     const handleOnClick = useCallback(() => handleClick(asset), [asset, handleClick])
+    const portalAsset = portalsAssets?.byId[assetId]
 
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
@@ -76,6 +82,43 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
       )
     }, [changePercent24Hr])
 
+    const rightContent = useMemo(() => {
+      if (portalAsset) {
+        const volume = bnOrZero(marketData?.volume)
+        console.log({ portalAsset })
+
+        return (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+            <Amount.Percent
+              value={bnOrZero(portalAsset.metrics.apy).times(0.01).toString()}
+              fontSize='xs'
+              suffix={translate('common.apy')}
+            />
+            <Tag colorScheme={'green'} width='max-content' px={1} size='sm'>
+              <Amount.Fiat
+                value={volume.toString()}
+                fontSize='xs'
+                suffix={translate('common.vol')}
+              />
+            </Tag>
+          </Flex>
+        )
+      }
+
+      return (
+        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+          <Amount.Fiat
+            fontWeight='semibold'
+            color={textColor}
+            lineHeight='shorter'
+            height='20px'
+            value={marketData?.price}
+          />
+          {priceChange}
+        </Flex>
+      )
+    }, [marketData?.price, priceChange, textColor, marketData?.volume, portalAsset, translate])
+
     if (!asset) return null
 
     return (
@@ -100,7 +143,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
               lineHeight={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'
-              maxWidth='160px'
+              maxWidth='150px'
               overflow='hidden'
             >
               {asset.name}
@@ -119,14 +162,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         </Flex>
 
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
-          <Amount.Fiat
-            fontWeight='semibold'
-            color={textColor}
-            lineHeight='shorter'
-            height='20px'
-            value={marketData?.price}
-          />
-          {priceChange}
+          {rightContent}
         </Flex>
       </Button>
     )

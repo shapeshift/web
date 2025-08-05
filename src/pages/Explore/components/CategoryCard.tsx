@@ -1,8 +1,9 @@
 import { Box, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { noop } from 'lodash'
 import range from 'lodash/range'
-import { useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router'
+import { useMemo } from 'react'
 
+import { AssetCard } from './AssetCard'
 import { AssetSearchRow } from './AssetSearchRow'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
@@ -19,11 +20,16 @@ interface CategoryCardProps {
   category: MarketsCategories
   title: string
   maxAssets?: number
+  layout?: 'vertical' | 'horizontal'
 }
 
-export const CategoryCard = ({ category, title, maxAssets = 3 }: CategoryCardProps) => {
+export const CategoryCard = ({
+  category,
+  title,
+  maxAssets = 3,
+  layout = 'vertical',
+}: CategoryCardProps) => {
   const assetsById = useAppSelector(selectAssets)
-  const navigate = useNavigate()
   const assetTitleColor = useColorModeValue('black', 'white')
 
   const categoryHook =
@@ -78,19 +84,14 @@ export const CategoryCard = ({ category, title, maxAssets = 3 }: CategoryCardPro
   const isLoading = isCategoryQueryDataLoading || isPortalsAssetsLoading
   const isError = isCategoryQueryDataError || isPortalsAssetsError
 
-  const handleAssetClick = useCallback(
-    (asset: any) => {
-      navigate(`/assets/${asset.assetId}`)
-    },
-    [navigate],
-  )
-
   const assetSearchRowData = useMemo(() => {
     return {
       assets: filteredAssets,
-      handleClick: handleAssetClick,
+      // Handled in the component itself
+      handleClick: noop,
+      portalsAssets,
     }
-  }, [filteredAssets, handleAssetClick])
+  }, [filteredAssets, portalsAssets])
 
   const content = useMemo(() => {
     if (isLoading) {
@@ -130,26 +131,44 @@ export const CategoryCard = ({ category, title, maxAssets = 3 }: CategoryCardPro
       )
     }
 
+    if (layout === 'horizontal') {
+      return (
+        <Flex gap={4} overflowX='auto' pb={2}>
+          {filteredAssets.map(asset => (
+            <AssetCard key={asset.assetId} asset={asset} />
+          ))}
+        </Flex>
+      )
+    }
+
     return (
       <Flex flexDir='column' width='100%'>
-        {filteredAssets.map((asset, index) => {
-          return (
-            <AssetSearchRow
-              key={asset.assetId}
-              data={assetSearchRowData}
-              index={index}
-              my={2}
-              // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
-              // eslint-disable-next-line react-memo/require-usememo
-              style={{}}
-              color={assetTitleColor}
-              showNetworkIcon={false}
-            />
-          )
-        })}
+        {filteredAssets.map((asset, index) => (
+          <AssetSearchRow
+            key={asset.assetId}
+            data={assetSearchRowData}
+            index={index}
+            py={8}
+            // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
+            // eslint-disable-next-line react-memo/require-usememo
+            style={{}}
+            color={assetTitleColor}
+            showNetworkIcon={false}
+            portalsAssets={portalsAssets}
+          />
+        ))}
       </Flex>
     )
-  }, [isLoading, maxAssets, filteredAssets, assetSearchRowData, assetTitleColor, isError])
+  }, [
+    isLoading,
+    isError,
+    filteredAssets,
+    assetSearchRowData,
+    assetTitleColor,
+    layout,
+    maxAssets,
+    portalsAssets,
+  ])
 
   return (
     <Flex flexDir='column' width='100%' my={6}>
@@ -157,7 +176,11 @@ export const CategoryCard = ({ category, title, maxAssets = 3 }: CategoryCardPro
         {title}
       </CText>
 
-      <Box py={2} bg='background.surface.raised.base' borderRadius='10'>
+      <Box
+        py={layout === 'horizontal' ? 0 : 2}
+        bg={layout === 'horizontal' ? 'transparent' : 'background.surface.raised.base'}
+        borderRadius='10'
+      >
         {content}
       </Box>
     </Flex>

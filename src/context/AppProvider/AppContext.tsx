@@ -39,7 +39,7 @@ import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const findByAssetIdPollingInterval = 60 * 15 * 1000 // refetch portfolio AssetIds market-data every 15 minutes
-const findAllPollingInterval = 60 * 1000 // refetch 1000 top market-data every minute
+const findAllPollingInterval = 60 * 1000 // refetch 2000 top market-data every minute
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,

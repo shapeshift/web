@@ -67,12 +67,7 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
               </RawText>
               {isSpamAsset && (
                 <TooltipWithTouch label={translate('assets.spam.marked')}>
-                  <Icon
-                    as={TbAlertTriangle}
-                    color='yellow.500'
-                    strokeWidth={2}
-                    mb={-0.5 /* eyeball margin hack because of tooltip */}
-                  />
+                  <Icon as={TbAlertTriangle} color='yellow.500' strokeWidth={2} />
                 </TooltipWithTouch>
               )}
             </Flex>

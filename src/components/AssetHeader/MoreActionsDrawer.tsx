@@ -75,7 +75,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader padding={0} /> {/* For grab handle */}
-      <DialogBody py={4} pl={0} pr={0}>
+      <DialogBody py={4} px={0}>
         <Stack spacing={0}>
           <Button
             variant='ghost'

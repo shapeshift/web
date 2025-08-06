@@ -38,6 +38,7 @@
     "goBack": "Повернутись назад",
     "connected": "Підключений",
     "allocation": "Розподіл",
+    "trendingTokens": "Трендові токени",
     "value": "Вартість",
     "created": "Створений %{date}",
     "noResultsFound": "Нічого не знайдено.",
@@ -198,7 +199,10 @@
     "others": "Інші\n",
     "hardwareWallets": "Апаратні гаманці",
     "dustAmount": "Кількість Dust ",
-    "marketDataUnavailable": "Ринкові дані недоступні для %{asset}"
+    "marketDataUnavailable": "Ринкові дані недоступні для %{asset}",
+    "streaming": "Стрімінг",
+    "dca": "DCA",
+    "boost": "Буст"
   },
   "consentBanner": {
     "body": "Наш dApp використовує анонімне відстеження кліків для аналізу продуктивності та покращення вашого досвіду. Використовуючи app.shapeshift.com, ви погоджуєтеся на наше відстеження. Відвідати %{privateLink} якщо ви не хочете, щоб вас відстежували анонімно. Дивіться нашу %{privacyPolicyLink} для більш детальної інформації.",
@@ -2681,6 +2685,8 @@
     },
     "stakeSuccess": "Ви успішно застейкали %{amount} %{symbol}",
     "stakePending": "Стейкінг %{amount} %{symbol}...",
+    "changeAddressPending": "Зміна адреси винагороди RFOX на %{newAddress}",
+    "changeAddressSuccess": "Змінено адресу винагороди RFOX на %{newAddress}.",
     "addressUpdated": "Адреса оновлена",
     "changeRewardAddressPending": "Зміна адреси отримання винагороди...",
     "changeRewardAddressSuccess": "Ви успішно змінили свою адресу винагороди THORchain.",
@@ -2776,6 +2782,7 @@
     "timeStaked": "Час Стейкінгу",
     "timeStakedHelper": "Кількість часу, на яку ви застейкали %{symbol}",
     "stakingReward": "Нагороди Стейкінгу",
+    "claimNow": "У вас була позиція заощаджень/кредитування на Thorchain. Ви можете отримати свій TCY зараз.",
     "claimsEmpty": {
       "emptyTitle": "Немає винагород",
       "emptyBody": "Здається, у вас немає доступних заяв на отримання TCY. Спробувати з іншого гаманця?",
@@ -2820,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "Сума",
-      "networkFee": "Мережева плата",
-      "networkFeeTooltip": "Мережева плата",
       "stake": "Стейкінг",
       "amountPlaceholder": "Введіть суму"
     },
@@ -2868,9 +2873,11 @@
     },
     "emptyTitle": "Активи не знайдено",
     "emptyBody": "За поточним фільтром не знайдено активів. Перегляньте більше активів, скоригувавши вибрану мережу.",
+    "emptyBodySwapper": "За поточним фільтром активів не знайдено.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "DeFi-активи в один клік",
+        "filterTitle": "Високоприбуткові токени",
         "subtitle": "Відкрийте для себе дохідність, яка підходить саме вам! Легко переключайтеся між пулами, сховищами, варіантами кредитування та LSD за допомогою порталів."
       },
       "thorchainDefi": {
@@ -2960,8 +2967,6 @@
     "limitPrice": "Лімітна ціна",
     "expires": "Закінчується",
     "filled": "Заповнено.",
-    "streaming": "Стрімінг",
-    "claim": "Клейм",
     "protocol": "Протокол",
     "streamingStatus": "Стан передавання",
     "executionPrice": "Ціна виконання",
@@ -2990,6 +2995,18 @@
       "failed": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершився невдало.",
       "streaming": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} відбувається в потоковому режимі."
     },
+    "deposit": {
+      "pending": "Ваш депозит у розмірі %{amount} %{symbol} обробляється.",
+      "complete": "Ваш депозит у розмірі %{amount} %{symbol} завершено."
+    },
+    "withdrawal": {
+      "pending": "Ваш запит на виведення %{amount} %{symbol} обробляється.",
+      "complete": "Ваше виведення %{amount} %{symbol} завершено."
+    },
+    "claim": {
+      "pending": "Ваша вимога на суму %{amount} %{symbol} обробляється.",
+      "complete": "Ваша вимога на суму %{amount} %{symbol} виконана."
+    },
     "bridge": {
       "processing": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} обробляється.",
       "complete": "Ваш міст від %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} завершено.",
@@ -3009,9 +3026,17 @@
       "unstakeTxComplete": "Ваше зняття зі стейкінгу %{amount} %{symbol} готове."
     },
     "tcy": {
+      "stakePending": "Ваш cтейкінг %{amount} %{symbol} обробляється...",
+      "unstakePending": "Ваше зняття з стейкінгу %{amount} %{symbol} обробляється...",
+      "stakeComplete": "Ваш стейкінг %{amount} %{symbol} завершено.",
+      "unstakeComplete": "Ваше зняття зі стейкінгу %{amount} %{symbol} завершено.",
       "claimReady": "Ваша заява на отримання TCY у розмірі %{amount} %{symbol} готова.",
       "claimTxPending": "Ваша заявка на TCY у розмірі %{amount} %{symbol}   знаходиться на розгляді.",
       "claimTxComplete": "Ваша заявка на TCY у розмірі %{amount} %{symbol} завершена."
+    },
+    "approve": {
+      "approvalTxPending": "Затвердження %{contractName} для використання %{amountCryptoPrecision} %{symbol}.",
+      "approvalTxComplete": "Затверджено %{contractName} для використання %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

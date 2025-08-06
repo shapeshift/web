@@ -122,13 +122,13 @@ export const Explore = memo(() => {
     [navigate],
   )
 
-  const handleDebounce = useCallback(
+  const handleSearchInputChange = useCallback(
     (value: string) => {
       setValue('search', value)
     },
     [setValue],
   )
-  const debouncedSetSearch = useMemo(() => debounce(handleDebounce, 200), [handleDebounce])
+  const debouncedSetSearch = useMemo(() => debounce(handleSearchInputChange, 200), [handleSearchInputChange])
 
   const inputProps = useMemo(
     () => ({

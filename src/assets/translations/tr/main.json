@@ -38,6 +38,7 @@
     "goBack": "Geri git",
     "connected": "Bağlandı",
     "allocation": "Dağılım",
+    "trendingTokens": "Trend Tokenlar",
     "value": "Değer",
     "created": "Yaratıldı %{date}",
     "noResultsFound": "Sonuç bulunamadı.",
@@ -198,7 +199,10 @@
     "others": "Diğerleri",
     "hardwareWallets": "Donanım Cüzdanları",
     "dustAmount": "Toz Miktarı",
-    "marketDataUnavailable": "%{asset} için piyasa verileri mevcut değil"
+    "marketDataUnavailable": "%{asset} için piyasa verileri mevcut değil",
+    "streaming": "Akış",
+    "dca": "DCA",
+    "boost": "Yükseltme"
   },
   "consentBanner": {
     "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
@@ -2681,6 +2685,8 @@
     },
     "stakeSuccess": "Başarıyla %{amount} %{symbol} stake ettiniz",
     "stakePending": "%{amount} %{symbol} stake ediliyor...",
+    "changeAddressPending": "RFOX Ödül Adresi %{newAddress} Olarak Değiştiriliyor",
+    "changeAddressSuccess": "RFOX Ödül Adresi %{newAddress} olarak değiştirildi",
     "addressUpdated": "Adres güncellendi",
     "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
     "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
@@ -2776,6 +2782,7 @@
     "timeStaked": "Stake Zamanı",
     "timeStakedHelper": "%{symbol}'unuzu stake ettiğiniz zaman miktarı",
     "stakingReward": "Staking Ödülü",
+    "claimNow": "Thorchain'de tasarruf/kredi pozisyonunuz vardı. Şimdi TCY'nizi talep edebilirsiniz.",
     "claimsEmpty": {
       "emptyTitle": "Hiçbir hak talebi mevcut değil",
       "emptyBody": "Görünüşe göre TCY talebiniz yok. Başka bir cüzdanla deneyin?",
@@ -2820,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "Miktar",
-      "networkFee": "Ağ Ücreti",
-      "networkFeeTooltip": "Ağ Ücreti",
       "stake": "Stake",
       "amountPlaceholder": "Tutarı girin"
     },
@@ -2868,9 +2873,11 @@
     },
     "emptyTitle": "Hiçbir varlık bulunamadı",
     "emptyBody": "Mevcut filtreyle hiçbir varlık bulunamadı. Seçilen zinciri ayarlayarak daha fazla varlık görün.",
+    "emptyBodySwapper": "Mevcut filtreyle hiçbir varlık bulunamadı.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "Tek Tıkla DeFi Varlıkları",
+        "filterTitle": "Yüksek Getirili Tokenler",
         "subtitle": "Size en uygun getiriyi keşfedin! Portallar ile Havuzlar, Kasalar, borç verme seçenekleri ve LSD'ler arasında zahmetsizce geçiş yapın."
       },
       "thorchainDefi": {
@@ -2960,8 +2967,6 @@
     "limitPrice": "Limit Fiyatı",
     "expires": "Son Tarih",
     "filled": "Dolduruldu",
-    "streaming": "Yayınlanıyor",
-    "claim": "Topla",
     "protocol": "Protokol",
     "streamingStatus": "Yayın Durumu",
     "executionPrice": "Uygulama Fiyatı",
@@ -2990,6 +2995,18 @@
       "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz başarısız oldu.",
       "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında."
     },
+    "deposit": {
+      "pending": "%{amount} %{symbol} tutarındaki yatırımınız işleniyor.",
+      "complete": "%{amount} %{symbol} tutarındaki yatırımınız tamamlandı."
+    },
+    "withdrawal": {
+      "pending": "%{amount} %{symbol} tutarındaki çekim işleminiz işleniyor.",
+      "complete": "%{amount} %{symbol} tutarındaki çekim işleminiz tamamlandı."
+    },
+    "claim": {
+      "pending": "%{amount} %{symbol} tutarındaki talebiniz işleniyor.",
+      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
+    },
     "bridge": {
       "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
       "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz tamamlandı.",
@@ -3009,9 +3026,17 @@
       "unstakeTxComplete": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme işleminiz tamamlandı."
     },
     "tcy": {
+      "stakePending": "%{amount} %{symbol} tutarındaki stake işleniyor...",
+      "unstakePending": "%{amount} %{symbol} tutarındaki stake geri çekme işleminiz işleniyor...",
+      "stakeComplete": "%{amount} %{symbol} tutarındaki stake tamamlandı.",
+      "unstakeComplete": "%{amount} %{symbol} tutarındaki stake geri çekilme işleminiz tamamlandı.",
       "claimReady": "%{amount} %{symbol} tutarındaki TCY talebiniz hazır.",
       "claimTxPending": "%{amount} %{symbol} tutarındaki TCY talebiniz beklemede.",
       "claimTxComplete": "%{amount} %{symbol} tutarındaki TCY talebiniz tamamlandı."
+    },
+    "approve": {
+      "approvalTxPending": "%{contractName}'in %{amountCryptoPrecision} %{symbol}'u kullanması onaylanıyor.",
+      "approvalTxComplete": "%{contractName}'in %{amountCryptoPrecision} %{symbol}'u kullanması onaylandı."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

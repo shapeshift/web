@@ -109,6 +109,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const inputProps: InputProps = useMemo(
     () => ({
       ...register('search'),
+      autoFocus: !window.matchMedia('(pointer: coarse)').matches, // Don't auto bust open the keyboard on mobile
       type: 'text',
       placeholder: translate('common.searchNameOrAddress'),
       pl: 10,

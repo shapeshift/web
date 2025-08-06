@@ -38,6 +38,7 @@
     "goBack": "Regresar",
     "connected": "Conectado",
     "allocation": "Asignación",
+    "trendingTokens": "Tokens en Tendencia",
     "value": "Valor",
     "created": "Creado %{date}",
     "noResultsFound": "No se han encontrado resultados.",
@@ -198,7 +199,10 @@
     "others": "Otros",
     "hardwareWallets": "Billeteras de Hardware",
     "dustAmount": "Cantidad de polvo",
-    "marketDataUnavailable": "Datos de mercado no disponibles para %{asset}"
+    "marketDataUnavailable": "Datos de mercado no disponibles para %{asset}",
+    "streaming": "Transmitiendo",
+    "dca": "DCA",
+    "boost": "Aumentar"
   },
   "consentBanner": {
     "body": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita %{privateLink} si no quieres que te rastreen de forma anónima. Vea nuestra %{privacyPolicyLink} para más detalles.",
@@ -2681,6 +2685,8 @@
     },
     "stakeSuccess": "Has Stake con éxito %{amount} %{symbol}",
     "stakePending": "Stake %{amount} %{symbol}...",
+    "changeAddressPending": "Cambiar dirección de recompensas RFOX a %{newAddress}",
+    "changeAddressSuccess": "Dirección cambiada para recompensas RFOX a %{newAddress}",
     "addressUpdated": "Dirección actualizada",
     "changeRewardAddressPending": "Cambiando dirección de recompensa...",
     "changeRewardAddressSuccess": "Ha cambiado con éxito su dirección de recompensas THORChain.",
@@ -2776,6 +2782,7 @@
     "timeStaked": "Tiempo Staked",
     "timeStakedHelper": "Cantidad de tiempo que has staked tu %{symbol}",
     "stakingReward": "Recompensas Staking",
+    "claimNow": "Tuvo una posición de ahorro/préstamo Thorchain. Puedes reclamar tus TCY ahora.",
     "claimsEmpty": {
       "emptyTitle": "No hay reclamaciones disponibles",
       "emptyBody": "Parece que no tienes reclamaciones TCY disponibles. ¿Probar con otra billetera?",
@@ -2820,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "Cantidad",
-      "networkFee": "Tarifa de Red",
-      "networkFeeTooltip": "Tarifa de Red",
       "stake": "Stake",
       "amountPlaceholder": "Ingrese monto"
     },
@@ -2868,9 +2873,11 @@
     },
     "emptyTitle": "No se encontraron activos",
     "emptyBody": "No se encontraron activos con el filtro actual. Vea más activos ajustando la cadena seleccionada.",
+    "emptyBodySwapper": "No se encontraron activos con el filtro actual.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "Activos DeFi con un Clic",
+        "filterTitle": "Tokens de Alto Rendimiento",
         "subtitle": "¡Descubre el rendimiento que más te conviene! Cambia sin esfuerzo con Portals entre Pools, Vaults, opciones de préstamo y LSD."
       },
       "thorchainDefi": {
@@ -2960,8 +2967,6 @@
     "limitPrice": "Precio Límite",
     "expires": "Caduca",
     "filled": "Completada",
-    "streaming": "Transmitiendo",
-    "claim": "Reclamar",
     "protocol": "Protocolo",
     "streamingStatus": "Estado de Transmisión",
     "executionPrice": "Precio de Ejecución",
@@ -2990,6 +2995,18 @@
       "failed": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha fallado.",
       "streaming": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está transmitiendo."
     },
+    "deposit": {
+      "pending": "Su depósito de %{amount} %{symbol} procesando.",
+      "complete": "Su depósito de %{amount} %{symbol} completado."
+    },
+    "withdrawal": {
+      "pending": "Su retiro de %{amount} %{symbol} procesando.",
+      "complete": "Su retiro de %{amount} %{symbol} completado."
+    },
+    "claim": {
+      "pending": "Su reclamo de %{amount} %{symbol} procesando.",
+      "complete": "Su reclamo de %{amount} %{symbol} está completo."
+    },
     "bridge": {
       "processing": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
       "complete": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} está completo.",
@@ -3009,9 +3026,17 @@
       "unstakeTxComplete": "Unstake de %{amount} %{symbol} completado."
     },
     "tcy": {
+      "stakePending": "Su stake de %{amount} %{symbol} procesando...",
+      "unstakePending": "Unstake de %{amount} %{symbol} se está procesando...",
+      "stakeComplete": "Su stake de %{amount} %{symbol} está completa.",
+      "unstakeComplete": "Se ha completado Unstake de %{amount} %{symbol}.",
       "claimReady": "Su reclamo TCY de %{amount} %{symbol} está listo.",
       "claimTxPending": "Su reclamo TCY de %{amount} %{symbol} está pendiente.",
       "claimTxComplete": "Su reclamo TCY de %{amount} %{symbol} ha completado."
+    },
+    "approve": {
+      "approvalTxPending": "Aprobar %{contractName} para utilizar %{amountCryptoPrecision} %{symbol}.",
+      "approvalTxComplete": "Se aprobó que %{contractName} utilice %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

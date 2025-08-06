@@ -38,6 +38,7 @@
     "goBack": "Retour",
     "connected": "Connecté",
     "allocation": "Répartition",
+    "trendingTokens": "Jetons tendances",
     "value": "Valeur",
     "created": "Créé %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
@@ -198,7 +199,10 @@
     "others": "Autres",
     "hardwareWallets": "Porte-monnaie matériels",
     "dustAmount": "Montant de poussière",
-    "marketDataUnavailable": "Les données de marché ne sont pas disponibles pour %{asset}"
+    "marketDataUnavailable": "Les données de marché ne sont pas disponibles pour %{asset}",
+    "streaming": "Streaming",
+    "dca": "DCA",
+    "boost": "Boost"
   },
   "consentBanner": {
     "body": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez %{privateLink} si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre %{privacyPolicyLink} pour plus de détails.",
@@ -2681,6 +2685,8 @@
     },
     "stakeSuccess": "Vous avez misé %{amount} %{symbol} avec succès",
     "stakePending": "Mise en cours de %{amount} %{symbol}...",
+    "changeAddressPending": "Adresse de récompenses RFOX en cours de changement pour %{newAddress}",
+    "changeAddressSuccess": "Adresse de récompenses RFOX changée pour %{newAddress}",
     "addressUpdated": "Adresse mise à jour",
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORChain.",
@@ -2776,6 +2782,7 @@
     "timeStaked": "Durée de mise",
     "timeStakedHelper": "Le temps pendant lequel vous avez misé vos %{symbol}",
     "stakingReward": "Récompense de mise",
+    "claimNow": "Vous aviez une position d'épargne/prêt sur Thorchain. Vous pouvez réclamer vos TCY dès maintenant.",
     "claimsEmpty": {
       "emptyTitle": "Aucune réclamation disponible",
       "emptyBody": "Il semble que vous n'ayez aucune réclamation TCY disponible. Essayez avec un autre porte-monnaie ?",
@@ -2820,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "Montant",
-      "networkFee": "Frais de réseau",
-      "networkFeeTooltip": "Frais de réseau",
       "stake": "Miser",
       "amountPlaceholder": "Entrez le montant"
     },
@@ -2868,9 +2873,11 @@
     },
     "emptyTitle": "Aucun actif trouvé",
     "emptyBody": "Aucun actif n'a été trouvé avec le filtre actuel. Affichez plus d'éléments en ajustant la chaîne sélectionnée.",
+    "emptyBodySwapper": "Aucun actif n'a été trouvé avec le filtre actuel.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "Actifs DeFi en un clic",
+        "filterTitle": "Jetons à haut rendement",
         "subtitle": "Découvrez le rendement qui vous convient le mieux ! Passez sans effort entre les pools, les coffres-forts, les options de prêts et les LSD grâce à Portals."
       },
       "thorchainDefi": {
@@ -2960,8 +2967,6 @@
     "limitPrice": "Prix limite",
     "expires": "Expire",
     "filled": "Executé",
-    "streaming": "En cours de streaming",
-    "claim": "Réclamer",
     "protocol": "Protocole",
     "streamingStatus": "Statut du stream",
     "executionPrice": "Prix d'exécution",
@@ -2990,6 +2995,18 @@
       "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
       "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming."
     },
+    "deposit": {
+      "pending": "Votre dépôt de %{amount} %{symbol} est en cours de traitement.",
+      "complete": "Votre dépôt de %{amount} %{symbol} est terminé."
+    },
+    "withdrawal": {
+      "pending": "Votre retrait de %{amount} %{symbol} est en cours de traitement.",
+      "complete": "Votre retrait de %{amount} %{symbol} est terminé."
+    },
+    "claim": {
+      "pending": "Votre réclamation de %{amount} %{symbol} est en cours de traitement.",
+      "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
+    },
     "bridge": {
       "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",
       "complete": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est terminé.",
@@ -3009,9 +3026,17 @@
       "unstakeTxComplete": "Votre démise de %{amount} %{symbol} est terminée."
     },
     "tcy": {
+      "stakePending": "Votre mise de %{amount} %{symbol} est en cours de traitement...",
+      "unstakePending": "Votre démise de %{amount} %{symbol} est en cours de traitement...",
+      "stakeComplete": "Votre mise de %{amount} %{symbol} est terminée.",
+      "unstakeComplete": "Votre démise de %{amount} %{symbol} est terminée.",
       "claimReady": "Votre réclamation TCY de %{amount} %{symbol} est prête.",
       "claimTxPending": "Votre réclamation TCY de %{amount} %{symbol} est en attente.",
       "claimTxComplete": "Votre réclamation TCY de %{amount} %{symbol} est terminée."
+    },
+    "approve": {
+      "approvalTxPending": "Approbation de %{contractName}  pour utiliser %{amountCryptoPrecision} %{symbol} en cours.",
+      "approvalTxComplete": "Approuvé %{contractName} pour utiliser %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

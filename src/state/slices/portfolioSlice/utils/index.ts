@@ -27,7 +27,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -53,6 +53,7 @@ import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
 
+import { preferences } from '../../preferencesSlice/preferencesSlice'
 import type {
   Portfolio,
   PortfolioAccountBalancesById,
@@ -63,11 +64,14 @@ import { initialState } from '../portfolioSliceCommon'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import type { MoralisAccount } from '@/lib/moralis'
+import { CHAIN_ID_TO_MORALIS_CHAIN } from '@/lib/moralis'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, firstFourLastFour } from '@/lib/utils'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
+import type { AppDispatch } from '@/state/store'
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountId): string => {
@@ -392,11 +396,15 @@ export const makeAssets = async ({
   pubkey,
   state,
   portfolioAccounts,
+  moralisAccount,
+  dispatch,
 }: {
   chainId: ChainId
   pubkey: string
   state: ReduxState
   portfolioAccounts: Record<string, Account<KnownChainIds>>
+  moralisAccount?: MoralisAccount
+  dispatch: AppDispatch
 }): Promise<UpsertAssetsPayload | undefined> => {
   if (evmChainIds.includes(chainId as EvmChainId)) {
     const account = portfolioAccounts[pubkey] as Account<EvmChainId>
@@ -431,10 +439,26 @@ export const makeAssets = async ({
         const minimalAsset: MinimalAsset = token
 
         const maybePortalsAsset = maybePortalsAccounts[token.assetId]
+        const isPool = Boolean(maybePortalsAsset?.platform && maybePortalsAsset?.tokens?.length)
+
+        const maybeMoralisAsset =
+          isEvmChainId(chainId) &&
+          CHAIN_ID_TO_MORALIS_CHAIN[chainId] &&
+          !isPool &&
+          moralisAccount?.find(
+            tokenAsset => tokenAsset.token_address === fromAssetId(token.assetId).assetReference,
+          )
+
+        const isPossibleSpam = maybeMoralisAsset && maybeMoralisAsset.possible_spam
+
+        if (isPossibleSpam) {
+          console.log({ token })
+          dispatch(preferences.actions.toggleSpamMarkedAssetId(token.assetId))
+        }
+
         if (maybePortalsAsset) {
           if (!maybePortalsAsset.liquidity) return prev
 
-          const isPool = Boolean(maybePortalsAsset.platform && maybePortalsAsset.tokens?.length)
           const platform = maybePortalsPlatforms[maybePortalsAsset.platform]
 
           const name = (() => {
@@ -520,6 +544,7 @@ export const makeAssets = async ({
         if (!asset.precision && !isNft(asset.assetId)) {
           return prev
         }
+
         prev.byId[token.assetId] = asset
         prev.ids.push(token.assetId)
 

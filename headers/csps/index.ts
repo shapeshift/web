@@ -39,6 +39,7 @@ import { csp as coincap } from './marketService/coincap'
 import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
+import { csp as moralis } from './moralis'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as relay } from './relay'
@@ -56,6 +57,7 @@ import { csp as webflow } from './webflow'
 export const csps = [
   base,
   alchemy,
+  moralis,
   chainflip,
   chatwoot,
   customTokenImport,

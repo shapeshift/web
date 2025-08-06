@@ -42,6 +42,9 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     () => spamMarkedAssetIds.includes(assetId),
     [assetId, spamMarkedAssetIds],
   )
+
+  console.log({ isSpamMarked })
+
   const isWatchlistMarked = useMemo(
     () => watchlistAssetIds.includes(assetId),
     [assetId, watchlistAssetIds],

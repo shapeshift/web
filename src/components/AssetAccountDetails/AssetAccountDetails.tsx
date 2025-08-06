@@ -39,6 +39,7 @@ const contentPaddingY = { base: 0, md: 8 }
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const isSpamMarked = useAppSelector(state => selectIsSpamMarkedByAssetId(state, assetId))
+  console.log({ isSpamMarked })
   const assetIds = useMemo(() => [assetId], [assetId])
 
   const assetHeader = useMemo(

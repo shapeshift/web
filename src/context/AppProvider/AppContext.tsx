@@ -1,8 +1,10 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { useQueries } from '@tanstack/react-query'
-import React, { useEffect } from 'react'
+import difference from 'lodash/difference'
+import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
@@ -35,6 +37,8 @@ import {
 } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const MARKET_DATA_POLLING_INTERVAL_MS = 60 * 1000 // refetch market-data every minute
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -92,11 +96,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
 
-  // load top 1000 assets market data
+  // load top 2000 assets market data
   // this is needed to sort assets by market cap
   // and covers most assets users will have
-  useFindAllMarketDataQuery(undefined, {
+  const findAllQueryData = useFindAllMarketDataQuery(undefined, {
     skip: modal,
+    pollingInterval: MARKET_DATA_POLLING_INTERVAL_MS,
   })
 
   useDiscoverAccounts()
@@ -138,9 +143,32 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(tradeInput.actions.setBuyAccountId(undefined))
   }, [dispatch, prevWalletId, walletId])
 
-  const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
+  const findByAssetIdPayload = useMemo(() => {
+    // same condition as the `enabled` below, we would skip anyway
+    if (!(isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet)))
+      return []
+    // skip granular fetching until we've fetched the top assets
+    if (['pending', 'uninitialized'].includes(findAllQueryData.status)) return []
+    // note, we use `currentData`, data may refer to the persisted data on first load, but we want to ensure data on the current run
+    if (!findAllQueryData.currentData) return []
+
+    const assetIds = Object.keys(findAllQueryData.currentData) as AssetId[]
+
+    // use lodash diff to find assetIds that are in the portfolio but not in the top 2000 assets
+    const portfolioAssetIdsDelta = difference(portfolioAssetIds, assetIds)
+
+    return portfolioAssetIdsDelta
+  }, [
+    findAllQueryData,
+    isConnected,
+    isLoadingLocalWallet,
+    modal,
+    portfolioAssetIds,
+    portfolioLoadingStatus,
+  ])
+
   useQueries({
-    queries: portfolioAssetIds.map(assetId => ({
+    queries: findByAssetIdPayload.map(assetId => ({
       queryKey: ['marketData', assetId],
       queryFn: async () => {
         await dispatch(
@@ -158,7 +186,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and start refetch timer to keep market data up to date
       enabled:
         isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
-      refetchInterval: marketDataPollingInterval,
+      refetchInterval: MARKET_DATA_POLLING_INTERVAL_MS,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,
       // Do NOT refetch market data on window focus to avoid spamming coingecko

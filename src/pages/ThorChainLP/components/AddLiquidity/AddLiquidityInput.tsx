@@ -18,7 +18,14 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import {
+  fromAccountId,
+  fromAssetId,
+  rujiAssetId,
+  tcyAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   assetIdToThorPoolAssetId,
@@ -251,6 +258,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
+      // https://gitlab.com/thorchain/thornode/-/issues/2214
+      if (assetId === tcyAssetId || assetId === rujiAssetId) {
+        return 'sym'
+      }
+
       const walletSupportsRune = walletSupportsChain({
         checkConnectedAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
         chainId: thorchainChainId,

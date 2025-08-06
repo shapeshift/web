@@ -24,6 +24,8 @@ type CategoryCardProps = {
   layout?: 'vertical' | 'horizontal'
 }
 
+const emptyStyle = {}
+
 export const CategoryCard = ({
   category,
   title,
@@ -89,7 +91,6 @@ export const CategoryCard = ({
   const assetSearchRowData = useMemo(() => {
     return {
       assets: filteredAssets,
-      // Handled in the component itself
       handleClick: (asset: Asset) => navigate(`/assets/${asset.assetId}`),
       portalsAssets,
     }
@@ -152,8 +153,7 @@ export const CategoryCard = ({
             index={index}
             py={8}
             // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
-            // eslint-disable-next-line react-memo/require-usememo
-            style={{}}
+            style={emptyStyle}
             color={assetTitleColor}
             showNetworkIcon={false}
             portalsAssets={portalsAssets}

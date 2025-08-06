@@ -297,6 +297,7 @@ export const mockStore: ReduxState = {
     selectedSellAssetChainId: 'All',
   },
   tradeQuote: {
+    isQuotesInitialized: false,
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,

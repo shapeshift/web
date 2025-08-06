@@ -17,7 +17,7 @@ import { TradeButtonCell } from './TradeButtonCell'
 import { VolumeCell } from './VolumeCell'
 
 import { Text } from '@/components/Text'
-import { defaultLongPressConfig } from '@/constants/long-press'
+import { defaultLongPressConfig, longPressSx } from '@/constants/long-press'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
@@ -68,6 +68,7 @@ const gridSx = {
       paddingStart: '0!important',
     },
   },
+  ...longPressSx,
 }
 
 type MarketsTableVirtualizedProps = {

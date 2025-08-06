@@ -19,7 +19,7 @@ import type { Column, IdType, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
 import { LongPressEventType, useLongPress } from 'use-long-press'
 
-import { defaultLongPressConfig } from '@/constants/long-press'
+import { defaultLongPressConfig, longPressSx } from '@/constants/long-press'
 import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {
@@ -97,6 +97,7 @@ export const ReactTableNoPager = <T extends {}>({
           <Tr
             {...row.getRowProps()}
             {...longPressHandlers(row)}
+            sx={longPressSx}
             key={row.id}
             tabIndex={row.index}
             // we need to pass an arg here, so we need an anonymous function wrapper

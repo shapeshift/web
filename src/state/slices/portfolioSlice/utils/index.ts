@@ -65,7 +65,11 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import type { MoralisErc20Account, MoralisNftAccount } from '@/lib/moralis'
-import { CHAIN_ID_TO_MORALIS_ERC20_CHAIN } from '@/lib/moralis'
+import {
+  CHAIN_ID_TO_MORALIS_ERC20_CHAIN,
+  getMoralisErc20Account,
+  getMoralisNftAccount,
+} from '@/lib/moralis'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, firstFourLastFour } from '@/lib/utils'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
@@ -396,18 +400,16 @@ export const makeAssets = async ({
   pubkey,
   state,
   portfolioAccounts,
-  moralisErc20Account,
-  moralisNftAccount,
   dispatch,
 }: {
   chainId: ChainId
   pubkey: string
   state: ReduxState
   portfolioAccounts: Record<string, Account<KnownChainIds>>
-  moralisErc20Account?: MoralisErc20Account | null
-  moralisNftAccount?: MoralisNftAccount | null
   dispatch: AppDispatch
 }): Promise<UpsertAssetsPayload | undefined> => {
+  const accountId = toAccountId({ chainId, account: pubkey })
+
   if (evmChainIds.includes(chainId as EvmChainId)) {
     const account = portfolioAccounts[pubkey] as Account<EvmChainId>
     const assetNamespace = chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20
@@ -427,6 +429,20 @@ export const makeAssets = async ({
       queryFn: () => fetchPortalsPlatforms(),
       queryKey: ['portalsPlatforms'],
       staleTime: Infinity,
+    })
+
+    const moralisErc20Account = await queryClient.fetchQuery({
+      queryKey: ['moralisErc20Account', accountId],
+      queryFn: getMoralisErc20Account(accountId),
+      staleTime: Infinity,
+      gcTime: Infinity,
+    })
+
+    const moralisNftAccount = await queryClient.fetchQuery({
+      queryKey: ['moralisNftAccount', accountId],
+      queryFn: getMoralisNftAccount(accountId),
+      staleTime: Infinity,
+      gcTime: Infinity,
     })
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(

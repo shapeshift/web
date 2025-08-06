@@ -250,28 +250,12 @@ export const portfolioApi = createApi({
           // Prefetch smart contract checks - do *not* await/.then() me, this is only for the purpose of having this cached later
           fetchIsSmartContractAddressQuery(pubkey, chainId)
 
-          const moralisErc20Account = await queryClient.fetchQuery({
-            queryKey: ['moralisErc20Account', accountId],
-            queryFn: getMoralisErc20Account(accountId),
-            staleTime: Infinity,
-            gcTime: Infinity,
-          })
-
-          const moralisNftAccount = await queryClient.fetchQuery({
-            queryKey: ['moralisNftAccount', accountId],
-            queryFn: getMoralisNftAccount(accountId),
-            staleTime: Infinity,
-            gcTime: Infinity,
-          })
-
           const data = await (async (): Promise<Portfolio> => {
             const assets = await makeAssets({
               chainId,
               pubkey,
               state,
               portfolioAccounts,
-              moralisErc20Account,
-              moralisNftAccount,
               dispatch,
             })
 

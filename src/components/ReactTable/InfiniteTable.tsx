@@ -19,9 +19,9 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
-import { LongPressEventType, useLongPress } from 'use-long-press'
+import { useLongPress } from 'use-long-press'
 
-import { defaultLongPressConfig, longPressSx } from '@/constants/long-press'
+import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
 import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {

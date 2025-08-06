@@ -72,6 +72,11 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 
+export const selectIsTradeQuotesInitialised = createSelector(
+  tradeQuoteSlice.selectSlice,
+  tradeQuoteSlice => tradeQuoteSlice.isQuotesInitialized,
+)
+
 export const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
   preferences.selectors.selectFeatureFlags,
   featureFlags => {

@@ -38,11 +38,13 @@ export const tradeQuoteSlice = createSlice({
         }>,
       ) => {
         const { swapperName, quotesById } = action.payload
+        state.isQuotesInitialized = true
         state.tradeQuotes[swapperName] = quotesById ?? {}
       },
     ),
     upsertTradeQuotes: create.reducer(
       (state, action: PayloadAction<Record<SwapperName, Record<string, ApiQuote>>>) => {
+        state.isQuotesInitialized = true
         Object.entries(action.payload).forEach(([swapperName, quotesById]) => {
           state.tradeQuotes[swapperName as SwapperName] = quotesById ?? {}
         })

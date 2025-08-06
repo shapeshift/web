@@ -35,6 +35,7 @@ export const initialTradeExecutionState = {
 }
 
 export const initialState: TradeQuoteSliceState = {
+  isQuotesInitialized: false,
   activeQuoteMeta: undefined,
   confirmedQuote: undefined,
   activeStep: undefined,

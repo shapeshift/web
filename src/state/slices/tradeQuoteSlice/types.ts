@@ -12,6 +12,7 @@ import type { ApiQuote } from '@/state/apis/swapper/types'
 export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
 
 export type TradeQuoteSliceState = {
+  isQuotesInitialized: Boolean
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteMeta: ActiveQuoteMeta | undefined // the selected quote metadata used to find the active quote in the api responses
   confirmedQuote: TradeQuote | TradeRate | undefined // the quote being executed

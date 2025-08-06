@@ -21,6 +21,7 @@ import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
 import { LongPressEventType, useLongPress } from 'use-long-press'
 
+import { defaultLongPressConfig } from '@/constants/long-press'
 import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {
@@ -81,13 +82,10 @@ export const InfiniteTable = <T extends {}>({
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
-  const longPressHandlers = useLongPress(
-    (_, { context: row }) => {
-      pulseAndroid()
-      onRowLongPress?.(row as Row<T>)
-    },
-    { detect: LongPressEventType.Touch },
-  )
+  const longPressHandlers = useLongPress((_, { context: row }) => {
+    pulseAndroid()
+    onRowLongPress?.(row as Row<T>)
+  }, defaultLongPressConfig)
   const tableColumns = useMemo(
     () =>
       isLoading

@@ -17,6 +17,7 @@ import { TradeButtonCell } from './TradeButtonCell'
 import { VolumeCell } from './VolumeCell'
 
 import { Text } from '@/components/Text'
+import { defaultLongPressConfig } from '@/constants/long-press'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
@@ -81,13 +82,10 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
-    const longPressHandlers = useLongPress(
-      (_, { context: row }) => {
-        pulseAndroid()
-        onRowLongPress?.(row as Row<Asset>)
-      },
-      { detect: LongPressEventType.Touch },
-    )
+    const longPressHandlers = useLongPress((_, { context: row }) => {
+      pulseAndroid()
+      onRowLongPress?.(row as Row<Asset>)
+    }, defaultLongPressConfig)
 
     const parentRef = useRef<HTMLDivElement>(null)
 

@@ -19,6 +19,7 @@ import type { Column, IdType, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
 import { LongPressEventType, useLongPress } from 'use-long-press'
 
+import { defaultLongPressConfig } from '@/constants/long-press'
 import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {
@@ -73,13 +74,10 @@ export const ReactTableNoPager = <T extends {}>({
     [columns, isLoading],
   )
 
-  const longPressHandlers = useLongPress(
-    (_, { context: row }) => {
-      pulseAndroid()
-      onRowLongPress?.(row as Row<T>)
-    },
-    { detect: LongPressEventType.Touch },
-  )
+  const longPressHandlers = useLongPress((_, { context: row }) => {
+    pulseAndroid()
+    onRowLongPress?.(row as Row<T>)
+  }, defaultLongPressConfig)
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, visibleColumns } =
     useTable<T>(

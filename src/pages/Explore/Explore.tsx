@@ -128,7 +128,10 @@ export const Explore = memo(() => {
     },
     [setValue],
   )
-  const debouncedSetSearch = useMemo(() => debounce(handleSearchInputChange, 200), [handleSearchInputChange])
+  const debouncedSetSearch = useMemo(
+    () => debounce(handleSearchInputChange, 200),
+    [handleSearchInputChange],
+  )
 
   const inputProps = useMemo(
     () => ({

@@ -38,8 +38,7 @@ import {
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-const findByAssetIdPollingInterval = 60 * 15 * 1000 // refetch portfolio AssetIds market-data every 15 minutes
-const findAllPollingInterval = 60 * 1000 // refetch 2000 top market-data every minute
+const marketDataPollingInterval = 60 * 1000 // refetch market-data every minute
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -102,7 +101,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // and covers most assets users will have
   const findAllQueryData = useFindAllMarketDataQuery(undefined, {
     skip: modal,
-    pollingInterval: findAllPollingInterval,
+    pollingInterval: marketDataPollingInterval,
   })
 
   useDiscoverAccounts()
@@ -187,7 +186,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and start refetch timer to keep market data up to date
       enabled:
         isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
-      refetchInterval: findByAssetIdPollingInterval,
+      refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,
       // Do NOT refetch market data on window focus to avoid spamming coingecko

@@ -58,29 +58,38 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     )
     const changePercent24Hr = marketData?.changePercent24Hr
 
+    const changePercentTagColorsScheme = useMemo(() => {
+      if (bnOrZero(changePercent24Hr).gt(0)) {
+        return 'green'
+      }
+
+      if (bnOrZero(changePercent24Hr).lt(0)) {
+        return 'red'
+      }
+
+      return 'gray'
+    }, [changePercent24Hr])
+
     const priceChange = useMemo(() => {
       if (!changePercent24Hr) return null
 
-      const isPriceChangePositive = bnOrZero(changePercent24Hr).gte(0)
-
       return (
-        <Tag
-          colorScheme={isPriceChangePositive ? 'green' : 'red'}
-          width='max-content'
-          px={1}
-          size='sm'
-        >
-          <TagLeftIcon
-            as={isPriceChangePositive ? RiArrowRightUpLine : RiArrowLeftDownLine}
-            me={1}
-          />
+        <Tag colorScheme={changePercentTagColorsScheme} width='max-content' px={1} size='sm'>
+          {changePercentTagColorsScheme !== 'gray' ? (
+            <TagLeftIcon
+              as={
+                changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine
+              }
+              me={1}
+            />
+          ) : null}
           <Amount.Percent
-            value={bnOrZero(changePercent24Hr).times(0.01).toString()}
+            value={bnOrZero(changePercent24Hr).times('0.01').toString()}
             fontSize='xs'
           />
         </Tag>
       )
-    }, [changePercent24Hr])
+    }, [changePercent24Hr, changePercentTagColorsScheme])
 
     const rightContent = useMemo(() => {
       if (portalAsset) {
@@ -89,7 +98,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         return (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
             <Amount.Percent
-              value={bnOrZero(portalAsset.metrics.apy).times(0.01).toString()}
+              value={bnOrZero(portalAsset.metrics.apy).times('0.01').toString()}
               fontSize='xs'
               suffix={translate('common.apy')}
             />
@@ -97,7 +106,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
               <Amount.Fiat
                 value={volume.toString()}
                 fontSize='xs'
-                suffix={translate('common.vol')}
+                suffix={translate('common.volumeShort')}
               />
             </Tag>
           </Flex>

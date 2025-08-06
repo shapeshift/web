@@ -1,7 +1,8 @@
 import { Box, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { noop } from 'lodash'
+import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router'
 
 import { AssetCard } from './AssetCard'
 import { AssetSearchRow } from './AssetSearchRow'
@@ -16,7 +17,7 @@ import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQue
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-interface CategoryCardProps {
+type CategoryCardProps = {
   category: MarketsCategories
   title: string
   maxAssets?: number
@@ -29,6 +30,7 @@ export const CategoryCard = ({
   maxAssets = 3,
   layout = 'vertical',
 }: CategoryCardProps) => {
+  const navigate = useNavigate()
   const assetsById = useAppSelector(selectAssets)
   const assetTitleColor = useColorModeValue('black', 'white')
 
@@ -88,10 +90,10 @@ export const CategoryCard = ({
     return {
       assets: filteredAssets,
       // Handled in the component itself
-      handleClick: noop,
+      handleClick: (asset: Asset) => navigate(`/assets/${asset.assetId}`),
       portalsAssets,
     }
-  }, [filteredAssets, portalsAssets])
+  }, [filteredAssets, portalsAssets, navigate])
 
   const content = useMemo(() => {
     if (isLoading) {

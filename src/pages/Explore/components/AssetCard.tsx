@@ -11,7 +11,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-interface AssetCardProps {
+type AssetCardProps = {
   asset: Asset
   width?: string
 }
@@ -25,24 +25,36 @@ export const AssetCard: FC<AssetCardProps> = memo(({ asset, width = '80%' }) => 
   )
   const changePercent24Hr = marketData?.changePercent24Hr
 
+  const changePercentTagColorsScheme = useMemo(() => {
+    if (bnOrZero(changePercent24Hr).gt(0)) {
+      return 'green'
+    }
+
+    if (bnOrZero(changePercent24Hr).lt(0)) {
+      return 'red'
+    }
+
+    return 'gray'
+  }, [changePercent24Hr])
+
   const priceChange = useMemo(() => {
     if (!changePercent24Hr) return null
 
-    const isPriceChangePositive = bnOrZero(changePercent24Hr).gte(0)
-
     return (
-      <Tag
-        colorScheme={isPriceChangePositive ? 'green' : 'red'}
-        size='sm'
-        px={2}
-        py={1}
-        borderRadius='md'
-      >
-        <TagLeftIcon as={isPriceChangePositive ? RiArrowRightUpLine : RiArrowLeftDownLine} me={1} />
-        <Amount.Percent value={bnOrZero(changePercent24Hr).times(0.01).toString()} fontSize='xs' />
+      <Tag colorScheme={changePercentTagColorsScheme} size='sm' px={2} py={1} borderRadius='md'>
+        {changePercentTagColorsScheme !== 'gray' ? (
+          <TagLeftIcon
+            as={changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine}
+            me={1}
+          />
+        ) : null}
+        <Amount.Percent
+          value={bnOrZero(changePercent24Hr).times('0.01').toString()}
+          fontSize='xs'
+        />
       </Tag>
     )
-  }, [changePercent24Hr])
+  }, [changePercent24Hr, changePercentTagColorsScheme])
 
   const handleClick = useCallback(() => {
     navigate(`/assets/${asset.assetId}`)

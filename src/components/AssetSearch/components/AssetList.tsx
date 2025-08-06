@@ -1,7 +1,7 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import type { FC } from 'react'
+import type { CSSProperties, FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { VerticalSize } from 'react-virtualized-auto-sizer'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -23,6 +23,11 @@ export type AssetData = {
 }
 
 type AssetListProps = AssetData & ListProps
+
+const scrollbarStyle: CSSProperties = {
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
+}
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
@@ -89,6 +94,7 @@ export const AssetList: FC<AssetListProps> = ({
           ref={tokenListRef}
           className='token-list'
           overscanCount={1}
+          style={scrollbarStyle}
         >
           {rowComponent}
         </FixedSizeList>

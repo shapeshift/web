@@ -1,12 +1,14 @@
 import { IconButton } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import type { DotButtonProps } from './types'
 
+const activeStyle = {
+  bg: 'blue.500',
+}
+
 export const DotButton: React.FC<DotButtonProps> = ({ selected, onClick }) => {
   const translate = useTranslate()
-  const activeStyle = useMemo(() => ({ bg: 'blue.500' }), [])
 
   return (
     <IconButton

@@ -1,4 +1,5 @@
 import { Ok } from '@sniptt/monads'
+import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
@@ -40,7 +41,7 @@ vi.mock('../xhr', () => ({
 }))
 
 describe('getTradeQuote', () => {
-  it('should not return a trade quote for same-chain swaps', async () => {
+  it('should return a trade quote', async () => {
     const deps: SwapperDeps = {
       assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
@@ -67,12 +68,17 @@ describe('getTradeQuote', () => {
       quoteOrRate: 'quote',
     }
 
+    mocks.get.mockResolvedValue(Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse<any>))
+
     const result = await getTradeQuote(input, deps)
 
-    expect(result.isOk()).toBe(false)
-    expect(result.isErr()).toBe(true)
-
-    const error = result.unwrapErr()
-    expect(error.message).toContain('Same-chain swaps are not supported by ButterSwap')
+    expect(result.isOk()).toBe(true)
+    const tradeQuote = result.unwrap()
+    // Use the actual returned value for the expected rate
+    expect(tradeQuote[0].rate).toBe('2296.409699')
+    // 1 WETH in base units
+    expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
+      '1000000000000000000',
+    )
   })
 })

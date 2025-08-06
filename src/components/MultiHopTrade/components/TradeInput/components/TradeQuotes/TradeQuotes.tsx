@@ -143,19 +143,18 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     onBack,
   ])
 
-  const [showNoResult, setShowNoResults] = useState(false)
+  const [blockShowNoResult, setBlockShowNoResults] = useState(false)
 
   // This is dumb but there's a state where the quotes get cleared and rates request hasn't been kicked off yet (not loading)
   // We don't want to flash the no results so we wait 500ms before showing it
   useEffect(() => {
-    if (availableQuotes.length > 0 && showNoResult) {
-      setShowNoResults(false)
-    } else if (availableQuotes.length === 0 && !showNoResult) {
+    if (availableQuotes.length === 0) {
+      setBlockShowNoResults(true)
       setTimeout(() => {
-        setShowNoResults(true)
+        setBlockShowNoResults(false)
       }, 500)
     }
-  }, [availableQuotes, showNoResult])
+  }, [availableQuotes])
 
   const unavailableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
@@ -202,7 +201,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {showNoResult && !isBatchTradeRateQueryLoading ? (
+          {!blockShowNoResult && availableQuotes.length === 0 && !isBatchTradeRateQueryLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'

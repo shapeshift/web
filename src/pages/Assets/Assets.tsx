@@ -78,11 +78,13 @@ export const Assets = () => {
         onRowClick={handleRowClick}
         onRowLongPress={handleRowLongPress}
       />
-      <AssetActionsDrawer
-        assetId={selectedAssetIdForMenu}
-        isOpen={selectedAssetIdForMenu !== undefined}
-        onClose={handleCloseAssetMenu}
-      />
+      <Display.Mobile>
+        <AssetActionsDrawer
+          assetId={selectedAssetIdForMenu}
+          isOpen={selectedAssetIdForMenu !== undefined}
+          onClose={handleCloseAssetMenu}
+        />
+      </Display.Mobile>
     </Main>
   )
 }

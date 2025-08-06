@@ -16,6 +16,7 @@ import { HighlightedTokensFiltersDialog } from './HighlightedTokensFiltersDialog
 import { HighlightedTokensPriceCell } from './HighlightedTokensPriceCell'
 
 import { AssetActionsDrawer } from '@/components/AssetHeader/AssetActionsDrawer'
+import { Display } from '@/components/Display'
 import type { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
@@ -352,11 +353,13 @@ export const HighlightedTokens = () => {
         handleChainIdChange={handleChainIdChange}
       />
 
-      <AssetActionsDrawer
-        assetId={selectedAssetIdForMenu}
-        isOpen={selectedAssetIdForMenu !== undefined}
-        onClose={handleCloseAssetMenu}
-      />
+      <Display.Mobile>
+        <AssetActionsDrawer
+          assetId={selectedAssetIdForMenu}
+          isOpen={selectedAssetIdForMenu !== undefined}
+          onClose={handleCloseAssetMenu}
+        />
+      </Display.Mobile>
     </Flex>
   )
 }

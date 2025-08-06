@@ -64,8 +64,8 @@ import { initialState } from '../portfolioSliceCommon'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import type { MoralisAccount } from '@/lib/moralis'
-import { CHAIN_ID_TO_MORALIS_CHAIN } from '@/lib/moralis'
+import type { MoralisErc20Account, MoralisNftAccount } from '@/lib/moralis'
+import { CHAIN_ID_TO_MORALIS_ERC20_CHAIN } from '@/lib/moralis'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, firstFourLastFour } from '@/lib/utils'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
@@ -396,14 +396,16 @@ export const makeAssets = async ({
   pubkey,
   state,
   portfolioAccounts,
-  moralisAccount,
+  moralisErc20Account,
+  moralisNftAccount,
   dispatch,
 }: {
   chainId: ChainId
   pubkey: string
   state: ReduxState
   portfolioAccounts: Record<string, Account<KnownChainIds>>
-  moralisAccount?: MoralisAccount
+  moralisErc20Account?: MoralisErc20Account | null
+  moralisNftAccount?: MoralisNftAccount | null
   dispatch: AppDispatch
 }): Promise<UpsertAssetsPayload | undefined> => {
   if (evmChainIds.includes(chainId as EvmChainId)) {
@@ -441,18 +443,30 @@ export const makeAssets = async ({
         const maybePortalsAsset = maybePortalsAccounts[token.assetId]
         const isPool = Boolean(maybePortalsAsset?.platform && maybePortalsAsset?.tokens?.length)
 
-        const maybeMoralisAsset =
+        const maybeMoralisErc20 =
           isEvmChainId(chainId) &&
-          CHAIN_ID_TO_MORALIS_CHAIN[chainId] &&
+          !isNft(token.assetId) &&
           !isPool &&
-          moralisAccount?.find(
+          CHAIN_ID_TO_MORALIS_ERC20_CHAIN[chainId] &&
+          moralisErc20Account?.find(
             tokenAsset => tokenAsset.token_address === fromAssetId(token.assetId).assetReference,
           )
 
-        const isPossibleSpam = maybeMoralisAsset && maybeMoralisAsset.possible_spam
+        const maybeMoralisNft =
+          isEvmChainId(chainId) &&
+          isNft(token.assetId) &&
+          CHAIN_ID_TO_MORALIS_ERC20_CHAIN[chainId] &&
+          moralisNftAccount?.result?.find(
+            nftAsset =>
+              nftAsset.token_address.toLowerCase() ===
+              fromAssetId(token.assetId).assetReference.split('/')[0]?.toLowerCase(),
+          )
+
+        const isPossibleSpam =
+          (maybeMoralisErc20 && maybeMoralisErc20.possible_spam) ||
+          (maybeMoralisNft && maybeMoralisNft.possible_spam)
 
         if (isPossibleSpam) {
-          console.log({ token })
           dispatch(preferences.actions.toggleSpamMarkedAssetId(token.assetId))
         }
 

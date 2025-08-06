@@ -19,7 +19,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { getMoralisAccountQueryFn } from '@/lib/moralis'
+import { getMoralisErc20Account, getMoralisNftAccount } from '@/lib/moralis'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import type { ReduxState } from '@/state/reducer'
@@ -250,9 +250,18 @@ export const portfolioApi = createApi({
           // Prefetch smart contract checks - do *not* await/.then() me, this is only for the purpose of having this cached later
           fetchIsSmartContractAddressQuery(pubkey, chainId)
 
-          const moralisAccount = await queryClient.fetchQuery({
-            queryKey: ['moralisAccount', accountId],
-            queryFn: getMoralisAccountQueryFn(accountId),
+          const moralisErc20Account = await queryClient.fetchQuery({
+            queryKey: ['moralisErc20Account', accountId],
+            queryFn: getMoralisErc20Account(accountId),
+            staleTime: Infinity,
+            gcTime: Infinity,
+          })
+
+          const moralisNftAccount = await queryClient.fetchQuery({
+            queryKey: ['moralisNftAccount', accountId],
+            queryFn: getMoralisNftAccount(accountId),
+            staleTime: Infinity,
+            gcTime: Infinity,
           })
 
           const data = await (async (): Promise<Portfolio> => {
@@ -261,7 +270,8 @@ export const portfolioApi = createApi({
               pubkey,
               state,
               portfolioAccounts,
-              moralisAccount,
+              moralisErc20Account,
+              moralisNftAccount,
               dispatch,
             })
 

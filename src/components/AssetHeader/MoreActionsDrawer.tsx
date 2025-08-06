@@ -10,6 +10,7 @@ import { DialogHeader } from '../Modal/components/DialogHeader'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { moralisReportSpam } from '@/lib/moralis'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -43,8 +44,6 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     [assetId, spamMarkedAssetIds],
   )
 
-  console.log({ isSpamMarked })
-
   const isWatchlistMarked = useMemo(
     () => watchlistAssetIds.includes(assetId),
     [assetId, watchlistAssetIds],
@@ -55,10 +54,12 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     onClose()
   }, [assetId, dispatch, onClose])
 
-  const handleToggleSpam = useCallback(() => {
+  const handleToggleSpam = useCallback(async () => {
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
-  }, [assetId, dispatch, onClose])
+
+    if (!isSpamMarked) await moralisReportSpam(assetId)
+  }, [assetId, dispatch, onClose, isSpamMarked])
 
   const explorerHref = useMemo(() => {
     if (!asset) return

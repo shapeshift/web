@@ -5,7 +5,11 @@ import { useEffect } from 'react'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { CHAIN_ID_TO_MORALIS_CHAIN, getMoralisAccountQueryFn } from '@/lib/moralis'
+import {
+  CHAIN_ID_TO_MORALIS_ERC20_CHAIN,
+  getMoralisErc20Account,
+  getMoralisNftAccount,
+} from '@/lib/moralis'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -22,12 +26,23 @@ export const usePortfolioFetch = () => {
     queries: enabledWalletAccountIds
       .filter(accountId => {
         const chainId = fromAccountId(accountId).chainId
-        return isEvmChainId(chainId) && CHAIN_ID_TO_MORALIS_CHAIN[chainId]
+        return isEvmChainId(chainId) && CHAIN_ID_TO_MORALIS_ERC20_CHAIN[chainId]
       })
-      .map(accountId => ({
-        queryKey: ['moralisAccount', accountId],
-        queryFn: getMoralisAccountQueryFn(accountId),
-      })),
+      .map(accountId => [
+        {
+          queryKey: ['moralisErc20Account', accountId],
+          queryFn: getMoralisErc20Account(accountId),
+          staleTime: Infinity,
+          gcTime: Infinity,
+        },
+        {
+          queryKey: ['moralisNftAccount', accountId],
+          queryFn: getMoralisNftAccount(accountId),
+          staleTime: Infinity,
+          gcTime: Infinity,
+        },
+      ])
+      .flat(),
   })
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')

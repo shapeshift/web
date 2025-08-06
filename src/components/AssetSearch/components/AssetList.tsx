@@ -1,10 +1,11 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import type { FC } from 'react'
+import type { CSSProperties, FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { VerticalSize } from 'react-virtualized-auto-sizer'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import type { ListChildComponentProps } from 'react-window'
 import { FixedSizeList } from 'react-window'
 
 import { AssetRow } from './AssetRow'
@@ -18,15 +19,22 @@ export type AssetData = {
   handleClick: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
+  rowComponent?: FC<ListChildComponentProps<AssetData>>
 }
 
 type AssetListProps = AssetData & ListProps
+
+const scrollbarStyle: CSSProperties = {
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
+}
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
   handleClick,
   disableUnsupported = false,
   hideZeroBalanceAmounts = true,
+  rowComponent = AssetRow,
 }) => {
   const assetId = useRouteAssetId()
   const tokenListRef = useRef<FixedSizeList<AssetData> | null>(null)
@@ -86,12 +94,13 @@ export const AssetList: FC<AssetListProps> = ({
           ref={tokenListRef}
           className='token-list'
           overscanCount={1}
+          style={scrollbarStyle}
         >
-          {AssetRow}
+          {rowComponent}
         </FixedSizeList>
       )
     },
-    [assets.length, itemData],
+    [assets.length, itemData, rowComponent],
   )
 
   return (

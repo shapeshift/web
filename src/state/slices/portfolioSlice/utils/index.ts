@@ -64,7 +64,6 @@ import { initialState } from '../portfolioSliceCommon'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import type { MoralisErc20Account, MoralisNftAccount } from '@/lib/moralis'
 import {
   CHAIN_ID_TO_MORALIS_ERC20_CHAIN,
   getMoralisErc20Account,

@@ -19,8 +19,6 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { getMoralisErc20Account, getMoralisNftAccount } from '@/lib/moralis'
-import { accountManagement } from '@/react-queries/queries/accountManagement'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import type { ReduxState } from '@/state/reducer'
 

@@ -58,6 +58,8 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   return (
     <Box
       ref={boxRef}
+      display='inline-flex'
+      alignItems='center'
       onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
       onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
       onTouchEnd={label !== undefined ? handleTooltipToggle : undefined} // Don't rug the user with a preventDefault if there's no label

@@ -13,14 +13,14 @@ import { SEO } from '@/components/Layout/Seo'
 import { MarketsTableVirtualized } from '@/components/MarketTableVirtualized/MarketsTableVirtualized'
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { RawText } from '@/components/Text'
-import { selectAssetsSortedByMarketCap } from '@/state/slices/selectors'
+import { selectAssetsNoSpam } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const Assets = () => {
   const translate = useTranslate()
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
-  const assets = useAppSelector(selectAssetsSortedByMarketCap)
+  const assetsNoSpam = useAppSelector(selectAssetsNoSpam)
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
@@ -36,8 +36,8 @@ export const Assets = () => {
     return matchedAssets
   }, [])
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(assets, searchQuery) : assets
-  }, [assets, filterRowsBySearchTerm, isSearching, searchQuery])
+    return isSearching ? filterRowsBySearchTerm(assetsNoSpam, searchQuery) : assetsNoSpam
+  }, [assetsNoSpam, filterRowsBySearchTerm, isSearching, searchQuery])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {

@@ -171,6 +171,7 @@ export const mockStore: ReduxState = {
     showSnapsModal: true,
     snapInstalled: false,
     watchedAssets: [],
+    spamMarkedAssets: [],
     selectedHomeView: HomeMarketView.TopAssets,
     hasWalletSeenTcyClaimAlert: {},
     highlightedTokensFilters: {

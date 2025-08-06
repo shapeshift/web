@@ -11,6 +11,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectAssetIdParamFromFilter } from '@/state/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const selectAssetById = createCachedSelector(
   assets.selectors.selectAssetsById,
@@ -68,3 +69,12 @@ export const selectFeeAssetById = createCachedSelector(
   state: ReduxState,
   assetId: AssetId,
 ) => ReturnType<typeof getFeeAssetByAssetId>
+
+export const selectAssetsNoSpam = createSelector(
+  selectAssetsSortedByMarketCap,
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (assets, spamMarkedAssetIds) => {
+    const spamAssetSet = new Set(spamMarkedAssetIds)
+    return assets.filter(({ assetId }) => !spamAssetSet.has(assetId))
+  },
+)

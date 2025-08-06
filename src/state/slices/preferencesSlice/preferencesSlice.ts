@@ -124,6 +124,7 @@ export type Preferences = {
   showSnapsModal: boolean
   snapInstalled: boolean
   watchedAssets: AssetId[]
+  spamMarkedAssets: AssetId[]
   selectedHomeView: HomeMarketView
   quoteDisplayOption: QuoteDisplayOption
   highlightedTokensFilters: {
@@ -216,6 +217,7 @@ const initialState: Preferences = {
   showSnapsModal: true,
   snapInstalled: false,
   watchedAssets: [],
+  spamMarkedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
   quoteDisplayOption: QuoteDisplayOption.Basic,
   highlightedTokensFilters: {
@@ -288,6 +290,19 @@ export const preferences = createSlice({
         isAdding: !isWatched,
       })
     }),
+    toggleSpamMarkedAssetId: create.reducer((state, { payload }: { payload: AssetId }) => {
+      const isSpamMarked = state.spamMarkedAssets.includes(payload)
+      if (isSpamMarked) {
+        state.spamMarkedAssets = state.spamMarkedAssets.filter(assetId => assetId !== payload)
+      } else {
+        state.spamMarkedAssets = state.spamMarkedAssets.concat(payload)
+      }
+
+      getMixPanel()?.track(MixPanelEvent.ToggleIsSpamAsset, {
+        assetId: payload,
+        isAdding: !isSpamMarked,
+      })
+    }),
     setHomeMarketView: create.reducer((state, { payload }: { payload: HomeMarketView }) => {
       state.selectedHomeView = payload
     }),
@@ -321,6 +336,7 @@ export const preferences = createSlice({
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
     selectWatchedAssetIds: state => state.watchedAssets,
+    selectSpamMarkedAssetIds: state => state.spamMarkedAssets,
     selectSelectedLocale: state => state.selectedLocale,
     selectSelectedCurrency: state => state.selectedCurrency,
     selectBalanceThreshold: state => state.balanceThreshold,

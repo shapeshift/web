@@ -202,7 +202,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {showNoResult && availableQuotes.length === 0 && !isBatchTradeRateQueryLoading ? (
+          {showNoResult && !isBatchTradeRateQueryLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'

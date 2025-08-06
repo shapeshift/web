@@ -3,12 +3,14 @@ import type { StackProps } from '@chakra-ui/react'
 import {
   Box,
   HStack,
+  Icon,
   Popover,
   PopoverTrigger,
   SkeletonCircle,
   SkeletonText,
   Stack,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -16,14 +18,18 @@ import { debounce } from 'lodash'
 import type { JSX } from 'react'
 import { isValidElement, useCallback, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
+import { TbAlertTriangle } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 
+import { TooltipWithTouch } from '../TooltipWithTouch'
 import { AssetTeaser } from './AssetTeaser'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectIsSpamMarkedByAssetId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type AssetCellProps = {
   assetId: AssetId
@@ -76,11 +82,15 @@ export const AssetCell = ({
   version,
   ...rest
 }: AssetCellProps) => {
+  const translate = useTranslate()
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const isSpamMarked = useAppSelector(state => selectIsSpamMarkedByAssetId(state, assetId))
 
   const handlePopoverClose = useCallback(() => setShowPopover(false), [])
 
@@ -136,7 +146,12 @@ export const AssetCell = ({
                   {rowTitle}
                 </RawText>
               </Box>
-              {isExternal && <ExternalLinkIcon boxSize={3} />}
+              {isExternal && <ExternalLinkIcon boxSize={4} />}
+              {isSpamMarked && !isLargerThanMd && (
+                <TooltipWithTouch label={translate('assets.spam.marked')}>
+                  <Icon as={TbAlertTriangle} boxSize={4} color='yellow' />
+                </TooltipWithTouch>
+              )}
             </HStack>
             {typeof subText === 'string' && (
               <RawText fontSize='sm' color='text.subtle' lineHeight='shorter'>

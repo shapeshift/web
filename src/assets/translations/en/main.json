@@ -23,6 +23,7 @@
     "close": "Close",
     "closed": "Closed",
     "loadMore": "Load More",
+    "volumeShort": "VOL",
     "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
@@ -202,7 +203,8 @@
     "marketDataUnavailable": "Market data is unavailable for %{asset}",
     "streaming": "Streaming",
     "dca": "DCA",
-    "boost": "Boost"
+    "boost": "Boost",
+    "viewOnExplorer": "View on explorer"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -841,6 +843,10 @@
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
+    "fetchingQuotes": {
+      "title": "Fetching Quotes",
+      "description": "Fetching quotes for this pair, this can take up to %{maxTimeSeconds} seconds"
+    },
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
@@ -920,7 +926,6 @@
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
-    "viewOnBlockExplorer": "View on block explorer",
     "tooltip": {
       "continueSwapping": "Continue swapping for final details",
       "changeQuote": "Change quote",
@@ -997,7 +1002,8 @@
       "executionRevertedWithExpectedSlippage": "Execution reverted during execution. This may be due to insufficient slippage tolerance. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance.",
       "slippageToleranceExceeded": "Slippage tolerance exceeded.",
       "underMinimumAmount": "One or more of the assets in this trade are below the minimum amount required for this trade.",
-      "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected."
+      "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected.",
+      "swapperTimeout": "Request timed out."
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -2031,6 +2037,13 @@
     }
   },
   "assets": {
+    "more": "More",
+    "spam": {
+      "warning": "This asset will be hidden because you've marked it as spam.",
+      "marked": "This asset is marked as spam.",
+      "reportAsSpam": "Mark as spam",
+      "reportAsNotSpam": "Mark as not spam"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Balance",
@@ -2621,6 +2634,8 @@
     "understand": "I understand the risks"
   },
   "watchlist": {
+    "add": "Add to watchlist",
+    "remove": "Remove from watchlist",
     "empty": {
       "title": "Start building your watchlist",
       "body": "Wherever you see the star icon, you can use it to add assets here.",

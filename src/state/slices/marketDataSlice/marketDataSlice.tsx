@@ -207,11 +207,11 @@ export const marketApi = createApi({
   reducerPath: 'marketApi',
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
-      // top 1000 assets
+      // top 2000 assets
       // named function for profiling+debugging purposes
       queryFn: async function findAll(_, { dispatch }) {
         try {
-          const data = await getMarketServiceManager().findAll({ count: 1000 })
+          const data = await getMarketServiceManager().findAll({ count: 2000 })
           dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {

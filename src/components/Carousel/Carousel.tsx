@@ -22,7 +22,12 @@ export const Carousel = ({
 }: CarouselProps) => {
   const translate = useTranslate()
   const autoplayRef = useRef(
-    Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
+    Autoplay({
+      delay: 5000,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      playOnInit: autoPlay,
+    }),
   )
   const [viewportRef, embla] = useEmblaCarousel(options, [autoplayRef.current, AutoHeight()])
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
@@ -60,13 +65,6 @@ export const Carousel = ({
     setScrollSnaps(embla.scrollSnapList())
     embla.on('select', onSelect)
   }, [embla, setScrollSnaps, onSelect])
-
-  useEffect(() => {
-    if (!embla) return
-    if (autoPlay) {
-      autoplayRef.current && autoplayRef.current.play()
-    }
-  }, [autoPlay, embla])
 
   useEffect(() => {
     if (!embla) return
@@ -142,7 +140,7 @@ export const Carousel = ({
           </Box>
         </Box>
         {(showDots || showArrows) && scrollSnaps.length > 1 && (
-          <Flex justifyContent='space-between' alignItems='center' mt={4} width='full'>
+          <Flex justifyContent='space-between' alignItems='center' mt={2} width='full'>
             {showArrows && (
               <Arrow
                 aria-label={translate('common.carousel.prev')}

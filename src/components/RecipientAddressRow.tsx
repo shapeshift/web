@@ -27,7 +27,7 @@ export const RecipientAddressRow = ({
           <Link
             href={`${explorerAddressLink}${recipientAddress}`}
             isExternal
-            aria-label={translate('trade.viewOnBlockExplorer')}
+            aria-label={translate('common.viewOnExplorer')}
           >
             <Icon as={ExternalLinkIcon} />
           </Link>

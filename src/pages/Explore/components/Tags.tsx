@@ -19,12 +19,7 @@ export const Tags = () => {
   const translate = useTranslate()
   const tags = useMemo(() => Object.values(PortalsTags), [])
 
-  const { tag: tagParamWithoutHash } = useParams<{ tag?: string }>()
-
-  const tagParam = useMemo(
-    () => (tagParamWithoutHash ? `#${tagParamWithoutHash}` : undefined),
-    [tagParamWithoutHash],
-  )
+  const { tag: tagParam } = useParams<{ tag?: string }>()
 
   const buttonTextColor = useColorModeValue('white', 'white')
   const activeBgColor = useColorModeValue('black', 'white')

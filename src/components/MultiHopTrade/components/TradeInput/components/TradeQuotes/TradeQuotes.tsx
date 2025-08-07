@@ -9,6 +9,7 @@ import {
   Icon,
   Tag,
 } from '@chakra-ui/react'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { dogeAssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import { LayoutGroup, motion } from 'framer-motion'
@@ -21,12 +22,14 @@ import { TradeQuoteIconLoader, VISIBLE_WIDTH } from './components/TradeQuoteIcon
 import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
+import { useGetTradeRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRateInput'
+import { useGetTradeRates } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 import { Text } from '@/components/Text'
 import {
   selectIsBatchTradeRateQueryLoading,
   selectIsTradeQuoteApiQueryPending,
 } from '@/state/apis/swapper/selectors'
-import { BULK_FETCH_RATE_TIMEOUT_MS } from '@/state/apis/swapper/swapperApi'
+import { BULK_FETCH_RATE_TIMEOUT_MS, useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
@@ -80,6 +83,14 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const isBatchTradeRateQueryLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
   const hasQuotes =
     availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
+
+  const { data: tradeInput } = useGetTradeRateInput({ shouldClearSlice: true })
+  // const {
+  //   data: tradeRatesData,
+  //   isLoading,
+  //   isFetching,
+  // } = useGetTradeRatesQuery(tradeInput ?? skipToken)
+  // console.log({ tradeInput, tradeRatesData, isLoading, isFetching })
 
   const bestQuotesByCategory = useMemo(
     () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
@@ -143,20 +154,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     onBack,
   ])
 
-  const [showNoResult, setShowNoResults] = useState(false)
-
-  // This is dumb but there's a state where the quotes get cleared and rates request hasn't been kicked off yet (not loading)
-  // We don't want to flash the no results so we wait 500ms before showing it
-  useEffect(() => {
-    if (availableQuotes.length > 0 && showNoResult) {
-      setShowNoResults(false)
-    } else if (availableQuotes.length === 0 && !showNoResult) {
-      setTimeout(() => {
-        setShowNoResults(true)
-      }, 500)
-    }
-  }, [availableQuotes, showNoResult])
-
   const unavailableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
@@ -202,7 +199,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {showNoResult && !isBatchTradeRateQueryLoading ? (
+          {tradeInput !== undefined && !isBatchTradeRateQueryLoading ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'

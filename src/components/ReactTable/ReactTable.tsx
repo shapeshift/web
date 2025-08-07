@@ -21,7 +21,7 @@ import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
 import { RawText } from '@/components/Text'
-import { defaultLongPressConfig } from '@/constants/longPress'
+import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
 import { pulseAndroid } from '@/utils/pulseAndroid'
 
 type ReactTableProps<T extends {}> = {
@@ -106,6 +106,7 @@ const RowWrap = <T extends {}>({
       <Tr
         {...rowProps}
         {...longPressHandlers(row)}
+        sx={longPressSx}
         key={row.id}
         tabIndex={row.index}
         onClick={handleClick}

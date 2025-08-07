@@ -64,6 +64,24 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   setSellAmountCryptoPrecision: (state: Draft<T>, action: PayloadAction<string>) => {
     state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
   },
+  setQuickBuySelection: (
+    state: Draft<T>,
+    action: PayloadAction<{ buyAsset: Asset; sellAsset: Asset; sellAmountCryptoPrecision: string }>,
+  ) => {
+    const { buyAsset, sellAsset, sellAmountCryptoPrecision } = action.payload
+    state.sellAmountCryptoPrecision = sellAmountCryptoPrecision
+
+    if (sellAsset.chainId !== state.sellAsset.chainId) {
+      state.sellAccountId = undefined
+    }
+
+    if (buyAsset.chainId !== state.buyAsset.chainId) {
+      state.buyAccountId = undefined
+    }
+    state.buyAsset = buyAsset
+    state.sellAsset = sellAsset
+    state.manualReceiveAddress = undefined
+  },
   switchAssets: (
     state: Draft<T>,
     action: PayloadAction<{

@@ -34,9 +34,11 @@ import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { selectIsBatchTradeRateQueryLoading } from '@/state/apis/swapper/selectors'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
   selectIsAnyGetAccountPortfolioLoadedForChainId,
@@ -63,8 +65,9 @@ import {
   selectFirstHop,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
-  selectShouldShowTradeQuoteOrAwaitInput,
   selectSortedTradeQuotes,
+  selectUserAvailableTradeQuotes,
+  selectUserUnavailableTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -126,7 +129,6 @@ export const TradeInput = ({
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
-  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
@@ -138,16 +140,20 @@ export const TradeInput = ({
   const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
-  const isAnyGetAccountPortfolioLoadedForChainIdFilter = useMemo(
+  const isAnyGetAccountPortfolioLoadedForSellAssetChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
   )
-  const isAnyGetAccountPortfolioLoadedForChainId = useAppSelector(state =>
+  const isBatchTradeRateQueryLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
+  const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
+  const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
+  const isAnyGetAccountPortfolioLoadedForSellAssetChainId = useAppSelector(state =>
     selectIsAnyGetAccountPortfolioLoadedForChainId(
       state,
-      isAnyGetAccountPortfolioLoadedForChainIdFilter,
+      isAnyGetAccountPortfolioLoadedForSellAssetChainIdFilter,
     ),
   )
+  const walletSupportsSellAssetChain = useWalletSupportsChain(sellAsset.chainId, wallet)
   const walletId = useAppSelector(selectWalletId)
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
@@ -159,20 +165,34 @@ export const TradeInput = ({
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
+  const hasQuotes =
+    availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
+
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      Boolean(walletId && !isAnyGetAccountPortfolioLoadedForChainId) ||
-      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
+      // Note we're only concerned about this if the wallet supports the sell asset chain
+      // If it does not, users should still be able to see rates, though obviously won't be able to action them
+      // until connecting a wallet which does
+      Boolean(
+        walletId &&
+          walletSupportsSellAssetChain &&
+          !isAnyGetAccountPortfolioLoadedForSellAssetChainId,
+      ) ||
+      (!hasQuotes && isBatchTradeRateQueryLoading) ||
+      (!hasUserEnteredAmount && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       Boolean(walletId && isWalletReceiveAddressLoading),
     [
       walletId,
-      isAnyGetAccountPortfolioLoadedForChainId,
-      shouldShowTradeQuoteOrAwaitInput,
+      isAnyGetAccountPortfolioLoadedForSellAssetChainId,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isWalletReceiveAddressLoading,
+      hasQuotes,
+      isBatchTradeRateQueryLoading,
+      hasUserEnteredAmount,
+      walletSupportsSellAssetChain,
     ],
   )
 

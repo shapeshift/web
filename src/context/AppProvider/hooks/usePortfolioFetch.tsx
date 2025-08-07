@@ -1,7 +1,15 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { useQueries } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import {
+  CHAIN_ID_TO_MORALIS_CHAIN,
+  getMoralisErc20Account,
+  getMoralisNftAccount,
+} from '@/lib/moralis'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -11,6 +19,31 @@ export const usePortfolioFetch = () => {
   const dispatch = useAppDispatch()
   const { isLoadingLocalWallet, modal, wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+
+  // Keep a listener here to ensure we always rely on cached data and don't overfetch from Moralis
+  // Though, we're only really using that data with `queryClient.fetchQuery()` in RTK endpoints
+  useQueries({
+    queries: enabledWalletAccountIds
+      .filter(accountId => {
+        const chainId = fromAccountId(accountId).chainId
+        return isEvmChainId(chainId) && CHAIN_ID_TO_MORALIS_CHAIN[chainId]
+      })
+      .map(accountId => [
+        {
+          queryKey: ['moralisErc20Account', accountId],
+          queryFn: getMoralisErc20Account(accountId),
+          staleTime: Infinity,
+          gcTime: Infinity,
+        },
+        {
+          queryKey: ['moralisNftAccount', accountId],
+          queryFn: getMoralisNftAccount(accountId),
+          staleTime: Infinity,
+          gcTime: Infinity,
+        },
+      ])
+      .flat(),
+  })
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 

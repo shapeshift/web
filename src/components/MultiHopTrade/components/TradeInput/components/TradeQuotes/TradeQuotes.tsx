@@ -150,9 +150,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   useEffect(() => {
     if (availableQuotes.length === 0) {
       setBlockShowNoResults(true)
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setBlockShowNoResults(false)
       }, 500)
+
+      return () => clearTimeout(timeoutId)
     }
   }, [availableQuotes])
 

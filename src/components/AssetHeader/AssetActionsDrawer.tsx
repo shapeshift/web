@@ -1,13 +1,15 @@
-import { Button, Link, Stack } from '@chakra-ui/react'
+import { Box, Button, Divider, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { Display } from '../Display'
 import { DialogHeader } from '../Modal/components/DialogHeader'
+import { QuickBuy } from './QuickBuy'
+import { QuickBuyEditInline } from './QuickBuyEditInline'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -29,6 +31,7 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { close: onClose, isOpen } = useModal('assetActionsDrawer')
+  const [isEditingQuickBuy, setIsEditingQuickBuy] = useState(false)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -68,59 +71,85 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
     return asset.explorer
   }, [asset])
 
+  const handleEditAmounts = useCallback(() => {
+    setIsEditingQuickBuy(true)
+  }, [])
+
+  const handleCancelEditAmounts = useCallback(() => {
+    setIsEditingQuickBuy(false)
+  }, [])
+
+  const dividerColor = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
+
   return (
     <Display.Mobile>
       <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
         <DialogHeader padding={0} /> {/* For grab handle */}
-        <DialogBody py={4} px={0}>
-          <Stack spacing={0}>
-            <Button
-              variant='ghost'
-              px={6}
-              leftIcon={isWatchlistMarked ? fullStarIcon : starIcon}
-              onClick={handleWatchAsset}
-              justifyContent='flex-start'
-              width='full'
-              height={14}
-              size='lg'
-              fontSize='md'
-            >
-              {isWatchlistMarked ? translate('watchlist.remove') : translate('watchlist.add')}
-            </Button>
-            {explorerHref !== undefined && (
-              <Link href={explorerHref} isExternal>
-                <Button
-                  variant='ghost'
-                  px={6}
-                  height={14}
-                  width='full'
-                  leftIcon={linkIcon}
-                  onClick={onClose}
-                  justifyContent='flex-start'
-                  size='lg'
-                  fontSize='md'
-                >
-                  {translate('common.viewOnExplorer')}
-                </Button>
-              </Link>
-            )}
-            <Button
-              variant='ghost'
-              px={6}
-              width='full'
-              height={14}
-              color='red.400'
-              leftIcon={flagIcon}
-              onClick={handleToggleSpam}
-              justifyContent='flex-start'
-              size='lg'
-              fontSize='md'
-            >
-              {isSpamMarked
-                ? translate('assets.spam.reportAsNotSpam')
-                : translate('assets.spam.reportAsSpam')}
-            </Button>
-          </Stack>
+        <DialogBody py={8} px={0}>
+          {isEditingQuickBuy && (
+            <QuickBuyEditInline
+              onCancel={handleCancelEditAmounts}
+              onSave={handleCancelEditAmounts}
+            />
+          )}
+          {!isEditingQuickBuy && (
+            <Stack spacing={0}>
+              {assetId && (
+                <Stack>
+                  <Box px={6}>
+                    <QuickBuy assetId={assetId} onEditAmounts={handleEditAmounts} />
+                  </Box>
+                  <Divider borderColor={dividerColor} pt={6} />
+                </Stack>
+              )}
+              <Button
+                variant='ghost'
+                px={6}
+                leftIcon={isWatchlistMarked ? fullStarIcon : starIcon}
+                onClick={handleWatchAsset}
+                justifyContent='flex-start'
+                width='full'
+                height={14}
+                size='lg'
+                fontSize='md'
+              >
+                {isWatchlistMarked ? translate('watchlist.remove') : translate('watchlist.add')}
+              </Button>
+              {explorerHref !== undefined && (
+                <Link href={explorerHref} isExternal>
+                  <Button
+                    variant='ghost'
+                    px={6}
+                    height={14}
+                    width='full'
+                    leftIcon={linkIcon}
+                    onClick={onClose}
+                    justifyContent='flex-start'
+                    size='lg'
+                    fontSize='md'
+                  >
+                    {translate('common.viewOnExplorer')}
+                  </Button>
+                </Link>
+              )}
+              <Button
+                variant='ghost'
+                px={6}
+                width='full'
+                height={14}
+                color='red.400'
+                leftIcon={flagIcon}
+                onClick={handleToggleSpam}
+                justifyContent='flex-start'
+                size='lg'
+                fontSize='md'
+              >
+                {isSpamMarked
+                  ? translate('assets.spam.reportAsNotSpam')
+                  : translate('assets.spam.reportAsSpam')}
+              </Button>
+            </Stack>
+          )}
         </DialogBody>
       </Dialog>
     </Display.Mobile>

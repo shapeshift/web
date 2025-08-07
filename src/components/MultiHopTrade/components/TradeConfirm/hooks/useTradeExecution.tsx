@@ -102,6 +102,7 @@ export const useTradeExecution = (
   )
 
   const executeTrade = useCallback(() => {
+    console.log('EXECUTING TRADE')
     if (!wallet) throw Error('missing wallet')
     if (!accountMetadata) throw Error('missing accountMetadata')
     if (!tradeQuote) throw Error('missing tradeQuote')
@@ -109,6 +110,7 @@ export const useTradeExecution = (
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
     const hop = getHopByIndex(tradeQuote, hopIndex)
+    console.log({ hop, tradeQuote })
 
     if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
 
@@ -237,7 +239,10 @@ export const useTradeExecution = (
       const stepSellAssetChainId = hop.sellAsset.chainId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
-      if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        console.log({ beansTradeQuote: tradeQuote })
+        throw new Error('Unable to execute trade')
+      }
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
@@ -278,6 +283,7 @@ export const useTradeExecution = (
           ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
           : tradeQuote.receiveAddress
 
+      console.log({ stepSellAssetChainNamespace, stepSellAssetChainId })
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)

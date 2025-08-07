@@ -122,6 +122,7 @@ export class TradeExecution {
       const chainId = hop.sellAsset.chainId
 
       if (!isExecutableTradeQuote(tradeQuote)) {
+        console.log({ tradeQuote })
         throw new Error('Unable to execute trade')
       }
       const sellTxHash = await buildSignBroadcast(swapper, {

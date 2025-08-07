@@ -115,6 +115,7 @@ export const useGetTradeRates = () => {
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
+
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
@@ -212,6 +213,8 @@ export const useGetTradeRates = () => {
 
   const { data: batchTradeRates } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
 
+  // console.log({ sellAsset, buyAsset, batchTradeRates })
+
   const isBatchTradeRatesLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
 
   // Dispatch batch results to Redux when they arrive
@@ -222,6 +225,8 @@ export const useGetTradeRates = () => {
   }, [batchTradeRates, dispatch])
 
   const hasTrackedInitialRatesReceived = useRef(false)
+
+  // console.log({ activeQuoteMeta })
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
@@ -235,6 +240,7 @@ export const useGetTradeRates = () => {
       return
     }
 
+    // console.log({ bestQuote })
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
   }, [activeQuoteMeta, dispatch])
 

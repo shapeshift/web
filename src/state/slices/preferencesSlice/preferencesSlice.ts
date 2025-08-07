@@ -111,6 +111,11 @@ export enum QuoteDisplayOption {
   Advanced = 'Advanced',
 }
 
+export interface QuickBuyPreferences {
+  defaultAmounts: number[]
+  currency: SupportedFiatCurrencies
+}
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
@@ -127,6 +132,7 @@ export type Preferences = {
   spamMarkedAssets: AssetId[]
   selectedHomeView: HomeMarketView
   quoteDisplayOption: QuoteDisplayOption
+  quickBuyPreferences: QuickBuyPreferences
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories
     selectedOrder: OrderDirection
@@ -220,6 +226,10 @@ const initialState: Preferences = {
   spamMarkedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
   quoteDisplayOption: QuoteDisplayOption.Basic,
+  quickBuyPreferences: {
+    defaultAmounts: [10, 50, 100],
+    currency: 'USD',
+  },
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories.Trending,
     selectedOrder: OrderDirection.Descending,
@@ -332,6 +342,11 @@ export const preferences = createSlice({
         state.highlightedTokensFilters.selectedChainId = payload
       },
     ),
+    setQuickBuyPreferences: create.reducer(
+      (state, { payload }: { payload: QuickBuyPreferences }) => {
+        state.quickBuyPreferences = payload
+      },
+    ),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -349,5 +364,6 @@ export const preferences = createSlice({
     selectQuoteDisplayOption: state => state.quoteDisplayOption,
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
+    selectQuickBuyPreferences: state => state.quickBuyPreferences,
   },
 })

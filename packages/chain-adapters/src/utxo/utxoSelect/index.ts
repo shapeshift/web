@@ -27,6 +27,7 @@ const numberToHex = (num: number) => {
  * _opReturnData is filtered out of the return payload as it is added during transaction signing_
  */
 export const utxoSelect = (input: UTXOSelectInput) => {
+  console.log('utxoSelect', input)
   const utxos = input.utxos.reduce<SanitizedUTXO[]>((acc, utxo) => {
     const sanitizedUtxo = { ...utxo, value: Number(utxo.value) }
 
@@ -76,6 +77,8 @@ export const utxoSelect = (input: UTXOSelectInput) => {
     const { value } = result.outputs[changeOutputIndex]
     result.outputs[changeOutputIndex] = { address: input.from, value }
   }
+
+  console.log(result)
 
   return { ...result, outputs: result.outputs?.filter(o => !o.script) }
 }

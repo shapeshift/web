@@ -183,6 +183,7 @@ export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmCha
 }
 
 export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {
+  console.log({ chainId })
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(chainId)
 

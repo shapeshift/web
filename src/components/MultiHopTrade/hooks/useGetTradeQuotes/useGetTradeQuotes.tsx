@@ -48,6 +48,7 @@ import {
 import {
   selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
+  selectConfirmedQuoteTradeId,
   selectConfirmedTradeExecution,
   selectHopExecutionMetadata,
   selectIsAnyTradeQuoteLoading,
@@ -211,6 +212,9 @@ export const useGetTradeQuotes = () => {
   // Don't memo me, this is a ref and needs to re-evaluate every-render
   const swapperName = activeQuoteMetaRef.current?.swapperName
 
+  // console.log({ hopExecutionMetadata, swapperName })
+
+  // console.log({ activeQuoteMeta, hopExecutionMetadata, swapperName })
   // Is the step we're in a step which requires final quote fetching?
   const isFetchStep = useMemo(() => {
     if (!swapperName) return
@@ -246,6 +250,15 @@ export const useGetTradeQuotes = () => {
         receiveAddress,
     )
   }, [hasFocus, activeTrade, isFetchStep, sellAccountId, sellAccountMetadata, receiveAddress])
+
+  // console.log({
+  //   shouldFetchTradeQuotes,
+  //   isFetchStep,
+  //   sellAccountId,
+  //   receiveAddress,
+  //   activeTrade,
+  //   isSomething: activeTrade && !isExecutableTradeQuote(activeTrade),
+  // })
 
   const queryFnOrSkip = useMemo(() => {
     // Only run this query when we're actually ready

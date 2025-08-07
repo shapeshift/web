@@ -54,7 +54,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     onClose()
   }, [assetId, dispatch, onClose])
 
-  const handleToggleSpam = useCallback(async () => {
+  const handleToggleSpam = useCallback(() => {
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
 

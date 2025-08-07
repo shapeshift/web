@@ -65,6 +65,16 @@ export const tradeQuoteSlice = createSlice({
     clearQuoteExecutionState: create.reducer((state, action: PayloadAction<TradeQuote['id']>) => {
       state.tradeExecution[action.payload] = initialTradeExecutionState
     }),
+    initializeQuickBuyTrade: create.reducer(
+      (state, action: PayloadAction<TradeQuote | TradeRate>) => {
+        const quote = action.payload
+        state.confirmedQuote = quote
+        state.tradeExecution[quote.id] = {
+          ...initialTradeExecutionState,
+          state: TradeExecutionState.Previewing,
+        }
+      },
+    ),
     setTradeExecutionMetadata: create.reducer(
       (
         state,

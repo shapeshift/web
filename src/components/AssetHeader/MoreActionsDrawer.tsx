@@ -58,8 +58,10 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
 
-    if (!isSpamMarked) await moralisReportSpam(assetId)
-  }, [assetId, dispatch, onClose, isSpamMarked])
+    // This is currently borked upstream and we're not yet sure if that's an intermittent issue
+    // or if deprecated and docs are stale, no reason to fire an XHR that will be guaranteed to fail
+    // if (!isSpamMarked) await moralisReportSpam(assetId)
+  }, [assetId, dispatch, onClose])
 
   const explorerHref = useMemo(() => {
     if (!asset) return

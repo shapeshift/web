@@ -514,7 +514,13 @@ export const makeAssets = async ({
           minimalAsset.icons = icons
         }
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, minimalAsset)
+        const asset = makeAsset(state.assets.byId, minimalAsset)
+
+        // Tokens without a precision are an obvious spam
+        if (!asset.precision && !isNft(asset.assetId)) {
+          return prev
+        }
+        prev.byId[token.assetId] = asset
         prev.ids.push(token.assetId)
 
         return prev

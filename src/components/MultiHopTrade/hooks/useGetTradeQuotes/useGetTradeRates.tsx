@@ -1,13 +1,10 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { GetTradeRateInput, SwapperName, TradeRate } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 
-import { useTradeRateInputParams } from '../useTradeRateInputParams'
+import { useGetTradeRateInput } from '../useTradeRateInputParams'
 
-import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -18,7 +15,6 @@ import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import { selectAssets } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
-  selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAsset,
 } from '@/state/slices/tradeInputSlice/selectors'
@@ -101,32 +97,11 @@ export const useGetTradeRates = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-
   const mixpanel = getMixPanel()
 
-  const { tradeInputQueryParams, tradeInputQueryKey } = useTradeRateInputParams()
-
-  const { data: tradeRateInput } = useQuery({
-    queryKey: ['getTradeRateInput', tradeInputQueryKey],
-    queryFn: async () => {
-      // Clear the slice before asynchronously generating the input and running the request.
-      // This is to ensure the initial state change is done synchronously to prevent race conditions
-      // and losing sync on loading state etc.
-      dispatch(tradeQuoteSlice.actions.clear())
-
-      // Early exit on any invalid state
-      if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-        dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-        return null
-      }
-
-      const updatedTradeRateInput = (await getTradeQuoteOrRateInput(
-        tradeInputQueryParams,
-      )) as GetTradeRateInput
-
-      return updatedTradeRateInput
-    },
+  const tradeRateInput = useGetTradeRateInput({
+    shouldClearQuoteSlice: true,
+    cacheKey: 'getTradeRateInput-withSideEffects',
   })
 
   const { data: batchTradeRates } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)

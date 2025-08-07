@@ -11,9 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import { dogeAssetId } from '@shapeshiftoss/caip'
-import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
 import { LayoutGroup, motion } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
@@ -24,8 +22,7 @@ import { TradeQuoteIconLoader, VISIBLE_WIDTH } from './components/TradeQuoteIcon
 import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
-import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
-import { useTradeRateInputParams } from '@/components/MultiHopTrade/hooks/useTradeRateInputParams'
+import { useGetTradeRateInput } from '@/components/MultiHopTrade/hooks/useTradeRateInputParams'
 import { Text } from '@/components/Text'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import { BULK_FETCH_RATE_TIMEOUT_MS, useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
@@ -82,15 +79,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const hasQuotes =
     availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
 
-  const { tradeInputQueryParams, tradeInputQueryKey } = useTradeRateInputParams()
-
-  const { data: tradeRateInput } = useQuery({
-    // We need a separate quote key here to useGetTradeRates as that query has some side effects
-    queryKey: ['getTradeRateInput-TradeQuotes', tradeInputQueryKey],
-    queryFn: async () => {
-      return (await getTradeQuoteOrRateInput(tradeInputQueryParams)) as GetTradeRateInput
-    },
-  })
+  const tradeRateInput = useGetTradeRateInput()
 
   const { status: rateQueryStatus } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
 

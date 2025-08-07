@@ -1,9 +1,13 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
+import { bnOrZero } from '@shapeshiftoss/utils'
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { useTradeReceiveAddress } from '../components/TradeInput/hooks/useTradeReceiveAddress'
 import type { GetTradeQuoteOrRateInputArgs } from './useGetTradeQuotes/getTradeQuoteOrRateInput'
+import { getTradeQuoteOrRateInput } from './useGetTradeQuotes/getTradeQuoteOrRateInput'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -20,12 +24,18 @@ import {
   selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useTradeRateInputParams = () => {
+export const useGetTradeRateInput = ({
+  cacheKey = 'getTradeRateInput',
+  shouldClearQuoteSlice = false,
+}: { cacheKey?: string; shouldClearQuoteSlice?: boolean } = {}) => {
   const {
     state: { wallet },
   } = useWallet()
+
+  const dispatch = useAppDispatch()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -129,5 +139,31 @@ export const useTradeRateInputParams = () => {
       userSlippageTolerancePercentageDecimal,
     ],
   )
-  return { tradeInputQueryKey, tradeInputQueryParams }
+
+  const { data: tradeRateInput } = useQuery({
+    // We need a separate quote key here to useGetTradeRates as that query has some side effects
+    queryKey: [cacheKey, tradeInputQueryKey],
+    queryFn: async () => {
+      // Clear the slice before asynchronously generating the input and running the request.
+      // This is to ensure the initial state change is done synchronously to prevent race conditions
+      // and losing sync on loading state etc.
+      if (shouldClearQuoteSlice) dispatch(tradeQuoteSlice.actions.clear())
+
+      // Early exit on any invalid state
+      if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+        if (shouldClearQuoteSlice) {
+          dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+        }
+        return null
+      }
+
+      const updatedTradeRateInput = (await getTradeQuoteOrRateInput(
+        tradeInputQueryParams,
+      )) as GetTradeRateInput
+
+      return updatedTradeRateInput
+    },
+  })
+
+  return tradeRateInput
 }

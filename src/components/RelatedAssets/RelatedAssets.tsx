@@ -7,6 +7,7 @@ import type { Column, Row } from 'react-table'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { selectRelatedAssetIds } from '@/state/slices/related-assets-selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -20,6 +21,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   const relatedAssetIds = useAppSelector(state =>
     selectRelatedAssetIds(state, relatedAssetIdsFilter),
   )
+  const assetActionsDrawer = useModal('assetActionsDrawer')
   const assets = useAppSelector(selectAssets)
   const navigate = useNavigate()
 
@@ -49,6 +51,14 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     [navigate],
   )
 
+  const handleRowLongPress = useCallback(
+    (row: Row<AssetId>) => {
+      const assetId = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   if (!relatedAssetIds.length) return null
 
   return (
@@ -63,6 +73,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
           columns={columns}
           data={relatedAssetIds}
           onRowClick={handleRowClick}
+          onRowLongPress={handleRowLongPress}
           variant='clickable'
         />
       </CardBody>

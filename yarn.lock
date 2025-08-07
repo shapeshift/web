@@ -11723,6 +11723,7 @@ __metadata:
     ts-prune: ^0.10.3
     tsx: ^4.19.3
     typescript: ^5.2.2
+    use-long-press: ^3.3.0
     uuid: ^9.0.0
     vaul: ^1.1.2
     viem: ^2.10.9
@@ -34284,6 +34285,15 @@ pvutils@latest:
     "@types/react":
       optional: true
   checksum: e1681ffcac542a7536adda84c022652417463eb85eac95243860cba3ae9198aa36a8b8b11eb5d85217979648ecb00fd0e2727789dd023ac00b0cc94e4f76a511
+  languageName: node
+  linkType: hard
+
+"use-long-press@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "use-long-press@npm:3.3.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: f0066c1a0348e67f6f8619a23be50533395350c530f82f02d25287d216972048132d026f465cad5442571447fe8b02738948dadcebbde01a5a070801f5af0656
   languageName: node
   linkType: hard
 

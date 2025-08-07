@@ -13,6 +13,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { MarketsTableVirtualized } from '@/components/MarketTableVirtualized/MarketsTableVirtualized'
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { selectAssetsNoSpam } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -22,6 +23,7 @@ export const Assets = () => {
   const navigate = useNavigate()
   const assetsNoSpam = useAppSelector(selectAssetsNoSpam)
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
     if (!filterValue) return rows
@@ -47,6 +49,15 @@ export const Assets = () => {
     },
     [navigate],
   )
+
+  const handleRowLongPress = useCallback(
+    (row: Row<Asset>) => {
+      const { assetId } = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   return (
     <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>
       <SEO title={translate('navBar.assets')} />
@@ -63,7 +74,11 @@ export const Assets = () => {
           </Flex>
         </PageHeader>
       </Display.Mobile>
-      <MarketsTableVirtualized rows={rows} onRowClick={handleRowClick} />
+      <MarketsTableVirtualized
+        rows={rows}
+        onRowClick={handleRowClick}
+        onRowLongPress={handleRowLongPress}
+      />
     </Main>
   )
 }

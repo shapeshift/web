@@ -45,13 +45,11 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
   )
 
   const handleWatchAsset = useCallback(() => {
-    if (assetId === undefined) return
     dispatch(preferences.actions.toggleWatchedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])
 
   const handleToggleSpam = useCallback(() => {
-    if (assetId === undefined) return
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
   }, [assetId, dispatch, onClose])

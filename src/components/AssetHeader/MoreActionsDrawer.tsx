@@ -10,7 +10,6 @@ import { DialogHeader } from '../Modal/components/DialogHeader'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { moralisReportSpam } from '@/lib/moralis'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'

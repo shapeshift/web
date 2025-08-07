@@ -38,6 +38,7 @@
     "goBack": "戻る",
     "connected": "接続済み",
     "allocation": "割り当て",
+    "trendingTokens": "トレンドトークン",
     "value": "価値",
     "created": "作成日 %{date}",
     "noResultsFound": "結果が見つかりません。",
@@ -198,7 +199,10 @@
     "others": "その他",
     "hardwareWallets": "ハードウェアウォレット",
     "dustAmount": "ダスト量",
-    "marketDataUnavailable": "%{asset} の市場データは利用できません"
+    "marketDataUnavailable": "%{asset} の市場データは利用できません",
+    "streaming": "ストリーミング",
+    "dca": "DCA",
+    "boost": "ブースト"
   },
   "consentBanner": {
     "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
@@ -2681,6 +2685,8 @@
     },
     "stakeSuccess": "%{amount} %{symbol} のステークに成功しました",
     "stakePending": "%{amount} %{symbol} をステーキング中...",
+    "changeAddressPending": "RFOX 報酬アドレスを %{newAddress} に変更します",
+    "changeAddressSuccess": "RFOX 報酬アドレスを %{newAddress} に変更しました",
     "addressUpdated": "アドレスが更新されました",
     "changeRewardAddressPending": "報酬アドレスを変更しています...",
     "changeRewardAddressSuccess": "THORChain 報酬アドレスの変更に成功しました。",
@@ -2776,6 +2782,7 @@
     "timeStaked": "ステー9時間",
     "timeStakedHelper": "%{symbol}を賭けた時間の長さ",
     "stakingReward": "ステーキング報酬",
+    "claimNow": "Thorchainで貯蓄/貸出ポジションをお持ちでした。今すぐTCYを請求できます。",
     "claimsEmpty": {
       "emptyTitle": "請求するものがありません",
       "emptyBody": "TCYの請求が利用できないようです。別のウォレットでお試しください。",
@@ -2820,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "額",
-      "networkFee": "ネットワーク料金",
-      "networkFeeTooltip": "ネットワーク料金",
       "stake": "ステーク",
       "amountPlaceholder": "金額を入力"
     },
@@ -2868,9 +2873,11 @@
     },
     "emptyTitle": "資産が見つかりません",
     "emptyBody": "現在のフィルターではアセットが見つかりません。選択するチェーンを調整して、さらに多くのアセットを表示してください。",
+    "emptyBodySwapper": "現在のフィルターではアセットが見つかりません。",
     "categories": {
       "oneClickDefiAssets": {
         "title": "ワンクリックDeFiアセット",
+        "filterTitle": "高利回りトークン",
         "subtitle": "自分に最適の利回りを見つけましょう。ポータルを使用して、プール、金庫、貸出オプション、LSD の間を簡単に切り替えることができます。"
       },
       "thorchainDefi": {
@@ -2960,8 +2967,6 @@
     "limitPrice": "指値価格",
     "expires": "有効期限",
     "filled": "成立",
-    "streaming": "ストリーミング",
-    "claim": "請求",
     "protocol": "プロトコル",
     "streamingStatus": "ストリーミングステータス",
     "executionPrice": "執行価格",
@@ -2990,6 +2995,18 @@
       "failed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップに失敗しました。",
       "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。"
     },
+    "deposit": {
+      "pending": "%{amount} %{symbol} の入金を処理中です。",
+      "complete": "%{amount} %{symbol} の入金が完了しました。"
+    },
+    "withdrawal": {
+      "pending": "%{amount} %{symbol} の出金を処理中です。",
+      "complete": "%{amount} %{symbol} の出金が完了しました。"
+    },
+    "claim": {
+      "pending": "%{amount} %{symbol} の請求を処理中です。",
+      "complete": "%{amount} %{symbol} の請求が完了しました。"
+    },
     "bridge": {
       "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
       "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが完了しました。",
@@ -3009,9 +3026,17 @@
       "unstakeTxComplete": "%{amount} %{symbol} のステーク解除が完了しました。"
     },
     "tcy": {
-      "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です",
+      "stakePending": "あなたの %{amount} %{symbol} のステークを処理中です...",
+      "unstakePending": "%{amount} %{symbol} のステーク解除を処理中です...",
+      "stakeComplete": "%{amount} %{symbol} のステークが完了しました。",
+      "unstakeComplete": "%{amount} %{symbol} のステーク解除が完了しました。",
+      "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です。",
       "claimTxPending": "%{amount} %{symbol} の TCY 請求は保留中です。",
       "claimTxComplete": "%{amount} %{symbol} の TCY 請求が完了しました。"
+    },
+    "approve": {
+      "approvalTxPending": "%{contractName} が %{amountCryptoPrecision} %{symbol} を使用することを承認しています。",
+      "approvalTxComplete": "%{contractName} が %{amountCryptoPrecision} %{symbol} を使用することを承認しました。"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

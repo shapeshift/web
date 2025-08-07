@@ -10,9 +10,7 @@ import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
-import {
-  selectAssetIdParamFromFilter,
-} from '@/state/selectors'
+import { selectAssetIdParamFromFilter } from '@/state/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const selectAssetById = createCachedSelector(

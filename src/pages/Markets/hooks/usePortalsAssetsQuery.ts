@@ -24,7 +24,7 @@ export const usePortalsAssetsQuery = ({
   sortBy,
   orderBy,
   minApy,
-  tags
+  tags,
 }: {
   enabled: boolean
   chainIds: ChainId[] | undefined

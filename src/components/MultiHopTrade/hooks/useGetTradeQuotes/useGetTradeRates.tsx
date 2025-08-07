@@ -3,7 +3,7 @@ import type { SwapperName, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate } from '@shapeshiftoss/swapper'
 import { useEffect, useRef } from 'react'
 
-import { useGetTradeRateInput } from '../useTradeRateInputParams'
+import { useGetTradeRateInput } from '../useGetTradeRateInput'
 
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'

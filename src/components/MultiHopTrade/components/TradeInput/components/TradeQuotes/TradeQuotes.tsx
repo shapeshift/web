@@ -22,7 +22,7 @@ import { TradeQuoteIconLoader, VISIBLE_WIDTH } from './components/TradeQuoteIcon
 import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
-import { useGetTradeRateInput } from '@/components/MultiHopTrade/hooks/useTradeRateInputParams'
+import { useGetTradeRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeRateInput'
 import { Text } from '@/components/Text'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import { BULK_FETCH_RATE_TIMEOUT_MS, useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'

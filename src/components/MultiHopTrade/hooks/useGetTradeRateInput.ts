@@ -12,10 +12,7 @@ import { getTradeQuoteOrRateInput } from './useGetTradeQuotes/getTradeQuoteOrRat
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
-import {
-  selectPortfolioAccountMetadataByAccountId,
-  selectUsdRateByAssetId,
-} from '@/state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -64,8 +61,6 @@ export const useGetTradeRateInput = ({
   const receiveAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
-
-  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
@@ -116,7 +111,6 @@ export const useGetTradeRateInput = ({
       sellAmountCryptoPrecision,
       sellAsset,
       userSlippageTolerancePercentageDecimal,
-      sellAssetUsdRate,
       // TODO(gomes): all the below are what's causing trade input to refentially invalidate on wallet connect
       // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data to
       // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
@@ -135,7 +129,6 @@ export const useGetTradeRateInput = ({
       sellAccountMetadata,
       sellAmountCryptoPrecision,
       sellAsset,
-      sellAssetUsdRate,
       userSlippageTolerancePercentageDecimal,
     ],
   )

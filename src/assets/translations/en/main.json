@@ -130,6 +130,7 @@
     "buySell": "Buy/Sell",
     "all": "All",
     "viewAll": "View All",
+    "seeMore": "See More",
     "slippage": "Slippage",
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
@@ -2658,6 +2659,15 @@
     "tcy": {
       "title": "TCY",
       "body": "Stake TCY earn RUNE."
+    },
+    "tags": {
+      "liquid-staking": "Liquid Staking",
+      "yield": "Yield",
+      "lending": "Lending",
+      "rwa": "RWA",
+      "yield-aggregator": "Yield Aggregator",
+      "pool": "Pool",
+      "clp": "CLP"
     }
   },
   "RFOX": {

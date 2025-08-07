@@ -1,17 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput, SwapperName, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
-import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
+import { useTradeRateInputParams } from '../useTradeRateInputParams'
+
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -19,17 +15,12 @@ import { isSome } from '@/lib/utils'
 import { selectIsBatchTradeRateQueryLoading } from '@/state/apis/swapper/selectors'
 import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
-import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import {
-  selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAsset,
-  selectLastHopBuyAccountId,
-  selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
@@ -106,72 +97,18 @@ const getMixPanelDataFromApiRates = (
 
 export const useGetTradeRates = () => {
   const dispatch = useAppDispatch()
-  const {
-    state: { wallet },
-  } = useWallet()
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const sellAsset = useAppSelector(selectInputSellAsset)
-  const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-
-  const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
-
-  const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
-
-  const sellAccountMetadataFilter = useMemo(
-    () => ({
-      accountId: sellAccountId,
-    }),
-    [sellAccountId],
-  )
-
-  const buyAccountMetadataFilter = useMemo(
-    () => ({
-      accountId: buyAccountId,
-    }),
-    [buyAccountId],
-  )
-
-  const sellAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, sellAccountMetadataFilter),
-  )
-  const receiveAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
-  )
 
   const mixpanel = getMixPanel()
 
-  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
-
-  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
-  const isBuyAssetChainSupported = walletSupportsBuyAssetChain
-
-  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+  const { tradeInputQueryParams, tradeInputQueryKey } = useTradeRateInputParams()
 
   const { data: tradeRateInput } = useQuery({
-    queryKey: [
-      'getTradeRateInput',
-      {
-        buyAsset,
-        sellAmountCryptoPrecision,
-        sellAsset,
-        userSlippageTolerancePercentageDecimal,
-        sellAssetUsdRate,
-        // TODO(gomes): all the below are what's causing trade input to refentially invalidate on wallet connect
-        // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data to
-        // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
-        sellAccountMetadata,
-        receiveAccountMetadata,
-        sellAccountId,
-        isBuyAssetChainSupported,
-        receiveAddress,
-      },
-    ],
+    queryKey: ['getTradeRateInput', tradeInputQueryKey],
     queryFn: async () => {
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions
@@ -183,28 +120,10 @@ export const useGetTradeRates = () => {
         dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
         return null
       }
-      const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-      const affiliateBps = DEFAULT_FEE_BPS
-
-      const updatedTradeRateInput = (await getTradeQuoteOrRateInput({
-        sellAsset,
-        sellAccountNumber,
-        sellAccountType: sellAccountMetadata?.accountType,
-        buyAsset,
-        wallet: wallet ?? undefined,
-        quoteOrRate: 'rate',
-        receiveAddress,
-        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-        allowMultiHop: true,
-        affiliateBps,
-        // Pass in the user's slippage preference if it's set, else let the swapper use its default
-        slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-        pubKey:
-          wallet && isLedger(wallet) && sellAccountId
-            ? fromAccountId(sellAccountId).account
-            : undefined,
-      })) as GetTradeRateInput
+      const updatedTradeRateInput = (await getTradeQuoteOrRateInput(
+        tradeInputQueryParams,
+      )) as GetTradeRateInput
 
       return updatedTradeRateInput
     },

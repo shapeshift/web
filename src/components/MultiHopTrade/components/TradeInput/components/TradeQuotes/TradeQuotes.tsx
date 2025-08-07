@@ -9,11 +9,14 @@ import {
   Icon,
   Tag,
 } from '@chakra-ui/react'
+import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import { dogeAssetId } from '@shapeshiftoss/caip'
+import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
+import { useQuery } from '@tanstack/react-query'
 import { LayoutGroup, motion } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -21,12 +24,11 @@ import { TradeQuoteIconLoader, VISIBLE_WIDTH } from './components/TradeQuoteIcon
 import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
+import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
+import { useTradeRateInputParams } from '@/components/MultiHopTrade/hooks/useTradeRateInputParams'
 import { Text } from '@/components/Text'
-import {
-  selectIsBatchTradeRateQueryLoading,
-  selectIsTradeQuoteApiQueryPending,
-} from '@/state/apis/swapper/selectors'
-import { BULK_FETCH_RATE_TIMEOUT_MS } from '@/state/apis/swapper/swapperApi'
+import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
+import { BULK_FETCH_RATE_TIMEOUT_MS, useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
@@ -77,9 +79,20 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
   const loaderSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
-  const isBatchTradeRateQueryLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
   const hasQuotes =
     availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
+
+  const { tradeInputQueryParams, tradeInputQueryKey } = useTradeRateInputParams()
+
+  const { data: tradeRateInput } = useQuery({
+    // We need a separate quote key here to useGetTradeRates as that query has some side effects
+    queryKey: ['getTradeRateInput-TradeQuotes', tradeInputQueryKey],
+    queryFn: async () => {
+      return (await getTradeQuoteOrRateInput(tradeInputQueryParams)) as GetTradeRateInput
+    },
+  })
+
+  const { status: rateQueryStatus } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
 
   const bestQuotesByCategory = useMemo(
     () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
@@ -143,20 +156,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
     onBack,
   ])
 
-  const [showNoResult, setShowNoResults] = useState(false)
-
-  // This is dumb but there's a state where the quotes get cleared and rates request hasn't been kicked off yet (not loading)
-  // We don't want to flash the no results so we wait 500ms before showing it
-  useEffect(() => {
-    if (availableQuotes.length > 0 && showNoResult) {
-      setShowNoResults(false)
-    } else if (availableQuotes.length === 0 && !showNoResult) {
-      setTimeout(() => {
-        setShowNoResults(true)
-      }, 500)
-    }
-  }, [availableQuotes, showNoResult])
-
   const unavailableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
@@ -202,7 +201,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {showNoResult && !isBatchTradeRateQueryLoading ? (
+          {rateQueryStatus === QueryStatus.fulfilled && availableQuotes.length === 0 ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'
@@ -222,7 +221,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
-          {!hasQuotes && isBatchTradeRateQueryLoading ? (
+          {rateQueryStatus !== QueryStatus.fulfilled && !hasQuotes ? (
             <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
               <TradeQuoteIconLoader swapperNames={loaderSwapperNames} />
               <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>

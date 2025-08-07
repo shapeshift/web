@@ -45,6 +45,9 @@ export const Tags = () => {
   useEffect(() => {
     if (tagParam && buttonRefs.current[tagParam] && containerRef.current) {
       const selectedButton = buttonRefs.current[tagParam]
+
+      if (!selectedButton) return
+
       const container = containerRef.current
 
       const buttonRect = selectedButton.getBoundingClientRect()

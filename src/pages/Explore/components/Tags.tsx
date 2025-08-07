@@ -1,5 +1,5 @@
 import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -18,6 +18,8 @@ const containerSx = {
 export const Tags = () => {
   const translate = useTranslate()
   const tags = useMemo(() => Object.values(PortalsTags), [])
+  const containerRef = useRef<HTMLDivElement>(null)
+  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   const { tag: tagParam } = useParams<{ tag?: string }>()
 
@@ -40,8 +42,38 @@ export const Tags = () => {
     }
   }, [activeBgColor, activeTextColor])
 
+  useEffect(() => {
+    if (tagParam && buttonRefs.current[tagParam] && containerRef.current) {
+      const selectedButton = buttonRefs.current[tagParam]
+      const container = containerRef.current
+
+      const buttonRect = selectedButton.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
+
+      // Calculate if the button is outside the visible area
+      const isButtonLeftOfContainer = buttonRect.left < containerRect.left
+      const isButtonRightOfContainer = buttonRect.right > containerRect.right
+
+      if (isButtonLeftOfContainer || isButtonRightOfContainer) {
+        // Calculate scroll position to center the button
+        const scrollLeft =
+          selectedButton.offsetLeft - container.offsetWidth / 2 + selectedButton.offsetWidth / 2
+
+        container.scrollTo({
+          left: Math.max(0, scrollLeft),
+          behavior: 'smooth',
+        })
+      }
+    }
+  }, [tagParam])
+
+  const handleButtonRef = useCallback((element: HTMLButtonElement | null, tag: string) => {
+    buttonRefs.current[tag] = element
+  }, [])
+
   return (
     <Flex
+      ref={containerRef}
       alignItems='center'
       gap={2}
       overflowX='auto'
@@ -54,6 +86,7 @@ export const Tags = () => {
       {tags.map(tag => (
         <Button
           key={tag}
+          ref={element => handleButtonRef(element, tag)}
           size='sm'
           variant='ghost'
           borderRadius='full'
@@ -70,7 +103,6 @@ export const Tags = () => {
           fontSize='sm'
           transition='all 0.2s'
           flexShrink={0}
-          // eslint-disable-next-line react-memo/require-usememo
           onClick={() => handleClick(tag)}
         >
           {translate(`explore.tags.${tag}`)}

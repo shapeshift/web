@@ -1,4 +1,5 @@
-import { skipToken } from '@reduxjs/toolkit/query'
+import { usePrevious } from '@chakra-ui/react'
+import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import type { SwapperName, TradeRate } from '@shapeshiftoss/swapper'
 import { isThorTradeRate } from '@shapeshiftoss/swapper'
 import { useEffect, useRef } from 'react'
@@ -96,16 +97,33 @@ export const useGetTradeRates = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const sellAsset = useAppSelector(selectInputSellAsset)
-  const buyAsset = useAppSelector(selectInputBuyAsset)
-
   const mixpanel = getMixPanel()
 
   const { data: tradeRateInput } = useGetTradeRateInput({ shouldClearSlice: true })
 
-  const { data: batchTradeRates } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
+  const {
+    data: batchTradeRates,
+    status,
+    isSuccess,
+    isFetching,
+    isLoading,
+  } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
 
-  const isBatchTradeRatesLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
+  const isBatchTradeRatesLoading = status !== QueryStatus.fulfilled
+  const hasGotTradeRates = isSuccess && !isFetching && !isLoading
+  const previousGotTradeRates = usePrevious(hasGotTradeRates)
+  console.log({
+    status,
+    isSuccess,
+    isFetching,
+    isLoading,
+    hasGotTradeRates,
+    previousGotTradeRates,
+    tradeRateInput,
+  })
+  if (hasGotTradeRates && !previousGotTradeRates) {
+    console.log('BEANS')
+  }
 
   // Dispatch batch results to Redux when they arrive
   useEffect(() => {

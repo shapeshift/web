@@ -9,12 +9,12 @@ import {
   Icon,
   Tag,
 } from '@chakra-ui/react'
-import { skipToken } from '@reduxjs/toolkit/query'
+import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import { dogeAssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import { LayoutGroup, motion } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -23,7 +23,6 @@ import { TradeQuote } from './TradeQuote'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
 import { useGetTradeRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRateInput'
-import { useGetTradeRates } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 import { Text } from '@/components/Text'
 import {
   selectIsBatchTradeRateQueryLoading,
@@ -80,17 +79,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
   const sortOption = useAppSelector(tradeQuoteSlice.selectors.selectQuoteSortOption)
   const loaderSwapperNames = useAppSelector(selectEnabledSwappersIgnoringCrossAccountTrade)
-  const isBatchTradeRateQueryLoading = useAppSelector(selectIsBatchTradeRateQueryLoading)
-  const hasQuotes =
-    availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
 
   const { data: tradeInput } = useGetTradeRateInput({ shouldClearSlice: true })
-  // const {
-  //   data: tradeRatesData,
-  //   isLoading,
-  //   isFetching,
-  // } = useGetTradeRatesQuery(tradeInput ?? skipToken)
-  // console.log({ tradeInput, tradeRatesData, isLoading, isFetching })
+  const { status } = useGetTradeRatesQuery(tradeInput ?? skipToken)
 
   const bestQuotesByCategory = useMemo(
     () => getBestQuotesByCategory(availableTradeQuotesDisplayCache),
@@ -199,7 +190,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>{availableQuotes}</LayoutGroup>
 
-          {tradeInput !== undefined && !isBatchTradeRateQueryLoading ? (
+          {status === QueryStatus.fulfilled && availableQuotes.length === 0 ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'
@@ -219,7 +210,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
-          {!hasQuotes && isBatchTradeRateQueryLoading ? (
+          {status !== QueryStatus.fulfilled ? (
             <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
               <TradeQuoteIconLoader swapperNames={loaderSwapperNames} />
               <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>

@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
@@ -71,38 +71,56 @@ export const useGetTradeRateInput = ({
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  return useQuery({
-    queryKey: [
-      'getTradeRateInput',
-      {
-        buyAsset,
-        sellAmountCryptoPrecision,
-        sellAsset,
-        userSlippageTolerancePercentageDecimal,
-        sellAssetUsdRate,
-        sellAccountMetadata,
-        receiveAccountMetadata,
-        sellAccountId,
-        isBuyAssetChainSupported,
-        receiveAddress,
-      },
-    ],
-    queryFn: async (): Promise<GetTradeRateInput | null> => {
-      // Clear the slice before asynchronously generating the input and running the request.
-      // This is to ensure the initial state change is done synchronously to prevent race conditions
-      // and losing sync on loading state etc.
-      if (shouldClearSlice) {
-        dispatch(tradeQuoteSlice.actions.clear())
-      }
+  console.log({ sellAmountCryptoPrecision })
 
-      // Early exit on any invalid state
-      if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-        if (shouldClearSlice) {
-          dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-        }
-        return null
-      }
+  const queryParams = useMemo(
+    () => ({
+      buyAsset,
+      sellAmountCryptoPrecision,
+      sellAsset,
+      userSlippageTolerancePercentageDecimal,
+      sellAssetUsdRate,
+      sellAccountMetadata,
+      receiveAccountMetadata,
+      sellAccountId,
+      isBuyAssetChainSupported,
+      receiveAddress,
+    }),
+    [
+      buyAsset,
+      isBuyAssetChainSupported,
+      receiveAccountMetadata,
+      receiveAddress,
+      sellAccountId,
+      sellAccountMetadata,
+      sellAmountCryptoPrecision,
+      sellAsset,
+      sellAssetUsdRate,
+      userSlippageTolerancePercentageDecimal,
+    ],
+  )
+
+  useEffect(() => {
+    // Clear the slice before asynchronously generating the input and running the request.
+    // This is to ensure the initial state change is done synchronously to prevent race conditions
+    // and losing sync on loading state etc.
+    if (!shouldClearSlice) return
+    // dispatch(tradeQuoteSlice.actions.clear())
+
+    // Early exit on any invalid state
+    // if (bnOrZero(queryParams.sellAmountCryptoPrecision).isZero()) {
+    //   dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+    // }
+  }, [dispatch, queryParams, shouldClearSlice])
+
+  return useQuery({
+    queryKey: ['getTradeRateInput', queryParams],
+    queryFn: async (): Promise<GetTradeRateInput | null> => {
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
+
+      // if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+      //   return null
+      // }
 
       const affiliateBps = DEFAULT_FEE_BPS
 
@@ -124,8 +142,9 @@ export const useGetTradeRateInput = ({
             : undefined,
       })) as GetTradeRateInput
 
+      console.log({ updatedTradeRateInput })
+
       return updatedTradeRateInput
     },
   })
 }
-

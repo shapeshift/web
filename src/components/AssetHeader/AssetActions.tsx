@@ -8,9 +8,6 @@ import { FaCreditCard, FaEllipsisH } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { Display } from '../Display'
-import { AssetActionsDrawer } from './AssetActionsDrawer'
-
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -66,11 +63,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const navigate = useNavigate()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
-  const [isMoreActionsOpen, setIsMoreActionsOpen] = useState(false)
   const chainAdapterManager = getChainAdapterManager()
   const send = useModal('send')
   const receive = useModal('receive')
   const fiatRamps = useModal('fiatRamps')
+  const assetActionsDrawer = useModal('assetActionsDrawer')
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const {
@@ -115,12 +112,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   }, [assetId, navigate])
 
   const handleMoreClick = useCallback(() => {
-    setIsMoreActionsOpen(true)
-  }, [])
-
-  const handleMoreClose = useCallback(() => {
-    setIsMoreActionsOpen(false)
-  }, [])
+    assetActionsDrawer.open({ assetId })
+  }, [assetActionsDrawer, assetId])
 
   if (isMobile) {
     return (
@@ -190,13 +183,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({
             />
           </Flex>
         </Flex>
-        <Display.Mobile>
-          <AssetActionsDrawer
-            assetId={assetId}
-            isOpen={isMoreActionsOpen}
-            onClose={handleMoreClose}
-          />
-        </Display.Mobile>
       </>
     )
   }

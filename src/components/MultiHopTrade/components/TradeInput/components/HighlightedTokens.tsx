@@ -15,14 +15,13 @@ import { HighlightedTokensCategoryDialog } from './HighlightedTokensCategoryDial
 import { HighlightedTokensFiltersDialog } from './HighlightedTokensFiltersDialog'
 import { HighlightedTokensPriceCell } from './HighlightedTokensPriceCell'
 
-import { AssetActionsDrawer } from '@/components/AssetHeader/AssetActionsDrawer'
-import { Display } from '@/components/Display'
 import type { OrderDirection } from '@/components/OrderDropdown/types'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -44,7 +43,7 @@ export const HighlightedTokens = () => {
   const assetsById = useAppSelector(selectAssets)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
-  const [selectedAssetIdForMenu, setSelectedAssetIdForMenu] = useState<string | undefined>()
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
     preferences.selectors.selectHighlightedTokensFilters,
@@ -210,12 +209,13 @@ export const HighlightedTokens = () => {
     [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
   )
 
-  const handleRowLongPress = useCallback((row: Row<Asset>) => {
-    const { assetId } = row.original
-    setSelectedAssetIdForMenu(assetId)
-  }, [])
-
-  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
+  const handleRowLongPress = useCallback(
+    (row: Row<Asset>) => {
+      const { assetId } = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
 
   const handleOpenCategoriesDialog = useCallback(() => {
     setIsCategoryDialogOpen(true)
@@ -352,14 +352,6 @@ export const HighlightedTokens = () => {
         handleOrderChange={handleOrderChange}
         handleChainIdChange={handleChainIdChange}
       />
-
-      <Display.Mobile>
-        <AssetActionsDrawer
-          assetId={selectedAssetIdForMenu}
-          isOpen={selectedAssetIdForMenu !== undefined}
-          onClose={handleCloseAssetMenu}
-        />
-      </Display.Mobile>
     </Flex>
   )
 }

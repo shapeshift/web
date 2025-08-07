@@ -2,6 +2,7 @@ import { LongPressEventType } from 'use-long-press'
 
 export const defaultLongPressConfig = { detect: LongPressEventType.Touch, cancelOnMovement: 8 }
 
+// These styles primarily prevent things like mobile highlight behaviours to allow for long press
 export const longPressSx = {
   // Only apply on touch devices (mobile/tablet)
   '@media (hover: none) and (pointer: coarse)': {

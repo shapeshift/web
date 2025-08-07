@@ -6,7 +6,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { AssetActionsDrawer } from '@/components/AssetHeader/AssetActionsDrawer'
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -14,6 +13,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { MarketsTableVirtualized } from '@/components/MarketTableVirtualized/MarketsTableVirtualized'
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { selectAssetsNoSpam } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -23,7 +23,7 @@ export const Assets = () => {
   const navigate = useNavigate()
   const assetsNoSpam = useAppSelector(selectAssetsNoSpam)
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
-  const [selectedAssetIdForMenu, setSelectedAssetIdForMenu] = useState<string | undefined>()
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
     if (!filterValue) return rows
@@ -50,12 +50,13 @@ export const Assets = () => {
     [navigate],
   )
 
-  const handleRowLongPress = useCallback((row: Row<Asset>) => {
-    const { assetId } = row.original
-    setSelectedAssetIdForMenu(assetId)
-  }, [])
-
-  const handleCloseAssetMenu = useCallback(() => setSelectedAssetIdForMenu(undefined), [])
+  const handleRowLongPress = useCallback(
+    (row: Row<Asset>) => {
+      const { assetId } = row.original
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
 
   return (
     <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>
@@ -78,13 +79,6 @@ export const Assets = () => {
         onRowClick={handleRowClick}
         onRowLongPress={handleRowLongPress}
       />
-      <Display.Mobile>
-        <AssetActionsDrawer
-          assetId={selectedAssetIdForMenu}
-          isOpen={selectedAssetIdForMenu !== undefined}
-          onClose={handleCloseAssetMenu}
-        />
-      </Display.Mobile>
     </Main>
   )
 }

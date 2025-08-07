@@ -111,6 +111,6 @@ export const moralisReportSpam = async (assetId: AssetId) => {
     )
   } catch (error) {
     console.error('Error reporting spam to Moralis', error)
-    return null
+    return
   }
 }

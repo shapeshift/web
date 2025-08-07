@@ -29,7 +29,7 @@ const startMoralis = async () => {
   })
 }
 
-export const CHAIN_ID_TO_MORALIS_ERC20_CHAIN = {
+export const CHAIN_ID_TO_MORALIS_CHAIN = {
   [ethChainId]: EvmChain.ETHEREUM,
   [polygonChainId]: EvmChain.POLYGON,
   [optimismChainId]: EvmChain.OPTIMISM,
@@ -47,7 +47,7 @@ export type MoralisNftAccount = ReturnType<GetWalletNFTsResponseAdapter['toJSON'
 export const getMoralisErc20Account =
   (accountId: AccountId) => async (): Promise<MoralisErc20Account | null> => {
     try {
-      const chain = CHAIN_ID_TO_MORALIS_ERC20_CHAIN[fromAccountId(accountId).chainId]
+      const chain = CHAIN_ID_TO_MORALIS_CHAIN[fromAccountId(accountId).chainId]
       if (!chain) return null
 
       await startMoralis()
@@ -67,7 +67,7 @@ export const getMoralisErc20Account =
 export const getMoralisNftAccount =
   (accountId: AccountId) => async (): Promise<MoralisNftAccount | null> => {
     try {
-      const chain = CHAIN_ID_TO_MORALIS_ERC20_CHAIN[fromAccountId(accountId).chainId]
+      const chain = CHAIN_ID_TO_MORALIS_CHAIN[fromAccountId(accountId).chainId]
       if (!chain) return null
 
       await startMoralis()
@@ -86,7 +86,7 @@ export const getMoralisNftAccount =
 
 export const moralisReportSpam = async (assetId: AssetId) => {
   try {
-    const chain = CHAIN_ID_TO_MORALIS_ERC20_CHAIN[fromAssetId(assetId).chainId]
+    const chain = CHAIN_ID_TO_MORALIS_CHAIN[fromAssetId(assetId).chainId]
     if (!chain) return
 
     await startMoralis()

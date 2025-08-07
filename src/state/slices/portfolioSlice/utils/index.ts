@@ -65,7 +65,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  CHAIN_ID_TO_MORALIS_ERC20_CHAIN,
+  CHAIN_ID_TO_MORALIS_CHAIN,
   getMoralisErc20Account,
   getMoralisNftAccount,
 } from '@/lib/moralis'
@@ -462,7 +462,7 @@ export const makeAssets = async ({
           isEvmChainId(chainId) &&
           !isNft(token.assetId) &&
           !isPool &&
-          CHAIN_ID_TO_MORALIS_ERC20_CHAIN[chainId] &&
+          CHAIN_ID_TO_MORALIS_CHAIN[chainId] &&
           moralisErc20Account?.find(
             tokenAsset => tokenAsset.token_address === fromAssetId(token.assetId).assetReference,
           )
@@ -470,7 +470,7 @@ export const makeAssets = async ({
         const maybeMoralisNft =
           isEvmChainId(chainId) &&
           isNft(token.assetId) &&
-          CHAIN_ID_TO_MORALIS_ERC20_CHAIN[chainId] &&
+          CHAIN_ID_TO_MORALIS_CHAIN[chainId] &&
           moralisNftAccount?.result?.find(
             nftAsset =>
               nftAsset.token_address.toLowerCase() ===

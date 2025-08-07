@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
-  CHAIN_ID_TO_MORALIS_ERC20_CHAIN,
+  CHAIN_ID_TO_MORALIS_CHAIN,
   getMoralisErc20Account,
   getMoralisNftAccount,
 } from '@/lib/moralis'
@@ -26,7 +26,7 @@ export const usePortfolioFetch = () => {
     queries: enabledWalletAccountIds
       .filter(accountId => {
         const chainId = fromAccountId(accountId).chainId
-        return isEvmChainId(chainId) && CHAIN_ID_TO_MORALIS_ERC20_CHAIN[chainId]
+        return isEvmChainId(chainId) && CHAIN_ID_TO_MORALIS_CHAIN[chainId]
       })
       .map(accountId => [
         {

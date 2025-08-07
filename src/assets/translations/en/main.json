@@ -2041,7 +2041,7 @@
     "spam": {
       "warning": "This asset will be hidden because you've marked it as spam.",
       "marked": "This asset is marked as spam.",
-      "reportAsSpam": "Mark as spam",
+      "reportAsSpam": "Report as spam",
       "reportAsNotSpam": "Mark as not spam"
     },
     "assetDetails": {

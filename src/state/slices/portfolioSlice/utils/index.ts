@@ -464,7 +464,8 @@ export const makeAssets = async ({
           !isPool &&
           CHAIN_ID_TO_MORALIS_CHAIN[chainId] &&
           moralisErc20Account?.find(
-            tokenAsset => tokenAsset.token_address === fromAssetId(token.assetId).assetReference,
+            tokenAsset =>
+              tokenAsset.token_address.toLowerCase() === fromAssetId(token.assetId).assetReference,
           )
 
         const maybeMoralisNft =

@@ -18,9 +18,6 @@ export type TokenInfo = {
     volumeUsd7d?: string
   }
   tokens: string[]
-  metadata: {
-    tags: string[]
-  }
 }
 
 export type Platform = {

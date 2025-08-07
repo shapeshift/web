@@ -15,9 +15,10 @@ const containerSx = {
   msOverflowStyle: 'none',
 }
 
+const TAGS = Object.values(PortalsTags)
+
 export const Tags = () => {
   const translate = useTranslate()
-  const tags = useMemo(() => Object.values(PortalsTags), [])
   const containerRef = useRef<HTMLDivElement>(null)
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
@@ -86,33 +87,35 @@ export const Tags = () => {
       pl={4}
       mb={2}
     >
-      {tags.map(tag => (
-        <Button
-          key={tag}
-          // eslint-disable-next-line react-memo/require-usememo
-          ref={element => handleButtonRef(element, tag)}
-          size='sm'
-          variant='ghost'
-          borderRadius='full'
-          px={4}
-          py={2}
-          bg={tagParam === tag ? activeBgColor : 'background.surface.raised.base'}
-          color={tagParam === tag ? activeTextColor : buttonTextColor}
-          _hover={activeStyle}
-          _active={activeStyle}
-          _focus={activeStyle}
-          _visited={activeStyle}
-          leftIcon={exploreTagsIcons[tag] ?? undefined}
-          fontWeight='medium'
-          fontSize='sm'
-          transition='all 0.2s'
-          flexShrink={0}
-          // eslint-disable-next-line react-memo/require-usememo
-          onClick={() => handleClick(tag)}
-        >
-          {translate(`explore.tags.${tag}`)}
-        </Button>
-      ))}
+      {TAGS.map(tag => {
+        return (
+          <Button
+            key={tag}
+            // eslint-disable-next-line react-memo/require-usememo
+            ref={element => handleButtonRef(element, tag)}
+            size='sm'
+            variant='ghost'
+            borderRadius='full'
+            px={4}
+            py={2}
+            bg={tagParam === tag ? activeBgColor : 'background.surface.raised.base'}
+            color={tagParam === tag ? activeTextColor : buttonTextColor}
+            _hover={activeStyle}
+            _active={activeStyle}
+            _focus={activeStyle}
+            _visited={activeStyle}
+            leftIcon={exploreTagsIcons[tag] ?? undefined}
+            fontWeight='medium'
+            fontSize='sm'
+            transition='all 0.2s'
+            flexShrink={0}
+            // eslint-disable-next-line react-memo/require-usememo
+            onClick={() => handleClick(tag)}
+          >
+            {translate(`explore.tags.${tag}`)}
+          </Button>
+        )
+      })}
     </Flex>
   )
 }

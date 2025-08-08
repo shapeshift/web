@@ -24,10 +24,10 @@ export const TradeQuoteIconLoader: React.FC<TradeQuoteIconLoaderProps> = ({
   swapperNames,
 }) => {
   // Bit of buffer here to make it feel "continuous" for enough time for the loader to finish
-  const continuousSwapperNames = useMemo(
-    () => [...swapperNames, ...swapperNames, ...swapperNames],
-    [swapperNames],
-  )
+  const continuousSwapperNames = useMemo(() => {
+    const sortedSwapperNames = [...swapperNames].sort()
+    return [...sortedSwapperNames, ...sortedSwapperNames, ...sortedSwapperNames]
+  }, [swapperNames])
 
   const backgroundColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')

@@ -202,7 +202,8 @@ export const decryptWallet = (
 }
 
 /**
- * Get a password hash for logging into legacy ShapeShift
+ * Trigger device haptic feedback via the mobile app.
+ * No-ops when not running inside a React Native WebView.
  */
 export const vibrate = (level: 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'): Promise<void> => {
   return postMessage<void>({ cmd: 'vibrate', level })

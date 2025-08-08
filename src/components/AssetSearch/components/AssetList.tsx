@@ -1,9 +1,10 @@
 import type { ListProps } from '@chakra-ui/react'
-import { Center, Flex, Skeleton } from '@chakra-ui/react'
+import { Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
 import type { CSSProperties, FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { FaRegCompass } from 'react-icons/fa6'
 import type { VerticalSize } from 'react-virtualized-auto-sizer'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import type { ListChildComponentProps } from 'react-window'
@@ -106,7 +107,8 @@ export const AssetList: FC<AssetListProps> = ({
       }
       if (assets?.length === 0) {
         return (
-          <Center>
+          <Center flexDir='column' gap={2} mt={4}>
+            <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
             <Text color='text.subtle' translation='common.noResultsFound' />
           </Center>
         )

@@ -1,4 +1,4 @@
-import { Center } from '@chakra-ui/react'
+import { Box, Center } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import {
   MAYACHAIN_STREAM_SWAP_SOURCE,
@@ -6,10 +6,10 @@ import {
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
 import { AnimatePresence } from 'framer-motion'
+import { TbWifi } from 'react-icons/tb'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
 
-import { StreamIcon } from '@/components/Icons/Stream'
 import { SlideTransitionX } from '@/components/SlideTransitionX'
 
 type SwapperIconsProps = {
@@ -36,7 +36,9 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
             borderColor='border.base'
             boxShadow='0 1px 2px rgba(0,0,0,.2)'
           >
-            <StreamIcon color='text.success' />
+            <Box color='purple.500'>
+              <TbWifi />
+            </Box>
           </Center>
         </SlideTransitionX>
       )}

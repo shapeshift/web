@@ -303,7 +303,7 @@ export const MobileConnect = () => {
               <LanguageSelector size='sm' />
             </Stack>
             <SlideTransitionY key='content'>
-              <Stack px={6} spacing={6} position='relative' zIndex='4'>
+              <Stack px={6} spacing={6} position='relative' zIndex='4' pb={4}>
                 <AnimatePresence mode='wait' initial={false}>
                   <motion.div
                     layout

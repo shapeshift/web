@@ -34,11 +34,10 @@ type AssetSearchRowProps = ListChildComponentProps<AssetData> &
 
 export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
   ({
-    data: { handleClick, disableUnsupported, assets },
+    data: { handleClick, disableUnsupported, assets, portalsAssets },
     index,
     style,
     showNetworkIcon,
-    portalsAssets,
     ...rest
   }) => {
     const translate = useTranslate()
@@ -56,6 +55,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
     )
+
     const changePercent24Hr = marketData?.changePercent24Hr
 
     const changePercentTagColorsScheme = useMemo(() => {
@@ -101,14 +101,15 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
               value={bnOrZero(portalAsset.metrics.apy).times('0.01').toString()}
               fontSize='xs'
               suffix={translate('common.apy')}
+              color='green.500'
+              fontWeight='bold'
             />
-            <Tag colorScheme={'green'} width='max-content' px={1} size='sm'>
-              <Amount.Fiat
-                value={volume.toString()}
-                fontSize='xs'
-                suffix={translate('common.volumeShort')}
-              />
-            </Tag>
+            <Amount.Fiat
+              value={volume.toString()}
+              fontSize='xs'
+              suffix={translate('common.volumeShort')}
+              color={color}
+            />
           </Flex>
         )
       }
@@ -125,7 +126,15 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
           {priceChange}
         </Flex>
       )
-    }, [marketData?.price, priceChange, textColor, marketData?.volume, portalAsset, translate])
+    }, [
+      marketData?.price,
+      priceChange,
+      textColor,
+      marketData?.volume,
+      portalAsset,
+      translate,
+      color,
+    ])
 
     if (!asset) return null
 
@@ -157,7 +166,15 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
               {asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
-              <Text fontWeight='normal' fontSize='sm' color={color}>
+              <Text
+                fontWeight='normal'
+                fontSize='sm'
+                color={color}
+                textOverflow='ellipsis'
+                whiteSpace='nowrap'
+                maxWidth='150px'
+                overflow='hidden'
+              >
                 {asset.symbol}
               </Text>
               {asset.id && (

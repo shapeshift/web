@@ -42,6 +42,7 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
     () => spamMarkedAssetIds.includes(assetId),
     [assetId, spamMarkedAssetIds],
   )
+
   const isWatchlistMarked = useMemo(
     () => watchlistAssetIds.includes(assetId),
     [assetId, watchlistAssetIds],
@@ -55,6 +56,10 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   const handleToggleSpam = useCallback(() => {
     dispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
     onClose()
+
+    // This is currently borked upstream and we're not yet sure if that's an intermittent issue
+    // or if deprecated and docs are stale, no reason to fire an XHR that will be guaranteed to fail
+    // if (!isSpamMarked) await moralisReportSpam(assetId)
   }, [assetId, dispatch, onClose])
 
   const explorerHref = useMemo(() => {
@@ -74,7 +79,11 @@ export const MoreActionsDrawer: React.FC<MoreActionsDrawerProps> = ({
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader padding={0} /> {/* For grab handle */}
-      <DialogBody py={4} px={0}>
+      <DialogBody
+        py={4}
+        px={0}
+        pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))'
+      >
         <Stack spacing={0}>
           <Button
             variant='ghost'

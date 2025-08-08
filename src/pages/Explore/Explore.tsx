@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { AssetSearchRow } from './components/AssetSearchRow'
 import { CategoryCard } from './components/CategoryCard'
+import { Tags } from './components/Tags'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { Carousel } from '@/components/Carousel/Carousel'
@@ -179,7 +180,6 @@ export const Explore = memo(() => {
               ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 98px - 1rem)'
               : 'auto'
           }
-          mb={2}
         >
           <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>
             <InputGroup size='md'>
@@ -201,6 +201,8 @@ export const Explore = memo(() => {
             />
           ) : null}
         </Box>
+
+        {!isSearching && <Tags />}
 
         <Box display={isSearching ? 'none' : 'block'}>
           <Flex flexDir='column' gap={6}>

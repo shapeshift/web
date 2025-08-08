@@ -1,7 +1,8 @@
-import { Box, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import { AssetCard } from './AssetCard'
@@ -35,6 +36,7 @@ export const CategoryCard = ({
   const navigate = useNavigate()
   const assetsById = useAppSelector(selectAssets)
   const assetTitleColor = useColorModeValue('black', 'white')
+  const translate = useTranslate()
 
   const categoryHook =
     category === MarketsCategories.OneClickDefi
@@ -58,7 +60,7 @@ export const CategoryCard = ({
   } = usePortalsAssetsQuery({
     chainIds: [],
     enabled: category === MarketsCategories.OneClickDefi,
-    sortBy: SortOptionsKeys.Apy,
+    sortBy: SortOptionsKeys.Volume,
     orderBy: OrderDirection.Descending,
     minApy: '1',
   })
@@ -96,8 +98,28 @@ export const CategoryCard = ({
     }
   }, [filteredAssets, portalsAssets, navigate])
 
+  const handleSeeMoreClick = useCallback(() => {
+    navigate(`/explore/category/${category}`)
+  }, [navigate, category])
+
   const content = useMemo(() => {
     if (isLoading) {
+      if (layout === 'horizontal') {
+        return (
+          <Flex gap={4} overflowX='auto' pb={2} pe={4}>
+            {range(2).map(index => (
+              <Skeleton
+                key={index}
+                display='block'
+                width='200px'
+                height='100px'
+                borderRadius='10px'
+              />
+            ))}
+          </Flex>
+        )
+      }
+
       return (
         <Flex flexDir='column' width='100%'>
           {range(maxAssets).map(index => (
@@ -180,9 +202,14 @@ export const CategoryCard = ({
       mx={layout === 'horizontal' ? -4 : 0}
       pl={layout === 'horizontal' ? 4 : 0}
     >
-      <CText color='text.primary' fontWeight='bold' fontSize='lg' mb={2}>
-        {title}
-      </CText>
+      <Flex alignItems='center' justifyContent='space-between' pe={layout === 'horizontal' ? 4 : 0}>
+        <CText color='text.primary' fontWeight='bold' fontSize='lg' mb={2}>
+          {title}
+        </CText>
+        <Button variant='link' size='sm' colorScheme='blue' onClick={handleSeeMoreClick}>
+          {translate('common.seeMore')}
+        </Button>
+      </Flex>
 
       <Box
         py={layout === 'horizontal' ? 0 : 2}

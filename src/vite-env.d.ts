@@ -81,6 +81,7 @@ interface ImportMetaEnv {
   readonly VITE_EXCHANGERATEHOST_BASE_URL: string
   readonly VITE_EXCHANGERATEHOST_API_KEY: string
   readonly VITE_ALCHEMY_API_KEY: string
+  readonly VITE_MORALIS_API_KEY: string
   readonly VITE_ALCHEMY_SOLANA_BASE_URL: string
   readonly VITE_BOARDROOM_API_BASE_URL: string
   readonly VITE_BOARDROOM_APP_BASE_URL: string

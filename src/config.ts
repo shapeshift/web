@@ -124,6 +124,7 @@ const validators = {
   VITE_FEATURE_ONE_INCH: bool({ default: false }),
   VITE_SENTRY_DSN_URL: url(),
   VITE_ALCHEMY_API_KEY: str(),
+  VITE_MORALIS_API_KEY: str(),
   VITE_ALCHEMY_SOLANA_BASE_URL: url(),
   VITE_PORTALS_API_KEY: str(),
   VITE_CHATWOOT_TOKEN: str(),

@@ -4,8 +4,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { ChainOptionGroup } from '../MultiHopTrade/components/TradeInput/components/ChainOptionGroup'
-import { SortOptionGroup } from '../MultiHopTrade/components/TradeInput/components/SortOptionGroup'
+import { ChainOptionGroup } from './ChainOptionGroup'
+import { SortOptionGroup } from './SortOptionGroup'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { OrderDirection } from '@/components/OrderDropdown/types'

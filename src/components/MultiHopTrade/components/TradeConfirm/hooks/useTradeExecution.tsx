@@ -237,7 +237,10 @@ export const useTradeExecution = (
       const stepSellAssetChainId = hop.sellAsset.chainId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
-      if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        console.log({ beansTradeQuote: tradeQuote })
+        throw new Error('Unable to execute trade')
+      }
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)

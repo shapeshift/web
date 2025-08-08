@@ -54,10 +54,12 @@ export const useTradeButtonProps = ({
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
-      tradeId: activeTradeId ?? '',
+      tradeId: activeTradeId,
       hopIndex: currentHopIndex ?? 0,
     }
   }, [activeTradeId, currentHopIndex])
+
+  console.log({ hopExecutionMetadataFilter })
 
   const {
     allowanceApproval,
@@ -84,8 +86,14 @@ export const useTradeButtonProps = ({
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const handleTradeConfirm = useCallback(() => {
-    if (!activeQuote) return
-    if (!sellAccountId) return
+    if (!activeQuote) {
+      console.log('no active quote')
+      return
+    }
+    if (!sellAccountId) {
+      console.log('no sell account id')
+      return
+    }
 
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
@@ -126,6 +134,8 @@ export const useTradeButtonProps = ({
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
     }
+
+    console.log({ swap })
 
     dispatch(swapSlice.actions.upsertSwap(swap))
     dispatch(swapSlice.actions.setActiveSwapId(swap.id))

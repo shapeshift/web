@@ -11,13 +11,17 @@ import {
   Skeleton,
   Stack,
   Text,
-  useToast,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbPencil } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+
+import { useCurrentHopIndex } from '../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
+import { useGetTradeQuotes } from '../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { useGetTradeRates } from '../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
+import { QuickBuyTradeButton } from './QuickBuyTradeButton'
 
 import { Amount } from '@/components/Amount/Amount'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -32,7 +36,19 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import {
+  selectActiveQuote,
+  selectConfirmedQuoteTradeId,
+  selectConfirmedTradeExecution,
+  selectConfirmedTradeExecutionState,
+  selectFirstHop,
+  selectLastHop,
+  selectSortedTradeQuotes,
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const editIcon = <Icon as={TbPencil} boxSize={6} color='text.subtle' />
 
@@ -45,8 +61,8 @@ type QuickBuyProps = {
 
 export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) => {
   const translate = useTranslate()
-  const toast = useToast()
   const { number } = useLocaleFormatter()
+  const dispatch = useAppDispatch()
 
   const [state, setState] = useState<QuickBuyState>('idle')
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
@@ -60,12 +76,41 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   const feeAssetBalanceCryptoPrecision = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
   )
+  const activeTrade = useAppSelector(selectActiveQuote)
   const feeAssetBalanceUserCurrency = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, filter) ?? '0',
   )
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),
   )
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+
+  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const confirmedId = useAppSelector(selectConfirmedQuoteTradeId)
+
+  console.log({ activeTrade, confirmedTradeExecution, confirmedId, confirmedTradeExecutionState })
+
+  useGetTradeRates()
+
+  useEffect(() => {
+    if (!activeTrade) return
+    // TODO probably combine this into one
+    console.log({ activeTrade })
+    dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeTrade.id))
+    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeTrade.id))
+  }, [dispatch, activeTrade])
+
+  const currentHopIndex = useCurrentHopIndex()
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
+  const tradeQuoteLastHop = useAppSelector(selectLastHop)
+  const tradeQuoteStep = useMemo(() => {
+    return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
+  }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
+
+  console.log({ currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop, tradeQuoteStep })
 
   // Computed values
   const isInsufficientBalance = useMemo(() => {
@@ -80,10 +125,23 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   }, [selectedAmount, assetMarketData?.price])
 
   // Handlers
-  const handleAmountClick = useCallback((amount: number) => {
-    setSelectedAmount(amount)
-    setState('confirming')
-  }, [])
+  const handleAmountClick = useCallback(
+    (amount: number) => {
+      // TODO - ensure wallet connect
+      // if (!isConnected) {
+      //   return handleConnect()
+      // }
+      if (!asset || !feeAsset || !feeAssetMarketData) return
+      setSelectedAmount(amount)
+      const estimatedSellAmount = bn(amount).dividedBy(bn(feeAssetMarketData.price)).toString()
+      // TODO probably combine this into one
+      dispatch(tradeInput.actions.setSellAsset(feeAsset))
+      dispatch(tradeInput.actions.setBuyAsset(asset))
+      dispatch(tradeInput.actions.setSellAmountCryptoPrecision(estimatedSellAmount))
+      setState('confirming')
+    },
+    [asset, dispatch, feeAsset, feeAssetMarketData],
+  )
 
   const handleCancel = useCallback(() => {
     setState('idle')
@@ -132,7 +190,6 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   })
   const balanceLabel = translate('quickBuy.balance')
   const cancelText = translate('common.cancel')
-  const confirmText = translate('common.confirm')
   const formattedSelectedAmount = selectedAmount ? number.toFiat(selectedAmount) : ''
 
   // Create amount button handlers
@@ -263,29 +320,43 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
           <Button rounded='full' variant='ghost' size='lg' onClick={handleCancel} flex={1}>
             {cancelText}
           </Button>
-          <Button
-            rounded='full'
-            variant='solid'
-            size='lg'
-            onClick={handleConfirm}
-            colorScheme='blue'
-            flex={1}
-          >
-            {confirmText}
-          </Button>
+          {activeTrade &&
+          tradeQuoteStep &&
+          (confirmedTradeExecutionState === TradeExecutionState.Previewing ||
+            confirmedTradeExecutionState === TradeExecutionState.FirstHop) ? (
+            <QuickBuyTradeButton
+              activeTradeId={activeTrade.id}
+              currentHopIndex={currentHopIndex}
+              tradeQuoteStep={tradeQuoteStep}
+            />
+          ) : (
+            <Button
+              rounded='full'
+              variant='solid'
+              size='lg'
+              onClick={handleConfirm}
+              colorScheme='blue'
+              flex={1}
+            >
+              ...
+            </Button>
+          )}
         </HStack>
       </Stack>
     )
   }, [
     selectedAmount,
+    translate,
     formattedSelectedAmount,
     estimatedTokenAmount,
     asset?.symbol,
-    cancelText,
-    confirmText,
     handleCancel,
+    cancelText,
+    activeTrade,
+    tradeQuoteStep,
+    confirmedTradeExecutionState,
+    currentHopIndex,
     handleConfirm,
-    translate,
   ])
 
   // Main render

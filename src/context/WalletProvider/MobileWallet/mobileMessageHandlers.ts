@@ -51,6 +51,10 @@ type Message =
   | {
       cmd: 'reloadWebview'
     }
+  | {
+      cmd: 'vibrate'
+      level: 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -195,4 +199,12 @@ export const decryptWallet = (
   encryptedWallet: string,
 ): Promise<string | null> => {
   return postMessage<string | null>({ cmd: 'decryptWallet', email, password, encryptedWallet })
+}
+
+
+/**
+ * Get a password hash for logging into legacy ShapeShift
+ */
+export const vibrate = (level: 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'): Promise<void> => {
+  return postMessage<void>({ cmd: 'vibrate', level })
 }

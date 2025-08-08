@@ -17,7 +17,7 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SlideTransition } from '@/components/SlideTransition'
-import { getWallet, vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { getWallet  } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'

@@ -2,7 +2,6 @@ import { WarningIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertIcon,
-  Box,
   Button,
   CloseButton,
   Flex,
@@ -10,19 +9,17 @@ import {
   Icon,
   IconButton,
   Skeleton,
-  SkeletonCircle,
   Stack,
   Text,
   useToast,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { TbPencil } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AnimatedCheck } from '@/components/AnimatedCheck'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -94,15 +91,13 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   }, [])
 
   const handleConfirm = useCallback(async () => {
-    if (!selectedAmount) return
+    if (!selectedAmount) {
+      setState('idle')
+      return
+    }
 
     if (isInsufficientBalance) {
-      toast({
-        title: translate('trade.errors.insufficientFunds'),
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
+      setState('error')
       return
     }
 
@@ -129,7 +124,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
         setSelectedAmount(null)
       }, 3000)
     }
-  }, [selectedAmount, isInsufficientBalance, toast, translate])
+  }, [isInsufficientBalance, selectedAmount])
 
   // Computed text values
   const titleText = translate('quickBuy.title', {

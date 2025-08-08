@@ -3,6 +3,7 @@ import { isExecutableTradeQuote, isThorTradeQuote } from '@shapeshiftoss/swapper
 import { useEffect, useRef } from 'react'
 
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
@@ -17,7 +18,6 @@ import {
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { store, useAppSelector } from '@/state/store'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName

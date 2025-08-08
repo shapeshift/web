@@ -18,10 +18,6 @@ type SharedTradeInputHeaderProps = {
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-const mobileButtonsStyle = {
-  WebkitTapHighlightColor: 'transparent',
-}
-
 const cardPaddingX = { base: 2, md: 6 }
 const cardHeaderBgProp = { base: 'background.surface.base', md: 'transparent' }
 const cardPosition: CardHeaderProps['position'] = { base: 'sticky', md: 'static' }
@@ -146,7 +142,6 @@ export const SharedTradeInputHeader = ({
               color={selectedTab === TradeInputTab.Trade ? activeTextColor : 'text.subtle'}
               fontWeight='bold'
               fontSize='md'
-              sx={mobileButtonsStyle}
               onClick={handleClickTrade}
               type='button'
             >
@@ -163,7 +158,6 @@ export const SharedTradeInputHeader = ({
                 fontWeight='bold'
                 fontSize='md'
                 ml={-2}
-                sx={mobileButtonsStyle}
                 onClick={handleClickLimitOrder}
                 type='button'
               >
@@ -181,7 +175,6 @@ export const SharedTradeInputHeader = ({
                 fontWeight='bold'
                 fontSize='md'
                 ml={-2}
-                sx={mobileButtonsStyle}
                 onClick={handleClickClaim}
                 type='button'
               >

@@ -201,7 +201,6 @@ export const decryptWallet = (
   return postMessage<string | null>({ cmd: 'decryptWallet', email, password, encryptedWallet })
 }
 
-
 /**
  * Get a password hash for logging into legacy ShapeShift
  */

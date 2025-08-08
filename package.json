@@ -199,6 +199,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "retry-axios": "^2.6.0",
     "scroll-into-view-if-needed": "^3.0.10",
+    "semver": "^7.7.2",
     "styled-components": "^6.0.7",
     "uuid": "^9.0.0",
     "vaul": "^1.1.2",

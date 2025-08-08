@@ -1,13 +1,15 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import { Box, Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react'
+import { Box, Icon, Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { debounce } from 'lodash'
 import { matchSorter } from 'match-sorter'
 import type { ChangeEvent, FormEvent } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { IoClose } from 'react-icons/io5'
+import { MdOutlineFilterAlt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -18,6 +20,7 @@ import { useRows } from '../Markets/hooks/useRows'
 import { AssetSearchRow } from './components/AssetSearchRow'
 import { Tags } from './components/Tags'
 
+import { AssetListFiltersDialog } from '@/components/AssetListFiltersDialog/AssetListFiltersDialog'
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
@@ -37,6 +40,10 @@ export const ExploreCategory = () => {
   const navigate = useNavigate()
   const assetsById = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(marketData.selectors.selectMarketDataUsd)
+  const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
+  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(SortOptionsKeys.Volume)
+  const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
 
   const tag = useMemo(() => (tagParam ? `#${tagParam}` : undefined), [tagParam])
 
@@ -62,17 +69,17 @@ export const ExploreCategory = () => {
     return CATEGORY_TO_QUERY_HOOK[MarketsCategories.Trending]
   }, [category])
 
+  const rows = useRows({ limit: 250 })
+
   const {
     data: categoryQueryData,
     isLoading: isCategoryQueryDataLoading,
     isFetching: isCategoryQueryDataFetching,
   } = categoryHook({
     enabled: category !== MarketsCategories.OneClickDefi,
-    orderBy: OrderDirection.Descending,
-    sortBy: SortOptionsKeys.Volume,
+    orderBy: selectedOrder,
+    sortBy: selectedSort,
   })
-
-  const rows = useRows({ limit: 250 })
 
   const {
     data: portalsAssets,
@@ -80,9 +87,10 @@ export const ExploreCategory = () => {
     isFetching: isPortalsAssetsFetching,
   } = usePortalsAssetsQuery({
     enabled: true,
-    chainIds: category ? rows[category].supportedChainIds : [],
-    sortBy: SortOptionsKeys.Volume,
-    orderBy: OrderDirection.Descending,
+    chainIds:
+      category && selectedChainId === 'all' ? rows[category].supportedChainIds : [selectedChainId],
+    sortBy: selectedSort,
+    orderBy: selectedOrder,
     tags: tag ? [tag] : undefined,
     minApy: '1',
   })
@@ -102,12 +110,22 @@ export const ExploreCategory = () => {
   const filteredAssets = useMemo(() => {
     const selectedAssets =
       category === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
-    if (!isSearching) return selectedAssets
+    if (!isSearching)
+      return selectedChainId === 'all'
+        ? selectedAssets
+        : selectedAssets.filter(asset => asset.chainId === selectedChainId)
 
     // Filters by low market-cap to avoid spew
     const filteredAssets = selectedAssets.filter(asset => {
       const marketCap = marketDataUsd[asset.assetId]?.marketCap
-      return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
+      const hasPositiveMarketCapAndOver1000 =
+        bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
+
+      if (selectedChainId === 'all') {
+        return hasPositiveMarketCapAndOver1000
+      }
+
+      return hasPositiveMarketCapAndOver1000 && asset.chainId === selectedChainId
     })
 
     const matchedAssets = matchSorter(filteredAssets, searchString, {
@@ -119,7 +137,15 @@ export const ExploreCategory = () => {
     })
 
     return matchedAssets.slice(0, 20)
-  }, [oneClickDefiAssets, categoryAssets, category, isSearching, marketDataUsd, searchString])
+  }, [
+    oneClickDefiAssets,
+    categoryAssets,
+    category,
+    isSearching,
+    marketDataUsd,
+    searchString,
+    selectedChainId,
+  ])
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
@@ -171,6 +197,26 @@ export const ExploreCategory = () => {
     navigate('/explore', { replace: true })
   }, [navigate])
 
+  const handleOpenFiltersDialog = useCallback(() => {
+    setIsFiltersDialogOpen(true)
+  }, [])
+
+  const handleCloseFiltersDialog = useCallback(() => {
+    setIsFiltersDialogOpen(false)
+  }, [])
+
+  const handleSortChange = useCallback((sort: SortOptionsKeys) => {
+    setSelectedSort(sort)
+  }, [])
+
+  const handleOrderChange = useCallback((order: OrderDirection) => {
+    setSelectedOrder(order)
+  }, [])
+
+  const handleChainIdChange = useCallback((chainId: ChainId | 'all') => {
+    setSelectedChainId(chainId)
+  }, [])
+
   if (!category) return null
 
   return (
@@ -182,6 +228,14 @@ export const ExploreCategory = () => {
         <PageHeader.Middle>
           <PageHeader.Title>{translate(`markets.categories.${category}.title`)}</PageHeader.Title>
         </PageHeader.Middle>
+        <PageHeader.Right>
+          <Icon
+            as={MdOutlineFilterAlt}
+            boxSize='20px'
+            color='text.subtle'
+            onClick={handleOpenFiltersDialog}
+          />
+        </PageHeader.Right>
       </PageHeader>
       <Main px={4} pt={0} gap={4} width='full' pageProps={pageProps}>
         <SEO title={translate('navBar.explore')} />
@@ -222,6 +276,17 @@ export const ExploreCategory = () => {
           />
         </Box>
       </Main>
+      <AssetListFiltersDialog
+        isOpen={isFiltersDialogOpen}
+        onClose={handleCloseFiltersDialog}
+        selectedCategory={category}
+        selectedSort={selectedSort}
+        selectedOrder={selectedOrder}
+        selectedChainId={selectedChainId}
+        handleSortChange={handleSortChange}
+        handleOrderChange={handleOrderChange}
+        handleChainIdChange={handleChainIdChange}
+      />
     </>
   )
 }

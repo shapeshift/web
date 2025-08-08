@@ -4,8 +4,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { ChainOptionGroup } from './ChainOptionGroup'
-import { SortOptionGroup } from './SortOptionGroup'
+import { ChainOptionGroup } from '../MultiHopTrade/components/TradeInput/components/ChainOptionGroup'
+import { SortOptionGroup } from '../MultiHopTrade/components/TradeInput/components/SortOptionGroup'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { OrderDirection } from '@/components/OrderDropdown/types'
@@ -26,7 +26,7 @@ type HighlightedTokensFiltersDialogProps = {
   handleOrderChange: (order: OrderDirection) => void
   handleChainIdChange: (chainId: ChainId | 'all') => void
 }
-export const HighlightedTokensFiltersDialog = ({
+export const AssetListFiltersDialog = ({
   isOpen,
   onClose,
   selectedCategory,

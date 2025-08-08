@@ -11,8 +11,8 @@ import { MdOutlineFilterAlt } from 'react-icons/md'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import type { Column, Row } from 'react-table'
 
+import { AssetListFiltersDialog } from '../../../../AssetListFiltersDialog/AssetListFiltersDialog'
 import { HighlightedTokensCategoryDialog } from './HighlightedTokensCategoryDialog'
-import { HighlightedTokensFiltersDialog } from './HighlightedTokensFiltersDialog'
 import { HighlightedTokensPriceCell } from './HighlightedTokensPriceCell'
 
 import type { OrderDirection } from '@/components/OrderDropdown/types'
@@ -329,7 +329,7 @@ export const HighlightedTokens = () => {
         handleCategoryChange={handleCategoryChange}
       />
 
-      <HighlightedTokensFiltersDialog
+      <AssetListFiltersDialog
         isOpen={isFiltersDialogOpen}
         onClose={handleCloseFiltersDialog}
         selectedCategory={selectedCategory}

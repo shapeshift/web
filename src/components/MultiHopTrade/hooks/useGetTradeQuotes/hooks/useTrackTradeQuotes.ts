@@ -1,31 +1,23 @@
-import type {
-  TradeQuote,
-} from '@shapeshiftoss/swapper'
-import {
-	isExecutableTradeQuote,
-  isThorTradeQuote,
-  SwapperName,
-} from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import { isExecutableTradeQuote, isThorTradeQuote } from '@shapeshiftoss/swapper'
+import { useEffect, useRef } from 'react'
 
+import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
-import {
-  selectAssets,
-} from '@/state/slices/selectors'
+import { selectAssets } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
 } from '@/state/slices/tradeInputSlice/selectors'
 import {
-	selectActiveQuote,
+  selectActiveQuote,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { store, useAppSelector } from '@/state/store'
-import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
-import mixpanel from 'mixpanel-browser'
-import { useRef, useEffect } from 'react'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -93,22 +85,26 @@ const getMixPanelDataFromApiQuotes = (
   }
 }
 
+const mixpanel = getMixPanel()
+
 export const useTrackTradeQuotes = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const hasTrackedQuotesRef = useRef(false)
-	const activeTrade = useAppSelector(selectActiveQuote)
+  const activeTrade = useAppSelector(selectActiveQuote)
 
   useEffect(() => {
-		if (!activeTrade) return
+    if (!activeTrade) return
 
-    if (mixpanel && sortedTradeQuotes.length > 0 && !hasTrackedQuotesRef.current && activeTrade && isExecutableTradeQuote(activeTrade)) {
+    if (
+      mixpanel &&
+      sortedTradeQuotes.length > 0 &&
+      !hasTrackedQuotesRef.current &&
+      activeTrade &&
+      isExecutableTradeQuote(activeTrade)
+    ) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
       hasTrackedQuotesRef.current = true
     }
-  }, [
-    sortedTradeQuotes,
-    mixpanel,
-    activeTrade,
-  ])
+  }, [sortedTradeQuotes, activeTrade])
 }

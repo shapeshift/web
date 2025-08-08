@@ -509,7 +509,7 @@
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "myPositions": "My Positions",
-    "myPositionsBody": "A list of your currently active positions in DeFi.",
+    "myPositionsBody": "A list of your active Defi positions.",
     "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "There is a lockup period of %{time}. During lockup you can't access your liquidity.",

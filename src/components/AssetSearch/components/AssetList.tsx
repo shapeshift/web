@@ -1,6 +1,7 @@
 import type { ListProps } from '@chakra-ui/react'
-import { Center } from '@chakra-ui/react'
+import { Center, Flex, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import { range } from 'lodash'
 import type { CSSProperties, FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { VerticalSize } from 'react-virtualized-auto-sizer'
@@ -13,6 +14,7 @@ import { AssetRow } from './AssetRow'
 import { Text } from '@/components/Text'
 import { useRefCallback } from '@/hooks/useRefCallback/useRefCallback'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 
 export type AssetData = {
   assets: Asset[]
@@ -20,6 +22,8 @@ export type AssetData = {
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
   rowComponent?: FC<ListChildComponentProps<AssetData>>
+  isLoading?: boolean
+  portalsAssets?: PortalsAssets
 }
 
 type AssetListProps = AssetData & ListProps
@@ -35,6 +39,8 @@ export const AssetList: FC<AssetListProps> = ({
   disableUnsupported = false,
   hideZeroBalanceAmounts = true,
   rowComponent = AssetRow,
+  isLoading = false,
+  portalsAssets,
 }) => {
   const assetId = useRouteAssetId()
   const tokenListRef = useRef<FixedSizeList<AssetData> | null>(null)
@@ -70,12 +76,34 @@ export const AssetList: FC<AssetListProps> = ({
       handleClick,
       disableUnsupported,
       hideZeroBalanceAmounts,
+      portalsAssets,
     }),
-    [assets, disableUnsupported, handleClick, hideZeroBalanceAmounts],
+    [assets, disableUnsupported, handleClick, hideZeroBalanceAmounts, portalsAssets],
   )
 
   const renderContent = useCallback(
     ({ height }: VerticalSize) => {
+      if (isLoading) {
+        return (
+          <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} mt={4}>
+            {range(3).map(index => (
+              <Flex key={index} align='center' width='100%' justifyContent='space-between' mb={4}>
+                <Flex align='center'>
+                  <Skeleton width='40px' height='40px' borderRadius='100%' me={2} />
+                  <Flex flexDir='column' gap={2}>
+                    <Skeleton width='140px' height='18px' />
+                    <Skeleton width='80px' height='18px' />
+                  </Flex>
+                </Flex>
+                <Flex align='flex-end' flexDir='column' gap={2}>
+                  <Skeleton width='120px' height='18px' />
+                  <Skeleton width='80px' height='18px' />
+                </Flex>
+              </Flex>
+            ))}
+          </Flex>
+        )
+      }
       if (assets?.length === 0) {
         return (
           <Center>
@@ -100,7 +128,7 @@ export const AssetList: FC<AssetListProps> = ({
         </FixedSizeList>
       )
     },
-    [assets.length, itemData, rowComponent],
+    [assets.length, itemData, rowComponent, isLoading],
   )
 
   return (

@@ -250,7 +250,13 @@ export const portfolioApi = createApi({
           fetchIsSmartContractAddressQuery(pubkey, chainId)
 
           const data = await (async (): Promise<Portfolio> => {
-            const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
+            const assets = await makeAssets({
+              chainId,
+              pubkey,
+              state,
+              portfolioAccounts,
+              dispatch,
+            })
 
             // upsert placeholder assets
             if (assets) dispatch(assetSlice.actions.upsertAssets(assets))

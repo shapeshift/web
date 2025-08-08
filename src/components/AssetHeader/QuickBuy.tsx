@@ -2,10 +2,13 @@ import { WarningIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   CloseButton,
   Flex,
   HStack,
+  Icon,
+  IconButton,
   Skeleton,
   SkeletonCircle,
   Stack,
@@ -15,7 +18,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { TbCheck, TbX } from 'react-icons/tb'
+import { TbPencil } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -34,6 +37,8 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const editIcon = <Icon as={TbPencil} boxSize={6} color='text.subtle' />
+
 export type QuickBuyState = 'idle' | 'confirming' | 'loading' | 'success' | 'error'
 
 type QuickBuyProps = {
@@ -41,18 +46,13 @@ type QuickBuyProps = {
   onEditAmounts: () => void
 }
 
-// Icon components
-const CheckIcon = <TbCheck />
-const CancelIcon = <TbX />
-
 export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) => {
   const translate = useTranslate()
   const toast = useToast()
   const { number } = useLocaleFormatter()
 
-  const [state, setState] = useState<QuickBuyState>('error')
+  const [state, setState] = useState<QuickBuyState>('idle')
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
-  const [tokenAmount, setTokenAmount] = useState<string | null>(null)
 
   // Selectors
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -91,7 +91,6 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   const handleCancel = useCallback(() => {
     setState('idle')
     setSelectedAmount(null)
-    setTokenAmount(null)
   }, [])
 
   const handleConfirm = useCallback(async () => {
@@ -120,27 +119,17 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
       setTimeout(() => {
         setState('idle')
         setSelectedAmount(null)
-        setTokenAmount(null)
       }, 2000)
     } catch (error) {
-      console.error('Quick buy failed:', error)
+      setSelectedAmount(null)
       setState('error')
 
       // Reset to idle after error
       setTimeout(() => {
         setSelectedAmount(null)
-        setTokenAmount(null)
       }, 3000)
     }
   }, [selectedAmount, isInsufficientBalance, toast, translate])
-
-  useEffect(() => {
-    if (estimatedTokenAmount && state === 'confirming') {
-      setTokenAmount(estimatedTokenAmount)
-    }
-  }, [estimatedTokenAmount, state])
-
-  console.log({ asset })
 
   // Computed text values
   const titleText = translate('quickBuy.title', {
@@ -150,7 +139,6 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   const cancelText = translate('common.cancel')
   const confirmText = translate('common.confirm')
   const formattedSelectedAmount = selectedAmount ? number.toFiat(selectedAmount) : ''
-  const estimatedTokenText = tokenAmount ? `≈ ${number.toCrypto(tokenAmount, asset?.symbol)}` : ''
 
   // Create amount button handlers
   const createAmountClickHandler = useCallback(
@@ -221,82 +209,96 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
           const buttonText = number.toFiat(amount)
 
           return (
-            <Button key={amount} variant='outline' size='sm' onClick={handleClick} flex={1}>
+            <Button
+              key={amount}
+              rounded='full'
+              onClick={handleClick}
+              flex={1}
+              fontSize='lg'
+              fontWeight='semibold'
+            >
               {buttonText}
             </Button>
           )
         })}
+        <IconButton
+          aria-label={translate('quickBuy.edit')}
+          isRound
+          onClick={onEditAmounts}
+          icon={editIcon}
+        />
       </HStack>
     )
-  }, [quickBuyPreferences.defaultAmounts, createAmountClickHandler, number])
+  }, [
+    quickBuyPreferences.defaultAmounts,
+    translate,
+    onEditAmounts,
+    createAmountClickHandler,
+    number,
+  ])
 
   const SelectedAmountDisplay = useCallback(() => {
     if (!selectedAmount) return null
 
     return (
-      <Stack spacing={2} align='center'>
-        <Button variant='solid' size='sm' isDisabled>
-          {formattedSelectedAmount}
-        </Button>
+      <Stack gap={4} align='center'>
+        <Text fontSize='md' color='text.subtle' fontWeight='bold'>
+          {translate('quickBuy.confirm')}
+        </Text>
 
-        {state === 'confirming' && (
-          <>
-            <Text fontSize='sm' color='text.subtle' textAlign='center'>
-              {estimatedTokenText || <Skeleton height='20px' width='100px' />}
-            </Text>
+        <Flex flexDir='column' alignItems='center'>
+          <Text fontSize='4xl' lineHeight='120%' fontWeight='bold' color='text.base' mb={0} pb={0}>
+            {formattedSelectedAmount}
+          </Text>
 
-            <HStack spacing={2}>
-              <Button
-                variant='ghost'
-                size='sm'
-                leftIcon={CancelIcon}
-                onClick={handleCancel}
-                flex={1}
-              >
-                {cancelText}
-              </Button>
-              <Button
-                variant='solid'
-                size='sm'
-                leftIcon={CheckIcon}
-                onClick={handleConfirm}
-                colorScheme='blue'
-                flex={1}
-              >
-                {confirmText}
-              </Button>
-            </HStack>
-          </>
-        )}
+          <Text fontSize='md' color='text.subtle' textAlign='center'>
+            {estimatedTokenAmount ? (
+              <Amount.Crypto
+                value={estimatedTokenAmount}
+                symbol={asset?.symbol ?? ''}
+                maximumFractionDigits={6}
+              />
+            ) : (
+              <Skeleton height='20px' width='100px' />
+            )}
+          </Text>
+        </Flex>
 
-        {state === 'loading' && (
-          <HStack spacing={2}>
-            <SkeletonCircle size='4' />
-            <Skeleton height='20px' width='80px' />
-          </HStack>
-        )}
-
-        {state === 'success' && <AnimatedCheck boxSize={32} />}
+        <HStack spacing={3} width='100%'>
+          <Button rounded='full' variant='ghost' size='lg' onClick={handleCancel} flex={1}>
+            {cancelText}
+          </Button>
+          <Button
+            rounded='full'
+            variant='solid'
+            size='lg'
+            onClick={handleConfirm}
+            colorScheme='blue'
+            flex={1}
+          >
+            {confirmText}
+          </Button>
+        </HStack>
       </Stack>
     )
   }, [
     selectedAmount,
-    state,
     formattedSelectedAmount,
-    estimatedTokenText,
+    estimatedTokenAmount,
+    asset?.symbol,
     cancelText,
     confirmText,
     handleCancel,
     handleConfirm,
+    translate,
   ])
 
   // Main render
   return (
     <Stack spacing={4}>
-      <Title />
-
       {(state === 'idle' || state === 'loading' || state === 'success') && (
         <>
+          <Title />
           <AmountButtons />
           <Balance />
         </>
@@ -306,6 +308,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
 
       {state === 'error' && (
         <>
+          <Title />
           <AmountButtons />
           <InsufficientFundsAlert />
           <Balance />

@@ -3,6 +3,7 @@ import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
+import { useTrackTradeQuotes } from '../../hooks/useGetTradeQuotes/hooks/useTrackTradeQuotes'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { SpotTradeSuccess } from '../SpotTradeSuccess/SpotTradeSuccess'
 import { ExpandableStepperSteps } from './components/ExpandableStepperSteps'
@@ -37,6 +38,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
   const currentHopIndex = useCurrentHopIndex()
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
+  useTrackTradeQuotes()
   const tradeQuoteStep = useMemo(() => {
     return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
   }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])

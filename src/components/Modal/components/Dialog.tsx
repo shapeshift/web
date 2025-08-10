@@ -36,6 +36,9 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
   z-index: var(--chakra-zIndices-overlay);
+
+  user-select: none;
+  -webkit-user-select: none;
 `
 
 const DialogWindow: React.FC<DialogProps> = ({

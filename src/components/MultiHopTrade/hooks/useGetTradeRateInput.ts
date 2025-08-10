@@ -25,9 +25,9 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useGetTradeRateInput = ({
-  cacheKey = 'getTradeRateInput',
+  queryKeys = [],
   shouldClearQuoteSlice = false,
-}: { cacheKey?: string; shouldClearQuoteSlice?: boolean } = {}) => {
+}: { queryKeys?: string[]; shouldClearQuoteSlice?: boolean } = {}) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -135,7 +135,7 @@ export const useGetTradeRateInput = ({
 
   const { data: tradeRateInput } = useQuery({
     // We need a separate quote key here to useGetTradeRates as that query has some side effects
-    queryKey: [cacheKey, tradeInputQueryKey],
+    queryKey: ['getTradeRateInput', ...queryKeys, tradeInputQueryKey],
     queryFn: async () => {
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions

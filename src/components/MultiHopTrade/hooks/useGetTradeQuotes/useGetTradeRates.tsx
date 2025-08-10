@@ -101,7 +101,7 @@ export const useGetTradeRates = () => {
 
   const tradeRateInput = useGetTradeRateInput({
     shouldClearQuoteSlice: true,
-    cacheKey: 'getTradeRateInput-withSideEffects',
+    queryKeys: ['useGetTradeRates'],
   })
 
   const { data: batchTradeRates } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)

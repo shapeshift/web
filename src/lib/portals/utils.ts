@@ -30,6 +30,7 @@ export const fetchPortalsTokens = async ({
   sortBy,
   sortDirection,
   limit = 250,
+  tags,
 }: {
   chainIds: ChainId[] | undefined
   page?: number
@@ -50,6 +51,7 @@ export const fetchPortalsTokens = async ({
     | 'volumeUsd7d'
   sortDirection?: 'asc' | 'desc'
   limit: number | 'all'
+  tags?: string[]
 }): Promise<TokenInfo[]> => {
   if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
   if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
@@ -85,6 +87,7 @@ export const fetchPortalsTokens = async ({
       sortBy,
       sortDirection,
       minApy,
+      tags,
     }
 
     await throttle()

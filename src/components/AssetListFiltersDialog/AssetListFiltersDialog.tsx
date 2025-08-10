@@ -26,7 +26,7 @@ type HighlightedTokensFiltersDialogProps = {
   handleOrderChange: (order: OrderDirection) => void
   handleChainIdChange: (chainId: ChainId | 'all') => void
 }
-export const HighlightedTokensFiltersDialog = ({
+export const AssetListFiltersDialog = ({
   isOpen,
   onClose,
   selectedCategory,

@@ -9,7 +9,6 @@ import type {
 } from '@shapeshiftoss/swapper'
 import {
   isExecutableTradeQuote,
-  isThorTradeQuote,
   SwapperName,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
@@ -25,14 +24,8 @@ import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
-import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { isSome } from '@/lib/utils'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
-import type { ApiQuote, TradeQuoteError } from '@/state/apis/swapper/types'
 import {
-  selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
 } from '@/state/slices/selectors'
@@ -40,7 +33,6 @@ import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
-  selectInputSellAmountUsd,
   selectInputSellAsset,
   selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
@@ -50,78 +42,10 @@ import {
   selectActiveQuoteMetaOrDefault,
   selectConfirmedTradeExecution,
   selectHopExecutionMetadata,
-  selectIsAnyTradeQuoteLoading,
-  selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
-
-type MixPanelQuoteMeta = {
-  swapperName: SwapperName
-  quoteReceived: boolean
-  isStreaming: boolean
-  isLongtail: boolean
-  errors: TradeQuoteError[]
-  isActionable: boolean // is the individual quote actionable
-}
-
-type GetMixPanelDataFromApiQuotesReturn = {
-  quoteMeta: MixPanelQuoteMeta[]
-  sellAsset: string
-  buyAsset: string
-  sellAssetChainId: string
-  buyAssetChainId: string
-  sellAmountUsd: string | undefined
-  version: string // ISO 8601 standard basic format date
-  isActionable: boolean // is any quote in the request actionable
-}
-
-const getMixPanelDataFromApiQuotes = (
-  quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
-): GetMixPanelDataFromApiQuotesReturn => {
-  const state = store.getState()
-  const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
-  const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
-
-  const assets = selectAssets(state)
-
-  const compositeSellAssetId = getMaybeCompositeAssetSymbol(sellAssetId, assets)
-  const compositeBuyAssetId = getMaybeCompositeAssetSymbol(buyAssetId, assets)
-
-  const sellAmountUsd = selectInputSellAmountUsd(state)
-  const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote: _quote, errors, swapperName }) => {
-      const quote = _quote as TradeQuote
-
-      return {
-        swapperName,
-        quoteReceived: !!quote,
-        isStreaming: quote?.isStreaming ?? false,
-        isLongtail: quote?.isLongtail ?? false,
-        tradeType: isThorTradeQuote(quote) ? quote?.tradeType : null,
-        errors: errors.map(({ error }) => error),
-        isActionable: !!quote && !errors.length,
-      }
-    })
-    .filter(isSome)
-
-  const isActionable = quoteMeta.some(({ isActionable }) => isActionable)
-
-  // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
-  const version = '20240115'
-
-  return {
-    quoteMeta,
-    sellAsset: compositeSellAssetId,
-    buyAsset: compositeBuyAssetId,
-    sellAmountUsd,
-    sellAssetChainId,
-    buyAssetChainId,
-    version,
-    isActionable,
-  }
-}
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
@@ -129,7 +53,6 @@ export const useGetTradeQuotes = () => {
     state: { wallet },
   } = useWallet()
 
-  const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeTrade = useAppSelector(selectActiveQuote)
   const activeTradeId = activeTrade?.id
   const activeRateRef = useRef<TradeQuote | TradeRate | undefined>(undefined)
@@ -200,8 +123,6 @@ export const useGetTradeQuotes = () => {
   const receiveAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
-
-  const mixpanel = getMixPanel()
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
@@ -336,9 +257,6 @@ export const useGetTradeQuotes = () => {
     getTradeQuoteArgs(activeQuoteMetaRef.current?.swapperName),
   )
 
-  // true if any debounce, input or swapper is fetching
-  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
-
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     if (!confirmedTradeExecution) return
@@ -361,15 +279,6 @@ export const useGetTradeQuotes = () => {
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
   }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
-
-  // TODO: move to separate hook so we don't need to pull quote data into here
-  useEffect(() => {
-    if (isAnyTradeQuoteLoading) return
-    if (mixpanel && sortedTradeQuotes.length > 0) {
-      const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
-      mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
-    }
-  }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
 
   return queryStateMeta
 }

@@ -1,6 +1,13 @@
+import { solanaChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { CheckTradeStatusInput, TradeStatus } from '../../../types'
+import {
+  checkEvmSwapStatus,
+  checkSolanaSwapStatus,
+  createDefaultStatusResponse,
+} from '../../../utils'
 import { getBridgeInfoById, getBridgeInfoBySourceHash } from '../xhr'
 
 // See: https://docs.butternetwork.io/butter-swap-integration/butter-api-for-swap-data/get-swap-history-by-source-hash
@@ -21,8 +28,41 @@ const BUTTER_SWAP_STATES = (() => ({
 const butterIdCache = new Map<string, number>()
 
 export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<TradeStatus> => {
-  const { txHash } = input
+  const {
+    txHash,
+    chainId: sellChainId,
+    address,
+    swap,
+    assertGetEvmChainAdapter,
+    assertGetSolanaChainAdapter,
+    fetchIsSmartContractAddressQuery,
+  } = input
   try {
+    // Same-chain swaps don't go through the bridge indexer. Short-circuit to on-chain status.
+    const isSameChainSwap = Boolean(swap && swap.sellAsset.chainId === swap.buyAsset?.chainId)
+    if (isSameChainSwap) {
+      if (sellChainId === solanaChainId) {
+        return await checkSolanaSwapStatus({
+          txHash,
+          address,
+          assertGetSolanaChainAdapter,
+        })
+      }
+
+      if (isEvmChainId(sellChainId)) {
+        return await checkEvmSwapStatus({
+          txHash,
+          chainId: sellChainId,
+          address,
+          assertGetEvmChainAdapter,
+          fetchIsSmartContractAddressQuery,
+        })
+      }
+
+      // Fallback: unknown same-chain type (should never happen for Butter, but just in case). Avoid bridge polling.
+      return createDefaultStatusResponse(txHash)
+    }
+
     let butterId = butterIdCache.get(txHash)
 
     // Only fetch relayer info by source hash if we don't have the butter ID cached

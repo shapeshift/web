@@ -72,16 +72,6 @@ export const getTradeQuote = async (
     )
   }
 
-  // Disable same-chain swaps for ButterSwap
-  if (sellAsset.chainId === buyAsset.chainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Same-chain swaps are not supported by ButterSwap`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
   if (!sendAddress) {
     return Err(
       makeSwapErrorRight({

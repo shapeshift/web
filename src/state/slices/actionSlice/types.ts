@@ -88,7 +88,7 @@ type ActionGenericTransactionMetadata = {
   newAddress?: string
   contractName?: string
   cooldownPeriod?: string
-  thorMemo?: string
+  thorMemo?: string | null
   confirmedQuote?: LpConfirmedWithdrawalQuote
   assetAmountsAndSymbols?: string
   poolName?: string

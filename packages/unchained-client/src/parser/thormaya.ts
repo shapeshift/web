@@ -93,6 +93,7 @@ interface ExtraMetadata {
   method: string
   liquidity?: Liquidity
   swap?: Swap
+  originalMemo?: string
 }
 
 type DexName = Dex.Thor | Dex.Maya
@@ -315,6 +316,11 @@ export class Parser {
 
     const swap = txType === 'swap' ? { type: getSwapType(swapMemo || refundMemo) } : undefined
 
-    return { method, liquidity, swap }
+    const originalMemo =
+      action.metadata?.swap?.memo ||
+      action.metadata?.refund?.memo ||
+      action.metadata?.withdraw?.memo
+
+    return { method, liquidity, swap, originalMemo }
   }
 }

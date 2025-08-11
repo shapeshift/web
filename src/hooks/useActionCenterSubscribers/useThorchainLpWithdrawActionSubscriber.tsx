@@ -104,12 +104,7 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
       )
 
-      // Asset-side withdraws do not contain a memo in their serialized Txinded
-      // In theory, we could just add that in the ternary above, but for the sake of paranoia and more cases I may not have tested, let's
-      // assume that there are more cases where it may not be present, and err on the side of safety
-      const serializedTxIndexNoMemo = serializeTxIndex(accountId, txHash, accountAddress)
-
-      const tx = txs[serializedTxIndex] || txs[serializedTxIndexNoMemo]
+      const tx = txs[serializedTxIndex]
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return

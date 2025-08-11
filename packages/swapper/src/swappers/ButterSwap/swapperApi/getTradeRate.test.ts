@@ -8,6 +8,7 @@ import type { GetTradeRateInput, SwapperDeps } from '../../../types'
 import { BTC, ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import ethBtcRoute from '../test-data/eth-btc.json'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
+import type { RouteResponse } from '../types'
 import { butterService } from '../utils/butterSwapService'
 import { getTradeRate } from './getTradeRate'
 
@@ -47,7 +48,7 @@ describe('getTradeRate', () => {
     }
 
     vi.mocked(butterService.get).mockResolvedValue(
-      Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse),
+      Ok({ data: ROUTE_QUOTE } as AxiosResponse<RouteResponse>),
     )
 
     const result = await getTradeRate(input, deps)
@@ -87,7 +88,7 @@ describe('getTradeRate', () => {
 
     // Use the first route in the eth-btc.json data
     vi.mocked(butterService.get).mockResolvedValue(
-      Ok({ data: ethBtcRoute } as unknown as AxiosResponse),
+      Ok({ data: ethBtcRoute } as AxiosResponse<typeof ethBtcRoute>),
     )
 
     const result = await getTradeRate(input, deps)

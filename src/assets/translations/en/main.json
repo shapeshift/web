@@ -3020,6 +3020,13 @@
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
     },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} and %{asset2}",
+      "withdraw": {
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
+        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
+      }
+    },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
       "complete": "Your deposit of %{amount} %{symbol} is complete."

@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
-import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -13,6 +13,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { firstFourLastFour } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
+import { GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
@@ -66,12 +67,33 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       )
     }
 
+    if (
+      action.transactionMetadata.displayType === GenericTransactionDisplayType.ThorchainLP &&
+      action.transactionMetadata.confirmedQuote?.withdrawSide === 'sym'
+    ) {
+      return (
+        <AssetIconWithBadge
+          assetId={action.transactionMetadata.assetId}
+          secondaryAssetId={thorchainAssetId}
+          size='md'
+        >
+          <ActionStatusIcon status={action.status} />
+        </AssetIconWithBadge>
+      )
+    }
+
     return (
       <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
         <ActionStatusIcon status={action.status} />
       </AssetIconWithBadge>
     )
-  }, [asset, action.transactionMetadata.assetId, action.status])
+  }, [
+    asset,
+    action.transactionMetadata.assetId,
+    action.status,
+    action.transactionMetadata.displayType,
+    action.transactionMetadata.confirmedQuote?.withdrawSide,
+  ])
 
   const footer = useMemo(() => {
     return (

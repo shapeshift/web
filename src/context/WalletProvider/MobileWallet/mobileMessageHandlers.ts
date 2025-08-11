@@ -15,6 +15,8 @@ type Command =
   | 'getWalletCount'
   | 'reloadWebview'
 
+type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
+
 type Message =
   | {
       cmd: Command
@@ -53,7 +55,7 @@ type Message =
     }
   | {
       cmd: 'vibrate'
-      level: 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
+      level: HapticLevel
     }
 
 export type MessageFromMobileApp = {
@@ -205,6 +207,6 @@ export const decryptWallet = (
  * Trigger device haptic feedback via the mobile app.
  * No-ops when not running inside a React Native WebView.
  */
-export const vibrate = (level: 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'): Promise<void> => {
+export const vibrate = (level: HapticLevel): Promise<void> => {
   return postMessage<void>({ cmd: 'vibrate', level })
 }

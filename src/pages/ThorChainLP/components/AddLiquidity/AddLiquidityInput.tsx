@@ -1423,20 +1423,27 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [actualRuneDepositAmountCryptoPrecision, hasEnoughRuneBalance],
   )
 
+  const isStagedAsymDeposit = useMemo(
+    () => pool?.status === 'staged' && opportunityType !== 'sym',
+    [opportunityType, pool?.status],
+  )
+
   const errorCopy = useMemo(() => {
     // Wallet not connected is *not* an error
     if (!isConnected) return
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
     // 1. chain halted
-    // 2. pool halted/disabled
-    // 3. Asset unsupported by wallet
-    // 4. smart contract deposits disabled
-    // 5. pool asset balance
-    // 6. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 7. RUNE balance
-    // 8. RUNE fee balance
+    // 2. cannot add single sided liquidity while a pool is staged
+    // 3. pool halted/disabled
+    // 4. Asset unsupported by wallet
+    // 5. smart contract deposits disabled
+    // 6. pool asset balance
+    // 7. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 8. RUNE balance
+    // 9. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isChainHalted) return translate('common.chainHalted')
+    if (isStagedAsymDeposit) return translate('common.poolStaged')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositFlagEnabled) return translate('common.poolDisabled')
@@ -1474,6 +1481,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     translate,
     walletSupportsOpportunity,
     isThorchainLpDepositEnabledForPool,
+    isStagedAsymDeposit,
   ])
 
   const confirmCopy = useMemo(() => {
@@ -1654,7 +1662,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           size='lg'
           colorScheme={errorCopy ? 'red' : 'blue'}
           isDisabled={Boolean(
-            disabledSymDepositAfterRune ||
+            isStagedAsymDeposit ||
+              disabledSymDepositAfterRune ||
               isTradingActive === false ||
               isChainHalted ||
               !isThorchainLpDepositFlagEnabled ||

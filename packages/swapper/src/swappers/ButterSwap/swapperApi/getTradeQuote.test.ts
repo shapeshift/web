@@ -1,21 +1,10 @@
 import { Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getTradeQuote } from './getTradeQuote'
-
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-}))
-
-vi.mock('../utils/butterSwapService', () => ({
-  butterService: {
-    get: mocks.get,
-  },
-}))
 
 vi.mock('../xhr', () => ({
   getButterRoute: vi.fn(() => Promise.resolve(Ok(ROUTE_QUOTE))),
@@ -67,8 +56,6 @@ describe('getTradeQuote', () => {
       allowMultiHop: true,
       quoteOrRate: 'quote',
     }
-
-    mocks.get.mockResolvedValue(Ok({ data: ROUTE_QUOTE } as unknown as AxiosResponse<any>))
 
     const result = await getTradeQuote(input, deps)
 

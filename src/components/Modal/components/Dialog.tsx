@@ -39,6 +39,7 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
 
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
 `
 
 const DialogWindow: React.FC<DialogProps> = ({

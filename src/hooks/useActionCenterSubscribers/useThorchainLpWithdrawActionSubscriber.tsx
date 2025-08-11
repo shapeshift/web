@@ -75,8 +75,6 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         })
       } catch (error) {
         console.error('Error waiting for THORChain update:', error)
-        // Don't mark as failed here - the transaction might still be processing
-        // We'll let the existing retry mechanisms handle it
       }
     },
     [dispatch, toast, isDrawerOpen, openActionCenter],

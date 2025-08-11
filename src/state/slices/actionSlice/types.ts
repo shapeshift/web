@@ -89,9 +89,9 @@ type ActionGenericTransactionMetadata = {
   contractName?: string
   cooldownPeriod?: string
   thorMemo?: string
-  confirmedQuote?: LpConfirmedWithdrawalQuote // For THORChain LP withdrawals
-  assetAmountsAndSymbols?: string // For translation placeholders
-  poolName?: string // For translation placeholders
+  confirmedQuote?: LpConfirmedWithdrawalQuote
+  assetAmountsAndSymbols?: string
+  poolName?: string
 }
 
 export type BaseAction = {

@@ -7,6 +7,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import { useLongPress } from 'use-long-press'
 
 import { AssetCell } from './AssetCell'
 import { ChangeCell } from './ChangeCell'
@@ -16,9 +17,11 @@ import { TradeButtonCell } from './TradeButtonCell'
 import { VolumeCell } from './VolumeCell'
 
 import { Text } from '@/components/Text'
+import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
+import { pulseAndroid } from '@/utils/pulseAndroid'
 
 const ROW_HEIGHT = 70
 
@@ -65,18 +68,25 @@ const gridSx = {
       paddingStart: '0!important',
     },
   },
+  ...longPressSx,
 }
 
 type MarketsTableVirtualizedProps = {
   rows: Asset[]
   onRowClick: (arg: Row<Asset>) => void
+  onRowLongPress?: (arg: Row<Asset>) => void
 }
 
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
-  ({ rows, onRowClick }) => {
+  ({ rows, onRowClick, onRowLongPress }) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+    const longPressHandlers = useLongPress((_, { context: row }) => {
+      pulseAndroid()
+      onRowLongPress?.(row as Row<Asset>)
+    }, defaultLongPressConfig)
 
     const parentRef = useRef<HTMLDivElement>(null)
 
@@ -206,6 +216,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             // eslint-disable-next-line react-memo/require-usememo
             onClick={() => onRowClick(row)}
             sx={gridSx}
+            {...longPressHandlers(row)}
           >
             {row.getVisibleCells().map(cell => {
               const textAlign = (() => {
@@ -223,7 +234,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           </Tr>
         )
       },
-      [onRowClick, tableRows],
+      [longPressHandlers, onRowClick, tableRows],
     )
 
     return (

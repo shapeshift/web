@@ -65,7 +65,6 @@ import {
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
-  selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
   selectSortedTradeQuotes,
   selectUserAvailableTradeQuotes,
@@ -131,7 +130,6 @@ export const TradeInput = ({
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
-  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -187,7 +185,6 @@ export const TradeInput = ({
       rateQueryStatus,
       walletId,
       isAnyGetAccountPortfolioLoadedForChainId,
-      isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isWalletReceiveAddressLoading,
     ],

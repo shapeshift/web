@@ -38,6 +38,7 @@
     "goBack": "返回",
     "connected": "已连接",
     "allocation": "分配",
+    "trendingTokens": "热门代币",
     "value": "价值",
     "created": "创建 %{date}",
     "noResultsFound": "未找到结果。",
@@ -198,7 +199,10 @@
     "others": "其他",
     "hardwareWallets": "硬件钱包",
     "dustAmount": "Dust 数量",
-    "marketDataUnavailable": "%{asset} 的市场数据不可用"
+    "marketDataUnavailable": "%{asset} 的市场数据不可用",
+    "streaming": "流式兑换中",
+    "dca": "DCA",
+    "boost": "加速"
   },
   "consentBanner": {
     "body": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问 %{privateLink} 如果您不希望被匿名跟踪。请查看我们的 %{privacyPolicyLink} 更多细节。",
@@ -2681,6 +2685,8 @@
     },
     "stakeSuccess": "你已成功质押 %{amount} %{symbol}",
     "stakePending": "质押 %{amount} %{symbol}...",
+    "changeAddressPending": "正在将 RFOX 奖励地址更改为 %{newAddress}",
+    "changeAddressSuccess": "已将 RFOX 奖励地址更改为 %{newAddress}",
     "addressUpdated": "地址已更新",
     "changeRewardAddressPending": "更改奖励地址中...",
     "changeRewardAddressSuccess": "你已成功更改你的 THORChain 奖励地址。",
@@ -2776,6 +2782,7 @@
     "timeStaked": "质押时长",
     "timeStakedHelper": "您质押 %{symbol} 的时长",
     "stakingReward": "质押奖励",
+    "claimNow": "您在 Thorchain 上持有一个储蓄/借贷仓位。现在可以领取您的 TCY。",
     "claimsEmpty": {
       "emptyTitle": "没有可领取的奖励",
       "emptyBody": "您似乎没有可领取的 TCY。要尝试使用其他钱包吗？",
@@ -2820,8 +2827,6 @@
     },
     "stakeInput": {
       "amount": "数量",
-      "networkFee": "网络费用",
-      "networkFeeTooltip": "网络费用",
       "stake": "质押",
       "amountPlaceholder": "输入数量"
     },
@@ -2868,9 +2873,11 @@
     },
     "emptyTitle": "未找到任何资产",
     "emptyBody": "当前过滤器未找到任何资产。通过调整所选链可查看更多资产。",
+    "emptyBodySwapper": "未找到符合条件的资产。",
     "categories": {
       "oneClickDefiAssets": {
         "title": "一键获取 DeFi 资产",
+        "filterTitle": "高收益代币",
         "subtitle": "发现最适合您的挖矿收益！通过门户轻松在流动性池、金库、贷款选项和 LSD 之间切换。"
       },
       "thorchainDefi": {
@@ -2960,8 +2967,6 @@
     "limitPrice": "限价",
     "expires": "到期时间",
     "filled": "已成交",
-    "streaming": "流式兑换中",
-    "claim": "领取",
     "protocol": "协议",
     "streamingStatus": "流式兑换状态",
     "executionPrice": "执行价格",
@@ -2990,6 +2995,18 @@
       "failed": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
       "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。"
     },
+    "deposit": {
+      "pending": "您存入的 %{amount} %{symbol} 正在处理中。",
+      "complete": "您存入的 %{amount} %{symbol} 已完成。"
+    },
+    "withdrawal": {
+      "pending": "您提取的 %{amount} %{symbol} 正在处理中。",
+      "complete": "您提取的 %{amount} %{symbol} 已完成。"
+    },
+    "claim": {
+      "pending": "您领取的 %{amount} %{symbol} 正在处理中。",
+      "complete": "您领取的 %{amount} %{symbol} 已完成。"
+    },
     "bridge": {
       "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在进行中。",
       "complete": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已完成。",
@@ -3009,9 +3026,17 @@
       "unstakeTxComplete": "您取消质押的 %{amount} %{symbol} 已完成。"
     },
     "tcy": {
-      "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪",
+      "stakePending": "您质押的 %{amount} %{symbol} 正在处理中...",
+      "unstakePending": "您取消质押的 %{amount} %{symbol} 正在处理中...",
+      "stakeComplete": "您质押的 %{amount} %{symbol} 已完成。",
+      "unstakeComplete": "您取消质押的 %{amount} %{symbol} 已完成。",
+      "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪。",
       "claimTxPending": "您领取的 %{amount} %{symbol} TCY 待处理中。",
       "claimTxComplete": "您领取的 %{amount} %{symbol} TCY 已完成。"
+    },
+    "approve": {
+      "approvalTxPending": "正在批准 %{contractName} 使用 %{amountCryptoPrecision} %{symbol}。",
+      "approvalTxComplete": "已批准 %{contractName} 使用 %{amountCryptoPrecision} %{symbol}。"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

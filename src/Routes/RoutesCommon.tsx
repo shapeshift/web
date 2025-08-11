@@ -21,6 +21,7 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
+import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
@@ -229,6 +230,18 @@ export const routes: Route[] = [
     mobileNav: true,
     hideDesktop: true,
     priority: 7,
+    routes: [
+      {
+        path: 'category/:category',
+        main: ExploreCategory,
+        hide: true,
+      },
+      {
+        path: 'category/:category/:tag',
+        main: ExploreCategory,
+        hide: true,
+      },
+    ],
   },
   {
     path: '/rfox/*',

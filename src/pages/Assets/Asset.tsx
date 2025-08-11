@@ -1,4 +1,4 @@
-import { AssetAccountDetails } from '@/components/AssetAccountDetails'
+import { AssetAccountDetails } from '@/components/AssetAccountDetails/AssetAccountDetails'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import type { Route } from '@/Routes/helpers'
 import { selectAssetById } from '@/state/slices/selectors'

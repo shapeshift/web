@@ -23,6 +23,7 @@
     "close": "Close",
     "closed": "Closed",
     "loadMore": "Load More",
+    "volumeShort": "VOL",
     "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
@@ -129,6 +130,7 @@
     "buySell": "Buy/Sell",
     "all": "All",
     "viewAll": "View All",
+    "seeMore": "See More",
     "slippage": "Slippage",
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
@@ -202,7 +204,8 @@
     "marketDataUnavailable": "Market data is unavailable for %{asset}",
     "streaming": "Streaming",
     "dca": "DCA",
-    "boost": "Boost"
+    "boost": "Boost",
+    "viewOnExplorer": "View on explorer"
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",
@@ -924,7 +927,6 @@
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
-    "viewOnBlockExplorer": "View on block explorer",
     "tooltip": {
       "continueSwapping": "Continue swapping for final details",
       "changeQuote": "Change quote",
@@ -2036,6 +2038,13 @@
     }
   },
   "assets": {
+    "more": "More",
+    "spam": {
+      "warning": "This asset will be hidden because you've marked it as spam.",
+      "marked": "This asset is marked as spam.",
+      "reportAsSpam": "Report as spam",
+      "reportAsNotSpam": "Mark as not spam"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Balance",
@@ -2626,6 +2635,8 @@
     "understand": "I understand the risks"
   },
   "watchlist": {
+    "add": "Add to watchlist",
+    "remove": "Remove from watchlist",
     "empty": {
       "title": "Start building your watchlist",
       "body": "Wherever you see the star icon, you can use it to add assets here.",
@@ -2648,6 +2659,15 @@
     "tcy": {
       "title": "TCY",
       "body": "Stake TCY earn RUNE."
+    },
+    "tags": {
+      "liquid-staking": "Liquid Staking",
+      "yield": "Yield",
+      "lending": "Lending",
+      "rwa": "RWA",
+      "yield-aggregator": "Yield Aggregator",
+      "pool": "Pool",
+      "clp": "CLP"
     }
   },
   "RFOX": {

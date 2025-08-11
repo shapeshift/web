@@ -17,3 +17,9 @@ export const selectIsAssetIdWatched = createCachedSelector(
   (_state: ReduxState, assetId: AssetId) => assetId,
   (watchedAssetIds, assetId) => watchedAssetIds.includes(assetId),
 )((_state: ReduxState, assetId: AssetId): AssetId => assetId ?? 'undefined')
+
+export const selectIsSpamMarkedByAssetId = createCachedSelector(
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (_state: ReduxState, assetId: AssetId) => assetId,
+  (spamMarkedAssetIds, assetId): boolean => spamMarkedAssetIds.includes(assetId),
+)((_state: ReduxState, assetId: AssetId): AssetId => assetId ?? 'assetId')

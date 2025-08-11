@@ -449,7 +449,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         return
       }
 
-      // Create the action
       dispatch(
         actionSlice.actions.upsertAction({
           id: _txId,
@@ -472,7 +471,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         }),
       )
 
-      // Show pending notification
       if (!toast.isActive(_txId)) {
         toast({
           id: _txId,

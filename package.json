@@ -201,6 +201,7 @@
     "scroll-into-view-if-needed": "^3.0.10",
     "semver": "^7.7.2",
     "styled-components": "^6.0.7",
+    "use-long-press": "^3.3.0",
     "uuid": "^9.0.0",
     "vaul": "^1.1.2",
     "viem": "^2.10.9",

@@ -312,7 +312,12 @@ describe('parseTx', () => {
             components: [{ value: '59872' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Standard' },
+        },
         trade,
       }
 
@@ -347,7 +352,13 @@ describe('parseTx', () => {
             components: [{ value: '24574773' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Standard' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -381,7 +392,13 @@ describe('parseTx', () => {
             components: [{ value: '2943300' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[1].metadata?.refund?.memo,
+          method: 'swapRefund',
+          swap: { type: 'Standard' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -433,7 +450,12 @@ describe('parseTx', () => {
             components: [{ value: '469636' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Streaming' },
+        },
         trade,
       }
 
@@ -468,7 +490,13 @@ describe('parseTx', () => {
             components: [{ value: '116388' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Streaming' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -502,7 +530,13 @@ describe('parseTx', () => {
             components: [{ value: '117553237' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'swapRefund',
+          swap: { type: 'Streaming' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -540,7 +574,12 @@ describe('parseTx', () => {
             components: [{ value: '17494111' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          method: 'deposit',
+          memo,
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -586,7 +625,12 @@ describe('parseTx', () => {
             components: [{ value: '343728' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          method: 'withdraw',
+          memo,
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -620,7 +664,13 @@ describe('parseTx', () => {
             components: [{ value: '1166419' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[1].metadata?.withdraw?.memo,
+          method: 'withdrawOut',
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -654,7 +704,13 @@ describe('parseTx', () => {
             components: [{ value: '1132183' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'depositRefund',
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -700,7 +756,12 @@ describe('parseTx', () => {
             components: [{ value: '764750' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          method: 'deposit',
+          memo,
+          liquidity: { type: 'LP' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -746,7 +807,12 @@ describe('parseTx', () => {
             components: [{ value: '1972359' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          method: 'withdraw',
+          memo,
+          liquidity: { type: 'LP' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -780,7 +846,13 @@ describe('parseTx', () => {
             components: [{ value: '914306' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.withdraw?.memo,
+          method: 'withdrawOut',
+          liquidity: { type: 'LP' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -814,7 +886,13 @@ describe('parseTx', () => {
             components: [{ value: '1132183' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'depositRefund',
+          liquidity: { type: 'LP' },
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -892,7 +970,12 @@ describe('parseTx', () => {
             components: [{ value: '1762711' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'loanOpenOut' },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'loanOpenOut',
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -970,7 +1053,12 @@ describe('parseTx', () => {
             components: [{ value: '14954979' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'loanRepaymentOut' },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'loanRepaymentOut',
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1004,7 +1092,12 @@ describe('parseTx', () => {
             components: [{ value: '14954979' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'loanOpenRefund', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanOpenRefund',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1038,7 +1131,12 @@ describe('parseTx', () => {
             components: [{ value: '14954979' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'loanRepaymentRefund', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanRepaymentRefund',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        },
       }
 
       const actual = await txParser.parse(tx, address)

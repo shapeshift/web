@@ -104,6 +104,7 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
       )
 
+      // TODO(gomes): selectTxsByFilter(store.getState()) here instead and use originMemo filter
       const tx = txs[serializedTxIndex]
 
       if (!tx) return

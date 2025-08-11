@@ -54,6 +54,7 @@ type ParamFilter = Partial<{
   onlyConnectedChains: boolean
   parser: TxMetadata['parser']
   memo: common.thormaya.TxMetadata['memo']
+  originMemo: common.thormaya.TxMetadata['memo']
   hopIndex: number
   tradeId: TradeQuote['id']
   quoteId: string
@@ -98,6 +99,7 @@ export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
 export const selectParserParamFromFilter = selectParamFromFilter('parser')
 export const selectMemoParamFromFilter = selectParamFromFilter('memo')
+export const selectOriginMemoParamFromFilter = selectParamFromFilter('originMemo')
 export const selectSwapIdParamFromFilter = selectParamFromFilter('swapId')
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')

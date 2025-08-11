@@ -29,6 +29,7 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectMemoParamFromFilter,
+  selectOriginMemoParamFromFilter,
   selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
@@ -146,7 +147,18 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectTxStatusParamFromFilter,
   selectParserParamFromFilter,
   selectMemoParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser, memo): TxId[] => {
+  selectOriginMemoParamFromFilter,
+  (
+    txIds,
+    txs,
+    data,
+    accountIdFilter,
+    assetIdFilter,
+    txStatusFilter,
+    parser,
+    memo,
+    originMemo,
+  ): TxId[] => {
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
           return accountId === accountIdFilter
@@ -167,9 +179,18 @@ export const selectTxIdsByFilter = createCachedSelector(
         )
       : maybeFilteredByParser
 
-    const maybeUniqueIdsByStatus = txStatusFilter
-      ? maybeFilteredByMemo.filter(txId => txs[txId].status === txStatusFilter)
+    const maybeFilteredByOriginMemo = originMemo
+      ? maybeFilteredByMemo.filter(
+          txId =>
+            (txs[txId].data as common.thormaya.TxMetadata | undefined)?.originMemo?.startsWith(
+              originMemo,
+            ),
+        )
       : maybeFilteredByMemo
+
+    const maybeUniqueIdsByStatus = txStatusFilter
+      ? maybeFilteredByOriginMemo.filter(txId => txs[txId].status === txStatusFilter)
+      : maybeFilteredByOriginMemo
     const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },

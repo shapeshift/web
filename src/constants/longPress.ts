@@ -1,6 +1,11 @@
 import { LongPressEventType } from 'use-long-press'
 
-export const defaultLongPressConfig = { detect: LongPressEventType.Touch, cancelOnMovement: 8 }
+export const defaultLongPressConfig = {
+  detect: LongPressEventType.Touch,
+  cancelOnMovement: 8,
+  captureEvent: true,
+  cancelOutsideElement: false,
+}
 
 export const longPressSx = {
   '@media (hover: none) and (pointer: coarse)': {

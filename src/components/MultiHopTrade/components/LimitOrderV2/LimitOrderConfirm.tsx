@@ -151,7 +151,7 @@ export const LimitOrderConfirm = () => {
   const body = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
     if (orderSubmissionState === LimitOrderSubmissionState.Complete) {
-      return <Navigate to={LimitOrderRoutePaths.Input} />
+      return <Navigate to={LimitOrderRoutePaths.Input} replace />
     }
     return (
       <SharedConfirmBody

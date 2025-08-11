@@ -149,7 +149,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     const poolName = `${poolAsset.symbol}/${baseAsset.symbol}`
 
     if (poolAssets.length === 2) {
-      const assetAmountsAndSymbols = translate('thorchainLp.pairAssets', {
+      const assetAmountsAndSymbols = translate('actionCenter.thorchainLp.pairAssets', {
         asset1: `${assetAmount} ${poolAsset.symbol}`,
         asset2: `${runeAmount} ${baseAsset.symbol}`,
       })
@@ -275,7 +275,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     thorchainNotationAssetId,
   ])
 
-  const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
+  const {
+    executeTransaction,
+    estimatedFeesData,
+    txId,
+    serializedTxIndex,
+    memo: processedMemo,
+  } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: (isRuneTx ? runeAccountId : poolAssetAccountId) ?? null,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
@@ -467,6 +473,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             confirmedQuote,
             assetAmountsAndSymbols,
             poolName,
+            thorMemo: processedMemo,
           },
         }),
       )
@@ -519,6 +526,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     isRuneTx,
     poolName,
     openActionCenter,
+    processedMemo,
   ])
 
   const confirmTranslation = useMemo(() => {

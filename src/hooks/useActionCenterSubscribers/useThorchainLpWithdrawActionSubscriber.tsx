@@ -7,6 +7,7 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { waitForThorchainUpdate } from '@/lib/utils/thorchain'
+import { AsymSide } from '@/lib/utils/thorchain/lp/types'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingThorchainLpWithdrawActions } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
@@ -90,15 +91,26 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         return
       if (action.type !== ActionType.Withdraw) return
 
-      const { txHash } = action.transactionMetadata
+      const { thorMemo, txHash } = action.transactionMetadata
 
       // Check if the transaction is confirmed on the blockchain
       const accountId = action.transactionMetadata.accountId
       if (!accountId) return
 
       const accountAddress = fromAccountId(accountId).account
-      const serializedTxIndex = serializeTxIndex(accountId, txHash, accountAddress)
-      const tx = txs[serializedTxIndex]
+      const serializedTxIndex = serializeTxIndex(
+        accountId,
+        txHash,
+        accountAddress,
+        thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
+      )
+
+      // Asset-side withdraws do not contain a memo in their serialized Txinded
+      // In theory, we could just add that in the ternary above, but for the sake of paranoia and more cases I may not have tested, let's
+      // assume that there are more cases where it may not be present, and err on the side of safety
+      const serializedTxIndexNoMemo = serializeTxIndex(accountId, txHash, accountAddress)
+
+      const tx = txs[serializedTxIndex] || txs[serializedTxIndexNoMemo]
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return

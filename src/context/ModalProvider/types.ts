@@ -2,6 +2,7 @@ import type { FC } from 'react'
 
 import type { CLOSE_MODAL, OPEN_MODAL } from './constants'
 
+import type { AssetActionsDrawerProps } from '@/components/AssetHeader/AssetActionsDrawer'
 import type { BackupPassphraseModalProps } from '@/components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import type { MobileWalletDialogProps } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import type { AssetSearchModalProps } from '@/components/Modals/AssetSearch/AssetSearchModal'
@@ -39,6 +40,7 @@ export type Modals = {
   ledgerOpenApp: FC<LedgerOpenAppModalProps>
   rateChanged: FC<RateChangedModalProps>
   mobileWalletDialog: FC<MobileWalletDialogProps>
+  assetActionsDrawer: FC<AssetActionsDrawerProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

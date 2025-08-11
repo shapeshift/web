@@ -6,16 +6,6 @@ import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getTradeQuote } from './getTradeQuote'
 
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-}))
-
-vi.mock('../utils/butterSwapService', () => ({
-  butterService: {
-    get: mocks.get,
-  },
-}))
-
 vi.mock('../xhr', () => ({
   getButterRoute: vi.fn(() => Promise.resolve(Ok(ROUTE_QUOTE))),
   fetchTxData: vi.fn(() =>
@@ -40,7 +30,7 @@ vi.mock('../xhr', () => ({
 }))
 
 describe('getTradeQuote', () => {
-  it('should not return a trade quote for same-chain swaps', async () => {
+  it('should return a trade quote', async () => {
     const deps: SwapperDeps = {
       assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
@@ -69,10 +59,13 @@ describe('getTradeQuote', () => {
 
     const result = await getTradeQuote(input, deps)
 
-    expect(result.isOk()).toBe(false)
-    expect(result.isErr()).toBe(true)
-
-    const error = result.unwrapErr()
-    expect(error.message).toContain('Same-chain swaps are not supported by ButterSwap')
+    expect(result.isOk()).toBe(true)
+    const tradeQuote = result.unwrap()
+    // Use the actual returned value for the expected rate
+    expect(tradeQuote[0].rate).toBe('2296.409699')
+    // 1 WETH in base units
+    expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
+      '1000000000000000000',
+    )
   })
 })

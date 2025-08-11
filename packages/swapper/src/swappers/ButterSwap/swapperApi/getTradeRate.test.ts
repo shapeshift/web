@@ -7,6 +7,8 @@ import { describe, expect, it, vi } from 'vitest'
 import type { GetTradeRateInput, SwapperDeps } from '../../../types'
 import { BTC, ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import ethBtcRoute from '../test-data/eth-btc.json'
+import { ROUTE_QUOTE } from '../test-data/routeQuote'
+import type { RouteResponse } from '../types'
 import { butterService } from '../utils/butterSwapService'
 import { getTradeRate } from './getTradeRate'
 
@@ -17,7 +19,7 @@ vi.mock('../utils/butterSwapService', () => ({
 }))
 
 describe('getTradeRate', () => {
-  it('should not return a trade rate for same-chain swaps', async () => {
+  it('should return a trade rate', async () => {
     const deps: SwapperDeps = {
       assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
@@ -45,13 +47,15 @@ describe('getTradeRate', () => {
       supportsEIP1559: false, // TODO - upstream type bug? this is a literal false in the type def
     }
 
+    vi.mocked(butterService.get).mockResolvedValue(
+      Ok({ data: ROUTE_QUOTE } as AxiosResponse<RouteResponse>),
+    )
+
     const result = await getTradeRate(input, deps)
 
-    expect(result.isOk()).toBe(false)
-    expect(result.isErr()).toBe(true)
-
-    const error = result.unwrapErr()
-    expect(error.message).toContain('Same-chain swaps are not supported by ButterSwap')
+    expect(result.isOk()).toBe(true)
+    const tradeRate = result.unwrap()
+    expect(tradeRate[0].rate).toBe('2296.409699')
   })
 
   it('should return a correct trade rate and steps for a multi-hop ETH->BTC route', async () => {
@@ -84,8 +88,9 @@ describe('getTradeRate', () => {
 
     // Use the first route in the eth-btc.json data
     vi.mocked(butterService.get).mockResolvedValue(
-      Ok({ data: ethBtcRoute } as unknown as AxiosResponse),
+      Ok({ data: ethBtcRoute } as AxiosResponse<typeof ethBtcRoute>),
     )
+
     const result = await getTradeRate(input, deps)
 
     expect(result.isOk()).toBe(true)

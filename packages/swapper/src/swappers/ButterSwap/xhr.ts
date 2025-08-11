@@ -8,6 +8,7 @@ import { zeroAddress } from 'viem'
 import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
+import { getTreasuryAddressFromChainId } from '../utils/helpers/helpers'
 import type {
   BridgeInfo,
   BridgeInfoApiResponse,
@@ -76,11 +77,16 @@ export const getButterRoute = async ({
     if (sellAssetIsNative) return zeroAddress
     return sellAssetAddressRaw
   })()
+
   const buyAssetAddress = (() => {
     if (buyAsset.chainId === solanaChainId && buyAssetIsNative) return SOLANA_NATIVE_ADDRESS
     if (buyAssetIsNative) return zeroAddress
     return buyAssetAddressRaw
   })()
+
+  const isSameChainSolanaSwap =
+    sellAsset.chainId === solanaChainId && buyAsset.chainId === solanaChainId
+
   const params = {
     fromChainId: butterFromChainId,
     tokenInAddress: sellAssetAddress,
@@ -91,6 +97,8 @@ export const getButterRoute = async ({
     slippage,
     entrance: 'shapeshift',
     affiliate,
+    // This is only required to collect affiliate fees for same-chain Solana swaps. For EVM swaps the default referrer address (EVM) of the affiliate code is used.
+    ...(isSameChainSolanaSwap && { referrer: getTreasuryAddressFromChainId(solanaChainId) }),
   }
   const result = await butterService.get<RouteResponse>('/route', { params })
   if (result.isErr()) return Err(result.unwrapErr())

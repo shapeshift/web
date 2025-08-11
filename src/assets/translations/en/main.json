@@ -166,6 +166,7 @@
     "disabled": "Disabled",
     "staged": "Staged",
     "poolHalted": "Pool Halted",
+    "disabledAsymStagedDeposits": "Pool Staged",
     "chainHalted": "Chain Halted",
     "poolDisabled": "Pool Disabled",
     "prices": "Prices",

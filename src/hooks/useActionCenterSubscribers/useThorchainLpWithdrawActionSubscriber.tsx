@@ -16,9 +16,9 @@ import {
   GenericTransactionDisplayType,
   isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
-import { selectTxs } from '@/state/slices/selectors'
+import { selectTxByFilter, selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useThorchainLpWithdrawActionSubscriber = () => {
   const dispatch = useAppDispatch()
@@ -104,8 +104,27 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
       )
 
-      // TODO(gomes): selectTxsByFilter(store.getState()) here instead and use originMemo filter
-      const tx = txs[serializedTxIndex]
+      // TODO(gomes): clean all this before opening me
+      const byMemo = selectTxByFilter(store.getState(), {
+        originMemo: thorMemo ?? undefined,
+        txHash,
+      })
+      if (byMemo) {
+        console.log({ byMemo })
+      }
+      if (txHash && thorMemo && !byMemo) {
+        debugger
+      }
+      // end cleanup
+
+      const tx = selectTxByFilter(store.getState(), {
+        originMemo: thorMemo ?? undefined,
+        txHash,
+      })
+
+      if (tx) {
+        console.log({ bySerializedTxIndex: txs[serializedTxIndex], byMemo, tx })
+      }
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return

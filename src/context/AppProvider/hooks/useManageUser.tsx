@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useCallback } from 'react'
 
+import { getExpoToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile } from '@/lib/globals'
 import { selectWalletEnabledAccountIds } from '@/state/slices/common-selectors'
 import { useAppSelector } from '@/state/store'
@@ -72,6 +73,14 @@ const registerDevice = async (
 export const useManageUser = () => {
   const walletEnabledAccountIds = useAppSelector(selectWalletEnabledAccountIds)
 
+  const { data: mobileExpoToken } = useQuery({
+    queryKey: ['getExpoToken'],
+    queryFn: () => getExpoToken(),
+    enabled: isMobile,
+    gcTime: Infinity,
+    staleTime: Infinity,
+  })
+
   const {
     data: userData,
     isLoading,
@@ -85,7 +94,7 @@ export const useManageUser = () => {
   })
 
   const initializeUserWithDevice = useCallback(
-    async (expoToken?: string) => {
+    async (expoToken: string | null | undefined) => {
       if (!userData?.user) return
 
       try {
@@ -119,9 +128,11 @@ export const useManageUser = () => {
   )
 
   const { data: deviceData } = useQuery({
-    queryKey: ['registerDevice', userData?.user?.id],
-    queryFn: () => initializeUserWithDevice(),
+    queryKey: ['registerDevice', userData?.user?.id, mobileExpoToken],
+    queryFn: () => initializeUserWithDevice(mobileExpoToken),
     enabled: !!userData?.user?.id,
+    staleTime: Infinity,
+    gcTime: Infinity,
   })
 
   return {

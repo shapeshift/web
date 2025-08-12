@@ -14,6 +14,7 @@ type Command =
   | 'listWallets'
   | 'getWalletCount'
   | 'reloadWebview'
+  | 'getExpoToken'
 
 type Message =
   | {
@@ -50,6 +51,9 @@ type Message =
     }
   | {
       cmd: 'reloadWebview'
+    }
+  | {
+      cmd: 'getExpoToken'
     }
 
 export type MessageFromMobileApp = {
@@ -195,4 +199,8 @@ export const decryptWallet = (
   encryptedWallet: string,
 ): Promise<string | null> => {
   return postMessage<string | null>({ cmd: 'decryptWallet', email, password, encryptedWallet })
+}
+
+export const getExpoToken = (): Promise<string | null> => {
+  return postMessage<string | null>({ cmd: 'getExpoToken' })
 }

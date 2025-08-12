@@ -1,7 +1,6 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useNavigate } from 'react-router-dom'
@@ -19,8 +18,8 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
-import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -38,6 +37,22 @@ const poolDetailsDirection: FlexProps['flexDirection'] = {
 }
 
 const stackPadding = { base: 2, md: 0 }
+
+const sortStatusFn = (rowA: any, rowB: any, columnId: string) => {
+  const valueA = rowA.values[columnId]
+  const valueB = rowB.values[columnId]
+
+  console.log({ rowA, rowB })
+
+  // Convert string values to BigNumber for proper numeric sorting
+  const bnA = bnOrZero(valueA)
+  const bnB = bnOrZero(valueB)
+
+  // Use BigNumber comparison methods
+  if (bnA.lt(bnB)) return -1
+  if (bnA.gt(bnB)) return 1
+  return 0 // They are equal
+}
 
 const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
 
@@ -58,11 +73,6 @@ export const AvailablePools = () => {
         Cell: ({ row, value }: { value: string; row: RowProps }) => {
           const pool = row.original
 
-          const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-            assetId: pool.assetId,
-            swapperName: SwapperName.Thorchain,
-          })
-
           const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(pool.assetId)
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
@@ -76,7 +86,7 @@ export const AvailablePools = () => {
                   color: 'red.500',
                   element: <Text translation='pools.depositsDisabled' />,
                 }
-              case isTradingActive === false:
+              case pool.isTradingActive === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='common.halted' />,
@@ -86,12 +96,12 @@ export const AvailablePools = () => {
                   color: 'red.500',
                   element: <Text translation='common.disabled' />,
                 }
-              case isTradingActive === true && pool.status === 'available':
+              case pool.isTradingActive === true && pool.status === 'available':
                 return {
                   color: 'green.500',
                   element: <Amount.Percent value={pool.annualPercentageRate} suffix='APY' />,
                 }
-              case isTradingActive === true && pool.status === 'staged':
+              case pool.isTradingActive === true && pool.status === 'staged':
                 return {
                   color: 'yellow.500',
                   element: <Text translation='common.staged' />,
@@ -105,7 +115,6 @@ export const AvailablePools = () => {
           }, [
             isThorchainLpDepositEnabledForPool,
             isThorchainLpInteractionDisabled,
-            isTradingActive,
             pool.annualPercentageRate,
             pool.status,
           ])
@@ -117,7 +126,7 @@ export const AvailablePools = () => {
                 <PoolIcon assetIds={poolAssetIds} size='sm' />
                 <Flex gap={2} flexDir={poolDetailsDirection} flex='0 1 auto'>
                   <RawText fontWeight='semibold'>{pool.name}</RawText>
-                  <Skeleton isLoaded={!isTradingActiveLoading}>
+                  <Skeleton isLoaded={!pool.isTradingActiveLoading}>
                     <Tag size='sm'>
                       <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
                       {statusContent.element}
@@ -131,6 +140,7 @@ export const AvailablePools = () => {
       },
       {
         Header: translate('pools.tvl'),
+        sortType: sortStatusFn,
         accessor: 'tvlFiat',
         justifyContent: { base: 'flex-end', md: 'flex-start' },
         textAlign: { base: 'right', md: 'left' },

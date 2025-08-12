@@ -34,8 +34,12 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { sleep } from '@/lib/poll/poll'
 import { assertUnreachable } from '@/lib/utils'
-import { getThorchainFromAddress, waitForThorchainUpdate } from '@/lib/utils/thorchain'
-import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
+import {
+  getThorchainFromAddress,
+  getThorchainTransactionStatus,
+  waitForThorchainUpdate,
+} from '@/lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME, thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
@@ -54,6 +58,7 @@ import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import { selectInboundAddressData } from '@/react-queries/selectors'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import {
   ActionStatus,
   ActionType,
@@ -62,6 +67,7 @@ import {
 import {
   selectAssetById,
   selectFeeAssetByChainId,
+  selectPendingThorchainLpWithdrawActions,
   selectPortfolioAccountMetadataByAccountId,
   selectTxById,
 } from '@/state/slices/selectors'
@@ -275,6 +281,59 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     thorchainNotationAssetId,
   ])
 
+  const handleWithdrawComplete = useCallback(
+    async (action: GenericTransactionAction) => {
+      try {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...action,
+            status: ActionStatus.Complete,
+            transactionMetadata: {
+              ...action.transactionMetadata,
+              message: 'actionCenter.thorchainLp.withdraw.complete',
+            },
+          }),
+        )
+
+        const actionId = action.id
+        if (toast.isActive(actionId)) return
+
+        toast({
+          id: action.id,
+          duration: isDrawerOpen ? 5000 : null,
+          status: 'success',
+          render: ({ onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              openActionCenter()
+            }
+            return (
+              <GenericTransactionNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                actionId={action.id}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
+        })
+
+        await queryClient.invalidateQueries({
+          predicate: query => {
+            // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
+            const shouldInvalidate = query.queryKey?.[0] === reactQueries.thorchainLp._def[0]
+            return shouldInvalidate
+          },
+          type: 'all',
+        })
+      } catch (error) {
+        console.error('Error waiting for THORChain update:', error)
+      }
+    },
+    [dispatch, toast, isDrawerOpen, openActionCenter, queryClient],
+  )
+
   const {
     executeTransaction,
     estimatedFeesData,
@@ -291,9 +350,42 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     disableEstimateFeesRefetch: isSubmitting,
   })
 
+  const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
+  const maybePendingThorchainLpWithdrawAction = useMemo(
+    () =>
+      pendingThorchainLpWithdrawActions.find(
+        pendingAction => pendingAction.transactionMetadata.txHash === txId,
+      ),
+    [pendingThorchainLpWithdrawActions, txId],
+  )
+
+  // TODO(gomes): remove ugly logic in here and make this work for deposits too
+  useQuery({
+    queryKey: ['thorTxStatus', { txHash: txId, skipOutbound: true }],
+    // Shared query for withdraws only
+    queryFn:
+      txId && maybePendingThorchainLpWithdrawAction && action === 'withdraw'
+        ? async (): Promise<TxStatus> => {
+            const status = await getThorchainTransactionStatus({
+              txHash: txId,
+              skipOutbound: true,
+            })
+
+            onStatusUpdate(status)
+            if (status === TxStatus.Confirmed) {
+              await handleWithdrawComplete(maybePendingThorchainLpWithdrawAction)
+            }
+
+            return status
+          }
+        : skipToken,
+    refetchInterval: 10_000,
+  })
+
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: ({ txId: _txId }: { txId: string }) => {
+      sleep(thorchainBlockTimeMs)
       return waitForThorchainUpdate({
         txId: _txId,
         skipOutbound: true, // this is an LP Tx, there is no outbound
@@ -333,6 +425,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [assetId, confirmedQuote, onStatusUpdate, positionStatus?.incomplete, status])
 
   useEffect(() => {
+    // TODO(gomes): remove this disgusting mess once we implement notification for deposits too
+    // For the time being, we'll live with it for deposits, but use a share query for withdraws
+    if (action === 'withdraw') return
     if (!txId) return
 
     // Return if the status has been set to confirmed or failed
@@ -370,7 +465,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (tx.status === TxStatus.Confirmed) {
       ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, status, tx, txId, onStatusUpdate, isSymAssetWithdraw, isNativeThorchainTx])
+  }, [
+    mutateAsync,
+    status,
+    tx,
+    txId,
+    onStatusUpdate,
+    isSymAssetWithdraw,
+    isNativeThorchainTx,
+    action,
+  ])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

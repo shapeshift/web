@@ -3,7 +3,12 @@ import type { Swap } from '@shapeshiftoss/swapper'
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
-import type { LimitOrderAction, RfoxClaimAction, TcyClaimAction } from './types'
+import type {
+  GenericTransactionAction,
+  LimitOrderAction,
+  RfoxClaimAction,
+  TcyClaimAction,
+} from './types'
 import {
   ActionStatus,
   ActionType,
@@ -231,7 +236,7 @@ export const selectPendingThorchainLpWithdrawActions = createDeepEqualOutputSele
   selectWalletActionsSorted,
   actions => {
     return actions.filter(
-      action =>
+      (action): action is GenericTransactionAction =>
         action.status === ActionStatus.Pending &&
         isGenericTransactionAction(action) &&
         action.transactionMetadata.displayType === GenericTransactionDisplayType.ThorchainLP &&

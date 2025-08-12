@@ -21,7 +21,11 @@ export type Pool = MidgardPoolResponse & {
   assetId: AssetId
   name: string
   tvlFiat: string
-} & Partial<VolumeStats> & { isTradingActive?: boolean; isTradingActiveLoading?: boolean }
+} & Partial<VolumeStats> & {
+    isTradingActive?: boolean
+    isTradingActiveLoading?: boolean
+    isLpDepositEnabled?: boolean
+  }
 
 export type PoolStats = {
   fees24hFiat: string

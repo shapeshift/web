@@ -8,6 +8,7 @@ import type { Pool, VolumeStats } from './usePool'
 import { getPool, getVolumeStats, selectSwapsData } from './usePool'
 
 import { bn } from '@/lib/bignumber/bignumber'
+import { isLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import type { MidgardSwapHistoryResponse } from '@/lib/utils/thorchain/lp/types'
 import { reactQueries } from '@/react-queries'
@@ -128,5 +129,18 @@ export const usePools = () => {
     return { ...poolsWithVolumeStats, data }
   }, [pools])
 
-  return poolsWithActiveData
+  const poolsWithIsLpDepositEnabled = useMemo(() => {
+    const poolsWithLpDepositEnabled = poolsWithActiveData.data.reduce<Pool[]>((acc, pool) => {
+      const assetId = thorPoolAssetIdToAssetId(pool.asset)
+      if (!assetId) return acc
+      if (!mimir) return acc
+
+      acc.push({ ...pool, isLpDepositEnabled: isLpDepositEnabled({ mimir, assetId }) })
+      return acc
+    }, [])
+
+    return { ...poolsWithActiveData, data: poolsWithLpDepositEnabled }
+  }, [poolsWithActiveData, mimir])
+
+  return poolsWithIsLpDepositEnabled
 }

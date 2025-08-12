@@ -19,7 +19,6 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -41,14 +40,25 @@ const stackPadding = { base: 2, md: 0 }
 const sortStatusFn = (rowA: any, rowB: any, columnId: string) => {
   const valueA = rowA.values[columnId]
   const valueB = rowB.values[columnId]
+  const poolA = rowA.original
+  const poolB = rowB.original
 
   console.log({ rowA, rowB })
 
-  // Convert string values to BigNumber for proper numeric sorting
+  // Check if pools have deposits disabled - push deposit disabled pools to the end
+  // Pools are considered disabled if they explicitly have isLpDepositEnabled === false
+  const isDepositDisabledA = poolA.isLpDepositEnabled === false
+  const isDepositDisabledB = poolB.isLpDepositEnabled === false
+
+  // If one has deposits disabled and the other doesn't, put the non-disabled one first
+  if (isDepositDisabledA && !isDepositDisabledB) return 1 // A (disabled) goes after B (enabled)
+  if (!isDepositDisabledA && isDepositDisabledB) return -1 // A (enabled) goes before B (disabled)
+
+  // Second tier: If both have same status, sort by TVL
   const bnA = bnOrZero(valueA)
   const bnB = bnOrZero(valueB)
 
-  // Use BigNumber comparison methods
+  // Use BigNumber comparison methods for TVL sorting
   if (bnA.lt(bnB)) return -1
   if (bnA.gt(bnB)) return 1
   return 0 // They are equal
@@ -73,7 +83,6 @@ export const AvailablePools = () => {
         Cell: ({ row, value }: { value: string; row: RowProps }) => {
           const pool = row.original
 
-          const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(pool.assetId)
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
@@ -81,7 +90,7 @@ export const AvailablePools = () => {
 
           const statusContent = useMemo(() => {
             switch (true) {
-              case isThorchainLpDepositEnabledForPool === false:
+              case pool.isLpDepositEnabled === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='pools.depositsDisabled' />,
@@ -112,12 +121,7 @@ export const AvailablePools = () => {
                   element: <Amount.Percent value={pool.annualPercentageRate} />,
                 }
             }
-          }, [
-            isThorchainLpDepositEnabledForPool,
-            isThorchainLpInteractionDisabled,
-            pool.annualPercentageRate,
-            pool.status,
-          ])
+          }, [isThorchainLpInteractionDisabled, pool.annualPercentageRate, pool.status])
 
           const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
           return (

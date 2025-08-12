@@ -2,7 +2,15 @@
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "baseUrl": "../../",
+    "paths": {
+      "@cowprotocol/app-data": ["node_modules/@cowprotocol/app-data"],
+      "@cowprotocol/app-data/*": ["node_modules/@cowprotocol/app-data/*"],
+      "./*": ["./*"]
+    }
   },
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],

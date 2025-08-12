@@ -1,4 +1,3 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect } from 'react'
 
@@ -17,7 +16,6 @@ import {
   isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import { selectTxByFilter, selectTxs } from '@/state/slices/selectors'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useThorchainLpWithdrawActionSubscriber = () => {
@@ -90,41 +88,19 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         return
       if (action.type !== ActionType.Withdraw) return
 
-      const { thorMemo, txHash } = action.transactionMetadata
+      const { txHash } = action.transactionMetadata
 
       // Check if the transaction is confirmed on the blockchain
       const accountId = action.transactionMetadata.accountId
       if (!accountId) return
 
-      const accountAddress = fromAccountId(accountId).account
-      const serializedTxIndex = serializeTxIndex(
-        accountId,
-        txHash,
-        accountAddress,
-        thorMemo ? { parser: 'thorchain', memo: thorMemo } : undefined,
-      )
-
-      // TODO(gomes): clean all this before opening me
-      const byMemo = selectTxByFilter(store.getState(), {
-        originMemo: thorMemo ?? undefined,
-        txHash,
-      })
-      if (byMemo) {
-        console.log({ byMemo })
-      }
-      if (txHash && thorMemo && !byMemo) {
-        debugger
-      }
-      // end cleanup
-
+      // Note: looking by serializedTxIndex won't necessarily work, as for out Txs, the memo and origin memo may be different
+      // we *do* have logic to get extra metadata, including the originMemo, however, it is not guaranteed to be here by the time we hit this
+      // so for the sake of simplicity, we simply do a lookup by txHash, which does the do
       const tx = selectTxByFilter(store.getState(), {
-        originMemo: thorMemo ?? undefined,
+        originMemo: undefined,
         txHash,
       })
-
-      if (tx) {
-        console.log({ bySerializedTxIndex: txs[serializedTxIndex], byMemo, tx })
-      }
 
       if (!tx) return
       if (tx.status !== TxStatus.Confirmed) return

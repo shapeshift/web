@@ -18,7 +18,6 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -36,33 +35,6 @@ const poolDetailsDirection: FlexProps['flexDirection'] = {
 }
 
 const stackPadding = { base: 2, md: 0 }
-
-const sortStatusFn = (rowA: any, rowB: any, columnId: string) => {
-  const valueA = rowA.values[columnId]
-  const valueB = rowB.values[columnId]
-  const poolA = rowA.original
-  const poolB = rowB.original
-
-  console.log({ rowA, rowB })
-
-  // Check if pools have deposits disabled - push deposit disabled pools to the end
-  // Pools are considered disabled if they explicitly have isLpDepositEnabled === false
-  const isDepositDisabledA = poolA.isLpDepositEnabled === false
-  const isDepositDisabledB = poolB.isLpDepositEnabled === false
-
-  // If one has deposits disabled and the other doesn't, put the non-disabled one first
-  if (isDepositDisabledA && !isDepositDisabledB) return 1 // A (disabled) goes after B (enabled)
-  if (!isDepositDisabledA && isDepositDisabledB) return -1 // A (enabled) goes before B (disabled)
-
-  // Second tier: If both have same status, sort by TVL
-  const bnA = bnOrZero(valueA)
-  const bnB = bnOrZero(valueB)
-
-  // Use BigNumber comparison methods for TVL sorting
-  if (bnA.lt(bnB)) return -1
-  if (bnA.gt(bnB)) return 1
-  return 0 // They are equal
-}
 
 const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
 
@@ -87,6 +59,11 @@ export const AvailablePools = () => {
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
             !isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled
+
+          console.log({
+            isLpDepositEnabled: pool.isLpDepositEnabled,
+            isTradingActive: pool.isTradingActive,
+          })
 
           const statusContent = useMemo(() => {
             switch (true) {
@@ -144,7 +121,6 @@ export const AvailablePools = () => {
       },
       {
         Header: translate('pools.tvl'),
-        sortType: sortStatusFn,
         accessor: 'tvlFiat',
         justifyContent: { base: 'flex-end', md: 'flex-start' },
         textAlign: { base: 'right', md: 'left' },

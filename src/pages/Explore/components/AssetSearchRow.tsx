@@ -6,10 +6,13 @@ import { memo, useCallback, useMemo } from 'react'
 import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import type { ListChildComponentProps } from 'react-window'
+import { useLongPress } from 'use-long-press'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import type { AssetData } from '@/components/AssetSearch/components/AssetList'
+import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
+import { vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
@@ -34,7 +37,7 @@ type AssetSearchRowProps = ListChildComponentProps<AssetData> &
 
 export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
   ({
-    data: { handleClick, disableUnsupported, assets, portalsAssets },
+    data: { handleClick, handleLongPress, disableUnsupported, assets, portalsAssets },
     index,
     style,
     showNetworkIcon,
@@ -43,6 +46,11 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     const translate = useTranslate()
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const textColor = useColorModeValue('black', 'white')
+    const longPressHandlers = useLongPress((_, { context: row }) => {
+      vibrate('heavy')
+      handleLongPress?.(row as Asset)
+    }, defaultLongPressConfig)
+
     const {
       state: { wallet },
     } = useWallet()
@@ -147,6 +155,8 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         style={style}
         _focus={focus}
         {...rest}
+        {...longPressHandlers(asset)}
+        sx={longPressSx}
       >
         <Flex gap={4} alignItems='center'>
           <AssetIcon

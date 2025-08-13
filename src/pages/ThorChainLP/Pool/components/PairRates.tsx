@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { vibrate } from '@/lib/vibrate'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -25,6 +26,7 @@ type AssetCardProps = {
 
 const AssetCard: React.FC<AssetCardProps> = ({ assetId, value, prefix, symbol, onClick }) => {
   const handleClick = useCallback(() => {
+    vibrate('heavy')
     onClick(assetId)
   }, [assetId, onClick])
 

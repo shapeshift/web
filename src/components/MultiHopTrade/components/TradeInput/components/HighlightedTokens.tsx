@@ -25,6 +25,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
+import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -193,6 +194,7 @@ export const HighlightedTokens = () => {
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
       const mixpanel = getMixPanel()
+      vibrate('heavy')
 
       mixpanel?.track(MixPanelEvent.HighlightedTokenClicked, {
         assetId: row.original.assetId,

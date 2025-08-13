@@ -1,6 +1,6 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Text } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -8,6 +8,7 @@ import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
+import { vibrate } from '@/lib/vibrate'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -46,6 +47,11 @@ export const MobileUserHeader = ({
     [walletInfo, maybeMipdProvider?.info?.name],
   )
 
+  const handleOpen = useCallback(() => {
+    vibrate('heavy')
+    onOpen()
+  }, [onOpen])
+
   return (
     <Flex
       className='mobile-user-header'
@@ -53,7 +59,7 @@ export const MobileUserHeader = ({
       width='100%'
       display={mobileButtonRowDisplay}
     >
-      <Flex align='center' onClick={onOpen}>
+      <Flex align='center' onClick={handleOpen}>
         <ProfileAvatar size='md' borderRadius='full' />
         <Text ml={2} fontWeight='semibold' fontSize='md'>
           {label ?? translate('common.connectWallet')}

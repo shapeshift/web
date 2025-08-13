@@ -7,6 +7,7 @@ import { CommonCard, CommonStat } from './CommonCard'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { vibrate } from '@/lib/vibrate'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -22,7 +23,10 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, showMarketCap, on
   const changePercent24Hr = marketData?.changePercent24Hr
   const translate = useTranslate()
 
-  const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
+  const handleClick = useCallback(() => {
+    vibrate('heavy')
+    onClick(assetId)
+  }, [assetId, onClick])
 
   const priceValue = useMemo(() => <Amount.Fiat value={marketData?.price} />, [marketData?.price])
 

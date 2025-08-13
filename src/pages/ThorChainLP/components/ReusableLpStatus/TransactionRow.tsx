@@ -572,7 +572,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             accountId,
             txHash: _txId,
             chainId: fromAssetId(assetId).chainId,
-            assetId,
+            assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
             amountCryptoPrecision: confirmedQuote.assetWithdrawAmountCryptoPrecision,
             confirmedQuote,
             assetAmountsAndSymbols,

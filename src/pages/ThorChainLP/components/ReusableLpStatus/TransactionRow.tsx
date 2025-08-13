@@ -145,14 +145,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     }
   }, [poolAsset, baseAsset, actionSide])
 
-  const { assetAmountsAndSymbols, poolName } = useMemo(() => {
-    if (!(poolAsset && baseAsset)) return { assetAmountsAndSymbols: '', poolName: '' }
-    if (!isLpConfirmedWithdrawalQuote(confirmedQuote))
-      return { assetAmountsAndSymbols: '', poolName: '' }
+  const poolName = useMemo(() => {
+    if (!(poolAsset && baseAsset)) return ''
+
+    return `${poolAsset?.symbol}/${baseAsset.symbol}`
+  }, [poolAsset, baseAsset])
+
+  const { assetAmountsAndSymbols: withdrawAssetAmountsAndSymbol } = useMemo(() => {
+    if (!(poolAsset && baseAsset)) return ''
+    if (!isLpConfirmedWithdrawalQuote(confirmedQuote)) return ''
 
     const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
     const runeAmount = confirmedQuote.runeWithdrawAmountCryptoPrecision
-    const poolName = `${poolAsset.symbol}/${baseAsset.symbol}`
 
     if (poolAssets.length === 2) {
       const assetAmountsAndSymbols = translate('actionCenter.thorchainLp.pairAssets', {
@@ -160,19 +164,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         asset2: `${runeAmount} ${baseAsset.symbol}`,
       })
 
-      return { assetAmountsAndSymbols, poolName }
+      return assetAmountsAndSymbols
     }
     if (actionSide === AsymSide.Asset) {
       const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
       const assetAmountsAndSymbols = `${assetAmount} ${poolAsset.symbol}`
 
-      return { assetAmountsAndSymbols, poolName }
+      return assetAmountsAndSymbols
     }
     if (actionSide === AsymSide.Rune) {
       const runeAmount = confirmedQuote.runeWithdrawAmountCryptoPrecision
       const assetAmountsAndSymbols = `${runeAmount} ${baseAsset.symbol}`
 
-      return { assetAmountsAndSymbols, poolName }
+      return assetAmountsAndSymbols
     }
 
     return { assetAmountsAndSymbols: '', poolName: '' }
@@ -575,7 +579,66 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
             amountCryptoPrecision: confirmedQuote.assetWithdrawAmountCryptoPrecision,
             confirmedQuote,
-            assetAmountsAndSymbols,
+            assetAmountsAndSymbols: withdrawAssetAmountsAndSymbol,
+            poolName,
+            thorMemo: processedMemo,
+          },
+        }),
+      )
+
+      if (!toast.isActive(_txId)) {
+        toast({
+          id: _txId,
+          duration: isDrawerOpen ? 5000 : null,
+          status: 'success',
+          render: ({ onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              openActionCenter()
+            }
+            return (
+              <GenericTransactionNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                actionId={_txId}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
+        })
+      }
+    }
+
+    if (action === 'deposit' && isLpConfirmedDepositQuote(confirmedQuote)) {
+      const assetId = isRuneTx
+        ? thorchainAssetId
+        : fromOpportunityId(confirmedQuote.opportunityId).assetId
+
+      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(assetId).chainId]
+
+      if (!accountId) {
+        return
+      }
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: _txId,
+          type: ActionType.Deposit,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.ThorchainLP,
+            message: 'actionCenter.thorchainLp.deposit.processing',
+            accountId,
+            txHash: _txId,
+            chainId: fromAssetId(assetId).chainId,
+            assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
+            amountCryptoPrecision: isRuneTx
+              ? confirmedQuote.runeDepositAmountCryptoPrecision
+              : confirmedQuote.assetDepositAmountCryptoPrecision,
+            confirmedQuote,
             poolName,
             thorMemo: processedMemo,
           },
@@ -626,7 +689,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     action,
     toast,
     isDrawerOpen,
-    assetAmountsAndSymbols,
+    withdrawAssetAmountsAndSymbol,
     isRuneTx,
     poolName,
     openActionCenter,

@@ -244,3 +244,15 @@ export const selectPendingThorchainLpWithdrawActions = createDeepEqualOutputSele
     )
   },
 )
+export const selectPendingThorchainLpDepositActions = createDeepEqualOutputSelector(
+  selectWalletActionsSorted,
+  actions => {
+    return actions.filter(
+      (action): action is GenericTransactionAction =>
+        action.status === ActionStatus.Pending &&
+        isGenericTransactionAction(action) &&
+        action.transactionMetadata.displayType === GenericTransactionDisplayType.ThorchainLP &&
+        action.type === ActionType.Deposit,
+    )
+  },
+)

@@ -3,6 +3,7 @@ import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 
+import type { LpConfirmedWithdrawalQuote } from '@/lib/utils/thorchain/lp/types'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import type { Claim } from '@/pages/TCY/components/Claim/types'
 
@@ -67,6 +68,7 @@ export enum GenericTransactionDisplayType {
   FoxFarm = 'FOX Farming',
   SEND = 'Send',
   Approve = 'Approve',
+  ThorchainLP = 'ThorchainLP',
 }
 
 export enum GenericTransactionQueryId {
@@ -86,7 +88,10 @@ type ActionGenericTransactionMetadata = {
   newAddress?: string
   contractName?: string
   cooldownPeriod?: string
-  thorMemo?: string
+  thorMemo?: string | null
+  confirmedQuote?: LpConfirmedWithdrawalQuote
+  assetAmountsAndSymbols?: string
+  poolName?: string
 }
 
 export type BaseAction = {
@@ -184,6 +189,13 @@ export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => 
 
 export const isTcyClaimAction = (action: Action): action is TcyClaimAction => {
   return Boolean(action.type === ActionType.TcyClaim && action.tcyClaimActionMetadata)
+}
+
+export const isThorchainLpWithdrawAction = (action: Action): action is GenericTransactionAction => {
+  return Boolean(
+    action.type === ActionType.Withdraw &&
+      action.transactionMetadata?.displayType === GenericTransactionDisplayType.ThorchainLP,
+  )
 }
 
 export const isPendingSendAction = (action: Action): action is GenericTransactionAction => {

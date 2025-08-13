@@ -12,6 +12,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { assetIdToThorPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -22,13 +23,17 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { Row } from '@/components/Row/Row'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { sleep } from '@/lib/poll/poll'
+import { assertUnreachable } from '@/lib/utils'
 import { getThorchainFromAddress, waitForThorchainUpdate } from '@/lib/utils/thorchain'
 import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
@@ -44,17 +49,23 @@ import {
   isLpConfirmedWithdrawalQuote,
 } from '@/lib/utils/thorchain/lp/utils'
 import { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
-import { fromQuote } from '@/pages/ThorChainLP/utils'
+import { fromOpportunityId, fromQuote } from '@/pages/ThorChainLP/utils'
 import { reactQueries } from '@/react-queries'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import { selectInboundAddressData } from '@/react-queries/selectors'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectPortfolioAccountMetadataByAccountId,
   selectTxById,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type TransactionRowProps = {
   assetId: AssetId
@@ -80,6 +91,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const mixpanel = getMixPanel()
+  const dispatch = useAppDispatch()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -108,6 +122,56 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   )
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
+  const baseAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const poolAssets: Asset[] = useMemo(() => {
+    if (!(poolAsset && baseAsset)) return []
+
+    switch (actionSide) {
+      case 'sym':
+        return [baseAsset, poolAsset]
+      case AsymSide.Rune:
+        return [baseAsset]
+      case AsymSide.Asset:
+        return [poolAsset]
+      default:
+        assertUnreachable(actionSide)
+    }
+  }, [poolAsset, baseAsset, actionSide])
+
+  const { assetAmountsAndSymbols, poolName } = useMemo(() => {
+    if (!(poolAsset && baseAsset)) return { assetAmountsAndSymbols: '', poolName: '' }
+    if (!isLpConfirmedWithdrawalQuote(confirmedQuote))
+      return { assetAmountsAndSymbols: '', poolName: '' }
+
+    const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
+    const runeAmount = confirmedQuote.runeWithdrawAmountCryptoPrecision
+    const poolName = `${poolAsset.symbol}/${baseAsset.symbol}`
+
+    if (poolAssets.length === 2) {
+      const assetAmountsAndSymbols = translate('actionCenter.thorchainLp.pairAssets', {
+        asset1: `${assetAmount} ${poolAsset.symbol}`,
+        asset2: `${runeAmount} ${baseAsset.symbol}`,
+      })
+
+      return { assetAmountsAndSymbols, poolName }
+    }
+    if (actionSide === AsymSide.Asset) {
+      const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
+      const assetAmountsAndSymbols = `${assetAmount} ${poolAsset.symbol}`
+
+      return { assetAmountsAndSymbols, poolName }
+    }
+    if (actionSide === AsymSide.Rune) {
+      const runeAmount = confirmedQuote.runeWithdrawAmountCryptoPrecision
+      const assetAmountsAndSymbols = `${runeAmount} ${baseAsset.symbol}`
+
+      return { assetAmountsAndSymbols, poolName }
+    }
+
+    return { assetAmountsAndSymbols: '', poolName: '' }
+  }, [poolAsset, baseAsset, confirmedQuote, actionSide, poolAssets.length, translate])
+
   const poolAssetAccountId = currentAccountIdByChainId[fromAssetId(poolAssetId).chainId]
   const poolAssetAccountFilter = useMemo(
     () => ({ accountId: poolAssetAccountId }),
@@ -211,7 +275,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     thorchainNotationAssetId,
   ])
 
-  const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
+  const {
+    executeTransaction,
+    estimatedFeesData,
+    txId,
+    serializedTxIndex,
+    memo: processedMemo,
+  } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: (isRuneTx ? runeAccountId : poolAssetAccountId) ?? null,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
@@ -374,6 +444,64 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       throw new Error('failed to broadcast transaction')
     }
 
+    if (action === 'withdraw' && isLpConfirmedWithdrawalQuote(confirmedQuote)) {
+      const assetId = isRuneTx
+        ? thorchainAssetId
+        : fromOpportunityId(confirmedQuote.opportunityId).assetId
+
+      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(assetId).chainId]
+
+      if (!accountId) {
+        return
+      }
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: _txId,
+          type: ActionType.Withdraw,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.ThorchainLP,
+            message: 'actionCenter.thorchainLp.withdraw.processing',
+            accountId,
+            txHash: _txId,
+            chainId: fromAssetId(assetId).chainId,
+            assetId,
+            amountCryptoPrecision: confirmedQuote.assetWithdrawAmountCryptoPrecision,
+            confirmedQuote,
+            assetAmountsAndSymbols,
+            poolName,
+            thorMemo: processedMemo,
+          },
+        }),
+      )
+
+      if (!toast.isActive(_txId)) {
+        toast({
+          id: _txId,
+          duration: isDrawerOpen ? 5000 : null,
+          status: 'success',
+          render: ({ onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              openActionCenter()
+            }
+            return (
+              <GenericTransactionNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                actionId={_txId}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
+        })
+      }
+    }
+
     onStart()
   }, [
     mixpanel,
@@ -390,6 +518,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     inboundAddressData?.address,
     executeTransaction,
     onStart,
+    dispatch,
+    action,
+    toast,
+    isDrawerOpen,
+    assetAmountsAndSymbols,
+    isRuneTx,
+    poolName,
+    openActionCenter,
+    processedMemo,
   ])
 
   const confirmTranslation = useMemo(() => {

@@ -428,5 +428,6 @@ export const useSendThorTx = ({
     dustAmountCryptoBaseUnit,
     outboundFeeCryptoBaseUnit,
     inboundAddress,
+    memo,
   }
 }

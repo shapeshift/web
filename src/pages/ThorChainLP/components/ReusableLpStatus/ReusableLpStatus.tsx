@@ -297,7 +297,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               amountCryptoPrecision={amountCryptoPrecision}
               onStart={handleStart}
               onStatusUpdate={handleStatusUpdate}
-              index={index}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
             />

@@ -17,6 +17,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -89,17 +90,23 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     [dispatch],
   )
   const handleSendClick = useCallback(() => {
+    vibrate('heavy')
     if (!isConnected) return handleWalletModalOpen()
     mixpanel?.track(MixPanelEvent.SendClick)
     send.open({ assetId, accountId })
   }, [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send])
-  const handleReceiveClick = useCallback(
-    () => (isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()),
-    [accountId, asset, handleWalletModalOpen, isConnected, receive],
-  )
+  const handleReceiveClick = useCallback(() => {
+    vibrate('heavy')
+    if (isConnected) {
+      return receive.open({ asset, accountId })
+    }
+
+    handleWalletModalOpen()
+  }, [accountId, asset, handleWalletModalOpen, isConnected, receive])
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {
+    vibrate('heavy')
     fiatRamps.open({
       assetId: assetSupportsBuy ? assetId : ethAssetId,
       fiatRampAction: FiatRampAction.Buy,
@@ -108,10 +115,12 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   }, [accountId, assetId, assetSupportsBuy, fiatRamps])
 
   const handleTradeClick = useCallback(() => {
+    vibrate('heavy')
     navigate(`/trade/${assetId}`)
   }, [assetId, navigate])
 
   const handleMoreClick = useCallback(() => {
+    vibrate('heavy')
     assetActionsDrawer.open({ assetId })
   }, [assetActionsDrawer, assetId])
 

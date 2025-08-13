@@ -4,6 +4,7 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
+import { vibrate } from '@/lib/vibrate'
 import type { Route } from '@/Routes/helpers'
 
 type MobileNavLinkProps = ButtonProps &
@@ -49,6 +50,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       if (isActive) e.preventDefault()
+      vibrate('heavy')
       // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
       navigate(path.replace('/*', ''))
     },

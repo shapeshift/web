@@ -8,6 +8,7 @@ import { CommonCard, CommonStat } from './CommonCard'
 import { Amount } from '@/components/Amount/Amount'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { vibrate } from '@/lib/vibrate'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
@@ -26,7 +27,10 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const translate = useTranslate()
 
-  const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
+  const handleClick = useCallback(() => {
+    vibrate('heavy')
+    onClick(assetId)
+  }, [assetId, onClick])
 
   const volume24HValue = useMemo(() => {
     return bnOrZero(volume24H).isPositive() ? <Amount.Fiat value={volume24H} /> : <CText>N/A</CText>

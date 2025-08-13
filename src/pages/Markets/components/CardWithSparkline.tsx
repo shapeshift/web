@@ -11,6 +11,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { ParsedHtml } from '@/components/ParsedHtml/ParsedHtml'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
 import { markdownLinkToHTML } from '@/lib/utils'
+import { vibrate } from '@/lib/vibrate'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -24,7 +25,10 @@ export const CardWithSparkline: React.FC<{
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useGetAssetDescriptionQuery({ assetId, selectedLocale }, { skip: !!asset?.description })
-  const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
+  const handleClick = useCallback(() => {
+    vibrate('heavy')
+    onClick(assetId)
+  }, [assetId, onClick])
 
   const changePercent24Hr = marketData?.changePercent24Hr
 

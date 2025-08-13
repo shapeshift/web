@@ -20,7 +20,7 @@ import { useExpanded, useSortBy, useTable } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
-import { vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { vibrate } from '@/lib/vibrate'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]

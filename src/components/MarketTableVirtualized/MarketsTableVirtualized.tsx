@@ -18,8 +18,8 @@ import { VolumeCell } from './VolumeCell'
 
 import { Text } from '@/components/Text'
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
-import { vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile as isMobileApp } from '@/lib/globals'
+import { vibrate } from '@/lib/vibrate'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
 

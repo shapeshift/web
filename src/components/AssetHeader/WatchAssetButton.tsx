@@ -4,6 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { FaRegStar, FaStar } from 'react-icons/fa'
 
+import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectIsAssetIdWatched } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -23,6 +24,7 @@ export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, ...
   const handleToggleWatchAsset: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     e => {
       e.stopPropagation()
+      vibrate('heavy')
       appDispatch(preferences.actions.toggleWatchedAssetId(assetId))
     },
     [appDispatch, assetId],

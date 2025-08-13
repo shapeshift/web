@@ -24,6 +24,7 @@ import { Text } from '@/components/Text'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { vibrate } from '@/lib/vibrate'
 import type { AccountRowData } from '@/state/slices/selectors'
 import { selectIsPortfolioLoading, selectPortfolioAccountRows } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
@@ -148,6 +149,7 @@ export const AccountTable = memo(() => {
   }, [])
 
   const handleReceiveClick = useCallback(() => {
+    vibrate('heavy')
     receive.open({})
   }, [receive])
 
@@ -173,6 +175,7 @@ export const AccountTable = memo(() => {
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
+      vibrate('heavy')
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)

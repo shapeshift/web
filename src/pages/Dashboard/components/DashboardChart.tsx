@@ -22,6 +22,7 @@ import { BalanceChart, BalanceChartSkeleton } from '@/components/BalanceChart/Ba
 import { TimeControls } from '@/components/Graph/TimeControls'
 import { MaybeChartUnavailable } from '@/components/MaybeChartUnavailable'
 import { Text } from '@/components/Text'
+import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectIsPortfolioLoading,
@@ -51,6 +52,7 @@ export const DashboardChart = () => {
   const dispatch = useAppDispatch()
   const handleTimeframeChange = useCallback(
     (newTimeframe: HistoryTimeframe) => {
+      vibrate('heavy')
       // Usually used to set the component state to the new timeframe
       setTimeframe(newTimeframe)
       // Save the new timeframe in the user preferences

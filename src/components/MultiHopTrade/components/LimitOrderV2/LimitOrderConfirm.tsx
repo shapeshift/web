@@ -5,7 +5,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
-import { LimitTradeSuccess } from '../LimitOrder/components/LimitTradeSuccess'
 import { getMixpanelLimitOrderEventData } from '../LimitOrder/helpers'
 import { LimitOrderRoutePaths } from '../LimitOrder/types'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
@@ -150,21 +149,12 @@ export const LimitOrderConfirm = () => {
   }, [isLoadingSetIsApprovalInitiallyNeeded])
 
   const body = useMemo(() => {
-    if (!sellAsset || !buyAsset) return null
     if (orderSubmissionState === LimitOrderSubmissionState.Complete) {
-      return (
-        <LimitTradeSuccess
-          titleTranslation='limitOrder.success'
-          buttonTranslation={'limitOrder.placeAnotherOrder'}
-          summaryTranslation={'limitOrder.orderSummary'}
-          handleBack={handleBack}
-          sellAsset={sellAsset}
-          buyAsset={buyAsset}
-          sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-          quoteBuyAmountCryptoPrecision={quoteBuyAmountCryptoPrecision}
-        />
-      )
+      return <Navigate to={LimitOrderRoutePaths.Input} replace />
     }
+
+    if (!sellAsset || !buyAsset) return null
+
     return (
       <SharedConfirmBody
         InnerSteps={innerStepsRendered}
@@ -176,13 +166,10 @@ export const LimitOrderConfirm = () => {
     )
   }, [
     buyAmountCryptoBaseUnit,
-    quoteBuyAmountCryptoPrecision,
     buyAsset,
-    handleBack,
     innerStepsRendered,
     orderSubmissionState,
     sellAmountCryptoBaseUnit,
-    sellAmountCryptoPrecision,
     sellAsset,
   ])
 

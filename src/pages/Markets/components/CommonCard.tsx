@@ -7,6 +7,7 @@ import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import type { AssetIconProps } from '@/components/AssetIcon'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { vibrate } from '@/lib/vibrate'
 
 type CommonStatProps = {
   label: string | JSX.Element
@@ -43,7 +44,10 @@ export const CommonCard: React.FC<CommonCardProps> = ({
   pairProps,
   children,
 }) => {
-  const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
+  const handleClick = useCallback(() => {
+    vibrate('heavy')
+    onClick(assetId)
+  }, [assetId, onClick])
 
   if (!assetId) return null
 

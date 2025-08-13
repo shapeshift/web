@@ -93,7 +93,13 @@ export const AvailablePools = () => {
                   element: <Amount.Percent value={pool.annualPercentageRate} />,
                 }
             }
-          }, [isThorchainLpInteractionDisabled, pool.annualPercentageRate, pool.status])
+          }, [
+            isThorchainLpInteractionDisabled,
+            pool.annualPercentageRate,
+            pool.status,
+            pool.isLpDepositEnabled,
+            pool.isTradingActive,
+          ])
 
           const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
           return (

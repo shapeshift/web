@@ -10,12 +10,7 @@ import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingThorchainLpWithdrawActions } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-  isGenericTransactionAction,
-} from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectTxByFilter } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -73,12 +68,6 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
   useQueries({
     queries: pendingThorchainLpWithdrawActions
       .filter(action => {
-        if (action.status !== ActionStatus.Pending) return false
-
-        if (action.transactionMetadata.displayType !== GenericTransactionDisplayType.ThorchainLP)
-          return false
-        if (action.type !== ActionType.Withdraw) return false
-
         const { txHash } = action.transactionMetadata
 
         // Check if the transaction is confirmed on the blockchain

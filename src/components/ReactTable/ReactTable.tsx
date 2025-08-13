@@ -22,7 +22,7 @@ import { useLongPress } from 'use-long-press'
 
 import { RawText } from '@/components/Text'
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
-import { pulseAndroid } from '@/utils/pulseAndroid'
+import { vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -88,7 +88,7 @@ const RowWrap = <T extends {}>({
   }, [onRowClick, row])
 
   const longPressHandlers = useLongPress((_, { context: row }) => {
-    pulseAndroid()
+    vibrate('heavy')
     onRowLongPress?.(row as Row<T>)
   }, defaultLongPressConfig)
 

@@ -60,11 +60,6 @@ export const AvailablePools = () => {
           const isThorchainLpInteractionDisabled =
             !isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled
 
-          console.log({
-            isLpDepositEnabled: pool.isLpDepositEnabled,
-            isTradingActive: pool.isTradingActive,
-          })
-
           const statusContent = useMemo(() => {
             switch (true) {
               case pool.isLpDepositEnabled === false:

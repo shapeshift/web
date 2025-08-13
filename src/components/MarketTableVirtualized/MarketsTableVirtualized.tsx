@@ -18,10 +18,10 @@ import { VolumeCell } from './VolumeCell'
 
 import { Text } from '@/components/Text'
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
+import { vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
-import { pulseAndroid } from '@/utils/pulseAndroid'
 
 const ROW_HEIGHT = 70
 
@@ -84,7 +84,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
     const longPressHandlers = useLongPress((_, { context: row }) => {
-      pulseAndroid()
+      vibrate('heavy')
       onRowLongPress?.(row as Row<Asset>)
     }, defaultLongPressConfig)
 

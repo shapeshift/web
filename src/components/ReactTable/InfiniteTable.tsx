@@ -22,7 +22,7 @@ import { useExpanded, useSortBy, useTable } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
-import { pulseAndroid } from '@/utils/pulseAndroid'
+import { vibrate } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -83,7 +83,7 @@ export const InfiniteTable = <T extends {}>({
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
   const longPressHandlers = useLongPress((_, { context: row }) => {
-    pulseAndroid()
+    vibrate('heavy')
     onRowLongPress?.(row as Row<T>)
   }, defaultLongPressConfig)
   const tableColumns = useMemo(

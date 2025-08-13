@@ -180,6 +180,7 @@ export const mockStore: ReduxState = {
       selectedSort: SortOptionsKeys.Apy,
       selectedChainId: 'all',
     },
+    hasSeenRatingModal: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

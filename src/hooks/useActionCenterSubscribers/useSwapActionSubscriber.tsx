@@ -14,7 +14,10 @@ import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { isMobile } from '../../lib/globals'
+import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
+import { useModal } from '../useModal/useModal'
 import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
 
@@ -40,9 +43,15 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useSwapActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const hasSeenRatingModal = useAppSelector(preferences.selectors.selectHasSeenRatingModal)
+  const { open: openRatingModal } = useModal('rating')
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
+
+  const handleHasSeenRatingModal = useCallback(() => {
+    dispatch(preferences.actions.setHasSeenRatingModal())
+  }, [dispatch])
 
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
@@ -224,7 +233,14 @@ export const useSwapActionSubscriber = () => {
               />
             )
           },
+          position: isMobile && !hasSeenRatingModal ? 'top' : 'bottom-right',
         })
+
+        if (!hasSeenRatingModal) {
+          openRatingModal({})
+          handleHasSeenRatingModal()
+        }
+
         return
       }
 
@@ -289,7 +305,14 @@ export const useSwapActionSubscriber = () => {
         buyTxHash,
       }
     },
-    [dispatch, toast, openActionCenter],
+    [
+      dispatch,
+      toast,
+      openActionCenter,
+      hasSeenRatingModal,
+      openRatingModal,
+      handleHasSeenRatingModal,
+    ],
   )
 
   // Update actions status when swap is confirmed or failed

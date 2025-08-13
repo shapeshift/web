@@ -8,6 +8,7 @@ import type { Row } from 'react-table'
 
 import { MarketsTable } from '@/components/MarketsTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetsSortedByMarketCap } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -30,6 +31,7 @@ export const WatchlistTable = () => {
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
+      vibrate('heavy')
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)

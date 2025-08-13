@@ -16,7 +16,7 @@ type Command =
   | 'reloadWebview'
   | 'requestStoreReview'
 
-type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
+export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
 type Message =
   | {
@@ -211,7 +211,7 @@ export const decryptWallet = (
  * Trigger device haptic feedback via the mobile app.
  * No-ops when not running inside a React Native WebView.
  */
-export const vibrate = (level: HapticLevel): Promise<void> => {
+export const mobileVibrate = (level: HapticLevel): Promise<void> => {
   return postMessage<void>({ cmd: 'vibrate', level })
 }
 

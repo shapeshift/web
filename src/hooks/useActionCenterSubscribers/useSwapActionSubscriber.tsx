@@ -28,6 +28,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
+import { vibrate } from '@/lib/vibrate'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   selectPendingSwapActions,
@@ -185,6 +186,7 @@ export const useSwapActionSubscriber = () => {
       })()
 
       if (status === TxStatus.Confirmed) {
+        vibrate('heavy')
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,

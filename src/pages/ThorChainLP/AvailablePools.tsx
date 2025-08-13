@@ -1,7 +1,6 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useNavigate } from 'react-router-dom'
@@ -19,8 +18,6 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
-import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -58,12 +55,6 @@ export const AvailablePools = () => {
         Cell: ({ row, value }: { value: string; row: RowProps }) => {
           const pool = row.original
 
-          const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-            assetId: pool.assetId,
-            swapperName: SwapperName.Thorchain,
-          })
-
-          const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(pool.assetId)
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
@@ -71,12 +62,12 @@ export const AvailablePools = () => {
 
           const statusContent = useMemo(() => {
             switch (true) {
-              case isThorchainLpDepositEnabledForPool === false:
+              case pool.isLpDepositEnabled === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='pools.depositsDisabled' />,
                 }
-              case isTradingActive === false:
+              case pool.isTradingActive === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='common.halted' />,
@@ -86,12 +77,12 @@ export const AvailablePools = () => {
                   color: 'red.500',
                   element: <Text translation='common.disabled' />,
                 }
-              case isTradingActive === true && pool.status === 'available':
+              case pool.isTradingActive === true && pool.status === 'available':
                 return {
                   color: 'green.500',
                   element: <Amount.Percent value={pool.annualPercentageRate} suffix='APY' />,
                 }
-              case isTradingActive === true && pool.status === 'staged':
+              case pool.isTradingActive === true && pool.status === 'staged':
                 return {
                   color: 'yellow.500',
                   element: <Text translation='common.staged' />,
@@ -103,11 +94,11 @@ export const AvailablePools = () => {
                 }
             }
           }, [
-            isThorchainLpDepositEnabledForPool,
             isThorchainLpInteractionDisabled,
-            isTradingActive,
             pool.annualPercentageRate,
             pool.status,
+            pool.isLpDepositEnabled,
+            pool.isTradingActive,
           ])
 
           const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
@@ -117,7 +108,7 @@ export const AvailablePools = () => {
                 <PoolIcon assetIds={poolAssetIds} size='sm' />
                 <Flex gap={2} flexDir={poolDetailsDirection} flex='0 1 auto'>
                   <RawText fontWeight='semibold'>{pool.name}</RawText>
-                  <Skeleton isLoaded={!isTradingActiveLoading}>
+                  <Skeleton isLoaded={!pool.isTradingActiveLoading}>
                     <Tag size='sm'>
                       <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
                       {statusContent.element}

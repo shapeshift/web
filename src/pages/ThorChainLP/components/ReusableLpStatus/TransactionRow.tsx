@@ -67,6 +67,7 @@ import {
 import {
   selectAssetById,
   selectFeeAssetByChainId,
+  selectPendingThorchainLpDepositActions,
   selectPendingThorchainLpWithdrawActions,
   selectPortfolioAccountMetadataByAccountId,
   selectTxById,
@@ -285,7 +286,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     thorchainNotationAssetId,
   ])
 
-  const handleWithdrawComplete = useCallback(
+  const handleComplete = useCallback(
     async (action: GenericTransactionAction) => {
       try {
         dispatch(
@@ -294,7 +295,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             status: ActionStatus.Complete,
             transactionMetadata: {
               ...action.transactionMetadata,
-              message: 'actionCenter.thorchainLp.withdraw.complete',
+              message: `actionCenter.thorchainLp.${isDeposit ? 'deposit' : 'withdraw'}.complete`,
             },
           }),
         )
@@ -354,6 +355,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     disableEstimateFeesRefetch: isSubmitting,
   })
 
+  const pendingThorchainLpDepositActions = useAppSelector(selectPendingThorchainLpDepositActions)
   const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
   const maybePendingThorchainLpWithdrawAction = useMemo(
     () =>
@@ -362,13 +364,23 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       ),
     [pendingThorchainLpWithdrawActions, txId],
   )
+  const maybePendingThorchainLpDepositAction = useMemo(
+    () =>
+      pendingThorchainLpDepositActions.find(
+        pendingAction => pendingAction.transactionMetadata.txHash === txId,
+      ),
+    [pendingThorchainLpWithdrawActions, txId],
+  )
 
-  // TODO(gomes): remove ugly logic in here and make this work for deposits too
+  const pendingAction =
+    maybePendingThorchainLpWithdrawAction || maybePendingThorchainLpDepositAction
+
+  // TODO(gomes): remove ugly logic in here - a little bit going on re: status update especially for incomplete
+  // prefer not to touch this for now
   useQuery({
     queryKey: ['thorTxStatus', { txHash: txId, skipOutbound: true }],
-    // Shared query for withdraws only
     queryFn:
-      txId && maybePendingThorchainLpWithdrawAction && action === 'withdraw'
+      txId && pendingAction
         ? async (): Promise<TxStatus> => {
             const status = await getThorchainTransactionStatus({
               txHash: txId,
@@ -377,7 +389,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             onStatusUpdate(status)
             if (status === TxStatus.Confirmed) {
-              await handleWithdrawComplete(maybePendingThorchainLpWithdrawAction)
+              await handleComplete(pendingAction)
             }
 
             return status

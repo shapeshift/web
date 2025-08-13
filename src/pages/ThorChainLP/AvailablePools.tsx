@@ -1,14 +1,15 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { partition, sortBy } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useNavigate } from 'react-router-dom'
-import type { Column, Row, SortByFn } from 'react-table'
+import type { Column, Row } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import type { Pool, Pool } from './queries/hooks/usePools'
+import type { Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -18,6 +19,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -36,21 +38,7 @@ const poolDetailsDirection: FlexProps['flexDirection'] = {
 
 const stackPadding = { base: 2, md: 0 }
 
-const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
-
-const sortType: SortByFn<Pool> = (rowA, rowB, columnId, desc) => {
-  console.log({ columnId, desc })
-  const poolA = rowA.original
-  const poolB = rowB.original
-
-  const isDepositDisabledA = poolA.isLpDepositEnabled === false
-  const isDepositDisabledB = poolB.isLpDepositEnabled === false
-
-  if (isDepositDisabledA && !isDepositDisabledB) return -1
-  if (!isDepositDisabledA && isDepositDisabledB) return 1
-
-  return 0
-}
+const reactTableInitialState = { pageSize: 5000 }
 
 type RowProps = Row<Pool>
 
@@ -60,6 +48,30 @@ export const AvailablePools = () => {
   const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolsHeader />, [])
+
+  // Partition pools by *akschually* available (not halted, staged, nor deposits disabled) and the rest
+  // while maintaining the original sorting by tvlFiat desc of both the akschually available and the rest groups
+  const sortedPools = useMemo(() => {
+    const [akschuallyAvailable, unavailable] = partition(pools, pool => {
+      return (
+        // Deposits enabled
+        pool.isLpDepositEnabled === true &&
+        // *not* staged
+        pool.status !== 'staged' &&
+        // *not* halted
+        pool.isTradingActive === true
+      )
+    })
+
+    const sortedAvailable = akschuallyAvailable.sort((a, b) =>
+      bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
+    )
+    const sortedOthers = unavailable.sort((a, b) =>
+      bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
+    )
+
+    return [...sortedAvailable, ...sortedOthers]
+  }, [pools])
 
   const columns: Column<Pool>[] = useMemo(
     () => [
@@ -137,7 +149,6 @@ export const AvailablePools = () => {
       {
         Header: translate('pools.tvl'),
         accessor: 'tvlFiat',
-        sortType,
         justifyContent: { base: 'flex-end', md: 'flex-start' },
         textAlign: { base: 'right', md: 'left' },
         Cell: ({ value }: { value: string; row: RowProps }) => {
@@ -189,9 +200,9 @@ export const AvailablePools = () => {
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
-        {pools.length ? (
+        {sortedPools.length ? (
           <ReactTable
-            data={pools}
+            data={sortedPools}
             columns={columns}
             initialState={reactTableInitialState}
             onRowClick={handlePoolClick}

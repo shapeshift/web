@@ -36,6 +36,7 @@ import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
+import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { selectAssetsBySearchQuery } from '@/state/slices/common-selectors'
 import { useAppSelector } from '@/state/store'
@@ -118,6 +119,7 @@ export const Explore = memo(() => {
 
   const handleAssetClick = useCallback(
     (asset: Asset) => {
+      vibrate('heavy')
       navigate(`/assets/${asset.assetId}`)
     },
     [navigate],

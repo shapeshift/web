@@ -1,7 +1,7 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { partition, sortBy } from 'lodash'
+import { partition } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useNavigate } from 'react-router-dom'

@@ -18,6 +18,7 @@ import { TradeQuoteExchangeRate } from './components/TradeQuoteExchangeRate'
 import { getQuoteErrorTranslation } from '@/components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { vibrate } from '@/lib/vibrate'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -125,6 +126,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
 
     const handleQuoteSelection = useCallback(() => {
+      vibrate('heavy')
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
       onBack && onBack()
     }, [dispatch, onBack, quoteData])

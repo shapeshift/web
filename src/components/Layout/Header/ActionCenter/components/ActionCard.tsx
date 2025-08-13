@@ -5,6 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 
 import { RawText } from '@/components/Text'
+import { vibrate } from '@/lib/vibrate'
 import type { ActionType, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
@@ -47,6 +48,7 @@ export const ActionCard = ({
 
   const handleClick = useCallback(() => {
     if (isCollapsable) {
+      vibrate('heavy')
       onToggle()
     }
   }, [onToggle, isCollapsable])

@@ -14,6 +14,7 @@ type Command =
   | 'listWallets'
   | 'getWalletCount'
   | 'reloadWebview'
+  | 'requestStoreReview'
 
 type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -56,6 +57,9 @@ type Message =
   | {
       cmd: 'vibrate'
       level: HapticLevel
+    }
+  | {
+      cmd: 'requestStoreReview'
     }
 
 export type MessageFromMobileApp = {
@@ -209,4 +213,11 @@ export const decryptWallet = (
  */
 export const vibrate = (level: HapticLevel): Promise<void> => {
   return postMessage<void>({ cmd: 'vibrate', level })
+}
+
+/**
+ * Open the store review dialog on mobile.
+ */
+export const requestStoreReview = (): Promise<boolean> => {
+  return postMessage<boolean>({ cmd: 'requestStoreReview' })
 }

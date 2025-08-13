@@ -205,6 +205,14 @@ const AssetActionsDrawer = makeSuspenseful(
   ),
 )
 
+const RatingModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/RatingModal').then(({ RatingModal }) => ({
+      default: RatingModal,
+    })),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -230,6 +238,7 @@ export const MODALS: Modals = {
   rateChanged: RateChangedModal,
   mobileWalletDialog: MobileWalletDialogModal,
   assetActionsDrawer: AssetActionsDrawer,
+  rating: RatingModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

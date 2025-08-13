@@ -41,6 +41,7 @@ export type Modals = {
   rateChanged: FC<RateChangedModalProps>
   mobileWalletDialog: FC<MobileWalletDialogProps>
   assetActionsDrawer: FC<AssetActionsDrawerProps>
+  rating: FC
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

@@ -75,8 +75,6 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
       .filter(action => {
         if (action.status !== ActionStatus.Pending) return false
 
-        // Only handle THORChain LP withdrawal actions
-        if (!isGenericTransactionAction(action)) return false
         if (action.transactionMetadata.displayType !== GenericTransactionDisplayType.ThorchainLP)
           return false
         if (action.type !== ActionType.Withdraw) return false

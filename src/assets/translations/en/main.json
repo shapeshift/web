@@ -141,6 +141,13 @@
     "fees": "Fees",
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
+    "howWasYourExperience": "How was your trade experience?",
+    "leaveUsAReview": "Leave us a review",
+    "sendFeedback": "Send Feedback",
+    "letUsKnowHowWeCanImprove": "Let us know how we can improve...",
+    "maybeLater": "Maybe Later",
+    "feedbackSubmitted": "Feedback submitted",
+    "thankYouForYourFeedback": "Thank you for your feedback!",
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now",
     "manage": "Manage",
@@ -3020,6 +3027,13 @@
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
       "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+    },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} and %{asset2}",
+      "withdraw": {
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
+        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
+      }
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",

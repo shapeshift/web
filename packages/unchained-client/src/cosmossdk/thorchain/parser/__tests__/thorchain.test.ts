@@ -155,7 +155,12 @@ describe('parseTx', () => {
           components: [{ value: '41666000000' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Standard' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        method: 'swap',
+        swap: { type: 'Standard' },
+      },
       trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
     }
 
@@ -190,7 +195,13 @@ describe('parseTx', () => {
           components: [{ value: '21147787600' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        method: 'swapOut',
+        swap: { type: 'Standard' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -224,7 +235,13 @@ describe('parseTx', () => {
           components: [{ value: '39503960585' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Standard' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        method: 'swapRefund',
+        swap: { type: 'Standard' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -262,7 +279,12 @@ describe('parseTx', () => {
           components: [{ value: '16000000000' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Streaming' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        method: 'swap',
+        swap: { type: 'Streaming' },
+      },
       trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
     }
 
@@ -297,7 +319,13 @@ describe('parseTx', () => {
           components: [{ value: '1058315400' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Streaming' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        method: 'swapOut',
+        swap: { type: 'Streaming' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -331,7 +359,13 @@ describe('parseTx', () => {
           components: [{ value: '46426571430' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Streaming' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        method: 'swapRefund',
+        swap: { type: 'Streaming' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -369,7 +403,12 @@ describe('parseTx', () => {
           components: [{ value: '19790527128' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'deposit', liquidity: { type: 'LP' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        method: 'deposit',
+        liquidity: { type: 'LP' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -415,7 +454,12 @@ describe('parseTx', () => {
           components: [{ value: '106772664803' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'withdrawNative', liquidity: { type: 'LP' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        method: 'withdrawNative',
+        liquidity: { type: 'LP' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -459,7 +503,12 @@ describe('parseTx', () => {
           components: [{ value: '20026432' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'depositRefundNative', liquidity: { type: 'LP' } },
+      data: {
+        parser: 'thorchain',
+        memo,
+        method: 'depositRefundNative',
+        liquidity: { type: 'LP' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -493,7 +542,12 @@ describe('parseTx', () => {
           components: [{ value: '3195702946' }],
         },
       ],
-      data: { parser: 'thorchain', memo, method: 'loanOpenOut' },
+      data: {
+        parser: 'thorchain',
+        memo,
+        originMemo: actionsResponse.actions[1].metadata?.swap?.memo,
+        method: 'loanOpenOut',
+      },
     }
 
     const actual = await txParser.parse(tx, address)

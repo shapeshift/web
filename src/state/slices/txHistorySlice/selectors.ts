@@ -29,9 +29,11 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectMemoParamFromFilter,
+  selectOriginMemoParamFromFilter,
   selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
+  selectTxHashParamFromFilter,
   selectTxStatusParamFromFilter,
 } from '@/state/selectors'
 
@@ -146,7 +148,20 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectTxStatusParamFromFilter,
   selectParserParamFromFilter,
   selectMemoParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser, memo): TxId[] => {
+  selectOriginMemoParamFromFilter,
+  selectTxHashParamFromFilter,
+  (
+    txIds,
+    txs,
+    data,
+    accountIdFilter,
+    assetIdFilter,
+    txStatusFilter,
+    parser,
+    memo,
+    originMemo,
+    txHash,
+  ): TxId[] => {
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
           return accountId === accountIdFilter
@@ -167,9 +182,22 @@ export const selectTxIdsByFilter = createCachedSelector(
         )
       : maybeFilteredByParser
 
-    const maybeUniqueIdsByStatus = txStatusFilter
-      ? maybeFilteredByMemo.filter(txId => txs[txId].status === txStatusFilter)
+    const maybeFilteredByOriginMemo = originMemo
+      ? maybeFilteredByMemo.filter(
+          txId =>
+            (txs[txId].data as common.thormaya.TxMetadata | undefined)?.originMemo?.startsWith(
+              originMemo,
+            ),
+        )
       : maybeFilteredByMemo
+
+    const maybeFilteredByTxHash = txHash
+      ? maybeFilteredByOriginMemo.filter(txId => txs[txId].txid.startsWith(txHash))
+      : maybeFilteredByOriginMemo
+
+    const maybeUniqueIdsByStatus = txStatusFilter
+      ? maybeFilteredByTxHash.filter(txId => txs[txId].status === txStatusFilter)
+      : maybeFilteredByTxHash
     const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },
@@ -251,7 +279,9 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createCachedSelector(
 export const selectTxsByFilter = createCachedSelector(
   selectTxs,
   selectTxIdsByFilter,
-  (txs, txIds) => txIds.map(txId => txs[txId]),
+  (txs, txIds) => {
+    return txIds.map(txId => txs[txId])
+  },
 )((_state: ReduxState, filter) =>
   filter
     ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
@@ -259,6 +289,12 @@ export const selectTxsByFilter = createCachedSelector(
       }`
     : 'txsByFilter',
 )
+
+export const selectTxByFilter = createSelector(selectTxsByFilter, txs => {
+  if (txs.length > 1 || !txs.length) return
+
+  return txs[0]
+})
 
 /**
  * to be able to add an account for a chain, we want to ensure there is some tx history

@@ -132,7 +132,12 @@ describe('parseTx', () => {
           components: [{ value: '236116842871614' }],
         },
       ],
-      data: { parser: 'mayachain', memo, method: 'swap', swap: { type: 'Standard' } },
+      data: {
+        parser: 'mayachain',
+        memo,
+        method: 'swap',
+        swap: { type: 'Standard' },
+      },
       trade: { dexName: Dex.Maya, memo, type: TradeType.Swap },
     }
 
@@ -167,7 +172,13 @@ describe('parseTx', () => {
           components: [{ value: '22372670383519' }],
         },
       ],
-      data: { parser: 'mayachain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+      data: {
+        parser: 'mayachain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        method: 'swapOut',
+        swap: { type: 'Standard' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -201,7 +212,13 @@ describe('parseTx', () => {
           components: [{ value: '6303170239596' }],
         },
       ],
-      data: { parser: 'mayachain', memo, method: 'swapRefund', swap: { type: 'Standard' } },
+      data: {
+        parser: 'mayachain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        method: 'swapRefund',
+        swap: { type: 'Standard' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -239,7 +256,12 @@ describe('parseTx', () => {
           components: [{ value: '130000000000000' }],
         },
       ],
-      data: { parser: 'mayachain', memo, method: 'swap', swap: { type: 'Streaming' } },
+      data: {
+        parser: 'mayachain',
+        memo,
+        method: 'swap',
+        swap: { type: 'Streaming' },
+      },
       trade: { dexName: Dex.Maya, memo, type: TradeType.Swap },
     }
 
@@ -274,7 +296,13 @@ describe('parseTx', () => {
           components: [{ value: '65918546170682' }],
         },
       ],
-      data: { parser: 'mayachain', memo, method: 'swapOut', swap: { type: 'Streaming' } },
+      data: {
+        parser: 'mayachain',
+        memo,
+        originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        method: 'swapOut',
+        swap: { type: 'Streaming' },
+      },
     }
 
     const actual = await txParser.parse(tx, address)

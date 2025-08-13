@@ -453,7 +453,12 @@ describe('parseTx', () => {
             type: TransferType.Send,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Standard' },
+        },
         trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
       }
 
@@ -493,7 +498,12 @@ describe('parseTx', () => {
             type: TransferType.Send,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Standard' },
+        },
         trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
       }
 
@@ -529,7 +539,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Standard' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -564,7 +580,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'swapRefund',
+          swap: { type: 'Standard' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -604,7 +626,12 @@ describe('parseTx', () => {
             token: usdcToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Standard' },
+        },
         trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
       }
 
@@ -641,7 +668,13 @@ describe('parseTx', () => {
             token: usdcToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Standard' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -682,7 +715,13 @@ describe('parseTx', () => {
             },
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'swapRefund',
+          swap: { type: 'Standard' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -721,7 +760,12 @@ describe('parseTx', () => {
             type: TransferType.Send,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Streaming' },
+        },
         trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
       }
 
@@ -757,7 +801,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Streaming' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -792,7 +842,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'swapRefund',
+          swap: { type: 'Streaming' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -832,7 +888,12 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          method: 'swap',
+          swap: { type: 'Streaming' },
+        },
         trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
       }
 
@@ -869,7 +930,13 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Streaming' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -910,7 +977,13 @@ describe('parseTx', () => {
             },
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapRefund', swap: { type: 'Streaming' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'swapRefund',
+          swap: { type: 'Streaming' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -947,7 +1020,12 @@ describe('parseTx', () => {
             components: [{ value: '75299305807869161' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          method: 'deposit',
+          memo,
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -986,7 +1064,12 @@ describe('parseTx', () => {
             components: [{ value: '10000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          method: 'withdraw',
+          memo,
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1021,7 +1104,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[1].metadata?.withdraw?.memo,
+          method: 'withdrawOut',
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1056,7 +1145,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'depositRefund',
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1094,7 +1189,12 @@ describe('parseTx', () => {
             token: usdcToken,
           },
         ],
-        data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          method: 'deposit',
+          memo,
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1133,7 +1233,12 @@ describe('parseTx', () => {
             components: [{ value: '10000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          method: 'withdraw',
+          memo,
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1169,7 +1274,13 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[1].metadata?.withdraw?.memo,
+          method: 'withdrawOut',
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1205,7 +1316,13 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'Savers' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'depositRefund',
+          liquidity: { type: 'Savers' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1244,7 +1361,12 @@ describe('parseTx', () => {
             components: [{ value: '7000000000000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          method: 'deposit',
+          memo,
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1283,7 +1405,12 @@ describe('parseTx', () => {
             components: [{ value: '10000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          method: 'withdraw',
+          memo,
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1318,7 +1445,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.withdraw?.memo,
+          method: 'withdrawOut',
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1353,7 +1486,13 @@ describe('parseTx', () => {
             type: TransferType.Receive,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'depositRefund',
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1393,7 +1532,12 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          method: 'deposit',
+          memo,
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1432,7 +1576,12 @@ describe('parseTx', () => {
             components: [{ value: '10000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          method: 'withdraw',
+          memo,
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1468,7 +1617,13 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.withdraw?.memo,
+          method: 'withdrawOut',
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1504,7 +1659,13 @@ describe('parseTx', () => {
             token: usdtToken,
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'LP' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+          method: 'depositRefund',
+          liquidity: { type: 'LP' },
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1577,7 +1738,12 @@ describe('parseTx', () => {
             components: [{ value: '20948330710000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'loanOpenOut', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanOpenOut',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1612,7 +1778,12 @@ describe('parseTx', () => {
             components: [{ value: '4997600000000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'loanOpenRefund', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanOpenRefund',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1684,7 +1855,12 @@ describe('parseTx', () => {
             components: [{ value: '1008315360000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'loanRepaymentOut', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanRepaymentOut',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1719,7 +1895,12 @@ describe('parseTx', () => {
             components: [{ value: '305222000000000000' }],
           },
         ],
-        data: { parser: 'thorchain', method: 'loanRepaymentRefund', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanRepaymentRefund',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1755,7 +1936,13 @@ describe('parseTx', () => {
             token: usdcToken,
           },
         ],
-        data: { parser: 'thorchain', method: 'loanOpenOut', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanOpenOut',
+          memo,
+
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1829,7 +2016,12 @@ describe('parseTx', () => {
             token: usdcToken,
           },
         ],
-        data: { parser: 'thorchain', method: 'loanRepaymentRefund', memo },
+        data: {
+          parser: 'thorchain',
+          method: 'loanRepaymentRefund',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.refund?.memo,
+        },
       }
 
       const txParser = await makeTxParser()
@@ -1872,7 +2064,12 @@ describe('parseTx', () => {
             },
           },
         ],
-        data: { parser: 'thorchain', method: 'swap', memo, swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          method: 'swap',
+          memo,
+          swap: { type: 'Standard' },
+        },
         trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
       }
 
@@ -1914,7 +2111,13 @@ describe('parseTx', () => {
             },
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
+        data: {
+          parser: 'thorchain',
+          memo,
+          originMemo: actionsResponse.actions[0].metadata?.swap?.memo,
+          method: 'swapOut',
+          swap: { type: 'Standard' },
+        },
       }
 
       const txParser = await makeTxParser()

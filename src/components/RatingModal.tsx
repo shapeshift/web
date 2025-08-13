@@ -8,7 +8,7 @@ import { useSendDiscordWebhook } from '../hooks/useSendDiscordWebhook'
 import { isMobile } from '../lib/globals'
 import { FoxIcon } from './Icons/FoxIcon'
 import { Dialog } from './Modal/components/Dialog'
-import { StarRating } from './StarRating'
+import { StarRating } from './StarRating/StarRating'
 import { Text } from './Text'
 
 const FEEDBACK_DISCORD_CHANNEL_URI =
@@ -66,7 +66,6 @@ export const RatingModal = () => {
       if (newRating === 5) {
         if (isMobile) {
           const hasSentReview = await requestStoreReview()
-          alert(hasSentReview)
 
           if (hasSentReview) {
             toast({
@@ -75,7 +74,15 @@ export const RatingModal = () => {
               status: 'success',
             })
           }
+          close()
+          return
         }
+
+        toast({
+          title: translate('common.feedbackSubmitted'),
+          description: translate('common.thankYouForYourFeedback'),
+          status: 'success',
+        })
         close()
       }
 

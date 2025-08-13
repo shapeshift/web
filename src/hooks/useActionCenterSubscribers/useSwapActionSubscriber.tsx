@@ -234,10 +234,10 @@ export const useSwapActionSubscriber = () => {
           position: isMobile && !hasSeenRatingModal ? 'top' : 'bottom-right',
         })
 
-        // if (!hasSeenRatingModal) {
-        openRatingModal({})
-        handleHasSeenRatingModal()
-        // }
+        if (!hasSeenRatingModal) {
+          openRatingModal({})
+          handleHasSeenRatingModal()
+        }
 
         return
       }

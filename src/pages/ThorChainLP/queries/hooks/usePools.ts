@@ -130,10 +130,11 @@ export const usePools = () => {
   }, [inboundAddressesData, isInboundAddressesDataLoading, mimir, poolsWithVolumeStats])
 
   const poolsWithIsLpDepositEnabled = useMemo(() => {
+    if (!mimir) return poolsWithActiveData
+
     const poolsWithLpDepositEnabled = poolsWithActiveData.data.reduce<Pool[]>((acc, pool) => {
       const assetId = thorPoolAssetIdToAssetId(pool.asset)
       if (!assetId) return acc
-      if (!mimir) return acc
 
       acc.push({ ...pool, isLpDepositEnabled: isLpDepositEnabled({ mimir, assetId }) })
       return acc

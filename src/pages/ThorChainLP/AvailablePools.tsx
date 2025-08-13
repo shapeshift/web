@@ -52,7 +52,7 @@ export const AvailablePools = () => {
   // Partition pools by *akschually* available (not halted, staged, nor deposits disabled) and the rest
   // while maintaining the original sorting by tvlFiat desc of both the akschually available and the rest groups
   const sortedPools = useMemo(() => {
-    const [akschuallyAvailable, unavailable] = partition(pools, pool => {
+    const [availablePools, unavailablePools] = partition(pools, pool => {
       return (
         // Deposits enabled
         pool.isLpDepositEnabled === true &&
@@ -63,10 +63,10 @@ export const AvailablePools = () => {
       )
     })
 
-    const sortedAvailable = akschuallyAvailable.sort((a, b) =>
+    const sortedAvailable = availablePools.sort((a, b) =>
       bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
     )
-    const sortedOthers = unavailable.sort((a, b) =>
+    const sortedOthers = unavailablePools.sort((a, b) =>
       bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
     )
 

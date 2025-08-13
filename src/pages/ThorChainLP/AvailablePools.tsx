@@ -4,11 +4,11 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useNavigate } from 'react-router-dom'
-import type { Column, Row } from 'react-table'
+import type { Column, Row, SortByFn } from 'react-table'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import type { Pool } from './queries/hooks/usePools'
+import type { Pool, Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -37,6 +37,20 @@ const poolDetailsDirection: FlexProps['flexDirection'] = {
 const stackPadding = { base: 2, md: 0 }
 
 const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
+
+const sortType: SortByFn<Pool> = (rowA, rowB, columnId, desc) => {
+  console.log({ columnId, desc })
+  const poolA = rowA.original
+  const poolB = rowB.original
+
+  const isDepositDisabledA = poolA.isLpDepositEnabled === false
+  const isDepositDisabledB = poolB.isLpDepositEnabled === false
+
+  if (isDepositDisabledA && !isDepositDisabledB) return -1
+  if (!isDepositDisabledA && isDepositDisabledB) return 1
+
+  return 0
+}
 
 type RowProps = Row<Pool>
 
@@ -122,6 +136,7 @@ export const AvailablePools = () => {
       {
         Header: translate('pools.tvl'),
         accessor: 'tvlFiat',
+        sortType,
         justifyContent: { base: 'flex-end', md: 'flex-start' },
         textAlign: { base: 'right', md: 'left' },
         Cell: ({ value }: { value: string; row: RowProps }) => {

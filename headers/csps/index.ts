@@ -31,6 +31,7 @@ import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
+import { csp as discord } from './discord'
 import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
@@ -110,4 +111,5 @@ export const csps = [
   walletConnect,
   walletMigration,
   relay,
+  discord,
 ]

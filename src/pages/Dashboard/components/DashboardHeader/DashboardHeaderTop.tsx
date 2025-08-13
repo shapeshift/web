@@ -8,6 +8,7 @@ import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { vibrate } from '../../../../lib/vibrate'
 import { WalletBalance } from './WalletBalance'
 
 import { Display } from '@/components/Display'
@@ -35,7 +36,6 @@ const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = {
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
 const balanceFontSize = '4xl'
-const customTabActive = { WebkitTapHighlightColor: 'transparent' }
 
 const mobileButtonJustifyContent = { base: 'space-between', sm: 'center' }
 
@@ -81,7 +81,6 @@ const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionBu
       alignItems='center'
       onClick={onClick}
       isDisabled={isDisabled}
-      _active={customTabActive}
     >
       <VStack spacing={2} justify='center' align='center'>
         {icon}
@@ -110,23 +109,28 @@ export const DashboardHeaderTop = memo(() => {
   const qrCode = useModal('qrCode')
 
   const handleQrCodeClick = useCallback(() => {
+    vibrate('heavy')
     qrCode.open({})
   }, [qrCode])
 
   const handleSendClick = useCallback(() => {
+    vibrate('heavy')
     mixpanel?.track(MixPanelEvent.SendClick)
     send.open({ assetId: asset?.assetId, accountId })
   }, [mixpanel, send, asset?.assetId, accountId])
 
   const handleReceiveClick = useCallback(() => {
+    vibrate('heavy')
     receive.open({ asset, accountId })
   }, [receive, asset, accountId])
 
   const handleTradeClick = useCallback(() => {
+    vibrate('heavy')
     navigate(TradeRoutePaths.Input)
   }, [navigate])
 
   const handleBuyClick = useCallback(() => {
+    vibrate('heavy')
     fiatRamps.open({ assetId: undefined, fiatRampAction: FiatRampAction.Buy })
   }, [fiatRamps])
 

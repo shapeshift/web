@@ -30,6 +30,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
+import { vibrate } from '@/lib/vibrate'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -136,6 +137,10 @@ const WalletButton: FC<WalletButtonProps> = ({
   )
   const connectIcon = useMemo(() => <FaWallet />, [])
 
+  const handleMenuClick = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <MenuButton
       as={Button}
@@ -143,6 +148,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       justifyContent='flex-start'
       rightIcon={rightIcon}
       leftIcon={leftIcon}
+      onClick={handleMenuClick}
     >
       <Flex>
         {walletLabel ? (
@@ -179,6 +185,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
 
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = useCallback(() => {
+    vibrate('heavy')
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch, onClick])

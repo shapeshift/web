@@ -20,6 +20,7 @@ import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 export type AssetData = {
   assets: Asset[]
   handleClick: (asset: Asset) => void
+  handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
   rowComponent?: FC<ListChildComponentProps<AssetData>>
@@ -37,6 +38,7 @@ const scrollbarStyle: CSSProperties = {
 export const AssetList: FC<AssetListProps> = ({
   assets,
   handleClick,
+  handleLongPress,
   disableUnsupported = false,
   hideZeroBalanceAmounts = true,
   rowComponent = AssetRow,
@@ -75,11 +77,19 @@ export const AssetList: FC<AssetListProps> = ({
     () => ({
       assets,
       handleClick,
+      handleLongPress,
       disableUnsupported,
       hideZeroBalanceAmounts,
       portalsAssets,
     }),
-    [assets, disableUnsupported, handleClick, hideZeroBalanceAmounts, portalsAssets],
+    [
+      assets,
+      disableUnsupported,
+      handleClick,
+      handleLongPress,
+      hideZeroBalanceAmounts,
+      portalsAssets,
+    ],
   )
 
   const renderContent = useCallback(

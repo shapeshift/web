@@ -23,6 +23,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { vibrate } from '@/lib/vibrate'
 import { MobileWalletList } from '@/pages/ConnectWallet/components/WalletList'
 import { WalletConnectToDappsHeaderButton } from '@/plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 
@@ -63,6 +64,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const navigate = useNavigate()
 
   const handleBackupMenuItemClick = useCallback(async () => {
+    vibrate('heavy')
     const revocableWallet = createRevocableWallet({
       id: state.walletInfo?.deviceId,
       label: state.walletInfo?.name,
@@ -77,24 +79,29 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [navigate, state])
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
+    vibrate('heavy')
     accountManagementPopover.open({ onBack: mobileWalletDialog.open })
     onClose()
   }, [accountManagementPopover, onClose, mobileWalletDialog])
 
   const handleClickSupport = useCallback(() => {
+    vibrate('heavy')
     feedbackSupport.open({})
     onClose()
   }, [onClose, feedbackSupport])
 
   const handleCreateClick = useCallback(() => {
+    vibrate('heavy')
     navigate(MobileWalletDialogRoutes.Create)
   }, [navigate])
 
   const handleImportClick = useCallback(() => {
+    vibrate('heavy')
     navigate(MobileWalletDialogRoutes.Import)
   }, [navigate])
 
   const handleDisconnectClick = useCallback(() => {
+    vibrate('heavy')
     disconnect()
     onClose()
   }, [disconnect, onClose])

@@ -74,11 +74,6 @@ export const AvailablePools = () => {
           const isThorchainLpInteractionDisabled =
             !isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled
 
-          console.log({
-            isLpDepositEnabled: pool.isLpDepositEnabled,
-            isTradingActive: pool.isTradingActive,
-          })
-
           const statusContent = useMemo(() => {
             switch (true) {
               case pool.isLpDepositEnabled === false:
@@ -112,7 +107,13 @@ export const AvailablePools = () => {
                   element: <Amount.Percent value={pool.annualPercentageRate} />,
                 }
             }
-          }, [isThorchainLpInteractionDisabled, pool.annualPercentageRate, pool.status])
+          }, [
+            isThorchainLpInteractionDisabled,
+            pool.annualPercentageRate,
+            pool.status,
+            pool.isLpDepositEnabled,
+            pool.isTradingActive,
+          ])
 
           const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
           return (

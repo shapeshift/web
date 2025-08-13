@@ -127,7 +127,7 @@ export const usePools = () => {
     }, [])
 
     return { ...poolsWithVolumeStats, data }
-  }, [pools])
+  }, [inboundAddressesData, isInboundAddressesDataLoading, mimir, poolsWithVolumeStats])
 
   const poolsWithIsLpDepositEnabled = useMemo(() => {
     const poolsWithLpDepositEnabled = poolsWithActiveData.data.reduce<Pool[]>((acc, pool) => {

@@ -130,12 +130,12 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              if (id.match(/(react-icons|framer-motion|@visx|@react-spring|@coral-xyz)/))
-                return 'ui'
+              if (id.match(/(framer-motion|@visx|@coral-xyz)/)) return 'ui'
+              if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
               if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
-              if (id.match(/(@sentry|mixpanel)/)) return 'sdk'
+              if (id.match(/(@sentry|mixpanel|@moralisweb3)/)) return 'sdk'
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@arbitrum')) return '@arbitrum'

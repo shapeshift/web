@@ -10,7 +10,7 @@ import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingThorchainLpWithdrawActions } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectTxByFilter } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 

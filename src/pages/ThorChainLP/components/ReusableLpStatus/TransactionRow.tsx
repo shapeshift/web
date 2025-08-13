@@ -75,6 +75,7 @@ type TransactionRowProps = {
   amountCryptoPrecision: string
   onStatusUpdate: (status: TxStatus) => void
   onStart: () => void
+  index: number
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
@@ -86,6 +87,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onStatusUpdate,
   onStart,
+  index,
   isActive,
   confirmedQuote,
 }) => {
@@ -382,7 +384,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               skipOutbound: true,
             })
 
-            onStatusUpdate(status)
+            onStatusUpdate(status, index)
             if (status === TxStatus.Confirmed) {
               await handleComplete(pendingAction)
             }
@@ -405,7 +407,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   // manages incomplete sym deposits by setting the already confirmed transaction as complete
   useEffect(() => {
     if (isLpConfirmedWithdrawalQuote(confirmedQuote)) return
-    if (tx?.status !== TxStatus.Unknown) return
+    if (![TxStatus.Unknown, undefined].includes(tx?.status)) return
     if (!isIncomplete) return
 
     onStatusUpdate(TxStatus.Confirmed)

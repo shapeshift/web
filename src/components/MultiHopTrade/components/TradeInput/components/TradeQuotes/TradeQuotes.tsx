@@ -210,7 +210,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
               </Flex>
             </Flex>
           ) : null}
-          {rateQueryStatus !== QueryStatus.fulfilled && !hasQuotes ? (
+          {rateQueryStatus === QueryStatus.pending && !hasQuotes ? (
             <Flex flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
               <TradeQuoteIconLoader swapperNames={loaderSwapperNames} />
               <Box textAlign='center' marginTop={6} maxW={VISIBLE_WIDTH}>

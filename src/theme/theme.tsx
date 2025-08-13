@@ -45,6 +45,10 @@ export const breakpoints = {
 
 const styles = {
   global: (props: StyleFunctionProps) => ({
+    '*': {
+      // Chakra should already handle focusing state etc, this is more annoying than helpful
+      WebkitTapHighlightColor: 'transparent',
+    },
     '.woot-widget-holder': {
       background: '#f9f9fb',
       paddingTop: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 16px)',

@@ -11,7 +11,9 @@ import { AssetSearchRow } from './AssetSearchRow'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { Text } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { isSome } from '@/lib/utils'
+import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -37,6 +39,7 @@ export const CategoryCard = ({
   const assetsById = useAppSelector(selectAssets)
   const assetTitleColor = useColorModeValue('black', 'white')
   const translate = useTranslate()
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const categoryHook =
     category === MarketsCategories.OneClickDefi
@@ -93,10 +96,16 @@ export const CategoryCard = ({
   const assetSearchRowData = useMemo(() => {
     return {
       assets: filteredAssets,
-      handleClick: (asset: Asset) => navigate(`/assets/${asset.assetId}`),
+      handleClick: (asset: Asset) => {
+        vibrate('heavy')
+        navigate(`/assets/${asset.assetId}`)
+      },
+      handleLongPress: ({ assetId }: Asset) => {
+        assetActionsDrawer.open({ assetId })
+      },
       portalsAssets,
     }
-  }, [filteredAssets, portalsAssets, navigate])
+  }, [filteredAssets, portalsAssets, navigate, assetActionsDrawer])
 
   const handleSeeMoreClick = useCallback(() => {
     navigate(`/explore/category/${category}`)

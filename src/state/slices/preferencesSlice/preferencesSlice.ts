@@ -133,6 +133,7 @@ export type Preferences = {
     selectedSort: SortOptionsKeys
     selectedChainId: ChainId | 'all'
   }
+  hasSeenRatingModal: boolean
 }
 
 const initialState: Preferences = {
@@ -226,6 +227,7 @@ const initialState: Preferences = {
     selectedSort: SortOptionsKeys.Volume,
     selectedChainId: 'all',
   },
+  hasSeenRatingModal: false,
 }
 
 export const preferences = createSlice({
@@ -332,6 +334,9 @@ export const preferences = createSlice({
         state.highlightedTokensFilters.selectedChainId = payload
       },
     ),
+    setHasSeenRatingModal: create.reducer((state, _) => {
+      state.hasSeenRatingModal = true
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -349,5 +354,6 @@ export const preferences = createSlice({
     selectQuoteDisplayOption: state => state.quoteDisplayOption,
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
+    selectHasSeenRatingModal: state => state.hasSeenRatingModal,
   },
 })

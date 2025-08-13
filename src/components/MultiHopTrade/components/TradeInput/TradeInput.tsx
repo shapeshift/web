@@ -1,4 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
+import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -14,6 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
+import { useGetTradeRateInput } from '../../hooks/useGetTradeRateInput'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { TradeAssetInput } from '../TradeAssetInput'
@@ -34,9 +36,11 @@ import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import {
   selectIsAnyGetAccountPortfolioLoadedForChainId,
@@ -61,10 +65,10 @@ import {
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
-  selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
-  selectShouldShowTradeQuoteOrAwaitInput,
   selectSortedTradeQuotes,
+  selectUserAvailableTradeQuotes,
+  selectUserUnavailableTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -126,8 +130,6 @@ export const TradeInput = ({
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
-  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -138,6 +140,9 @@ export const TradeInput = ({
   const selectedBuyAssetChainId = useAppSelector(selectSelectedBuyAssetChainId)
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellInputAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
+  const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
+  const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
+  const walletSupportsSellAssetChain = useWalletSupportsChain(sellAsset.chainId, wallet)
   const isAnyGetAccountPortfolioLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -159,18 +164,27 @@ export const TradeInput = ({
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
+  const hasQuotes =
+    availableTradeQuotesDisplayCache.length > 0 || unavailableTradeQuotesDisplayCache.length > 0
+
+  const tradeRateInput = useGetTradeRateInput()
+  const { status: rateQueryStatus } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
+
   const isLoading = useMemo(
     () =>
-      // No account meta loaded for that chain
-      Boolean(walletId && !isAnyGetAccountPortfolioLoadedForChainId) ||
-      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
+      // No account meta loaded for that chain for the sell asset (assuming wallet support)
+      Boolean(
+        walletId && walletSupportsSellAssetChain && !isAnyGetAccountPortfolioLoadedForChainId,
+      ) ||
+      (rateQueryStatus === QueryStatus.pending && !hasQuotes) ||
       isConfirmationLoading ||
       Boolean(walletId && isWalletReceiveAddressLoading),
     [
+      hasQuotes,
+      walletSupportsSellAssetChain,
+      rateQueryStatus,
       walletId,
       isAnyGetAccountPortfolioLoadedForChainId,
-      shouldShowTradeQuoteOrAwaitInput,
-      isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isWalletReceiveAddressLoading,
     ],

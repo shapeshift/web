@@ -11,6 +11,7 @@ import { LoadingGrid } from './LoadingGrid'
 import { MarketGrid } from './MarketGrid'
 
 import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { vibrate } from '@/lib/vibrate'
 import { breakpoints } from '@/theme/theme'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
@@ -38,6 +39,7 @@ export const AssetsGrid: React.FC<{
 
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
+      vibrate('heavy')
       return navigate(`/assets/${assetId}`)
     },
     [navigate],

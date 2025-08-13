@@ -23,6 +23,7 @@ import { TimeControls } from '@/components/Graph/TimeControls'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -72,6 +73,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
   const handleTimeframeChange = useCallback(
     (newTimeframe: HistoryTimeframe) => {
+      vibrate('heavy')
       // Usually used to set the component state to the new timeframe
       setTimeframe(newTimeframe)
       // Save the new timeframe in the user preferences

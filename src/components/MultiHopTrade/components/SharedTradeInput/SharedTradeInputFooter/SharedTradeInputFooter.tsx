@@ -4,7 +4,7 @@ import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { ReceiveSummary } from './components/ReceiveSummary'
 
@@ -13,6 +13,7 @@ import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { vibrate } from '@/lib/vibrate'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -101,6 +102,10 @@ export const SharedTradeInputFooter = ({
     return percentDifference
   }, [rate, marketRate])
 
+  const handleClick = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
   return (
     <CardFooter
       flexDir='column'
@@ -157,6 +162,7 @@ export const SharedTradeInputFooter = ({
           data-test='trade-form-preview-button'
           isDisabled={shouldDisablePreviewButton}
           isValidWallet={true}
+          onClick={handleClick}
         >
           {buttonText}
         </ButtonWalletPredicate>

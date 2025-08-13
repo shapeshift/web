@@ -1,21 +1,17 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect } from 'react'
+import { useQueries } from '@tanstack/react-query'
+import { useCallback } from 'react'
 
 import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { waitForThorchainUpdate } from '@/lib/utils/thorchain'
+import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingThorchainLpWithdrawActions } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-  isGenericTransactionAction,
-} from '@/state/slices/actionSlice/types'
-import { selectTxByFilter, selectTxs } from '@/state/slices/selectors'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { selectTxByFilter } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useThorchainLpWithdrawActionSubscriber = () => {
@@ -24,19 +20,10 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
-  const txs = useAppSelector(selectTxs)
 
-  const handleThorchainUpdate = useCallback(
-    async (action: GenericTransactionAction) => {
-      const { txHash } = action.transactionMetadata
-
+  const handleComplete = useCallback(
+    (action: GenericTransactionAction) => {
       try {
-        // Wait for THORChain to actually process and update the LP position
-        await waitForThorchainUpdate({
-          txId: txHash,
-          skipOutbound: true, // LP withdrawal transactions don't have outbound
-        }).promise
-
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -78,35 +65,47 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
     [dispatch, toast, isDrawerOpen, openActionCenter],
   )
 
-  useEffect(() => {
-    pendingThorchainLpWithdrawActions.forEach(action => {
-      if (action.status !== ActionStatus.Pending) return
+  useQueries({
+    queries: pendingThorchainLpWithdrawActions
+      .filter(action => {
+        const { txHash } = action.transactionMetadata
 
-      // Only handle THORChain LP withdrawal actions
-      if (!isGenericTransactionAction(action)) return
-      if (action.transactionMetadata.displayType !== GenericTransactionDisplayType.ThorchainLP)
-        return
-      if (action.type !== ActionType.Withdraw) return
+        // Check if the transaction is confirmed on the blockchain
+        const accountId = action.transactionMetadata.accountId
+        if (!accountId) return false
 
-      const { txHash } = action.transactionMetadata
+        // Note: looking by serializedTxIndex won't necessarily work, as for out Txs, the memo and origin memo may be different
+        // we *do* have logic to get extra metadata, including the originMemo, however, it is not guaranteed to be here by the time we hit this
+        // so for the sake of simplicity, we simply do a lookup by txHash, which does the do
+        const tx = selectTxByFilter(store.getState(), {
+          originMemo: undefined,
+          txHash,
+        })
 
-      // Check if the transaction is confirmed on the blockchain
-      const accountId = action.transactionMetadata.accountId
-      if (!accountId) return
+        if (!tx) return false
+        if (tx.status !== TxStatus.Confirmed) return false
 
-      // Note: looking by serializedTxIndex won't necessarily work, as for out Txs, the memo and origin memo may be different
-      // we *do* have logic to get extra metadata, including the originMemo, however, it is not guaranteed to be here by the time we hit this
-      // so for the sake of simplicity, we simply do a lookup by txHash, which does the do
-      const tx = selectTxByFilter(store.getState(), {
-        originMemo: undefined,
-        txHash,
+        return true
       })
+      .map(action => action as GenericTransactionAction)
+      .map(action => ({
+        queryKey: [
+          'thorTxStatus',
+          { txHash: action.transactionMetadata.txHash, skipOutbound: true },
+        ],
+        queryFn: async (): Promise<TxStatus> => {
+          const status = await getThorchainTransactionStatus({
+            txHash: action.transactionMetadata.txHash,
+            skipOutbound: true, // LP withdrawal transactions don't have outbound
+          })
 
-      if (!tx) return
-      if (tx.status !== TxStatus.Confirmed) return
+          if (status === TxStatus.Confirmed) {
+            handleComplete(action)
+          }
 
-      // Now wait for THORChain to process and update the LP position
-      handleThorchainUpdate(action)
-    })
-  }, [pendingThorchainLpWithdrawActions, txs, handleThorchainUpdate])
+          return status
+        },
+        refetchInterval: 10_000,
+      })),
+  })
 }

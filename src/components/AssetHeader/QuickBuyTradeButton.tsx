@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react'
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useTradeButtonProps } from '../MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps'
@@ -49,19 +49,15 @@ export const QuickBuyTradeButton: React.FC<QuickBuyTradeButtonProps> = ({
 
   // After confirmTrade, when we reach AwaitingSwap and the executable quote is ready, auto-sign once
   const didAutoSignRef = useRef(false)
-  if (
-    tradeButtonProps !== undefined &&
-    activeQuoteOrRate !== undefined &&
-    !didAutoSignRef.current
-  ) {
+  useEffect(() => {
+    if (!tradeButtonProps || !activeQuoteOrRate || didAutoSignRef.current) return
     const hasExecutable = isExecutableTradeQuote(activeQuoteOrRate)
     const isAwaitingSwap = confirmedTradeExecutionState === TradeExecutionState.FirstHop
     const canAutoSign = isAwaitingSwap && hasExecutable && !tradeButtonProps.isLoading
-    if (canAutoSign) {
-      didAutoSignRef.current = true
-      tradeButtonProps.onSubmit() // In AwaitingSwap, onSubmit is handleSignTx
-    }
-  }
+    if (!canAutoSign) return
+    didAutoSignRef.current = true
+    tradeButtonProps.onSubmit() // In AwaitingSwap, onSubmit is handleSignTx
+  }, [activeQuoteOrRate, confirmedTradeExecutionState, tradeButtonProps])
 
   return (
     <Button

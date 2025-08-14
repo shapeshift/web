@@ -69,7 +69,8 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
     action: PayloadAction<{ buyAsset: Asset; sellAsset: Asset; sellAmountCryptoPrecision: string }>,
   ) => {
     const { buyAsset, sellAsset, sellAmountCryptoPrecision } = action.payload
-    state.sellAmountCryptoPrecision = sellAmountCryptoPrecision
+    state.sellAmountCryptoPrecision = bnOrZero(sellAmountCryptoPrecision).toString()
+    state.isInputtingFiatSellAmount = false
 
     if (sellAsset.chainId !== state.sellAsset.chainId) {
       state.sellAccountId = undefined

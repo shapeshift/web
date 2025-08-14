@@ -222,7 +222,11 @@
     "balance": "Available Balance",
     "confirm": "Are you sure you want to buy?",
     "edit": "Edit buy amounts",
-    "error": "Quick buy of %{amount} failed, not enough funds, try another amount?"
+    "error": {
+      "insufficientFunds": "Quick buy of %{amount} failed, not enough funds, try another amount?",
+      "noQuote": "Quick buy of %{amount} failed, could not retrieve a valid quote.",
+      "generic": "Quick buy of %{amount} failed."
+    }
   },
   "consentBanner": {
     "body": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit %{privateLink} if you don't want to be anonymously tracked. See our %{privacyPolicyLink} for more details.",

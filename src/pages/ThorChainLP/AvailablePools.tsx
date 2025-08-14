@@ -1,6 +1,7 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { partition } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useNavigate } from 'react-router-dom'
@@ -18,6 +19,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -36,7 +38,7 @@ const poolDetailsDirection: FlexProps['flexDirection'] = {
 
 const stackPadding = { base: 2, md: 0 }
 
-const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
+const reactTableInitialState = { pageSize: 5000 }
 
 type RowProps = Row<Pool>
 
@@ -46,6 +48,30 @@ export const AvailablePools = () => {
   const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolsHeader />, [])
+
+  // Partition pools by *akschually* available (not halted, staged, nor deposits disabled) and the rest
+  // while maintaining the original sorting by tvlFiat desc of both the akschually available and the rest groups
+  const sortedPools = useMemo(() => {
+    const [availablePools, unavailablePools] = partition(pools, pool => {
+      return (
+        // Deposits enabled
+        pool.isLpDepositEnabled === true &&
+        // *not* staged
+        pool.status !== 'staged' &&
+        // *not* halted
+        pool.isTradingActive === true
+      )
+    })
+
+    const sortedAvailable = availablePools.sort((a, b) =>
+      bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
+    )
+    const sortedOthers = unavailablePools.sort((a, b) =>
+      bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
+    )
+
+    return [...sortedAvailable, ...sortedOthers]
+  }, [pools])
 
   const columns: Column<Pool>[] = useMemo(
     () => [
@@ -174,9 +200,9 @@ export const AvailablePools = () => {
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
-        {pools.length ? (
+        {sortedPools.length ? (
           <ReactTable
-            data={pools}
+            data={sortedPools}
             columns={columns}
             initialState={reactTableInitialState}
             onRowClick={handlePoolClick}

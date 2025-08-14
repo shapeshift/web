@@ -143,7 +143,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const poolName = useMemo(() => {
     if (!(poolAsset && baseAsset)) return ''
 
-    return `${poolAsset?.symbol}/${baseAsset.symbol}`
+    return `${poolAsset.symbol}/${baseAsset.symbol}`
   }, [poolAsset, baseAsset])
 
   const withdrawAssetAmountsAndSymbol = useMemo(() => {

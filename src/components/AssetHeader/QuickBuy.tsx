@@ -13,49 +13,21 @@ import {
   Text,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { bnOrZero } from '@shapeshiftoss/utils'
+import { useCallback } from 'react'
 import { TbPencil } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { AnimatedCheck } from '../AnimatedCheck'
-import { useCurrentHopIndex } from '../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
-import { useGetTradeRates } from '../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
+import { TooltipWithTouch } from '../TooltipWithTouch'
+import { useQuickBuy } from './hooks/useQuickBuy'
 import { QuickBuyTradeButton } from './QuickBuyTradeButton'
 
 import { Amount } from '@/components/Amount/Amount'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import {
-  selectAssetById,
-  selectFeeAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId,
-} from '@/state/slices/selectors'
-import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
-import {
-  selectConfirmedQuote,
-  selectConfirmedTradeExecutionState,
-  selectFirstHop,
-  selectHopExecutionMetadata,
-  selectLastHop,
-  selectSortedTradeQuotes,
-} from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const editIcon = <Icon as={TbPencil} boxSize={6} color='text.subtle' />
-
-export type QuickBuyState =
-  | { status: 'idle'; amount?: undefined; messageKey?: undefined }
-  | { status: 'error'; amount: number; messageKey: string }
-  | { status: 'confirming' | 'executing' | 'success'; amount: number; messageKey?: undefined }
-
-const defaultState: QuickBuyState = { status: 'idle', amount: undefined, messageKey: undefined }
 
 type QuickBuyProps = {
   assetId: AssetId
@@ -65,173 +37,39 @@ type QuickBuyProps = {
 export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) => {
   const translate = useTranslate()
   const { number } = useLocaleFormatter()
-  const dispatch = useAppDispatch()
+  const {
+    quickBuyState,
+    isNativeAsset,
+    estimatedBuyAmountCryptoPrecision,
+    asset,
+    feeAsset,
+    feeAssetBalanceCryptoPrecision,
+    feeAssetBalanceUserCurrency,
+    quickBuyAmounts,
+    confirmedQuote,
+    tradeQuoteStep,
+    confirmedTradeExecutionState,
+    currentHopIndex,
+    actions,
+  } = useQuickBuy({ assetId })
 
-  const [quickBuyState, setQuickBuyState] = useState<QuickBuyState>(defaultState)
-  const hasInitializedTradeRef = useRef(false)
-  const successTimerRef = useRef<NodeJS.Timeout>(null)
+  const { startPurchase, confirmPurchase, cancelPurchase, dismissError } = actions
 
-  const resetTrade = useCallback(() => {
-    hasInitializedTradeRef.current = false
-    dispatch(tradeQuoteSlice.actions.clear())
-    dispatch(tradeInput.actions.clear())
-  }, [dispatch])
+  const handleEditAmounts = useCallback((): void => {
+    onEditAmounts()
+  }, [onEditAmounts])
 
-  useEffect(() => {
-    return () => {
-      resetTrade() // Reset on unmount
-      if (successTimerRef.current) clearTimeout(successTimerRef.current)
-    }
-  }, [resetTrade])
+  const handleDismissError = useCallback((): void => {
+    dismissError()
+  }, [dismissError])
 
-  const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
-  const quickBuyAmounts = useAppSelector(preferences.selectors.selectQuickBuyAmounts)
+  const handleCancelPurchase = useCallback((): void => {
+    cancelPurchase()
+  }, [cancelPurchase])
 
-  const feeAssetFilter = useMemo(() => ({ assetId: feeAsset?.assetId }), [feeAsset?.assetId])
-  const feeAssetBalanceCryptoPrecision = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetFilter),
-  )
-  const feeAssetBalanceUserCurrency = useAppSelector(
-    state => selectPortfolioUserCurrencyBalanceByAssetId(state, feeAssetFilter) ?? '0',
-  )
-
-  const confirmedQuote = useAppSelector(selectConfirmedQuote)
-
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, assetId),
-  )
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
-  )
-
-  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-
-  const isNativeAsset = useMemo(
-    () => asset && feeAsset && asset.assetId === feeAsset.assetId,
-    [asset, feeAsset],
-  )
-
-  useGetTradeRates()
-
-  const handleError = useCallback(
-    (error: string) => {
-      setQuickBuyState({ status: 'error', amount: quickBuyState.amount ?? 0, messageKey: error })
-      resetTrade()
-    },
-    [quickBuyState.amount, resetTrade],
-  )
-
-  const handleSuccess = useCallback(() => {
-    setQuickBuyState({ status: 'success', amount: quickBuyState.amount ?? 0 })
-    resetTrade()
-
-    if (successTimerRef.current) clearTimeout(successTimerRef.current)
-    // If we're still in the success state after some time then reset
-    successTimerRef.current = setTimeout(() => {
-      setQuickBuyState(currState => (currState.status === 'success' ? defaultState : currState))
-    }, 7000)
-  }, [quickBuyState.amount, resetTrade])
-
-  const handleCancel = useCallback(() => {
-    setQuickBuyState(defaultState)
-    resetTrade()
-  }, [resetTrade])
-
-  const currentHopIndex = useCurrentHopIndex()
-  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
-  const tradeQuoteLastHop = useAppSelector(selectLastHop)
-  const tradeQuoteStep = useMemo(() => {
-    return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
-  }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
-
-  // Monitor swap execution for failures
-  const hopExecutionMetadataFilter = useMemo(() => {
-    if (!confirmedQuote?.id) return undefined
-    return { tradeId: confirmedQuote.id, hopIndex: currentHopIndex }
-  }, [confirmedQuote?.id, currentHopIndex])
-
-  const hopExecutionMetadata = useAppSelector(state =>
-    hopExecutionMetadataFilter
-      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
-      : undefined,
-  )
-
-  // When we receive our best rate, lock it in and initialize the trade
-  useEffect(() => {
-    if (
-      quickBuyState.status === 'confirming' &&
-      sortedTradeQuotes.length &&
-      !hasInitializedTradeRef.current
-    ) {
-      const bestNoErrorQuote = sortedTradeQuotes.find(quote => quote.errors.length === 0)
-
-      // Insufficient funds if there's any quote where the only error is insufficientFunds
-      const isSomeQuoteInsuffcientFunds = sortedTradeQuotes.some(
-        quote =>
-          quote.errors.length === 1 &&
-          quote.errors[0].error === TradeQuoteValidationError.InsufficientFirstHopAssetBalance,
-      )
-      if (bestNoErrorQuote?.quote === undefined) {
-        handleError(
-          isSomeQuoteInsuffcientFunds
-            ? 'quickBuy.error.insufficientFunds'
-            : 'quickBuy.error.noQuote',
-        )
-        return
-      }
-
-      dispatch(tradeQuoteSlice.actions.initializeQuickBuyTrade(bestNoErrorQuote.quote))
-      hasInitializedTradeRef.current = true
-    }
-  }, [dispatch, handleError, quickBuyState.status, sortedTradeQuotes])
-
-  // Monitor for swap execution failures and successes
-  useEffect(() => {
-    if (quickBuyState.status !== 'executing') return
-
-    if (hopExecutionMetadata?.swap.state === TransactionExecutionState.Failed) {
-      handleError('quickBuy.error.generic')
-    } else if (hopExecutionMetadata?.swap.state === TransactionExecutionState.Complete) {
-      handleSuccess()
-    }
-  }, [handleError, handleSuccess, hopExecutionMetadata?.swap.state, quickBuyState.status])
-
-  const estimatedBuyAmountCryptoPrecision = useMemo(() => {
-    const { amount, status } = quickBuyState
-    if ((status !== 'confirming' && status !== 'executing') || !assetMarketData?.price) return null
-    const tokenAmountInUserCurrency = bn(amount).dividedBy(bn(assetMarketData.price))
-    return tokenAmountInUserCurrency.toString()
-  }, [quickBuyState, assetMarketData?.price])
-
-  // Create amount button handlers
-  const createAmountClickHandler = useCallback(
-    (amount: number) => {
-      return () => {
-        if (!asset || !feeAsset || !feeAssetMarketData) return
-        const estimatedSellAmountCryptoPrecision = bn(amount)
-          .dividedBy(bn(feeAssetMarketData.price))
-          .toString()
-        dispatch(
-          tradeInput.actions.setQuickBuySelection({
-            sellAsset: feeAsset,
-            buyAsset: asset,
-            sellAmountCryptoPrecision: estimatedSellAmountCryptoPrecision,
-          }),
-        )
-        setQuickBuyState({ status: 'confirming', amount })
-      }
-    },
-    [asset, dispatch, feeAsset, feeAssetMarketData],
-  )
-
-  const handleDismissError = useCallback(() => setQuickBuyState(defaultState), [])
-
-  const handleClickConfirm = useCallback(() => {
-    if (quickBuyState.status !== 'confirming') return
-    setQuickBuyState({ status: 'executing', amount: quickBuyState.amount })
-  }, [quickBuyState.amount, quickBuyState.status])
+  const handleConfirmPurchase = useCallback((): void => {
+    confirmPurchase()
+  }, [confirmPurchase])
 
   if (isNativeAsset) {
     // We use native asset as the buy asset right now so can't quick buy it
@@ -260,26 +98,31 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
               ) : (
                 number.toFiat(amount)
               )
-
+              const isNotEnoughFunds = bnOrZero(feeAssetBalanceUserCurrency).lt(amount)
+              const insufficientFunds = translate('common.insufficientFunds')
               return (
-                <Button
-                  key={amount}
-                  rounded='full'
-                  background={isSuccess ? 'green.500' : undefined}
-                  onClick={createAmountClickHandler(amount)}
-                  flex={1}
-                  disabled={bnOrZero(feeAssetBalanceUserCurrency).toNumber() < amount}
-                  fontSize='lg'
-                  fontWeight='semibold'
-                >
-                  {buttonText}
-                </Button>
+                <TooltipWithTouch label={isNotEnoughFunds ? insufficientFunds : undefined} flex={1}>
+                  <Button
+                    key={amount}
+                    rounded='full'
+                    background={isSuccess ? 'green.500' : undefined}
+                    // eslint-disable-next-line react-memo/require-usememo
+                    onClick={() => startPurchase(amount)}
+                    data-amount={amount}
+                    flex={1}
+                    disabled={isNotEnoughFunds}
+                    fontSize='lg'
+                    fontWeight='semibold'
+                  >
+                    {buttonText}
+                  </Button>
+                </TooltipWithTouch>
               )
             })}
             <IconButton
               aria-label={translate('quickBuy.edit')}
               isRound
-              onClick={onEditAmounts}
+              onClick={handleEditAmounts}
               icon={editIcon}
             />
           </HStack>
@@ -354,7 +197,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
               rounded='full'
               variant='ghost'
               size='lg'
-              onClick={handleCancel}
+              onClick={handleCancelPurchase}
               flex={1}
               isDisabled={quickBuyState.status === 'executing'}
             >
@@ -369,7 +212,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
                 activeTradeId={confirmedQuote.id}
                 currentHopIndex={currentHopIndex}
                 tradeQuoteStep={tradeQuoteStep}
-                onConfirm={handleClickConfirm}
+                onConfirm={handleConfirmPurchase}
               />
             ) : (
               <Button

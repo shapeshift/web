@@ -1,5 +1,5 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
 import { useNotificationToast } from '../useNotificationToast'
@@ -7,22 +7,30 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
+import { reactQueries } from '@/react-queries'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { selectPendingThorchainLpWithdrawActions } from '@/state/slices/actionSlice/selectors'
+import {
+  selectPendingThorchainLpDepositActions,
+  selectPendingThorchainLpWithdrawActions,
+} from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxByFilter } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useThorchainLpWithdrawActionSubscriber = () => {
+export const useThorchainLpActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const { openActionCenter, isDrawerOpen } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
+  const pendingThorchainLpDepositActions = useAppSelector(selectPendingThorchainLpDepositActions)
   const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
 
+  const queryClient = useQueryClient()
+
   const handleComplete = useCallback(
-    (action: GenericTransactionAction) => {
+    async (action: GenericTransactionAction) => {
+      const isDeposit = action.type === ActionType.Deposit
       try {
         dispatch(
           actionSlice.actions.upsertAction({
@@ -30,10 +38,19 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
             status: ActionStatus.Complete,
             transactionMetadata: {
               ...action.transactionMetadata,
-              message: 'actionCenter.thorchainLp.withdraw.complete',
+              message: `actionCenter.thorchainLp.${isDeposit ? 'deposit' : 'withdraw'}.complete`,
             },
           }),
         )
+
+        await queryClient.invalidateQueries({
+          predicate: query => {
+            // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
+            const shouldInvalidate = query.queryKey?.[0] === reactQueries.thorchainLp._def[0]
+            return shouldInvalidate
+          },
+          type: 'all',
+        })
 
         const actionId = action.id
         if (toast.isActive(actionId)) return
@@ -62,11 +79,11 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         console.error('Error waiting for THORChain update:', error)
       }
     },
-    [dispatch, toast, isDrawerOpen, openActionCenter],
+    [dispatch, toast, isDrawerOpen, openActionCenter, queryClient],
   )
 
   useQueries({
-    queries: pendingThorchainLpWithdrawActions
+    queries: [...pendingThorchainLpDepositActions, ...pendingThorchainLpWithdrawActions]
       .filter(action => {
         const { txHash } = action.transactionMetadata
 
@@ -95,11 +112,11 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
         queryFn: async (): Promise<TxStatus> => {
           const status = await getThorchainTransactionStatus({
             txHash: action.transactionMetadata.txHash,
-            skipOutbound: true, // LP withdrawal transactions don't have outbound
+            skipOutbound: true, // LP transactions don't have outbound
           })
 
           if (status === TxStatus.Confirmed) {
-            handleComplete(action)
+            await handleComplete(action)
           }
 
           return status

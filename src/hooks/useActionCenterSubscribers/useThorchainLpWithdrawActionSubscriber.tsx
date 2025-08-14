@@ -87,7 +87,6 @@ export const useThorchainLpWithdrawActionSubscriber = () => {
 
         return true
       })
-      .map(action => action as GenericTransactionAction)
       .map(action => ({
         queryKey: [
           'thorTxStatus',

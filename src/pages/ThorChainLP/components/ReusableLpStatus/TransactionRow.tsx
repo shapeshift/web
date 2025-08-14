@@ -693,7 +693,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       <CircularProgress
         // Rely on THORNode Tx status as the only source of truth for pending
         // If our node is borked, we may miss pending states
-        isIndeterminate={[thorTxStatus?.data].includes(TxStatus.Pending)}
+        isIndeterminate={thorTxStatus?.data === TxStatus.Pending}
         size='24px'
       />
     )

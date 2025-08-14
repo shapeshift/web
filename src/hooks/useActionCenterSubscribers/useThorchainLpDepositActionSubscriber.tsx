@@ -14,7 +14,7 @@ import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectTxByFilter } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useThorchainLpWithdrawActionSubscriber = () => {
+export const useThorchainLpDepositActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const { openActionCenter, isDrawerOpen } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })

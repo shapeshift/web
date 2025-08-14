@@ -140,11 +140,20 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     setCanGoBack(false)
   }, [setCanGoBack])
 
-  const isComplete = txAssetsStatuses.every(({ status }) => status === TxStatus.Confirmed)
+  const isComplete = useMemo(
+    () => txAssetsStatuses.every(({ status }) => status === TxStatus.Confirmed),
+    [txAssetsStatuses],
+  )
 
-  const isFailed = txAssetsStatuses.some(({ status }) => status === TxStatus.Failed)
+  const isFailed = useMemo(
+    () => txAssetsStatuses.some(({ status }) => status === TxStatus.Failed),
+    [txAssetsStatuses],
+  )
 
-  const isSubmitted = txAssetsStatuses.some(({ status }) => status === TxStatus.Pending)
+  const isSubmitted = useMemo(
+    () => txAssetsStatuses.some(({ status }) => status === TxStatus.Pending),
+    [txAssetsStatuses],
+  )
 
   useEffect(() => {
     // Prevent from firing multiple MixPanel events for the same outcome

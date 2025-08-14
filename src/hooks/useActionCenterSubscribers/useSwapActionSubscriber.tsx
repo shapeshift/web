@@ -235,7 +235,12 @@ export const useSwapActionSubscriber = () => {
               />
             )
           },
-          position: isMobile && !hasSeenRatingModal ? 'top' : 'bottom-right',
+          position:
+            isMobile &&
+            !hasSeenRatingModal &&
+            mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible
+              ? 'top'
+              : 'bottom-right',
         })
 
         if (

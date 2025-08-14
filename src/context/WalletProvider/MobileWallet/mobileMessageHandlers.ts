@@ -234,6 +234,6 @@ export const requestStoreReview = (): Promise<boolean> => {
 /**
  * Get the app version from the mobile app.
  */
-export const requestAppVersion = (): Promise<MobileAppVersion> => {
+export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
   return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
 }

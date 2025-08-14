@@ -2,19 +2,19 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import semver from 'semver'
 
-import { requestAppVersion } from '../context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { isMobile } from '../lib/globals'
+import { requestAppVersion } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { isMobile } from '@/lib/globals'
 
 export enum MobileFeature {
   RatingModal = 'rating-modal',
 }
 
-export const minimumMobileFeatureMinimumVersions: Record<MobileFeature, string> = {
+export const MOBILE_FEATURE_MINIMUM_VERSIONS: Record<MobileFeature, string> = {
   [MobileFeature.RatingModal]: '3.3.1',
 }
 
 type MobileFeatureInfo = {
-  version: string | undefined
+  version?: string | undefined
   isCompatible: boolean
 }
 
@@ -24,6 +24,7 @@ export const useMobileFeaturesCompatibility = (): MobileFeaturesMap => {
   const { data: mobileAppVersion } = useQuery({
     queryKey: ['mobile-features-versions'],
     queryFn: requestAppVersion,
+    enabled: isMobile,
   })
 
   const features = useMemo((): MobileFeaturesMap => {
@@ -34,7 +35,7 @@ export const useMobileFeaturesCompatibility = (): MobileFeaturesMap => {
           !isMobile ||
           Boolean(
             mobileAppVersion?.version &&
-              semver.gte(mobileAppVersion.version, minimumMobileFeatureMinimumVersions[feature]),
+              semver.gte(mobileAppVersion.version, MOBILE_FEATURE_MINIMUM_VERSIONS[feature]),
           ),
       }
 

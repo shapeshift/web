@@ -417,7 +417,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   ])
 
   useEffect(() => {
-    if (!tx) return
+    if (!tx?.status) return
 
     // Track failed status, reset isSubmitting (tx failed and won't be picked up by thorchain), and handle onComplete
     if (tx.status === TxStatus.Failed) {
@@ -425,16 +425,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setIsSubmitting(false)
       return
     }
-  }, [
-    tx?.status,
-    tx,
-    txId,
-    onStatusUpdate,
-    isSymAssetWithdraw,
-    isNativeThorchainTx,
-    action,
-    assetId,
-  ])
+  }, [tx?.status, onStatusUpdate, assetId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

@@ -509,11 +509,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     }
 
     if (action === 'withdraw' && isLpConfirmedWithdrawalQuote(confirmedQuote)) {
-      const assetId = isRuneTx
+      const txAssetId = isRuneTx
         ? thorchainAssetId
         : fromOpportunityId(confirmedQuote.opportunityId).assetId
 
-      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(assetId).chainId]
+      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(txAssetId).chainId]
 
       if (!accountId) {
         return
@@ -531,7 +531,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             message: 'actionCenter.thorchainLp.withdraw.processing',
             accountId,
             txHash: _txId,
-            chainId: fromAssetId(assetId).chainId,
+            chainId: fromAssetId(txAssetId).chainId,
             assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
             amountCryptoPrecision: confirmedQuote.assetWithdrawAmountCryptoPrecision,
             confirmedQuote,

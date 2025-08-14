@@ -3036,7 +3036,7 @@
       },
       "deposit": {
         "processing": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is processing.",
-        "complete": "Your withdraw of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is complete."
+        "complete": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is complete."
       }
     },
     "deposit": {

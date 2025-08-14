@@ -73,9 +73,8 @@ type TransactionRowProps = {
   assetId: AssetId
   poolAssetId: AssetId
   amountCryptoPrecision: string
-  onStatusUpdate: (status: TxStatus) => void
+  onStatusUpdate: (status: TxStatus, assetId: AssetId) => void
   onStart: () => void
-  index: number
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
@@ -87,7 +86,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onStatusUpdate,
   onStart,
-  index,
   isActive,
   confirmedQuote,
 }) => {
@@ -366,13 +364,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       pendingThorchainLpDepositActions.find(
         pendingAction => pendingAction.transactionMetadata.txHash === txId,
       ),
-    [pendingThorchainLpWithdrawActions, txId, pendingThorchainLpDepositActions],
+    [txId, pendingThorchainLpDepositActions],
   )
 
   const pendingAction =
     maybePendingThorchainLpWithdrawAction || maybePendingThorchainLpDepositAction
-
-  console.log({ pendingAction })
 
   const thorTxStatus = useQuery({
     queryKey: ['thorTxStatus', { txHash: txId, skipOutbound: true }],
@@ -384,7 +380,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               skipOutbound: true,
             })
 
-            onStatusUpdate(status, index)
+            onStatusUpdate(status, assetId)
             if (status === TxStatus.Confirmed) {
               await handleComplete(pendingAction)
             }
@@ -410,7 +406,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (![TxStatus.Unknown, undefined].includes(tx?.status)) return
     if (!isIncomplete) return
 
-    onStatusUpdate(TxStatus.Confirmed)
+    onStatusUpdate(TxStatus.Confirmed, assetId)
   }, [
     assetId,
     confirmedQuote,
@@ -425,11 +421,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     // Track failed status, reset isSubmitting (tx failed and won't be picked up by thorchain), and handle onComplete
     if (tx.status === TxStatus.Failed) {
-      onStatusUpdate(TxStatus.Failed)
+      onStatusUpdate(TxStatus.Failed, assetId)
       setIsSubmitting(false)
       return
     }
-  }, [tx?.status, tx, txId, onStatusUpdate, isSymAssetWithdraw, isNativeThorchainTx, action])
+  }, [
+    tx?.status,
+    tx,
+    txId,
+    onStatusUpdate,
+    isSymAssetWithdraw,
+    isNativeThorchainTx,
+    action,
+    assetId,
+  ])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -686,11 +691,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     return (
       <CircularProgress
-        isIndeterminate={[tx?.status, thorTxStatus?.data].includes(TxStatus.Pending)}
+        // Rely on THORNode Tx status as the only source of truth for pending
+        // If our node is borked, we may miss pending states
+        isIndeterminate={[thorTxStatus?.data].includes(TxStatus.Pending)}
         size='24px'
       />
     )
-  }, [thorTxStatus, tx?.status, isIncomplete])
+  }, [thorTxStatus?.data, tx?.status, isIncomplete])
 
   if (!asset || !feeAsset) return null
 

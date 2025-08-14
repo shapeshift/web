@@ -15,6 +15,7 @@ import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isNativeHDWallet } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -35,7 +36,7 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
   const [isEditingQuickBuy, setIsEditingQuickBuy] = useState(false)
 
   const {
-    state: { isConnected },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -103,7 +104,7 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
           )}
           {!isEditingQuickBuy && (
             <Stack spacing={0}>
-              {isConnected && (
+              {isConnected && wallet && isNativeHDWallet(wallet) && !isNft(assetId) && (
                 <>
                   <Box px={6}>
                     <QuickBuy assetId={assetId} onEditAmounts={handleEditAmounts} />

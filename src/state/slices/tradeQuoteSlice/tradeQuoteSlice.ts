@@ -5,7 +5,8 @@ import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import { initialState, initialTradeExecutionState } from './constants'
+import { initialState } from './constants'
+import { createInitialTradeExecutionState } from './helpers'
 import type { HopProgress, QuoteSortOption, TradeExecutionMetadata } from './types'
 import { AllowanceKey, HopExecutionState, HopKey, TradeExecutionState } from './types'
 
@@ -63,16 +64,14 @@ export const tradeQuoteSlice = createSlice({
       state.confirmedQuote = action.payload
     }),
     clearQuoteExecutionState: create.reducer((state, action: PayloadAction<TradeQuote['id']>) => {
-      state.tradeExecution[action.payload] = initialTradeExecutionState
+      state.tradeExecution[action.payload] = createInitialTradeExecutionState()
     }),
     initializeQuickBuyTrade: create.reducer(
       (state, action: PayloadAction<TradeQuote | TradeRate>) => {
         const quote = action.payload
         state.confirmedQuote = quote
-        state.tradeExecution[quote.id] = {
-          ...initialTradeExecutionState,
-          state: TradeExecutionState.Previewing,
-        }
+        state.tradeExecution[quote.id] = createInitialTradeExecutionState()
+        state.tradeExecution[quote.id].state = TradeExecutionState.Previewing
       },
     ),
     setTradeExecutionMetadata: create.reducer(

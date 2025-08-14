@@ -1,5 +1,4 @@
 import { Button, Divider, FormControl, Input, Stack, useColorModeValue } from '@chakra-ui/react'
-import { isNaN } from 'lodash'
 import { useCallback, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
@@ -33,7 +32,8 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
   const handleSave = useCallback(() => {
     const parsedAmounts = currentQuickBuyAmounts
       .map(parseFloat)
-      .filter(amount => !isNaN(amount) && amount > 0)
+      .filter(amount => !isNaN(amount) && Number.isFinite(amount) && amount > 0)
+      .sort((a, b) => a - b)
 
     if (parsedAmounts.length !== 3) {
       onCancel() // This only really happens when they enter negative numbers

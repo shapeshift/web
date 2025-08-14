@@ -1,5 +1,6 @@
 import { Button, Divider, FormControl, Input, Stack, useColorModeValue } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { positiveOrZero } from '@shapeshiftoss/utils'
+import { useCallback, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -24,16 +25,19 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
 
   const inputBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
-  const currentQuickBuyAmounts =
-    stagedQuickBuyAmounts !== undefined
-      ? stagedQuickBuyAmounts
-      : savedQuickBuyAmounts.map(a => a.toString())
+  const currentQuickBuyAmounts = useMemo(
+    () =>
+      stagedQuickBuyAmounts !== undefined
+        ? stagedQuickBuyAmounts
+        : savedQuickBuyAmounts.map(a => a.toString()),
+    [savedQuickBuyAmounts, stagedQuickBuyAmounts],
+  )
 
   const handleSave = useCallback(() => {
     const parsedAmounts = currentQuickBuyAmounts
-      .map(parseFloat)
-      .filter(amount => !isNaN(amount) && Number.isFinite(amount) && amount > 0)
-      .sort((a, b) => a - b)
+      .map(positiveOrZero)
+      .sort((a, b) => a.comparedTo(b))
+      .map(num => num.toNumber())
 
     if (parsedAmounts.length !== 3) {
       onCancel() // This only really happens when they enter negative numbers

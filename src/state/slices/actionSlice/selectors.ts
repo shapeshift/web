@@ -12,7 +12,6 @@ import type {
 import {
   ActionStatus,
   ActionType,
-  GenericTransactionDisplayType,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -20,6 +19,8 @@ import {
   isRfoxClaimAction,
   isSwapAction,
   isTcyClaimAction,
+  isThorchainLpDepositAction,
+  isThorchainLpWithdrawAction,
 } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -239,8 +240,7 @@ export const selectPendingThorchainLpWithdrawActions = createDeepEqualOutputSele
       (action): action is GenericTransactionAction =>
         action.status === ActionStatus.Pending &&
         isGenericTransactionAction(action) &&
-        action.transactionMetadata.displayType === GenericTransactionDisplayType.ThorchainLP &&
-        action.type === ActionType.Withdraw,
+        isThorchainLpWithdrawAction(action),
     )
   },
 )
@@ -251,8 +251,7 @@ export const selectPendingThorchainLpDepositActions = createDeepEqualOutputSelec
       (action): action is GenericTransactionAction =>
         action.status === ActionStatus.Pending &&
         isGenericTransactionAction(action) &&
-        action.transactionMetadata.displayType === GenericTransactionDisplayType.ThorchainLP &&
-        action.type === ActionType.Deposit,
+        isThorchainLpDepositAction(action),
     )
   },
 )

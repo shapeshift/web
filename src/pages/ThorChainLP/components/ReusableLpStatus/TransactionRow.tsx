@@ -14,7 +14,7 @@ import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/
 import { assetIdToThorPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
@@ -32,14 +32,9 @@ import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { sleep } from '@/lib/poll/poll'
 import { assertUnreachable } from '@/lib/utils'
-import {
-  getThorchainFromAddress,
-  getThorchainTransactionStatus,
-  waitForThorchainUpdate,
-} from '@/lib/utils/thorchain'
-import { THORCHAIN_AFFILIATE_NAME, thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { getThorchainFromAddress, getThorchainTransactionStatus } from '@/lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
@@ -67,7 +62,7 @@ import {
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectPendingThorchainLpWithdrawActions,
+  selectPendingThorchainLpActions,
   selectPortfolioAccountMetadataByAccountId,
   selectTxById,
 } from '@/state/slices/selectors'
@@ -77,7 +72,7 @@ type TransactionRowProps = {
   assetId: AssetId
   poolAssetId: AssetId
   amountCryptoPrecision: string
-  onStatusUpdate: (status: TxStatus) => void
+  onStatusUpdate: (status: TxStatus, assetId: AssetId) => void
   onStart: () => void
   isActive?: boolean
   isLast?: boolean
@@ -101,7 +96,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
-  const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
 
@@ -145,14 +139,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     }
   }, [poolAsset, baseAsset, actionSide])
 
-  const { assetAmountsAndSymbols, poolName } = useMemo(() => {
-    if (!(poolAsset && baseAsset)) return { assetAmountsAndSymbols: '', poolName: '' }
-    if (!isLpConfirmedWithdrawalQuote(confirmedQuote))
-      return { assetAmountsAndSymbols: '', poolName: '' }
+  const poolName = useMemo(() => {
+    if (!(poolAsset && baseAsset)) return ''
+
+    return `${poolAsset.symbol}/${baseAsset.symbol}`
+  }, [poolAsset, baseAsset])
+
+  const withdrawAssetAmountsAndSymbol = useMemo(() => {
+    if (!(poolAsset && baseAsset)) return ''
+    if (!isLpConfirmedWithdrawalQuote(confirmedQuote)) return ''
 
     const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
     const runeAmount = confirmedQuote.runeWithdrawAmountCryptoPrecision
-    const poolName = `${poolAsset.symbol}/${baseAsset.symbol}`
 
     if (poolAssets.length === 2) {
       const assetAmountsAndSymbols = translate('actionCenter.thorchainLp.pairAssets', {
@@ -160,19 +158,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         asset2: `${runeAmount} ${baseAsset.symbol}`,
       })
 
-      return { assetAmountsAndSymbols, poolName }
+      return assetAmountsAndSymbols
     }
     if (actionSide === AsymSide.Asset) {
       const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
       const assetAmountsAndSymbols = `${assetAmount} ${poolAsset.symbol}`
 
-      return { assetAmountsAndSymbols, poolName }
+      return assetAmountsAndSymbols
     }
     if (actionSide === AsymSide.Rune) {
       const runeAmount = confirmedQuote.runeWithdrawAmountCryptoPrecision
       const assetAmountsAndSymbols = `${runeAmount} ${baseAsset.symbol}`
 
-      return { assetAmountsAndSymbols, poolName }
+      return assetAmountsAndSymbols
     }
 
     return { assetAmountsAndSymbols: '', poolName: '' }
@@ -281,7 +279,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     thorchainNotationAssetId,
   ])
 
-  const handleWithdrawComplete = useCallback(
+  const handleComplete = useCallback(
     async (action: GenericTransactionAction) => {
       try {
         dispatch(
@@ -290,12 +288,22 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             status: ActionStatus.Complete,
             transactionMetadata: {
               ...action.transactionMetadata,
-              message: 'actionCenter.thorchainLp.withdraw.complete',
+              message: `actionCenter.thorchainLp.${isDeposit ? 'deposit' : 'withdraw'}.complete`,
             },
           }),
         )
 
         const actionId = action.id
+
+        await queryClient.invalidateQueries({
+          predicate: query => {
+            // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
+            const shouldInvalidate = query.queryKey?.[0] === reactQueries.thorchainLp._def[0]
+            return shouldInvalidate
+          },
+          type: 'all',
+        })
+
         if (toast.isActive(actionId)) return
 
         toast({
@@ -318,20 +326,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             )
           },
         })
-
-        await queryClient.invalidateQueries({
-          predicate: query => {
-            // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
-            const shouldInvalidate = query.queryKey?.[0] === reactQueries.thorchainLp._def[0]
-            return shouldInvalidate
-          },
-          type: 'all',
-        })
       } catch (error) {
         console.error('Error waiting for THORChain update:', error)
       }
     },
-    [dispatch, toast, isDrawerOpen, openActionCenter, queryClient],
+    [dispatch, toast, isDrawerOpen, openActionCenter, queryClient, isDeposit],
   )
 
   const {
@@ -350,30 +349,28 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     disableEstimateFeesRefetch: isSubmitting,
   })
 
-  const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
-  const maybePendingThorchainLpWithdrawAction = useMemo(
+  const pendingThorchainLpActions = useAppSelector(selectPendingThorchainLpActions)
+  const maybePendingThorchainLpAction = useMemo(
     () =>
-      pendingThorchainLpWithdrawActions.find(
+      pendingThorchainLpActions.find(
         pendingAction => pendingAction.transactionMetadata.txHash === txId,
       ),
-    [pendingThorchainLpWithdrawActions, txId],
+    [pendingThorchainLpActions, txId],
   )
 
-  // TODO(gomes): remove ugly logic in here and make this work for deposits too
-  useQuery({
+  const thorTxStatus = useQuery({
     queryKey: ['thorTxStatus', { txHash: txId, skipOutbound: true }],
-    // Shared query for withdraws only
     queryFn:
-      txId && maybePendingThorchainLpWithdrawAction && action === 'withdraw'
+      txId && maybePendingThorchainLpAction
         ? async (): Promise<TxStatus> => {
             const status = await getThorchainTransactionStatus({
               txHash: txId,
               skipOutbound: true,
             })
 
-            onStatusUpdate(status)
+            onStatusUpdate(status, assetId)
             if (status === TxStatus.Confirmed) {
-              await handleWithdrawComplete(maybePendingThorchainLpWithdrawAction)
+              await handleComplete(maybePendingThorchainLpAction)
             }
 
             return status
@@ -382,99 +379,41 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     refetchInterval: 10_000,
   })
 
-  const { mutateAsync } = useMutation({
-    mutationKey: [txId],
-    mutationFn: ({ txId: _txId }: { txId: string }) => {
-      sleep(thorchainBlockTimeMs)
-      return waitForThorchainUpdate({
-        txId: _txId,
-        skipOutbound: true, // this is an LP Tx, there is no outbound
-      }).promise
-    },
-    onSuccess: async () => {
-      // More paranoia to ensure everything is nice and propagated - this works with debugger but doesn't without it,
-      // indicating we need a bit more of artificial wait to ensure data is replicated across all endpoints
-      await sleep(60_000)
-      // Awaiting here for paranoia since this will actually refresh vs. using the sync version
-      await queryClient.invalidateQueries({
-        predicate: query => {
-          // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
-          const shouldInvalidate = query.queryKey?.[0] === reactQueries.thorchainLp._def[0]
-          return shouldInvalidate
-        },
-        type: 'all',
-      })
-
-      setStatus(TxStatus.Confirmed)
-      onStatusUpdate(TxStatus.Confirmed)
-      setIsSubmitting(false)
-    },
-  })
-
   const tx = useAppSelector(state => selectTxById(state, serializedTxIndex ?? ''))
+
+  const isIncomplete = useMemo(() => {
+    if (!positionStatus?.incomplete) return
+    if (positionStatus.incomplete.asset.assetId === assetId) return
+
+    return true
+  }, [assetId, positionStatus?.incomplete])
 
   // manages incomplete sym deposits by setting the already confirmed transaction as complete
   useEffect(() => {
     if (isLpConfirmedWithdrawalQuote(confirmedQuote)) return
-    if (status !== TxStatus.Unknown) return
-    if (!positionStatus?.incomplete) return
-    if (positionStatus.incomplete.asset.assetId === assetId) return
+    if (![TxStatus.Unknown, undefined].includes(tx?.status)) return
+    if (!isIncomplete) return
 
-    setStatus(TxStatus.Confirmed)
-    onStatusUpdate(TxStatus.Confirmed)
-  }, [assetId, confirmedQuote, onStatusUpdate, positionStatus?.incomplete, status])
+    onStatusUpdate(TxStatus.Confirmed, assetId)
+  }, [
+    assetId,
+    confirmedQuote,
+    onStatusUpdate,
+    positionStatus?.incomplete,
+    tx?.status,
+    isIncomplete,
+  ])
 
   useEffect(() => {
-    // TODO(gomes): remove this disgusting mess once we implement notification for deposits too
-    // For the time being, we'll live with it for deposits, but use a share query for withdraws
-    if (action === 'withdraw') return
-    if (!txId) return
-
-    // Return if the status has been set to confirmed or failed
-    // - Confirmed means we got a successful status from thorchain and should not trigger the mutation again
-    // - Failed means the inbound transaction failed and there is no reason to trigger the mutation as it will never be picked up by thorchain
-    if (status === TxStatus.Confirmed || status === TxStatus.Failed) return
-
-    // Consider native thorchain transactions pending after broadcast and start polling thorchain right away
-    if (isNativeThorchainTx) {
-      if (status === TxStatus.Unknown) {
-        setStatus(TxStatus.Pending)
-        onStatusUpdate(TxStatus.Pending)
-        ;(async () => await mutateAsync({ txId }))()
-      }
-      return
-    }
-
-    if (!tx) return
-
-    // Track pending status
-    if (tx.status === TxStatus.Pending) {
-      setStatus(tx.status)
-      onStatusUpdate(TxStatus.Pending)
-      return
-    }
+    if (!tx?.status) return
 
     // Track failed status, reset isSubmitting (tx failed and won't be picked up by thorchain), and handle onComplete
     if (tx.status === TxStatus.Failed) {
-      setStatus(tx.status)
-      onStatusUpdate(TxStatus.Failed)
+      onStatusUpdate(TxStatus.Failed, assetId)
       setIsSubmitting(false)
       return
     }
-
-    if (tx.status === TxStatus.Confirmed) {
-      ;(async () => await mutateAsync({ txId }))()
-    }
-  }, [
-    mutateAsync,
-    status,
-    tx,
-    txId,
-    onStatusUpdate,
-    isSymAssetWithdraw,
-    isNativeThorchainTx,
-    action,
-  ])
+  }, [tx?.status, onStatusUpdate, assetId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -549,11 +488,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     }
 
     if (action === 'withdraw' && isLpConfirmedWithdrawalQuote(confirmedQuote)) {
-      const assetId = isRuneTx
+      const txAssetId = isRuneTx
         ? thorchainAssetId
         : fromOpportunityId(confirmedQuote.opportunityId).assetId
 
-      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(assetId).chainId]
+      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(txAssetId).chainId]
 
       if (!accountId) {
         return
@@ -571,11 +510,70 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             message: 'actionCenter.thorchainLp.withdraw.processing',
             accountId,
             txHash: _txId,
-            chainId: fromAssetId(assetId).chainId,
+            chainId: fromAssetId(txAssetId).chainId,
             assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
             amountCryptoPrecision: confirmedQuote.assetWithdrawAmountCryptoPrecision,
             confirmedQuote,
-            assetAmountsAndSymbols,
+            assetAmountsAndSymbols: withdrawAssetAmountsAndSymbol,
+            poolName,
+            thorMemo: processedMemo,
+          },
+        }),
+      )
+
+      if (!toast.isActive(_txId)) {
+        toast({
+          id: _txId,
+          duration: isDrawerOpen ? 5000 : null,
+          status: 'success',
+          render: ({ onClose, ...props }) => {
+            const handleClick = () => {
+              onClose()
+              openActionCenter()
+            }
+            return (
+              <GenericTransactionNotification
+                // eslint-disable-next-line react-memo/require-usememo
+                handleClick={handleClick}
+                actionId={_txId}
+                onClose={onClose}
+                {...props}
+              />
+            )
+          },
+        })
+      }
+    }
+
+    if (action === 'deposit' && isLpConfirmedDepositQuote(confirmedQuote)) {
+      const assetId = isRuneTx
+        ? thorchainAssetId
+        : fromOpportunityId(confirmedQuote.opportunityId).assetId
+
+      const accountId = confirmedQuote.currentAccountIdByChainId[fromAssetId(assetId).chainId]
+
+      if (!accountId) {
+        return
+      }
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: _txId,
+          type: ActionType.Deposit,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType: GenericTransactionDisplayType.ThorchainLP,
+            message: 'actionCenter.thorchainLp.deposit.processing',
+            accountId,
+            txHash: _txId,
+            chainId: fromAssetId(assetId).chainId,
+            assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
+            amountCryptoPrecision: isRuneTx
+              ? confirmedQuote.runeDepositAmountCryptoPrecision
+              : confirmedQuote.assetDepositAmountCryptoPrecision,
+            confirmedQuote,
             poolName,
             thorMemo: processedMemo,
           },
@@ -626,7 +624,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     action,
     toast,
     isDrawerOpen,
-    assetAmountsAndSymbols,
+    withdrawAssetAmountsAndSymbol,
     isRuneTx,
     poolName,
     openActionCenter,
@@ -636,13 +634,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const confirmTranslation = useMemo(() => {
     if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
-    if (status === TxStatus.Failed) return translate('common.transactionFailed')
+    if (tx?.status === TxStatus.Failed) return translate('common.transactionFailed')
 
     return translate('common.signTransaction')
-  }, [isTradingActive, translate, status, isChainHalted])
+  }, [isTradingActive, translate, tx?.status, isChainHalted])
 
   const txStatusIndicator = useMemo(() => {
-    if (status === TxStatus.Confirmed) {
+    if (thorTxStatus?.data === TxStatus.Confirmed || isIncomplete) {
       return (
         <Center
           bg='background.success'
@@ -656,7 +654,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       )
     }
 
-    if (status === TxStatus.Failed) {
+    if (tx?.status === TxStatus.Failed) {
       return (
         <Center
           bg='background.error'
@@ -670,8 +668,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       )
     }
 
-    return <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
-  }, [status])
+    return (
+      <CircularProgress
+        // Rely on THORNode Tx status as the only source of truth for pending
+        // If our node is borked, we may miss pending states
+        isIndeterminate={thorTxStatus?.data === TxStatus.Pending}
+        size='24px'
+      />
+    )
+  }, [thorTxStatus?.data, tx?.status, isIncomplete])
 
   if (!asset || !feeAsset) return null
 
@@ -715,12 +720,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             mx={-2}
             size='lg'
             colorScheme={
-              isTradingActive === false || status === TxStatus.Failed || isChainHalted
+              isTradingActive === false || tx?.status === TxStatus.Failed || isChainHalted
                 ? 'red'
                 : 'blue'
             }
             onClick={handleSignTx}
-            isDisabled={isTradingActive === false || isChainHalted || status === TxStatus.Failed}
+            isDisabled={
+              isTradingActive === false || isChainHalted || tx?.status === TxStatus.Failed
+            }
             isLoading={
               isInboundAddressLoading ||
               isTradingActiveLoading ||

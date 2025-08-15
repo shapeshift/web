@@ -12,7 +12,6 @@ import type {
 import {
   ActionStatus,
   ActionType,
-  GenericTransactionDisplayType,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -20,6 +19,7 @@ import {
   isRfoxClaimAction,
   isSwapAction,
   isTcyClaimAction,
+  isThorchainLpAction,
 } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -231,16 +231,14 @@ export const selectPendingTcyClaimActions = createDeepEqualOutputSelector(
     return actions.filter(action => action.status === ActionStatus.Pending)
   },
 )
-
-export const selectPendingThorchainLpWithdrawActions = createDeepEqualOutputSelector(
+export const selectPendingThorchainLpActions = createDeepEqualOutputSelector(
   selectWalletActionsSorted,
   actions => {
     return actions.filter(
       (action): action is GenericTransactionAction =>
         action.status === ActionStatus.Pending &&
         isGenericTransactionAction(action) &&
-        action.transactionMetadata.displayType === GenericTransactionDisplayType.ThorchainLP &&
-        action.type === ActionType.Withdraw,
+        isThorchainLpAction(action),
     )
   },
 )

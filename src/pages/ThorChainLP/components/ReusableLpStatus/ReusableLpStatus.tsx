@@ -56,10 +56,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 }) => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)
   const hasTrackedStatus = useRef(false)
-  const [txStatus, setTxStatus] = useState<TxStatus>()
 
   const { assetId: poolAssetId, actionSide, action } = fromQuote(confirmedQuote)
 
@@ -96,26 +94,66 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     }
   }, [poolAsset, baseAsset, actionSide, action])
 
+  const initialTxAssetsStatuses = useMemo(
+    () =>
+      txAssets.map(asset => ({
+        assetId: asset.assetId,
+        status: undefined,
+      })),
+    [txAssets],
+  )
+
+  const [txAssetsStatuses, setTxAssetsStatuses] =
+    useState<{ status: TxStatus | undefined; assetId: AssetId }[]>(initialTxAssetsStatuses)
+
+  const activeStepIndex = useMemo(() => {
+    // Initial state, no Tx just yet
+    if (txAssetsStatuses.every(({ status }) => !status)) return 0
+    // Still at the first step
+    if (txAssetsStatuses[0].status === TxStatus.Pending) return 0
+    if (
+      txAssetsStatuses[1]?.status === TxStatus.Pending ||
+      txAssetsStatuses[0].status === TxStatus.Confirmed
+    )
+      return 1
+
+    // Just making TS happy
+    return 0
+  }, [txAssetsStatuses])
+
   const handleStatusUpdate = useCallback(
-    (status: TxStatus) => {
-      setTxStatus(status)
-      if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
+    (status: TxStatus, assetId: AssetId) => {
+      setTxAssetsStatuses(prevStatuses => {
+        const updatedStatuses = prevStatuses.map(txAssetStatus => {
+          if (txAssetStatus.assetId === assetId) {
+            return { ...txAssetStatus, status }
+          }
+          return txAssetStatus
+        })
+        return updatedStatuses
+      })
     },
-    [activeStepIndex],
+    [setTxAssetsStatuses],
   )
 
   const handleStart = useCallback(() => {
     setCanGoBack(false)
   }, [setCanGoBack])
 
-  // This allows us to either do a single step or multiple steps
-  // Once a step is complete the next step is shown
-  // If the active step is the same as the length of steps we can assume it is complete.
-  const isComplete = activeStepIndex === txAssets.length
+  const isComplete = useMemo(
+    () => txAssetsStatuses.every(({ status }) => status === TxStatus.Confirmed),
+    [txAssetsStatuses],
+  )
 
-  const isFailed = txStatus === TxStatus.Failed
+  const isFailed = useMemo(
+    () => txAssetsStatuses.some(({ status }) => status === TxStatus.Failed),
+    [txAssetsStatuses],
+  )
 
-  const isSubmitted = txStatus === TxStatus.Pending
+  const isSubmitted = useMemo(
+    () => txAssetsStatuses.some(({ status }) => status === TxStatus.Pending),
+    [txAssetsStatuses],
+  )
 
   useEffect(() => {
     // Prevent from firing multiple MixPanel events for the same outcome
@@ -297,7 +335,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               amountCryptoPrecision={amountCryptoPrecision}
               onStart={handleStart}
               onStatusUpdate={handleStatusUpdate}
-              isActive={index === activeStepIndex && !isFailed}
+              isActive={index === activeStepIndex && !isFailed && !isComplete}
               confirmedQuote={confirmedQuote}
             />
           )
@@ -312,6 +350,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     handleStatusUpdate,
     activeStepIndex,
     isFailed,
+    isComplete,
   ])
 
   if (!(poolAsset && baseAsset)) return null

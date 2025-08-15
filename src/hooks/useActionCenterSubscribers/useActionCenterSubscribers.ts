@@ -3,7 +3,7 @@ import { useGenericTransactionSubscriber } from './useGenericTransactionSubscrib
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
 import { useSendActionSubscriber } from './useSendActionSubscriber'
 import { useSwapActionSubscriber } from './useSwapActionSubscriber'
-import { useThorchainLpWithdrawActionSubscriber } from './useThorchainLpWithdrawActionSubscriber'
+import { useThorchainLpActionSubscriber } from './useThorchainLpActionSubscriber'
 
 import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
 import { useTcyClaimActionSubscriber } from '@/pages/TCY/hooks/useTcyClaimActionSubscriber'
@@ -16,5 +16,5 @@ export const useActionCenterSubscribers = () => {
   useTcyClaimActionSubscriber()
   useGenericTransactionSubscriber()
   useSendActionSubscriber()
-  useThorchainLpWithdrawActionSubscriber()
+  useThorchainLpActionSubscriber()
 }

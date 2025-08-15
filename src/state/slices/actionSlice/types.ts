@@ -3,7 +3,10 @@ import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 
-import type { LpConfirmedWithdrawalQuote } from '@/lib/utils/thorchain/lp/types'
+import type {
+  LpConfirmedDepositQuote,
+  LpConfirmedWithdrawalQuote,
+} from '@/lib/utils/thorchain/lp/types'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import type { Claim } from '@/pages/TCY/components/Claim/types'
 
@@ -89,7 +92,7 @@ type ActionGenericTransactionMetadata = {
   contractName?: string
   cooldownPeriod?: string
   thorMemo?: string | null
-  confirmedQuote?: LpConfirmedWithdrawalQuote
+  confirmedQuote?: LpConfirmedWithdrawalQuote | LpConfirmedDepositQuote
   assetAmountsAndSymbols?: string
   poolName?: string
 }
@@ -191,9 +194,9 @@ export const isTcyClaimAction = (action: Action): action is TcyClaimAction => {
   return Boolean(action.type === ActionType.TcyClaim && action.tcyClaimActionMetadata)
 }
 
-export const isThorchainLpWithdrawAction = (action: Action): action is GenericTransactionAction => {
+export const isThorchainLpAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(
-    action.type === ActionType.Withdraw &&
+    action.type === ActionType.Deposit &&
       action.transactionMetadata?.displayType === GenericTransactionDisplayType.ThorchainLP,
   )
 }

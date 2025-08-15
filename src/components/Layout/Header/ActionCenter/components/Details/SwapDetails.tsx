@@ -23,7 +23,6 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
 
   const txHash = buyTxHash || sellTxHash
 
-  // Early return if we have allowance approval txHash
   if (swapMetadata?.allowanceApproval?.txHash) {
     return (
       <Stack gap={4}>

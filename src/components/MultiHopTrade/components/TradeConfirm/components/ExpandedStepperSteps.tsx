@@ -406,6 +406,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     tradeQuoteFirstHop,
     activeTradeQuote.swapperName,
     translate,
+    firstHopPermit2,
   ])
 
   const firstHopPermit2SignTitle = useMemo(() => {

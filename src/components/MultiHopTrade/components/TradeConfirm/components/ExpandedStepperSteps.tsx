@@ -364,8 +364,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       // Awaiting Permit2 contract allowance grant
       if (
         firstHopPermit2.isRequired &&
-        hopExecutionState === HopExecutionState.AwaitingAllowanceApproval
-      )
+        [
+          HopExecutionState.AwaitingAllowanceApproval,
+          HopExecutionState.AwaitingPermit2Eip712Sign,
+        ].includes(hopExecutionState)
+      ) {
         return (
           <>
             <Text translation='trade.permit2Allowance.title' />
@@ -376,6 +379,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             </Tooltip>
           </>
         )
+      }
 
       // Good ol' allowances
       return (

@@ -19,8 +19,7 @@ import {
   isRfoxClaimAction,
   isSwapAction,
   isTcyClaimAction,
-  isThorchainLpDepositAction,
-  isThorchainLpWithdrawAction,
+  isThorchainLpAction,
 } from './types'
 
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -232,26 +231,14 @@ export const selectPendingTcyClaimActions = createDeepEqualOutputSelector(
     return actions.filter(action => action.status === ActionStatus.Pending)
   },
 )
-
-export const selectPendingThorchainLpWithdrawActions = createDeepEqualOutputSelector(
+export const selectPendingThorchainLpActions = createDeepEqualOutputSelector(
   selectWalletActionsSorted,
   actions => {
     return actions.filter(
       (action): action is GenericTransactionAction =>
         action.status === ActionStatus.Pending &&
         isGenericTransactionAction(action) &&
-        isThorchainLpWithdrawAction(action),
-    )
-  },
-)
-export const selectPendingThorchainLpDepositActions = createDeepEqualOutputSelector(
-  selectWalletActionsSorted,
-  actions => {
-    return actions.filter(
-      (action): action is GenericTransactionAction =>
-        action.status === ActionStatus.Pending &&
-        isGenericTransactionAction(action) &&
-        isThorchainLpDepositAction(action),
+        isThorchainLpAction(action),
     )
   },
 )

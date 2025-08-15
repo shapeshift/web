@@ -62,8 +62,7 @@ import {
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectPendingThorchainLpDepositActions,
-  selectPendingThorchainLpWithdrawActions,
+  selectPendingThorchainLpActions,
   selectPortfolioAccountMetadataByAccountId,
   selectTxById,
 } from '@/state/slices/selectors'
@@ -350,30 +349,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     disableEstimateFeesRefetch: isSubmitting,
   })
 
-  const pendingThorchainLpDepositActions = useAppSelector(selectPendingThorchainLpDepositActions)
-  const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
-  const maybePendingThorchainLpWithdrawAction = useMemo(
+  const pendingThorchainLpActions = useAppSelector(selectPendingThorchainLpActions)
+  const maybePendingThorchainLpAction = useMemo(
     () =>
-      pendingThorchainLpWithdrawActions.find(
+      pendingThorchainLpActions.find(
         pendingAction => pendingAction.transactionMetadata.txHash === txId,
       ),
-    [pendingThorchainLpWithdrawActions, txId],
+    [pendingThorchainLpActions, txId],
   )
-  const maybePendingThorchainLpDepositAction = useMemo(
-    () =>
-      pendingThorchainLpDepositActions.find(
-        pendingAction => pendingAction.transactionMetadata.txHash === txId,
-      ),
-    [txId, pendingThorchainLpDepositActions],
-  )
-
-  const pendingAction =
-    maybePendingThorchainLpWithdrawAction || maybePendingThorchainLpDepositAction
 
   const thorTxStatus = useQuery({
     queryKey: ['thorTxStatus', { txHash: txId, skipOutbound: true }],
     queryFn:
-      txId && pendingAction
+      txId && maybePendingThorchainLpAction
         ? async (): Promise<TxStatus> => {
             const status = await getThorchainTransactionStatus({
               txHash: txId,
@@ -382,7 +370,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             onStatusUpdate(status, assetId)
             if (status === TxStatus.Confirmed) {
-              await handleComplete(pendingAction)
+              await handleComplete(maybePendingThorchainLpAction)
             }
 
             return status

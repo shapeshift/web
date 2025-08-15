@@ -9,10 +9,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { reactQueries } from '@/react-queries'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  selectPendingThorchainLpDepositActions,
-  selectPendingThorchainLpWithdrawActions,
-} from '@/state/slices/actionSlice/selectors'
+import { selectPendingThorchainLpActions } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxByFilter } from '@/state/slices/selectors'
@@ -23,8 +20,7 @@ export const useThorchainLpActionSubscriber = () => {
   const { openActionCenter, isDrawerOpen } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
-  const pendingThorchainLpDepositActions = useAppSelector(selectPendingThorchainLpDepositActions)
-  const pendingThorchainLpWithdrawActions = useAppSelector(selectPendingThorchainLpWithdrawActions)
+  const pendingThorchainLpActions = useAppSelector(selectPendingThorchainLpActions)
 
   const queryClient = useQueryClient()
 
@@ -83,7 +79,7 @@ export const useThorchainLpActionSubscriber = () => {
   )
 
   useQueries({
-    queries: [...pendingThorchainLpDepositActions, ...pendingThorchainLpWithdrawActions]
+    queries: pendingThorchainLpActions
       .filter(action => {
         const { txHash } = action.transactionMetadata
 

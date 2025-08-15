@@ -396,7 +396,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     )
   }, [
     firstHopAllowanceApproval.txHash,
-    firstHopPermit2.isRequired,
     firstHopSellAccountId,
     tradeQuoteFirstHop,
     activeTradeQuote.swapperName,

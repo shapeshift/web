@@ -204,7 +204,6 @@ export const useSwapActionSubscriber = () => {
       })
 
       const firstHopAllowanceApproval = hopExecutionMetadata?.allowanceApproval
-      console.log({ firstHopAllowanceApproval })
       const isPermit2Required = hopExecutionMetadata?.permit2?.isRequired
 
       if (status === TxStatus.Confirmed) {

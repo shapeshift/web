@@ -15,6 +15,7 @@ type Command =
   | 'getWalletCount'
   | 'reloadWebview'
   | 'requestStoreReview'
+  | 'getAppVersion'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -61,10 +62,18 @@ type Message =
   | {
       cmd: 'requestStoreReview'
     }
+  | {
+      cmd: 'getAppVersion'
+    }
 
 export type MessageFromMobileApp = {
   id: number
   result: unknown
+}
+
+export type MobileAppVersion = {
+  version: string
+  build: string
 }
 
 /**
@@ -220,4 +229,11 @@ export const mobileVibrate = (level: HapticLevel): Promise<void> => {
  */
 export const requestStoreReview = (): Promise<boolean> => {
   return postMessage<boolean>({ cmd: 'requestStoreReview' })
+}
+
+/**
+ * Get the app version from the mobile app.
+ */
+export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
+  return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
 }

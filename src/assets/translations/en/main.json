@@ -213,7 +213,8 @@
     "streaming": "Streaming",
     "dca": "DCA",
     "boost": "Boost",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "View on explorer",
+    "approval": "Approval"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",

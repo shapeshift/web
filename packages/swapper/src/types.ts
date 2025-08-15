@@ -370,6 +370,7 @@ export type SwapperSpecificMetadata = {
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex
+  quoteId: string
   streamingSwapMetadata: StreamingSwapMetadata | undefined
 }
 

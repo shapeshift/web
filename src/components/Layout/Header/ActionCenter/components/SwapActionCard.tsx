@@ -150,7 +150,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       description={description}
       icon={icon}
     >
-      <SwapDetails txLink={swap?.txLink} swap={swap} />
+      <SwapDetails txLink={swap?.txLink} swap={swap} action={action} />
     </ActionCard>
   )
 }

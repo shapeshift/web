@@ -222,7 +222,6 @@ export const LpType = ({
     }
 
     const runeBalances: PositionBalances = (() => {
-      if (hasSymPosition) return displayAmounts('sym')
       if (hasAsymRunePosition) return displayAmounts(AsymSide.Rune)
       return newPosition
     })()

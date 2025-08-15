@@ -50,7 +50,6 @@ import {
   selectActiveQuoteErrors,
   selectHopExecutionMetadata,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const erroredStepIndicator = <WarningIcon color='red.500' />
@@ -153,7 +152,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [activeTradeId])
 
   const {
-    state: hopExecutionState,
     allowanceApproval: firstHopAllowanceApproval,
     permit2: firstHopPermit2,
     allowanceReset: firstHopAllowanceReset,
@@ -362,10 +360,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const firstHopAllowanceApprovalTitle = useMemo(() => {
     const content = (() => {
       // Awaiting Permit2 contract allowance grant
-      if (
-        firstHopPermit2.isRequired &&
-        hopExecutionState === HopExecutionState.AwaitingAllowanceApproval
-      )
+      if (firstHopPermit2.isRequired) {
         return (
           <>
             <Text translation='trade.permit2Allowance.title' />
@@ -376,6 +371,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             </Tooltip>
           </>
         )
+      }
 
       // Good ol' allowances
       return (
@@ -402,7 +398,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopAllowanceApproval.txHash,
     firstHopPermit2.isRequired,
     firstHopSellAccountId,
-    hopExecutionState,
     tradeQuoteFirstHop,
     activeTradeQuote.swapperName,
     translate,

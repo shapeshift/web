@@ -46,25 +46,21 @@ interface UseQuickBuyParams {
 }
 
 interface UseQuickBuyReturn {
-  // State
   quickBuyState: QuickBuyState
   isNativeAsset: boolean
   estimatedBuyAmountCryptoPrecision: string | null
 
-  // Asset data
   asset: ReturnType<typeof selectAssetById>
   feeAsset: ReturnType<typeof selectFeeAssetById>
   feeAssetBalanceCryptoPrecision: string
   feeAssetBalanceUserCurrency: string
   quickBuyAmounts: number[]
 
-  // Trade data
   confirmedQuote: ReturnType<typeof selectConfirmedQuote>
   tradeQuoteStep: ReturnType<typeof selectFirstHop> | ReturnType<typeof selectLastHop> | undefined
   confirmedTradeExecutionState: ReturnType<typeof selectConfirmedTradeExecutionState>
   currentHopIndex: SupportedTradeQuoteStepIndex
 
-  // Actions
   actions: {
     startPurchase: (amount: number) => void
     confirmPurchase: () => void
@@ -76,12 +72,10 @@ interface UseQuickBuyReturn {
 export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn => {
   const dispatch = useAppDispatch()
 
-  // Local state
   const [quickBuyState, setQuickBuyState] = useState<QuickBuyState>(DEFAULT_STATE)
   const hasInitializedTradeRef = useRef(false)
   const successTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Selectors
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const quickBuyAmounts = useAppSelector(preferences.selectors.selectQuickBuyAmounts)
@@ -122,7 +116,6 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
       : undefined,
   )
 
-  // Derived state
   const isNativeAsset = useMemo(() => {
     return Boolean(asset && feeAsset && asset.assetId === feeAsset.assetId)
   }, [asset, feeAsset])
@@ -136,7 +129,6 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     return tokenAmountInUserCurrency.toString()
   }, [quickBuyState, assetMarketData?.price])
 
-  // Core action functions
   const resetTrade = useCallback(() => {
     hasInitializedTradeRef.current = false
     dispatch(tradeQuoteSlice.actions.clear())
@@ -173,7 +165,6 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     [resetTrade, clearSuccessTimer],
   )
 
-  // Public action handlers
   const startPurchase = useCallback(
     (amount: number) => {
       if (!asset || !feeAsset || !feeAssetMarketData) return
@@ -210,10 +201,8 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     setQuickBuyState(DEFAULT_STATE)
   }, [])
 
-  // Hook for trade rates
   useGetTradeRates()
 
-  // Effect: Initialize trade when confirming and quotes are available
   useEffect(() => {
     if (
       quickBuyState.status !== 'confirming' ||
@@ -225,7 +214,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
     const bestNoErrorQuote = sortedTradeQuotes.find(quote => quote.errors.length === 0)
 
-    // Check for insufficient funds
+    // Insufficient funds if we get no "best quote" but we have something that's only error is insufficientFunds
     const isSomeQuoteInsufficientFunds = sortedTradeQuotes.some(
       quote =>
         quote.errors.length === 1 &&
@@ -244,14 +233,13 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     hasInitializedTradeRef.current = true
   }, [dispatch, quickBuyState.status, quickBuyState.amount, sortedTradeQuotes, setErrorState])
 
-  // Effect: Monitor trade execution
   useEffect(() => {
     if (quickBuyState.status !== 'executing') return
 
     const swapState = hopExecutionMetadata?.swap.state
 
     if (swapState === TransactionExecutionState.Failed) {
-      setErrorState('quickBuy.error.generic', quickBuyState.amount ?? 0)
+      setErrorState('quickBuy.error.failed', quickBuyState.amount ?? 0)
     } else if (swapState === TransactionExecutionState.Complete) {
       setSuccessState(quickBuyState.amount ?? 0)
     }
@@ -263,7 +251,6 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     setSuccessState,
   ])
 
-  // Effect: Cleanup on unmount
   useEffect(() => {
     return () => {
       resetTrade()
@@ -272,25 +259,21 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   }, [resetTrade, clearSuccessTimer])
 
   return {
-    // State
     quickBuyState,
     isNativeAsset,
     estimatedBuyAmountCryptoPrecision,
 
-    // Asset data
     asset,
     feeAsset,
     feeAssetBalanceCryptoPrecision,
     feeAssetBalanceUserCurrency,
     quickBuyAmounts,
 
-    // Trade data
     confirmedQuote,
     tradeQuoteStep,
     confirmedTradeExecutionState,
     currentHopIndex,
 
-    // Actions
     actions: {
       startPurchase,
       confirmPurchase,

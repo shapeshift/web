@@ -21,7 +21,6 @@ import { AppRoutes } from '@/Routes/Routes'
 export const App = () => {
   const navigate = useNavigate()
   const { hasUpdated } = useHasAppUpdated()
-
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'

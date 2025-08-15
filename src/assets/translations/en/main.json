@@ -225,7 +225,7 @@
     "error": {
       "insufficientFunds": "Quick buy of %{amount} failed, not enough funds, try another amount?",
       "noQuote": "Quick buy of %{amount} failed, could not retrieve a valid quote.",
-      "generic": "Quick buy of %{amount} failed."
+      "failed": "Quick buy of %{amount} failed."
     }
   },
   "consentBanner": {

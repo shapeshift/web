@@ -14,7 +14,12 @@ import type { Position, UserLpDataPosition } from '@/lib/utils/thorchain/lp/type
 import { AsymSide } from '@/lib/utils/thorchain/lp/types'
 import { reactQueries } from '@/react-queries'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from '@/state/slices/selectors'
+import {
+  selectAccountIdsByAssetId,
+  selectAssets,
+  selectEnabledWalletAccountIds,
+  selectWalletId,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type GetPositionArgs = {
@@ -140,6 +145,7 @@ export const useUserLpData = ({
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
   const accountIds = [...(accountId ? [accountId] : assetAccountIds), ...thorchainAccountIds]
+  const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const currentWalletId = useAppSelector(selectWalletId)
 
   const poolAssetMarketData = useAppSelector(state =>
@@ -162,7 +168,7 @@ export const useUserLpData = ({
   })
 
   return useQuery({
-    ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
+    ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId, walletAccountIds),
     // 60 seconds staleTime since this is used to get the current position value
     staleTime: 60_000,
     queryFn: async ({ queryKey }) => {

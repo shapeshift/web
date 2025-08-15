@@ -17,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { isMobile } from '../../lib/globals'
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
+import { MobileFeature, useMobileFeaturesCompatibility } from '../useMobileFeaturesCompatibility'
 import { useModal } from '../useModal/useModal'
 import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
@@ -45,6 +46,7 @@ export const useSwapActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const hasSeenRatingModal = useAppSelector(preferences.selectors.selectHasSeenRatingModal)
   const { open: openRatingModal } = useModal('rating')
+  const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -233,10 +235,18 @@ export const useSwapActionSubscriber = () => {
               />
             )
           },
-          position: isMobile && !hasSeenRatingModal ? 'top' : 'bottom-right',
+          position:
+            isMobile &&
+            !hasSeenRatingModal &&
+            mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible
+              ? 'top'
+              : 'bottom-right',
         })
 
-        if (!hasSeenRatingModal) {
+        if (
+          !hasSeenRatingModal &&
+          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible
+        ) {
           openRatingModal({})
           handleHasSeenRatingModal()
         }
@@ -312,6 +322,7 @@ export const useSwapActionSubscriber = () => {
       hasSeenRatingModal,
       openRatingModal,
       handleHasSeenRatingModal,
+      mobileFeaturesCompatibility,
     ],
   )
 

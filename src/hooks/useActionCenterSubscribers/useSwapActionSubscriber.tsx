@@ -39,6 +39,7 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -64,6 +65,7 @@ export const useSwapActionSubscriber = () => {
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+  const tradeQuotes = useAppSelector(tradeQuoteSlice.selectSlice)
 
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
@@ -106,7 +108,7 @@ export const useSwapActionSubscriber = () => {
         },
       }),
     )
-  }, [dispatch, activeSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, activeSwapId, swapsById, previousSwapStatus, tradeQuotes])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {

@@ -4,7 +4,7 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
@@ -45,10 +45,18 @@ export const SearchTermAssetList = ({
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+
+  // Cache the asset balance lookup function
+  const getAssetBalance = useCallback(
+    (asset: Asset) => bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber(),
+    [portfolioUserCurrencyBalances],
+  )
+
   const customTokenSupportedChainIds = useMemo(() => {
     // Solana _is_ supported by Alchemy, but not by the SDK
     return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
   }, [])
+
   const chainIds = useMemo(() => {
     if (activeChainId === 'All') {
       return customTokenSupportedChainIds
@@ -59,11 +67,13 @@ export const SearchTermAssetList = ({
     }
   }, [activeChainId, customTokenSupportedChainIds])
 
+  // Use debounced search string for custom token queries
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
     chainIds,
   })
 
+  // Pre-filter assets for the current chain (this changes less frequently than search)
   const assetsForChain = useMemo(() => {
     const _assets = assets.filter(asset => assetFilterPredicate?.(asset.assetId) ?? true)
     if (activeChainId === 'All') {
@@ -85,6 +95,12 @@ export const SearchTermAssetList = ({
     assetFilterPredicate,
   ])
 
+  // Build a Set of existing asset IDs once when assetsForChain changes
+  const existingAssetIds = useMemo(
+    () => new Set(assetsForChain.map(asset => asset.assetId)),
+    [assetsForChain],
+  )
+
   const customAssets: Asset[] = useMemo(
     () =>
       (customTokens ?? [])
@@ -98,6 +114,10 @@ export const SearchTermAssetList = ({
             assetNamespace: getAssetNamespaceFromChainId(metaData.chainId as KnownChainIds),
             assetReference: metaData.contractAddress,
           })
+
+          // Skip if we already have this asset
+          if (existingAssetIds.has(assetId)) return null
+
           const minimalAsset: MinimalAsset = {
             assetId,
             name,
@@ -108,24 +128,35 @@ export const SearchTermAssetList = ({
           return makeAsset(assetsById, minimalAsset)
         })
         .filter(isSome),
-    [assetsById, customTokens],
+    [assetsById, customTokens, existingAssetIds],
   )
 
-  // We only want to show custom assets that aren't already in the asset list
   const searchTermAssets = useMemo(() => {
-    const filteredAssets = filterAssetsBySearchTerm(searchString, assetsForChain)
-    const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
-    const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
-    const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
-    const getAssetBalance = (asset: Asset) =>
-      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+    if (!searchString && assetsForChain.length > 1000) {
+      // For large lists with no search, return top assets by balance
+      const sortedAssets = [...assetsForChain]
+        .sort((a, b) => getAssetBalance(b) - getAssetBalance(a))
+        .slice(0, 100) // Limit initial display
+      return sortedAssets
+    }
 
-    return orderBy(
-      Object.values(assetsWithCustomAssets).filter(isSome),
-      [getAssetBalance],
-      ['desc'],
-    )
-  }, [assetsForChain, customAssets, searchString, portfolioUserCurrencyBalances])
+    const filteredAssets = filterAssetsBySearchTerm(searchString, assetsForChain)
+
+    // Combine with custom assets (already filtered for uniqueness)
+    const assetsWithCustomAssets = filteredAssets.concat(customAssets)
+
+    // Only sort if we have a reasonable number of results
+    if (assetsWithCustomAssets.length > 500) {
+      // For large result sets, only sort and show top results
+      const result = assetsWithCustomAssets
+        .sort((a, b) => getAssetBalance(b) - getAssetBalance(a))
+        .slice(0, 200)
+      return result
+    }
+
+    const result = orderBy(assetsWithCustomAssets, [getAssetBalance], ['desc'])
+    return result
+  }, [searchString, assetsForChain, customAssets, getAssetBalance])
 
   const { groups, groupCounts, groupIsLoading } = useMemo(() => {
     return {

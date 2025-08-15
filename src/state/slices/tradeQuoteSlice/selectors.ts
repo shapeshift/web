@@ -196,7 +196,7 @@ export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
   },
 )
 
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
+export const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(tradeQuoteSlice.selectSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
   })

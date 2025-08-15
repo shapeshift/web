@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
+import type { ApprovalExecutionMetadata } from '../tradeQuoteSlice/types'
 
 import type {
   LpConfirmedDepositQuote,
@@ -39,6 +40,7 @@ export enum ActionStatus {
 
 type ActionSwapMetadata = {
   swapId: string
+  allowanceApproval?: ApprovalExecutionMetadata | undefined
 }
 
 type ActionLimitOrderMetadata = {

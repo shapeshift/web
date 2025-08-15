@@ -39,6 +39,8 @@ import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -65,6 +67,7 @@ export const useSwapActionSubscriber = () => {
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+  const tradeQuotes = useAppSelector(tradeQuoteSlice.selectSlice)
 
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
@@ -79,6 +82,11 @@ export const useSwapActionSubscriber = () => {
     const activeSwap = swapsById[activeSwapId]
 
     if (!activeSwap) return
+
+    const firstHopAllowanceApproval = selectHopExecutionMetadata(store.getState(), {
+      tradeId: activeSwap.metadata.quoteId,
+      hopIndex: activeSwap.metadata.stepIndex,
+    })?.allowanceApproval
 
     if (activeSwap.status !== SwapStatus.Pending) return
     if (previousSwapStatus === activeSwap.status) return
@@ -98,10 +106,11 @@ export const useSwapActionSubscriber = () => {
         status: ActionStatus.Pending,
         swapMetadata: {
           swapId: activeSwap.id,
+          allowanceApproval: firstHopAllowanceApproval,
         },
       }),
     )
-  }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus, tradeQuotes])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {
@@ -187,6 +196,13 @@ export const useSwapActionSubscriber = () => {
           : undefined
       })()
 
+      const firstHopAllowanceApproval = selectHopExecutionMetadata(store.getState(), {
+        tradeId: swap.metadata.quoteId,
+        hopIndex: swap.metadata.stepIndex,
+      })?.allowanceApproval
+
+      console.log({ firstHopAllowanceApproval })
+
       if (status === TxStatus.Confirmed) {
         vibrate('heavy')
         dispatch(
@@ -194,6 +210,7 @@ export const useSwapActionSubscriber = () => {
             ...action,
             swapMetadata: {
               swapId: swap.id,
+              allowanceApproval: firstHopAllowanceApproval,
             },
             status:
               swap.swapperName === SwapperName.ArbitrumBridge &&

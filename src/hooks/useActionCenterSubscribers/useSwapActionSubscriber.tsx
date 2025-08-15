@@ -201,8 +201,6 @@ export const useSwapActionSubscriber = () => {
         hopIndex: swap.metadata.stepIndex,
       })?.allowanceApproval
 
-      console.log({ firstHopAllowanceApproval })
-
       if (status === TxStatus.Confirmed) {
         vibrate('heavy')
         dispatch(

@@ -110,8 +110,8 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       },
     }
   },
-  userLpData: (assetId: AssetId, walletId: string | undefined) => ({
-    queryKey: ['thorchainUserLpData', { assetId, walletId }],
+  userLpData: (assetId: AssetId, walletId: string | undefined, accountIds: AccountId[]) => ({
+    queryKey: ['thorchainUserLpData', { assetId, walletId, accountIds }],
   }),
 })
 

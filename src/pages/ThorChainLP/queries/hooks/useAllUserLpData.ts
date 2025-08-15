@@ -14,6 +14,7 @@ import { reactQueries } from '@/react-queries'
 import { findAccountsByAssetId } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssets,
+  selectEnabledWalletAccountIds,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataUserCurrency,
   selectPortfolioAccounts,
@@ -35,6 +36,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   const runeMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
+  const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const currentWalletId = useAppSelector(selectWalletId)
 
   const { data: thorchainMimirTimes, isSuccess: isThorchainMimirTimesSuccess } =
@@ -58,7 +60,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
         if (!assetId) return null
 
         return {
-          ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
+          ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId, walletAccountIds),
           enabled: Boolean(isSuccess && currentWalletId && isThorchainMimirTimesSuccess),
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
@@ -111,6 +113,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
     runeAccountIds,
     runeMarketDataUserCurrency?.price,
     thorchainMimirTimes,
+    walletAccountIds,
   ])
 
   // We do not expose this as-is, but mapReduce the queries to massage *all* data, in addition to *each* query having its selector

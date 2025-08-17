@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useCurrentHopIndex } from '../../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
 import { useGetTradeRates } from '../../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 
+import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -132,6 +133,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   const resetTrade = useCallback(() => {
     hasInitializedTradeRef.current = false
     dispatch(tradeQuoteSlice.actions.clear())
+    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
     dispatch(tradeInput.actions.clear())
   }, [dispatch])
 

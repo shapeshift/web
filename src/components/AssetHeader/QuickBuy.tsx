@@ -72,7 +72,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   }, [confirmPurchase])
 
   if (isNativeAsset) {
-    // We use native asset as the buy asset right now so can't quick buy it
+    // We use native asset as the sell asset right now so can't quick buy it
     return (
       <Stack spacing={4}>
         <Text fontSize='md' fontWeight='normal' color='text.subtle' textAlign='center'>
@@ -90,7 +90,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
             {translate('quickBuy.title', { assetOnChain: asset?.name ?? '' })}
           </Text>
           <HStack spacing={2}>
-            {quickBuyAmounts.map(amount => {
+            {quickBuyAmounts.map((amount, idx) => {
               const isSuccess =
                 quickBuyState.status === 'success' && amount === quickBuyState.amount
               const buttonText = isSuccess ? (
@@ -101,16 +101,18 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
               const isNotEnoughFunds = bnOrZero(feeAssetBalanceUserCurrency).lt(amount)
               const insufficientFunds = translate('common.insufficientFunds')
               return (
-                <TooltipWithTouch label={isNotEnoughFunds ? insufficientFunds : undefined} flex={1}>
+                <TooltipWithTouch
+                  label={isNotEnoughFunds ? insufficientFunds : undefined}
+                  flex={1}
+                  key={`${amount}-${idx}`}
+                >
                   <Button
-                    key={amount}
                     rounded='full'
                     background={isSuccess ? 'green.500' : undefined}
                     // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => startPurchase(amount)}
-                    data-amount={amount}
                     flex={1}
-                    disabled={isNotEnoughFunds}
+                    isDisabled={isNotEnoughFunds}
                     fontSize='lg'
                     fontWeight='semibold'
                   >

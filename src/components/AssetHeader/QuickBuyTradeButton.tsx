@@ -37,7 +37,7 @@ export const QuickBuyTradeButton: React.FC<QuickBuyTradeButtonProps> = ({
     tradeQuoteStep,
     currentHopIndex,
     activeTradeId,
-    isExactAllowance: false,
+    isExactAllowance: true,
   })
 
   const handleConfirm = useCallback(() => {

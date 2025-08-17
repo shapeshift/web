@@ -12,7 +12,6 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { isMobile } from '../../lib/globals'
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
@@ -40,7 +39,6 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -51,7 +49,6 @@ export const useSwapActionSubscriber = () => {
   const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
 
   const dispatch = useAppDispatch()
-  const translate = useTranslate()
 
   const handleHasSeenRatingModal = useCallback(() => {
     dispatch(preferences.actions.setHasSeenRatingModal())
@@ -67,7 +64,6 @@ export const useSwapActionSubscriber = () => {
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
-  const tradeQuotes = useAppSelector(tradeQuoteSlice.selectSlice)
 
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
@@ -110,7 +106,7 @@ export const useSwapActionSubscriber = () => {
         },
       }),
     )
-  }, [dispatch, translate, activeSwapId, swapsById, previousSwapStatus, tradeQuotes])
+  }, [dispatch, activeSwapId, swapsById, previousSwapStatus])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {

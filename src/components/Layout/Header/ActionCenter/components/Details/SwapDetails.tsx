@@ -42,9 +42,13 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
           <Row fontSize='sm' alignItems='center'>
             <Row.Label>{translate('trade.hopTitle.swap', { swapperName })}</Row.Label>
             <Row.Value>
-              <Link isExternal href={txLink} color='text.link'>
+              {txLink ? (
+                <Link isExternal href={txLink} color='text.link'>
+                  <MiddleEllipsis value={txHash} />
+                </Link>
+              ) : (
                 <MiddleEllipsis value={txHash} />
-              </Link>
+              )}
             </Row.Value>
           </Row>
         )}

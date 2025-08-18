@@ -198,7 +198,7 @@ export const isTcyClaimAction = (action: Action): action is TcyClaimAction => {
 
 export const isThorchainLpAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(
-    action.type === ActionType.Deposit &&
+    (action.type === ActionType.Deposit || action.type === ActionType.Withdraw) &&
       action.transactionMetadata?.displayType === GenericTransactionDisplayType.ThorchainLP,
   )
 }

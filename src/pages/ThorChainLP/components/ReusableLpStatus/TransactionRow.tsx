@@ -360,22 +360,21 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const thorTxStatus = useQuery({
     queryKey: ['thorTxStatus', { txHash: txId, skipOutbound: true }],
-    queryFn:
-      txId && maybePendingThorchainLpAction
-        ? async (): Promise<TxStatus> => {
-            const status = await getThorchainTransactionStatus({
-              txHash: txId,
-              skipOutbound: true,
-            })
+    queryFn: txId
+      ? async (): Promise<TxStatus> => {
+          const status = await getThorchainTransactionStatus({
+            txHash: txId,
+            skipOutbound: true,
+          })
 
-            onStatusUpdate(status, assetId)
-            if (status === TxStatus.Confirmed) {
-              await handleComplete(maybePendingThorchainLpAction)
-            }
-
-            return status
+          onStatusUpdate(status, assetId)
+          if (status === TxStatus.Confirmed && maybePendingThorchainLpAction) {
+            await handleComplete(maybePendingThorchainLpAction)
           }
-        : skipToken,
+
+          return status
+        }
+      : skipToken,
     refetchInterval: 10_000,
   })
 

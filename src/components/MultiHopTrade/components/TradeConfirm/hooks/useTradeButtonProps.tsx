@@ -117,6 +117,7 @@ export const useTradeButtonProps = ({
         relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
         stepIndex: currentHopIndex,
+        quoteId: activeQuote.id,
         streamingSwapMetadata: {
           maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
           attemptedSwapCount: 0,

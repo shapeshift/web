@@ -511,7 +511,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             accountId,
             txHash: _txId,
             chainId: fromAssetId(txAssetId).chainId,
-            assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
+            assetId: txAssetId,
             amountCryptoPrecision: confirmedQuote.assetWithdrawAmountCryptoPrecision,
             confirmedQuote,
             assetAmountsAndSymbols: withdrawAssetAmountsAndSymbol,
@@ -569,7 +569,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             accountId,
             txHash: _txId,
             chainId: fromAssetId(assetId).chainId,
-            assetId: fromOpportunityId(confirmedQuote.opportunityId).assetId,
+            assetId,
             amountCryptoPrecision: isRuneTx
               ? confirmedQuote.runeDepositAmountCryptoPrecision
               : confirmedQuote.assetDepositAmountCryptoPrecision,

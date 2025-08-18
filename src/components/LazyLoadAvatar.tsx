@@ -2,6 +2,8 @@ import type { AvatarProps, SkeletonProps } from '@chakra-ui/react'
 import { Avatar, SkeletonCircle } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 
+import { imageLongPressSx } from '@/constants/longPress'
+
 export type LazyLoadAvatarProps = SkeletonProps &
   Pick<AvatarProps, 'src' | 'size' | 'boxSize' | 'name' | 'icon' | 'bg'>
 
@@ -35,6 +37,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
         boxSize={boxSize}
         name={name}
         borderRadius={borderRadius}
+        sx={imageLongPressSx}
         bg={bg}
       />
     </SkeletonCircle>

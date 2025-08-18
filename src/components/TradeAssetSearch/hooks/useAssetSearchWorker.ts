@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
+import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'
@@ -35,6 +36,7 @@ export const useAssetSearchWorker = ({
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const [searchString, setSearchString] = useState('')
+  const debouncedSearchString = useDebounce(searchString, 200)
   const [workerSearchState, setWorkerSearchState] = useState<WorkerSearchState>({
     workerState: 'initializing',
     searchResults: null,
@@ -92,7 +94,12 @@ export const useAssetSearchWorker = ({
       const nextRequestId = requestIdRef.current + 1
       requestIdRef.current = nextRequestId
 
-      setWorkerSearchState(prev => ({ ...prev, requestId: nextRequestId, isSearching: true }))
+      setWorkerSearchState(prev => ({
+        ...prev,
+        requestId: nextRequestId,
+        isSearching: true,
+        searchResults: null,
+      }))
 
       worker.postMessage({
         type: 'search',
@@ -116,14 +123,25 @@ export const useAssetSearchWorker = ({
 
   const handleSearchChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const newSearchString = e.target.value.trim()
+      const newSearchString = e.target.value
       setSearchString(newSearchString)
 
-      // Trigger worker search directly
-      performSearch(newSearchString)
+      if (workerSearchState.workerState === 'failed') return
+
+      // Set searching immediately if there's a search term, clear if empty
+      if (newSearchString.trim()) {
+        setWorkerSearchState(prev => ({ ...prev, isSearching: true, searchResults: null }))
+      } else {
+        setWorkerSearchState(prev => ({ ...prev, isSearching: false, searchResults: null }))
+      }
     },
-    [performSearch],
+    [workerSearchState.workerState],
   )
+
+  // Trigger search when debounced value changes
+  useEffect(() => {
+    performSearch(debouncedSearchString.trim())
+  }, [debouncedSearchString, performSearch])
 
   return {
     searchString,

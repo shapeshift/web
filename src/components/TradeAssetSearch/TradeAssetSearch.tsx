@@ -103,14 +103,20 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
   const handleAssetClick = onAssetClick ?? defaultClickHandler
 
+  const assetWorkerParams = useMemo(
+    () => ({
+      assets,
+      activeChainId,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      hasWallet,
+    }),
+    [activeChainId, allowWalletUnsupportedAssets, assets, hasWallet, walletConnectedChainIds],
+  )
+
   // Asset search worker hook
-  const { searchString, workerSearchState, handleSearchChange } = useAssetSearchWorker({
-    assets,
-    activeChainId,
-    allowWalletUnsupportedAssets,
-    walletConnectedChainIds,
-    hasWallet,
-  })
+  const { searchString, workerSearchState, handleSearchChange } =
+    useAssetSearchWorker(assetWorkerParams)
 
   const isSearching = useMemo(() => searchString.length > 0, [searchString])
 

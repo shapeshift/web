@@ -41,6 +41,10 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
       ASSETS = data.payload.assets
       break
     }
+    case 'updateAssets': {
+      ASSETS = data.payload.assets
+      break
+    }
     case 'search': {
       handleSearch(data)
       break

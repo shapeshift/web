@@ -44,20 +44,13 @@ export const useAssetSearchWorker = ({
     isSearching: false,
   })
 
-  // Initialize worker when assets are available
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (workerRef.current) return
-    if (!assets.length) return
 
     try {
       const worker = new AssetSearchWorker()
       workerRef.current = worker
-
-      worker.postMessage({
-        type: 'init',
-        payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
-      })
 
       worker.onmessage = (event: MessageEvent<AssetSearchWorkerOutboundMessage>) => {
         const { type, requestId, payload } = event.data
@@ -72,9 +65,32 @@ export const useAssetSearchWorker = ({
         }))
       }
 
+      worker.onerror = error => {
+        console.error('Worker error:', error)
+        setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
+      }
+
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
-    } catch {
+    } catch (error) {
+      console.error('Failed to initialize worker:', error)
       setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
+    }
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate()
+        workerRef.current = null
+      }
+    }
+  }, [])
+
+  // Update worker with new assets
+  useEffect(() => {
+    if (workerRef.current && assets.length) {
+      workerRef.current.postMessage({
+        type: 'updateAssets',
+        payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
+      })
     }
   }, [assets])
 
@@ -144,7 +160,6 @@ export const useAssetSearchWorker = ({
 
   return {
     searchString,
-    setSearchString,
     workerSearchState,
     handleSearchChange,
   }

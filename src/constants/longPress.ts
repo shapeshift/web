@@ -19,18 +19,16 @@ export const imageLongPressSx = {
     img: {
       userSelect: 'none',
       WebkitUserSelect: 'none',
+      MozUserSelect: 'none',
+      msUserSelect: 'none',
       WebkitTouchCallout: 'none',
       WebkitTapHighlightColor: 'transparent',
-
       // Prevent drag behavior on the image element
       WebkitUserDrag: 'none',
       KhtmlUserDrag: 'none',
       MozUserDrag: 'none',
       OUserDrag: 'none',
       userDrag: 'none',
-
-      // Additional prevention
-      draggable: false,
     },
   },
 }

@@ -91,8 +91,12 @@ export const SearchTermAssetList = ({
   ])
 
   // Build a Set of existing asset IDs once when assetsForChain changes
-  const existingAssetIds = useMemo(() => {
-    return new Set(assetsForChain.map(asset => asset.assetId))
+  const assetIdMap = useMemo(() => {
+    const assetLookup: Record<AssetId, Asset> = {}
+    for (const asset of assetsForChain) {
+      assetLookup[asset.assetId] = asset
+    }
+    return assetLookup
   }, [assetsForChain])
 
   const customAssets: Asset[] = useMemo(() => {
@@ -109,7 +113,7 @@ export const SearchTermAssetList = ({
         })
 
         // Skip if we already have this asset
-        if (existingAssetIds.has(assetId)) return null
+        if (assetIdMap[assetId] !== undefined) return null
 
         const minimalAsset: MinimalAsset = {
           assetId,
@@ -121,7 +125,7 @@ export const SearchTermAssetList = ({
         return makeAsset(assetsById, minimalAsset)
       })
       .filter(isSome)
-  }, [assetsById, customTokens, existingAssetIds])
+  }, [assetIdMap, assetsById, customTokens])
 
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {
@@ -132,8 +136,7 @@ export const SearchTermAssetList = ({
 
       // Use the results from the worker
       if (workerSearchState.workerState === 'ready' && workerSearchState.searchResults) {
-        const resultSet = new Set(workerSearchState.searchResults)
-        return assetsForChain.filter(a => resultSet.has(a.assetId))
+        return workerSearchState.searchResults.map(assetId => assetIdMap[assetId])
       }
 
       return []
@@ -156,6 +159,7 @@ export const SearchTermAssetList = ({
     workerSearchState.searchResults,
     searchString,
     assetsForChain,
+    assetIdMap,
     portfolioUserCurrencyBalances,
   ])
 

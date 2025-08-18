@@ -4,14 +4,14 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
-import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
+import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
@@ -48,12 +48,6 @@ export const SearchTermAssetList = ({
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-
-  // Cache the asset balance lookup function
-  const getAssetBalance = useCallback(
-    (asset: Asset) => bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber(),
-    [portfolioUserCurrencyBalances],
-  )
 
   const customTokenSupportedChainIds = useMemo(() => {
     // Solana _is_ supported by Alchemy, but not by the SDK
@@ -133,9 +127,7 @@ export const SearchTermAssetList = ({
     const filteredAssets: Asset[] = (() => {
       // Main thread search due to dead worker
       if (workerSearchState.workerState === 'failed') {
-        return !searchString && assetsForChain.length > 1000
-          ? assetsForChain
-          : filterAssetsBySearchTerm(searchString, assetsForChain)
+        return searchAssets(searchString, assetsForChain)
       }
 
       // Use the results from the worker
@@ -147,30 +139,24 @@ export const SearchTermAssetList = ({
       return []
     })()
 
-    // Add custom assets to filtered results
-    const assetsWithCustomAssets = filteredAssets.concat(customAssets)
+    const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
+    const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
+    const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
+    const getAssetBalance = (asset: Asset) =>
+      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
-    if (!searchString && assetsWithCustomAssets.length > 1000) {
-      // For large lists with no search, return top assets by balance
-      return [...assetsWithCustomAssets]
-        .sort((a, b) => getAssetBalance(b) - getAssetBalance(a))
-        .slice(0, 100)
-    } else if (assetsWithCustomAssets.length > 500) {
-      // For large search results, sort and cap to top 200
-      return assetsWithCustomAssets
-        .sort((a, b) => getAssetBalance(b) - getAssetBalance(a))
-        .slice(0, 200)
-    } else {
-      // For smaller results, use full sort
-      return orderBy(assetsWithCustomAssets, [getAssetBalance], ['desc'])
-    }
+    return orderBy(
+      Object.values(assetsWithCustomAssets).filter(isSome),
+      [getAssetBalance],
+      ['desc'],
+    )
   }, [
+    customAssets,
     workerSearchState.workerState,
     workerSearchState.searchResults,
     searchString,
     assetsForChain,
-    customAssets,
-    getAssetBalance,
+    portfolioUserCurrencyBalances,
   ])
 
   const groups = useMemo(() => ['modals.assetSearch.searchResults'], [])

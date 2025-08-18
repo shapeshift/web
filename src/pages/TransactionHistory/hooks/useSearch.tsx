@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
 
-import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -20,7 +20,7 @@ export const useSearch = () => {
       } else {
         debounce(
           () => {
-            setMatchingAssets(filterAssetsBySearchTerm(inputValue, assets))
+            setMatchingAssets(searchAssets(inputValue, assets))
           },
           500,
           {

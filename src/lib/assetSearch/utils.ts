@@ -55,6 +55,7 @@ export const searchAssets = <T extends SearchableAsset>(
   assets: T[],
   config = ASSET_SEARCH_MATCH_SORTER_CONFIG,
 ): T[] => {
+  if (!assets) return []
   if (!searchTerm) return assets
 
   if (isEthAddress(searchTerm)) {

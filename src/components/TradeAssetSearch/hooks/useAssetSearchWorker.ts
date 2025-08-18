@@ -128,7 +128,6 @@ export const useAssetSearchWorker = ({
 
       if (workerSearchState.workerState === 'failed') return
 
-      // Set searching immediately if there's a search term, clear if empty
       if (newSearchString.trim()) {
         setWorkerSearchState(prev => ({ ...prev, isSearching: true, searchResults: null }))
       } else {

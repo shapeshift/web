@@ -1,5 +1,4 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import pick from 'lodash/pick'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -8,6 +7,8 @@ import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
+import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'
 
@@ -19,7 +20,6 @@ export type WorkerSearchState = {
 }
 
 export interface UseAssetSearchWorkerProps {
-  assets: Asset[]
   activeChainId: ChainId | 'All'
   allowWalletUnsupportedAssets?: boolean
   walletConnectedChainIds: ChainId[]
@@ -27,12 +27,14 @@ export interface UseAssetSearchWorkerProps {
 }
 
 export const useAssetSearchWorker = ({
-  assets,
   activeChainId,
   allowWalletUnsupportedAssets,
   walletConnectedChainIds,
   hasWallet,
 }: UseAssetSearchWorkerProps) => {
+  const assets = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  )
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const [searchString, setSearchString] = useState('')
@@ -45,7 +47,6 @@ export const useAssetSearchWorker = ({
   })
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
     if (workerRef.current) return
 
     try {

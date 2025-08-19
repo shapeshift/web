@@ -197,7 +197,6 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
           <HStack spacing={3} width='100%'>
             <Button
               rounded='full'
-              variant='ghost'
               size='lg'
               onClick={handleCancelPurchase}
               flex={1}

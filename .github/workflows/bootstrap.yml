@@ -21,7 +21,7 @@ jobs:
           cache: 'yarn'
 
       - name: Yarn Install
-        run: yarn install --immutable --verbose
+        run: yarn install --immutable
 
   call-pr-workflow:
     name: Call

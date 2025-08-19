@@ -14,8 +14,6 @@ import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
 let ASSETS: SearchableAsset[] = []
 
 const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
-  if (ASSETS.length === 0) return
-
   const { searchString, activeChainId, allowWalletUnsupportedAssets, walletConnectedChainIds } =
     msg.payload
 
@@ -44,7 +42,6 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
       break
     }
     case 'search': {
-      handleSearch(data)
       try {
         handleSearch(data)
       } catch {

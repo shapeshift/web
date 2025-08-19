@@ -7,7 +7,7 @@ import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/common-selectors'
+import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'

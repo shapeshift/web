@@ -23,7 +23,6 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCap,
-  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectPortfolioTotalUserCurrencyBalance,
   selectWalletConnectedChainIds,
@@ -74,9 +73,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
-  const assets = useAppSelector(
-    selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
-  )
 
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
@@ -105,13 +101,12 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const assetWorkerParams = useMemo(
     () => ({
-      assets,
       activeChainId,
       allowWalletUnsupportedAssets,
       walletConnectedChainIds,
       hasWallet,
     }),
-    [activeChainId, allowWalletUnsupportedAssets, assets, hasWallet, walletConnectedChainIds],
+    [activeChainId, allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds],
   )
 
   // Asset search worker hook

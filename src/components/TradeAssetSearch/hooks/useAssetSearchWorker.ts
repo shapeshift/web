@@ -70,8 +70,6 @@ export const useAssetSearchWorker = ({
         console.error('Worker error:', error)
         setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
       }
-
-      setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } catch (error) {
       console.error('Failed to initialize worker:', error)
       setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
@@ -92,6 +90,9 @@ export const useAssetSearchWorker = ({
         type: 'updateAssets',
         payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
       })
+      setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
+    } else {
+      setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
     }
   }, [assets])
 

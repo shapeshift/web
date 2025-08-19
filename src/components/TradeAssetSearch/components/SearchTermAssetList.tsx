@@ -136,7 +136,7 @@ export const SearchTermAssetList = ({
 
       // Use the results from the worker
       if (workerSearchState.workerState === 'ready' && workerSearchState.searchResults) {
-        return workerSearchState.searchResults.map(assetId => assetIdMap[assetId])
+        return workerSearchState.searchResults.map(assetId => assetIdMap[assetId]).filter(isSome)
       }
 
       return []

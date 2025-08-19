@@ -23,15 +23,6 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-
       - name: Yarn Install
         run: yarn install --immutable
 

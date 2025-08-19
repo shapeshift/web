@@ -5,7 +5,7 @@ import { matchSorter } from 'match-sorter'
 import { ASSET_SEARCH_MATCH_SORTER_CONFIG } from './config'
 import type { SearchableAsset } from './types'
 
-import { isEthAddress } from '@/lib/address/utils'
+import { isEthAddress } from '@/lib/utils/ethAddress'
 
 export const isSearchableAsset = (assetId: AssetId): boolean => !isNft(assetId)
 

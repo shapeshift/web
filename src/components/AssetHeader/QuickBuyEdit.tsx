@@ -22,6 +22,7 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
   } = useLocaleFormatter()
   const savedQuickBuyAmounts = useAppSelector(preferences.selectors.selectQuickBuyAmounts)
   const [stagedQuickBuyAmounts, setStagedQuickBuyAmounts] = useState<string[]>()
+  const [invalidIndices, setInvalidIndices] = useState<Set<number>>(new Set())
 
   const inputBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
@@ -34,27 +35,41 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
   )
 
   const handleSave = useCallback(() => {
-    const parsedAmounts = currentQuickBuyAmounts
-      .map(positiveOrZero)
-      .sort((a, b) => a.comparedTo(b))
-      .map(num => num.toNumber())
+    const newInvalidIndices = new Set<number>()
+    const parsedAmounts = currentQuickBuyAmounts.map((amount, index) => {
+      const parsed = positiveOrZero(amount)
+      const num = parsed.toNumber()
+      if (num === 0 || isNaN(num)) {
+        newInvalidIndices.add(index)
+      }
+      return parsed
+    })
 
-    if (parsedAmounts.length !== 3) {
-      onCancel() // This only really happens when they enter negative numbers
+    if (newInvalidIndices.size > 0) {
+      setInvalidIndices(newInvalidIndices)
       return
     }
 
-    dispatch(preferences.actions.setQuickBuyPreferences(parsedAmounts))
+    const sortedAmounts = parsedAmounts.sort((a, b) => a.comparedTo(b)).map(num => num.toNumber())
+
+    dispatch(preferences.actions.setQuickBuyPreferences(sortedAmounts))
     onSave()
-  }, [currentQuickBuyAmounts, dispatch, onSave, onCancel])
+  }, [currentQuickBuyAmounts, dispatch, onSave])
 
   const handleAmountChangeAtIndex = useCallback(
     (index: number) => (values: NumberFormatValues) => {
       const newAmounts = [...currentQuickBuyAmounts]
       newAmounts[index] = values.value
       setStagedQuickBuyAmounts(newAmounts)
+
+      // Clear invalid state when user types
+      if (invalidIndices.has(index)) {
+        const newInvalidIndices = new Set(invalidIndices)
+        newInvalidIndices.delete(index)
+        setInvalidIndices(newInvalidIndices)
+      }
     },
-    [currentQuickBuyAmounts],
+    [currentQuickBuyAmounts, invalidIndices],
   )
 
   return (
@@ -79,6 +94,7 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
               decimalScale={2}
               fixedDecimalScale
               customInput={Input}
+              borderColor={invalidIndices.has(index) ? 'red.500' : undefined}
             />
           </FormControl>
         ))}

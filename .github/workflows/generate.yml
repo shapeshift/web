@@ -22,7 +22,7 @@ jobs:
           cache: 'yarn'
 
       - name: Yarn Install
-        run: yarn install --immutable
+        run: yarn install --immutable --verbose
 
       - name: Build Packages
         run: yarn build:packages

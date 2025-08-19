@@ -68,49 +68,8 @@ export const writeFiles = async (data: Record<string, Record<string, string>>) =
   console.info('Generated CoinCap AssetId adapter data.')
 }
 
-export const fetchData = async (baseURL: string) => {
-  const maxAssets = 10000 // Fetch up to 10k assets
-  const perPage = 2000 // CoinCap's max per request
-  const pages = Math.ceil(maxAssets / perPage)
-
-  console.log(`Fetching ${maxAssets} assets across ${pages} pages...`)
-
-  const allAssets: CoinCapCoin[] = []
-
-  for (let page = 0; page < pages; page++) {
-    const offset = page * perPage
-    const url = `${baseURL}&limit=${perPage}&offset=${offset}`
-
-    try {
-      console.log(`Fetching page ${page + 1}/${pages} (offset: ${offset})...`)
-      const response = await axios.get<{ data: CoinCapCoin[] }>(url)
-      const assets = response.data.data
-
-      if (!assets || assets.length === 0) {
-        console.log(`No more assets found at page ${page + 1}, stopping.`)
-        break
-      }
-
-      allAssets.push(...assets)
-      console.log(`Got ${assets.length} assets, total: ${allAssets.length}`)
-
-      // If we got less than requested, we've reached the end
-      if (assets.length < perPage) {
-        console.log('Reached end of results.')
-        break
-      }
-
-      // Rate limiting - wait between requests
-      await new Promise(resolve => setTimeout(resolve, 100))
-    } catch (error) {
-      console.error(`Error fetching page ${page + 1}:`, error)
-      break
-    }
-  }
-
-  console.log(`Total assets fetched: ${allAssets.length}`)
-  return allAssets
-}
+export const fetchData = async (URL: string) =>
+  (await axios.get<{ data: CoinCapCoin[] }>(URL)).data.data
 
 export const parseEthData = (data: CoinCapCoin[]) => {
   const ethCoins = data.filter(
@@ -210,8 +169,8 @@ export const parseEnhancedData = (coins: CoinCapCoin[]) => {
 
       const { chainId, chainReference, assetNamespace } = chainInfo
 
-      // Use first address if multiple exist
-      const address = addresses[0].toLowerCase()
+      // Use first address if multiple exist  
+      const address = addresses[0]
 
       try {
         const assetId = toAssetId({
@@ -226,23 +185,33 @@ export const parseEnhancedData = (coins: CoinCapCoin[]) => {
       }
     })
 
-    // Method 2: Explorer URL parsing (fallback for chains not in tokens)
-    if (explorer) {
-      if (explorer.includes('etherscan.io/token/0x') && !tokens['1']) {
-        const address = explorer
-          .replace('https://etherscan.io/token/', '')
-          .split('#')[0]
-          .split('?')[0]
-        try {
-          const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.EthereumMainnet,
-            assetNamespace: 'erc20',
-            assetReference: address.toLowerCase(),
-          })
-          assetMaps[ethChainId][assetId] = id
-        } catch {}
-      }
+    // Method 2: Handle native ETH and all explorer URL parsing (like original parseEthData)
+    if (id === 'ethereum') {
+      // Handle native ETH
+      try {
+        const assetId = toAssetId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: CHAIN_REFERENCE.EthereumMainnet,
+          assetNamespace: 'slip44',
+          assetReference: ASSET_REFERENCE.Ethereum,
+        })
+        assetMaps[ethChainId][assetId] = id
+      } catch {}
+    } else if (explorer && explorer.startsWith('https://etherscan.io/token/0x')) {
+      // Parse ALL explorer URLs for maximum coverage (original parseEthData logic)
+      const address = explorer
+        .replace('https://etherscan.io/token/', '')
+        .split('#')[0]
+        .split('?')[0]
+      try {
+        const assetId = toAssetId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: CHAIN_REFERENCE.EthereumMainnet,
+          assetNamespace: 'erc20',
+          assetReference: address, // Keep original case like parseEthData
+        })
+        assetMaps[ethChainId][assetId] = id
+      } catch {}
     }
   })
 

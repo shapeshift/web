@@ -23,8 +23,21 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Yarn Install
-        run: yarn install --immutable
+      - name: Debug Environment
+        run: |
+          echo "Node version: $(node --version)"
+          echo "Yarn version: $(yarn --version)"
+          echo "Available memory: $(free -h)"
+          echo "Disk space: $(df -h)"
+
+      - name: Yarn Install (with debug)
+        run: |
+          yarn install --immutable 2>&1 | tee yarn-install.log
+          if [ $? -ne 0 ]; then
+            echo "Yarn install failed. Log contents:"
+            cat yarn-install.log
+            exit 1
+          fi
 
       # needs to run after install
       - name: Commitlint PR Title

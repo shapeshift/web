@@ -101,7 +101,7 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
 
   if (await isAppOpen()) return
 
-  let intervalId: NodeJS.Timer | undefined
+  let intervalId: NodeJS.Timeout | undefined
 
   try {
     await new Promise<void>((resolve, reject) => {

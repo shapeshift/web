@@ -19,6 +19,7 @@ import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useCoinCapWebSocket } from '@/pages/Markets/hooks/useCoinCapWebSocket'
 import { breakpoints } from '@/theme/theme'
 
 const arrowUpDownIcon = <LuArrowUpDown />
@@ -67,6 +68,11 @@ export const SharedTradeInputBody = ({
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+
+  useCoinCapWebSocket({
+    assets: ['ethereum', 'bitcoin'],
+    onPriceUpdate: data => console.log(data.data),
+  })
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')
 

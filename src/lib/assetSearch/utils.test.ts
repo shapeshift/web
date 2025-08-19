@@ -2,7 +2,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
 
-import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
+import { searchAssets } from './utils'
 
 const assets: Asset[] = [
   {
@@ -59,19 +59,19 @@ const assets: Asset[] = [
   },
 ]
 
-describe('filterAssetsBySearchTerm', () => {
+describe('searchAssets', () => {
   it('returns based on symbol', () => {
-    const returnedAssets = filterAssetsBySearchTerm('btc', assets)
+    const returnedAssets = searchAssets('btc', assets)
     expect(returnedAssets[0].symbol).toBe('BTC')
   })
 
   it('returns based on displayName', () => {
-    const returnedAssets = filterAssetsBySearchTerm('Bitcoin', assets)
+    const returnedAssets = searchAssets('Bitcoin', assets)
     expect(returnedAssets[0].name).toBe('Bitcoin')
   })
 
   it('returns based on assetId', () => {
-    const returnedAssets = filterAssetsBySearchTerm(
+    const returnedAssets = searchAssets(
       fromAssetId(assets[2]?.assetId).assetReference ?? '',
       assets,
     )
@@ -79,7 +79,7 @@ describe('filterAssetsBySearchTerm', () => {
   })
 
   it('returns closest match instead of the first one in the array', () => {
-    const returnedAssets = filterAssetsBySearchTerm('DAI', assets)
+    const returnedAssets = searchAssets('DAI', assets)
     expect(returnedAssets[0].symbol).toBe('DAI')
   })
 })

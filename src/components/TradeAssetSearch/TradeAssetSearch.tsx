@@ -6,13 +6,13 @@ import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
+import { useAssetSearchWorker } from './hooks/useAssetSearchWorker'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
 import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
@@ -23,6 +23,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCap,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectPortfolioTotalUserCurrencyBalance,
   selectWalletConnectedChainIds,
@@ -54,6 +55,7 @@ export type TradeAssetSearchProps = {
   selectedChainId?: ChainId | 'All'
   onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
 }
+
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
   formProps,
@@ -72,6 +74,9 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+  const assets = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  )
 
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
@@ -97,28 +102,23 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [navigate],
   )
   const handleAssetClick = onAssetClick ?? defaultClickHandler
-  const { register, watch } = useForm<{ search: string }>({
-    mode: 'onChange',
-    defaultValues: {
-      search: '',
-    },
-  })
-  const searchString = watch('search').trim()
-  const isSearching = useMemo(() => searchString.length > 0, [searchString])
 
-  const inputProps: InputProps = useMemo(
+  const assetWorkerParams = useMemo(
     () => ({
-      ...register('search'),
-      autoFocus: !window.matchMedia('(pointer: coarse)').matches, // Don't auto bust open the keyboard on mobile
-      type: 'text',
-      placeholder: translate('common.searchNameOrAddress'),
-      pl: 10,
-      variant: 'filled',
-      borderWidth: 0,
-      autoComplete: 'off',
+      assets,
+      activeChainId,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      hasWallet,
     }),
-    [register, translate],
+    [activeChainId, allowWalletUnsupportedAssets, assets, hasWallet, walletConnectedChainIds],
   )
+
+  // Asset search worker hook
+  const { searchString, workerSearchState, handleSearchChange } =
+    useAssetSearchWorker(assetWorkerParams)
+
+  const isSearching = useMemo(() => searchString.length > 0, [searchString])
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
@@ -228,6 +228,21 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     setShouldShowWarningAcknowledgement(true)
   }, [])
 
+  const inputProps: InputProps = useMemo(
+    () => ({
+      value: searchString,
+      onChange: handleSearchChange,
+      autoFocus: !window.matchMedia('(pointer: coarse)').matches, // Don't auto bust open the keyboard on mobile
+      type: 'text',
+      placeholder: translate('common.searchNameOrAddress'),
+      pl: 10,
+      variant: 'filled',
+      borderWidth: 0,
+      autoComplete: 'off',
+    }),
+    [searchString, handleSearchChange, translate],
+  )
+
   return (
     <>
       <CustomAssetAcknowledgement
@@ -278,6 +293,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           isLoading={isPopularAssetIdsLoading}
           assetFilterPredicate={assetFilterPredicate}
           allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
+          workerSearchState={workerSearchState}
         />
       ) : (
         <DefaultAssetList

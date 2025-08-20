@@ -396,11 +396,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     )
   }, [
     firstHopAllowanceApproval.txHash,
-    firstHopPermit2.isRequired,
     firstHopSellAccountId,
     tradeQuoteFirstHop,
     activeTradeQuote.swapperName,
     translate,
+    firstHopPermit2,
   ])
 
   const firstHopPermit2SignTitle = useMemo(() => {

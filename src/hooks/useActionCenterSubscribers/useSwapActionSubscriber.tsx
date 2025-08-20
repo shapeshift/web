@@ -39,6 +39,7 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -64,6 +65,7 @@ export const useSwapActionSubscriber = () => {
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+  const tradeQuoteState = useAppSelector(tradeQuoteSlice.selectSlice)
 
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
@@ -79,10 +81,13 @@ export const useSwapActionSubscriber = () => {
 
     if (!activeSwap) return
 
-    const firstHopAllowanceApproval = selectHopExecutionMetadata(store.getState(), {
+    const hopExecutionMetadata = selectHopExecutionMetadata(store.getState(), {
       tradeId: activeSwap.metadata.quoteId,
       hopIndex: activeSwap.metadata.stepIndex,
-    })?.allowanceApproval
+    })
+
+    const firstHopAllowanceApproval = hopExecutionMetadata?.allowanceApproval
+    const isPermit2Required = hopExecutionMetadata?.permit2?.isRequired
 
     if (activeSwap.status !== SwapStatus.Pending) return
     if (previousSwapStatus === activeSwap.status) return
@@ -103,10 +108,11 @@ export const useSwapActionSubscriber = () => {
         swapMetadata: {
           swapId: activeSwap.id,
           allowanceApproval: firstHopAllowanceApproval,
+          isPermit2Required,
         },
       }),
     )
-  }, [dispatch, activeSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, activeSwapId, swapsById, previousSwapStatus, tradeQuoteState])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {
@@ -192,10 +198,13 @@ export const useSwapActionSubscriber = () => {
           : undefined
       })()
 
-      const firstHopAllowanceApproval = selectHopExecutionMetadata(store.getState(), {
+      const hopExecutionMetadata = selectHopExecutionMetadata(store.getState(), {
         tradeId: swap.metadata.quoteId,
         hopIndex: swap.metadata.stepIndex,
-      })?.allowanceApproval
+      })
+
+      const firstHopAllowanceApproval = hopExecutionMetadata?.allowanceApproval
+      const isPermit2Required = hopExecutionMetadata?.permit2?.isRequired
 
       if (status === TxStatus.Confirmed) {
         vibrate('heavy')
@@ -205,6 +214,7 @@ export const useSwapActionSubscriber = () => {
             swapMetadata: {
               swapId: swap.id,
               allowanceApproval: firstHopAllowanceApproval,
+              isPermit2Required,
             },
             status:
               swap.swapperName === SwapperName.ArbitrumBridge &&
@@ -326,6 +336,8 @@ export const useSwapActionSubscriber = () => {
         buyTxHash,
       }
     },
+    // we explicitly want to be reactive on the tradeQuote slice here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       dispatch,
       toast,
@@ -334,6 +346,7 @@ export const useSwapActionSubscriber = () => {
       openRatingModal,
       handleHasSeenRatingModal,
       mobileFeaturesCompatibility,
+      tradeQuoteState,
     ],
   )
 

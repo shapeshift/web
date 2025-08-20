@@ -27,7 +27,11 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
     return (
       <Stack gap={4}>
         <Row fontSize='sm' alignItems='center'>
-          <Row.Label>{translate('common.approval')}</Row.Label>
+          <Row.Label>
+            {translate(
+              swapMetadata?.isPermit2Required ? 'common.permit2Approval' : 'common.approval',
+            )}
+          </Row.Label>
           <Row.Value>
             <TxLabel
               txHash={swapMetadata.allowanceApproval.txHash}

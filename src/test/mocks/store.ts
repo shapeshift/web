@@ -159,6 +159,7 @@ export const mockStore: ReduxState = {
       MayaSwap: false,
       ButterSwap: false,
       LazyTxHistory: false,
+      QuickBuy: false,
     },
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,

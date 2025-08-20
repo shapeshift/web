@@ -43,6 +43,7 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
 
   const isSpamMarked = useMemo(
     () => spamMarkedAssetIds.includes(assetId),
@@ -99,19 +100,23 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
           px={0}
           pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + 32px)'
         >
-          {isEditingQuickBuy && (
+          {isEditingQuickBuy && featureFlags.QuickBuy && (
             <QuickBuyEdit onCancel={handleCancelEditAmounts} onSave={handleCancelEditAmounts} />
           )}
           {!isEditingQuickBuy && (
             <Stack spacing={0}>
-              {isConnected && wallet && isNativeHDWallet(wallet) && !isNft(assetId) && (
-                <>
-                  <Box px={6}>
-                    <QuickBuy assetId={assetId} onEditAmounts={handleEditAmounts} />
-                  </Box>
-                  <Divider pt={6} />
-                </>
-              )}
+              {isConnected &&
+                wallet &&
+                isNativeHDWallet(wallet) &&
+                !isNft(assetId) &&
+                featureFlags.QuickBuy && (
+                  <>
+                    <Box px={6}>
+                      <QuickBuy assetId={assetId} onEditAmounts={handleEditAmounts} />
+                    </Box>
+                    <Divider pt={6} />
+                  </>
+                )}
               <Button
                 variant='ghost'
                 px={6}

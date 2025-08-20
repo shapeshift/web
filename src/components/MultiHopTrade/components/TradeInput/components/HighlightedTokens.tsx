@@ -308,6 +308,8 @@ export const HighlightedTokens = () => {
     handleRowLongPress,
   ])
 
+  console.log({ filteredAssets, columns })
+
   const title = useMemo(() => {
     if (selectedCategory === MarketsCategories.OneClickDefi) {
       return `markets.categories.${selectedCategory}.filterTitle`

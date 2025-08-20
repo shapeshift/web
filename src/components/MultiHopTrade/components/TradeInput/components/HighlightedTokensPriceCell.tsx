@@ -7,7 +7,9 @@ import { Amount } from '@/components/Amount/Amount'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { mergeRealtimePrice } from '@/lib/market-service/utils/mergeRealtimePrice'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
+import { useRealtimePrice } from '@/pages/Markets/hooks/useRealtimePrice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -23,11 +25,21 @@ export const HighlightedTokensPriceCell = ({
   portalsAssets,
 }: HighlightedTokensPriceCellProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const changePercent24Hr = marketData?.changePercent24Hr
   const textColor = useColorModeValue('black', 'white')
 
+  // Get realtime price for this asset
+  const { price: realtimePrice } = useRealtimePrice(assetId)
+
+  // Merge market data with realtime price
+  const enhancedMarketData = useMemo(
+    () => (marketData ? mergeRealtimePrice(marketData, realtimePrice) : undefined),
+    [marketData, realtimePrice],
+  )
+
+  const changePercent24Hr = enhancedMarketData?.changePercent24Hr
+
   const priceChange = useMemo(() => {
-    const volume = bnOrZero(marketData?.volume)
+    const volume = bnOrZero(enhancedMarketData?.volume)
     const isVolumePositive = volume.gte(0)
     const maybePortalsAsset = portalsAssets?.byId[assetId]
     const apy = bnOrZero(maybePortalsAsset?.metrics.apy)
@@ -57,7 +69,7 @@ export const HighlightedTokensPriceCell = ({
     }
 
     if (selectedSort === SortOptionsKeys.MarketCap) {
-      const marketCap = bnOrZero(marketData?.marketCap)
+      const marketCap = bnOrZero(enhancedMarketData?.marketCap)
 
       return (
         <Tag colorScheme={'gray'} width='max-content' px={1}>
@@ -77,18 +89,18 @@ export const HighlightedTokensPriceCell = ({
     selectedSort,
     assetId,
     portalsAssets,
-    marketData?.volume,
-    marketData?.marketCap,
+    enhancedMarketData?.volume,
+    enhancedMarketData?.marketCap,
   ])
 
   return (
     <Stack spacing={0} fontWeight='medium' textAlign='right' alignItems='flex-end'>
       <Amount.Fiat
         fontWeight='semibold'
-        color={textColor}
+        color={enhancedMarketData?.isRealtime ? 'green.500' : textColor}
         lineHeight='shorter'
         height='20px'
-        value={marketData?.price}
+        value={enhancedMarketData?.price}
       />
       {priceChange}
     </Stack>

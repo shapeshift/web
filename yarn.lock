@@ -10757,7 +10757,7 @@ __metadata:
     uuid: ^9.0.0
     vaul: ^1.1.2
     viem: ^2.10.9
-    vite: 6.2.2
+    vite: 6.2.7
     vite-bundle-analyzer: ^0.18.1
     vite-plugin-checker: ^0.9.1
     vite-plugin-node-polyfills: ^0.23.0
@@ -31923,9 +31923,9 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"vite@npm:6.2.2":
-  version: 6.2.2
-  resolution: "vite@npm:6.2.2"
+"vite@npm:6.2.7":
+  version: 6.2.7
+  resolution: "vite@npm:6.2.7"
   dependencies:
     esbuild: ^0.25.0
     fsevents: ~2.3.3
@@ -31971,7 +31971,7 @@ pvutils@latest:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 5a8b2083ef2534fab8769f18807e1df055730f1cb7853bed9d2556b2bb6c566aad25b6f530440370798baa4bc6c63f0d1339b646ee06102bc4f9373e93fefb7e
+  checksum: 05647b67ac40fdaae2a282f967665631215eb75f9475c4e974baf44fffa23f854cfb738c629d725d1627d5c8af37141fce43a8afc0e4302b7d1f48ca91d24ab6
   languageName: node
   linkType: hard
 

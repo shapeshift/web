@@ -30,7 +30,6 @@
     "dev:packages": "yarn tsc --build --watch --preserveWatchOutput tsconfig.packages.json",
     "generate:all": "yarn generate:caip-adapters && yarn run generate:color-map && yarn run generate:asset-data && yarn run generate:tradable-asset-map && yarn run generate:thor-longtail-tokens",
     "generate:caip-adapters": "yarn workspace @shapeshiftoss/caip generate",
-    "generate:coincap": "yarn tsx ./packages/caip/src/adapters/coincap/generate.ts",
     "generate:asset-data": "yarn tsx ./scripts/generateAssetData/generateAssetData.ts && yarn run codemod:clear-assets-migration",
     "generate:related-asset-index": "yarn tsx ./scripts/generateAssetData/generateRelatedAssetIndex.ts && yarn run codemod:clear-assets-migration",
     "generate:color-map": "yarn tsx ./scripts/generateAssetData/generateColorMap.ts",

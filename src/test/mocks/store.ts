@@ -159,6 +159,7 @@ export const mockStore: ReduxState = {
       MayaSwap: false,
       ButterSwap: false,
       LazyTxHistory: false,
+      RealtimePrices: false,
     },
     quoteDisplayOption: QuoteDisplayOption.Basic,
     selectedLocale: 'en',

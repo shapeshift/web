@@ -87,6 +87,7 @@ export type FeatureFlags = {
   MayaSwap: boolean
   ButterSwap: boolean
   LazyTxHistory: boolean
+  RealtimePrices: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -206,6 +207,7 @@ const initialState: Preferences = {
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
+    RealtimePrices: getConfig().VITE_FEATURE_REALTIME_PRICES,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

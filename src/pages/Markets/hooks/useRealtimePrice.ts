@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getConfig } from '@/config'
 
 // Shared internal hook containing all WebSocket logic
-function useRealtimePricesInternal(assetIds: AssetId[]) {
+function useRealtimePricesInternal(assetIds: AssetId[], enabled: boolean = true) {
   const [prices, setPrices] = useState<Record<string, string>>({})
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,7 @@ function useRealtimePricesInternal(assetIds: AssetId[]) {
   }, [assetIds])
 
   useEffect(() => {
-    if (coincapSlugs.length === 0) return
+    if (!enabled || coincapSlugs.length === 0) return
 
     const baseUrl = getConfig().VITE_COINCAP_WS_BASE_URL
 
@@ -80,7 +80,7 @@ function useRealtimePricesInternal(assetIds: AssetId[]) {
     return () => {
       socket.close()
     }
-  }, [coincapSlugs, supportedAssets])
+  }, [coincapSlugs, supportedAssets, enabled])
 
   const disconnect = () => {
     socketRef.current?.close()
@@ -95,10 +95,12 @@ function useRealtimePricesInternal(assetIds: AssetId[]) {
   }
 }
 
-export function useRealtimePrice(assetId: AssetId) {
+export function useRealtimePrice(assetId: AssetId, enabled: boolean = true) {
   const assetIdArr = useMemo(() => [assetId], [assetId])
-  const { prices, isConnected, error, disconnect, supportedAssets } =
-    useRealtimePricesInternal(assetIdArr)
+  const { prices, isConnected, error, disconnect, supportedAssets } = useRealtimePricesInternal(
+    assetIdArr,
+    enabled,
+  )
 
   return {
     price: prices[assetId] || null,
@@ -109,9 +111,9 @@ export function useRealtimePrice(assetId: AssetId) {
   }
 }
 
-export function useRealtimePrices(assetIds: AssetId[]) {
+export function useRealtimePrices(assetIds: AssetId[], enabled: boolean = true) {
   // Stabilize array reference to prevent unnecessary reconnections
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const stableAssetIds = useMemo(() => assetIds.slice().sort(), [assetIds.join(',')])
-  return useRealtimePricesInternal(stableAssetIds)
+  return useRealtimePricesInternal(stableAssetIds, enabled)
 }

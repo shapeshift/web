@@ -10,6 +10,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { mergeRealtimePrice } from '@/lib/market-service/utils/mergeRealtimePrice'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 import { useRealtimePrice } from '@/pages/Markets/hooks/useRealtimePrice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -27,8 +28,12 @@ export const HighlightedTokensPriceCell = ({
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const textColor = useColorModeValue('black', 'white')
 
-  // Get realtime price for this asset
-  const { price: realtimePrice } = useRealtimePrice(assetId)
+  // Check if realtime prices feature is enabled
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
+  const isRealtimePricesEnabled = featureFlags.RealtimePrices
+
+  // Get realtime price for this asset (only if feature is enabled)
+  const { price: realtimePrice } = useRealtimePrice(assetId, isRealtimePricesEnabled)
 
   // Merge market data with realtime price
   const enhancedMarketData = useMemo(

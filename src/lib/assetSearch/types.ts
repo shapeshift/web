@@ -27,7 +27,7 @@ export interface AssetSearchWorkerMessages {
       searchString: string
       activeChainId: ChainId | 'All'
       allowWalletUnsupportedAssets: boolean | undefined
-      walletConnectedChainIds: ChainId[]
+      walletConnectedChainIds?: ChainId[]
     }
   }
   SearchResultMessage: {

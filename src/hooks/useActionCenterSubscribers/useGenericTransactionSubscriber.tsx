@@ -1,9 +1,10 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { baseChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { useNotificationToast } from '../useNotificationToast'
+import { useBasePortfolioManagement } from './useFetchBasePortfolio'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
@@ -61,8 +62,10 @@ export const useGenericTransactionSubscriber = () => {
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
   const queryClient = useQueryClient()
 
+  const { fetchBasePortfolio } = useBasePortfolioManagement()
+
   useEffect(() => {
-    pendingGenericTransactionActions.forEach(action => {
+    pendingGenericTransactionActions.forEach(async action => {
       if (action.status !== ActionStatus.Pending) return
 
       // Approvals, RFOX and TCY TODO: handle more
@@ -78,7 +81,7 @@ export const useGenericTransactionSubscriber = () => {
         return
       }
 
-      const { accountId, txHash, thorMemo, queryId, assetId } = action.transactionMetadata
+      const { accountId, txHash, thorMemo, queryId, assetId, chainId } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
       const serializedTxIndex = serializeTxIndex(
         accountId,
@@ -88,13 +91,23 @@ export const useGenericTransactionSubscriber = () => {
       )
       const tx = txs[serializedTxIndex]
 
-      if (!tx) return
-      if (tx.status !== TxStatus.Confirmed) return
+      // TEMP HACK FOR BASE
+      if (chainId !== baseChainId) {
+        if (!tx) return
+        if (tx.status !== TxStatus.Confirmed) return
+      }
 
       const typeMessagesMap = displayTypeMessagesMap[action.type]
       const message = typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return
+
+      // TEMP HACK FOR BASE
+      if (chainId === baseChainId) {
+        // give time for on chain confirmation (~2sec/block)
+        await new Promise(resolve => setTimeout(resolve, 10000))
+        fetchBasePortfolio()
+      }
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -190,5 +203,6 @@ export const useGenericTransactionSubscriber = () => {
     currentEpochMetadataQuery.data?.epochEndTimestamp,
     currentEpochMetadataQuery.data?.epochStartTimestamp,
     queryClient,
+    fetchBasePortfolio,
   ])
 }

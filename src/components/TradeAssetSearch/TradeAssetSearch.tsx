@@ -4,9 +4,9 @@ import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/rea
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { FC, FormEvent } from 'react'
+import debounce from 'lodash/debounce'
+import type { ChangeEvent, FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -97,18 +97,38 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [navigate],
   )
   const handleAssetClick = onAssetClick ?? defaultClickHandler
-  const { register, watch } = useForm<{ search: string }>({
-    mode: 'onChange',
-    defaultValues: {
-      search: '',
+
+  const [inputValue, setInputValue] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+
+  const handleSearchQueryChange = useCallback((value: string) => {
+    setSearchQuery(value)
+  }, [])
+
+  const debouncedSetSearchQuery = useMemo(
+    () => debounce(handleSearchQueryChange, 200),
+    [handleSearchQueryChange],
+  )
+
+  const handleInputChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      setInputValue(value)
+
+      if (value === '') {
+        setSearchQuery('')
+      } else {
+        debouncedSetSearchQuery(value)
+      }
     },
-  })
-  const searchString = watch('search').trim()
-  const isSearching = useMemo(() => searchString.length > 0, [searchString])
+    [debouncedSetSearchQuery],
+  )
 
   const inputProps: InputProps = useMemo(
     () => ({
-      ...register('search'),
+      value: inputValue,
+      onChange: handleInputChange,
       autoFocus: !window.matchMedia('(pointer: coarse)').matches, // Don't auto bust open the keyboard on mobile
       type: 'text',
       placeholder: translate('common.searchNameOrAddress'),
@@ -117,7 +137,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       borderWidth: 0,
       autoComplete: 'off',
     }),
-    [register, translate],
+    [inputValue, handleInputChange, translate],
   )
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
@@ -272,7 +292,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       {isSearching ? (
         <SearchTermAssetList
           activeChainId={activeChainId}
-          searchString={searchString}
+          searchString={searchQuery}
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}

@@ -26,8 +26,8 @@ export interface AssetSearchWorkerMessages {
     payload: {
       searchString: string
       activeChainId: ChainId | 'All'
-      allowWalletUnsupportedAssets: boolean | undefined
-      walletConnectedChainIds: ChainId[]
+      allowWalletUnsupportedAssets?: boolean
+      walletConnectedChainIds?: ChainId[]
     }
   }
   SearchResultMessage: {

@@ -48,55 +48,6 @@ export type CoinCapCoin = {
   tokens: Record<string, string[]>
 }
 
-export const writeFiles = async (data: Record<string, Record<string, string>>) => {
-  const basePath = './src/adapters/coincap/generated/'
-  const file = '/adapter.json'
-
-  const writeFile = async ([chainId, assets]: [string, Record<string, string>]) => {
-    const dirPath = `${basePath}${chainId}`.replace(':', '_')
-    const filePath = `${dirPath}${file}`
-
-    // Create directory if it doesn't exist
-    await fs.promises.mkdir(dirPath, { recursive: true })
-
-    // Write the file
-    await fs.promises.writeFile(filePath, JSON.stringify(assets))
-    console.log(`Written ${Object.keys(assets).length} assets to ${filePath}`)
-  }
-
-  await Promise.all(Object.entries(data).map(writeFile))
-  console.info('Generated CoinCap AssetId adapter data.')
-}
-
-export const fetchData = async (URL: string) =>
-  (await axios.get<{ data: CoinCapCoin[] }>(URL)).data.data
-
-export const parseEthData = (data: CoinCapCoin[]) => {
-  const ethCoins = data.filter(
-    ({ id, explorer }) =>
-      (explorer && explorer.startsWith('https://etherscan.io/token/0x')) || id === 'ethereum',
-  )
-
-  return ethCoins.reduce(
-    (acc, { id, explorer }) => {
-      const chainNamespace = CHAIN_NAMESPACE.Evm
-      const chainReference = CHAIN_REFERENCE.EthereumMainnet
-      let assetReference: string = ASSET_REFERENCE.Ethereum
-      const assetNamespace = id === 'ethereum' ? 'slip44' : 'erc20'
-      if (id !== 'ethereum' && explorer) {
-        assetReference = explorer
-          .replace('https://etherscan.io/token/', '')
-          .split('#')[0]
-          .split('?')[0]
-      }
-      const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
-      acc[assetId] = id
-      return acc
-    },
-    {} as Record<string, string>,
-  )
-}
-
 // Chain ID to CoinCap network ID mapping
 const COINCAP_CHAIN_MAP: Record<
   string,
@@ -144,8 +95,100 @@ const COINCAP_CHAIN_MAP: Record<
   },
 }
 
-export const parseEnhancedData = (coins: CoinCapCoin[]) => {
-  const assetMaps: Record<string, Record<string, string>> = {
+export const writeFiles = async (data: Record<string, Record<string, string>>) => {
+  const path = './src/adapters/coincap/generated/'
+  const file = '/adapter.json'
+  const writeFile = async ([k, v]: [string, unknown]) =>
+    await fs.promises.writeFile(`${path}${k}${file}`.replace(':', '_'), JSON.stringify(v))
+  await Promise.all(Object.entries(data).map(writeFile))
+  console.info('Generated CoinCap AssetId adapter data.')
+}
+
+export const fetchData = async (URL: string) =>
+  (await axios.get<{ data: CoinCapCoin[] }>(URL)).data.data
+
+export const parseEthData = (data: CoinCapCoin[]) => {
+  const ethCoins = data.filter(
+    ({ id, explorer }) =>
+      (explorer && explorer.startsWith('https://etherscan.io/token/0x')) || id === 'ethereum',
+  )
+
+  const ethAssetMap = ethCoins.reduce(
+    (acc, { id, explorer }) => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const chainReference = CHAIN_REFERENCE.EthereumMainnet
+      let assetReference: string = ASSET_REFERENCE.Ethereum
+      const assetNamespace = id === 'ethereum' ? 'slip44' : 'erc20'
+      if (id !== 'ethereum' && explorer) {
+        assetReference = explorer
+          .replace('https://etherscan.io/token/', '')
+          .split('#')[0]
+          .split('?')[0]
+      }
+      const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
+      acc[assetId] = id
+      return acc
+    },
+    {} as Record<string, string>,
+  )
+
+  data.forEach(({ id, tokens }) => {
+    if (tokens['1'] && tokens['1'].length > 0) {
+      // Use first address for Ethereum chain
+      const address = tokens['1'][0]
+      try {
+        const assetId = toAssetId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: CHAIN_REFERENCE.EthereumMainnet,
+          assetNamespace: 'erc20',
+          assetReference: address,
+        })
+        ethAssetMap[assetId] = id
+      } catch {
+        // Skip invalid addresses
+      }
+    }
+  })
+
+  return ethAssetMap
+}
+
+export const parseMultiChainTokens = (data: CoinCapCoin[]) => {
+  const chainMaps: Record<string, Record<string, string>> = {}
+
+  // Initialize chain maps
+  Object.values(COINCAP_CHAIN_MAP).forEach(({ chainId }) => {
+    chainMaps[chainId] = {}
+  })
+
+  data.forEach(({ id, tokens }) => {
+    Object.entries(tokens).forEach(([chainNumber, addresses]) => {
+      const chainInfo = COINCAP_CHAIN_MAP[chainNumber]
+      if (!chainInfo || !addresses.length) return
+
+      const { chainId, chainReference, assetNamespace } = chainInfo
+      const address = addresses[0]
+
+      try {
+        const assetId = toAssetId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference,
+          assetNamespace,
+          assetReference: address,
+        })
+        chainMaps[chainId][assetId] = id
+      } catch {
+        // Skip invalid addresses
+      }
+    })
+  })
+
+  return chainMaps
+}
+
+export const parseData = (d: CoinCapCoin[]) => {
+  const result = {
+    [ethChainId]: parseEthData(d),
     [btcChainId]: bitcoinAssetMap,
     [bchChainId]: bitcoinCashAssetMap,
     [dogeChainId]: dogecoinAssetMap,
@@ -154,68 +197,12 @@ export const parseEnhancedData = (coins: CoinCapCoin[]) => {
     [thorchainChainId]: thorchainAssetMap,
   }
 
-  // Initialize all supported chain maps
-  Object.values(COINCAP_CHAIN_MAP).forEach(({ chainId }) => {
-    if (!assetMaps[chainId]) {
-      assetMaps[chainId] = {}
+  const multiChainTokens = parseMultiChainTokens(d)
+  Object.entries(multiChainTokens).forEach(([chainId, tokens]) => {
+    if (Object.keys(tokens).length > 0) {
+      result[chainId] = { ...result[chainId], ...tokens }
     }
   })
 
-  coins.forEach(({ id, tokens, explorer }) => {
-    // Method 1: Parse tokens object for multi-chain support
-    Object.entries(tokens).forEach(([chainNumber, addresses]) => {
-      const chainInfo = COINCAP_CHAIN_MAP[chainNumber]
-      if (!chainInfo || !addresses.length) return
-
-      const { chainId, chainReference, assetNamespace } = chainInfo
-
-      // Use first address if multiple exist  
-      const address = addresses[0]
-
-      try {
-        const assetId = toAssetId({
-          chainNamespace: CHAIN_NAMESPACE.Evm, // Most chains are EVM
-          chainReference,
-          assetNamespace,
-          assetReference: address,
-        })
-        assetMaps[chainId][assetId] = id
-      } catch {
-        // Skip invalid addresses
-      }
-    })
-
-    // Method 2: Handle native ETH and all explorer URL parsing (like original parseEthData)
-    if (id === 'ethereum') {
-      // Handle native ETH
-      try {
-        const assetId = toAssetId({
-          chainNamespace: CHAIN_NAMESPACE.Evm,
-          chainReference: CHAIN_REFERENCE.EthereumMainnet,
-          assetNamespace: 'slip44',
-          assetReference: ASSET_REFERENCE.Ethereum,
-        })
-        assetMaps[ethChainId][assetId] = id
-      } catch {}
-    } else if (explorer && explorer.startsWith('https://etherscan.io/token/0x')) {
-      // Parse ALL explorer URLs for maximum coverage (original parseEthData logic)
-      const address = explorer
-        .replace('https://etherscan.io/token/', '')
-        .split('#')[0]
-        .split('?')[0]
-      try {
-        const assetId = toAssetId({
-          chainNamespace: CHAIN_NAMESPACE.Evm,
-          chainReference: CHAIN_REFERENCE.EthereumMainnet,
-          assetNamespace: 'erc20',
-          assetReference: address, // Keep original case like parseEthData
-        })
-        assetMaps[ethChainId][assetId] = id
-      } catch {}
-    }
-  })
-
-  return assetMaps
+  return result
 }
-
-export const parseData = (d: CoinCapCoin[]) => parseEnhancedData(d)

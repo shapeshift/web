@@ -184,6 +184,7 @@ const validators = {
   VITE_FEATURE_MAYA_SWAP: bool({ default: false }),
   VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
+  VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

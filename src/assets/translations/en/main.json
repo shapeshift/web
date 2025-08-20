@@ -2680,6 +2680,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Initiated",
+    "unstakeInitiated": "Unstake Initiated",
+    "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Funds",

@@ -4,6 +4,7 @@ import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
 
+import { FoxEcosystemPage } from '../pages/Fox/FoxEcosystemPage'
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
@@ -251,7 +252,7 @@ export const routes: Route[] = [
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX,
+    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/fox',
@@ -261,7 +262,16 @@ export const routes: Route[] = [
     category: RouteCategory.Fox,
     priority: 6,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_FOX_PAGE,
+    disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+  },
+  {
+    path: '/fox-ecosystem',
+    label: 'navBar.foxEcosystem',
+    icon: <FoxIcon />,
+    main: FoxEcosystemPage,
+    priority: 6,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/tcy/*',

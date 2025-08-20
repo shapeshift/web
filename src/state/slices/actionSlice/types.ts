@@ -93,6 +93,7 @@ type ActionGenericTransactionMetadata = {
   newAddress?: string
   contractName?: string
   cooldownPeriod?: string
+  cooldownPeriodSeconds?: number
   thorMemo?: string | null
   confirmedQuote?: LpConfirmedWithdrawalQuote | LpConfirmedDepositQuote
   assetAmountsAndSymbols?: string

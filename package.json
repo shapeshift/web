@@ -287,7 +287,7 @@
     "ts-prune": "^0.10.3",
     "tsx": "^4.19.3",
     "typescript": "^5.2.2",
-    "vite": "6.2.2",
+    "vite": "6.2.7",
     "vite-bundle-analyzer": "^0.18.1",
     "vite-plugin-checker": "^0.9.1",
     "vite-plugin-node-polyfills": "^0.23.0",

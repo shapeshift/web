@@ -73,10 +73,6 @@ export const useRfoxClaimActionSubscriber = () => {
 
       const maybeStoreAction = actions[request.id]
 
-      console.log({
-        request,
-      })
-
       if (now >= cooldownExpiryMs) {
         // This was available and is still available, no-op.
         if (

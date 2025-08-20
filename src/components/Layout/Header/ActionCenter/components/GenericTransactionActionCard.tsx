@@ -9,12 +9,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { formatSecondsToDuration } from '../../../../../lib/utils/time'
 import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
@@ -98,7 +98,8 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
         const isUnstake = action.type === ActionType.Withdraw
 
         console.log({
-          seconds: action.transactionMetadata.cooldownPeriodSeconds,
+          createdAt: action.createdAt,
+          cooldownPeriodSeconds: action.transactionMetadata.cooldownPeriodSeconds,
         })
 
         return (
@@ -130,9 +131,15 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
                       fontSize='sm'
                       isDisabled
                     >
-                      {formatSecondsToDuration(
-                        action.transactionMetadata.cooldownPeriodSeconds ?? 0,
-                      )}
+                      {dayjs(
+                        bnOrZero(action.createdAt)
+                          .plus(
+                            bnOrZero(action.transactionMetadata.cooldownPeriodSeconds).multipliedBy(
+                              1_000,
+                            ),
+                          )
+                          .toNumber(),
+                      ).fromNow()}
                     </Button>
                   </Stack>
                 )}

@@ -3,28 +3,14 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
-import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import {
-  AllowanceType,
-  getApprovalAmountCryptoBaseUnit,
-  useApprovalFees,
-} from '@/hooks/queries/useApprovalFees'
+import type { AllowanceType } from '@/hooks/queries/useApprovalFees'
+import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from '@/hooks/queries/useApprovalFees'
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { fromBaseUnit } from '@/lib/math'
 import { reactQueries } from '@/react-queries'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
 import { selectHopSellAccountId } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -38,10 +24,7 @@ export const useAllowanceApproval = (
   confirmedTradeId: TradeQuote['id'],
   isInitiallyRequired: boolean,
 ) => {
-  const translate = useTranslate()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const dispatch = useAppDispatch()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
 
@@ -121,57 +104,6 @@ export const useAllowanceApproval = (
       )
 
       if (!tradeQuoteStep?.sellAsset || !sellAssetAccountId) return
-
-      const amountCryptoPrecision =
-        allowanceType === AllowanceType.Unlimited
-          ? 'Infinite ∞'
-          : fromBaseUnit(approvalAmountCryptoBaseUnit, tradeQuoteStep.sellAsset.precision)
-
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: txHash,
-          type: ActionType.Approve,
-          status: ActionStatus.Pending,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          transactionMetadata: {
-            displayType: GenericTransactionDisplayType.Approve,
-            txHash,
-            chainId: tradeQuoteStep.sellAsset.chainId,
-            accountId: sellAssetAccountId,
-            amountCryptoPrecision,
-            assetId: tradeQuoteStep.sellAsset.assetId,
-            contractName: tradeQuoteStep.source,
-            message: translate('actionCenter.approve.approvalTxPending', {
-              contractName: tradeQuoteStep.source,
-              amountCryptoPrecision,
-              symbol: tradeQuoteStep.sellAsset.symbol,
-            }),
-          },
-        }),
-      )
-
-      toast({
-        id: txHash,
-        duration: isDrawerOpen ? 5000 : null,
-        status: 'success',
-        render: ({ onClose, ...props }) => {
-          const handleClick = () => {
-            onClose()
-            openActionCenter()
-          }
-
-          return (
-            <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
-              handleClick={handleClick}
-              actionId={txHash}
-              onClose={onClose}
-              {...props}
-            />
-          )
-        },
-      })
 
       const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })

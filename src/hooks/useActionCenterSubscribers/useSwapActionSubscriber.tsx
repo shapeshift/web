@@ -7,6 +7,7 @@ import {
   swappers,
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
+  TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
@@ -39,7 +40,10 @@ import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
-import { selectHopExecutionMetadata } from '@/state/slices/tradeQuoteSlice/selectors'
+import {
+  selectConfirmedTradeExecution,
+  selectHopExecutionMetadata,
+} from '@/state/slices/tradeQuoteSlice/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -48,6 +52,7 @@ export const useSwapActionSubscriber = () => {
   const hasSeenRatingModal = useAppSelector(preferences.selectors.selectHasSeenRatingModal)
   const { open: openRatingModal } = useModal('rating')
   const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
+  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
 
   const dispatch = useAppDispatch()
 
@@ -80,15 +85,16 @@ export const useSwapActionSubscriber = () => {
 
     const activeSwap = swapsById[activeSwapId]
 
-    if (!activeSwap) return
+    if (!activeSwap || !confirmedTradeExecution) return
 
-    const firstHopAllowanceApproval = selectHopExecutionMetadata(store.getState(), {
-      tradeId: activeSwap.metadata.quoteId,
-      hopIndex: activeSwap.metadata.stepIndex,
-    })?.allowanceApproval
+    const firstHopAllowanceApproval = confirmedTradeExecution.firstHop.allowanceApproval
 
-    if (activeSwap.status !== SwapStatus.Pending) return
-    if (previousSwapStatus === activeSwap.status) return
+    const hasApproval =
+      firstHopAllowanceApproval.state === TransactionExecutionState.Complete ||
+      (firstHopAllowanceApproval.state === TransactionExecutionState.AwaitingConfirmation &&
+        !firstHopAllowanceApproval.isRequired)
+
+    if (activeSwap.status !== SwapStatus.Pending && !hasApproval) return
 
     const existingSwapAction = selectSwapActionBySwapId(store.getState(), {
       swapId: activeSwap.id,
@@ -109,7 +115,7 @@ export const useSwapActionSubscriber = () => {
         },
       }),
     )
-  }, [dispatch, activeSwapId, swapsById, previousSwapStatus])
+  }, [dispatch, activeSwapId, swapsById, previousSwapStatus, confirmedTradeExecution])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {

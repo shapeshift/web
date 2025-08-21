@@ -8,12 +8,13 @@ import {
   SimpleGrid,
   Skeleton,
 } from '@chakra-ui/react'
-import { tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { Suspense, useEffect, useMemo } from 'react'
+import { tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { Suspense, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useTcyDistributor } from '../queries/useTcyDistributooor'
 import { useTcyStaker } from '../queries/useTcyStaker'
+import type { CurrentAccount } from '../tcy'
 import type { TCYRouteProps } from '../types'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -23,45 +24,32 @@ import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 type OverviewProps = TCYRouteProps & {
-  activeAccountNumber: number
+  currentAccount: CurrentAccount
 }
 
 const gridColumns = { base: 1, md: 2 }
 
 const StakedBalance = ({ accountId }: { accountId: string | undefined }) => {
   const translate = useTranslate()
-  const dispatch = useAppDispatch()
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const tcyMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, tcyAssetId),
   )
-  const defaultTcyAccountId = useAppSelector(preferences.selectors.selectDefaultTcyAccountId)
 
   const { data: staker } = useTcyStaker(accountId)
-  const { data: defaultStaker } = useTcyStaker(defaultTcyAccountId)
 
   const amountCryptoPrecision = fromBaseUnit(staker?.amount ?? '0', THOR_PRECISION)
-  const defaultAmountCryptoPrecision = fromBaseUnit(defaultStaker?.amount ?? '0', THOR_PRECISION)
   const amountUserCurrency = bnOrZero(amountCryptoPrecision)
     .times(bnOrZero(tcyMarketData?.price))
     .toFixed(2)
-
-  // If the current account has more staked value then our default, make it the default
-  useEffect(() => {
-    if (accountId && staker && bnOrZero(amountCryptoPrecision).gt(defaultAmountCryptoPrecision)) {
-      dispatch(preferences.actions.setDefaultTcyAccountId(accountId))
-    }
-  }, [accountId, staker, dispatch, amountCryptoPrecision, defaultAmountCryptoPrecision])
 
   if (!tcyAsset) return null
 
@@ -140,16 +128,11 @@ const RewardsBalanceSkeleton = () => {
 const stakedBalanceSkeleton = <StakedBalanceSkeleton />
 const rewardsBalanceSkeleton = <RewardsBalanceSkeleton />
 
-export const Overview = ({ activeAccountNumber }: OverviewProps) => {
+export const Overview = ({ currentAccount }: OverviewProps) => {
   const translate = useTranslate()
 
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-
-  const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-  const accountId = accountNumberAccounts?.[thorchainChainId]
+  const accountId = currentAccount.accountId
 
   const filter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 

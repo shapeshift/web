@@ -140,7 +140,9 @@ export const useGetTradeRateInput = ({
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions
       // and losing sync on loading state etc.
-      if (shouldClearQuoteSlice) dispatch(tradeQuoteSlice.actions.clear())
+      if (shouldClearQuoteSlice) {
+        dispatch(tradeQuoteSlice.actions.clear())
+      }
 
       // Early exit on any invalid state
       if (bnOrZero(sellAmountCryptoPrecision).isZero()) {

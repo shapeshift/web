@@ -23,6 +23,7 @@
     "close": "Fechar",
     "closed": "Fechado",
     "loadMore": "Carregar mais",
+    "volumeShort": "VOL",
     "saveChanges": "Salvar Mudanças",
     "new": "Novo",
     "continue": "Continuar",
@@ -129,6 +130,7 @@
     "buySell": "Compre/Venda",
     "all": "Todos",
     "viewAll": "Ver todos",
+    "seeMore": "Veja Mais",
     "slippage": "Slippage",
     "feesPlusSlippage": "Taxas + Slippage",
     "best": "Melhor",
@@ -139,6 +141,13 @@
     "fees": "Taxas",
     "alternative": "Alternativa",
     "validator": "o %{name} validador",
+    "howWasYourExperience": "Como foi sua experiência de trading?",
+    "leaveUsAReview": "Deixe um review",
+    "sendFeedback": "Envie sua Opinião",
+    "letUsKnowHowWeCanImprove": "Deixe-nos saber como podemos melhorar...",
+    "maybeLater": "Talvez mais tarde",
+    "feedbackSubmitted": "Feedback enviado",
+    "thankYouForYourFeedback": "Obrigado pelo seu feedback!",
     "needAsset": "Precisa de algum %{asset}?",
     "buyNow": "Comprar agora",
     "manage": "Gerenciar",
@@ -164,6 +173,7 @@
     "disabled": "Desabilitado",
     "staged": "Staged",
     "poolHalted": "Pool Pausada",
+    "poolStaged": "Pool Colocada",
     "chainHalted": "Rede \"Pausada\"",
     "poolDisabled": "Pool Desabilitada",
     "prices": "Preços",
@@ -202,7 +212,9 @@
     "marketDataUnavailable": "Dados de mercado indisponíveis para %{asset}",
     "streaming": "Streaming",
     "dca": "DCA",
-    "boost": "Impulso"
+    "boost": "Impulso",
+    "viewOnExplorer": "Ver no explorador",
+    "approval": "Aprovação"
   },
   "consentBanner": {
     "body": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite %{privateLink} se você não quiser ser rastreado anonimamente. Veja nossa %{privacyPolicyLink} para mais detalhes.",
@@ -506,7 +518,7 @@
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
     "myPositions": "Minhas Posições",
-    "myPositionsBody": "Uma lista de suas posições atualmente ativas no DeFi.",
+    "myPositionsBody": "Uma lista de suas posições DeFi ativas.",
     "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
     "liquidityLockupWarning": "Há um período de bloqueio de %{time}. Durante o bloqueio, você não pode acessar sua liquidez.",
@@ -841,6 +853,10 @@
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
     "noRateAvailable": "Nenhuma taxa disponível.",
+    "fetchingQuotes": {
+      "title": "Buscando Cotações",
+      "description": "Buscando cotações para este par, isso pode levar até %{maxTimeSeconds} segundos"
+    },
     "previewTrade": "Prévia da Negociação",
     "rate": "Taxa",
     "tradeFrom": "Negocie de",
@@ -920,7 +936,6 @@
     "thisIsYourCustomRecipientAddress": "Este é o seu endereço personalizado para recebimento",
     "enterCustomRecipientAddress": "Insira o endereço do destinatário personalizado",
     "receiveAtLeast": "Receba pelo menos",
-    "viewOnBlockExplorer": "Visualização do explorador de blocos",
     "tooltip": {
       "continueSwapping": "Continue negociando para mais detalhes",
       "changeQuote": "Alterar cotação",
@@ -997,7 +1012,8 @@
       "executionRevertedWithExpectedSlippage": "Execução revertida durante a execução. Isso pode ser devido à tolerância de slipipage insuficiente. Slippage esperado: %{expectedSlippage}%. Tente novamente com uma tolerância de slippage maior.",
       "slippageToleranceExceeded": "Tolerância de slippage excedida.",
       "underMinimumAmount": "Um ou mais ativos nesta negociação estão abaixo do valor mínimo exigido para esta negociação.",
-      "consumedMoreFees": "A transação foi revertida porque as taxas consumidas por essa negociação foram maiores do que o esperado."
+      "consumedMoreFees": "A transação foi revertida porque as taxas consumidas por essa negociação foram maiores do que o esperado.",
+      "swapperTimeout": "Tempo limite da solicitação esgotado."
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
@@ -2031,6 +2047,13 @@
     }
   },
   "assets": {
+    "more": "Mais",
+    "spam": {
+      "warning": "Este recurso será ocultado porque você o marcou como spam.",
+      "marked": "Este ativo está marcado como spam.",
+      "reportAsSpam": "Denunciar como spam",
+      "reportAsNotSpam": "Marcar como não spam"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Saldo",
@@ -2621,6 +2644,8 @@
     "understand": "Eu entendo os riscos"
   },
   "watchlist": {
+    "add": "Adicionar à lista de observação",
+    "remove": "Remover da lista de observação",
     "empty": {
       "title": "Comece a construir sua watchlist",
       "body": "Onde quer que você veja o ícone de estrela, você pode usá-lo para adicionar ativos aqui.",
@@ -2643,6 +2668,15 @@
     "tcy": {
       "title": "TCY",
       "body": "Stake TCY, ganhe RUNE."
+    },
+    "tags": {
+      "liquid-staking": "Staking Líquido",
+      "yield": "Rendimento",
+      "lending": "Empréstimo",
+      "rwa": "RWA",
+      "yield-aggregator": "Agregador de Yield",
+      "pool": "Pool",
+      "clp": "Pool de Liquidez Concentrada (CLP)"
     }
   },
   "RFOX": {
@@ -2994,6 +3028,17 @@
       "complete": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} foi completado.",
       "failed": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} falhou.",
       "streaming": "Seu swap de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} está sendo transmitido."
+    },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} e %{asset2}",
+      "withdraw": {
+        "processing": "Seu saque de %{assetAmountsAndSymbols} do pool %{poolName} está sendo processado.",
+        "complete": "Sua retirada de %{assetAmountsAndSymbols} do pool %{poolName} foi concluída."
+      },
+      "deposit": {
+        "processing": "Seu depósito de %{amountCryptoPrecision} %{symbol} no pool %{poolName} está sendo processado.",
+        "complete": "Seu depósito de %{amountCryptoPrecision} %{symbol} no pool %{poolName} foi concluído."
+      }
     },
     "deposit": {
       "pending": "Seu depósito de %{amount} %{symbol} está sendo processado.",

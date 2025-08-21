@@ -87,7 +87,11 @@ export type FeatureFlags = {
   MayaSwap: boolean
   ButterSwap: boolean
   LazyTxHistory: boolean
+<<<<<<< HEAD
   RfoxFoxEcosystemPage: boolean
+=======
+  QuickBuy: boolean
+>>>>>>> develop
 }
 
 export type Flag = keyof FeatureFlags
@@ -128,6 +132,7 @@ export type Preferences = {
   spamMarkedAssets: AssetId[]
   selectedHomeView: HomeMarketView
   quoteDisplayOption: QuoteDisplayOption
+  quickBuyAmounts: number[]
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories
     selectedOrder: OrderDirection
@@ -208,6 +213,7 @@ const initialState: Preferences = {
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+    QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},
@@ -223,6 +229,7 @@ const initialState: Preferences = {
   spamMarkedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
   quoteDisplayOption: QuoteDisplayOption.Basic,
+  quickBuyAmounts: [10, 50, 100],
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories.Trending,
     selectedOrder: OrderDirection.Descending,
@@ -339,6 +346,9 @@ export const preferences = createSlice({
     setHasSeenRatingModal: create.reducer((state, _) => {
       state.hasSeenRatingModal = true
     }),
+    setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
+      state.quickBuyAmounts = payload
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -357,5 +367,6 @@ export const preferences = createSlice({
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
+    selectQuickBuyAmounts: state => state.quickBuyAmounts,
   },
 })

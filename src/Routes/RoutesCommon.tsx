@@ -4,6 +4,7 @@ import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
 
+import { FoxPageIcon } from '../components/Icons/FoxPageIcon'
 import { FoxEcosystemPage } from '../pages/Fox/FoxEcosystemPage'
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
@@ -267,7 +268,7 @@ export const routes: Route[] = [
   {
     path: '/fox-ecosystem',
     label: 'navBar.foxEcosystem',
-    icon: <FoxIcon />,
+    icon: <FoxPageIcon />,
     main: FoxEcosystemPage,
     priority: 6,
     mobileNav: false,

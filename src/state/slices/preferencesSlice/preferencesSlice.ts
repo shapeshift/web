@@ -87,11 +87,8 @@ export type FeatureFlags = {
   MayaSwap: boolean
   ButterSwap: boolean
   LazyTxHistory: boolean
-<<<<<<< HEAD
   RfoxFoxEcosystemPage: boolean
-=======
   QuickBuy: boolean
->>>>>>> develop
 }
 
 export type Flag = keyof FeatureFlags

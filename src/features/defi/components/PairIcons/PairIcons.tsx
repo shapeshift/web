@@ -4,8 +4,9 @@ import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { imageLongPressSx } from '@/constants/longPress'
 
-const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold' }
+const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold', ...imageLongPressSx }
 
 const getRandomPosition = (length: number) => {
   const angle = Math.random() * 2 * Math.PI

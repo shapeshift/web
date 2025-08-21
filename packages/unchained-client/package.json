@@ -1,19 +1,29 @@
 {
   "name": "@shapeshiftoss/unchained-client",
-  "version": "10.14.3",
+  "version": "10.14.4",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist-cjs/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist-cjs/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
-    "dist"
+    "dist",
+    "dist-cjs"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn generate && yarn run -T tsc --build",
-    "clean": "rm -rf dist src/generated tsconfig.tsbuildinfo",
+    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn run -T tsc --build tsconfig.cjs.json",
+    "build:cjs": "yarn run -T tsc --build tsconfig.cjs.json",
+    "clean": "rm -rf dist dist-cjs src/generated && rm -f tsconfig*.tsbuildinfo 2>/dev/null || true",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate"
   },

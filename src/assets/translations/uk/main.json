@@ -23,6 +23,7 @@
     "close": "Закрити",
     "closed": "Закрити.",
     "loadMore": "Читати далі",
+    "volumeShort": "VOL",
     "saveChanges": "Зберегти зміни",
     "new": "Новий",
     "continue": "Продовжити",
@@ -129,6 +130,7 @@
     "buySell": "Купити/продати",
     "all": "Всі",
     "viewAll": "Переглянути всі",
+    "seeMore": "Дивитися більше",
     "slippage": "Прослизання",
     "feesPlusSlippage": "Комісії + прослизання",
     "best": "Найкраща",
@@ -139,6 +141,13 @@
     "fees": "Комісії",
     "alternative": "Альтернатива",
     "validator": " %{name} Валідатор",
+    "howWasYourExperience": "Як пройшов ваш торговий досвід?",
+    "leaveUsAReview": "Залиште нам відгук",
+    "sendFeedback": "Надіслати відгук",
+    "letUsKnowHowWeCanImprove": "Повідомте нам, як ми можемо покращити...",
+    "maybeLater": "Можливо пізніше",
+    "feedbackSubmitted": "Надіслані відгуки",
+    "thankYouForYourFeedback": "Дякуємо за ваш відгук!",
     "needAsset": "Отримати %{asset}?",
     "buyNow": "Купити зараз",
     "manage": "Управління",
@@ -164,6 +173,7 @@
     "disabled": "З обмеженими можливостями",
     "staged": "Стадійні",
     "poolHalted": "Пул зупинено",
+    "poolStaged": "Pool Staged",
     "chainHalted": "Мережа зупинилася",
     "poolDisabled": "Пул відключений",
     "prices": "Ціни",
@@ -202,7 +212,9 @@
     "marketDataUnavailable": "Ринкові дані недоступні для %{asset}",
     "streaming": "Стрімінг",
     "dca": "DCA",
-    "boost": "Буст"
+    "boost": "Буст",
+    "viewOnExplorer": "Переглянути в браузері",
+    "approval": "Затвердження"
   },
   "consentBanner": {
     "body": "Наш dApp використовує анонімне відстеження кліків для аналізу продуктивності та покращення вашого досвіду. Використовуючи app.shapeshift.com, ви погоджуєтеся на наше відстеження. Відвідати %{privateLink} якщо ви не хочете, щоб вас відстежували анонімно. Дивіться нашу %{privacyPolicyLink} для більш детальної інформації.",
@@ -506,7 +518,7 @@
     "clickHereToEarn": "Натисніть тут, щоб заробити %{apr} APR*, фармлячи токени пулу ліквідності ETH-FOX",
     "overview": "Огляд",
     "myPositions": "Мої позиції",
-    "myPositionsBody": "Список ваших поточних активних позицій в DeFi.",
+    "myPositionsBody": "Список ваших активних позицій DeFi.",
     "viewAllPositions": "Переглянути всі позиції",
     "liquidityPools": "Пули ліквідності",
     "liquidityLockupWarning": "Існує період блокування %{time}. Під час блокування ви не можете отримати доступ до своєї ліквідності.",
@@ -841,6 +853,10 @@
     "allowanceTooltip": "Сума, яку ви надасте смарт-контракту право використовувати від вашого імені.",
     "searchingRate": "Швидкість вилучення...",
     "noRateAvailable": "Тариф не доступний.",
+    "fetchingQuotes": {
+      "title": "Отримання котирувань",
+      "description": "Отримання котирувань для цієї пари може зайняти до %{maxTimeSeconds} секунд."
+    },
     "previewTrade": "Попередній перегляд торгівлі",
     "rate": "Курс",
     "tradeFrom": "Обміняти з",
@@ -920,7 +936,6 @@
     "thisIsYourCustomRecipientAddress": "Це ваша користувацька адреса одержувача",
     "enterCustomRecipientAddress": "Введіть користувацьку адресу одержувача",
     "receiveAtLeast": "Отримаєте щонайменше",
-    "viewOnBlockExplorer": "Перегляд у провіднику блоків",
     "tooltip": {
       "continueSwapping": "Продовжуйте обмін для отримання фінальних деталей",
       "changeQuote": "Змінити пропозицію",
@@ -997,7 +1012,8 @@
       "executionRevertedWithExpectedSlippage": "Виконання відмінено під час роботи. Це може бути пов'язано з недостатнім дозволом на прослизання. Очікуване прослизання: %{expectedSlippage}%. Повторіть спробу з вищим значенням  допустимого прослизання. %{expectedSlippage}%. ",
       "slippageToleranceExceeded": "Перевищено допуск на прослизання.",
       "underMinimumAmount": "Один або більше активів у цій угоді є меншими за мінімальну суму, необхідну для цієї угоди.",
-      "consumedMoreFees": "Транзакцію було скасовано, оскільки комісійні, понесені цією торгівлею, виявилися вищими, ніж очікувалося."
+      "consumedMoreFees": "Транзакцію було скасовано, оскільки комісійні, понесені цією торгівлею, виявилися вищими, ніж очікувалося.",
+      "swapperTimeout": "Запит закінчився."
     },
     "swappingComingSoonForWallet": "Зміна на %{walletName} незабаром",
     "recentTrades": "Нещодавні угоди",
@@ -2031,6 +2047,13 @@
     }
   },
   "assets": {
+    "more": "Більше",
+    "spam": {
+      "warning": "Цей актив буде прихований, оскільки ви позначили його як спам.",
+      "marked": "Цей актив позначений як спам.",
+      "reportAsSpam": "Повідомити про спам",
+      "reportAsNotSpam": "Позначити як не спам"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Залишок",
@@ -2621,6 +2644,8 @@
     "understand": "Я усвідомлюю ризики"
   },
   "watchlist": {
+    "add": "Додати до списку спостереження",
+    "remove": "Видалити зі списку спостереження",
     "empty": {
       "title": "Почніть формувати список спостереження",
       "body": "Скрізь, де ви бачите іконку зірочки, ви можете використовувати її для додавання ресурсів.",
@@ -2643,6 +2668,15 @@
     "tcy": {
       "title": "TCY",
       "body": "Стейкайте TCY, заробляйте RUNE."
+    },
+    "tags": {
+      "liquid-staking": "Ліквідний стейкінг",
+      "yield": "Дохідність",
+      "lending": "Кредитування",
+      "rwa": "RWA",
+      "yield-aggregator": "Агрегатор прибутковості",
+      "pool": "Пул",
+      "clp": "CLP"
     }
   },
   "RFOX": {
@@ -2994,6 +3028,17 @@
       "complete": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершено.",
       "failed": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершився невдало.",
       "streaming": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} відбувається в потоковому режимі."
+    },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} і %{asset2}",
+      "withdraw": {
+        "processing": "Ваше зняття %{assetAmountsAndSymbols} з пулу %{poolName} обробляється.",
+        "complete": "Ваше виведення %{assetAmountsAndSymbols} з пулу %{poolName} завершено."
+      },
+      "deposit": {
+        "processing": "Ваш депозит у розмірі %{amountCryptoPrecision} %{symbol} до пулу %{poolName} обробляється.",
+        "complete": "Ваш депозит у розмірі %{amountCryptoPrecision} %{symbol} до пулу %{poolName} завершено."
+      }
     },
     "deposit": {
       "pending": "Ваш депозит у розмірі %{amount} %{symbol} обробляється.",

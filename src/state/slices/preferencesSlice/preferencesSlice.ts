@@ -136,6 +136,7 @@ export type Preferences = {
     selectedChainId: ChainId | 'all'
   }
   hasSeenRatingModal: boolean
+  defaultTcyAccountId?: string
 }
 
 const initialState: Preferences = {
@@ -344,6 +345,9 @@ export const preferences = createSlice({
     setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
       state.quickBuyAmounts = payload
     }),
+    setDefaultTcyAccountId: create.reducer((state, { payload }: { payload: string }) => {
+      state.defaultTcyAccountId = payload
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -363,5 +367,6 @@ export const preferences = createSlice({
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
     selectQuickBuyAmounts: state => state.quickBuyAmounts,
+    selectDefaultTcyAccountId: state => state.defaultTcyAccountId,
   },
 })

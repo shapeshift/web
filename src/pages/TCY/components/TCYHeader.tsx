@@ -1,7 +1,7 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,11 +11,8 @@ import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
-import {
-  selectAccountIdsByChainIdFilter,
-  selectAccountNumberByAccountId,
-} from '@/state/slices/portfolioSlice/selectors'
-import { store, useAppSelector } from '@/state/store'
+import { selectAccountNumberByAccountId } from '@/state/slices/portfolioSlice/selectors'
+import { store } from '@/state/store'
 
 const buttonProps = {
   variant: 'solid',
@@ -23,10 +20,16 @@ const buttonProps = {
 }
 
 type TCYHeaderProps = {
+  activeAccountNumber: number
   onAccountNumberChange: (accountNumber: number) => void
+  accountIds: AccountId[]
 }
 
-export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
+export const TCYHeader = ({
+  activeAccountNumber,
+  onAccountNumberChange,
+  accountIds,
+}: TCYHeaderProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
 
@@ -34,17 +37,12 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
     navigate('/explore')
   }, [navigate])
 
-  const accountIds = useAppSelector(state =>
-    selectAccountIdsByChainIdFilter(state, { chainId: thorchainChainId }),
-  )
-
-  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountIds[0])
+  const currentAccountId = accountIds[activeAccountNumber]
 
   const handleChange = useCallback(
     (accountId: string) => {
-      setDefaultAccountId(accountId)
       const accountNumber = selectAccountNumberByAccountId(store.getState(), { accountId })
-      if (accountNumber === undefined) throw new Error('Account number not found')
+      if (accountNumber === undefined) return
       onAccountNumberChange(accountNumber)
     },
     [onAccountNumberChange],
@@ -57,16 +55,16 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
       <Flex alignItems='center' gap={2}>
         <Text translation='common.activeAccount' fontWeight='medium' />
 
-        {defaultAccountId && <InlineCopyButton value={fromAccountId(defaultAccountId).account} />}
+        {currentAccountId && <InlineCopyButton value={fromAccountId(currentAccountId).account} />}
         <AccountDropdown
-          defaultAccountId={defaultAccountId}
+          defaultAccountId={currentAccountId}
           assetId={thorchainAssetId}
           onChange={handleChange}
           buttonProps={buttonProps}
         />
       </Flex>
     )
-  }, [accountIds, handleChange, defaultAccountId])
+  }, [accountIds, handleChange, currentAccountId])
 
   return (
     <>

@@ -1,7 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
-import { tcyAssetId } from '@shapeshiftoss/caip'
-import { useEffect, useMemo, useState } from 'react'
+import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Activity } from './components/Activity/Activity'
 import { Claim } from './components/Claim/Claim'
@@ -12,7 +12,9 @@ import { Widget } from './components/Widget'
 import { Main } from '@/components/Layout/Main'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { useAppDispatch } from '@/state/store'
+import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: '100%', md: '450px' }
@@ -20,10 +22,37 @@ const mainPaddingBottom = { base: 16, md: 8 }
 
 export const TCY = () => {
   const dispatch = useAppDispatch()
-  const [activeAccountNumber, setActiveAccountNumber] = useState(0)
+  const [userSelectedAccountNumber, setUserSelectedAccountNumber] = useState<number | undefined>()
+
+  const accountIds = useAppSelector(state =>
+    selectAccountIdsByChainIdFilter(state, { chainId: thorchainChainId }),
+  )
+  const defaultTcyAccountId = useAppSelector(preferences.selectors.selectDefaultTcyAccountId)
+
+  const activeAccountNumber = useMemo(() => {
+    if (userSelectedAccountNumber !== undefined) return userSelectedAccountNumber
+
+    if (defaultTcyAccountId) {
+      const index = accountIds.indexOf(defaultTcyAccountId)
+      if (index !== -1) return index
+    }
+
+    return 0
+  }, [userSelectedAccountNumber, defaultTcyAccountId, accountIds])
+
+  const handleAccountNumberChange = useCallback((accountNumber: number) => {
+    setUserSelectedAccountNumber(accountNumber)
+  }, [])
+
   const tcyHeader = useMemo(
-    () => <TCYHeader onAccountNumberChange={setActiveAccountNumber} />,
-    [setActiveAccountNumber],
+    () => (
+      <TCYHeader
+        activeAccountNumber={activeAccountNumber}
+        onAccountNumberChange={handleAccountNumberChange}
+        accountIds={accountIds}
+      />
+    ),
+    [activeAccountNumber, handleAccountNumberChange, accountIds],
   )
 
   const isTcyWidgetEnabled = useFeatureFlag('ThorchainTcyWidget')

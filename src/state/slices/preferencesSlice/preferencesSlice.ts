@@ -87,6 +87,7 @@ export type FeatureFlags = {
   MayaSwap: boolean
   ButterSwap: boolean
   LazyTxHistory: boolean
+  QuickBuy: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -127,6 +128,7 @@ export type Preferences = {
   spamMarkedAssets: AssetId[]
   selectedHomeView: HomeMarketView
   quoteDisplayOption: QuoteDisplayOption
+  quickBuyAmounts: number[]
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories
     selectedOrder: OrderDirection
@@ -206,6 +208,7 @@ const initialState: Preferences = {
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
+    QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},
@@ -221,6 +224,7 @@ const initialState: Preferences = {
   spamMarkedAssets: [],
   selectedHomeView: HomeMarketView.TopAssets,
   quoteDisplayOption: QuoteDisplayOption.Basic,
+  quickBuyAmounts: [10, 50, 100],
   highlightedTokensFilters: {
     selectedCategory: MarketsCategories.Trending,
     selectedOrder: OrderDirection.Descending,
@@ -337,6 +341,9 @@ export const preferences = createSlice({
     setHasSeenRatingModal: create.reducer((state, _) => {
       state.hasSeenRatingModal = true
     }),
+    setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
+      state.quickBuyAmounts = payload
+    }),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -355,5 +362,6 @@ export const preferences = createSlice({
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
+    selectQuickBuyAmounts: state => state.quickBuyAmounts,
   },
 })

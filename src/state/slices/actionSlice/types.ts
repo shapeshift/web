@@ -1,6 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
+import type { RewardDistributionWithMetadata } from '../../../pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
 import type { ApprovalExecutionMetadata } from '../tradeQuoteSlice/types'
 
@@ -23,6 +24,7 @@ export enum ActionType {
   Send = 'Send',
   Approve = 'Approve',
   ChangeAddress = 'ChangeAddress',
+  RewardDistribution = 'RewardDistribution',
 }
 
 export enum ActionStatus {
@@ -151,6 +153,14 @@ export type TcyClaimAction = BaseAction & {
   }
 }
 
+export type RewardDistributionAction = BaseAction & {
+  type: ActionType.RewardDistribution
+  rewardDistributionMetadata: {
+    distribution: RewardDistributionWithMetadata
+    txHash?: string
+  }
+}
+
 export type Action =
   | SwapAction
   | LimitOrderAction
@@ -158,6 +168,7 @@ export type Action =
   | GenericTransactionAction
   | RfoxClaimAction
   | TcyClaimAction
+  | RewardDistributionAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -195,6 +206,10 @@ export const isRfoxClaimAction = (action: Action): action is RfoxClaimAction => 
 
 export const isTcyClaimAction = (action: Action): action is TcyClaimAction => {
   return Boolean(action.type === ActionType.TcyClaim && action.tcyClaimActionMetadata)
+}
+
+export const isRewardDistributionAction = (action: Action): action is RewardDistributionAction => {
+  return Boolean(action.type === ActionType.RewardDistribution && action.rewardDistributionMetadata)
 }
 
 export const isThorchainLpAction = (action: Action): action is GenericTransactionAction => {

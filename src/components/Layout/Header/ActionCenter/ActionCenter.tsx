@@ -20,6 +20,7 @@ import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
+import { RewardDistributionActionCard } from './components/RewardDistributionActionCard'
 import { RfoxClaimActionCard } from './components/RfoxClaimActionCard'
 import { SwapActionCard } from './components/SwapActionCard'
 import { TcyClaimActionCard } from './components/TcyClaimActionCard'
@@ -97,6 +98,9 @@ export const ActionCenter = memo(() => {
           }
           case ActionType.TcyClaim: {
             return <TcyClaimActionCard key={action.id} action={action} />
+          }
+          case ActionType.RewardDistribution: {
+            return <RewardDistributionActionCard key={action.id} action={action} />
           }
           default:
             return null

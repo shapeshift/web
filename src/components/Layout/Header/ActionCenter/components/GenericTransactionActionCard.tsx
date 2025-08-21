@@ -97,11 +97,6 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       case GenericTransactionDisplayType.RFOX:
         const isUnstake = action.type === ActionType.Withdraw
 
-        console.log({
-          createdAt: action.createdAt,
-          cooldownPeriodSeconds: action.transactionMetadata.cooldownPeriodSeconds,
-        })
-
         return (
           <Card>
             <CardBody>

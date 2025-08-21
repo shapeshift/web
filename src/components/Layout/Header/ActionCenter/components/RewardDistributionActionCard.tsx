@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Link, useDisclosure } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,7 +17,7 @@ import { Amount } from '@/components/Amount/Amount'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
-import { GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 
 type RewardDistributionActionCardProps = {
   action: RewardDistributionAction
@@ -25,7 +26,7 @@ type RewardDistributionActionCardProps = {
 export const RewardDistributionActionCard = ({ action }: RewardDistributionActionCardProps) => {
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
-  const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const { distribution } = action.rewardDistributionMetadata
 
@@ -34,11 +35,13 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [action.updatedAt])
 
   const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
+    if (!runeAsset) return
+
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={distribution.amount}
-          symbol='RUNE'
+          value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
+          symbol={runeAsset?.symbol}
           fontSize='sm'
           fontWeight='bold'
           maximumFractionDigits={6}
@@ -47,11 +50,11 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
         />
       ),
     }
-  }, [distribution.amount])
+  }, [distribution.amount, runeAsset])
 
   const description = useMemo(() => {
     const translationKey =
-      distribution.status === 'pending'
+      action.status === ActionStatus.Pending
         ? 'actionCenter.rewardDistribution.pending.description'
         : 'actionCenter.rewardDistribution.complete.description'
 
@@ -62,7 +65,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
         components={rewardDistributionTranslationComponents}
       />
     )
-  }, [rewardDistributionTranslationComponents, distribution.status])
+  }, [rewardDistributionTranslationComponents, action.status])
 
   const icon = useMemo(() => {
     return (
@@ -73,17 +76,17 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [action.status])
 
   const txLink = useMemo(() => {
-    if (!thorchainAsset) return
-    if (!distribution.txId) return
+    if (!runeAsset) return
+    if (!distribution.txId || distribution.txId === '') return
 
     return getTxLink({
       txId: distribution.txId,
-      chainId: thorchainAsset.chainId,
-      defaultExplorerBaseUrl: thorchainAsset.explorerTxLink,
+      chainId: runeAsset.chainId,
+      defaultExplorerBaseUrl: runeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })
-  }, [thorchainAsset, distribution.txId])
+  }, [runeAsset, distribution.txId])
 
   const footer = useMemo(() => {
     return (

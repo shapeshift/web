@@ -25,6 +25,7 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import axios from 'axios'
 import { EventEmitter } from 'node:events'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
@@ -36,7 +37,7 @@ import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
-import { selectCurrentSwap } from '@/state/slices/selectors'
+import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
@@ -162,6 +163,31 @@ export class TradeExecution {
       }
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
+
+      const enabledAccountIds = selectWalletEnabledAccountIds(store.getState())
+      const userData = queryClient.getQueryData<{ user: { id: string } }>([
+        'getOrCreateUser',
+        ...enabledAccountIds,
+      ])
+
+      await axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+        swapId: swap.id,
+        sellTxHash,
+        userId: userData?.user?.id,
+        sellAsset: updatedSwap.sellAsset,
+        buyAsset: updatedSwap.buyAsset,
+        sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+        expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+        sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+        expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+        source: updatedSwap.source,
+        swapperName: updatedSwap.swapperName,
+        sellAccountId: accountId,
+        buyAccountId: accountId,
+        receiveAddress: updatedSwap.receiveAddress,
+        isStreaming: updatedSwap.isStreaming,
+        metadata: JSON.stringify(updatedSwap.metadata),
+      })
 
       const { cancelPolling } = poll({
         fn: async () => {

@@ -62,16 +62,18 @@ export class CoinCapMarketService implements MarketService {
         .reduce((acc, cur) => {
           const { id } = cur
           try {
-            const assetId = adapters.coincapToAssetId(id)
-            if (!assetId) return acc
+            const assetIds = adapters.coincapToAssetIds(id)
+            if (!assetIds) return acc
             const curWithoutId = omit(cur, 'id') // don't leak this through to clients
-            acc[assetId] = {
-              price: curWithoutId.priceUsd.toString(),
-              marketCap: curWithoutId.marketCapUsd.toString(),
-              volume: curWithoutId.volumeUsd24Hr.toString(),
-              changePercent24Hr: parseFloat(curWithoutId.changePercent24Hr),
-              supply: curWithoutId.supply,
-              maxSupply: curWithoutId.maxSupply?.toString(),
+            for (const assetId of assetIds) {
+              acc[assetId] = {
+                price: curWithoutId.priceUsd.toString(),
+                marketCap: curWithoutId.marketCapUsd.toString(),
+                volume: curWithoutId.volumeUsd24Hr.toString(),
+                changePercent24Hr: parseFloat(curWithoutId.changePercent24Hr),
+                supply: curWithoutId.supply,
+                maxSupply: curWithoutId.maxSupply?.toString(),
+              }
             }
 
             return acc

@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { toAssetId } from '../../assetId/assetId'
-import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
-import { assetIdToCoinCap, coincapToAssetId } from '.'
+import {
+  ASSET_REFERENCE,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+} from '../../constants'
+import { assetIdToCoinCap, coincapToAssetIds } from '.'
 
 describe('adapters:coincap', () => {
-  describe('coincapToAssetId', () => {
+  describe('coincapToAssetIds', () => {
     it('can get AssetId for bitcoin', () => {
       const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
@@ -15,7 +21,7 @@ describe('adapters:coincap', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Bitcoin,
       })
-      expect(coincapToAssetId('bitcoin')).toEqual(assetId)
+      expect(coincapToAssetIds('bitcoin')).toEqual([assetId])
     })
 
     it('can get AssetId id for ethereum', () => {
@@ -27,16 +33,12 @@ describe('adapters:coincap', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Ethereum,
       })
-      expect(coincapToAssetId('ethereum')).toEqual(assetId)
+      expect(coincapToAssetIds('ethereum')).toEqual([assetId])
     })
 
     it('can get AssetId id for FOX', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Evm
-      const chainReference = CHAIN_REFERENCE.EthereumMainnet
-      const assetNamespace = 'erc20'
-      const assetReference = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      const assetId = toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
-      expect(coincapToAssetId('fox-token')).toEqual(assetId)
+      expect(coincapToAssetIds('fox-token')).toContain(foxAssetId)
+      expect(coincapToAssetIds('fox-token')).toContain(foxOnArbitrumOneAssetId)
     })
   })
 
@@ -49,7 +51,8 @@ describe('adapters:coincap', () => {
       assetNamespace: 'slip44',
       assetReference: ASSET_REFERENCE.Cosmos,
     })
-    expect(coincapToAssetId('cosmos')).toEqual(assetId)
+
+    expect(coincapToAssetIds('cosmos')).toContain(assetId)
   })
 
   describe('assetIdToCoinCap', () => {

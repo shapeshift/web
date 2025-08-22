@@ -21,6 +21,7 @@ const makeEthMockCoincapResponse = () => ({
   changePercent24Hr: '1.7301970732523704',
   vwap24Hr: '3796.0013297212388563',
   explorer: 'https://etherscan.io/',
+  tokens: {},
 })
 
 const makeFoxMockCoincapResponse = () => ({
@@ -36,6 +37,7 @@ const makeFoxMockCoincapResponse = () => ({
   changePercent24Hr: '-3.1066427856364231',
   vwap24Hr: '0.6546275575306273',
   explorer: 'https://etherscan.io/token/0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  tokens: {},
 })
 
 const makeBtcMockCoincapResponse = () => ({
@@ -51,6 +53,7 @@ const makeBtcMockCoincapResponse = () => ({
   changePercent24Hr: '2.0370678507913180',
   vwap24Hr: '47473.8260811456834087',
   explorer: 'https://blockchain.info/',
+  tokens: {},
 })
 
 const makeThorchainMockCoincapResponse = () => ({
@@ -66,6 +69,7 @@ const makeThorchainMockCoincapResponse = () => ({
   changePercent24Hr: '-3.0298851309669810',
   vwap24Hr: '2.0280215210735477',
   explorer: 'https://explorer.binance.org/asset/RUNE-B1A',
+  tokens: {},
 })
 
 const makeCosmosMockCoincapResponse = () => ({
@@ -81,6 +85,7 @@ const makeCosmosMockCoincapResponse = () => ({
   changePercent24Hr: '-2.0945235735481851',
   vwap24Hr: '27.4571410501515669',
   explorer: 'https://www.mintscan.io/cosmos',
+  tokens: {},
 })
 
 vi.mock('fs', () => ({

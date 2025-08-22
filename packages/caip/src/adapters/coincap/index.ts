@@ -1,4 +1,4 @@
-import invert from 'lodash/invert'
+import invertBy from 'lodash/invertBy'
 import toLower from 'lodash/toLower'
 
 import * as adapters from './generated'
@@ -12,9 +12,12 @@ const generatedAssetIdToCoinCapMap = Object.values(adapters).reduce((acc, cur) =
   ...cur,
 })) as Record<string, string>
 
-const generatedCoinCapToAssetIdMap: Record<string, string> = invert(generatedAssetIdToCoinCapMap)
+const generatedCoincapToAssetIdsMap: Record<string, string[]> = invertBy(
+  generatedAssetIdToCoinCapMap,
+)
 
-export const coincapToAssetId = (id: string): string | undefined => generatedCoinCapToAssetIdMap[id]
+export const coincapToAssetIds = (id: string): string[] | undefined =>
+  generatedCoincapToAssetIdsMap[id]
 
 export const assetIdToCoinCap = (assetId: string): string | undefined =>
   generatedAssetIdToCoinCapMap[toLower(assetId)]

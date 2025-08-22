@@ -4,13 +4,12 @@ import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
 
-import { FoxPageIcon } from '../components/Icons/FoxPageIcon'
-import { FoxEcosystemPage } from '../pages/Fox/FoxEcosystemPage'
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 import { ExploreIcon } from '@/components/Icons/Explore'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
 import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -24,6 +23,7 @@ import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
+import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
@@ -253,7 +253,6 @@ export const routes: Route[] = [
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/fox',

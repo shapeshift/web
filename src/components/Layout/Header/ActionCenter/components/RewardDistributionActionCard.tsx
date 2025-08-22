@@ -5,19 +5,19 @@ import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { getTxLink } from '../../../../../lib/getTxLink'
-import { selectAssetById } from '../../../../../state/slices/assetsSlice/selectors'
-import { useAppSelector } from '../../../../../state/store'
-import { AssetIconWithBadge } from '../../../../AssetIconWithBadge'
 import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { Amount } from '@/components/Amount/Amount'
+import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { getTxLink } from '@/lib/getTxLink'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type RewardDistributionActionCardProps = {
   action: RewardDistributionAction
@@ -54,7 +54,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
 
   const description = useMemo(() => {
     const translationKey =
-      action.status === ActionStatus.Pending
+      action.status === ActionStatus.Initiated
         ? 'actionCenter.rewardDistribution.pending.description'
         : 'actionCenter.rewardDistribution.complete.description'
 
@@ -89,11 +89,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [runeAsset, distribution.txId])
 
   const footer = useMemo(() => {
-    return (
-      <>
-        <ActionStatusTag status={action.status} />
-      </>
-    )
+    return <ActionStatusTag status={action.status} />
   }, [action.status])
 
   return (

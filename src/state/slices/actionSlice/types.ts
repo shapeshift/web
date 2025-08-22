@@ -1,16 +1,15 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
-import type { RewardDistributionWithMetadata } from '../../../pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
-import type { LimitPriceByDirection } from '../limitOrderInputSlice/limitOrderInputSlice'
-import type { ApprovalExecutionMetadata } from '../tradeQuoteSlice/types'
-
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from '@/lib/utils/thorchain/lp/types'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
+import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import type { Claim } from '@/pages/TCY/components/Claim/types'
+import type { LimitPriceByDirection } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
+import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
 
 export enum ActionType {
   Deposit = 'Deposit',

@@ -55,7 +55,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
           actionSlice.actions.upsertAction({
             id: actionId,
             type: ActionType.RewardDistribution,
-            status: ActionStatus.Pending,
+            status: ActionStatus.Initiated,
             createdAt: now,
             updatedAt: now,
             rewardDistributionMetadata: {

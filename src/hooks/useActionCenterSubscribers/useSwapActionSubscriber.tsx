@@ -36,16 +36,56 @@ import {
   selectPendingSwapActions,
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
-import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
-import {
-  selectConfirmedTradeExecution,
-  selectHopExecutionMetadata,
-} from '@/state/slices/tradeQuoteSlice/selectors'
+import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+
+const swapStatusToActionStatus: Record<SwapStatus, ActionStatus> = {
+  [SwapStatus.Idle]: ActionStatus.Idle,
+  [SwapStatus.Pending]: ActionStatus.Pending,
+  [SwapStatus.Success]: ActionStatus.Complete,
+  [SwapStatus.Failed]: ActionStatus.Failed,
+}
+
+const getActionStatusFromSwap = (
+  swap: Swap,
+  approvalState?: TransactionExecutionState,
+  isApprovalRequired?: boolean,
+  isActiveSwap: boolean = true,
+): ActionStatus => {
+  // Special handling for ArbitrumBridge swaps to ETH mainnet
+  if (
+    swap.status === SwapStatus.Success &&
+    swap.swapperName === SwapperName.ArbitrumBridge &&
+    swap.buyAsset.chainId === ethChainId
+  ) {
+    return ActionStatus.Initiated
+  }
+
+  // If swap is pending/success/failed, use direct mapping
+  if (swap.status !== SwapStatus.Idle) {
+    return swapStatusToActionStatus[swap.status]
+  }
+
+  // For idle swaps, check approval state
+  const status =
+    isApprovalRequired && approvalState !== TransactionExecutionState.Complete
+      ? ActionStatus.AwaitingApproval
+      : ActionStatus.AwaitingSwap
+
+  // Non-active swaps should not be in AwaitingApproval or AwaitingSwap states
+  if (
+    !isActiveSwap &&
+    (status === ActionStatus.AwaitingApproval || status === ActionStatus.AwaitingSwap)
+  ) {
+    return ActionStatus.Idle
+  }
+
+  return status
+}
 
 export const useSwapActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -68,7 +108,6 @@ export const useSwapActionSubscriber = () => {
     state: { isConnected },
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
-  const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
 
   const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
@@ -79,46 +118,70 @@ export const useSwapActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Create swap and action after user confirmed the intent
+  // Sync swap status with action status
   useEffect(() => {
-    if (!activeSwapId) return
+    Object.values(swapsById).forEach(swap => {
+      const existingAction = selectSwapActionBySwapId(store.getState(), {
+        swapId: swap.id,
+      })
 
-    const activeSwap = swapsById[activeSwapId]
+      // Skip if action is already in terminal state
+      if (
+        existingAction?.status === ActionStatus.Complete ||
+        existingAction?.status === ActionStatus.Failed
+      ) {
+        return
+      }
 
-    if (!activeSwap || !confirmedTradeExecution) return
+      const isActiveSwap = swap.id === activeSwapId
 
-    const firstHopAllowanceApproval = confirmedTradeExecution.firstHop.allowanceApproval
+      // Get approval metadata only for active swap
+      const approvalMetadata = isActiveSwap
+        ? confirmedTradeExecution?.firstHop?.allowanceApproval
+        : undefined
 
-    const hasApproval =
-      firstHopAllowanceApproval.state === TransactionExecutionState.Complete ||
-      (firstHopAllowanceApproval.state === TransactionExecutionState.AwaitingConfirmation &&
-        !firstHopAllowanceApproval.isRequired)
+      // Calculate the correct action status
+      const targetStatus = getActionStatusFromSwap(
+        swap,
+        approvalMetadata?.state,
+        approvalMetadata?.isRequired,
+        isActiveSwap,
+      )
 
-    if (activeSwap.status !== SwapStatus.Pending && !hasApproval) return
-
-    const existingSwapAction = selectSwapActionBySwapId(store.getState(), {
-      swapId: activeSwap.id,
+      // Create new action if it doesn't exist
+      if (!existingAction) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            id: uuidv4(),
+            createdAt: swap.createdAt,
+            updatedAt: swap.updatedAt,
+            type: ActionType.Swap,
+            status: targetStatus,
+            swapMetadata: {
+              swapId: swap.id,
+              allowanceApproval: approvalMetadata,
+            },
+          }),
+        )
+      } else if (isSwapAction(existingAction) && existingAction.status !== targetStatus) {
+        // Update existing action if status changed
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...existingAction,
+            updatedAt: Date.now(),
+            status: targetStatus,
+            swapMetadata: {
+              swapId: existingAction.swapMetadata.swapId,
+              allowanceApproval: approvalMetadata,
+            },
+          }),
+        )
+      }
     })
-
-    if (existingSwapAction) return
-
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: uuidv4(),
-        createdAt: activeSwap.createdAt,
-        updatedAt: activeSwap.updatedAt,
-        type: ActionType.Swap,
-        status: ActionStatus.Pending,
-        swapMetadata: {
-          swapId: activeSwap.id,
-          allowanceApproval: firstHopAllowanceApproval,
-        },
-      }),
-    )
-  }, [dispatch, activeSwapId, swapsById, previousSwapStatus, confirmedTradeExecution])
+  }, [dispatch, activeSwapId, swapsById, confirmedTradeExecution])
 
   const swapStatusHandler = useCallback(
-    async (swap: Swap, action: SwapAction) => {
+    async (swap: Swap) => {
       const maybeSwapper = swappers[swap.swapperName]
 
       if (maybeSwapper === undefined)
@@ -201,11 +264,6 @@ export const useSwapActionSubscriber = () => {
           : undefined
       })()
 
-      const firstHopAllowanceApproval = selectHopExecutionMetadata(store.getState(), {
-        tradeId: swap.metadata.quoteId,
-        hopIndex: swap.metadata.stepIndex,
-      })?.allowanceApproval
-
       if (status === TxStatus.Confirmed) {
         // TEMP HACK FOR BASE
         if (swap.sellAsset.chainId === baseChainId || swap.buyAsset.chainId === baseChainId) {
@@ -215,20 +273,6 @@ export const useSwapActionSubscriber = () => {
         }
 
         vibrate('heavy')
-        dispatch(
-          actionSlice.actions.upsertAction({
-            ...action,
-            swapMetadata: {
-              swapId: swap.id,
-              allowanceApproval: firstHopAllowanceApproval,
-            },
-            status:
-              swap.swapperName === SwapperName.ArbitrumBridge &&
-              swap.buyAsset.chainId === ethChainId
-                ? ActionStatus.Initiated
-                : ActionStatus.Complete,
-          }),
-        )
 
         dispatch(
           swapSlice.actions.upsertSwap({
@@ -287,15 +331,6 @@ export const useSwapActionSubscriber = () => {
           fetchBasePortfolio()
         }
 
-        dispatch(
-          actionSlice.actions.upsertAction({
-            ...action,
-            status: ActionStatus.Failed,
-            swapMetadata: {
-              swapId: swap.id,
-            },
-          }),
-        )
         dispatch(
           swapSlice.actions.upsertSwap({
             ...swap,
@@ -370,7 +405,7 @@ export const useSwapActionSubscriber = () => {
 
         return {
           queryKey: ['action', action.id, swap.id, swap.sellTxHash],
-          queryFn: () => swapStatusHandler(swap, action),
+          queryFn: () => swapStatusHandler(swap),
           refetchInterval: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
           enabled: isConnected && swap.status === SwapStatus.Pending,
         }

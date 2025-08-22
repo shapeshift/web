@@ -1,15 +1,8 @@
 {
   "extends": "../../tsconfig.packages.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist/esm",
-    "tsBuildInfoFile": "dist/tsconfig.esm.tsbuildinfo",
-  },
-  "include": ["src/**/*", "src/**/*.json", "src/**/*.d.ts"],
-  "exclude": ["dist", "src/env.cjs.ts"],
+  "files": [],
   "references": [
-    { "path": "../caip" },
-    { "path": "../types" },
-    { "path": "../utils" }
+    { "path": "./tsconfig.esm.json" },
+    { "path": "./tsconfig.cjs.json" }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "rootDir": "src",
-    "outDir": "dist/cjs",
-    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo",
+    "outDir": "dist/esm",
+    "tsBuildInfoFile": "dist/esm/.tsbuildinfo",
   },
   "include": ["src/**/*"],
   "exclude": ["dist"]

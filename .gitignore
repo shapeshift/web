@@ -22,7 +22,6 @@ coverage
 *.tsbuildinfo
 build
 dist
-dist-cjs
 
 # Optional eslint cache
 .eslintcache

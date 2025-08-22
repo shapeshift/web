@@ -1,30 +1,8 @@
 {
   "extends": "../../tsconfig.packages.json",
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "lib": ["ES2020", "DOM"],
-    "rootDir": "src",
-    "outDir": "dist/esm",
-    "tsBuildInfoFile": "dist/tsconfig.esm.tsbuildinfo",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "incremental": true,
-    "noEmit": false,
-    "noImplicitReturns": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["dist"],
+  "files": [],
   "references": [
-    { "path": "../caip" },
-    { "path": "../contracts" }
+    { "path": "./tsconfig.esm.json" },
+    { "path": "./tsconfig.cjs.json" }
   ]
 }

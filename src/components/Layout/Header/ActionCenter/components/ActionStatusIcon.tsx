@@ -50,6 +50,13 @@ export const ActionStatusIcon = ({ status }: { status?: ActionStatus }) => {
             <ErrorIcon />
           </IconWrapper>
         )
+      case ActionStatus.AwaitingApproval:
+      case ActionStatus.AwaitingSwap:
+        return (
+          <IconWrapper bg='orange.500'>
+            <GenericTxIcon />
+          </IconWrapper>
+        )
       default:
         return (
           <IconWrapper bg='blue.500'>

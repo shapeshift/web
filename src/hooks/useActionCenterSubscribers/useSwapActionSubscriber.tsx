@@ -37,7 +37,7 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
+import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
@@ -46,6 +46,31 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+
+const swapStatusToActionStatus: Record<SwapStatus, ActionStatus> = {
+  [SwapStatus.Idle]: ActionStatus.Idle,
+  [SwapStatus.Pending]: ActionStatus.Pending,
+  [SwapStatus.Success]: ActionStatus.Complete,
+  [SwapStatus.Failed]: ActionStatus.Failed,
+}
+
+const getActionStatusFromSwapAndApproval = (
+  swapStatus: SwapStatus,
+  approvalState?: TransactionExecutionState,
+  isApprovalRequired?: boolean,
+): ActionStatus => {
+  // If swap is pending/success/failed, use direct mapping
+  if (swapStatus !== SwapStatus.Idle) {
+    return swapStatusToActionStatus[swapStatus]
+  }
+
+  // For idle swaps, check approval state
+  if (isApprovalRequired && approvalState !== TransactionExecutionState.Complete) {
+    return ActionStatus.AwaitingApproval
+  }
+
+  return ActionStatus.AwaitingSwap
+}
 
 export const useSwapActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -68,7 +93,6 @@ export const useSwapActionSubscriber = () => {
     state: { isConnected },
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
-  const previousSwapStatus = usePrevious(activeSwapId ? swapsById[activeSwapId]?.status : undefined)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
 
   const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
@@ -79,43 +103,108 @@ export const useSwapActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Create swap and action after user confirmed the intent
+  // Sync swap status with action status
   useEffect(() => {
-    if (!activeSwapId) return
-
-    const activeSwap = swapsById[activeSwapId]
-
-    if (!activeSwap || !confirmedTradeExecution) return
-
-    const firstHopAllowanceApproval = confirmedTradeExecution.firstHop.allowanceApproval
-
-    const hasApproval =
-      firstHopAllowanceApproval.state === TransactionExecutionState.Complete ||
-      (firstHopAllowanceApproval.state === TransactionExecutionState.AwaitingConfirmation &&
-        !firstHopAllowanceApproval.isRequired)
-
-    if (activeSwap.status !== SwapStatus.Pending && !hasApproval) return
-
-    const existingSwapAction = selectSwapActionBySwapId(store.getState(), {
-      swapId: activeSwap.id,
-    })
-
-    if (existingSwapAction) return
-
-    dispatch(
-      actionSlice.actions.upsertAction({
-        id: uuidv4(),
-        createdAt: activeSwap.createdAt,
-        updatedAt: activeSwap.updatedAt,
-        type: ActionType.Swap,
-        status: ActionStatus.Pending,
-        swapMetadata: {
+    // Handle active swap with full lifecycle (including approval states)
+    if (activeSwapId) {
+      const activeSwap = swapsById[activeSwapId]
+      if (
+        activeSwap &&
+        activeSwap.status !== SwapStatus.Success &&
+        activeSwap.status !== SwapStatus.Failed
+      ) {
+        const existingAction = selectSwapActionBySwapId(store.getState(), {
           swapId: activeSwap.id,
-          allowanceApproval: firstHopAllowanceApproval,
-        },
-      }),
-    )
-  }, [dispatch, activeSwapId, swapsById, previousSwapStatus, confirmedTradeExecution])
+        })
+
+        const approvalMetadata = confirmedTradeExecution?.firstHop?.allowanceApproval
+
+        // Calculate the correct action status based on swap and approval state
+        const targetStatus = getActionStatusFromSwapAndApproval(
+          activeSwap.status,
+          approvalMetadata?.state,
+          approvalMetadata?.isRequired,
+        )
+
+        // Create new action if it doesn't exist
+        if (!existingAction) {
+          dispatch(
+            actionSlice.actions.upsertAction({
+              id: uuidv4(),
+              createdAt: activeSwap.createdAt,
+              updatedAt: activeSwap.updatedAt,
+              type: ActionType.Swap,
+              status: targetStatus,
+              swapMetadata: {
+                swapId: activeSwap.id,
+                allowanceApproval: approvalMetadata,
+              },
+            }),
+          )
+        } else if (isSwapAction(existingAction) && existingAction.status !== targetStatus) {
+          // Update existing action if status changed
+          dispatch(
+            actionSlice.actions.upsertAction({
+              ...existingAction,
+              updatedAt: Date.now(),
+              status: targetStatus,
+              swapMetadata: {
+                swapId: existingAction.swapMetadata.swapId,
+                allowanceApproval: approvalMetadata,
+              },
+            }),
+          )
+        }
+      }
+    }
+
+    // Handle non-active swaps
+    Object.values(swapsById).forEach(swap => {
+      // Skip active swap (already handled) and terminal states
+      if (
+        swap.id === activeSwapId ||
+        swap.status === SwapStatus.Success ||
+        swap.status === SwapStatus.Failed
+      )
+        return
+
+      const existingAction = selectSwapActionBySwapId(store.getState(), {
+        swapId: swap.id,
+      })
+
+      if (!existingAction || !isSwapAction(existingAction)) return
+
+      // If a non-active swap is in AwaitingApproval or AwaitingSwap, set it to Idle
+      // Only the active swap should be in these states
+      if (
+        existingAction.status === ActionStatus.AwaitingApproval ||
+        existingAction.status === ActionStatus.AwaitingSwap
+      ) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...existingAction,
+            updatedAt: Date.now(),
+            status: ActionStatus.Idle,
+          }),
+        )
+        return
+      }
+
+      // For other non-active swaps, use direct status mapping
+      const targetStatus = swapStatusToActionStatus[swap.status]
+
+      // Only update if status changed
+      if (existingAction.status !== targetStatus) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...existingAction,
+            updatedAt: Date.now(),
+            status: targetStatus,
+          }),
+        )
+      }
+    })
+  }, [dispatch, activeSwapId, swapsById, confirmedTradeExecution])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap, action: SwapAction) => {

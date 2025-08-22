@@ -2,7 +2,6 @@ import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
-import type { ListChildComponentProps } from 'react-window'
 
 import type { AssetData } from './AssetList'
 
@@ -14,8 +13,8 @@ import { firstNonZeroDecimal } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId,
+    selectPortfolioCryptoPrecisionBalanceByFilter,
+    selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -27,13 +26,12 @@ const assetIconPairProps = {
   showFirst: true,
 }
 
-export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
-  ({ data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts }, index, style }) => {
+export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = memo(
+  ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts } }) => {
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
       state: { isConnected, wallet },
     } = useWallet()
-    const asset: Asset | undefined = assets[index]
     const assetId = asset?.assetId
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
@@ -54,8 +52,10 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
         onClick={handleOnClick}
         justifyContent='space-between'
         isDisabled={!isSupported && disableUnsupported}
-        style={style}
         _focus={focus}
+        height='auto'
+        minHeight='60px'
+        padding={4}
       >
         <Flex gap={4} alignItems='center'>
           <AssetIcon assetId={asset.assetId} size='sm' pairProps={assetIconPairProps} />

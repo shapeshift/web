@@ -5,7 +5,6 @@ import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import type { ListChildComponentProps } from 'react-window'
 import { useLongPress } from 'use-long-press'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -29,17 +28,18 @@ const assetIconPairProps = {
   showFirst: true,
 }
 
-type AssetSearchRowProps = ListChildComponentProps<AssetData> &
-  ButtonProps & {
-    showNetworkIcon?: boolean
-    portalsAssets?: PortalsAssets
-  }
+type AssetSearchRowProps = {
+  asset: Asset
+  index: number
+  data: AssetData
+  showNetworkIcon?: boolean
+  portalsAssets?: PortalsAssets
+} & ButtonProps
 
 export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
   ({
-    data: { handleClick, handleLongPress, disableUnsupported, assets, portalsAssets },
-    index,
-    style,
+    asset,
+    data: { handleClick, handleLongPress, disableUnsupported, portalsAssets },
     showNetworkIcon,
     ...rest
   }) => {
@@ -54,7 +54,6 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
     const {
       state: { wallet },
     } = useWallet()
-    const asset: Asset | undefined = assets[index]
     const assetId = asset?.assetId
     const isSupported = wallet && isAssetSupportedByWallet(assetId ?? '', wallet)
     const handleOnClick = useCallback(() => handleClick(asset), [asset, handleClick])
@@ -152,8 +151,10 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         onClick={handleOnClick}
         justifyContent='space-between'
         isDisabled={!isSupported && disableUnsupported}
-        style={style}
         _focus={focus}
+        height='auto'
+        minHeight='60px'
+        padding={4}
         {...rest}
         {...longPressHandlers(asset)}
         sx={longPressSx}

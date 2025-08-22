@@ -3,9 +3,11 @@
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "node",
-    "outDir": "dist-cjs",
+    "rootDir": "src",
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": "dist/tsconfig.cjs.tsbuildinfo",
     "noEmit": false
   },
-  "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["dist", "dist-cjs"]
+  "include": ["src/**/*"],
+  "exclude": ["dist"]
 }

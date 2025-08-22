@@ -39,7 +39,7 @@ const increaseViewportProps = {
 }
 
 const virtuosoStyle = {
-  height: '100%',
+  height: '100vh',
   ...scrollbarStyle,
 }
 

@@ -153,6 +153,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         height='auto'
+        width='100%'
         minHeight='60px'
         padding={4}
         {...rest}

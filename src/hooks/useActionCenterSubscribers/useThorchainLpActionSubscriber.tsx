@@ -1,8 +1,10 @@
+import { baseChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
 import { useNotificationToast } from '../useNotificationToast'
+import { useBasePortfolioManagement } from './useFetchBasePortfolio'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
@@ -24,10 +26,20 @@ export const useThorchainLpActionSubscriber = () => {
 
   const queryClient = useQueryClient()
 
+  const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
+
   const handleComplete = useCallback(
     async (action: GenericTransactionAction) => {
+      const { accountId, assetId, chainId } = action.transactionMetadata
       const isDeposit = action.type === ActionType.Deposit
+
       try {
+        // TEMP HACK FOR BASE
+        if (chainId === baseChainId) {
+          fetchBasePortfolio()
+          upsertBasePortfolio({ accountId, assetId })
+        }
+
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -75,13 +87,21 @@ export const useThorchainLpActionSubscriber = () => {
         console.error('Error waiting for THORChain update:', error)
       }
     },
-    [dispatch, toast, isDrawerOpen, openActionCenter, queryClient],
+    [
+      dispatch,
+      toast,
+      isDrawerOpen,
+      openActionCenter,
+      queryClient,
+      fetchBasePortfolio,
+      upsertBasePortfolio,
+    ],
   )
 
   useQueries({
     queries: pendingThorchainLpActions
       .filter(action => {
-        const { txHash } = action.transactionMetadata
+        const { txHash, chainId } = action.transactionMetadata
 
         // Check if the transaction is confirmed on the blockchain
         const accountId = action.transactionMetadata.accountId
@@ -95,8 +115,10 @@ export const useThorchainLpActionSubscriber = () => {
           txHash,
         })
 
-        if (!tx) return false
-        if (tx.status !== TxStatus.Confirmed) return false
+        if (chainId !== baseChainId) {
+          if (!tx) return false
+          if (tx.status !== TxStatus.Confirmed) return false
+        }
 
         return true
       })

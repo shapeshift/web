@@ -23,6 +23,7 @@
     "close": "Kapat",
     "closed": "Kapalı",
     "loadMore": "Daha fazla",
+    "volumeShort": "VOL",
     "saveChanges": "Değişiklikleri Kaydet",
     "new": "Yeni",
     "continue": "Devam et",
@@ -129,6 +130,7 @@
     "buySell": "Al/Sat",
     "all": "Hepsi",
     "viewAll": "Hepsini Gör",
+    "seeMore": "Daha Fazlasını Gör",
     "slippage": "Kayma",
     "feesPlusSlippage": "Ücretler + Kayma",
     "best": "En iyi",
@@ -139,6 +141,13 @@
     "fees": "Ücretler",
     "alternative": "Alternatif",
     "validator": "%{name} Doğrulayıcı",
+    "howWasYourExperience": "Takas deneyiminiz nasıldı?",
+    "leaveUsAReview": "Bize bir yorum bırakın",
+    "sendFeedback": "Geri Bildirim Gönder",
+    "letUsKnowHowWeCanImprove": "Nasıl geliştirebileceğimizi bize bildirin...",
+    "maybeLater": "Belki Sonra",
+    "feedbackSubmitted": "Geri bildirim gönderildi",
+    "thankYouForYourFeedback": "Geri bildiriminiz için teşekkür ederiz!",
     "needAsset": "%{asset}'e mi ihtiyacınız var?",
     "buyNow": "Şimdi al",
     "manage": "Yönet",
@@ -164,6 +173,7 @@
     "disabled": "Devre Dışı",
     "staged": "Aşamalı",
     "poolHalted": "Havuz Durduruldu",
+    "poolStaged": "Havuz Kademelendi",
     "chainHalted": "Zincir Durduruldu",
     "poolDisabled": "Havuz Devre Dışı",
     "prices": "Fiyatlar",
@@ -202,7 +212,9 @@
     "marketDataUnavailable": "%{asset} için piyasa verileri mevcut değil",
     "streaming": "Akış",
     "dca": "DCA",
-    "boost": "Yükseltme"
+    "boost": "Yükseltme",
+    "viewOnExplorer": "Explorer'da görüntüle",
+    "approval": "Onay"
   },
   "consentBanner": {
     "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
@@ -506,7 +518,7 @@
     "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
     "myPositions": "Pozisyonlarım",
-    "myPositionsBody": "Şu anda DeFi'deki aktif pozisyonlarınızın listesi.",
+    "myPositionsBody": "Aktif DeFi pozisyonlarınızın listesi.",
     "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
     "liquidityLockupWarning": "%{time} kilitlenme süresi vardır. Kilitlenme süresince likiditenize erişemezsiniz.",
@@ -841,6 +853,10 @@
     "allowanceTooltip": "Akıllı sözleşmeye sizin adınıza kullanması için izin vereceğiniz tutar.",
     "searchingRate": "Oran getiriliyor...",
     "noRateAvailable": "Uygun Oran Yok.",
+    "fetchingQuotes": {
+      "title": "Alıntılar Alınıyor",
+      "description": "Bu çift için tekliflerin alınması %{maxTimeSeconds} saniyeye kadar sürebilir"
+    },
     "previewTrade": "Takası Önizleyin",
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
@@ -920,7 +936,6 @@
     "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
     "enterCustomRecipientAddress": "Özel alıcı adresini girin",
     "receiveAtLeast": "En azdan al",
-    "viewOnBlockExplorer": "Blok gezgininde görüntüle",
     "tooltip": {
       "continueSwapping": "Son detaylar için takasa devam edin",
       "changeQuote": "Teklifi değiştir",
@@ -997,7 +1012,8 @@
       "executionRevertedWithExpectedSlippage": "Yürütme sırasında geri döndürüldü. Bu, yetersiz kayma toleransından kaynaklanıyor olabilir. Beklenen kayma: %{expectedSlippage}%. Daha yüksek bir kayma toleransıyla tekrar deneyin.",
       "slippageToleranceExceeded": "Kayma toleransı aşıldı.",
       "underMinimumAmount": "Bu işlemdeki varlıklardan bir veya daha fazlası, bu işlem için gereken asgari tutarın altındadır.",
-      "consumedMoreFees": "İşlem, bu işlem için tüketilen ücretlerin beklenenden yüksek olması nedeniyle geri döndü."
+      "consumedMoreFees": "İşlem, bu işlem için tüketilen ücretlerin beklenenden yüksek olması nedeniyle geri döndü.",
+      "swapperTimeout": "İstek zaman aşımına uğradı."
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -2031,6 +2047,13 @@
     }
   },
   "assets": {
+    "more": "Daha fazla",
+    "spam": {
+      "warning": "Bu varlık gizlenecek çünkü onu spam olarak işaretlediniz.",
+      "marked": "Bu varlık spam olarak işaretlendi.",
+      "reportAsSpam": "Spam olarak bildir",
+      "reportAsNotSpam": "Spam değil olarak işaretle"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Bakiye",
@@ -2621,6 +2644,8 @@
     "understand": "Riskleri anlıyorum"
   },
   "watchlist": {
+    "add": "İzleme listesine ekle",
+    "remove": "İzleme listesinden kaldır",
     "empty": {
       "title": "İzleme listenizi oluşturmaya başlayın",
       "body": "Yıldız simgesini gördüğünüz her yerde, onu buraya öğe eklemek için onu kullanabilirsiniz.",
@@ -2643,6 +2668,15 @@
     "tcy": {
       "title": "TCY",
       "body": "TCY'yi stake et ve RUNE kazan."
+    },
+    "tags": {
+      "liquid-staking": "Likit Staking",
+      "yield": "Getiri",
+      "lending": "Kredi verme",
+      "rwa": "RWA",
+      "yield-aggregator": "Getiri Toplayıcı",
+      "pool": "Havuz",
+      "clp": "CLP"
     }
   },
   "RFOX": {
@@ -2994,6 +3028,17 @@
       "complete": "%{sellAmountAndSymbol} ürününü %{buyAmountAndSymbol} ürününe dönüştürme işleminiz tamamlandı.",
       "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz başarısız oldu.",
       "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında."
+    },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} ve %{asset2}",
+      "withdraw": {
+        "processing": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz işleniyor.",
+        "complete": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz tamamlandı."
+      },
+      "deposit": {
+        "processing": "%{poolName} havuzuna %{amountCryptoPrecision} %{symbol} tutarındaki yatırımınız işleniyor.",
+        "complete": "%{poolName} havuzuna %{amountCryptoPrecision} %{symbol} tutarındaki yatırımınız tamamlandı."
+      }
     },
     "deposit": {
       "pending": "%{amount} %{symbol} tutarındaki yatırımınız işleniyor.",

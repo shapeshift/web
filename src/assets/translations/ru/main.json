@@ -23,6 +23,7 @@
     "close": "Закрыть",
     "closed": "Закрытый",
     "loadMore": "Загрузить еще",
+    "volumeShort": "VOL",
     "saveChanges": "Сохранить изменения",
     "new": "Новое",
     "continue": "Продолжить",
@@ -129,6 +130,7 @@
     "buySell": "Купить/Продать",
     "all": "Все",
     "viewAll": "Посмотреть все",
+    "seeMore": "Смотреть больше",
     "slippage": "Проскальзывание",
     "feesPlusSlippage": "Комиссии + проскальзывание",
     "best": "Лучшая",
@@ -139,6 +141,13 @@
     "fees": "Комиссия",
     "alternative": "Альтернатива",
     "validator": "%{name} Validator",
+    "howWasYourExperience": "Как прошла ваша торговля?",
+    "leaveUsAReview": "Оставьте нам отзыв",
+    "sendFeedback": "Отправить отзыв",
+    "letUsKnowHowWeCanImprove": "Сообщите нам, как мы можем улучшить...",
+    "maybeLater": "Может быть позже",
+    "feedbackSubmitted": "Отправленные отзывы",
+    "thankYouForYourFeedback": "Спасибо за ваш отзыв!",
     "needAsset": "Нужно немного %{asset}?",
     "buyNow": "Купить сейчас",
     "manage": "Управлять",
@@ -164,6 +173,7 @@
     "disabled": "Отключенный",
     "staged": "Поэтапные ",
     "poolHalted": "Пул остановлен",
+    "poolStaged": "Pool Staged",
     "chainHalted": "Сеть остановлена",
     "poolDisabled": "Пул отключен",
     "prices": "Цены",
@@ -202,7 +212,9 @@
     "marketDataUnavailable": "Рыночные данные недоступны для %{asset}",
     "streaming": "Стриминг",
     "dca": "DCA",
-    "boost": "Буст"
+    "boost": "Буст",
+    "viewOnExplorer": "Просмотр в проводнике",
+    "approval": "Утверждение"
   },
   "consentBanner": {
     "body": "Наш dApp использует анонимизированное отслеживание кликов для анализа производительности и улучшения вашего опыта. Используя app.shapeshift.com, вы соглашаетесь с нашим отслеживанием. Посетите %{privateLink} если вы не хотите, чтобы за вами следили анонимно. См. нашу %{privacyPolicyLink} для более подробной информации.",
@@ -506,7 +518,7 @@
     "clickHereToEarn": "Нажмите здесь, чтобы заработать %{apr} APR* фармингом пула ликвидности ETH-FOX",
     "overview": "Обзор",
     "myPositions": "Мои позиции",
-    "myPositionsBody": "Список ваших текущих активных позиций в DeFi.",
+    "myPositionsBody": "Список ваших активных позиций DeFi.",
     "viewAllPositions": "Посмотреть все позиции",
     "liquidityPools": "Пулы ликвидности",
     "liquidityLockupWarning": "Существует период блокировки %{time}. Во время блокировки вы не можете получить доступ к своей ликвидности.",
@@ -841,6 +853,10 @@
     "allowanceTooltip": "Сумма, которую вы дадите смарт-контракту полномочия использовать от вашего имени.",
     "searchingRate": "Поиск лучшего курса...",
     "noRateAvailable": "Тариф не предусмотрен.",
+    "fetchingQuotes": {
+      "title": "Получение котировок",
+      "description": "Получение котировок для этой пары может занять до %{maxTimeSeconds} секунд."
+    },
     "previewTrade": "Предварительный просмотр торгов",
     "rate": "Курс",
     "tradeFrom": "Обменять от",
@@ -920,7 +936,6 @@
     "thisIsYourCustomRecipientAddress": "Это ваш пользовательский адрес получателя",
     "enterCustomRecipientAddress": "Введите пользовательский адрес получателя",
     "receiveAtLeast": "Получите как минимум",
-    "viewOnBlockExplorer": "Просмотр в проводнике блоков",
     "tooltip": {
       "continueSwapping": "Продолжайте обменивать для получения окончательных данных",
       "changeQuote": "Изменить котировку",
@@ -997,7 +1012,8 @@
       "executionRevertedWithExpectedSlippage": "Во время выполнения произошел откат исполнения. Это может быть связано с недостаточной устойчивостью к проскальзыванию. Ожидаемое проскальзывание: %{expectedSlippage}%. Повторите попытку с более высоким допуском на проскальзывание.",
       "slippageToleranceExceeded": "Превышен допустимый уровень проскальзывания.",
       "underMinimumAmount": "Один или несколько активов в этой сделке ниже минимальной суммы, необходимой для этой сделки.",
-      "consumedMoreFees": "Транзакция была возвращена, поскольку комиссии, затраченные на эту сделку, оказались выше, чем ожидалось."
+      "consumedMoreFees": "Транзакция была возвращена, поскольку комиссии, затраченные на эту сделку, оказались выше, чем ожидалось.",
+      "swapperTimeout": "Запрос превысил время ожидания."
     },
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
     "recentTrades": "Последние сделки",
@@ -2031,6 +2047,13 @@
     }
   },
   "assets": {
+    "more": "Еще",
+    "spam": {
+      "warning": "Этот актив будет скрыт, поскольку вы пометили его как спам.",
+      "marked": "Этот актив помечен как спам.",
+      "reportAsSpam": "Пометить как спам",
+      "reportAsNotSpam": "Пометить как не спам"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "Баланс",
@@ -2621,6 +2644,8 @@
     "understand": "Я понимаю риски"
   },
   "watchlist": {
+    "add": "Добавить в список наблюдения",
+    "remove": "Удалить из списка наблюдения",
     "empty": {
       "title": "Начните формировать свой список наблюдения",
       "body": "Везде, где вы видите значок звезды, вы можете использовать его для добавления активов.",
@@ -2643,6 +2668,15 @@
     "tcy": {
       "title": "TCY",
       "body": "Стейкинг TCY, зарабатывайте RUNE."
+    },
+    "tags": {
+      "liquid-staking": "Ликвидный стейкинг",
+      "yield": "Доходность",
+      "lending": "Кредитование",
+      "rwa": "RWA",
+      "yield-aggregator": "Агрегатор доходности",
+      "pool": "Пул",
+      "clp": "CLP"
     }
   },
   "RFOX": {
@@ -2994,6 +3028,17 @@
       "complete": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершен.",
       "failed": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} не удался.",
       "streaming": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} является в процесе."
+    },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} и %{asset2}",
+      "withdraw": {
+        "processing": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} находится в процессе обработки.",
+        "complete": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} завершен."
+      },
+      "deposit": {
+        "processing": "Ваш депозит в размере %{amountCryptoPrecision} %{symbol} в пул %{poolName} находится в процессе обработки.",
+        "complete": "Ваш депозит в размере %{amountCryptoPrecision} %{symbol} в пул %{poolName} завершен."
+      }
     },
     "deposit": {
       "pending": "Ваш депозит в размере %{amount} %{symbol} находится в обработке.",

@@ -87,6 +87,7 @@ const validators = {
   VITE_FEATURE_SAVERS_VAULTS_DEPOSIT: bool({ default: false }),
   VITE_FEATURE_SAVERS_VAULTS_WITHDRAW: bool({ default: false }),
   VITE_FEATURE_CUSTOM_TOKEN_IMPORT: bool({ default: false }),
+  VITE_FEATURE_QUICK_BUY: bool({ default: false }),
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
   VITE_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),

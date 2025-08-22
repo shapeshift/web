@@ -57,6 +57,7 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
 
   return (
     <Box
+      {...otherProps}
       ref={boxRef}
       display='inline-flex'
       alignItems='center'

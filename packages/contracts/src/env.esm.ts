@@ -1,0 +1,12 @@
+// ESM environment file - uses import.meta.env for Vite/browser environments
+export const ENV = {
+  VITE_AVALANCHE_NODE_URL: import.meta.env.VITE_AVALANCHE_NODE_URL,
+  VITE_OPTIMISM_NODE_URL: import.meta.env.VITE_OPTIMISM_NODE_URL,
+  VITE_BNBSMARTCHAIN_NODE_URL: import.meta.env.VITE_BNBSMARTCHAIN_NODE_URL,
+  VITE_POLYGON_NODE_URL: import.meta.env.VITE_POLYGON_NODE_URL,
+  VITE_GNOSIS_NODE_URL: import.meta.env.VITE_GNOSIS_NODE_URL,
+  VITE_ETHEREUM_NODE_URL: import.meta.env.VITE_ETHEREUM_NODE_URL,
+  VITE_ARBITRUM_NODE_URL: import.meta.env.VITE_ARBITRUM_NODE_URL,
+  VITE_ARBITRUM_NOVA_NODE_URL: import.meta.env.VITE_ARBITRUM_NOVA_NODE_URL,
+  VITE_BASE_NODE_URL: import.meta.env.VITE_BASE_NODE_URL,
+}

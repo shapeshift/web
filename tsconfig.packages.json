@@ -4,7 +4,8 @@
     "composite": true,
     "declaration": true,
     "noEmit": false,
-    "noImplicitReturns": false
+    "noImplicitReturns": false,
+    "skipLibCheck": true
   },
   "include": [],
   "exclude": [],

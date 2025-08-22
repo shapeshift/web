@@ -30,30 +30,34 @@ export const useBasePortfolioManagement = () => {
 
   const upsertBasePortfolio = useCallback(
     async ({ accountId, assetId }: { accountId?: AccountId; assetId: AssetId }) => {
-      if (!accountId) return
-      if (!accountsById[accountId]) return
+      try {
+        if (!accountId) return
+        if (!accountsById[accountId]) return
 
-      const { account } = fromAccountId(accountId)
-      const { chainId, assetNamespace, assetReference } = fromAssetId(assetId)
+        const { account } = fromAccountId(accountId)
+        const { chainId, assetNamespace, assetReference } = fromAssetId(assetId)
 
-      if (chainId !== baseChainId) return
-      if (assetNamespace !== ASSET_NAMESPACE.erc20) return
+        if (chainId !== baseChainId) return
+        if (assetNamespace !== ASSET_NAMESPACE.erc20) return
 
-      const client = viemClientByChainId[chainId]
+        const client = viemClientByChainId[chainId]
 
-      const balance = await client.readContract({
-        address: getAddress(assetReference),
-        abi: erc20Abi,
-        functionName: 'balanceOf',
-        args: [getAddress(account)],
-      })
+        const balance = await client.readContract({
+          address: getAddress(assetReference),
+          abi: erc20Abi,
+          functionName: 'balanceOf',
+          args: [getAddress(account)],
+        })
 
-      dispatch(
-        portfolio.actions.upsertPortfolio({
-          accounts: { byId: {}, ids: [] },
-          accountBalances: { byId: { [accountId]: { [assetId]: balance.toString() } }, ids: [] },
-        }),
-      )
+        dispatch(
+          portfolio.actions.upsertPortfolio({
+            accounts: { byId: {}, ids: [] },
+            accountBalances: { byId: { [accountId]: { [assetId]: balance.toString() } }, ids: [] },
+          }),
+        )
+      } catch (err) {
+        console.error(`failed to manually upsert portfolio for base: ${err}`)
+      }
     },
     [accountsById, dispatch],
   )

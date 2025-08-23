@@ -57,16 +57,15 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
         style={style}
         _focus={focus}
       >
-        <Flex gap={4} alignItems='center'>
-          <AssetIcon assetId={asset.assetId} size='sm' pairProps={assetIconPairProps} />
-          <Box textAlign='left'>
-            <Text
-              lineHeight={1}
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-              maxWidth='200px'
-              overflow='hidden'
-            >
+        <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
+          <AssetIcon
+            assetId={asset.assetId}
+            size='sm'
+            pairProps={assetIconPairProps}
+            flexShrink={0}
+          />
+          <Box textAlign='left' flex={1} minWidth={0}>
+            <Text lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
               {asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
@@ -82,7 +81,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
           </Box>
         </Flex>
         {isConnected && !hideAssetBalance && (
-          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
             <Amount.Fiat
               color='var(--chakra-colors-chakra-body-text)'
               value={userCurrencyBalance}

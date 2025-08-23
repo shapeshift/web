@@ -1,16 +1,14 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
-import { Avatar, Box, Center, Flex } from '@chakra-ui/react'
+import { Avatar, Center, Flex } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
+
+import { CombinedIcon } from './CombinedIcon'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { imageLongPressSx } from '@/constants/longPress'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold', ...imageLongPressSx }
-
-// Clip paths for combined mode - left half shows first icon, right half shows second icon
-const leftHalfClipPath = 'polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)'
-const rightHalfClipPath = 'polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)'
 
 const getRandomPosition = (length: number) => {
   const angle = Math.random() * 2 * Math.PI
@@ -115,23 +113,7 @@ export const PairIcons = ({
   if (displayMode === 'combined' && icons.length === 2) {
     return (
       <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
-        <Box position='relative'>
-          <LazyLoadAvatar
-            src={icons[0]}
-            size={iconSize}
-            boxSize={iconBoxSize}
-            clipPath={leftHalfClipPath}
-          />
-          <LazyLoadAvatar
-            src={icons[1]}
-            size={iconSize}
-            boxSize={iconBoxSize}
-            clipPath={rightHalfClipPath}
-            position='absolute'
-            left={0}
-            top={0}
-          />
-        </Box>
+        <CombinedIcon icons={icons} size={iconSize} boxSize={iconBoxSize} />
       </Flex>
     )
   }

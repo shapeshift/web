@@ -44,11 +44,12 @@ export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderPr
 
   const handleChange = useCallback(
     (accountId: string) => {
+      if (accountId === currentAccountId) return
       const accountNumber = selectAccountNumberByAccountId(store.getState(), { accountId })
       if (accountNumber === undefined) throw new Error('Account number not found')
       onAccountNumberChange(accountNumber)
     },
-    [onAccountNumberChange],
+    [currentAccountId, onAccountNumberChange],
   )
 
   const activeAccountDropdown = useMemo(() => {

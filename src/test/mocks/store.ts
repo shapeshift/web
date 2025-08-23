@@ -176,7 +176,6 @@ export const mockStore: ReduxState = {
     spamMarkedAssets: [],
     selectedHomeView: HomeMarketView.TopAssets,
     hasWalletSeenTcyClaimAlert: {},
-    walletIdToDefaultTcyAccountId: {},
     highlightedTokensFilters: {
       selectedCategory: MarketsCategories.Trending,
       selectedOrder: OrderDirection.Descending,

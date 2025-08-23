@@ -1,5 +1,6 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -12,24 +13,27 @@ import { useTcyStaker } from './queries/useTcyStaker'
 
 import { Main } from '@/components/Layout/Main'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import type { WalletId } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
 } from '@/state/slices/portfolioSlice/selectors'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: '100%', md: '450px' }
 const mainPaddingBottom = { base: 16, md: 8 }
 
+const ACCOUNT_DEFAULT_LS_KEY = 'tcy-wallet-id-to-default-tcy-account-id'
+
 export type CurrentAccount = {
-  accountId: string | undefined
+  accountId: AccountId | undefined
   accountNumber: number
 }
 
@@ -41,11 +45,12 @@ export const TCY = () => {
     state: { walletInfo },
   } = useWallet()
 
-  const walletIdToDefaultTcyAccountId = useAppSelector(
-    preferences.selectors.selectWalletIdToDefaultTcyAccountId,
-  )
+  const [walletIdToDefaultTcyAccountId, setWalletIdToDefaultTcyAccountId] = useLocalStorage<
+    Record<WalletId, AccountId>
+  >(ACCOUNT_DEFAULT_LS_KEY, {})
+
   const defaultTcyAccountId =
-    walletInfo !== null ? walletIdToDefaultTcyAccountId[walletInfo?.deviceId] : undefined
+    walletInfo !== null ? walletIdToDefaultTcyAccountId?.[walletInfo?.deviceId] : undefined
 
   const activeAccountNumber = useMemo(() => {
     if (userSelectedAccountNumber !== undefined) return userSelectedAccountNumber
@@ -86,25 +91,25 @@ export const TCY = () => {
   const { data: defaultStaker } = useTcyStaker(compareTargetAccountId)
 
   useEffect(() => {
-    if (!currentAccountId || !currentStaker || !defaultStaker || !userSelectedAccountNumber) return
+    if (!currentAccountId || !currentStaker || !userSelectedAccountNumber) return
 
     const currentAmount = bnOrZero(fromBaseUnit(currentStaker.amount ?? '0', THOR_PRECISION))
-    const defaultAmount = bnOrZero(fromBaseUnit(defaultStaker.amount ?? '0', THOR_PRECISION))
+    const defaultAmount = bnOrZero(fromBaseUnit(defaultStaker?.amount ?? '0', THOR_PRECISION))
 
     if (currentAmount.gt(defaultAmount) && walletInfo !== null) {
-      dispatch(
-        preferences.actions.setDefaultAccountIdForWallet({
-          accountId: currentAccountId,
-          walletId: walletInfo.deviceId,
-        }),
-      )
+      setWalletIdToDefaultTcyAccountId({
+        ...walletIdToDefaultTcyAccountId,
+        [walletInfo.deviceId]: currentAccountId,
+      })
     }
   }, [
     currentAccountId,
     currentStaker,
     defaultStaker,
     dispatch,
+    setWalletIdToDefaultTcyAccountId,
     userSelectedAccountNumber,
+    walletIdToDefaultTcyAccountId,
     walletInfo,
   ])
 

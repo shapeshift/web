@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -136,7 +136,6 @@ export type Preferences = {
     selectedChainId: ChainId | 'all'
   }
   hasSeenRatingModal: boolean
-  walletIdToDefaultTcyAccountId: Record<WalletId, AccountId>
 }
 
 const initialState: Preferences = {
@@ -233,7 +232,6 @@ const initialState: Preferences = {
     selectedChainId: 'all',
   },
   hasSeenRatingModal: false,
-  walletIdToDefaultTcyAccountId: {},
 }
 
 export const preferences = createSlice({
@@ -346,12 +344,6 @@ export const preferences = createSlice({
     setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
       state.quickBuyAmounts = payload
     }),
-    setDefaultAccountIdForWallet: create.reducer(
-      (state, { payload }: { payload: { walletId: WalletId; accountId: AccountId } }) => {
-        const { accountId, walletId } = payload
-        state.walletIdToDefaultTcyAccountId[walletId] = accountId
-      },
-    ),
   }),
   selectors: {
     selectFeatureFlags: state => state.featureFlags,
@@ -371,6 +363,5 @@ export const preferences = createSlice({
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
     selectQuickBuyAmounts: state => state.quickBuyAmounts,
-    selectWalletIdToDefaultTcyAccountId: state => state.walletIdToDefaultTcyAccountId,
   },
 })

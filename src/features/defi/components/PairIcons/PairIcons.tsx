@@ -1,5 +1,5 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
-import { Avatar, Center, Flex } from '@chakra-ui/react'
+import { Avatar, Box, Center, Flex } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
@@ -7,6 +7,10 @@ import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { imageLongPressSx } from '@/constants/longPress'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold', ...imageLongPressSx }
+
+// Clip paths for combined mode - diagonal split from bottom left to top right
+const leftHalfClipPath = 'polygon(0% 0%, 100% 0%, 0% 100%)'
+const rightHalfClipPath = 'polygon(100% 0%, 100% 100%, 0% 100%)'
 
 const getRandomPosition = (length: number) => {
   const angle = Math.random() * 2 * Math.PI
@@ -33,12 +37,14 @@ export const PairIcons = ({
   iconSize,
   iconBoxSize,
   showFirst,
+  displayMode = 'combined',
   ...styleProps
 }: {
   icons: string[] | undefined
   iconBoxSize?: AvatarProps['boxSize']
   iconSize?: AvatarProps['size']
   showFirst?: boolean
+  displayMode?: 'side-by-side' | 'combined'
 } & FlexProps): JSX.Element | null => {
   const firstIcon = useMemo(() => {
     if (!icons?.length) return
@@ -105,6 +111,32 @@ export const PairIcons = ({
 
   if (!icons?.length) return null
 
+  // Combined mode for exactly 2 icons
+  if (displayMode === 'combined' && icons.length === 2) {
+    return (
+      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+        <Box position='relative'>
+          <LazyLoadAvatar
+            src={icons[0]}
+            size={iconSize}
+            boxSize={iconBoxSize}
+            clipPath={leftHalfClipPath}
+          />
+          <LazyLoadAvatar
+            src={icons[1]}
+            size={iconSize}
+            boxSize={iconBoxSize}
+            clipPath={rightHalfClipPath}
+            position='absolute'
+            left={0}
+            top={0}
+          />
+        </Box>
+      </Flex>
+    )
+  }
+
+  // Default side-by-side mode
   return (
     <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
       {showFirst && <LazyLoadAvatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}

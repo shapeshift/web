@@ -68,7 +68,7 @@ const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean
   return asset.name
 }
 
-const pairProps = { showFirst: true }
+const pairProps = { showFirst: true, displayMode: 'side-by-side' as const }
 
 export const AssetCell = ({
   assetId,

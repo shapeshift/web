@@ -22,9 +22,7 @@ const focus = {
   shadow: 'outline-inset',
 }
 
-const assetIconPairProps = {
-  showFirst: true,
-}
+const assetIconPairProps = { showFirst: true }
 
 export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = memo(
   ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts } }) => {

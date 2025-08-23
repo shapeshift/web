@@ -47,6 +47,7 @@ type StakingInfoProps = {
 
 const pairProps = {
   showFirst: true,
+  displayMode: 'side-by-side' as const,
 }
 
 export const StakingInfo: React.FC<StakingInfoProps> = ({

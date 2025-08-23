@@ -27,6 +27,7 @@ const buttonsHover = {
 
 const pairProps = {
   showFirst: true,
+  displayMode: 'side-by-side' as const,
 }
 
 export const FoxTokenFilterButton = ({

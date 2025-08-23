@@ -25,6 +25,7 @@ const focus = {
 
 const assetIconPairProps = {
   showFirst: true,
+  displayMode: 'combined' as const,
 }
 
 export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(

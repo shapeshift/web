@@ -14,8 +14,12 @@ import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
 let ASSETS: SearchableAsset[] = []
 
 const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
-  const { searchString, activeChainId, allowWalletUnsupportedAssets, walletConnectedChainIds } =
-    msg.payload
+  const {
+    searchString,
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    walletConnectedChainIds = [],
+  } = msg.payload
 
   const preFiltered = filterAssetsByChainSupport(ASSETS, {
     activeChainId,

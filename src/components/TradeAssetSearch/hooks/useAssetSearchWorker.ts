@@ -22,7 +22,7 @@ export type WorkerSearchState = {
 export interface UseAssetSearchWorkerProps {
   activeChainId: ChainId | 'All'
   allowWalletUnsupportedAssets?: boolean
-  walletConnectedChainIds: ChainId[]
+  walletConnectedChainIds?: ChainId[]
   hasWallet: boolean
 }
 

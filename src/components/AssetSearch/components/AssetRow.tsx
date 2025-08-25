@@ -13,8 +13,8 @@ import { firstNonZeroDecimal } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
-    selectPortfolioCryptoPrecisionBalanceByFilter,
-    selectPortfolioUserCurrencyBalanceByAssetId,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

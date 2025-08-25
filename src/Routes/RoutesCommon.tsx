@@ -43,6 +43,8 @@ const Dashboard = makeSuspenseful(
       default: Dashboard,
     })),
   ),
+  {},
+  { withErrorBoundary: true, isPage: true },
 )
 
 const Asset = makeSuspenseful(

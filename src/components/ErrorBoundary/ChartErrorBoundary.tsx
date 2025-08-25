@@ -1,11 +1,12 @@
-import { Button, Center, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Center, Stack } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { FaChartLine } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { IconCircle } from '@/components/IconCircle'
+import { RawText } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
@@ -21,52 +22,38 @@ const ChartErrorFallback: React.FC<ChartErrorFallbackProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const centerProps = useMemo(
-    () => ({
-      h: height,
-      borderRadius: 'lg',
-      bg: 'gray.50',
-      _dark: { bg: 'gray.900' },
-      border: '1px',
-      borderColor: 'gray.200',
-    }),
-    [height],
-  )
-
-  const darkCenterProps = useMemo(
-    () => ({
-      borderColor: 'gray.700',
-    }),
-    [],
-  )
-
-  const stackProps = useMemo(
-    () => ({
-      spacing: 3,
-      align: 'center' as const,
-      textAlign: 'center' as const,
-    }),
-    [],
-  )
-
-  const textProps = useMemo(
-    () => ({
-      fontSize: 'sm',
-      fontWeight: 'medium',
-      color: 'gray.600',
-      _dark: { color: 'gray.400' },
-    }),
-    [],
-  )
-
   return (
-    <Center {...centerProps} _dark={darkCenterProps}>
-      <Stack {...stackProps}>
-        <IconCircle fontSize='xl' boxSize='6' bg='gray.400' color='white'>
+    <Center
+      h={height}
+      borderRadius='lg'
+      bg='background.surface.raised.base'
+      position='relative'
+      overflow='hidden'
+      p={4}
+    >
+      <Box
+        position='absolute'
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg='background.surface.overlay.base'
+        opacity={0.3}
+        pointerEvents='none'
+      />
+      <Stack spacing={3} align='center' textAlign='center'>
+        <IconCircle fontSize='2xl' boxSize='10' bg='border.base' color='text.subtle'>
           <FaChartLine />
         </IconCircle>
-        <Text {...textProps}>{translate('errorBoundary.chart.title')}</Text>
-        <Button size='xs' variant='ghost' onClick={resetErrorBoundary}>
+        <Box>
+          <RawText fontSize='md' fontWeight='semibold' color='text.base' mb={1}>
+            {translate('errorBoundary.chart.title')}
+          </RawText>
+          <RawText fontSize='sm' color='text.subtle'>
+            {translate('errorBoundary.chart.body')}
+          </RawText>
+        </Box>
+        <Button size='sm' colorScheme='blue' onClick={resetErrorBoundary} px={6}>
           {translate('errorBoundary.chart.retry')}
         </Button>
       </Stack>

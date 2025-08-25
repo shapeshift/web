@@ -10,36 +10,39 @@ import { RawText } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
-type ComponentErrorFallbackProps = {
+type PageErrorFallbackProps = {
   error: Error
   resetErrorBoundary: () => void
 }
 
-const ComponentErrorFallback: React.FC<ComponentErrorFallbackProps> = ({ resetErrorBoundary }) => {
+const PageErrorFallback: React.FC<PageErrorFallbackProps> = ({ resetErrorBoundary }) => {
   const translate = useTranslate()
 
   return (
-    <Center p={4}>
+    <Center minH='100vh' px={4}>
       <Box
-        p={6}
+        p={8}
         borderRadius='xl'
         bg='background.surface.raised.base'
         border='1px'
         borderColor='border.base'
-        maxW='md'
+        maxW='lg'
+        w='full'
       >
-        <Stack spacing={3} align='center' textAlign='center'>
-          <IconCircle fontSize='2xl' boxSize='10' bg='blue.500' color='white'>
+        <Stack spacing={4} align='center' textAlign='center'>
+          <IconCircle fontSize='4xl' boxSize='20' bg='blue.500' color='white'>
             <FaSadTear />
           </IconCircle>
-          <Heading size='sm' lineHeight='shorter' color='text.base'>
-            {translate('errorBoundary.component.title')}
-          </Heading>
-          <RawText fontSize='sm' color='text.subtle'>
-            {translate('errorBoundary.component.body')}
-          </RawText>
-          <Button size='sm' colorScheme='blue' onClick={resetErrorBoundary}>
-            {translate('errorBoundary.component.retry')}
+          <Box>
+            <Heading size='lg' lineHeight='shorter' color='text.base' mb={2}>
+              {translate('errorBoundary.page.title')}
+            </Heading>
+            <RawText fontSize='md' color='text.subtle'>
+              {translate('errorBoundary.page.body')}
+            </RawText>
+          </Box>
+          <Button size='md' colorScheme='blue' onClick={resetErrorBoundary} px={8}>
+            {translate('errorBoundary.page.retry')}
           </Button>
         </Stack>
       </Box>
@@ -47,19 +50,19 @@ const ComponentErrorFallback: React.FC<ComponentErrorFallbackProps> = ({ resetEr
   )
 }
 
-type ComponentErrorBoundaryProps = {
+type PageErrorBoundaryProps = {
   children: React.ReactNode
-  fallback?: React.ComponentType<ComponentErrorFallbackProps>
+  fallback?: React.ComponentType<PageErrorFallbackProps>
 }
 
-export const ComponentErrorBoundary: React.FC<ComponentErrorBoundaryProps> = ({
+export const PageErrorBoundary: React.FC<PageErrorBoundaryProps> = ({
   children,
-  fallback: FallbackComponent = ComponentErrorFallback,
+  fallback: FallbackComponent = PageErrorFallback,
 }) => {
   const handleError = useCallback((error: Error, info: { componentStack: string }) => {
     captureException(error, {
       tags: {
-        errorBoundary: 'component',
+        errorBoundary: 'page',
       },
       contexts: {
         react: {
@@ -69,7 +72,7 @@ export const ComponentErrorBoundary: React.FC<ComponentErrorBoundaryProps> = ({
     })
     getMixPanel()?.track(MixPanelEvent.Error, {
       error: error.message,
-      errorBoundary: 'component',
+      errorBoundary: 'page',
       componentStack: info.componentStack,
     })
   }, [])

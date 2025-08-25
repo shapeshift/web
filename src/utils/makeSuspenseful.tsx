@@ -4,7 +4,7 @@ import type { ComponentProps, FC } from 'react'
 import { Suspense, useMemo } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
-import { SuspenseErrorBoundary } from '@/components/ErrorBoundary'
+import { PageErrorBoundary, SuspenseErrorBoundary } from '@/components/ErrorBoundary'
 
 const defaultSpinnerStyle = {
   display: 'flex',
@@ -35,12 +35,21 @@ export const defaultSuspenseFallback = <SuspenseSpinner spinnerStyle={defaultSpi
 export function makeSuspenseful<T extends FC<any>>(
   Component: T,
   spinnerStyle: BoxProps = {},
-  options: { withErrorBoundary?: boolean } = {},
+  options: { withErrorBoundary?: boolean; isPage?: boolean } = {},
 ) {
   return (props: ComponentProps<T>) => {
     const suspenseSpinner = useMemo(() => <SuspenseSpinner spinnerStyle={spinnerStyle} />, [])
 
     if (options.withErrorBoundary) {
+      if (options.isPage) {
+        return (
+          <PageErrorBoundary>
+            <Suspense fallback={suspenseSpinner}>
+              <Component {...props} />
+            </Suspense>
+          </PageErrorBoundary>
+        )
+      }
       return (
         <SuspenseErrorBoundary loadingFallback={suspenseSpinner}>
           <Component {...props} />

@@ -1,4 +1,5 @@
 export { ComponentErrorBoundary } from './ComponentErrorBoundary'
 export { ChartErrorBoundary } from './ChartErrorBoundary'
+export { PageErrorBoundary } from './PageErrorBoundary'
 export { TradingErrorBoundary } from './TradingErrorBoundary'
 export { SuspenseErrorBoundary, makeSuspensefulWithErrorBoundary } from './SuspenseErrorBoundary'

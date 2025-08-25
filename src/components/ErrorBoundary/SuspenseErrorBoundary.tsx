@@ -1,10 +1,13 @@
-import { Box, Center, CircularProgress, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Center, CircularProgress, Heading, Stack } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import type { lazy, ReactNode } from 'react'
-import React, { Suspense, useCallback, useMemo } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
+import { FaSadTear } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
+import { IconCircle } from '@/components/IconCircle'
+import { RawText } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
@@ -16,52 +19,31 @@ type SuspenseErrorFallbackProps = {
 const SuspenseErrorFallback: React.FC<SuspenseErrorFallbackProps> = ({ resetErrorBoundary }) => {
   const translate = useTranslate()
 
-  const stackProps = useMemo(
-    () => ({
-      spacing: 4,
-      align: 'center' as const,
-      textAlign: 'center' as const,
-    }),
-    [],
-  )
-
-  const primaryTextProps = useMemo(
-    () => ({
-      fontSize: 'md',
-      fontWeight: 'medium',
-      color: 'gray.600',
-      _dark: { color: 'gray.400' },
-    }),
-    [],
-  )
-
-  const secondaryTextProps = useMemo(
-    () => ({
-      fontSize: 'sm',
-      color: 'gray.500',
-      _dark: { color: 'gray.500' },
-    }),
-    [],
-  )
-
-  const buttonProps = useMemo(
-    () => ({
-      as: 'button' as const,
-      onClick: resetErrorBoundary,
-      color: 'blue.500',
-      fontSize: 'sm',
-      _hover: { textDecoration: 'underline' },
-    }),
-    [resetErrorBoundary],
-  )
-
   return (
     <Center p={8} minH='200px'>
-      <Stack {...stackProps}>
-        <Text {...primaryTextProps}>{translate('errorBoundary.suspense.title')}</Text>
-        <Text {...secondaryTextProps}>{translate('errorBoundary.suspense.body')}</Text>
-        <Box {...buttonProps}>{translate('errorBoundary.suspense.retry')}</Box>
-      </Stack>
+      <Box
+        p={6}
+        borderRadius='xl'
+        bg='background.surface.raised.base'
+        border='1px'
+        borderColor='border.base'
+        maxW='sm'
+      >
+        <Stack spacing={3} align='center' textAlign='center'>
+          <IconCircle fontSize='xl' boxSize='8' bg='blue.500' color='white'>
+            <FaSadTear />
+          </IconCircle>
+          <Heading size='sm' lineHeight='shorter' color='text.base'>
+            {translate('errorBoundary.suspense.title')}
+          </Heading>
+          <RawText fontSize='sm' color='text.subtle'>
+            {translate('errorBoundary.suspense.body')}
+          </RawText>
+          <Button size='xs' colorScheme='blue' onClick={resetErrorBoundary}>
+            {translate('errorBoundary.suspense.retry')}
+          </Button>
+        </Stack>
+      </Box>
     </Center>
   )
 }

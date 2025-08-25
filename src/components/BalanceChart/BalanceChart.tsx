@@ -31,6 +31,13 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   setPercentChange,
   isRainbowChart,
 }) => {
+  // TEST ERROR: Trigger with ?testBalanceChartError=true or localStorage.setItem('testBalanceChartError', 'true')
+  if (
+    new URLSearchParams(window.location.search).get('testBalanceChartError') === 'true' ||
+    localStorage.getItem('testBalanceChartError') === 'true'
+  ) {
+    throw new Error('Test balance chart error - BalanceChart component intentionally failed')
+  }
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData(
     timeframe,
     assetId,

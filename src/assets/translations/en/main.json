@@ -245,6 +245,7 @@
     },
     "chart": {
       "title": "Chart unavailable",
+      "body": "Unable to load chart data at this time.",
       "retry": "Retry"
     },
     "trading": {
@@ -256,6 +257,11 @@
       "title": "Loading failed",
       "body": "This content failed to load properly.",
       "retry": "Retry"
+    },
+    "page": {
+      "title": "Page Error",
+      "body": "This page encountered an error and couldn't load properly. You can try again or navigate to a different page.",
+      "retry": "Try Again"
     }
   },
   "buyPage": {

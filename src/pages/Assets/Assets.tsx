@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
+import { ComponentErrorBoundary } from '@/components/ErrorBoundary'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -74,11 +75,13 @@ export const Assets = () => {
           </Flex>
         </PageHeader>
       </Display.Mobile>
-      <MarketsTableVirtualized
-        rows={rows}
-        onRowClick={handleRowClick}
-        onRowLongPress={handleRowLongPress}
-      />
+      <ComponentErrorBoundary>
+        <MarketsTableVirtualized
+          rows={rows}
+          onRowClick={handleRowClick}
+          onRowLongPress={handleRowLongPress}
+        />
+      </ComponentErrorBoundary>
     </Main>
   )
 }

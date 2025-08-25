@@ -3,6 +3,8 @@ import { Avatar, Center, Flex } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
+import { CombinedIcon } from './CombinedIcon'
+
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { imageLongPressSx } from '@/constants/longPress'
 
@@ -33,12 +35,14 @@ export const PairIcons = ({
   iconSize,
   iconBoxSize,
   showFirst,
+  displayMode = 'side-by-side',
   ...styleProps
 }: {
   icons: string[] | undefined
   iconBoxSize?: AvatarProps['boxSize']
   iconSize?: AvatarProps['size']
   showFirst?: boolean
+  displayMode?: 'side-by-side' | 'combined'
 } & FlexProps): JSX.Element | null => {
   const firstIcon = useMemo(() => {
     if (!icons?.length) return
@@ -105,6 +109,16 @@ export const PairIcons = ({
 
   if (!icons?.length) return null
 
+  // Combined mode for exactly 2 icons
+  if (displayMode === 'combined' && icons.length === 2) {
+    return (
+      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+        <CombinedIcon icons={icons} size={iconSize} boxSize={iconBoxSize} />
+      </Flex>
+    )
+  }
+
+  // Default side-by-side mode
   return (
     <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
       {showFirst && <LazyLoadAvatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}

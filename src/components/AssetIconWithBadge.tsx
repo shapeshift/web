@@ -33,7 +33,7 @@ type AssetIconWithBadgeProps = {
 } & PropsWithChildren
 
 const sxProps = { svg: { transform: 'scale(0.8)' } }
-const assetIconPairProps = { showFirst: false }
+const assetIconPairProps = { showFirst: false, displayType: 'combined' }
 
 const useTransferData = (transfersByType?: Record<TransferType, Transfer[]>) => {
   const transfers = useMemo(

@@ -24,6 +24,7 @@ const focus = {
 
 const assetIconPairProps = {
   showFirst: true,
+  displayMode: 'combined' as const,
 }
 
 export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = memo(

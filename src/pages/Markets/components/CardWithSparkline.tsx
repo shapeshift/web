@@ -8,6 +8,7 @@ import { useCallback } from 'react'
 import { Amount } from '@/components/Amount/Amount'
 import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ChartErrorBoundary } from '@/components/ErrorBoundary'
 import { ParsedHtml } from '@/components/ParsedHtml/ParsedHtml'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
 import { markdownLinkToHTML } from '@/lib/utils'
@@ -79,14 +80,16 @@ export const CardWithSparkline: React.FC<{
           </Box>
         </Box>
         <Box mx={-6}>
-          <PriceChart
-            assetId={assetId}
-            timeframe={HistoryTimeframe.DAY}
-            percentChange={changePercent24Hr}
-            setPercentChange={noop}
-            chartHeight='150px'
-            hideAxis={true}
-          />
+          <ChartErrorBoundary height='150px'>
+            <PriceChart
+              assetId={assetId}
+              timeframe={HistoryTimeframe.DAY}
+              percentChange={changePercent24Hr}
+              setPercentChange={noop}
+              chartHeight='150px'
+              hideAxis={true}
+            />
+          </ChartErrorBoundary>
         </Box>
       </CardBody>
     </Card>

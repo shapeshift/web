@@ -1,6 +1,7 @@
 import { captureException } from '@sentry/react'
 import type { ComponentType, ReactNode } from 'react'
 import { useCallback } from 'react'
+import type { FallbackProps } from 'react-error-boundary'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -8,7 +9,7 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 
 type CreateErrorBoundaryOptions = {
   errorBoundaryName: string
-  FallbackComponent: ComponentType<any>
+  FallbackComponent: ComponentType<FallbackProps & Record<string, unknown>>
 }
 
 export function createErrorBoundary({
@@ -20,7 +21,7 @@ export function createErrorBoundary({
     ...props
   }: {
     children: ReactNode
-    [key: string]: any
+    [key: string]: unknown
   }) {
     const handleError = useCallback((error: Error, info: { componentStack: string }) => {
       captureException(error, {
@@ -41,7 +42,7 @@ export function createErrorBoundary({
     }, [])
 
     const FallbackWithProps = useCallback(
-      (fallbackProps: any) => <FallbackComponent {...fallbackProps} {...props} />,
+      (fallbackProps: FallbackProps) => <FallbackComponent {...fallbackProps} {...props} />,
       [props],
     )
 

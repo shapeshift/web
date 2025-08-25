@@ -1,9 +1,14 @@
+import { Button, Center, Stack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaChartLine } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { createErrorBoundary } from './createErrorBoundary'
-import { ErrorFallback } from './ErrorFallback'
+
+import { IconCircle } from '@/components/IconCircle'
+import { RawText } from '@/components/Text'
+
+const chartIcon = <FaChartLine />
 
 type ChartErrorFallbackProps = {
   error: Error
@@ -16,23 +21,40 @@ const ChartErrorFallback: React.FC<ChartErrorFallbackProps> = ({
   height = '300px',
 }) => {
   const translate = useTranslate()
-  const icon = useMemo(() => <FaChartLine />, [])
 
   return (
-    <ErrorFallback
-      icon={icon}
-      title={translate('errorBoundary.chart.title')}
-      body={translate('errorBoundary.chart.body')}
-      retryLabel={translate('errorBoundary.chart.retry')}
-      onRetry={resetErrorBoundary}
-      size='md'
-      height={height}
-      showOverlay
-    />
+    <Center h={height} borderRadius='lg' bg='background.surface.raised.base' p={4}>
+      <Stack spacing={3} align='center' textAlign='center'>
+        <IconCircle fontSize='2xl' boxSize='10' bg='border.base' color='text.subtle'>
+          {chartIcon}
+        </IconCircle>
+        <RawText fontSize='md' fontWeight='semibold' color='text.base'>
+          {translate('errorBoundary.chart.title')}
+        </RawText>
+        <RawText fontSize='sm' color='text.subtle'>
+          {translate('errorBoundary.chart.body')}
+        </RawText>
+        <Button size='sm' colorScheme='blue' onClick={resetErrorBoundary} px={6}>
+          {translate('errorBoundary.chart.retry')}
+        </Button>
+      </Stack>
+    </Center>
   )
 }
 
-export const ChartErrorBoundary = createErrorBoundary({
-  errorBoundaryName: 'chart',
-  FallbackComponent: ChartErrorFallback,
-})
+// Wrapper that handles the height prop
+export const ChartErrorBoundary: React.FC<{
+  children: React.ReactNode
+  height?: string | number
+}> = ({ children, height }) => {
+  const BaseErrorBoundary = useMemo(
+    () =>
+      createErrorBoundary({
+        errorBoundaryName: 'chart',
+        FallbackComponent: props => <ChartErrorFallback {...props} height={height} />,
+      }),
+    [height],
+  )
+
+  return <BaseErrorBoundary>{children}</BaseErrorBoundary>
+}

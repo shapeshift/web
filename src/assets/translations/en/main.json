@@ -257,11 +257,6 @@
       "title": "Loading failed",
       "body": "This content failed to load properly.",
       "retry": "Retry"
-    },
-    "page": {
-      "title": "Page Error",
-      "body": "This page encountered an error and couldn't load properly. You can try again or navigate to a different page.",
-      "retry": "Try Again"
     }
   },
   "buyPage": {

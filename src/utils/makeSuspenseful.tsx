@@ -4,7 +4,8 @@ import type { ComponentProps, FC } from 'react'
 import { Suspense, useMemo } from 'react'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
-import { PageErrorBoundary, SuspenseErrorBoundary } from '@/components/ErrorBoundary'
+import { createErrorBoundary } from '@/components/ErrorBoundary/createErrorBoundary'
+import { ErrorPageContent } from '@/components/ErrorPage/ErrorPageContent'
 
 const defaultSpinnerStyle = {
   display: 'flex',
@@ -32,32 +33,27 @@ const SuspenseSpinner = ({ spinnerStyle }: { spinnerStyle: BoxProps }) => {
 // eslint-disable-next-line react-memo/require-usememo
 export const defaultSuspenseFallback = <SuspenseSpinner spinnerStyle={defaultSpinnerStyle} />
 
+// Create PageErrorBoundary using the ErrorPageContent (without Layout wrapper)
+const PageErrorBoundary = createErrorBoundary({
+  errorBoundaryName: 'page',
+  FallbackComponent: ErrorPageContent,
+})
+
 export function makeSuspenseful<T extends FC<any>>(
   Component: T,
   spinnerStyle: BoxProps = {},
-  options: { withErrorBoundary?: boolean; isPage?: boolean } = {},
+  withErrorBoundary = false,
 ) {
   return (props: ComponentProps<T>) => {
     const suspenseSpinner = useMemo(() => <SuspenseSpinner spinnerStyle={spinnerStyle} />, [])
 
-    if (options.withErrorBoundary) {
-      if (options.isPage) {
-        return (
-          <PageErrorBoundary>
-            <Suspense fallback={suspenseSpinner}>
-              <Component {...props} />
-            </Suspense>
-          </PageErrorBoundary>
-        )
-      }
-      return (
-        <SuspenseErrorBoundary loadingFallback={suspenseSpinner}>
+    return withErrorBoundary ? (
+      <PageErrorBoundary>
+        <Suspense fallback={suspenseSpinner}>
           <Component {...props} />
-        </SuspenseErrorBoundary>
-      )
-    }
-
-    return (
+        </Suspense>
+      </PageErrorBoundary>
+    ) : (
       <Suspense fallback={suspenseSpinner}>
         <Component {...props} />
       </Suspense>

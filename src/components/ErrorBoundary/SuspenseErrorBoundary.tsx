@@ -1,6 +1,6 @@
-import { Box, Center, CircularProgress } from '@chakra-ui/react'
+import { Center, CircularProgress } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
-import type { lazy, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useTranslate } from 'react-polyglot'
@@ -73,31 +73,4 @@ export const SuspenseErrorBoundary: React.FC<SuspenseErrorBoundaryProps> = ({
       <Suspense fallback={suspenseFallback}>{children}</Suspense>
     </ErrorBoundary>
   )
-}
-
-// Enhanced makeSuspenseful utility with error boundary
-export function makeSuspensefulWithErrorBoundary<T extends Record<string, any>>(
-  lazyComponent: ReturnType<typeof lazy>,
-  loadingProps?: T,
-  errorFallback?: React.ComponentType<SuspenseErrorFallbackProps>,
-): React.ComponentType {
-  const LoadingFallback = loadingProps ? (
-    <Box
-      height='100vh'
-      display='flex'
-      alignItems='center'
-      justifyContent='center'
-      {...loadingProps}
-    >
-      <CircularProgress size='48px' isIndeterminate />
-    </Box>
-  ) : undefined
-
-  return function SuspensefulComponent() {
-    return (
-      <SuspenseErrorBoundary loadingFallback={LoadingFallback} fallback={errorFallback}>
-        {React.createElement(lazyComponent)}
-      </SuspenseErrorBoundary>
-    )
-  }
 }

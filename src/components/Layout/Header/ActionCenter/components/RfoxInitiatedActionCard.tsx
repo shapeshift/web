@@ -1,6 +1,5 @@
 import { Button, Card, CardBody, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
@@ -126,15 +125,9 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
                   fontSize='sm'
                   isDisabled
                 >
-                  {dayjs(
-                    bnOrZero(action.createdAt)
-                      .plus(
-                        bnOrZero(action.transactionMetadata.cooldownPeriodSeconds).multipliedBy(
-                          1_000,
-                        ),
-                      )
-                      .toNumber(),
-                  ).fromNow()}
+                  {dayjs(action.createdAt)
+                    .add(action.transactionMetadata.cooldownPeriodSeconds ?? 0, 'second')
+                    .fromNow()}
                 </Button>
               </Stack>
             )}

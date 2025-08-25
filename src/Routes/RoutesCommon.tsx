@@ -253,6 +253,7 @@ export const routes: Route[] = [
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
+    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/fox',

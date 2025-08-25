@@ -180,6 +180,7 @@ export const CategoryCard = ({
         {filteredAssets.map((asset, index) => (
           <AssetSearchRow
             key={asset.assetId}
+            asset={asset}
             data={assetSearchRowData}
             index={index}
             py={8}

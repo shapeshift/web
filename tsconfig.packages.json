@@ -3,9 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "noEmit": false,
-    "noImplicitReturns": false,
-    "skipLibCheck": true
+    "noEmit": false
   },
   "include": [],
   "exclude": [],

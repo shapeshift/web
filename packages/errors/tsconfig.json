@@ -1,10 +1,11 @@
 {
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist/esm",
-    "tsBuildInfoFile": "dist/tsconfig.esm.tsbuildinfo",
+    "composite": true,
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.esm.json" },
+    { "path": "./tsconfig.cjs.json" }
+  ]
 }

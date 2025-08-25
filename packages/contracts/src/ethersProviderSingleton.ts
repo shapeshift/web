@@ -5,29 +5,27 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
 
-import { ENV } from './env'
-
 export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {
     switch (chainId) {
       case KnownChainIds.AvalancheMainnet:
-        return ENV.VITE_AVALANCHE_NODE_URL
+        return process.env.VITE_AVALANCHE_NODE_URL
       case KnownChainIds.OptimismMainnet:
-        return ENV.VITE_OPTIMISM_NODE_URL
+        return process.env.VITE_OPTIMISM_NODE_URL
       case KnownChainIds.BnbSmartChainMainnet:
-        return ENV.VITE_BNBSMARTCHAIN_NODE_URL
+        return process.env.VITE_BNBSMARTCHAIN_NODE_URL
       case KnownChainIds.PolygonMainnet:
-        return ENV.VITE_POLYGON_NODE_URL
+        return process.env.VITE_POLYGON_NODE_URL
       case KnownChainIds.GnosisMainnet:
-        return ENV.VITE_GNOSIS_NODE_URL
+        return process.env.VITE_GNOSIS_NODE_URL
       case KnownChainIds.EthereumMainnet:
-        return ENV.VITE_ETHEREUM_NODE_URL
+        return process.env.VITE_ETHEREUM_NODE_URL
       case KnownChainIds.ArbitrumMainnet:
-        return ENV.VITE_ARBITRUM_NODE_URL
+        return process.env.VITE_ARBITRUM_NODE_URL
       case KnownChainIds.ArbitrumNovaMainnet:
-        return ENV.VITE_ARBITRUM_NOVA_NODE_URL
+        return process.env.VITE_ARBITRUM_NOVA_NODE_URL
       case KnownChainIds.BaseMainnet:
-        return ENV.VITE_BASE_NODE_URL
+        return process.env.VITE_BASE_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

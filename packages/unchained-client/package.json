@@ -5,7 +5,7 @@
   "license": "MIT",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
@@ -20,9 +20,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn run -T tsc --build tsconfig.cjs.json",
-    "build:cjs": "yarn run -T tsc --build tsconfig.cjs.json",
-    "clean": "rm -rf dist dist-cjs src/generated && rm -f tsconfig*.tsbuildinfo 2>/dev/null || true",
+    "build": "yarn clean && yarn generate && yarn run -T tsc --build",
+    "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate"
   },

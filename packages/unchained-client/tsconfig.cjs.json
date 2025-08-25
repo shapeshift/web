@@ -1,18 +1,15 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "commonjs",
     "rootDir": "src",
     "outDir": "dist/cjs",
-    "tsBuildInfoFile": "dist/tsconfig.cjs.tsbuildinfo",
-    "declaration": true,
-    "noEmit": false
+    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo",
   },
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],
   "references": [
-    { "path": "../caip" },
-    { "path": "../contracts" }
+    { "path": "../caip/tsconfig.cjs.json" },
+    { "path": "../contracts/tsconfig.cjs.json" }
   ]
 }

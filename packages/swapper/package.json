@@ -12,11 +12,6 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
-    },
-    "./constants": {
-      "import": "./dist/esm/constants.js",
-      "require": "./dist/cjs/constants.js",
-      "types": "./dist/esm/constants.d.ts"
     }
   },
   "files": [
@@ -26,8 +21,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build tsconfig.json && yarn run -T tsc --build tsconfig.cjs.json",
-    "build:cjs": "yarn run -T tsc --build tsconfig.cjs.json",
+    "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch"
   },

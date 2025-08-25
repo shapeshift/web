@@ -99,6 +99,7 @@ export default defineConfig(({ mode }) => {
       ...Object.fromEntries(
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
       ),
+      'process.env': 'import.meta.env',
     },
     server: {
       port: 3000,

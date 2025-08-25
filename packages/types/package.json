@@ -21,8 +21,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build tsconfig.json && yarn run -T tsc --build tsconfig.cjs.json",
-    "build:cjs": "yarn run -T tsc --build tsconfig.cjs.json",
+    "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch"
   },

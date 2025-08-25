@@ -270,7 +270,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     methods,
   })
 
-  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
+  const { data: cooldownPeriodData } = useCooldownPeriodQuery(stakingAssetId)
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -446,7 +446,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     if (!isBridgeRequired)
       return translate('RFOX.stakeWarning', {
         symbol: selectedStakingAsset?.symbol,
-        cooldownPeriod,
+        cooldownPeriod: cooldownPeriodData?.cooldownPeriod,
       })
 
     return translate('RFOX.bridgeCta', {
@@ -455,7 +455,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       destinationNetwork: stakingAssetFeeAsset?.networkName,
     })
   }, [
-    cooldownPeriod,
+    cooldownPeriodData,
     isBridgeRequired,
     stakingAssetFeeAsset,
     selectedStakingAsset,
@@ -628,7 +628,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 !isValidStakingAmount ||
                 !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                 isDiscoveringAccounts ||
-                !cooldownPeriod,
+                !cooldownPeriodData?.cooldownPeriodSeconds,
             )}
             size='lg'
             mx={-2}

@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
+import { Button, Card, CardBody, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -13,17 +13,18 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { firstFourLastFour } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
+import { ActionType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
 
-type GenericTransactionActionCardProps = {
+type RfoxInitiatedActionCardProps = {
   action: GenericTransactionAction
 }
 
-export const GenericTransactionActionCard = ({ action }: GenericTransactionActionCardProps) => {
+export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps) => {
   const translate = useTranslate()
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, action.transactionMetadata.chainId),
@@ -54,6 +55,8 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       maybeSafeTx: undefined,
     })
   }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
+
+  const isUnstake = action.type === ActionType.Withdraw
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
@@ -94,13 +97,43 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       footer={footer}
       onToggle={onToggle}
     >
-      <Stack gap={4}>
-        <ButtonGroup width='full' size='sm'>
-          <Button width='full' as={Link} isExternal href={txLink}>
-            {translate('actionCenter.viewTransaction')}
-          </Button>
-        </ButtonGroup>
-      </Stack>
+      <Card>
+        <CardBody>
+          <Stack spacing={4}>
+            <Stack direction='row' justify='space-between' align='center'>
+              <Text fontSize='sm' color='text.primary'>
+                {translate(isUnstake ? 'RFOX.unstakeInitiated' : 'RFOX.stakeInitiated')}
+              </Text>
+              <Link href={txLink} isExternal color='blue.300' fontSize='sm' fontWeight='medium'>
+                {firstFourLastFour(action.transactionMetadata.txHash)}
+              </Link>
+            </Stack>
+
+            {isUnstake && action.transactionMetadata.cooldownPeriodSeconds && (
+              <Stack direction='row' justify='space-between' align='center'>
+                <Text fontSize='sm' color='text.primary'>
+                  {translate('RFOX.claimWithdraw')}
+                </Text>
+                <Button
+                  size='sm'
+                  variant='outline'
+                  colorScheme='gray'
+                  borderRadius='md'
+                  px={3}
+                  py={1}
+                  height='auto'
+                  fontSize='sm'
+                  isDisabled
+                >
+                  {dayjs(action.createdAt)
+                    .add(action.transactionMetadata.cooldownPeriodSeconds ?? 0, 'second')
+                    .fromNow()}
+                </Button>
+              </Stack>
+            )}
+          </Stack>
+        </CardBody>
+      </Card>
     </ActionCard>
   )
 }

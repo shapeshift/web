@@ -79,7 +79,7 @@ export const useRfoxUnstake = ({
     duration: isDrawerOpen ? 5000 : null,
   })
 
-  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
+  const { data: cooldownPeriodData } = useCooldownPeriodQuery(stakingAssetId)
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
     return {
@@ -181,7 +181,8 @@ export const useRfoxUnstake = ({
             displayType: GenericTransactionDisplayType.RFOX,
             queryId: GenericTransactionQueryId.RFOX,
             amountCryptoPrecision,
-            cooldownPeriod,
+            cooldownPeriod: cooldownPeriodData?.cooldownPeriod,
+            cooldownPeriodSeconds: cooldownPeriodData?.cooldownPeriodSeconds,
             message: 'RFOX.unstakePending',
             txHash: txId,
             chainId: stakingAsset.chainId,

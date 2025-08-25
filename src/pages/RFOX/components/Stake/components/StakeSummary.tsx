@@ -36,7 +36,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     [stakingAmountCryptoPrecision, stakingAsset?.precision],
   )
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } =
+  const { data: cooldownPeriodData, isSuccess: isCooldownPeriodSuccess } =
     useCooldownPeriodQuery(stakingAssetId)
 
   const {
@@ -109,7 +109,9 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
       <Row Tooltipbody={lockupPeriodToolTip}>
         <Row.Label>{translate('RFOX.lockupPeriod')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={isCooldownPeriodSuccess}>{cooldownPeriod}</Skeleton>
+          <Skeleton isLoaded={isCooldownPeriodSuccess}>
+            {cooldownPeriodData?.cooldownPeriod}
+          </Skeleton>
         </Row.Value>
       </Row>
       <Row Tooltipbody={shareOfPoolToolTip}>

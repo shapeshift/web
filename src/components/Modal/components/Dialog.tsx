@@ -1,4 +1,4 @@
-import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Box, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
@@ -16,6 +16,7 @@ export type DialogProps = {
   onClose: () => void
   height?: string
   isFullScreen?: boolean
+  isDisablingPropagation?: boolean
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
@@ -48,6 +49,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   height,
   isFullScreen,
   children,
+  isDisablingPropagation,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
@@ -96,10 +98,19 @@ const DialogWindow: React.FC<DialogProps> = ({
         repositionInputs={isFullScreen ? true : false}
         open={isDialogOpen}
         onClose={onClose}
-        activeSnapPoint={snapPoint}
-        modal
+        activeSnapPoint={isDisablingPropagation ? undefined : snapPoint}
+        modal={!isDisablingPropagation}
       >
         <Drawer.Portal>
+          {isDisablingPropagation ? (
+            <Box
+              bg='rgba(0, 0, 0, 0.8)'
+              position='fixed'
+              inset={0}
+              zIndex='overlay'
+              onClick={onClose}
+            />
+          ) : null}
           <CustomDrawerOverlay onClick={onClose} />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>

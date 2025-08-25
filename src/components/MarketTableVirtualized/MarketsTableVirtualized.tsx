@@ -79,14 +79,6 @@ type MarketsTableVirtualizedProps = {
 
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
   ({ rows, onRowClick, onRowLongPress }) => {
-    // TEST ERROR: Trigger with ?testTableError=true or localStorage.setItem('testTableError', 'true')
-    if (
-      new URLSearchParams(window.location.search).get('testTableError') === 'true' ||
-      localStorage.getItem('testTableError') === 'true'
-    ) {
-      throw new Error('Test table error - MarketsTableVirtualized component intentionally failed')
-    }
-
     const translate = useTranslate()
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })

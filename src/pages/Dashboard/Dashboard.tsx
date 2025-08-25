@@ -112,14 +112,6 @@ const MobileHome = memo(() => {
 })
 
 export const Dashboard = memo(() => {
-  // TEST ERROR: Trigger with ?testSuspenseError=true or localStorage.setItem('testSuspenseError', 'true')
-  if (
-    new URLSearchParams(window.location.search).get('testSuspenseError') === 'true' ||
-    localStorage.getItem('testSuspenseError') === 'true'
-  ) {
-    throw new Error('Test suspense error - Dashboard component intentionally failed')
-  }
-
   const translate = useTranslate()
 
   const {

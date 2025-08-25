@@ -29,14 +29,6 @@ type PriceChartArgs = {
 } & ChakraStyledOptions
 
 export const PriceChart: React.FC<PriceChartArgs> = props => {
-  // TEST ERROR: Trigger with ?testChartError=true or localStorage.setItem('testChartError', 'true')
-  if (
-    new URLSearchParams(window.location.search).get('testChartError') === 'true' ||
-    localStorage.getItem('testChartError') === 'true'
-  ) {
-    throw new Error('Test chart error - PriceChart component intentionally failed')
-  }
-
   const {
     assetId,
     timeframe,

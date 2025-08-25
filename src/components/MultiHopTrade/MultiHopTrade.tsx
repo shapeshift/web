@@ -44,14 +44,6 @@ export const MultiHopTrade = memo(
     isStandalone,
     onChangeTab,
   }: TradeCardProps) => {
-    // TEST ERROR: Trigger with ?testTradingError=true or localStorage.setItem('testTradingError', 'true')
-    if (
-      new URLSearchParams(window.location.search).get('testTradingError') === 'true' ||
-      localStorage.getItem('testTradingError') === 'true'
-    ) {
-      throw new Error('Test trading error - MultiHopTrade component intentionally failed')
-    }
-
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
     const location = useLocation()

@@ -101,6 +101,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     if (swap?.isStreaming && status === ActionStatus.Pending) return 'actionCenter.swap.streaming'
     if (status === ActionStatus.Complete) return 'actionCenter.swap.complete'
     if (status === ActionStatus.Failed) return 'actionCenter.swap.failed'
+    if (status === ActionStatus.AwaitingApproval) return 'actionCenter.swap.awaitingApproval'
+    if (status === ActionStatus.AwaitingSwap) return 'actionCenter.swap.awaitingSwap'
 
     return 'actionCenter.swap.processing'
   }, [action, isArbitrumBridge, swap?.isStreaming])

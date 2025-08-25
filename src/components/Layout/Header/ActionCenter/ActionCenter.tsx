@@ -76,7 +76,9 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={Boolean(swap?.txLink)}
+                isCollapsable={Boolean(
+                  swap?.txLink || action?.swapMetadata?.allowanceApproval?.txHash,
+                )}
               />
             )
           }

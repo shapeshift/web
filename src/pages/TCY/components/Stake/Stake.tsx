@@ -1,15 +1,13 @@
-import { thorchainChainId } from '@shapeshiftoss/caip'
 import { lazy, useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router'
 import { Route, Switch } from 'wouter'
 
+import type { CurrentAccount } from '../../tcy'
 import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
-import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
-import { useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const defaultBoxSpinnerStyle = {
@@ -42,15 +40,11 @@ export type StakeFormValues = {
   accountId: string
 }
 
-export const Stake: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+export const Stake: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }> = ({
   headerComponent,
-  activeAccountNumber,
+  currentAccount,
 }) => {
-  const accountId = useAppSelector(state => {
-    const accountIdsByAccountNumberAndChainId = selectAccountIdByAccountNumberAndChainId(state)
-    const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-    return accountNumberAccounts?.[thorchainChainId] ?? ''
-  })
+  const accountId = currentAccount.accountId ?? ''
 
   const methods = useForm<StakeFormValues>({
     mode: 'onChange',
@@ -64,23 +58,21 @@ export const Stake: React.FC<TCYRouteProps & { activeAccountNumber: number }> = 
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={StakeEntries} initialIndex={0}>
-        <StakeRoutes headerComponent={headerComponent} activeAccountNumber={activeAccountNumber} />
+        <StakeRoutes headerComponent={headerComponent} currentAccount={currentAccount} />
       </MemoryRouter>
     </FormProvider>
   )
 }
 
-export const StakeRoutes: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+export const StakeRoutes: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }> = ({
   headerComponent,
-  activeAccountNumber,
+  currentAccount,
 }) => {
   const location = useLocation()
 
   const renderStakeInput = useCallback(() => {
-    return (
-      <StakeInput headerComponent={headerComponent} activeAccountNumber={activeAccountNumber} />
-    )
-  }, [headerComponent, activeAccountNumber])
+    return <StakeInput headerComponent={headerComponent} currentAccount={currentAccount} />
+  }, [headerComponent, currentAccount])
 
   const renderStakeConfirm = useCallback(() => {
     return <StakeConfirm />

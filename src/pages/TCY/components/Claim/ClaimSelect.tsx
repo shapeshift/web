@@ -5,6 +5,7 @@ import { FaGift } from 'react-icons/fa'
 import { matchPath, useLocation, useNavigate } from 'react-router'
 
 import { useTCYClaims } from '../../queries/useTcyClaims'
+import type { CurrentAccount } from '../../tcy'
 import type { TCYRouteProps } from '../../types'
 import { ClaimModal } from './ClaimRoutes'
 import { AssetClaimButton } from './components/AssetClaimButton'
@@ -56,15 +57,15 @@ const suspenseFallback = <ClaimsListSkeleton />
 
 const ClaimsList = ({
   onClaimClick,
-  activeAccountNumber,
+  currentAccount,
 }: {
   onClaimClick: (claim: Claim) => void
-  activeAccountNumber: number
+  currentAccount: CurrentAccount
 }) => {
   const {
     state: { isConnected },
   } = useWallet()
-  const claimsQueries = useTCYClaims(activeAccountNumber)
+  const claimsQueries = useTCYClaims(currentAccount.accountNumber)
 
   if (!isConnected) {
     return (
@@ -100,13 +101,13 @@ const ClaimsList = ({
   )
 }
 
-export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+export const ClaimSelect: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }> = ({
   headerComponent,
-  activeAccountNumber,
+  currentAccount,
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const claimsQueries = useTCYClaims(activeAccountNumber)
+  const claimsQueries = useTCYClaims(currentAccount.accountNumber)
   const claims = claimsQueries
     .map(query => query.data)
     .flat()
@@ -138,7 +139,7 @@ export const ClaimSelect: React.FC<TCYRouteProps & { activeAccountNumber: number
       {headerComponent}
       <Stack spacing={2}>
         <Suspense fallback={suspenseFallback}>
-          <ClaimsList onClaimClick={handleClick} activeAccountNumber={activeAccountNumber} />
+          <ClaimsList onClaimClick={handleClick} currentAccount={currentAccount} />
         </Suspense>
       </Stack>
       <ClaimModal isOpen={isOpen} onClose={handleClose} claim={activeClaim} />

@@ -1,9 +1,10 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+
+import type { CurrentAccount } from '../tcy'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Display } from '@/components/Display'
@@ -23,10 +24,11 @@ const buttonProps = {
 }
 
 type TCYHeaderProps = {
+  currentAccount: CurrentAccount
   onAccountNumberChange: (accountNumber: number) => void
 }
 
-export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
+export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
 
@@ -38,16 +40,16 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
     selectAccountIdsByChainIdFilter(state, { chainId: thorchainChainId }),
   )
 
-  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountIds[0])
+  const currentAccountId = currentAccount.accountId
 
   const handleChange = useCallback(
     (accountId: string) => {
-      setDefaultAccountId(accountId)
+      if (accountId === currentAccountId) return
       const accountNumber = selectAccountNumberByAccountId(store.getState(), { accountId })
       if (accountNumber === undefined) throw new Error('Account number not found')
       onAccountNumberChange(accountNumber)
     },
-    [onAccountNumberChange],
+    [currentAccountId, onAccountNumberChange],
   )
 
   const activeAccountDropdown = useMemo(() => {
@@ -57,16 +59,16 @@ export const TCYHeader = ({ onAccountNumberChange }: TCYHeaderProps) => {
       <Flex alignItems='center' gap={2}>
         <Text translation='common.activeAccount' fontWeight='medium' />
 
-        {defaultAccountId && <InlineCopyButton value={fromAccountId(defaultAccountId).account} />}
+        {currentAccountId && <InlineCopyButton value={fromAccountId(currentAccountId).account} />}
         <AccountDropdown
-          defaultAccountId={defaultAccountId}
+          defaultAccountId={currentAccountId}
           assetId={thorchainAssetId}
           onChange={handleChange}
           buttonProps={buttonProps}
         />
       </Flex>
     )
-  }, [accountIds, handleChange, defaultAccountId])
+  }, [accountIds, handleChange, currentAccountId])
 
   return (
     <>

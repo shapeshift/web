@@ -1,24 +1,16 @@
 import { Card, CardHeader, Heading } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
+import type { CurrentAccount } from '../../tcy'
+
 import { RecentTransactionsBody } from '@/pages/Dashboard/RecentTransactions'
-import { selectAccountIdsByAssetId } from '@/state/slices/portfolioSlice/selectors'
-import { useAppSelector } from '@/state/store'
 
 type ActivityProps = {
-  activeAccountNumber: number
+  currentAccount: CurrentAccount
 }
 
-export const Activity = ({ activeAccountNumber }: ActivityProps) => {
-  const runeAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
-  )
-
-  const accountId = useMemo(
-    () => runeAccountIds[activeAccountNumber],
-    [runeAccountIds, activeAccountNumber],
-  )
+export const Activity = ({ currentAccount }: ActivityProps) => {
+  const accountId = currentAccount.accountId
 
   const filter = useMemo(
     () => ({

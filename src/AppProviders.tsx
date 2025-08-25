@@ -11,6 +11,7 @@ import { WagmiProvider } from 'wagmi'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
+import { ComponentErrorBoundary } from '@/components/ErrorBoundary'
 import { ActionCenterProvider } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { AppProvider } from '@/context/AppProvider/AppContext'
 import { BrowserRouterProvider } from '@/context/BrowserRouterProvider/BrowserRouterProvider'
@@ -67,20 +68,22 @@ export function AppProviders({ children }: ProvidersProps) {
                       <BrowserRouterProvider>
                         <WalletProvider>
                           <KeepKeyProvider>
-                            <WalletConnectV2Provider>
-                              <ActionCenterProvider>
-                                <ModalProvider>
-                                  <ErrorBoundary
-                                    FallbackComponent={ErrorPage}
-                                    onError={handleError}
-                                  >
-                                    <AppProvider>
-                                      <DefiManagerProvider>{children}</DefiManagerProvider>
-                                    </AppProvider>
-                                  </ErrorBoundary>
-                                </ModalProvider>
-                              </ActionCenterProvider>
-                            </WalletConnectV2Provider>
+                            <ComponentErrorBoundary>
+                              <WalletConnectV2Provider>
+                                <ActionCenterProvider>
+                                  <ModalProvider>
+                                    <ErrorBoundary
+                                      FallbackComponent={ErrorPage}
+                                      onError={handleError}
+                                    >
+                                      <AppProvider>
+                                        <DefiManagerProvider>{children}</DefiManagerProvider>
+                                      </AppProvider>
+                                    </ErrorBoundary>
+                                  </ModalProvider>
+                                </ActionCenterProvider>
+                              </WalletConnectV2Provider>
+                            </ComponentErrorBoundary>
                           </KeepKeyProvider>
                         </WalletProvider>
                       </BrowserRouterProvider>

@@ -45,7 +45,7 @@ const virtuosoStyle = {
   height: '100%',
 }
 
-const increaseViewportProps = {
+const INCREASE_VIEWPORT_BY = {
   top: 100,
   bottom: 100,
 }
@@ -163,7 +163,9 @@ export const ActionCenter = memo(() => {
         itemContent={renderActionCard}
         style={virtuosoStyle}
         overscan={200}
-        increaseViewportBy={increaseViewportProps}
+        increaseViewportBy={INCREASE_VIEWPORT_BY}
+        // eslint-disable-next-line react-memo/require-usememo
+        computeItemKey={(_, action) => action.id}
         className='scroll-container'
       />
     )
@@ -201,7 +203,7 @@ export const ActionCenter = memo(() => {
       </Display.Desktop>
       <Display.Mobile>
         <Box pe={2}>
-          <Box height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'>
+          <Box height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - var(--mobile-nav-offset))'>
             {drawerContent}
           </Box>
         </Box>

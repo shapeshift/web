@@ -3,16 +3,13 @@ import { Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
 import type { CSSProperties, FC } from 'react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
-import type { VirtuosoHandle } from 'react-virtuoso'
 import { Virtuoso } from 'react-virtuoso'
 
 import { AssetRow } from './AssetRow'
 
 import { Text } from '@/components/Text'
-import { useRefCallback } from '@/hooks/useRefCallback/useRefCallback'
-import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 
 export type AssetData = {
@@ -33,10 +30,7 @@ const scrollbarStyle: CSSProperties = {
   msOverflowStyle: 'none',
 }
 
-const increaseViewportProps = {
-  top: 100,
-  bottom: 100,
-}
+const INCREASE_VIEWPORT_BY = { top: 100, bottom: 100 } as const
 
 const virtuosoStyle = {
   height: '100vh',
@@ -53,32 +47,6 @@ export const AssetList: FC<AssetListProps> = ({
   isLoading = false,
   portalsAssets,
 }) => {
-  const assetId = useRouteAssetId()
-  const virtuosoRef = useRef<VirtuosoHandle | null>(null)
-
-  useRefCallback<VirtuosoHandle>({
-    deps: [assetId],
-    onInit: node => {
-      if (!node) return
-      virtuosoRef.current = node
-    },
-  })
-
-  useEffect(() => {
-    if (!virtuosoRef.current) return
-    const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
-    const index = assets.findIndex(({ assetId }: Asset) => assetId === parsedAssetId)
-    if (typeof index === 'number' && index >= 0) {
-      virtuosoRef.current.scrollToIndex({ index, align: 'center' })
-    }
-  }, [assetId, assets])
-
-  useEffect(() => {
-    if (!virtuosoRef.current) return
-    virtuosoRef.current.scrollToIndex({ index: 0 })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assets])
-
   const itemData = useMemo(
     () => ({
       assets,
@@ -140,12 +108,11 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
-      ref={virtuosoRef}
       data={assets}
       itemContent={renderRow}
       style={virtuosoStyle}
       overscan={200}
-      increaseViewportBy={increaseViewportProps}
+      increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )
 }

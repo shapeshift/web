@@ -179,7 +179,7 @@ export const Explore = memo(() => {
           flex='1 1 auto'
           height={
             isSearching
-              ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 98px - 1rem)'
+              ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 40px - 1rem)'
               : 'auto'
           }
         >

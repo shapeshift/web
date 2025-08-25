@@ -2,7 +2,6 @@ import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
-import type { ListChildComponentProps } from 'react-window'
 
 import type { AssetData } from './AssetList'
 
@@ -27,13 +26,12 @@ const assetIconPairProps = {
   showFirst: true,
 }
 
-export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
-  ({ data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts }, index, style }) => {
+export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = memo(
+  ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts } }) => {
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
       state: { isConnected, wallet },
     } = useWallet()
-    const asset: Asset | undefined = assets[index]
     const assetId = asset?.assetId
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
@@ -54,19 +52,20 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
         onClick={handleOnClick}
         justifyContent='space-between'
         isDisabled={!isSupported && disableUnsupported}
-        style={style}
         _focus={focus}
+        height='auto'
+        minHeight='60px'
+        padding={4}
       >
-        <Flex gap={4} alignItems='center'>
-          <AssetIcon assetId={asset.assetId} size='sm' pairProps={assetIconPairProps} />
-          <Box textAlign='left'>
-            <Text
-              lineHeight={1}
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-              maxWidth='200px'
-              overflow='hidden'
-            >
+        <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
+          <AssetIcon
+            assetId={asset.assetId}
+            size='sm'
+            pairProps={assetIconPairProps}
+            flexShrink={0}
+          />
+          <Box textAlign='left' flex={1} minWidth={0}>
+            <Text lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
               {asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
@@ -82,7 +81,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
           </Box>
         </Flex>
         {isConnected && !hideAssetBalance && (
-          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
             <Amount.Fiat
               color='var(--chakra-colors-chakra-body-text)'
               value={userCurrencyBalance}

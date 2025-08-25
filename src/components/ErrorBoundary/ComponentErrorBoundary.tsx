@@ -1,14 +1,7 @@
-import { Box, Button, Center, Heading, Stack } from '@chakra-ui/react'
-import { captureException } from '@sentry/react'
-import { useCallback } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
-import { FaSadTear } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
-import { IconCircle } from '@/components/IconCircle'
-import { RawText } from '@/components/Text'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { createErrorBoundary } from './createErrorBoundary'
+import { ErrorFallback } from './ErrorFallback'
 
 type ComponentErrorFallbackProps = {
   error: Error
@@ -19,64 +12,17 @@ const ComponentErrorFallback: React.FC<ComponentErrorFallbackProps> = ({ resetEr
   const translate = useTranslate()
 
   return (
-    <Center p={4}>
-      <Box
-        p={6}
-        borderRadius='xl'
-        bg='background.surface.raised.base'
-        border='1px'
-        borderColor='border.base'
-        maxW='md'
-      >
-        <Stack spacing={3} align='center' textAlign='center'>
-          <IconCircle fontSize='2xl' boxSize='10' bg='blue.500' color='white'>
-            <FaSadTear />
-          </IconCircle>
-          <Heading size='sm' lineHeight='shorter' color='text.base'>
-            {translate('errorBoundary.component.title')}
-          </Heading>
-          <RawText fontSize='sm' color='text.subtle'>
-            {translate('errorBoundary.component.body')}
-          </RawText>
-          <Button size='sm' colorScheme='blue' onClick={resetErrorBoundary}>
-            {translate('errorBoundary.component.retry')}
-          </Button>
-        </Stack>
-      </Box>
-    </Center>
+    <ErrorFallback
+      title={translate('errorBoundary.component.title')}
+      body={translate('errorBoundary.component.body')}
+      retryLabel={translate('errorBoundary.component.retry')}
+      onRetry={resetErrorBoundary}
+      size='md'
+    />
   )
 }
 
-type ComponentErrorBoundaryProps = {
-  children: React.ReactNode
-  fallback?: React.ComponentType<ComponentErrorFallbackProps>
-}
-
-export const ComponentErrorBoundary: React.FC<ComponentErrorBoundaryProps> = ({
-  children,
-  fallback: FallbackComponent = ComponentErrorFallback,
-}) => {
-  const handleError = useCallback((error: Error, info: { componentStack: string }) => {
-    captureException(error, {
-      tags: {
-        errorBoundary: 'component',
-      },
-      contexts: {
-        react: {
-          componentStack: info.componentStack,
-        },
-      },
-    })
-    getMixPanel()?.track(MixPanelEvent.Error, {
-      error: error.message,
-      errorBoundary: 'component',
-      componentStack: info.componentStack,
-    })
-  }, [])
-
-  return (
-    <ErrorBoundary FallbackComponent={FallbackComponent} onError={handleError}>
-      {children}
-    </ErrorBoundary>
-  )
-}
+export const ComponentErrorBoundary = createErrorBoundary({
+  errorBoundaryName: 'component',
+  FallbackComponent: ComponentErrorFallback,
+})

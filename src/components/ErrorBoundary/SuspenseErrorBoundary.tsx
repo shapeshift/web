@@ -1,13 +1,12 @@
-import { Box, Button, Center, CircularProgress, Heading, Stack } from '@chakra-ui/react'
+import { Box, Center, CircularProgress } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import type { lazy, ReactNode } from 'react'
 import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import { FaSadTear } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
-import { IconCircle } from '@/components/IconCircle'
-import { RawText } from '@/components/Text'
+import { ErrorFallback } from './ErrorFallback'
+
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 
@@ -20,31 +19,13 @@ const SuspenseErrorFallback: React.FC<SuspenseErrorFallbackProps> = ({ resetErro
   const translate = useTranslate()
 
   return (
-    <Center p={8} minH='200px'>
-      <Box
-        p={6}
-        borderRadius='xl'
-        bg='background.surface.raised.base'
-        border='1px'
-        borderColor='border.base'
-        maxW='sm'
-      >
-        <Stack spacing={3} align='center' textAlign='center'>
-          <IconCircle fontSize='xl' boxSize='8' bg='blue.500' color='white'>
-            <FaSadTear />
-          </IconCircle>
-          <Heading size='sm' lineHeight='shorter' color='text.base'>
-            {translate('errorBoundary.suspense.title')}
-          </Heading>
-          <RawText fontSize='sm' color='text.subtle'>
-            {translate('errorBoundary.suspense.body')}
-          </RawText>
-          <Button size='xs' colorScheme='blue' onClick={resetErrorBoundary}>
-            {translate('errorBoundary.suspense.retry')}
-          </Button>
-        </Stack>
-      </Box>
-    </Center>
+    <ErrorFallback
+      title={translate('errorBoundary.suspense.title')}
+      body={translate('errorBoundary.suspense.body')}
+      retryLabel={translate('errorBoundary.suspense.retry')}
+      onRetry={resetErrorBoundary}
+      size='sm'
+    />
   )
 }
 

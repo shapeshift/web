@@ -265,7 +265,7 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
-    path: '/fox-ecosystem',
+    path: '/fox-ecosystem/*',
     label: 'navBar.foxEcosystem',
     icon: <FoxPageIcon />,
     main: FoxEcosystemPage,

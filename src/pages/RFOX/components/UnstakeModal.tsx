@@ -1,17 +1,17 @@
 import { Card } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
-import { Dialog } from '../../../components/Modal/components/Dialog'
-import { DialogBody } from '../../../components/Modal/components/DialogBody'
-import { DialogCloseButton } from '../../../components/Modal/components/DialogCloseButton'
-import { DialogTitle } from '../../../components/Modal/components/DialogTitle'
 import { Unstake } from './Unstake/Unstake'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import {
   DialogHeader,
   DialogHeaderLeft,
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 
 type UnstakeModalProps = {
   isOpen: boolean
@@ -32,7 +32,7 @@ export const UnstakeModal: React.FC<UnstakeModalProps> = ({ isOpen, onClose }) =
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody p={0}>
-        <Card bg='none'>
+        <Card bg='transparent'>
           <Unstake />
         </Card>
       </DialogBody>

@@ -3,8 +3,8 @@ import * as fs from 'fs'
 import { CID } from 'multiformats/cid'
 import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
-import { dirname, resolve } from 'path'
 import * as path from 'path'
+import { dirname, resolve } from 'path'
 import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
 import type { PluginOption } from 'vite'
@@ -105,10 +105,20 @@ export default defineConfig(({ mode }) => {
       headers,
       host: '0.0.0.0',
       proxy: {
-        '/api': {
+        '/user-api': {
           target: 'http://localhost:3002',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
+          rewrite: path => path.replace(/^\/user-api/, ''),
+        },
+        '/swaps-api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/swaps-api/, ''),
+        },
+        '/notifications-api': {
+          target: 'http://localhost:3003',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/notifications-api/, ''),
         },
       },
     },

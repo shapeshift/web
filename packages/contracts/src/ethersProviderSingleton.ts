@@ -9,23 +9,23 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {
     switch (chainId) {
       case KnownChainIds.AvalancheMainnet:
-        return import.meta.env.VITE_AVALANCHE_NODE_URL
+        return process.env.VITE_AVALANCHE_NODE_URL
       case KnownChainIds.OptimismMainnet:
-        return import.meta.env.VITE_OPTIMISM_NODE_URL
+        return process.env.VITE_OPTIMISM_NODE_URL
       case KnownChainIds.BnbSmartChainMainnet:
-        return import.meta.env.VITE_BNBSMARTCHAIN_NODE_URL
+        return process.env.VITE_BNBSMARTCHAIN_NODE_URL
       case KnownChainIds.PolygonMainnet:
-        return import.meta.env.VITE_POLYGON_NODE_URL
+        return process.env.VITE_POLYGON_NODE_URL
       case KnownChainIds.GnosisMainnet:
-        return import.meta.env.VITE_GNOSIS_NODE_URL
+        return process.env.VITE_GNOSIS_NODE_URL
       case KnownChainIds.EthereumMainnet:
-        return import.meta.env.VITE_ETHEREUM_NODE_URL
+        return process.env.VITE_ETHEREUM_NODE_URL
       case KnownChainIds.ArbitrumMainnet:
-        return import.meta.env.VITE_ARBITRUM_NODE_URL
+        return process.env.VITE_ARBITRUM_NODE_URL
       case KnownChainIds.ArbitrumNovaMainnet:
-        return import.meta.env.VITE_ARBITRUM_NOVA_NODE_URL
+        return process.env.VITE_ARBITRUM_NOVA_NODE_URL
       case KnownChainIds.BaseMainnet:
-        return import.meta.env.VITE_BASE_NODE_URL
+        return process.env.VITE_BASE_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

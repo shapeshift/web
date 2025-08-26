@@ -22,7 +22,7 @@ export const StakeModal: React.FC<StakeModalProps> = ({ isOpen, onClose }) => {
   const translate = useTranslate()
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto' isDisablingPropagation>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader pl={6} pe={0}>
         <DialogHeaderLeft>
           <DialogTitle>{translate('defi.stake')}</DialogTitle>

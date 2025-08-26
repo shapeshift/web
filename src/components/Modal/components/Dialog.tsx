@@ -1,7 +1,7 @@
-import { Box, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
 
 import {
@@ -16,7 +16,6 @@ export type DialogProps = {
   onClose: () => void
   height?: string
   isFullScreen?: boolean
-  isDisablingPropagation?: boolean
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
@@ -49,7 +48,6 @@ const DialogWindow: React.FC<DialogProps> = ({
   height,
   isFullScreen,
   children,
-  isDisablingPropagation,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
@@ -79,6 +77,15 @@ const DialogWindow: React.FC<DialogProps> = ({
     setIsOpen(isOpen)
   }, [isOpen, setIsOpen])
 
+  const handleClose = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation()
+      setIsOpen(false)
+      onClose()
+    },
+    [onClose, setIsOpen],
+  )
+
   // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
   useLayoutEffect(() => {
     if (!isMobile || isLargerThanMd) return
@@ -98,20 +105,11 @@ const DialogWindow: React.FC<DialogProps> = ({
         repositionInputs={isFullScreen ? true : false}
         open={isDialogOpen}
         onClose={onClose}
-        activeSnapPoint={isDisablingPropagation ? undefined : snapPoint}
-        modal={!isDisablingPropagation}
+        activeSnapPoint={snapPoint}
+        modal
       >
         <Drawer.Portal>
-          {isDisablingPropagation ? (
-            <Box
-              bg='rgba(0, 0, 0, 0.8)'
-              position='fixed'
-              inset={0}
-              zIndex='overlay'
-              onClick={onClose}
-            />
-          ) : null}
-          <CustomDrawerOverlay onClick={onClose} />
+          <CustomDrawerOverlay onClick={handleClose} />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>

@@ -42,7 +42,13 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
     )
     const userCurrencyBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
-    const handleOnClick = useCallback(() => handleClick(asset), [asset, handleClick])
+    const handleOnClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation()
+        handleClick(asset)
+      },
+      [asset, handleClick],
+    )
 
     if (!asset) return null
 

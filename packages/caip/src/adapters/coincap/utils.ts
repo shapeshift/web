@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import type { AssetNamespace } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
-import type { ChainId, ChainReference } from '../../chainId/chainId'
+import type { ChainId } from '../../chainId/chainId'
 import {
   arbitrumChainId,
   ASSET_REFERENCE,
@@ -33,17 +33,7 @@ import {
   thorchainAssetMap,
 } from '../../utils'
 
-// CoinCap chain index numbers
-export enum CoinCapChainIndex {
-  Ethereum = '1',
-  Optimism = '10',
-  BnbSmartChain = '56',
-  Solana = '101',
-  Polygon = '137',
-  Base = '8453',
-  Arbitrum = '42161',
-  Avalanche = '43114',
-}
+const COINCAP_CHAIN_REFERENCE = { ...CHAIN_REFERENCE, SolanaMainnet: '101' }
 
 export type CoinCapCoin = {
   id: string
@@ -62,48 +52,37 @@ export type CoinCapCoin = {
 }
 
 // Chain ID to CoinCap network ID mapping
-const COINCAP_CHAIN_MAP: Record<
-  string,
-  { chainId: ChainId; chainReference: ChainReference; assetNamespace: AssetNamespace }
-> = {
-  [CoinCapChainIndex.Ethereum]: {
+const COINCAP_CHAIN_MAP: Record<string, { chainId: ChainId; assetNamespace: AssetNamespace }> = {
+  [COINCAP_CHAIN_REFERENCE.EthereumMainnet]: {
     chainId: ethChainId,
-    chainReference: CHAIN_REFERENCE.EthereumMainnet,
     assetNamespace: 'erc20',
   },
-  [CoinCapChainIndex.Optimism]: {
+  [COINCAP_CHAIN_REFERENCE.OptimismMainnet]: {
     chainId: optimismChainId,
-    chainReference: CHAIN_REFERENCE.OptimismMainnet,
     assetNamespace: 'erc20',
   },
-  [CoinCapChainIndex.BnbSmartChain]: {
+  [COINCAP_CHAIN_REFERENCE.BnbSmartChainMainnet]: {
     chainId: bscChainId,
-    chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
     assetNamespace: 'bep20',
   },
-  [CoinCapChainIndex.Solana]: {
+  [COINCAP_CHAIN_REFERENCE.SolanaMainnet]: {
     chainId: solanaChainId,
-    chainReference: CHAIN_REFERENCE.SolanaMainnet,
     assetNamespace: 'token',
   },
-  [CoinCapChainIndex.Polygon]: {
+  [COINCAP_CHAIN_REFERENCE.PolygonMainnet]: {
     chainId: polygonChainId,
-    chainReference: CHAIN_REFERENCE.PolygonMainnet,
     assetNamespace: 'erc20',
   },
-  [CoinCapChainIndex.Base]: {
+  [COINCAP_CHAIN_REFERENCE.BaseMainnet]: {
     chainId: baseChainId,
-    chainReference: CHAIN_REFERENCE.BaseMainnet,
     assetNamespace: 'erc20',
   },
-  [CoinCapChainIndex.Arbitrum]: {
+  [COINCAP_CHAIN_REFERENCE.ArbitrumMainnet]: {
     chainId: arbitrumChainId,
-    chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
     assetNamespace: 'erc20',
   },
-  [CoinCapChainIndex.Avalanche]: {
+  [COINCAP_CHAIN_REFERENCE.AvalancheCChain]: {
     chainId: avalancheChainId,
-    chainReference: CHAIN_REFERENCE.AvalancheCChain,
     assetNamespace: 'erc20',
   },
 }
@@ -146,9 +125,12 @@ export const parseEthData = (data: CoinCapCoin[]) => {
   )
 
   data.forEach(({ id, tokens }) => {
-    if (tokens[CoinCapChainIndex.Ethereum] && tokens[CoinCapChainIndex.Ethereum].length > 0) {
+    if (
+      tokens[COINCAP_CHAIN_REFERENCE.EthereumMainnet] &&
+      tokens[COINCAP_CHAIN_REFERENCE.EthereumMainnet].length > 0
+    ) {
       // Use first address for Ethereum chain
-      const address = tokens[CoinCapChainIndex.Ethereum][0]
+      const address = tokens[COINCAP_CHAIN_REFERENCE.EthereumMainnet][0]
       try {
         const assetId = toAssetId({
           chainNamespace: CHAIN_NAMESPACE.Evm,

@@ -8,6 +8,7 @@ import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
+import { useManageUser } from './hooks/useManageUser'
 import { usePortfolioFetch } from './hooks/usePortfolioFetch'
 import { useSnapStatusHandler } from './hooks/useSnapStatusHandler'
 
@@ -69,6 +70,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useTransactionsSubscriber()
   useActionCenterSubscribers()
   useSnapStatusHandler()
+
+  useManageUser()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

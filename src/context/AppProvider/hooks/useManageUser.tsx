@@ -29,14 +29,14 @@ interface UserInitResponse {
 }
 
 const getUserOrCreate = async (accountIds: string[]): Promise<UserInitResponse> => {
-  const serverUrl = import.meta.env.VITE_SWAPS_SERVER_URL
+  const serverUrl = import.meta.env.VITE_USER_SERVER_URL
 
   if (!serverUrl) {
     throw new Error('SWAPS_SERVER_URL not configured')
   }
 
   try {
-    const response = await axios.post(`${serverUrl}users/get-or-create`, {
+    const response = await axios.post(`${serverUrl}/users/get-or-create`, {
       accountIds,
     })
 
@@ -59,9 +59,9 @@ const registerDevice = async (
   deviceToken: string,
   deviceType: 'MOBILE' | 'WEB',
 ): Promise<void> => {
-  const serverUrl = import.meta.env.VITE_SWAPS_SERVER_URL
+  const serverUrl = import.meta.env.VITE_USER_SERVER_URL
 
-  const response = await axios.post(`${serverUrl}notifications/register-device`, {
+  const response = await axios.post(`${serverUrl}/users/${userId}/devices`, {
     userId,
     deviceToken,
     deviceType,

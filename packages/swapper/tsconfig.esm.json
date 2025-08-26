@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "rootDir": "src",
+    "outDir": "dist/esm",
+    "tsBuildInfoFile": "dist/esm/.tsbuildinfo",
+  },
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../caip/tsconfig.esm.json" },
+    { "path": "../chain-adapters/tsconfig.esm.json" },
+    { "path": "../types/tsconfig.esm.json" },
+    { "path": "../utils/tsconfig.esm.json" }
+  ]
+}

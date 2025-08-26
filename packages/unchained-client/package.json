@@ -3,27 +3,25 @@
   "version": "10.14.4",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
-  "main": "dist-cjs/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist-cjs/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
     }
   },
   "files": [
-    "dist",
-    "dist-cjs"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn run -T tsc --build tsconfig.cjs.json",
-    "build:cjs": "yarn run -T tsc --build tsconfig.cjs.json",
-    "clean": "rm -rf dist dist-cjs src/generated && rm -f tsconfig*.tsbuildinfo 2>/dev/null || true",
+    "build": "yarn clean && yarn generate && yarn run -T tsc --build",
+    "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate"
   },

@@ -110,6 +110,9 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       headers,
     },
+    worker: {
+      format: 'es',
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),

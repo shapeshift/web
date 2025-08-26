@@ -4,7 +4,6 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-import difference from 'lodash/difference'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
@@ -127,37 +126,27 @@ export const portfolio = createSlice({
       draftState.accountBalances.ids = draftState.accountBalances.ids.filter(id => id !== walletId)
       delete draftState.enabledAccountIds[walletId]
     }),
-    upsertPortfolio: create.reducer((draftState, { payload }: { payload: Portfolio }) => {
-      // upsert all
-      draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
-      draftState.accounts.ids = Object.keys(draftState.accounts.byId)
+    upsertPortfolio: create.reducer(
+      (draftState, { payload }: { payload: Pick<Portfolio, 'accounts' | 'accountBalances'> }) => {
+        // upsert all
+        draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
+        draftState.accounts.ids = Object.keys(draftState.accounts.byId)
 
-      // Handle account balances
-      Object.entries(payload.accountBalances.byId).forEach(([accountId, payloadBalances]) => {
-        if (!draftState.accountBalances.byId[accountId]) {
-          draftState.accountBalances.byId[accountId] = {}
-        }
+        // Handle account balances
+        Object.entries(payload.accountBalances.byId).forEach(([accountId, payloadBalances]) => {
+          if (!draftState.accountBalances.byId[accountId]) {
+            draftState.accountBalances.byId[accountId] = {}
+          }
 
-        const missingAssetIds = difference(
-          Object.keys(draftState.accountBalances.byId[accountId]),
-          Object.keys(payloadBalances),
-        )
+          draftState.accountBalances.byId[accountId] = {
+            ...draftState.accountBalances.byId[accountId],
+            ...payloadBalances,
+          }
+        })
 
-        // Zero out missing assets
-        const zeroedBalances = missingAssetIds.reduce(
-          (acc, assetId) => ({ ...acc, [assetId]: '0' }),
-          {},
-        )
-
-        draftState.accountBalances.byId[accountId] = {
-          ...draftState.accountBalances.byId[accountId],
-          ...zeroedBalances,
-          ...payloadBalances,
-        }
-      })
-
-      draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
-    }),
+        draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
+      },
+    ),
     /**
      * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
      * during initial load, leading to all auto-detected accounts being disabled.

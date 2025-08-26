@@ -13,10 +13,8 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import debounce from 'lodash/debounce'
 import type { ChangeEvent, FormEvent, JSX } from 'react'
 import { memo, useCallback, useMemo } from 'react'
-import { useForm } from 'react-hook-form'
 import { IoClose } from 'react-icons/io5'
 import { RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
@@ -36,9 +34,11 @@ import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
+import { useAssetSearchWorker } from '@/components/TradeAssetSearch/hooks/useAssetSearchWorker'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories } from '@/pages/Markets/constants'
-import { selectAssetsBySearchQuery } from '@/state/slices/common-selectors'
+import { selectAssets, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type ExploreCardProps = {
@@ -88,18 +88,33 @@ export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
 
-  const { register, watch, setValue } = useForm<{ search: string }>({
-    mode: 'onChange',
-    defaultValues: {
-      search: '',
-    },
+  const allAssets = useAppSelector(selectAssets)
+  const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)
+
+  // Use the asset search worker with default params for explore (no chain filtering)
+  const { searchString, workerSearchState, handleSearchChange } = useAssetSearchWorker({
+    activeChainId: 'All',
+    allowWalletUnsupportedAssets: true,
+    hasWallet: false, // For explore, we always show all assets
   })
 
-  const searchString = watch('search')
   const isSearching = Boolean(searchString.length)
 
-  const searchFilter = useMemo(() => ({ searchQuery: searchString, limit: 20 }), [searchString])
-  const assetResults = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
+  // Filter worker results by market cap and limit to 20 results
+  const assetResults = useMemo(() => {
+    if (!isSearching || !workerSearchState.searchResults) return []
+
+    const filteredAssets = workerSearchState.searchResults
+      .map(assetId => allAssets[assetId])
+      .filter((asset): asset is Asset => {
+        if (!asset) return false
+        const marketCap = marketDataUsd[asset.assetId]?.marketCap
+        return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
+      })
+      .slice(0, 20)
+
+    return filteredAssets
+  }, [workerSearchState.searchResults, allAssets, marketDataUsd, isSearching])
 
   const handlePoolsClick = useCallback(() => {
     navigate('/pools')
@@ -125,20 +140,10 @@ export const Explore = memo(() => {
     [navigate],
   )
 
-  const handleSearchInputChange = useCallback(
-    (value: string) => {
-      setValue('search', value)
-    },
-    [setValue],
-  )
-  const debouncedSetSearch = useMemo(
-    () => debounce(handleSearchInputChange, 200),
-    [handleSearchInputChange],
-  )
-
   const inputProps = useMemo(
     () => ({
-      ...register('search'),
+      value: searchString,
+      onChange: handleSearchChange,
       type: 'text',
       placeholder: translate('common.searchNameOrAddress'),
       pl: 10,
@@ -146,22 +151,16 @@ export const Explore = memo(() => {
       autoComplete: 'off',
       autoFocus: false,
       transitionProperty: 'none',
-      onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.value === '') {
-          setValue('search', '')
-          return
-        }
-        debouncedSetSearch(e.target.value)
-      },
     }),
-    [register, translate, debouncedSetSearch, setValue],
+    [searchString, handleSearchChange, translate],
   )
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
   const handleClearSearch = useCallback(() => {
-    setValue('search', '')
-  }, [setValue])
+    // Clear the search by simulating an empty input change
+    handleSearchChange({ target: { value: '' } } as ChangeEvent<HTMLInputElement>)
+  }, [handleSearchChange])
 
   return (
     <>
@@ -179,7 +178,7 @@ export const Explore = memo(() => {
           flex='1 1 auto'
           height={
             isSearching
-              ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 98px - 1rem)'
+              ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 40px - 1rem)'
               : 'auto'
           }
         >
@@ -194,19 +193,20 @@ export const Explore = memo(() => {
               </InputRightElement>
             </InputGroup>
           </Box>
-          {isSearching ? (
+          {isSearching && (
             <AssetList
+              isLoading={workerSearchState.isSearching}
               assets={assetResults}
               handleClick={handleAssetClick}
               disableUnsupported={false}
               rowComponent={AssetSearchRow}
             />
-          ) : null}
+          )}
         </Box>
 
-        {!isSearching && <Tags />}
-
         <Box display={isSearching ? 'none' : 'block'}>
+          <Tags />
+
           <Flex flexDir='column' gap={6}>
             <Carousel autoPlay showDots options={carouselOptions}>
               <ExploreCard

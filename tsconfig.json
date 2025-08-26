@@ -18,8 +18,7 @@
     "baseUrl": ".",
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["src/*"],
-      "@shapeshiftoss/*": ["packages/*/src"]
+      "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
 

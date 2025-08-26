@@ -1,11 +1,9 @@
 {
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.esm.json" },
-    { "path": "./tsconfig.cjs.json" }
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["dist"]
 }

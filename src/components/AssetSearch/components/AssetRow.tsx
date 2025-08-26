@@ -53,6 +53,7 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
         justifyContent='space-between'
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
+        width='100%'
         height='auto'
         minHeight='60px'
         padding={4}

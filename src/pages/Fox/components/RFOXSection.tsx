@@ -5,7 +5,6 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  Text as CText,
   Divider,
   Flex,
   Heading,
@@ -14,6 +13,7 @@ import {
   Skeleton,
   Stack,
   Tag,
+  Text as CText,
   usePrevious,
 } from '@chakra-ui/react'
 import {

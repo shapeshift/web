@@ -1,5 +1,16 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { ListProps } from '@chakra-ui/react'
-import { Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Center,
+  Collapse,
+  Text as CText,
+  Flex,
+  Icon,
+  Skeleton,
+  useDisclosure,
+} from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
 import type { CSSProperties, FC } from 'react'
@@ -9,11 +20,34 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { AssetRow } from './AssetRow'
 
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { Text } from '@/components/Text'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
+import {
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByAssetId,
+} from '@/state/slices/selectors'
+import { store } from '@/state/store'
+
+export type MixedAssetList = { type: 'group' | 'individual'; data: Asset[] }[]
 
 export type AssetData = {
   assets: Asset[]
+  groupedAssets?: MixedAssetList
+  handleClick: (asset: Asset) => void
+  handleLongPress?: (asset: Asset) => void
+  disableUnsupported?: boolean
+  hideZeroBalanceAmounts?: boolean
+  rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
+  isLoading?: boolean
+  portalsAssets?: PortalsAssets
+}
+
+export type GroupedAssetData = {
+  groupedAssets: Asset[][]
   handleClick: (asset: Asset) => void
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
@@ -37,6 +71,124 @@ const virtuosoStyle = {
   ...scrollbarStyle,
 }
 
+// New component for grouped asset rows
+const GroupedAssetRow: FC<{
+  assets: Asset[]
+  handleClick: (asset: Asset) => void
+  disableUnsupported?: boolean
+  hideZeroBalanceAmounts?: boolean
+}> = ({ assets, handleClick, disableUnsupported, hideZeroBalanceAmounts }) => {
+  const { isOpen, onToggle } = useDisclosure()
+  const primaryAsset = assets[0] // Use the first asset as primary
+
+  // Calculate total balance across all assets in the group
+  const totalBalance = useMemo(() => {
+    return assets.reduce((sum, asset) => {
+      const filter = { assetId: asset.assetId }
+      const balance = selectPortfolioUserCurrencyBalanceByAssetId(store.getState(), filter) ?? '0'
+      return sum + bnOrZero(balance).toNumber()
+    }, 0)
+  }, [assets])
+
+  const totalBalanceBaseUnit = useMemo(() => {
+    return assets.reduce((sum, asset) => {
+      const filter = { assetId: asset.assetId }
+      const balance = selectPortfolioCryptoPrecisionBalanceByFilter(store.getState(), filter) ?? '0'
+      return bnOrZero(balance).plus(sum).toFixed()
+    }, '0')
+  }, [assets])
+
+  const handleGroupClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      onToggle()
+    },
+    [onToggle],
+  )
+
+  const handleAssetClick = useCallback(
+    (asset: Asset) => {
+      handleClick(asset)
+    },
+    [handleClick],
+  )
+
+  return (
+    <Box>
+      <Button
+        variant='ghost'
+        onClick={handleGroupClick}
+        justifyContent='space-between'
+        width='100%'
+        height='auto'
+        minHeight='60px'
+        padding={4}
+      >
+        <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
+          <AssetIcon assetId={primaryAsset.assetId} size='sm' flexShrink={0} />
+          <Box textAlign='left' flex={1} minWidth={0}>
+            <CText lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
+              {primaryAsset.name}
+            </CText>
+            <Flex alignItems='center' gap={2}>
+              <Amount.Crypto
+                color='text.secondary'
+                fontSize='sm'
+                value={totalBalanceBaseUnit}
+                symbol={primaryAsset.symbol}
+              />
+            </Flex>
+          </Box>
+        </Flex>
+        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
+          <Amount.Fiat
+            color='var(--chakra-colors-chakra-body-text)'
+            value={totalBalance.toString()}
+          />
+
+          <Flex gap={1} mt={1}>
+            {assets.map(asset => (
+              <Box
+                key={asset.chainId}
+                w={2}
+                borderRadius='full'
+                display='flex'
+                alignItems='center'
+                justifyContent='center'
+                fontSize='xs'
+                color='white'
+                fontWeight='bold'
+              >
+                <LazyLoadAvatar src={asset.networkIcon ?? asset?.icon} boxSize={4} />
+              </Box>
+            ))}
+          </Flex>
+        </Flex>
+        <Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} ml={2} />
+      </Button>
+
+      <Collapse in={isOpen}>
+        <Box pl={8}>
+          {assets.map(asset => (
+            <AssetRow
+              key={asset.assetId}
+              asset={asset}
+              index={0}
+              // eslint-disable-next-line react-memo/require-usememo
+              data={{
+                assets: [asset],
+                handleClick: handleAssetClick,
+                disableUnsupported,
+                hideZeroBalanceAmounts,
+              }}
+            />
+          ))}
+        </Box>
+      </Collapse>
+    </Box>
+  )
+}
+
 export const AssetList: FC<AssetListProps> = ({
   assets,
   handleClick,
@@ -47,9 +199,43 @@ export const AssetList: FC<AssetListProps> = ({
   isLoading = false,
   portalsAssets,
 }) => {
+  // Group assets by relatedAssetKey and create a mixed list of grouped and individual assets
+  const mixedAssetList = useMemo(() => {
+    const assetGroups = new Map<string, Asset[]>()
+    console.log({ assets })
+
+    // Group assets by relatedAssetKey
+    assets.forEach(asset => {
+      console.log('asset', asset)
+      const groupKey = asset.relatedAssetKey || asset.assetId
+      if (!assetGroups.has(groupKey)) {
+        assetGroups.set(groupKey, [])
+      }
+      assetGroups.get(groupKey)?.push(asset)
+    })
+
+    // Create a mixed list: grouped assets (when multiple assets share relatedAssetKey) and individual assets
+    const mixedList: { type: 'group' | 'individual'; data: Asset[] }[] = []
+
+    assetGroups.forEach(groupAssets => {
+      if (groupAssets.length > 1) {
+        // Multiple assets with same relatedAssetKey - create a group
+        mixedList.push({ type: 'group', data: groupAssets })
+      } else {
+        // Single asset - add as individual
+        mixedList.push({ type: 'individual', data: groupAssets })
+      }
+    })
+
+    return mixedList
+  }, [assets])
+
+  console.log({ mixedAssetList })
+
   const itemData = useMemo(
     () => ({
       assets,
+      groupedAssets: mixedAssetList,
       handleClick,
       handleLongPress,
       disableUnsupported,
@@ -58,6 +244,7 @@ export const AssetList: FC<AssetListProps> = ({
     }),
     [
       assets,
+      mixedAssetList,
       disableUnsupported,
       handleClick,
       handleLongPress,
@@ -68,11 +255,32 @@ export const AssetList: FC<AssetListProps> = ({
 
   const renderRow = useCallback(
     (index: number) => {
-      const asset = assets[index]
+      const item = mixedAssetList[index]
       const RowComponent = rowComponent
-      return <RowComponent asset={asset} index={index} data={itemData} />
+      console.log({ item })
+
+      if (item.type === 'group') {
+        return (
+          <GroupedAssetRow
+            assets={item.data}
+            handleClick={handleClick}
+            disableUnsupported={disableUnsupported}
+            hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+          />
+        )
+      } else {
+        const asset = item.data[0]
+        return <RowComponent asset={asset} index={index} data={itemData} />
+      }
     },
-    [assets, itemData, rowComponent],
+    [
+      mixedAssetList,
+      itemData,
+      rowComponent,
+      handleClick,
+      disableUnsupported,
+      hideZeroBalanceAmounts,
+    ],
   )
 
   if (isLoading) {
@@ -108,7 +316,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
-      data={assets}
+      data={mixedAssetList}
       itemContent={renderRow}
       style={virtuosoStyle}
       overscan={200}

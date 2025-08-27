@@ -372,6 +372,7 @@ export type SwapperSpecificMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
   streamingSwapMetadata: StreamingSwapMetadata | undefined
+  utxoChangeAddress: string | undefined
 }
 
 export enum SwapStatus {

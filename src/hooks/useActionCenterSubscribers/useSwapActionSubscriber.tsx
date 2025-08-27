@@ -111,6 +111,9 @@ export const useSwapActionSubscriber = () => {
 
   const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
 
+  const activeSwap = activeSwapId ? swapsById[activeSwapId] : undefined
+  console.log(activeSwap)
+
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
       toast.closeAll()

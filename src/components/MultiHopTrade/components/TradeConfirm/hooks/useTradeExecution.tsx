@@ -1,7 +1,7 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
@@ -11,7 +11,7 @@ import {
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import type { CosmosSdkChainId, EvmChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -32,6 +32,8 @@ import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
+import { selectCurrentSwap } from '@/state/slices/swapSlice/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -41,6 +43,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+import { extractChangeAddressFromUtxo } from '@/utils/extractChangeAddressFromUtxo'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
@@ -49,6 +52,7 @@ export const useTradeExecution = (
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
+  const activeSwap = useAppSelector(selectCurrentSwap)
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorToast()
   const trackMixpanelEvent = useMixpanel()
@@ -325,7 +329,28 @@ export const useTradeExecution = (
             xpub,
             senderAddress,
             accountType,
-            signAndBroadcastTransaction: async (txToSign: SignTx<UtxoChainId>) => {
+            signAndBroadcastTransaction: async (txToSign: BTCSignTx) => {
+              // Extract change address from UTXO transaction for non-Relay swappers
+              if (activeSwap && !activeSwap.metadata.utxoChangeAddress && wallet) {
+                try {
+                  const utxoChangeAddress = await extractChangeAddressFromUtxo(txToSign, wallet)
+                  if (utxoChangeAddress) {
+                    // Update swap metadata with change address
+                    dispatch(
+                      swapSlice.actions.upsertSwap({
+                        ...activeSwap,
+                        metadata: {
+                          ...activeSwap.metadata,
+                          utxoChangeAddress,
+                        },
+                      }),
+                    )
+                  }
+                } catch (error) {
+                  console.warn('Failed to extract change address from UTXO transaction:', error)
+                }
+              }
+
               const signedTx = await adapter.signTransaction({ txToSign, wallet })
               const output = await adapter.broadcastTransaction({ hex: signedTx })
 
@@ -409,6 +434,7 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
+    activeSwap,
   ])
 
   return executeTrade

@@ -170,7 +170,8 @@ export const swapperApi = createApi({
           quote =>
             quote.status !== 'fulfilled' ||
             quote.value.rateResult === undefined ||
-            quote.value.rateResult.isErr(),
+            quote.value.rateResult.isErr() ||
+            (quote.value.rateResult.isOk() && quote.value.rateResult.unwrap().length === 0),
         )
 
         const hasTimeoutQuote = unprocessedSwapperResults.some(

@@ -31,20 +31,20 @@ export const timeoutMonadic = <Left, Right>(
   ])
 }
 
-export const timeoutMonadicWithFallback = <Left, Right>(
-  promise: Promise<Result<Left, Right>>,
+export const timeoutMonadicWithOriginal = <Ok, ErrType>(
+  promise: Promise<Result<Ok, ErrType>>,
   timeoutMs: number,
-  timeoutRight: Right,
-): { result: Promise<Result<Left, Right>>; fallback: Promise<Result<Left, Right>> } => {
+  timeoutErr: ErrType,
+): { timed: Promise<Result<Ok, ErrType>>; original: Promise<Result<Ok, ErrType>> } => {
   return {
-    result: Promise.race([
+    timed: Promise.race([
       promise,
-      new Promise<Result<Left, Right>>(resolve =>
+      new Promise<Result<Ok, ErrType>>(resolve =>
         setTimeout(() => {
-          resolve(Err(timeoutRight) as Result<Left, Right>)
+          resolve(Err(timeoutErr) as Result<Ok, ErrType>)
         }, timeoutMs),
       ),
     ]),
-    fallback: promise,
+    original: promise,
   }
 }

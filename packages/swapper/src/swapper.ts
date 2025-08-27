@@ -1,4 +1,4 @@
-import { bnOrZero, timeoutMonadic } from '@shapeshiftoss/utils'
+import { bnOrZero, timeoutMonadic, timeoutMonadicWithFallback } from '@shapeshiftoss/utils'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type {
@@ -59,7 +59,7 @@ export const getTradeRates = async (
   if (swapper === undefined) return
 
   try {
-    const quote = await timeoutMonadic<TradeRate[], SwapErrorRight>(
+    const { result, fallback } = timeoutMonadicWithFallback<TradeRate[], SwapErrorRight>(
       swapper.getTradeRate(getTradeRateInput, deps),
       quoteTimeoutMs,
       makeSwapErrorRight({
@@ -68,8 +68,11 @@ export const getTradeRates = async (
       }),
     )
 
+    const quote = await result
+
     return {
       ...quote,
+      fallback,
       swapperName,
     }
   } catch (e) {

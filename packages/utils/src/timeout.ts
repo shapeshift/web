@@ -30,3 +30,21 @@ export const timeoutMonadic = <Left, Right>(
     ),
   ])
 }
+
+export const timeoutMonadicWithFallback = <Left, Right>(
+  promise: Promise<Result<Left, Right>>,
+  timeoutMs: number,
+  timeoutRight: Right,
+): { result: Promise<Result<Left, Right>>; fallback: Promise<Result<Left, Right>> } => {
+  return {
+    result: Promise.race([
+      promise,
+      new Promise<Result<Left, Right>>(resolve =>
+        setTimeout(() => {
+          resolve(Err(timeoutRight) as Result<Left, Right>)
+        }, timeoutMs),
+      ),
+    ]),
+    fallback: promise,
+  }
+}

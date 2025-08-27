@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { solAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
-import { getTradeQuotes, getTradeRates } from '@shapeshiftoss/swapper'
+import { getTradeQuotes, getTradeRates, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { mapValues } from 'lodash'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -150,7 +150,7 @@ export const swapperApi = createApi({
 
         const swapperDeps = createSwapperDeps(state)
 
-        const swapperResults = await Promise.allSettled(
+        const unprocessedSwapperResults = await Promise.allSettled(
           enabledSwapperNames.map(async swapperName => {
             const rateResult = await getTradeRates(
               {
@@ -162,11 +162,44 @@ export const swapperApi = createApi({
               BULK_FETCH_RATE_TIMEOUT_MS,
             )
 
-            if (rateResult === undefined) {
+            return { swapperName, rateResult }
+          }),
+        )
+
+        const noQuotes = unprocessedSwapperResults.every(
+          quote =>
+            quote.status !== 'fulfilled' ||
+            quote.value.rateResult === undefined ||
+            quote.value.rateResult.isErr(),
+        )
+
+        const hasTimeoutQuote = unprocessedSwapperResults.some(
+          quote =>
+            quote.status === 'fulfilled' &&
+            quote.value.rateResult?.isErr() &&
+            quote.value.rateResult.unwrapErr().code === TradeQuoteError.Timeout,
+        )
+
+        const swapperResults = await Promise.allSettled(
+          unprocessedSwapperResults.map(async promiseResult => {
+            if (promiseResult.status !== 'fulfilled') return { data: {} }
+            const { swapperName, rateResult } = promiseResult.value
+
+            const isTimeout =
+              rateResult?.isErr() && rateResult.unwrapErr().code === TradeQuoteError.Timeout
+            const rateResultWithFallback =
+              noQuotes && hasTimeoutQuote && isTimeout && rateResult?.fallback
+                ? { ...(await rateResult.fallback), swapperName }
+                : rateResult
+
+            if (rateResultWithFallback === undefined) {
               return { data: {} }
             }
 
-            const quotesWithInputOutputRatios = processQuoteResultWithRatios(rateResult, getState)
+            const quotesWithInputOutputRatios = processQuoteResultWithRatios(
+              rateResultWithFallback,
+              getState,
+            )
 
             const processedQuotes: ApiQuote[] = await Promise.all(
               quotesWithInputOutputRatios.map(quoteData =>

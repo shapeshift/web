@@ -21,6 +21,7 @@ export type AssetData = {
   rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
+  height?: string
 }
 
 type AssetListProps = AssetData & ListProps
@@ -32,11 +33,6 @@ const scrollbarStyle: CSSProperties = {
 
 const INCREASE_VIEWPORT_BY = { top: 100, bottom: 100 } as const
 
-const virtuosoStyle = {
-  height: '50vh',
-  ...scrollbarStyle,
-}
-
 export const AssetList: FC<AssetListProps> = ({
   assets,
   handleClick,
@@ -46,7 +42,16 @@ export const AssetList: FC<AssetListProps> = ({
   rowComponent = AssetRow,
   isLoading = false,
   portalsAssets,
+  height = '50vh',
 }) => {
+  const virtuosoStyle = useMemo(
+    () => ({
+      height,
+      ...scrollbarStyle,
+    }),
+    [height],
+  )
+
   const itemData = useMemo(
     () => ({
       assets,

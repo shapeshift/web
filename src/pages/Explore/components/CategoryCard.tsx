@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Text as CText, Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
 import { memo, useCallback, useMemo } from 'react'
@@ -179,7 +179,7 @@ export const CategoryCard = memo(
               asset={asset}
               data={assetSearchRowData}
               index={index}
-              py={8}
+              py={2}
               // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
               style={emptyStyle}
               color={assetTitleColor}

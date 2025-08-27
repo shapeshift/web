@@ -273,6 +273,7 @@ export const ExploreCategory = () => {
               isCategoryQueryDataLoading ||
               isCategoryQueryDataFetching
             }
+            height='100vh'
           />
         </Box>
       </Main>

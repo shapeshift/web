@@ -5,6 +5,7 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  Text as CText,
   Divider,
   Flex,
   Heading,
@@ -13,7 +14,6 @@ import {
   Skeleton,
   Stack,
   Tag,
-  Text as CText,
   usePrevious,
 } from '@chakra-ui/react'
 import {
@@ -171,8 +171,10 @@ export const RFOXSection = () => {
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
   useEffect(() => {
+    if (selectedUnstakingRequest) return
+
     setStakingAssetAccountId(stakingAssetAccountId)
-  }, [setStakingAssetAccountId, stakingAssetAccountId])
+  }, [selectedUnstakingRequest, setStakingAssetAccountId, stakingAssetAccountId])
 
   const handleManageClick = useCallback(() => {
     navigate({

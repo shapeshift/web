@@ -16,20 +16,23 @@ export const DialogCloseButton: React.FC<DialogCloseButtonProps> = ({ children, 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen } = useDialog()
 
-  const handleCloseClick = useCallback(() => {
-    setIsOpen(!isOpen)
-  }, [isOpen, setIsOpen])
+  const handleCloseClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation()
+      setIsOpen(!isOpen)
+    },
+    [isOpen, setIsOpen],
+  )
 
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Close>
+      <Drawer.Close onClick={handleCloseClick}>
         <IconButton
           fontSize='2xl'
           variant='ghost'
           isRound
           icon={closeIcon}
           aria-label='close dialog'
-          onClick={handleCloseClick}
         />
       </Drawer.Close>
     )

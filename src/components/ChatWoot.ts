@@ -8,18 +8,18 @@ export const ChatwootWidget: React.FC = () => {
   useEffect(() => {
     if (!chatwootEnabled) return // Add Chatwoot Settings
     const BASE_URL = getConfig().VITE_CHATWOOT_URL
-    let allowedOrigin = ''
-    try {
-      allowedOrigin = new URL(BASE_URL).origin
-    } catch {
-      allowedOrigin = ''
-    }
+    const allowedOrigin = (() => {
+      try {
+        return new URL(BASE_URL).origin
+      } catch {
+        return ''
+      }
+    })()
     const chatwootMessageGuard = (event: MessageEvent) => {
       const dataString = typeof event.data === 'string' ? event.data : undefined
       if (!dataString || !dataString.startsWith('chatwoot-widget:')) return
       if (!allowedOrigin || event.origin !== allowedOrigin) {
         event.stopImmediatePropagation()
-        event.stopPropagation()
         return
       }
       try {
@@ -27,21 +27,19 @@ export const ChatwootWidget: React.FC = () => {
           event?: string
           baseUrl?: string
         }
-        if (payload?.event === 'popupChatWindow' && typeof payload.baseUrl === 'string') {
+        if (payload?.event === 'popoutChatWindow' && typeof payload.baseUrl === 'string') {
           const parsed = new URL(payload.baseUrl, allowedOrigin)
           const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:'
           const isSameOrigin = parsed.origin === allowedOrigin
           if (!isHttp || !isSameOrigin) {
             event.stopImmediatePropagation()
-            event.stopPropagation()
           }
         }
       } catch {
         event.stopImmediatePropagation()
-        event.stopPropagation()
       }
     }
-    window.addEventListener('message', chatwootMessageGuard as EventListener, true)
+    window.addEventListener('message', chatwootMessageGuard, true)
     ;(window as any).chatwootSettings = {
       hideMessageBubble: true,
       position: 'left', // This can be left or right

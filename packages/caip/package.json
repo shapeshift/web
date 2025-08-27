@@ -4,6 +4,7 @@
   "description": "CAIP Implementation",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
+  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -21,11 +22,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build",
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
     "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "yarn generate:coingecko && yarn generate:coincap",
     "generate:coingecko": "yarn build && yarn run -T tsx src/adapters/coingecko/generate.ts",
-    "generate:coincap": "yarn build && yarn run -T tsx src/adapters/coincap/generate.ts"
+    "generate:coincap": "yarn build && yarn run -T tsx src/adapters/coincap/generate.ts",
+    "postbuild": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   }
 }

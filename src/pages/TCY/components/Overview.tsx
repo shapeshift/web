@@ -8,12 +8,13 @@ import {
   SimpleGrid,
   Skeleton,
 } from '@chakra-ui/react'
-import { tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { Suspense, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useTcyDistributor } from '../queries/useTcyDistributooor'
 import { useTcyStaker } from '../queries/useTcyStaker'
+import type { CurrentAccount } from '../tcy'
 import type { TCYRouteProps } from '../types'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -24,7 +25,6 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import {
-  selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
@@ -32,7 +32,7 @@ import {
 import { useAppSelector } from '@/state/store'
 
 type OverviewProps = TCYRouteProps & {
-  activeAccountNumber: number
+  currentAccount: CurrentAccount
 }
 
 const gridColumns = { base: 1, md: 2 }
@@ -128,16 +128,11 @@ const RewardsBalanceSkeleton = () => {
 const stakedBalanceSkeleton = <StakedBalanceSkeleton />
 const rewardsBalanceSkeleton = <RewardsBalanceSkeleton />
 
-export const Overview = ({ activeAccountNumber }: OverviewProps) => {
+export const Overview = ({ currentAccount }: OverviewProps) => {
   const translate = useTranslate()
 
   const tcyAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-
-  const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-  const accountId = accountNumberAccounts?.[thorchainChainId]
+  const accountId = currentAccount.accountId
 
   const filter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 

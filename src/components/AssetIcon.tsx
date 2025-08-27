@@ -28,7 +28,7 @@ export const pairIconsClipPath =
 export type AssetIconProps = {
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
-  pairProps?: { showFirst?: boolean; displayMode?: 'side-by-side' | 'combined' }
+  pairProps?: { showFirst?: boolean }
 } & (
   | {
       assetId: AssetId

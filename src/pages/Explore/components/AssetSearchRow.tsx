@@ -26,7 +26,6 @@ const focus = {
 
 const assetIconPairProps = {
   showFirst: true,
-  displayMode: 'combined' as const,
 }
 
 type AssetSearchRowProps = {

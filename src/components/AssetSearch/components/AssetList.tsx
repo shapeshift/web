@@ -33,7 +33,7 @@ const scrollbarStyle: CSSProperties = {
 const INCREASE_VIEWPORT_BY = { top: 100, bottom: 100 } as const
 
 const virtuosoStyle = {
-  height: '100vh',
+  height: '50vh',
   ...scrollbarStyle,
 }
 

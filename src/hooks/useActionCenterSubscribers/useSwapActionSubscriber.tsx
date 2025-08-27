@@ -43,8 +43,7 @@ import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/se
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-const swapStatusToActionStatus: Record<SwapStatus, ActionStatus> = {
-  [SwapStatus.Idle]: ActionStatus.Idle,
+const swapStatusToActionStatus = {
   [SwapStatus.Pending]: ActionStatus.Pending,
   [SwapStatus.Success]: ActionStatus.Complete,
   [SwapStatus.Failed]: ActionStatus.Failed,
@@ -81,7 +80,7 @@ const getActionStatusFromSwap = (
     !isActiveSwap &&
     (status === ActionStatus.AwaitingApproval || status === ActionStatus.AwaitingSwap)
   ) {
-    return ActionStatus.Idle
+    return ActionStatus.Abandoned
   }
 
   return status
@@ -121,14 +120,14 @@ export const useSwapActionSubscriber = () => {
   // Sync swap status with action status
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
-      const existingAction = selectSwapActionBySwapId(store.getState(), {
+      const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,
       })
 
       // Skip if action is already in terminal state
       if (
-        existingAction?.status === ActionStatus.Complete ||
-        existingAction?.status === ActionStatus.Failed
+        swapAction?.status === ActionStatus.Complete ||
+        swapAction?.status === ActionStatus.Failed
       ) {
         return
       }
@@ -149,7 +148,7 @@ export const useSwapActionSubscriber = () => {
       )
 
       // Create new action if it doesn't exist
-      if (!existingAction) {
+      if (!swapAction) {
         dispatch(
           actionSlice.actions.upsertAction({
             id: uuidv4(),
@@ -163,15 +162,15 @@ export const useSwapActionSubscriber = () => {
             },
           }),
         )
-      } else if (isSwapAction(existingAction) && existingAction.status !== targetStatus) {
+      } else if (isSwapAction(swapAction) && swapAction.status !== targetStatus) {
         // Update existing action if status changed
         dispatch(
           actionSlice.actions.upsertAction({
-            ...existingAction,
+            ...swapAction,
             updatedAt: Date.now(),
             status: targetStatus,
             swapMetadata: {
-              swapId: existingAction.swapMetadata.swapId,
+              swapId: swapAction.swapMetadata.swapId,
               allowanceApproval: approvalMetadata,
             },
           }),

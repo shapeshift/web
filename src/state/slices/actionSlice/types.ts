@@ -29,6 +29,7 @@ export enum ActionStatus {
   Idle = 'Idle',
   AwaitingApproval = 'AwaitingApproval',
   AwaitingSwap = 'AwaitingSwap',
+  Abandoned = 'Abandoned',
   Pending = 'Pending',
   Initiated = 'Initiated',
   Complete = 'Complete',

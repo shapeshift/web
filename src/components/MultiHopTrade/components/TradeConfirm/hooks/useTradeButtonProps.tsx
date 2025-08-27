@@ -25,6 +25,7 @@ import {
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { extractChangeAddressFromPsbt } from '@/utils/extractChangeAddressFromPsbt'
 
 type UseTradeButtonPropsProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -83,6 +84,21 @@ export const useTradeButtonProps = ({
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
+  // Extract change address for Relay UTXO swaps
+  const changeAddress = useMemo(() => {
+    const firstStep = activeQuote?.steps[0]
+    const relayMetadata = firstStep?.relayTransactionMetadata
+    if (!relayMetadata?.psbt || !relayMetadata?.to || !firstStep) {
+      return undefined
+    }
+
+    return extractChangeAddressFromPsbt(
+      relayMetadata.psbt,
+      relayMetadata.to,
+      firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    )
+  }, [activeQuote?.steps])
+
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
     if (!sellAccountId) return
@@ -123,6 +139,7 @@ export const useTradeButtonProps = ({
           attemptedSwapCount: 0,
           failedSwaps: [],
         },
+        utxoChangeAddress: changeAddress || undefined,
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
@@ -140,6 +157,7 @@ export const useTradeButtonProps = ({
     sellAccountId,
     relayerExplorerTxLink,
     relayerTxHash,
+    changeAddress,
   ])
 
   const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)

@@ -970,6 +970,7 @@
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
+    "utxoChangeAddress": "Change Address",
     "tooltip": {
       "continueSwapping": "Continue swapping for final details",
       "changeQuote": "Change quote",
@@ -981,6 +982,7 @@
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
       "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct.",
+      "utxoChangeAddressTooltip": "This is where your leftover Bitcoin will be returned after the trade. You can verify you own this address on your Ledger device.",
       "amountPercentageDifference": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
       "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote",
       "inputOutputDifference": "The estimated difference between the USD values of input and output amounts.",

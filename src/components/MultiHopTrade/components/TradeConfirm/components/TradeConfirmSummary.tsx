@@ -10,12 +10,14 @@ import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { useIsApprovalInitiallyNeeded } from '../hooks/useIsApprovalInitiallyNeeded'
 
 import { Amount } from '@/components/Amount/Amount'
+import { ChangeAddressRow } from '@/components/ChangeAddressRow'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { RecipientAddressRow } from '@/components/RecipientAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { selectFeeAssetById } from '@/state/slices/selectors'
+import { selectCurrentSwap } from '@/state/slices/swapSlice/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAsset,
@@ -38,6 +40,7 @@ import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 export const TradeConfirmSummary = () => {
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
   const activeQuote = useAppSelector(selectActiveQuote)
+  const activeSwap = useAppSelector(selectCurrentSwap)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrency)
@@ -66,6 +69,8 @@ export const TradeConfirmSummary = () => {
     : undefined
   const hasIntermediaryTransactionOutputs =
     intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0
+
+  const utxoChangeAddress = activeSwap?.metadata?.utxoChangeAddress
 
   const firstHopNetworkFeeCryptoPrecision = useMemo(() => {
     if (!firstHopNetworkFeeCryptoBaseUnit) return undefined
@@ -163,6 +168,12 @@ export const TradeConfirmSummary = () => {
           explorerAddressLink={buyAsset.explorerAddressLink}
           recipientAddress={receiveAddress ?? ''}
         />
+        {utxoChangeAddress && (
+          <ChangeAddressRow
+            explorerAddressLink={sellAsset.explorerAddressLink}
+            changeAddress={utxoChangeAddress}
+          />
+        )}
       </Stack>
     </RateGasRow>
   )

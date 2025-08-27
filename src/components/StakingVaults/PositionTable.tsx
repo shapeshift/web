@@ -19,8 +19,8 @@ import { RawText } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { isEthAddress } from '@/lib/address/utils'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isEthAddress } from '@/lib/utils/ethAddress'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByChainId,

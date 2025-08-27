@@ -1,4 +1,4 @@
-import { Box, Button, Text as CText, Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
 import { memo, useCallback, useMemo } from 'react'

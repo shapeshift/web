@@ -3049,7 +3049,9 @@
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
       "unknown": "Unknown",
-      "initiated": "Initiated"
+      "initiated": "Initiated",
+      "awaitingApproval": "Awaiting Approval",
+      "awaitingSwap": "Awaiting Swap"
     },
     "emptyState": {
       "title": "Welcome to ShapeShift",
@@ -3061,7 +3063,9 @@
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
-      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming.",
+      "awaitingApproval": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting approval.",
+      "awaitingSwap": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting execution."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",

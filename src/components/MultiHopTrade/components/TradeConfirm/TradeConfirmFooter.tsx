@@ -17,6 +17,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { RecipientAddressRow } from '@/components/RecipientAddressRow'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text/Text'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -25,6 +26,7 @@ import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketData
 import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
+  selectHopChangeAddress,
   selectHopExecutionMetadata,
   selectIsActiveSwapperQuoteLoading,
 } from '@/state/slices/tradeQuoteSlice/selectors'
@@ -86,6 +88,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const hopExecutionMetadata = useAppSelector(state =>
     hopExecutionMetadataFilter
       ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
+      : undefined,
+  )
+
+  const changeAddress = useAppSelector(state =>
+    hopExecutionMetadataFilter
+      ? selectHopChangeAddress(state, hopExecutionMetadataFilter)
       : undefined,
   )
 
@@ -264,6 +272,18 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
           explorerAddressLink={buyAsset.explorerAddressLink}
           recipientAddress={receiveAddress ?? ''}
         />
+        {changeAddress && (
+          <Row>
+            <Row.Label>
+              <Text translation='trade.changeAddress' />
+            </Row.Label>
+            <Row.Value>
+              <TooltipWithTouch label={changeAddress}>
+                <MiddleEllipsis value={changeAddress} />
+              </TooltipWithTouch>
+            </Row.Value>
+          </Row>
+        )}
       </Stack>
     )
   }, [
@@ -275,6 +295,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
     receiveAddress,
+    changeAddress,
   ])
 
   const tradeDetail = useMemo(() => {

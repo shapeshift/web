@@ -966,6 +966,7 @@
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "manualReceiveAddress": "Receive address",
     "recipientAddress": "Recipient address",
+    "changeAddress": "Change address",
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",

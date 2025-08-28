@@ -576,6 +576,11 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   },
 )
 
+export const selectHopChangeAddress = createSelector(
+  selectHopExecutionMetadata,
+  hopExecutionMetadata => hopExecutionMetadata?.utxoChangeAddress,
+)
+
 export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
   tradeQuoteSlice.selectSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuoteDisplayCache,

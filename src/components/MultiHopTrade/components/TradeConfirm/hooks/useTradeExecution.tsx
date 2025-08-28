@@ -316,6 +316,20 @@ export const useTradeExecution = (
 
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
           const senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
+          const changeAddress = await adapter.getAddress({
+            accountNumber,
+            accountType,
+            wallet,
+            isChange: true,
+          })
+
+          dispatch(
+            tradeQuoteSlice.actions.setSwapTxChangeAddress({
+              hopIndex,
+              id: confirmedTradeId,
+              changeAddress,
+            }),
+          )
 
           const output = await execution.execUtxoTransaction({
             swapperName,

@@ -77,6 +77,7 @@ export type HopExecutionMetadata = {
   }
   swap: SwapExecutionMetadata
   progress: HopProgress
+  utxoChangeAddress?: string // UTXO change address for display
 }
 
 export type TradeExecutionMetadata = {

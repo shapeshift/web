@@ -54,9 +54,6 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         width='100%'
-        height='auto'
-        minHeight='60px'
-        padding={4}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon

@@ -179,7 +179,7 @@ export const CategoryCard = memo(
               asset={asset}
               data={assetSearchRowData}
               index={index}
-              py={8}
+              py={2}
               // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
               style={emptyStyle}
               color={assetTitleColor}

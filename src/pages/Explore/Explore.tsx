@@ -200,6 +200,7 @@ export const Explore = memo(() => {
               handleClick={handleAssetClick}
               disableUnsupported={false}
               rowComponent={AssetSearchRow}
+              height='100vh'
             />
           )}
         </Box>

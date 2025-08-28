@@ -214,7 +214,8 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
-    "approval": "Approval"
+    "approval": "Approval",
+    "permit2Approval": "Permit2 Approval"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",

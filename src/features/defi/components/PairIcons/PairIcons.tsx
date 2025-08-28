@@ -15,20 +15,12 @@ const rightHalfClipPath = 'polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)'
 
 const getRandomPosition = (length: number) => {
   const angle = Math.random() * 2 * Math.PI
-
-  // Define the center and radius in percentages
-  const centerX = 50 // 50% to center horizontally
-  const centerY = 50 // 50% to center vertically
-
-  // Randomize the distance from the center
-  const maxRadius = 50 // Maximum distance from the center in percentage
+  const centerX = 50
+  const centerY = 50
+  const maxRadius = 50
   const distance = Math.random() * maxRadius
-
-  // Calculate the position in percentages
   const left = centerX + distance * Math.cos(angle)
   const top = centerY + distance * Math.sin(angle)
-
-  // Generate a random zIndex value
   const zIndex = Math.floor(Math.random() * length)
   return { left, top, zIndex }
 }
@@ -43,23 +35,57 @@ export const PairIcons = ({
   iconBoxSize?: AvatarProps['boxSize']
   iconSize?: AvatarProps['size']
 } & FlexProps): JSX.Element | null => {
-  const tooltipContent = useMemo(() => {
-    if (!icons?.length || icons.length <= 2) return null
+  // Three or more icons - blurred with count and tooltip
+  const tooltipContent = useMemo(
+    () =>
+      icons && icons.length > 2 ? (
+        <HStack spacing={2} p={1}>
+          {icons.map(iconSrc => (
+            <LazyLoadAvatar key={iconSrc} src={iconSrc} size='xs' boxSize='24px' />
+          ))}
+        </HStack>
+      ) : null,
+    [icons],
+  )
 
+  if (!icons?.length) return null
+
+  // Single icon
+  if (icons.length === 1) {
     return (
-      <HStack spacing={2} p={1}>
-        {icons.map(iconSrc => (
-          <LazyLoadAvatar key={iconSrc} src={iconSrc} size='xs' boxSize='24px' />
-        ))}
-      </HStack>
+      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+        <LazyLoadAvatar src={icons[0]} size={iconSize} boxSize={iconBoxSize} />
+      </Flex>
     )
-  }, [icons])
+  }
 
-  const multipleIcons = useMemo(() => {
-    if (!icons?.length || icons.length <= 2) return null
-
-    // For 3+ icons, show all in the blurred circle
+  // Two icons - split view
+  if (icons.length === 2) {
     return (
+      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+        <Box position='relative'>
+          <LazyLoadAvatar
+            src={icons[0]}
+            size={iconSize}
+            boxSize={iconBoxSize}
+            clipPath={leftHalfClipPath}
+          />
+          <LazyLoadAvatar
+            src={icons[1]}
+            size={iconSize}
+            boxSize={iconBoxSize}
+            clipPath={rightHalfClipPath}
+            position='absolute'
+            left={0}
+            top={0}
+          />
+        </Box>
+      </Flex>
+    )
+  }
+
+  return (
+    <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
       <TooltipWithTouch label={tooltipContent} placement='top'>
         <Center
           position='relative'
@@ -67,11 +93,9 @@ export const PairIcons = ({
           borderRadius='full'
           bg='background.surface.base'
           height='var(--avatar-size)'
-          ml='0'
         >
           {icons.map(iconSrc => {
             const { left, top, zIndex } = getRandomPosition(icons.length)
-
             return (
               <LazyLoadAvatar
                 key={iconSrc}
@@ -100,49 +124,6 @@ export const PairIcons = ({
           />
         </Center>
       </TooltipWithTouch>
-    )
-  }, [iconBoxSize, iconSize, icons, tooltipContent])
-
-  if (!icons?.length) return null
-
-  // Combined mode for exactly 2 icons
-  if (icons.length === 2) {
-    return (
-      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
-        <Box position='relative'>
-          <LazyLoadAvatar
-            src={icons[0]}
-            size={iconSize}
-            boxSize={iconBoxSize}
-            clipPath={leftHalfClipPath}
-          />
-          <LazyLoadAvatar
-            src={icons[1]}
-            size={iconSize}
-            boxSize={iconBoxSize}
-            clipPath={rightHalfClipPath}
-            position='absolute'
-            left={0}
-            top={0}
-          />
-        </Box>
-      </Flex>
-    )
-  }
-
-  // For single icon
-  if (icons.length === 1) {
-    return (
-      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
-        <LazyLoadAvatar src={icons[0]} size={iconSize} boxSize={iconBoxSize} />
-      </Flex>
-    )
-  }
-
-  // For more than 2 icons, show just the count
-  return (
-    <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
-      {multipleIcons}
     </Flex>
   )
 }

@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Drawer } from 'vaul'
 
-import { useDialog } from '@/context/DialogContextProvider/DialogContextProvider'
+import { useSafeDialog } from '@/context/DialogContextProvider/DialogContextProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { breakpoints } from '@/theme/theme'
@@ -23,7 +23,7 @@ export const ButtonWalletPredicate = ({
     dispatch,
     state: { isConnected },
   } = useWallet()
-  const { isOpen } = useDialog()
+  const { isOpen } = useSafeDialog()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const handleConnect = useCallback(() => {

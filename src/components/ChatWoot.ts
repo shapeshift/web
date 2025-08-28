@@ -29,9 +29,8 @@ export const ChatwootWidget: React.FC = () => {
         }
         if (payload?.event === 'popoutChatWindow' && typeof payload.baseUrl === 'string') {
           const parsed = new URL(payload.baseUrl, allowedOrigin)
-          const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:'
           const isSameOrigin = parsed.origin === allowedOrigin
-          if (!isHttp || !isSameOrigin) {
+          if (!isSameOrigin) {
             event.stopImmediatePropagation()
           }
         }

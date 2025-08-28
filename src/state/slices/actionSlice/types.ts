@@ -43,7 +43,8 @@ export enum ActionStatus {
 
 type ActionSwapMetadata = {
   swapId: string
-  allowanceApproval?: ApprovalExecutionMetadata
+  allowanceApproval?: ApprovalExecutionMetadata | undefined
+  isPermit2Required?: boolean
 }
 
 type ActionLimitOrderMetadata = {

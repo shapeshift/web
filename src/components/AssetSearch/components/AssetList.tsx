@@ -71,7 +71,6 @@ const virtuosoStyle = {
   ...scrollbarStyle,
 }
 
-// New component for grouped asset rows
 const GroupedAssetRow: FC<{
   assets: Asset[]
   handleClick: (asset: Asset) => void
@@ -79,9 +78,8 @@ const GroupedAssetRow: FC<{
   hideZeroBalanceAmounts?: boolean
 }> = ({ assets, handleClick, disableUnsupported, hideZeroBalanceAmounts }) => {
   const { isOpen, onToggle } = useDisclosure()
-  const primaryAsset = assets[0] // Use the first asset as primary
+  const primaryAsset = assets[0]
 
-  // Calculate total balance across all assets in the group
   const totalBalance = useMemo(() => {
     return assets.reduce((sum, asset) => {
       const filter = { assetId: asset.assetId }

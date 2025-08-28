@@ -28,6 +28,9 @@ const Settings = () => {
   useEffect(() => {
     if (!isOpen) return
     const shakeEventListener = (e: MessageEvent<MobileMessageEvent>) => {
+      // Only accept messages from the mobile app WebView, which does not set a web origin
+      // and is only present when running in the RN environment. Any other origins are ignored.
+      if (e.origin && e.origin !== 'null' && e.origin !== 'file://') return
       if (e.data?.cmd === 'shakeEvent' && isOpen) {
         appHistory('/flags')
         close()

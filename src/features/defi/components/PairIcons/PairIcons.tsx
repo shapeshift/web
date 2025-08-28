@@ -1,9 +1,10 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
-import { Avatar, Box, Center, Flex } from '@chakra-ui/react'
+import { Avatar, Box, Center, Flex, HStack } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { imageLongPressSx } from '@/constants/longPress'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold', ...imageLongPressSx }
@@ -36,36 +37,40 @@ export const PairIcons = ({
   icons,
   iconSize,
   iconBoxSize,
-  showFirst,
   ...styleProps
 }: {
   icons: string[] | undefined
   iconBoxSize?: AvatarProps['boxSize']
   iconSize?: AvatarProps['size']
-  showFirst?: boolean
 } & FlexProps): JSX.Element | null => {
-  const firstIcon = useMemo(() => {
-    if (!icons?.length) return
+  const tooltipContent = useMemo(() => {
+    if (!icons?.length || icons.length <= 2) return null
 
-    return icons[0]
+    return (
+      <HStack spacing={2} p={1}>
+        {icons.map(iconSrc => (
+          <LazyLoadAvatar key={iconSrc} src={iconSrc} size='xs' boxSize='24px' />
+        ))}
+      </HStack>
+    )
   }, [icons])
 
-  const remainingIcons = useMemo(() => {
-    if (!icons?.length) return
+  const multipleIcons = useMemo(() => {
+    if (!icons?.length || icons.length <= 2) return null
 
-    const iconsMinusFirst = icons.slice(showFirst ? 1 : 0)
-    if (iconsMinusFirst.length > 1) {
-      return (
+    // For 3+ icons, show all in the blurred circle
+    return (
+      <TooltipWithTouch label={tooltipContent} placement='top'>
         <Center
           position='relative'
           overflow='hidden'
           borderRadius='full'
           bg='background.surface.base'
           height='var(--avatar-size)'
-          ml={showFirst ? '-2.5' : 0}
+          ml='0'
         >
-          {iconsMinusFirst.map(iconSrc => {
-            const { left, top, zIndex } = getRandomPosition(iconsMinusFirst.length)
+          {icons.map(iconSrc => {
+            const { left, top, zIndex } = getRandomPosition(icons.length)
 
             return (
               <LazyLoadAvatar
@@ -87,25 +92,16 @@ export const PairIcons = ({
             borderRadius='none'
             color='text.base'
             textShadow='sm'
-            name={`${showFirst ? '+ ' : ''}${iconsMinusFirst.length}`}
+            name={`${icons.length}`}
             size={iconSize}
             sx={assetIconSx}
             boxSize={iconBoxSize}
-            zIndex={iconsMinusFirst.length}
+            zIndex={icons.length}
           />
         </Center>
-      )
-    }
-    return iconsMinusFirst.map(iconSrc => (
-      <LazyLoadAvatar
-        ml={showFirst ? '-2.5' : 0}
-        key={iconSrc}
-        src={iconSrc}
-        size={iconSize}
-        boxSize={iconBoxSize}
-      />
-    ))
-  }, [iconBoxSize, iconSize, icons, showFirst])
+      </TooltipWithTouch>
+    )
+  }, [iconBoxSize, iconSize, icons, tooltipContent])
 
   if (!icons?.length) return null
 
@@ -134,11 +130,19 @@ export const PairIcons = ({
     )
   }
 
-  // For single icon or more than 2 icons, show first icon and remaining count
+  // For single icon
+  if (icons.length === 1) {
+    return (
+      <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+        <LazyLoadAvatar src={icons[0]} size={iconSize} boxSize={iconBoxSize} />
+      </Flex>
+    )
+  }
+
+  // For more than 2 icons, show just the count
   return (
     <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
-      {showFirst && <LazyLoadAvatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
-      {remainingIcons}
+      {multipleIcons}
     </Flex>
   )
 }

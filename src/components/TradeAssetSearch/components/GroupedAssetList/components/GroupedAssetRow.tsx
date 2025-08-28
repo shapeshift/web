@@ -73,7 +73,7 @@ export const GroupedAssetRow = ({
   const icon = useMemo(() => {
     if (!(assetId && asset)) return null
 
-    if (asset.icons) return <PairIcons icons={asset.icons} iconSize='sm' showFirst />
+    if (asset.icons) return <PairIcons icons={asset.icons} iconSize='sm' />
     return <AssetIcon assetId={assetId} size='sm' />
   }, [asset, assetId])
 

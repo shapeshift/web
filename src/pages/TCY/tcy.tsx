@@ -86,17 +86,20 @@ export const TCY = () => {
   const { data: currentStaker } = useTcyStaker(currentAccountId)
 
   // Only fetch default account to compare if use selects something
-  const compareTargetAccountId =
-    userSelectedAccountNumber !== undefined ? defaultTcyAccountId : undefined
-  const { data: defaultStaker } = useTcyStaker(compareTargetAccountId)
+  const { data: defaultStaker } = useTcyStaker(defaultTcyAccountId)
 
   useEffect(() => {
-    if (!currentAccountId || !currentStaker || !userSelectedAccountNumber) return
+    if (!currentAccountId || !currentStaker || !walletInfo) return
 
     const currentAmount = bnOrZero(fromBaseUnit(currentStaker.amount ?? '0', THOR_PRECISION))
-    const defaultAmount = bnOrZero(fromBaseUnit(defaultStaker?.amount ?? '0', THOR_PRECISION))
+    const defaultAmount = defaultStaker
+      ? bnOrZero(fromBaseUnit(defaultStaker.amount ?? '0', THOR_PRECISION))
+      : undefined
 
-    if (currentAmount.gt(defaultAmount) && walletInfo !== null) {
+    if (
+      defaultTcyAccountId === undefined ||
+      (defaultAmount !== undefined && currentAmount.gt(defaultAmount))
+    ) {
       setWalletIdToDefaultTcyAccountId({
         ...walletIdToDefaultTcyAccountId,
         [walletInfo.deviceId]: currentAccountId,
@@ -106,6 +109,7 @@ export const TCY = () => {
     currentAccountId,
     currentStaker,
     defaultStaker,
+    defaultTcyAccountId,
     dispatch,
     setWalletIdToDefaultTcyAccountId,
     userSelectedAccountNumber,

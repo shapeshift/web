@@ -10,6 +10,7 @@ import type {
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 
+import { initialTradeExecutionState } from './constants'
 import type { ActiveQuoteMeta } from './types'
 import { QuoteSortOption } from './types'
 
@@ -284,3 +285,5 @@ export const getBestQuotesByCategory = (quotes: ApiQuote[]) => {
     lowestGas: lowestGasQuote.id,
   }
 }
+
+export const createInitialTradeExecutionState = () => structuredClone(initialTradeExecutionState)

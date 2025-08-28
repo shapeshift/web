@@ -12,3 +12,23 @@ export const longPressSx = {
     WebkitTapHighlightColor: 'transparent',
   },
 }
+
+// Prevents annoying long press image behavior
+export const imageLongPressSx = {
+  '@media (hover: none) and (pointer: coarse)': {
+    img: {
+      userSelect: 'none',
+      WebkitUserSelect: 'none',
+      MozUserSelect: 'none',
+      msUserSelect: 'none',
+      WebkitTouchCallout: 'none',
+      WebkitTapHighlightColor: 'transparent',
+      // Prevent drag behavior on the image element
+      WebkitUserDrag: 'none',
+      KhtmlUserDrag: 'none',
+      MozUserDrag: 'none',
+      OUserDrag: 'none',
+      userDrag: 'none',
+    },
+  },
+}

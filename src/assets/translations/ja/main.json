@@ -23,6 +23,7 @@
     "close": "閉じる",
     "closed": "閉鎖",
     "loadMore": "もっと見る",
+    "volumeShort": "巻",
     "saveChanges": "変更内容を保存",
     "new": "New",
     "continue": "次へ",
@@ -129,6 +130,7 @@
     "buySell": "売買",
     "all": "全て",
     "viewAll": "すべて見る",
+    "seeMore": "もっと見る",
     "slippage": "スリッページ",
     "feesPlusSlippage": "手数料+スリッページ",
     "best": "ベスト",
@@ -139,6 +141,13 @@
     "fees": "手数料",
     "alternative": "代替",
     "validator": "%{name} バリデーター",
+    "howWasYourExperience": "取引体験はいかがでしたか?",
+    "leaveUsAReview": "レビューを残す",
+    "sendFeedback": "フィードバックを送信",
+    "letUsKnowHowWeCanImprove": "改善できる点があればお知らせください...",
+    "maybeLater": "後で",
+    "feedbackSubmitted": "フィードバックを送信しました",
+    "thankYouForYourFeedback": "フィードバックありがとうございます！",
     "needAsset": "%{asset} が必要ですか?",
     "buyNow": "今すぐ購入",
     "manage": "管理",
@@ -164,6 +173,7 @@
     "disabled": "無効",
     "staged": "段階的",
     "poolHalted": "プールが停止しています",
+    "poolStaged": "プールステージ",
     "chainHalted": "チェーン停止",
     "poolDisabled": "プールが無効です",
     "prices": "価格",
@@ -202,7 +212,9 @@
     "marketDataUnavailable": "%{asset} の市場データは利用できません",
     "streaming": "ストリーミング",
     "dca": "DCA",
-    "boost": "ブースト"
+    "boost": "ブースト",
+    "viewOnExplorer": "エクスプローラーで表示",
+    "approval": "承認"
   },
   "consentBanner": {
     "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
@@ -506,7 +518,7 @@
     "clickHereToEarn": "ここをクリックすると、ETH-FOX流動性プールトークンを獲得して年率%{apr}*を獲得できます",
     "overview": "概要",
     "myPositions": "ポジション",
-    "myPositionsBody": "DeFi における現在アクティブなポジションのリスト。",
+    "myPositionsBody": "アクティブな DeFi ポジションのリスト。",
     "viewAllPositions": "すべてのポジションを表示",
     "liquidityPools": "流動性プール",
     "liquidityLockupWarning": "%{time} のロックアップ期間があります。ロックアップ中は流動性にアクセスできません。",
@@ -841,6 +853,10 @@
     "allowanceTooltip": "スマートコントラクトの使用許可を与える金額。",
     "searchingRate": "フェッチ率...",
     "noRateAvailable": "利用可能なレートはありません。",
+    "fetchingQuotes": {
+      "title": "レートを取得中",
+      "description": "このペアの価格を取得しています。最大%{maxTimeSeconds}秒かかる場合があります"
+    },
     "previewTrade": "トレードのプレビュー",
     "rate": "レート",
     "tradeFrom": "取引元",
@@ -920,7 +936,6 @@
     "thisIsYourCustomRecipientAddress": "これはカスタム受信者アドレスです",
     "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
     "receiveAtLeast": "少なくとも受け取る",
-    "viewOnBlockExplorer": "ブロックエクスプローラーで表示",
     "tooltip": {
       "continueSwapping": "最終的な詳細について交換を続ける",
       "changeQuote": "見積もりの​​変更",
@@ -997,7 +1012,8 @@
       "executionRevertedWithExpectedSlippage": "実行中が中断されました。これは、スリップ許容度が不十分なことが原因である可能性があります。予想されるスリップ: %{expectedSlippage}%。より高いスリップ許容度で再試行してください。",
       "slippageToleranceExceeded": "スリッページ許容値を超えました。",
       "underMinimumAmount": "この取引の資産の 1 つ以上が、この取引に必要な最小額を下回ってしまっています。",
-      "consumedMoreFees": "この取引で発生した手数料が予想よりも高かったため、取引は元に戻りました。"
+      "consumedMoreFees": "この取引で発生した手数料が予想よりも高かったため、取引は元に戻りました。",
+      "swapperTimeout": "リクエストがタイムアウトしました。"
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
@@ -2031,6 +2047,13 @@
     }
   },
   "assets": {
+    "more": "もっと",
+    "spam": {
+      "warning": "このアセットはスパムとしてマークされているため非表示になります。",
+      "marked": "このアセットはスパムとしてマークされています。",
+      "reportAsSpam": "スパムとして報告",
+      "reportAsNotSpam": "スパムではないとマークする"
+    },
     "assetDetails": {
       "assetHeader": {
         "balance": "バランス",
@@ -2621,6 +2644,8 @@
     "understand": "私はリスクを理解しました"
   },
   "watchlist": {
+    "add": "ウォッチリストに追加",
+    "remove": "ウォッチリストから削除",
     "empty": {
       "title": "ウォッチリストの作成を開始する",
       "body": "星のアイコンが表示されていれば、それを使用してこちらにアセットを追加できます。",
@@ -2643,6 +2668,15 @@
     "tcy": {
       "title": "TCY",
       "body": "TCYをステークしてRUNEを獲得する。"
+    },
+    "tags": {
+      "liquid-staking": "流動性ステーキング",
+      "yield": "利回り",
+      "lending": "レンディング",
+      "rwa": "RWA",
+      "yield-aggregator": "イールドアグリゲーター",
+      "pool": "プール",
+      "clp": "CLP"
     }
   },
   "RFOX": {
@@ -2994,6 +3028,17 @@
       "complete": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップが完了しました。",
       "failed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップに失敗しました。",
       "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。"
+    },
+    "thorchainLp": {
+      "pairAssets": "%{asset1} と %{asset2}",
+      "withdraw": {
+        "processing": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが処理中です。",
+        "complete": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが完了しました。"
+      },
+      "deposit": {
+        "processing": "%{poolName} プールへの %{amountCryptoPrecision} %{symbol} の入金が処理中です。",
+        "complete": "%{poolName} プールへの %{amountCryptoPrecision} %{symbol} の入金が完了しました。"
+      }
     },
     "deposit": {
       "pending": "%{amount} %{symbol} の入金を処理中です。",

@@ -8,6 +8,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
+import type { CurrentAccount } from '../../tcy'
 import type { TCYRouteProps } from '../../types'
 import { TCYStakeRoute } from '../../types'
 import type { StakeFormValues } from './Stake'
@@ -26,7 +27,6 @@ import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
-import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const percentOptions = [1]
@@ -56,9 +56,9 @@ export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
 
 type AmountFieldName = 'amountCryptoPrecision' | 'fiatAmount'
 
-export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }> = ({
   headerComponent,
-  activeAccountNumber,
+  currentAccount,
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -88,11 +88,7 @@ export const StakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number 
       selectMarketDataByFilter(state, { assetId: selectedStakingAsset?.assetId }),
     ) ?? {}
 
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-  const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-  const accountId = accountNumberAccounts?.[thorchainChainId]
+  const { accountId } = currentAccount
 
   const balanceFilter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 

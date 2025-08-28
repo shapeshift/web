@@ -24,7 +24,7 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
 
   const txHash = buyTxHash || sellTxHash
 
-  if (swapMetadata?.allowanceApproval) {
+  if (swapMetadata?.isPermit2Required || swapMetadata?.allowanceApproval?.txHash) {
     return (
       <Stack gap={4}>
         <Row fontSize='sm' alignItems='center'>
@@ -34,7 +34,7 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
             )}
           </Row.Label>
           <Row.Value>
-            {swapMetadata.allowanceApproval.txHash ? (
+            {swapMetadata.allowanceApproval?.txHash ? (
               <TxLabel
                 txHash={swapMetadata.allowanceApproval.txHash}
                 explorerBaseUrl={sellAsset.explorerTxLink}

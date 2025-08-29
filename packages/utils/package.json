@@ -4,6 +4,7 @@
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
+  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -21,9 +22,10 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build",
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch"
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",

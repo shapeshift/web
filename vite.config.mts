@@ -99,10 +99,9 @@ export default defineConfig(({ mode }) => {
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`import.meta.env.${key}`, value]),
       ),
       ...Object.fromEntries(
-        Object.entries(env)
-          .filter(([key]) => key.startsWith('VITE_'))
-          .map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
+        Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
       ),
+      'process.env': JSON.stringify(env),
     },
     server: {
       port: 3000,
@@ -122,13 +121,15 @@ export default defineConfig(({ mode }) => {
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+        '@shapeshiftoss/caip': resolve(__dirname, './packages/caip/src'),
+        '@shapeshiftoss/types': resolve(__dirname, './packages/types/src'),
       },
     },
     build: {
       target: 'esnext',
       commonjsOptions: {
         transformMixedEsModules: true,
-        include: [/node_modules/, /packages/],
+        exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/types'],
       },
       chunkSizeWarningLimit: 2000,
       rollupOptions: {

@@ -1,15 +1,15 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
-	Box,
-	Button,
-	Collapse,
-	Text as CText,
-	Flex,
-	Icon,
-	Tag,
-	TagLeftIcon,
-	useColorModeValue,
-	useDisclosure,
+  Box,
+  Button,
+  Collapse,
+  Text as CText,
+  Flex,
+  Icon,
+  Tag,
+  TagLeftIcon,
+  useColorModeValue,
+  useDisclosure,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -22,34 +22,57 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
-	selectFeeAssetById,
-	selectMarketDataByAssetIdUserCurrency,
-	selectPortfolioCryptoPrecisionBalanceByFilter,
-	selectPortfolioUserCurrencyBalanceByAssetId,
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectFeeAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
-import { store, useAppSelector } from '@/state/store'
+import { store, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const GroupedAssetRow: FC<{
-  assets: Asset[]
+  asset: Asset
   handleClick: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
   showPrice?: boolean
-}> = ({ assets, handleClick, disableUnsupported, hideZeroBalanceAmounts, showPrice }) => {
+}> = ({ asset, handleClick, disableUnsupported, hideZeroBalanceAmounts, showPrice }) => {
   const { isOpen, onToggle } = useDisclosure()
+  const assets = useAppSelector(selectAssets)
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: asset.assetId,
+      // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
+      // disabled in the UI. This allows users to see our product supports more assets than they
+      // have connected chains for.
+      onlyConnectedChains: false,
+    }),
+    [asset],
+  )
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
+
+  const relatedAssets = useMemo(() => {
+    return relatedAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [assets, relatedAssetIds])
 
   const titleColor = useColorModeValue('black', 'white')
-  const firstAsset = useMemo(() => assets[0], [assets])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, firstAsset.assetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
 
   const primaryAsset = useMemo(() => {
-    const assetWithoutChainSuffix = assets.find(
-      asset => asset.name.includes(' on ') || feeAsset?.assetId === asset.assetId,
+    const assetWithoutChainSuffix = relatedAssets.find(
+      relatedAsset =>
+        relatedAsset?.name.includes(' on ') || feeAsset?.assetId === relatedAsset?.assetId,
     )
-    return assetWithoutChainSuffix || assets[0]
-  }, [assets, feeAsset])
+    return assetWithoutChainSuffix || asset
+  }, [relatedAssets, feeAsset, asset])
 
   const marketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, primaryAsset.assetId ?? ''),
@@ -60,20 +83,20 @@ export const GroupedAssetRow: FC<{
   }, [primaryAsset.name])
 
   const totalBalance = useMemo(() => {
-    return assets.reduce((sum, asset) => {
+    return relatedAssets.reduce((sum, asset) => {
       const filter = { assetId: asset.assetId }
       const balance = selectPortfolioUserCurrencyBalanceByAssetId(store.getState(), filter) ?? '0'
       return sum + bnOrZero(balance).toNumber()
     }, 0)
-  }, [assets])
+  }, [relatedAssets])
 
   const totalBalanceBaseUnit = useMemo(() => {
-    return assets.reduce((sum, asset) => {
+    return relatedAssets.reduce((sum, asset) => {
       const filter = { assetId: asset.assetId }
       const balance = selectPortfolioCryptoPrecisionBalanceByFilter(store.getState(), filter) ?? '0'
       return bnOrZero(balance).plus(sum).toFixed()
     }, '0')
-  }, [assets])
+  }, [relatedAssets])
 
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {
@@ -90,23 +113,27 @@ export const GroupedAssetRow: FC<{
     [handleClick],
   )
 
-  const assetIcons = useMemo(() => {
-    return assets.map(asset => (
-      <Box
-        key={asset.chainId}
-        w={2}
-        borderRadius='full'
-        display='flex'
-        alignItems='center'
-        justifyContent='center'
-        fontSize='xs'
-        color='white'
-        fontWeight='bold'
-      >
-        <LazyLoadAvatar src={asset.networkIcon ?? asset?.icon} boxSize={4} />
-      </Box>
-    ))
-  }, [assets])
+  const networksIcons = useMemo(() => {
+    return relatedAssets.map(asset => {
+      const feeAsset = selectFeeAssetByChainId(store.getState(), asset.chainId)
+
+      return (
+        <Box
+          key={asset.chainId}
+          w={2}
+          borderRadius='full'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          fontSize='xs'
+          color='white'
+          fontWeight='bold'
+        >
+          <LazyLoadAvatar src={feeAsset?.networkIcon ?? feeAsset?.icon} boxSize={4} />
+        </Box>
+      )
+    })
+  }, [relatedAssets])
 
   const changePercent24Hr = marketData?.changePercent24Hr
 
@@ -216,15 +243,15 @@ export const GroupedAssetRow: FC<{
                 color='var(--chakra-colors-chakra-body-text)'
                 value={totalBalance.toString()}
               />
-              <Flex>{assetIcons}</Flex>
+              <Flex>{networksIcons}</Flex>
             </Flex>
           )}
         </Flex>
         <Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} ml={2} />
       </Button>
 
-      <Collapse in={isOpen}>
-        {assets.map(asset => (
+      <Collapse in={isOpen} unmountOnExit>
+        {relatedAssets.map(asset => (
           <AssetRow
             key={asset.assetId}
             asset={asset}

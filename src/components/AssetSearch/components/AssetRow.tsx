@@ -3,17 +3,20 @@ import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import type { AssetData } from './AssetList'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
+  selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
@@ -32,15 +35,27 @@ export type AssetRowProps = {
   index: number
   data: AssetData
   py?: number
+  showPrice?: boolean
+  onImportClick?: (asset: Asset) => void
+  shouldDisplayRelatedAssets?: boolean
 } & ButtonProps
 
 export const AssetRow: FC<AssetRowProps> = memo(
-  ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts }, ...props }) => {
+  ({
+    asset,
+    data: { handleClick, disableUnsupported, hideZeroBalanceAmounts },
+    showPrice = false,
+    onImportClick,
+    shouldDisplayRelatedAssets = false,
+    ...props
+  }) => {
+    const translate = useTranslate()
     const assetNameColor = useColorModeValue('black', 'white')
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
       state: { isConnected, wallet },
     } = useWallet()
+
     const assetId = asset?.assetId
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
@@ -49,11 +64,37 @@ export const AssetRow: FC<AssetRowProps> = memo(
     )
     const userCurrencyBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
-    const handleOnClick = useCallback(() => handleClick(asset), [asset, handleClick])
+    const assetFromStore = useAppSelector(s => selectAssetById(s, assetId))
 
-    if (!asset) return null
+    const isCustomAsset = !assetFromStore
+
+    const handleOnClick = useCallback(() => {
+      handleClick(asset)
+    }, [asset, handleClick])
+
+    const handleImportClick = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (onImportClick) {
+          onImportClick(asset)
+        }
+      },
+      [asset, onImportClick],
+    )
 
     const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
+
+    if (shouldDisplayRelatedAssets && asset.relatedAssetKey) {
+      return (
+        <GroupedAssetRow
+          asset={asset}
+          handleClick={handleClick}
+          disableUnsupported={disableUnsupported}
+          hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+          showPrice={showPrice}
+        />
+      )
+    }
 
     return (
       <Button
@@ -63,6 +104,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         width='100%'
+        py={8}
         {...props}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
@@ -94,7 +136,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
             </Flex>
           </Box>
         </Flex>
-        {isConnected && !hideAssetBalance && (
+        {isConnected && !hideAssetBalance && !isCustomAsset && (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
             <Amount.Fiat
               color='var(--chakra-colors-chakra-body-text)'
@@ -106,6 +148,13 @@ export const AssetRow: FC<AssetRowProps> = memo(
               value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
               symbol={asset.symbol}
             />
+          </Flex>
+        )}
+        {isCustomAsset && (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+            <Button colorScheme='blue' onClick={handleImportClick}>
+              {translate('common.import')}
+            </Button>
           </Flex>
         )}
       </Button>

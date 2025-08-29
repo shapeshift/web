@@ -1,17 +1,22 @@
 import { Box, Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
-import type { TopItemListProps } from 'react-virtuoso'
+import type { ItemProps, TopItemListProps } from 'react-virtuoso'
 import { GroupedVirtuoso } from 'react-virtuoso'
 
-import { GroupedAssetRow } from './components/GroupedAssetRow'
 import { GroupedAssetRowLoading } from './components/GroupedAssetRowLoading'
 
+import { AssetList, INCREASE_VIEWPORT_BY } from '@/components/AssetSearch/components/AssetList'
 import { Text } from '@/components/Text'
 
 const Footer = () => <Box height='0.5rem' />
 const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> // this cannot be Fragment as styles are applied
-const components = { TopItemList, Footer }
+const VirtuosoItem = ({ children }: ItemProps<React.FC>) => (
+  <Box px={2} width='100%' minHeight='64px'>
+    {children}
+  </Box>
+)
+const components = { TopItemList, Footer, Item: VirtuosoItem }
 
 const backgroundColor = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
 const style = { minHeight: '50vh' }
@@ -63,23 +68,20 @@ export const GroupedAssetList = ({
         </>
       )
     },
-    [groupCounts, groups, groupIsLoading],
+    [groups, groupCounts, groupIsLoading],
   )
 
-  const renderItem = useCallback(
-    (index: number) => {
-      return (
-        <GroupedAssetRow
-          index={index}
-          onAssetClick={onAssetClick}
-          onImportClick={onImportClick}
-          assets={assets}
-          hideZeroBalanceAmounts={hideZeroBalanceAmounts}
-        />
-      )
-    },
-    [assets, hideZeroBalanceAmounts, onAssetClick, onImportClick],
-  )
+  const renderItem = useCallback(() => {
+    return (
+      <AssetList
+        assets={assets}
+        handleClick={onAssetClick}
+        hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+        onImportClick={onImportClick}
+        shouldDisplayRelatedAssets
+      />
+    )
+  }, [assets, onAssetClick, onImportClick, hideZeroBalanceAmounts])
 
   return (
     <GroupedVirtuoso
@@ -88,6 +90,8 @@ export const GroupedAssetList = ({
       itemContent={renderItem}
       components={components}
       style={style}
+      overscan={200}
+      increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )
 }

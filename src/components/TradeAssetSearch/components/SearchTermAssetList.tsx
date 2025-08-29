@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -8,8 +9,9 @@ import { useMemo } from 'react'
 
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
-import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
+import { Text } from '@/components/Text'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
@@ -163,22 +165,26 @@ export const SearchTermAssetList = ({
     portfolioUserCurrencyBalances,
   ])
 
-  const groups = useMemo(() => ['modals.assetSearch.searchResults'], [])
-  const groupCounts = useMemo(() => [searchTermAssets.length], [searchTermAssets.length])
-  const groupIsLoading = useMemo(
-    () => [isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching],
-    [isLoadingCustomTokens, isAssetListLoading, workerSearchState.isSearching],
-  )
-
   return (
-    <GroupedAssetList
-      assets={searchTermAssets}
-      groups={groups}
-      groupCounts={groupCounts}
-      hideZeroBalanceAmounts={true}
-      groupIsLoading={groupIsLoading}
-      onAssetClick={handleAssetClick}
-      onImportClick={onImportClick}
-    />
+    <>
+      <Text
+        color='text.subtle'
+        fontWeight='medium'
+        pt={4}
+        px={6}
+        translation={'modals.assetSearch.searchResults'}
+      />
+      <Box px={2}>
+        <AssetList
+          assets={searchTermAssets}
+          handleClick={handleAssetClick}
+          hideZeroBalanceAmounts={true}
+          onImportClick={onImportClick}
+          shouldDisplayRelatedAssets
+          isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
+          height='50vh'
+        />
+      </Box>
+    </>
   )
 }

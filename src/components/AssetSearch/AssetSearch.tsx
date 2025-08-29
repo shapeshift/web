@@ -26,12 +26,14 @@ export type AssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
+  shouldDisplayRelatedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets,
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
+  shouldDisplayRelatedAssets,
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -134,6 +136,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           assets={listAssets}
           handleClick={handleClick}
           disableUnsupported={!allowWalletUnsupportedAssets}
+          shouldDisplayRelatedAssets={shouldDisplayRelatedAssets}
         />
       </Box>
     </>

@@ -8,6 +8,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
@@ -17,6 +18,7 @@ import type { Column, Row } from 'react-table'
 
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
@@ -24,9 +26,14 @@ import { Text } from '@/components/Text'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
 import type { AccountRowData } from '@/state/slices/selectors'
-import { selectIsPortfolioLoading, selectPortfolioAccountRows } from '@/state/slices/selectors'
+import {
+  selectAssets,
+  selectIsPortfolioLoading,
+  selectPortfolioAccountRows,
+} from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
 
 type RowProps = Row<AccountRowData>
@@ -43,6 +50,7 @@ const emptyContainerProps: FlexProps = {
 export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
+  const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
   const sortedRows = useMemo(() => {
@@ -183,6 +191,16 @@ export const AccountTable = memo(() => {
     [navigate],
   )
 
+  const handleAssetClick = useCallback(
+    (asset: Asset) => {
+      vibrate('heavy')
+      const { assetId } = asset
+      const url = assetId ? `/assets/${assetId}` : ''
+      navigate(url)
+    },
+    [navigate],
+  )
+
   const handleRowLongPress = useCallback(
     (row: Row<AccountRowData>) => {
       const { assetId } = row.original
@@ -191,9 +209,35 @@ export const AccountTable = memo(() => {
     [assetActionsDrawer],
   )
 
-  return loading ? (
-    loadingRows
-  ) : (
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
+  const accountsAssets = useMemo(() => {
+    return rowData.map(row => assets[row.assetId]).filter(isSome)
+  }, [rowData, assets])
+
+  if (!isLargerThanMd) {
+    return (
+      <AssetList
+        assets={accountsAssets}
+        handleClick={handleAssetClick}
+        handleLongPress={handleAssetLongPress}
+        height='60vh'
+        shouldDisplayRelatedAssets
+      />
+    )
+  }
+
+  if (loading) {
+    return loadingRows
+  }
+
+  return (
     <InfiniteTable
       columns={columns}
       data={data}

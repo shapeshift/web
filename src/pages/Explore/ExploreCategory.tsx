@@ -275,6 +275,7 @@ export const ExploreCategory = () => {
             }
             height='100vh'
             showPrice
+            shouldDisplayRelatedAssets
           />
         </Box>
       </Main>

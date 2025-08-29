@@ -202,6 +202,7 @@ export const Explore = memo(() => {
               rowComponent={AssetSearchRow}
               height='100vh'
               showPrice
+              shouldDisplayRelatedAssets
             />
           )}
         </Box>

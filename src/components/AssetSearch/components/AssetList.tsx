@@ -1,5 +1,5 @@
 import type { ListProps } from '@chakra-ui/react'
-import { Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
 import type { CSSProperties, FC } from 'react'
@@ -9,14 +9,8 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { AssetRow } from './AssetRow'
 
-import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { Text } from '@/components/Text'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
-import { selectAssets } from '@/state/slices/selectors'
-import { store, useAppSelector } from '@/state/store'
-
-export type MixedAssetList = { type: 'group' | 'individual'; data: Asset[] }[]
 
 export type AssetData = {
   assets: Asset[]
@@ -24,22 +18,18 @@ export type AssetData = {
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
-  rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
+  rowComponent?: FC<{
+    asset: Asset
+    index: number
+    data: AssetData
+    additionalProps?: Record<string, unknown>
+  }>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
   showPrice?: boolean
-}
-
-export type GroupedAssetData = {
-  handleClick: (asset: Asset) => void
-  handleLongPress?: (asset: Asset) => void
-  disableUnsupported?: boolean
-  hideZeroBalanceAmounts?: boolean
-  rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
-  isLoading?: boolean
-  portalsAssets?: PortalsAssets
-  height?: string | number
-  showPrice?: boolean
+  additionalProps?: Record<string, unknown>
+  onImportClick?: (asset: Asset) => void
+  shouldDisplayRelatedAssets?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
@@ -49,7 +39,7 @@ const scrollbarStyle: CSSProperties = {
   msOverflowStyle: 'none',
 }
 
-const INCREASE_VIEWPORT_BY = { top: 100, bottom: 100 } as const
+export const INCREASE_VIEWPORT_BY = { top: 300, bottom: 100 } as const
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
@@ -62,55 +52,29 @@ export const AssetList: FC<AssetListProps> = ({
   portalsAssets,
   showPrice = false,
   height = '50vh',
+  additionalProps,
+  onImportClick,
+  shouldDisplayRelatedAssets = false,
 }) => {
-  const assetsByAssetId = useAppSelector(selectAssets)
+  const filteredAssets = useMemo(() => {
+    if (!shouldDisplayRelatedAssets) return assets
 
-  const assetRelatedIdsMap = useMemo(() => {
-    const map = new Map<string, string[]>()
-    const state = store.getState()
-    assets.forEach(asset => {
-      const relatedIds = selectRelatedAssetIdsInclusiveSorted(state, { assetId: asset.assetId })
-      map.set(asset.assetId, relatedIds)
-    })
-    return map
-  }, [assets])
-
-  const mixedAssetList = useMemo(() => {
-    const assetGroups = new Map<string, Asset[]>()
-    const processedAssets = new Set<string>()
+    const seenRelatedKeys = new Set<string>()
+    const filtered: Asset[] = []
 
     assets.forEach(asset => {
-      if (processedAssets.has(asset.assetId)) return
-
-      const relatedAssetIds = assetRelatedIdsMap.get(asset.assetId) || [asset.assetId]
-
-      const availableRelatedAssets = relatedAssetIds
-        .map(assetId => assetsByAssetId[assetId])
-        .filter((asset): asset is Asset => asset !== undefined)
-
-      availableRelatedAssets.forEach(a => processedAssets.add(a.assetId))
-
-      const groupKey = availableRelatedAssets[0]?.assetId || asset.assetId
-
-      if (!assetGroups.has(groupKey)) {
-        assetGroups.set(groupKey, [])
-      }
-
-      assetGroups.get(groupKey)?.push(...availableRelatedAssets)
-    })
-
-    const mixedList: { type: 'group' | 'individual'; data: Asset[] }[] = []
-
-    assetGroups.forEach(groupAssets => {
-      if (groupAssets.length > 1) {
-        mixedList.push({ type: 'group', data: groupAssets })
+      if (asset.relatedAssetKey) {
+        if (!seenRelatedKeys.has(asset.relatedAssetKey)) {
+          seenRelatedKeys.add(asset.relatedAssetKey)
+          filtered.push(asset)
+        }
       } else {
-        mixedList.push({ type: 'individual', data: groupAssets })
+        filtered.push(asset)
       }
     })
 
-    return mixedList
-  }, [assets, assetRelatedIdsMap, assetsByAssetId])
+    return filtered
+  }, [assets, shouldDisplayRelatedAssets])
 
   const virtuosoStyle = useMemo(
     () => ({
@@ -122,57 +86,58 @@ export const AssetList: FC<AssetListProps> = ({
 
   const itemData = useMemo(
     () => ({
-      assets,
+      assets: filteredAssets,
       handleClick,
       handleLongPress,
       disableUnsupported,
       hideZeroBalanceAmounts,
       portalsAssets,
+      onImportClick,
+      shouldDisplayRelatedAssets,
     }),
     [
-      assets,
+      filteredAssets,
       disableUnsupported,
       handleClick,
       handleLongPress,
       hideZeroBalanceAmounts,
       portalsAssets,
+      onImportClick,
+      shouldDisplayRelatedAssets,
     ],
   )
 
   const renderRow = useCallback(
     (index: number) => {
-      const item = mixedAssetList[index]
+      const asset = filteredAssets[index]
       const RowComponent = rowComponent
 
-      if (item.type === 'group') {
-        return (
-          <GroupedAssetRow
-            assets={item.data}
-            handleClick={handleClick}
-            disableUnsupported={disableUnsupported}
-            hideZeroBalanceAmounts={hideZeroBalanceAmounts}
-            showPrice={showPrice}
-          />
-        )
-      } else {
-        const asset = item.data[0]
-        return <RowComponent asset={asset} index={index} data={itemData} />
-      }
+      return (
+        <RowComponent
+          asset={asset}
+          index={index}
+          data={itemData}
+          showPrice={showPrice}
+          onImportClick={onImportClick}
+          shouldDisplayRelatedAssets={shouldDisplayRelatedAssets}
+          additionalProps={additionalProps}
+        />
+      )
     },
     [
-      mixedAssetList,
+      filteredAssets,
       itemData,
       rowComponent,
-      handleClick,
-      disableUnsupported,
-      hideZeroBalanceAmounts,
       showPrice,
+      onImportClick,
+      additionalProps,
+      shouldDisplayRelatedAssets,
     ],
   )
 
   if (isLoading) {
     return (
-      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} mt={4}>
+      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} mt={4} px={2}>
         {range(3).map(index => (
           <Flex key={index} align='center' width='100%' justifyContent='space-between' mb={4}>
             <Flex align='center'>
@@ -192,7 +157,7 @@ export const AssetList: FC<AssetListProps> = ({
     )
   }
 
-  if (assets?.length === 0) {
+  if (filteredAssets?.length === 0) {
     return (
       <Center flexDir='column' gap={2} mt={4}>
         <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
@@ -201,12 +166,22 @@ export const AssetList: FC<AssetListProps> = ({
     )
   }
 
+  if (filteredAssets.length <= 10) {
+    return (
+      <Box maxHeight={height} overflow='auto' height='auto' py={4}>
+        {filteredAssets.map((asset, index) => (
+          <Box key={asset.assetId}>{renderRow(index)}</Box>
+        ))}
+      </Box>
+    )
+  }
+
   return (
     <Virtuoso
-      data={mixedAssetList}
+      data={filteredAssets}
       itemContent={renderRow}
       style={virtuosoStyle}
-      overscan={200}
+      overscan={1000}
       increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )

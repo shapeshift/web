@@ -42,6 +42,8 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   -webkit-touch-callout: none;
 `
 
+const snapPoint = 0.5
+
 const DialogWindow: React.FC<DialogProps> = ({
   isOpen,
   onClose,
@@ -50,7 +52,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   children,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
+  const { setIsOpen, isOpen: isDialogOpen } = useDialog()
 
   const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
 

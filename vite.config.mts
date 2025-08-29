@@ -101,7 +101,11 @@ export default defineConfig(({ mode }) => {
       ...Object.fromEntries(
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
       ),
-      'process.env': JSON.stringify(env),
+      ...Object.fromEntries(
+        Object.entries(env)
+          .filter(([key]) => key.startsWith('VITE_'))
+          .map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
+      ),
     },
     server: {
       port: 3000,

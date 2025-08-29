@@ -48,7 +48,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } =
+  const { data: cooldownPeriodData, isSuccess: isCooldownPeriodSuccess } =
     useCooldownPeriodQuery(stakingAssetId)
 
   const {
@@ -106,7 +106,9 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
       <Row Tooltipbody={lockupPeriodToolTip}>
         <Row.Label>{translate('RFOX.lockupPeriod')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={isCooldownPeriodSuccess}>{cooldownPeriod}</Skeleton>
+          <Skeleton isLoaded={isCooldownPeriodSuccess}>
+            {cooldownPeriodData?.cooldownPeriod}
+          </Skeleton>
         </Row.Value>
       </Row>
       <Row Tooltipbody={shareOfPoolToolTip}>

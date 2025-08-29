@@ -76,7 +76,9 @@ export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
     return actions
-      .filter(action => action.status !== ActionStatus.Idle)
+      .filter(
+        action => action.status !== ActionStatus.Idle && action.status !== ActionStatus.Abandoned,
+      )
       .sort((a, b) => b.updatedAt - a.updatedAt)
   },
 )

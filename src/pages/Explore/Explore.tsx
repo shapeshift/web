@@ -20,6 +20,7 @@ import { RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { useFeatureFlag } from '../../hooks/useFeatureFlag/useFeatureFlag'
 import { AssetSearchRow } from './components/AssetSearchRow'
 import { CategoryCard } from './components/CategoryCard'
 import { Tags } from './components/Tags'
@@ -87,6 +88,7 @@ const carouselOptions = {
 export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const allAssets = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)
@@ -121,8 +123,8 @@ export const Explore = memo(() => {
   }, [navigate])
 
   const handleFoxClick = useCallback(() => {
-    navigate('/fox')
-  }, [navigate])
+    navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+  }, [navigate, isRfoxFoxEcosystemPageEnabled])
 
   const handleTCYClick = useCallback(() => {
     navigate('/tcy')
@@ -200,6 +202,7 @@ export const Explore = memo(() => {
               handleClick={handleAssetClick}
               disableUnsupported={false}
               rowComponent={AssetSearchRow}
+              height='100vh'
             />
           )}
         </Box>

@@ -74,11 +74,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
   }, [asset, action.transactionMetadata.assetId, action.status])
 
   const footer = useMemo(() => {
-    return (
-      <>
-        <ActionStatusTag status={action.status} />
-      </>
-    )
+    return <ActionStatusTag status={action.status} />
   }, [action.status])
 
   return (

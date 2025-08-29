@@ -214,7 +214,8 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
-    "approval": "Approval"
+    "approval": "Approval",
+    "permit2Approval": "Permit2 Approval"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -1120,7 +1121,19 @@
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee",
+    "claim": {
+      "pending": "Your claim of %{amount} %{symbol} is being processed.",
+      "complete": "Your claim of %{amount} %{symbol} is complete."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Your reward of %{amountAndSymbol} is processing..."
+      },
+      "complete": {
+        "description": "Your reward of %{amountAndSymbol} is complete."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1351,7 +1364,7 @@
         },
         "skip": {
           "title": "Skip this step?",
-          "description": "Skipping the backup means you won't be able to recover your wallet if you lose access to your device.",
+          "description": "Skipping the backup means you won’t be able to recover your wallet if you lose access to your device.",
           "confirmCta": "Yes, I’ve saved my seed phrase"
         }
       }
@@ -2714,6 +2727,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Initiated",
+    "unstakeInitiated": "Unstake Initiated",
+    "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Funds",
@@ -2878,7 +2894,7 @@
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",
-      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -3049,7 +3065,9 @@
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
       "unknown": "Unknown",
-      "initiated": "Initiated"
+      "initiated": "Initiated",
+      "awaitingApproval": "Awaiting Approval",
+      "awaitingSwap": "Awaiting Swap"
     },
     "emptyState": {
       "title": "Welcome to ShapeShift",
@@ -3061,7 +3079,9 @@
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
-      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming.",
+      "awaitingApproval": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting approval.",
+      "awaitingSwap": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting execution."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
@@ -3121,6 +3141,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",
     "orderCancelled": "Order Cancelled",
-    "orderExpired": "Order Expired"
+    "orderExpired": "Order Expired",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Your reward of %{amountAndSymbol} is processing..."
+      },
+      "complete": {
+        "description": "Your reward of %{amountAndSymbol} is complete."
+      }
+    }
   }
 }

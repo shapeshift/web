@@ -1,8 +1,20 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Collapse, Text as CText, Flex, Icon, useDisclosure } from '@chakra-ui/react'
+import {
+	Box,
+	Button,
+	Collapse,
+	Text as CText,
+	Flex,
+	Icon,
+	Tag,
+	TagLeftIcon,
+	useColorModeValue,
+	useDisclosure,
+} from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
+import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 
 import { AssetRow } from './AssetRow'
 
@@ -11,19 +23,41 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
+	selectFeeAssetById,
+	selectMarketDataByAssetIdUserCurrency,
 	selectPortfolioCryptoPrecisionBalanceByFilter,
 	selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
-import { store } from '@/state/store'
+import { store, useAppSelector } from '@/state/store'
 
 export const GroupedAssetRow: FC<{
   assets: Asset[]
   handleClick: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
-}> = ({ assets, handleClick, disableUnsupported, hideZeroBalanceAmounts }) => {
+  showPrice?: boolean
+}> = ({ assets, handleClick, disableUnsupported, hideZeroBalanceAmounts, showPrice }) => {
   const { isOpen, onToggle } = useDisclosure()
-  const primaryAsset = assets[0]
+
+  const titleColor = useColorModeValue('black', 'white')
+  const firstAsset = useMemo(() => assets[0], [assets])
+
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, firstAsset.assetId))
+
+  const primaryAsset = useMemo(() => {
+    const assetWithoutChainSuffix = assets.find(
+      asset => asset.name.includes(' on ') || feeAsset?.assetId === asset.assetId,
+    )
+    return assetWithoutChainSuffix || assets[0]
+  }, [assets, feeAsset])
+
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, primaryAsset.assetId ?? ''),
+  )
+
+  const primaryAssetNameWithoutChain = useMemo(() => {
+    return primaryAsset.name.split(' on ')[0]
+  }, [primaryAsset.name])
 
   const totalBalance = useMemo(() => {
     return assets.reduce((sum, asset) => {
@@ -56,8 +90,59 @@ export const GroupedAssetRow: FC<{
     [handleClick],
   )
 
+  const assetIcons = useMemo(() => {
+    return assets.map(asset => (
+      <Box
+        key={asset.chainId}
+        w={2}
+        borderRadius='full'
+        display='flex'
+        alignItems='center'
+        justifyContent='center'
+        fontSize='xs'
+        color='white'
+        fontWeight='bold'
+      >
+        <LazyLoadAvatar src={asset.networkIcon ?? asset?.icon} boxSize={4} />
+      </Box>
+    ))
+  }, [assets])
+
+  const changePercent24Hr = marketData?.changePercent24Hr
+
+  const changePercentTagColorsScheme = useMemo(() => {
+    if (bnOrZero(changePercent24Hr).gt(0)) {
+      return 'green'
+    }
+
+    if (bnOrZero(changePercent24Hr).lt(0)) {
+      return 'red'
+    }
+
+    return 'gray'
+  }, [changePercent24Hr])
+
+  const priceChange = useMemo(() => {
+    if (!changePercent24Hr) return null
+
+    return (
+      <Tag colorScheme={changePercentTagColorsScheme} width='max-content' px={1} size='sm'>
+        {changePercentTagColorsScheme !== 'gray' ? (
+          <TagLeftIcon
+            as={changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine}
+            me={1}
+          />
+        ) : null}
+        <Amount.Percent
+          value={bnOrZero(changePercent24Hr).times('0.01').toString()}
+          fontSize='xs'
+        />
+      </Tag>
+    )
+  }, [changePercent24Hr, changePercentTagColorsScheme])
+
   return (
-    <Box>
+    <Box bg={isOpen ? 'background.surface.raised.base' : 'transparent'} borderRadius='lg'>
       <Button
         variant='ghost'
         onClick={handleGroupClick}
@@ -66,67 +151,94 @@ export const GroupedAssetRow: FC<{
         height='auto'
         minHeight='60px'
         padding={4}
+        py={2}
+        pr={2}
+        borderBottomRadius={isOpen ? 0 : 'lg'}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
-          <AssetIcon assetId={primaryAsset.assetId} size='sm' flexShrink={0} />
+          <AssetIcon
+            assetId={primaryAsset.assetId}
+            showNetworkIcon={false}
+            size='sm'
+            flexShrink={0}
+          />
           <Box textAlign='left' flex={1} minWidth={0}>
-            <CText lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
-              {primaryAsset.name}
+            <CText
+              lineHeight={1}
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              overflow='hidden'
+              color={titleColor}
+            >
+              {primaryAssetNameWithoutChain}
             </CText>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                color='text.secondary'
-                fontSize='sm'
-                value={totalBalanceBaseUnit}
-                symbol={primaryAsset.symbol}
-              />
+              {!showPrice ? (
+                <Amount.Crypto
+                  color='text.secondary'
+                  fontSize='sm'
+                  value={totalBalanceBaseUnit}
+                  symbol={primaryAsset.symbol}
+                />
+              ) : (
+                <CText
+                  fontWeight='normal'
+                  fontSize='sm'
+                  color={'text.subtle'}
+                  textOverflow='ellipsis'
+                  whiteSpace='nowrap'
+                  maxWidth='150px'
+                  overflow='hidden'
+                >
+                  {primaryAsset.symbol}
+                </CText>
+              )}
             </Flex>
           </Box>
         </Flex>
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
-          <Amount.Fiat
-            color='var(--chakra-colors-chakra-body-text)'
-            value={totalBalance.toString()}
-          />
-
-          <Flex gap={1} mt={1}>
-            {assets.map(asset => (
-              <Box
-                key={asset.chainId}
-                w={2}
-                borderRadius='full'
-                display='flex'
-                alignItems='center'
-                justifyContent='center'
-                fontSize='xs'
-                color='white'
-                fontWeight='bold'
-              >
-                <LazyLoadAvatar src={asset.networkIcon ?? asset?.icon} boxSize={4} />
-              </Box>
-            ))}
-          </Flex>
+          {showPrice ? (
+            <Flex gap={1} mt={1}>
+              <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+                <Amount.Fiat
+                  fontWeight='semibold'
+                  color={titleColor}
+                  lineHeight='shorter'
+                  height='20px'
+                  value={marketData?.price}
+                />
+                {priceChange}
+              </Flex>
+            </Flex>
+          ) : (
+            <Flex gap={1} flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+              <Amount.Fiat
+                color='var(--chakra-colors-chakra-body-text)'
+                value={totalBalance.toString()}
+              />
+              <Flex>{assetIcons}</Flex>
+            </Flex>
+          )}
         </Flex>
         <Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} ml={2} />
       </Button>
 
       <Collapse in={isOpen}>
-        <Box pl={8}>
-          {assets.map(asset => (
-            <AssetRow
-              key={asset.assetId}
-              asset={asset}
-              index={0}
-              // eslint-disable-next-line react-memo/require-usememo
-              data={{
-                assets: [asset],
-                handleClick: handleAssetClick,
-                disableUnsupported,
-                hideZeroBalanceAmounts,
-              }}
-            />
-          ))}
-        </Box>
+        {assets.map(asset => (
+          <AssetRow
+            key={asset.assetId}
+            asset={asset}
+            index={0}
+            py={8}
+            // eslint-disable-next-line react-memo/require-usememo
+            data={{
+              assets: [asset],
+              handleClick: handleAssetClick,
+              disableUnsupported,
+              hideZeroBalanceAmounts,
+            }}
+          />
+        ))}
       </Collapse>
     </Box>
   )

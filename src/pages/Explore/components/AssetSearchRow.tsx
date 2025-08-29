@@ -156,6 +156,7 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         width='100%'
         minHeight='60px'
         padding={4}
+        py={2}
         {...rest}
         {...longPressHandlers(asset)}
         sx={longPressSx}

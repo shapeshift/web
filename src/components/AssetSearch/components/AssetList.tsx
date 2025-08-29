@@ -12,12 +12,14 @@ import { AssetRow } from './AssetRow'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { Text } from '@/components/Text'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectAssets } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 export type MixedAssetList = { type: 'group' | 'individual'; data: Asset[] }[]
 
 export type AssetData = {
   assets: Asset[]
-  groupedAssets?: MixedAssetList
   handleClick: (asset: Asset) => void
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
@@ -25,10 +27,10 @@ export type AssetData = {
   rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
+  showPrice?: boolean
 }
 
 export type GroupedAssetData = {
-  groupedAssets: Asset[][]
   handleClick: (asset: Asset) => void
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
@@ -37,6 +39,7 @@ export type GroupedAssetData = {
   isLoading?: boolean
   portalsAssets?: PortalsAssets
   height?: string | number
+  showPrice?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
@@ -57,17 +60,43 @@ export const AssetList: FC<AssetListProps> = ({
   rowComponent = AssetRow,
   isLoading = false,
   portalsAssets,
+  showPrice = false,
   height = '50vh',
 }) => {
+  const assetsByAssetId = useAppSelector(selectAssets)
+
+  const assetRelatedIdsMap = useMemo(() => {
+    const map = new Map<string, string[]>()
+    const state = store.getState()
+    assets.forEach(asset => {
+      const relatedIds = selectRelatedAssetIdsInclusiveSorted(state, { assetId: asset.assetId })
+      map.set(asset.assetId, relatedIds)
+    })
+    return map
+  }, [assets])
+
   const mixedAssetList = useMemo(() => {
     const assetGroups = new Map<string, Asset[]>()
+    const processedAssets = new Set<string>()
 
     assets.forEach(asset => {
-      const groupKey = asset.relatedAssetKey || asset.assetId
+      if (processedAssets.has(asset.assetId)) return
+
+      const relatedAssetIds = assetRelatedIdsMap.get(asset.assetId) || [asset.assetId]
+
+      const availableRelatedAssets = relatedAssetIds
+        .map(assetId => assetsByAssetId[assetId])
+        .filter((asset): asset is Asset => asset !== undefined)
+
+      availableRelatedAssets.forEach(a => processedAssets.add(a.assetId))
+
+      const groupKey = availableRelatedAssets[0]?.assetId || asset.assetId
+
       if (!assetGroups.has(groupKey)) {
         assetGroups.set(groupKey, [])
       }
-      assetGroups.get(groupKey)?.push(asset)
+
+      assetGroups.get(groupKey)?.push(...availableRelatedAssets)
     })
 
     const mixedList: { type: 'group' | 'individual'; data: Asset[] }[] = []
@@ -81,7 +110,7 @@ export const AssetList: FC<AssetListProps> = ({
     })
 
     return mixedList
-  }, [assets])
+  }, [assets, assetRelatedIdsMap, assetsByAssetId])
 
   const virtuosoStyle = useMemo(
     () => ({
@@ -94,7 +123,6 @@ export const AssetList: FC<AssetListProps> = ({
   const itemData = useMemo(
     () => ({
       assets,
-      groupedAssets: mixedAssetList,
       handleClick,
       handleLongPress,
       disableUnsupported,
@@ -103,7 +131,6 @@ export const AssetList: FC<AssetListProps> = ({
     }),
     [
       assets,
-      mixedAssetList,
       disableUnsupported,
       handleClick,
       handleLongPress,
@@ -124,6 +151,7 @@ export const AssetList: FC<AssetListProps> = ({
             handleClick={handleClick}
             disableUnsupported={disableUnsupported}
             hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+            showPrice={showPrice}
           />
         )
       } else {
@@ -138,6 +166,7 @@ export const AssetList: FC<AssetListProps> = ({
       handleClick,
       disableUnsupported,
       hideZeroBalanceAmounts,
+      showPrice,
     ],
   )
 

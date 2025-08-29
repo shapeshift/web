@@ -1,3 +1,4 @@
+import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -26,8 +27,16 @@ const assetIconPairProps = {
   showFirst: true,
 }
 
-export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = memo(
-  ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts } }) => {
+export type AssetRowProps = {
+  asset: Asset
+  index: number
+  data: AssetData
+  py?: number
+} & ButtonProps
+
+export const AssetRow: FC<AssetRowProps> = memo(
+  ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts }, ...props }) => {
+    const assetNameColor = useColorModeValue('black', 'white')
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
       state: { isConnected, wallet },
@@ -54,6 +63,7 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         width='100%'
+        {...props}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon
@@ -63,7 +73,13 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
             flexShrink={0}
           />
           <Box textAlign='left' flex={1} minWidth={0}>
-            <Text lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
+            <Text
+              color={assetNameColor}
+              lineHeight={1}
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              overflow='hidden'
+            >
               {asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>

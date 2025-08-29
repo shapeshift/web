@@ -4,8 +4,6 @@ import React, { createContext, useContext, useState } from 'react'
 import type { DialogProps } from '@/components/Modal/components/Dialog'
 
 type DialogContextType = {
-  snapPoint: string | number
-  setSnapPoint: (point: number | string) => void
   setIsOpen: (arg: boolean) => void
   isOpen: boolean
 }
@@ -20,13 +18,22 @@ export const useDialog = () => {
   return context
 }
 
+// Safe version that doesn't throw when used outside dialog context, for the purpose of being used in components that are not wrapped in DialogProvider
+// @TODO: remove me when we have a better way to manage dialogs in the future
+export const useSafeDialog = () => {
+  const context = useContext(DialogContext)
+  return (
+    context ?? {
+      isOpen: false,
+      setIsOpen: () => {},
+    }
+  )
+}
+
 export const DialogProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [snapPoint, setSnapPoint] = useState<string | number>(0.5)
   const [isOpen, setIsOpen] = useState(false)
 
   const value: DialogContextType = {
-    snapPoint,
-    setSnapPoint,
     isOpen,
     setIsOpen,
   }

@@ -14,6 +14,7 @@ import {
   Stack,
   Tag,
   Text as CText,
+  usePrevious,
 } from '@chakra-ui/react'
 import {
   foxOnArbitrumOneAssetId,
@@ -23,12 +24,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
-
-import { useFoxPageContext } from '../hooks/useFoxPageContext'
-import type { Filter } from './FoxTokenFilterButton'
-import { FoxTokenFilterButton } from './FoxTokenFilterButton'
-import { RFOXSimulator } from './RFOXSimulator'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -37,11 +33,19 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
+import type { Filter } from '@/pages/Fox/components/FoxTokenFilterButton'
+import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButton'
+import { RFOXSimulator } from '@/pages/Fox/components/RFOXSimulator'
+import { useFoxPageContext } from '@/pages/Fox/hooks/useFoxPageContext'
+import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
+import { StakeModal } from '@/pages/RFOX/components/StakeModal'
+import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
@@ -95,11 +99,33 @@ export const RFOXSection = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
+  const isRFOXFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId } = useRFOXContext()
   const appDispatch = useAppDispatch()
+  const location = useLocation()
+  const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
+    | UnstakingRequest
+    | undefined
+
   const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
+  const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
+  const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(!!selectedUnstakingRequest)
+  const previousIsClaimModalOpen = usePrevious(isClaimModalOpen)
+
+  useEffect(() => {
+    if (selectedUnstakingRequest) {
+      setStakingAssetAccountId(selectedUnstakingRequest.stakingAssetAccountId)
+    }
+  }, [selectedUnstakingRequest, setStakingAssetAccountId])
+
+  useEffect(() => {
+    if (selectedUnstakingRequest && !isClaimModalOpen && !previousIsClaimModalOpen) {
+      setIsClaimModalOpen(true)
+    }
+  }, [selectedUnstakingRequest, isClaimModalOpen, previousIsClaimModalOpen])
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
@@ -144,12 +170,17 @@ export const RFOXSection = () => {
     return matchingAccountId
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
-  const handleManageClick = useCallback(() => {
+  useEffect(() => {
+    if (selectedUnstakingRequest) return
+
     setStakingAssetAccountId(stakingAssetAccountId)
+  }, [selectedUnstakingRequest, setStakingAssetAccountId, stakingAssetAccountId])
+
+  const handleManageClick = useCallback(() => {
     navigate({
       pathname: '/rfox',
     })
-  }, [navigate, stakingAssetAccountId, setStakingAssetAccountId])
+  }, [navigate])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
@@ -224,12 +255,67 @@ export const RFOXSection = () => {
     return bn(affiliateRevenueQuery.data).times(distributionRate).toFixed(2)
   }, [affiliateRevenueQuery, currentEpochMetadataQuery, stakingAssetId])
 
+  const handleStakeClick = useCallback(() => {
+    setIsStakeModalOpen(true)
+  }, [])
+
+  const handleUnstakeClick = useCallback(() => {
+    setIsUnstakeModalOpen(true)
+  }, [])
+
+  const handleClaimClick = useCallback(() => {
+    setIsClaimModalOpen(true)
+  }, [])
+
+  const handleCloseStakeModal = useCallback(() => {
+    setIsStakeModalOpen(false)
+  }, [])
+
+  const handleCloseUnstakeModal = useCallback(() => {
+    setIsUnstakeModalOpen(false)
+  }, [])
+
+  const handleCloseClaimModal = useCallback(() => {
+    setIsClaimModalOpen(false)
+  }, [])
+
+  const actionsButtons = useMemo(() => {
+    if (!isRFOXFoxEcosystemPageEnabled) {
+      return (
+        <Button onClick={handleManageClick} colorScheme='gray' size='sm'>
+          {translate('common.manage')}
+        </Button>
+      )
+    }
+
+    return (
+      <Flex justifyContent='space-between'>
+        <Button onClick={handleStakeClick} colorScheme='gray' size='sm' me={2}>
+          {translate('defi.stake')}
+        </Button>
+        <Button onClick={handleUnstakeClick} colorScheme='gray' size='sm' me={2}>
+          {translate('defi.unstake')}
+        </Button>
+        <Button onClick={handleClaimClick} colorScheme='gray' size='sm'>
+          {translate('defi.claim')}
+        </Button>
+      </Flex>
+    )
+  }, [
+    isRFOXFoxEcosystemPageEnabled,
+    handleManageClick,
+    handleStakeClick,
+    handleUnstakeClick,
+    handleClaimClick,
+    translate,
+  ])
+
   if (!(stakingAsset && runeAsset)) return null
 
   if (!isRFOXEnabled) return null
 
   return (
-    <>
+    <Box>
       <Divider mt={2} mb={6} />
       <Box py={4} px={containerPaddingX}>
         <Flex sx={headerSx}>
@@ -292,9 +378,7 @@ export const RFOXSection = () => {
                 />
               </Skeleton>
             </Box>
-            <Button onClick={handleManageClick} colorScheme='gray' size='sm'>
-              {translate('common.manage')}
-            </Button>
+            {actionsButtons}
           </Stack>
 
           <Stack {...stackProps}>
@@ -352,6 +436,9 @@ export const RFOXSection = () => {
         </SimpleGrid>
         <RFOXSimulator stakingAssetId={stakingAssetId} />
       </Box>
-    </>
+      <StakeModal isOpen={isStakeModalOpen} onClose={handleCloseStakeModal} />
+      <UnstakeModal isOpen={isUnstakeModalOpen} onClose={handleCloseUnstakeModal} />
+      <ClaimModal isOpen={isClaimModalOpen} onClose={handleCloseClaimModal} />
+    </Box>
   )
 }

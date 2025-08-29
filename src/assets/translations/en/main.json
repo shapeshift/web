@@ -1761,6 +1761,7 @@
       "failure": {
         "body": "Unable to connect Ledger wallet"
       },
+      "gettingChangeAddress": "Getting change address...",
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },

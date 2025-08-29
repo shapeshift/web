@@ -40,7 +40,13 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
     )
     const userCurrencyBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
-    const handleOnClick = useCallback(() => handleClick(asset), [asset, handleClick])
+    const handleOnClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation()
+        handleClick(asset)
+      },
+      [asset, handleClick],
+    )
 
     if (!asset) return null
 

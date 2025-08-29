@@ -84,7 +84,7 @@ describe('coincap market service', () => {
         .mockResolvedValueOnce({ data: { data: [eth] } })
         .mockResolvedValue({ data: { data: [btc] } })
       const result = await coinMarketService.findAll()
-      expect(Object.keys(result)[0]).toEqual(adapters.coincapToAssetId(btc.id))
+      expect([Object.keys(result)[0]]).toEqual(adapters.coincapToAssetIds(btc.id))
     })
 
     it('can handle api errors', async () => {
@@ -124,11 +124,11 @@ describe('coincap market service', () => {
         .mockResolvedValueOnce({ data: { data: [eth] } })
         .mockResolvedValueOnce({ data: { data: [btc] } })
       const result = await coinMarketService.findAll()
-      const btcAssetIds = adapters.coincapToAssetId('bitcoin')
-      const ethAssetIds = adapters.coincapToAssetId('ethereum')
+      const btcAssetIds = adapters.coincapToAssetIds('bitcoin')
+      const ethAssetIds = adapters.coincapToAssetIds('ethereum')
       const [btcKey, ethKey] = Object.keys(result)
-      expect(btcKey).toEqual(btcAssetIds)
-      expect(ethKey).toEqual(ethAssetIds)
+      expect(btcKey).includes(btcAssetIds)
+      expect(ethKey).includes(ethAssetIds)
     })
   })
 

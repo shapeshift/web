@@ -16,13 +16,13 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
 function popupCenterWindow(url: string, windowName: string, w: number, h: number) {
-  if (!window.top) return window.open(url, '_blank')?.focus()
+  if (!window.top) return window.open(url, '_blank', 'noopener,noreferrer')?.focus()
   const y = window.top.outerHeight / 2 + window.top.screenY - h / 2
   const x = window.top.outerWidth / 2 + window.top.screenX - w / 2
   return window.open(
     url,
     windowName,
-    `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
+    `noopener,noreferrer, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
   )
 }
 
@@ -56,7 +56,10 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
     popup.close()
   }, [popup, popupWindow])
 
-  const handleContinue = useCallback(() => window.open(url, '_blank')?.focus(), [url])
+  const handleContinue = useCallback(
+    () => window.open(url, '_blank', 'noopener,noreferrer')?.focus(),
+    [url],
+  )
 
   useEffect(() => {
     if (!isOpen) return

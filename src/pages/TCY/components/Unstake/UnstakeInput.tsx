@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import { useTcyStaker } from '../../queries/useTcyStaker'
+import type { CurrentAccount } from '../../tcy'
 import type { TCYRouteProps } from '../../types'
 import { TCYUnstakeRoute } from '../../types'
 import type { UnstakeFormValues } from './Unstake'
@@ -40,7 +41,6 @@ import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
-import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const formControlProps = {
@@ -69,9 +69,9 @@ export const ReadOnlyAsset: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
 
 type AmountFieldName = 'amountCryptoPrecision' | 'fiatAmount'
 
-export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: number }> = ({
+export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }> = ({
   headerComponent,
-  activeAccountNumber,
+  currentAccount,
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -100,11 +100,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { activeAccountNumber: numbe
       selectMarketDataByFilter(state, { assetId: selectedStakingAsset?.assetId }),
     ) ?? {}
 
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-  const accountNumberAccounts = accountIdsByAccountNumberAndChainId[activeAccountNumber]
-  const accountId = accountNumberAccounts?.[thorchainChainId]
+  const { accountId } = currentAccount
 
   const { data: tcyStaker } = useTcyStaker(accountId)
 

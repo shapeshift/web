@@ -45,6 +45,8 @@ const Dashboard = makeSuspenseful(
       default: Dashboard,
     })),
   ),
+  {},
+  true,
 )
 
 const Asset = makeSuspenseful(
@@ -53,6 +55,8 @@ const Asset = makeSuspenseful(
       default: Asset,
     })),
   ),
+  {},
+  true,
 )
 
 const Assets = makeSuspenseful(
@@ -61,6 +65,8 @@ const Assets = makeSuspenseful(
       default: Assets,
     })),
   ),
+  {},
+  true,
 )
 
 const Buy = makeSuspenseful(
@@ -69,6 +75,8 @@ const Buy = makeSuspenseful(
       default: Buy,
     })),
   ),
+  {},
+  true,
 )
 
 const Flags = makeSuspenseful(
@@ -77,6 +85,8 @@ const Flags = makeSuspenseful(
       default: Flags,
     })),
   ),
+  {},
+  true,
 )
 
 const Explore = makeSuspenseful(
@@ -85,6 +95,8 @@ const Explore = makeSuspenseful(
       default: Explore,
     })),
   ),
+  {},
+  true,
 )
 
 const LendingPage = makeSuspenseful(
@@ -93,6 +105,8 @@ const LendingPage = makeSuspenseful(
       default: LendingPage,
     })),
   ),
+  {},
+  true,
 )
 
 const PoolsPage = makeSuspenseful(
@@ -101,6 +115,8 @@ const PoolsPage = makeSuspenseful(
       default: PoolsPage,
     })),
   ),
+  {},
+  true,
 )
 
 const MarketsPage = makeSuspenseful(
@@ -109,6 +125,8 @@ const MarketsPage = makeSuspenseful(
       default: MarketsPage,
     })),
   ),
+  {},
+  true,
 )
 
 /**

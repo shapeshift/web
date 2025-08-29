@@ -75,6 +75,18 @@ export const ActionStatusTag = ({ status }: ActionStatusTagProps) => {
             {translate('actionCenter.status.initiated')}
           </Tag>
         )
+      case ActionStatus.AwaitingApproval:
+        return (
+          <Tag size='sm' colorScheme='orange' {...defaultTagProps}>
+            {translate('actionCenter.status.awaitingApproval')}
+          </Tag>
+        )
+      case ActionStatus.AwaitingSwap:
+        return (
+          <Tag size='sm' colorScheme='orange' {...defaultTagProps}>
+            {translate('actionCenter.status.awaitingSwap')}
+          </Tag>
+        )
       default:
         return (
           <Tag size='sm' colorScheme='gray' {...defaultTagProps}>

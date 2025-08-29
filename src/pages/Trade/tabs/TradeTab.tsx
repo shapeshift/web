@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
+import { TradingErrorBoundary } from '@/components/ErrorBoundary'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
@@ -80,11 +81,13 @@ export const TradeTab = memo(() => {
 
   const tradeElement = useMemo(
     () => (
-      <MultiHopTrade
-        defaultBuyAssetId={defaultBuyAssetId}
-        defaultSellAssetId={defaultSellAssetId}
-        onChangeTab={handleChangeTab}
-      />
+      <TradingErrorBoundary>
+        <MultiHopTrade
+          defaultBuyAssetId={defaultBuyAssetId}
+          defaultSellAssetId={defaultSellAssetId}
+          onChangeTab={handleChangeTab}
+        />
+      </TradingErrorBoundary>
     ),
     [handleChangeTab, defaultBuyAssetId, defaultSellAssetId],
   )

@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 import { AssetList } from './components/AssetList'
 
 import { ChainList } from '@/components/TradeAssetSearch/Chains/ChainList'
-import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { searchAssets } from '@/lib/assetSearch'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import { selectWalletConnectedChainIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -79,9 +79,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const searching = useMemo(() => searchString.length > 0, [searchString])
   useEffect(() => {
     if (filteredAssets) {
-      setSearchTermAssets(
-        searching ? filterAssetsBySearchTerm(searchString, filteredAssets) : filteredAssets,
-      )
+      setSearchTermAssets(searching ? searchAssets(searchString, filteredAssets) : filteredAssets)
     }
   }, [searchString, searching, filteredAssets])
   const listAssets = searching ? searchTermAssets : filteredAssets

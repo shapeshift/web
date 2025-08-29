@@ -14,6 +14,7 @@ import {
 import { memo, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+import { Virtuoso } from 'react-virtuoso'
 
 import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
@@ -42,6 +43,15 @@ const paddingProp = { base: 4, md: 6 }
 
 const ActionCenterIcon = <Icon as={TbBellFilled} />
 
+const virtuosoStyle = {
+  height: '100%',
+}
+
+const INCREASE_VIEWPORT_BY = {
+  top: 100,
+  bottom: 100,
+}
+
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
 
@@ -54,8 +64,11 @@ export const ActionCenter = memo(() => {
   const { ordersByActionId } = useLimitOrders()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const maybeActionCards = useMemo(() => {
-    return actions.map(action => {
+  const renderActionCard = useMemo(() => {
+    return (index: number) => {
+      const action = actions[index]
+      if (!action) return null
+
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
@@ -65,7 +78,9 @@ export const ActionCenter = memo(() => {
               <SwapActionCard
                 key={action.id}
                 action={action}
-                isCollapsable={Boolean(swap?.txLink)}
+                isCollapsable={Boolean(
+                  swap?.txLink || action?.swapMetadata?.allowanceApproval?.txHash,
+                )}
               />
             )
           }
@@ -113,14 +128,8 @@ export const ActionCenter = memo(() => {
       })()
 
       return actionsCards
-    })
-  }, [actions, ordersByActionId, swapsById])
-
-  const actionCardsOrEmpty = useMemo(() => {
-    if (!maybeActionCards.length) return <EmptyState onClose={closeDrawer} />
-
-    return maybeActionCards
-  }, [maybeActionCards, closeDrawer])
+    }
+  }, [actions, ordersByActionId, swapsById, setOrderToCancel])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
@@ -154,6 +163,25 @@ export const ActionCenter = memo(() => {
     )
   }, [openActionCenter, translate, pendingActions])
 
+  const drawerContent = useMemo(() => {
+    if (!actions.length) {
+      return <EmptyState onClose={closeDrawer} />
+    }
+
+    return (
+      <Virtuoso
+        data={actions}
+        itemContent={renderActionCard}
+        style={virtuosoStyle}
+        overscan={200}
+        increaseViewportBy={INCREASE_VIEWPORT_BY}
+        // eslint-disable-next-line react-memo/require-usememo
+        computeItemKey={(_, action) => action.id}
+        className='scroll-container'
+      />
+    )
+  }, [actions, renderActionCard, closeDrawer])
+
   return (
     <>
       <Display.Desktop>
@@ -176,11 +204,8 @@ export const ActionCenter = memo(() => {
             </DrawerHeader>
 
             <Box pe={2} height='100%'>
-              <Box
-                overflow='auto'
-                height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)))'
-              >
-                {actionCardsOrEmpty}
+              <Box height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)))'>
+                {drawerContent}
               </Box>
             </Box>
           </DrawerContent>
@@ -189,11 +214,8 @@ export const ActionCenter = memo(() => {
       </Display.Desktop>
       <Display.Mobile>
         <Box pe={2}>
-          <Box
-            overflow='auto'
-            height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top))'
-          >
-            {actionCardsOrEmpty}
+          <Box height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - var(--mobile-nav-offset))'>
+            {drawerContent}
           </Box>
         </Box>
       </Display.Mobile>

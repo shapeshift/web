@@ -30,3 +30,21 @@ export const timeoutMonadic = <Left, Right>(
     ),
   ])
 }
+
+export const timeoutMonadicWithOriginal = <Ok, ErrType>(
+  promise: Promise<Result<Ok, ErrType>>,
+  timeoutMs: number,
+  timeoutErr: ErrType,
+): { timed: Promise<Result<Ok, ErrType>>; original: Promise<Result<Ok, ErrType>> } => {
+  return {
+    timed: Promise.race([
+      promise,
+      new Promise<Result<Ok, ErrType>>(resolve =>
+        setTimeout(() => {
+          resolve(Err(timeoutErr) as Result<Ok, ErrType>)
+        }, timeoutMs),
+      ),
+    ]),
+    original: promise,
+  }
+}

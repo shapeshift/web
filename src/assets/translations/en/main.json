@@ -214,7 +214,8 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
-    "approval": "Approval"
+    "approval": "Approval",
+    "permit2Approval": "Permit2 Approval"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -236,6 +237,28 @@
     "title": "Oops!",
     "body": "Something went wrong",
     "cta": "Try again"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "Component Error",
+      "body": "This component encountered an error and couldn't load properly.",
+      "retry": "Retry"
+    },
+    "chart": {
+      "title": "Chart unavailable",
+      "body": "Unable to load chart data at this time.",
+      "retry": "Retry"
+    },
+    "trading": {
+      "title": "Trading Error",
+      "body": "The trading interface encountered an error. You can try again or refresh the page.",
+      "retry": "Try Again"
+    },
+    "suspense": {
+      "title": "Loading failed",
+      "body": "This content failed to load properly.",
+      "retry": "Retry"
+    }
   },
   "buyPage": {
     "title": "Buy Crypto <span>in Seconds</span>",
@@ -3042,7 +3065,9 @@
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
       "unknown": "Unknown",
-      "initiated": "Initiated"
+      "initiated": "Initiated",
+      "awaitingApproval": "Awaiting Approval",
+      "awaitingSwap": "Awaiting Swap"
     },
     "emptyState": {
       "title": "Welcome to ShapeShift",
@@ -3054,7 +3079,9 @@
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
-      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming.",
+      "awaitingApproval": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting approval.",
+      "awaitingSwap": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting execution."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",

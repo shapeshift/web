@@ -19,6 +19,7 @@ import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'
 
 import { Amount } from '@/components/Amount/Amount'
 import { BalanceChart, BalanceChartSkeleton } from '@/components/BalanceChart/BalanceChart'
+import { ChartErrorBoundary } from '@/components/ErrorBoundary'
 import { TimeControls } from '@/components/Graph/TimeControls'
 import { MaybeChartUnavailable } from '@/components/MaybeChartUnavailable'
 import { Text } from '@/components/Text'
@@ -129,14 +130,16 @@ export const DashboardChart = () => {
           </Skeleton>
         )}
       </Flex>
-      <Suspense fallback={balanceChartFallback}>
-        <BalanceChart
-          timeframe={timeframe}
-          percentChange={percentChange}
-          setPercentChange={setPercentChange}
-          isRainbowChart={isRainbowChart}
-        />
-      </Suspense>
+      <ChartErrorBoundary height='400px'>
+        <Suspense fallback={balanceChartFallback}>
+          <BalanceChart
+            timeframe={timeframe}
+            percentChange={percentChange}
+            setPercentChange={setPercentChange}
+            isRainbowChart={isRainbowChart}
+          />
+        </Suspense>
+      </ChartErrorBoundary>
       <Skeleton isLoaded={isLoaded} display={displayMdNone}>
         <TimeControls
           onChange={handleTimeframeChange}

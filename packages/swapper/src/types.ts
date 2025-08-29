@@ -614,6 +614,7 @@ export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
 
 export type RateResult = Result<TradeRate[], SwapErrorRight> & {
   swapperName: SwapperName
+  fallback?: Promise<Result<TradeRate[], SwapErrorRight>>
 }
 
 export type CommonTradeExecutionInput = {

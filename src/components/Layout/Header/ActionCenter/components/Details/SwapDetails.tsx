@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, Link, Stack } from '@chakra-ui/react'
 import type { Swap } from '@shapeshiftoss/swapper'
 import React from 'react'
@@ -23,19 +24,27 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
 
   const txHash = buyTxHash || sellTxHash
 
-  if (swapMetadata?.allowanceApproval?.txHash) {
+  if (swapMetadata?.isPermit2Required || swapMetadata?.allowanceApproval?.txHash) {
     return (
       <Stack gap={4}>
         <Row fontSize='sm' alignItems='center'>
-          <Row.Label>{translate('common.approval')}</Row.Label>
+          <Row.Label>
+            {translate(
+              swapMetadata?.isPermit2Required ? 'common.permit2Approval' : 'common.approval',
+            )}
+          </Row.Label>
           <Row.Value>
-            <TxLabel
-              txHash={swapMetadata.allowanceApproval.txHash}
-              explorerBaseUrl={sellAsset.explorerTxLink}
-              accountId={sellAccountId}
-              stepSource={undefined} // no swapper base URL here, this is an allowance Tx
-              quoteSwapperName={swapperName}
-            />
+            {swapMetadata.allowanceApproval?.txHash ? (
+              <TxLabel
+                txHash={swapMetadata.allowanceApproval.txHash}
+                explorerBaseUrl={sellAsset.explorerTxLink}
+                accountId={sellAccountId}
+                stepSource={undefined} // no swapper base URL here, this is an allowance Tx
+                quoteSwapperName={swapperName}
+              />
+            ) : (
+              <CheckCircleIcon color='green.500' />
+            )}
           </Row.Value>
         </Row>
         {txHash && (

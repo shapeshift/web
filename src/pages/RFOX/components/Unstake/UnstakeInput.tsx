@@ -264,22 +264,30 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setSliderValue(percentage)
   }, [])
 
-  const { data: cooldownPeriod } = useCooldownPeriodQuery(stakingAssetId)
+  const { data: cooldownPeriodData } = useCooldownPeriodQuery(stakingAssetId)
 
   const handleSubmit = useCallback(() => {
-    if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset && cooldownPeriod)) return
+    if (
+      !(
+        stakingAssetAccountId &&
+        hasEnteredValue &&
+        stakingAsset &&
+        cooldownPeriodData?.cooldownPeriod
+      )
+    )
+      return
 
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
       unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-      cooldownPeriod,
+      cooldownPeriod: cooldownPeriodData?.cooldownPeriod,
     })
 
     navigate(UnstakeRoutePaths.Confirm)
   }, [
     amountCryptoPrecision,
-    cooldownPeriod,
+    cooldownPeriodData,
     hasEnteredValue,
     navigate,
     setConfirmedQuote,
@@ -367,7 +375,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       <WarningAcknowledgement
         message={translate('RFOX.unstakeWarning', {
           symbol: stakingAsset.symbol,
-          cooldownPeriod,
+          cooldownPeriod: cooldownPeriodData?.cooldownPeriod,
         })}
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={showWarning}
@@ -465,7 +473,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               !hasEnteredValue ||
                 !isUnstakeFeesSuccess ||
                 Boolean(errors.amountFieldInput) ||
-                !cooldownPeriod,
+                !cooldownPeriodData?.cooldownPeriodSeconds,
             )}
             size='lg'
             mx={-2}

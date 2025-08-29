@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
 
 import {
@@ -42,6 +42,8 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   -webkit-touch-callout: none;
 `
 
+const snapPoint = 0.5
+
 const DialogWindow: React.FC<DialogProps> = ({
   isOpen,
   onClose,
@@ -50,7 +52,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   children,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
+  const { setIsOpen, isOpen: isDialogOpen } = useDialog()
 
   const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
 
@@ -77,6 +79,15 @@ const DialogWindow: React.FC<DialogProps> = ({
     setIsOpen(isOpen)
   }, [isOpen, setIsOpen])
 
+  const handleClose = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation()
+      setIsOpen(false)
+      onClose()
+    },
+    [onClose, setIsOpen],
+  )
+
   // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
   useLayoutEffect(() => {
     if (!isMobile || isLargerThanMd) return
@@ -100,7 +111,7 @@ const DialogWindow: React.FC<DialogProps> = ({
         modal
       >
         <Drawer.Portal>
-          <CustomDrawerOverlay onClick={onClose} />
+          <CustomDrawerOverlay onClick={handleClose} />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>

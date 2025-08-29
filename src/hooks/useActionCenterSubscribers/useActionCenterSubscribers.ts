@@ -6,6 +6,7 @@ import { useSwapActionSubscriber } from './useSwapActionSubscriber'
 import { useThorchainLpActionSubscriber } from './useThorchainLpActionSubscriber'
 
 import { useRfoxClaimActionSubscriber } from '@/pages/RFOX/hooks/useRfoxClaimActionSubscriber'
+import { useRfoxRewardDistributionActionSubscriber } from '@/pages/RFOX/hooks/useRfoxRewardDistributionActionSubscriber'
 import { useTcyClaimActionSubscriber } from '@/pages/TCY/hooks/useTcyClaimActionSubscriber'
 
 export const useActionCenterSubscribers = () => {
@@ -13,6 +14,7 @@ export const useActionCenterSubscribers = () => {
   useLimitOrderActionSubscriber()
   useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()
+  useRfoxRewardDistributionActionSubscriber()
   useTcyClaimActionSubscriber()
   useGenericTransactionSubscriber()
   useSendActionSubscriber()

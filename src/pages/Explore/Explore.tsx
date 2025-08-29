@@ -203,6 +203,7 @@ export const Explore = memo(() => {
               disableUnsupported={false}
               rowComponent={AssetSearchRow}
               height='100vh'
+              showPrice
             />
           )}
         </Box>

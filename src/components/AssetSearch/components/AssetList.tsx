@@ -9,8 +9,14 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { AssetRow } from './AssetRow'
 
+import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { Text } from '@/components/Text'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectAssets } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
+
+export type MixedAssetList = { type: 'group' | 'individual'; data: Asset[] }[]
 
 export type AssetData = {
   assets: Asset[]
@@ -21,7 +27,19 @@ export type AssetData = {
   rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
-  height?: string
+  showPrice?: boolean
+}
+
+export type GroupedAssetData = {
+  handleClick: (asset: Asset) => void
+  handleLongPress?: (asset: Asset) => void
+  disableUnsupported?: boolean
+  hideZeroBalanceAmounts?: boolean
+  rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
+  isLoading?: boolean
+  portalsAssets?: PortalsAssets
+  height?: string | number
+  showPrice?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
@@ -42,11 +60,61 @@ export const AssetList: FC<AssetListProps> = ({
   rowComponent = AssetRow,
   isLoading = false,
   portalsAssets,
+  showPrice = false,
   height = '50vh',
 }) => {
+  const assetsByAssetId = useAppSelector(selectAssets)
+
+  const assetRelatedIdsMap = useMemo(() => {
+    const map = new Map<string, string[]>()
+    const state = store.getState()
+    assets.forEach(asset => {
+      const relatedIds = selectRelatedAssetIdsInclusiveSorted(state, { assetId: asset.assetId })
+      map.set(asset.assetId, relatedIds)
+    })
+    return map
+  }, [assets])
+
+  const mixedAssetList = useMemo(() => {
+    const assetGroups = new Map<string, Asset[]>()
+    const processedAssets = new Set<string>()
+
+    assets.forEach(asset => {
+      if (processedAssets.has(asset.assetId)) return
+
+      const relatedAssetIds = assetRelatedIdsMap.get(asset.assetId) || [asset.assetId]
+
+      const availableRelatedAssets = relatedAssetIds
+        .map(assetId => assetsByAssetId[assetId])
+        .filter((asset): asset is Asset => asset !== undefined)
+
+      availableRelatedAssets.forEach(a => processedAssets.add(a.assetId))
+
+      const groupKey = availableRelatedAssets[0]?.assetId || asset.assetId
+
+      if (!assetGroups.has(groupKey)) {
+        assetGroups.set(groupKey, [])
+      }
+
+      assetGroups.get(groupKey)?.push(...availableRelatedAssets)
+    })
+
+    const mixedList: { type: 'group' | 'individual'; data: Asset[] }[] = []
+
+    assetGroups.forEach(groupAssets => {
+      if (groupAssets.length > 1) {
+        mixedList.push({ type: 'group', data: groupAssets })
+      } else {
+        mixedList.push({ type: 'individual', data: groupAssets })
+      }
+    })
+
+    return mixedList
+  }, [assets, assetRelatedIdsMap, assetsByAssetId])
+
   const virtuosoStyle = useMemo(
     () => ({
-      height,
+      height: typeof height === 'string' ? height : `${height}px`,
       ...scrollbarStyle,
     }),
     [height],
@@ -73,11 +141,33 @@ export const AssetList: FC<AssetListProps> = ({
 
   const renderRow = useCallback(
     (index: number) => {
-      const asset = assets[index]
+      const item = mixedAssetList[index]
       const RowComponent = rowComponent
-      return <RowComponent asset={asset} index={index} data={itemData} />
+
+      if (item.type === 'group') {
+        return (
+          <GroupedAssetRow
+            assets={item.data}
+            handleClick={handleClick}
+            disableUnsupported={disableUnsupported}
+            hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+            showPrice={showPrice}
+          />
+        )
+      } else {
+        const asset = item.data[0]
+        return <RowComponent asset={asset} index={index} data={itemData} />
+      }
     },
-    [assets, itemData, rowComponent],
+    [
+      mixedAssetList,
+      itemData,
+      rowComponent,
+      handleClick,
+      disableUnsupported,
+      hideZeroBalanceAmounts,
+      showPrice,
+    ],
   )
 
   if (isLoading) {
@@ -113,7 +203,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
-      data={assets}
+      data={mixedAssetList}
       itemContent={renderRow}
       style={virtuosoStyle}
       overscan={200}

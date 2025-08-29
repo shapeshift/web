@@ -274,6 +274,7 @@ export const ExploreCategory = () => {
               isCategoryQueryDataFetching
             }
             height='100vh'
+            showPrice
           />
         </Box>
       </Main>

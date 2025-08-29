@@ -21,8 +21,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
-    "clean": "rm -rf dist",
+    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist src/generated",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
     "postbuild": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"

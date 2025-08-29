@@ -25,10 +25,6 @@ const buttonsHover = {
   opacity: '.6',
 }
 
-const pairProps = {
-  showFirst: true,
-}
-
 export const FoxTokenFilterButton = ({
   filter,
   onFilterClick,
@@ -43,7 +39,7 @@ export const FoxTokenFilterButton = ({
 
   const networkIcon = useMemo(() => {
     if (asset) {
-      return <AssetIcon assetId={asset.assetId} pairProps={pairProps} size='xs' />
+      return <AssetIcon assetId={asset.assetId} size='xs' />
     }
 
     if (iconSrc) {

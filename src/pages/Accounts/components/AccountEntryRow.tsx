@@ -69,7 +69,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const assetIdOrIconSrcProps = useMemo(
     () =>
       assetId
-        ? { assetId, name: title, showNetworkIcon, pairProps: { showFirst: true } }
+        ? { assetId, name: title, showNetworkIcon }
         : { src: icon, name: title, showNetworkIcon, bg: asset?.color },
     [assetId, icon, title, asset?.color, showNetworkIcon],
   )

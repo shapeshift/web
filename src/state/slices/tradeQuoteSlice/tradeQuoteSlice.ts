@@ -244,16 +244,6 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[action.payload.id][key].swap.state = TransactionExecutionState.Pending
       },
     ),
-    setSwapTxChangeAddress: create.reducer(
-      (
-        state,
-        action: PayloadAction<{ hopIndex: number; id: TradeQuote['id']; changeAddress: string }>,
-      ) => {
-        const { hopIndex, changeAddress } = action.payload
-        const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-        state.tradeExecution[action.payload.id][key].utxoChangeAddress = changeAddress
-      },
-    ),
     setSwapTxFailed: create.reducer(
       (state, action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>) => {
         const { hopIndex } = action.payload

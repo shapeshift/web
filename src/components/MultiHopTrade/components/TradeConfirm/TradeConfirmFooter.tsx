@@ -1,13 +1,13 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { HStack, Icon, Link, Skeleton, Stack, Switch, useQuery } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { HStack, Icon, Link, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { TbArrowsSplit2 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { useGetUtxoChangeAddress } from '../../hooks/useGetUtxoChangeAddress'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeConfirmSummary } from './components/TradeConfirmSummary'
 import { isPermit2Hop, StepperStep } from './helpers'
@@ -32,13 +32,12 @@ import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketData
 import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
-  selectHopChangeAddress,
   selectHopExecutionMetadata,
+  selectHopSellAccountId,
   selectIsActiveSwapperQuoteLoading,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
-import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 type TradeConfirmFooterProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -94,17 +93,28 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     }
   }, [activeTradeId, currentHopIndex])
 
+  // Get sell account ID for the current hop
+  const sellAssetAccountId = useAppSelector(state =>
+    hopExecutionMetadataFilter
+      ? selectHopSellAccountId(state, hopExecutionMetadataFilter)
+      : undefined,
+  )
+
   const hopExecutionMetadata = useAppSelector(state =>
     hopExecutionMetadataFilter
       ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
       : undefined,
   )
 
-  const changeAddress = useAppSelector(state =>
-    hopExecutionMetadataFilter
-      ? selectHopChangeAddress(state, hopExecutionMetadataFilter)
-      : undefined,
-  )
+  // Get UTXO change address
+  const {
+    changeAddress,
+    isLoading: isChangeAddressLoading,
+    isUtxoChain,
+  } = useGetUtxoChangeAddress({
+    sellAsset,
+    sellAssetAccountId,
+  })
 
   const {
     isLoading: isNetworkFeeCryptoBaseUnitLoading,
@@ -249,40 +259,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     toggleIsExactAllowance,
   ])
 
-  const { data: changeAddressData } = useQuery({
-    queryKey: ['utxo-address-data', sellAsset?.chainId, accountNumber, accountType],
-    queryFn: async () => {
-      if (!sellAsset) return
-      const { chainNamespace: sellAssetChainNamespace } = fromChainId(sellAsset.chainId)
-      const isUtxo = sellAssetChainNamespace === CHAIN_NAMESPACE.Utxo
-      const adapter = isUtxo ? assertGetUtxoChainAdapter(sellAsset.chainId) : undefined
-
-      const { xpub } = adapter
-        ? await adapter.getPublicKey(wallet, accountNumber, accountType)
-        : { xpub: undefined }
-
-      const fastChangeAddress = adapter
-        ? await adapter.getAddress({
-            accountNumber,
-            accountType,
-            wallet,
-            isChange: true,
-          })
-        : undefined
-
-      return {
-        xpub,
-        fastChangeAddress,
-        isUtxo,
-        adapter,
-      }
-    },
-    enabled: enabled && Boolean(sellAsset.chainId && wallet),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
-
-  console.log({ changeAddressData })
-
   const tradeExecutionStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} px={6} width='full'>
@@ -315,27 +291,35 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
           explorerAddressLink={buyAsset.explorerAddressLink}
           recipientAddress={receiveAddress ?? ''}
         />
-        {changeAddress && (
+        {isUtxoChain && (changeAddress || isChangeAddressLoading) && (
           <Row>
             <Row.Label>
               <HelperTooltip label={translate('trade.changeAddressExplainer')}>
-                <TbArrowsSplit2 />
-                <Text translation='trade.changeAddress' />
+                <HStack spacing={2}>
+                  <Icon as={TbArrowsSplit2} />
+                  <Text translation='trade.changeAddress' />
+                </HStack>
               </HelperTooltip>
             </Row.Label>
             <Row.Value>
-              <HStack>
-                <TooltipWithTouch label={changeAddress}>
-                  <RawText>{middleEllipsis(changeAddress)}</RawText>
-                </TooltipWithTouch>
-                <Link
-                  href={`${sellAsset?.explorerAddressLink}${changeAddress}`}
-                  isExternal
-                  aria-label={translate('common.viewOnExplorer')}
-                >
-                  <Icon as={ExternalLinkIcon} />
-                </Link>
-              </HStack>
+              <Skeleton isLoaded={!isChangeAddressLoading && !!changeAddress}>
+                <HStack>
+                  <TooltipWithTouch label={changeAddress || ''}>
+                    <RawText>
+                      {changeAddress ? middleEllipsis(changeAddress) : 'Loading...'}
+                    </RawText>
+                  </TooltipWithTouch>
+                  {changeAddress && (
+                    <Link
+                      href={`${sellAsset?.explorerAddressLink}${changeAddress}`}
+                      isExternal
+                      aria-label={translate('common.viewOnExplorer')}
+                    >
+                      <Icon as={ExternalLinkIcon} />
+                    </Link>
+                  )}
+                </HStack>
+              </Skeleton>
             </Row.Value>
           </Row>
         )}
@@ -350,7 +334,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     networkFeeCryptoPrecision,
     networkFeeUserCurrency,
     receiveAddress,
+    isUtxoChain,
     changeAddress,
+    isChangeAddressLoading,
     sellAsset?.explorerAddressLink,
     translate,
   ])

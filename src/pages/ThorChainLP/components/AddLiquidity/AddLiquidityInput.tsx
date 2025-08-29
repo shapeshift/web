@@ -26,11 +26,11 @@ import {
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   assetIdToThorPoolAssetId,
+  SwapperName,
   thorPoolAssetIdToAssetId,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+} from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'

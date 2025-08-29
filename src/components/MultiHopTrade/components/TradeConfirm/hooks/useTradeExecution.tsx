@@ -272,6 +272,7 @@ export const useTradeExecution = (
       }
 
       const { chainNamespace: stepSellAssetChainNamespace } = fromChainId(stepSellAssetChainId)
+      console.log({stepSellAssetChainNamespace})
 
       const receiverAddress =
         stepBuyAssetAssetId === bchAssetId

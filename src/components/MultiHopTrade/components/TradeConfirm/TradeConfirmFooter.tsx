@@ -1,8 +1,12 @@
-import { HStack, Skeleton, Stack, Switch } from '@chakra-ui/react'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { HStack, Icon, Link, Skeleton, Stack, Switch, useQuery } from '@chakra-ui/react'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { TbArrowsSplit2 } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeConfirmSummary } from './components/TradeConfirmSummary'
@@ -14,14 +18,16 @@ import { useTradeNetworkFeeCryptoBaseUnit } from './hooks/useTradeNetworkFeeCryp
 import { TradeFooterButton } from './TradeFooterButton'
 
 import { Amount } from '@/components/Amount/Amount'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RecipientAddressRow } from '@/components/RecipientAddressRow'
 import { Row } from '@/components/Row/Row'
-import { Text } from '@/components/Text/Text'
+import { RawText, Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
+import { middleEllipsis } from '@/lib/utils'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import {
@@ -32,6 +38,7 @@ import {
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 type TradeConfirmFooterProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -44,10 +51,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   activeTradeId,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
+  const translate = useTranslate()
   const { currentTradeStep } = useStepperSteps()
   const currentHopIndex = useCurrentHopIndex()
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
+  const sellAsset = useSelectorWithArgs(selectAssetById, tradeQuoteStep.sellAsset.assetId)
   const quoteNetworkFeeCryptoPrecision = fromBaseUnit(
     quoteNetworkFeeCryptoBaseUnit,
     feeAsset?.precision ?? 0,
@@ -240,6 +249,40 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     toggleIsExactAllowance,
   ])
 
+  const { data: changeAddressData } = useQuery({
+    queryKey: ['utxo-address-data', sellAsset?.chainId, accountNumber, accountType],
+    queryFn: async () => {
+      if (!sellAsset) return
+      const { chainNamespace: sellAssetChainNamespace } = fromChainId(sellAsset.chainId)
+      const isUtxo = sellAssetChainNamespace === CHAIN_NAMESPACE.Utxo
+      const adapter = isUtxo ? assertGetUtxoChainAdapter(sellAsset.chainId) : undefined
+
+      const { xpub } = adapter
+        ? await adapter.getPublicKey(wallet, accountNumber, accountType)
+        : { xpub: undefined }
+
+      const fastChangeAddress = adapter
+        ? await adapter.getAddress({
+            accountNumber,
+            accountType,
+            wallet,
+            isChange: true,
+          })
+        : undefined
+
+      return {
+        xpub,
+        fastChangeAddress,
+        isUtxo,
+        adapter,
+      }
+    },
+    enabled: enabled && Boolean(sellAsset.chainId && wallet),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  console.log({ changeAddressData })
+
   const tradeExecutionStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} px={6} width='full'>
@@ -275,12 +318,24 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         {changeAddress && (
           <Row>
             <Row.Label>
-              <Text translation='trade.changeAddress' />
+              <HelperTooltip label={translate('trade.changeAddressExplainer')}>
+                <TbArrowsSplit2 />
+                <Text translation='trade.changeAddress' />
+              </HelperTooltip>
             </Row.Label>
             <Row.Value>
-              <TooltipWithTouch label={changeAddress}>
-                <MiddleEllipsis value={changeAddress} />
-              </TooltipWithTouch>
+              <HStack>
+                <TooltipWithTouch label={changeAddress}>
+                  <RawText>{middleEllipsis(changeAddress)}</RawText>
+                </TooltipWithTouch>
+                <Link
+                  href={`${sellAsset?.explorerAddressLink}${changeAddress}`}
+                  isExternal
+                  aria-label={translate('common.viewOnExplorer')}
+                >
+                  <Icon as={ExternalLinkIcon} />
+                </Link>
+              </HStack>
             </Row.Value>
           </Row>
         )}
@@ -296,6 +351,8 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     networkFeeUserCurrency,
     receiveAddress,
     changeAddress,
+    sellAsset?.explorerAddressLink,
+    translate,
   ])
 
   const tradeDetail = useMemo(() => {

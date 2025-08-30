@@ -1,13 +1,11 @@
-import { CheckIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
+import { CheckIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Card,
   CardBody,
-  Circle,
   Flex,
   HStack,
-  Icon,
+  IconButton,
   LightMode,
   Link,
   Skeleton,
@@ -23,7 +21,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { TbCopy } from 'react-icons/tb'
+import { TbCopy, TbExternalLink, TbZoomCheck } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
@@ -54,10 +52,12 @@ type ReceivePropsType = {
   onBack?: () => void
 }
 
-const accountDropdownButtonProps = { variant: 'solid', width: 'full', mt: 4 }
+const accountDropdownButtonProps = { variant: 'ghost', mt: 4 }
 const receiveAddressHover = { color: 'blue.500' }
 const receiveAddressActive = { color: 'blue.800' }
-const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'white' }
+
+const copyIcon = <TbCopy />
+const externalLinkIcon = <TbExternalLink />
 
 export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
@@ -134,7 +134,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const translate = useTranslate()
   const toast = useToast()
 
-  const hoverColor = useColorModeValue('gray.900', 'white')
   const bg = useColorModeValue('gray.100', 'gray.700')
 
   const handleCopyClick = useCallback(async () => {
@@ -161,7 +160,8 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     () => ['modals.receive.onlySend', { asset: name, symbol: symbol.toUpperCase() }],
     [name, symbol],
   )
-  const buttonHover = useMemo(() => ({ textDecoration: 'none', color: hoverColor }), [hoverColor])
+
+  const verifyIcon = useMemo(() => (verified ? <CheckIcon /> : <TbZoomCheck />), [verified])
 
   return (
     <>
@@ -180,7 +180,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       </DialogHeader>
       {wallet && chainAdapter ? (
         <>
-          <DialogBody alignItems='center' justifyContent='center' textAlign='center'>
+          <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={6}>
             <Box>
               <SkeletonText
                 noOfLines={3}
@@ -195,6 +195,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
               </SkeletonText>
             </Box>
             <AccountDropdown
+              showLabel={false}
               assetId={asset.assetId}
               defaultAccountId={selectedAccountId || undefined}
               onChange={setSelectedAccountId}
@@ -216,7 +217,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
               p={0}
               mx='auto'
               textAlign='center'
-              mt={8}
               bg='white'
               boxShadow='lg'
             >
@@ -247,75 +247,69 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
             </Card>
             <SupportedNetworks assetId={asset.assetId} />
           </DialogBody>
-          <DialogFooter flexDir='column' mt='auto'>
-            <HStack pb={6} spacing={8}>
-              <Button
-                onClick={handleCopyClick}
-                padding={2}
-                color='text.subtle'
-                flexDir='column'
-                role='group'
-                isDisabled={!receiveAddress}
-                variant='link'
-                _hover={buttonHover}
-              >
-                <Circle
-                  bg='background.button.secondary.base'
-                  mb={2}
-                  size='48px'
-                  _groupHover={circleGroupHover}
-                >
-                  <Icon as={TbCopy} color='text.base' boxSize={6} />
-                </Circle>
-                <Text translation='modals.receive.copy' />
-              </Button>
-              {!(wallet.getVendor() === 'Native') ? (
-                <Button
-                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.subtle'}
-                  flexDir='column'
-                  role='group'
-                  variant='link'
+          <DialogFooter flexDir='column' py={6}>
+            <HStack spacing={20}>
+              <Flex direction='column' align='center' gap={2}>
+                <IconButton
+                  icon={copyIcon}
+                  aria-label={translate('modals.receive.copy')}
+                  onClick={handleCopyClick}
                   isDisabled={!receiveAddress}
-                  _hover={buttonHover}
-                  onClick={handleVerify}
-                >
-                  <Circle
-                    bg='background.button.secondary.base'
-                    mb={2}
-                    size='40px'
-                    _groupHover={circleGroupHover}
-                  >
-                    {verified ? <CheckIcon /> : <ViewIcon />}
-                  </Circle>
+                  size='lg'
+                  borderRadius='full'
+                  color='text.base'
+                />
+                <Text
+                  fontSize='sm'
+                  color='text.subtle'
+                  fontWeight='medium'
+                  translation='modals.receive.copy'
+                />
+              </Flex>
+              {!(wallet.getVendor() === 'Native') && (
+                <Flex direction='column' align='center' gap={2}>
+                  <IconButton
+                    icon={verifyIcon}
+                    aria-label={translate(
+                      `modals.receive.${
+                        verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                      }`,
+                    )}
+                    onClick={handleVerify}
+                    isDisabled={!receiveAddress}
+                    size='lg'
+                    borderRadius='full'
+                    color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}
+                  />
                   <Text
+                    fontSize='sm'
+                    color='text.subtle'
+                    fontWeight='medium'
                     translation={`modals.receive.${
                       verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
                     }`}
                   />
-                </Button>
-              ) : undefined}
-              <Button
-                as={Link}
-                href={`${asset?.explorerAddressLink}${receiveAddress}`}
-                isExternal
-                padding={2}
-                color='text.subtle'
-                flexDir='column'
-                role='group'
-                isDisabled={!receiveAddress}
-                variant='link'
-                _hover={buttonHover}
-              >
-                <Circle
-                  bg='background.button.secondary.base'
-                  mb={2}
-                  size='40px'
-                  _groupHover={circleGroupHover}
-                >
-                  <ExternalLinkIcon />
-                </Circle>
-                <Text translation='modals.receive.blockExplorer' />
-              </Button>
+                </Flex>
+              )}
+              <Flex direction='column' align='center' gap={2}>
+                <IconButton
+                  as={Link}
+                  icon={externalLinkIcon}
+                  aria-label={translate('modals.receive.blockExplorer')}
+                  href={`${asset?.explorerAddressLink}${receiveAddress}`}
+                  isExternal
+                  isDisabled={!receiveAddress}
+                  size='lg'
+                  borderRadius='full'
+                  color='text.base'
+                />
+                <Text
+                  fontSize='sm'
+                  color='text.subtle'
+                  fontWeight='medium'
+                  translation='modals.receive.blockExplorer'
+                />
+              </Flex>
             </HStack>
           </DialogFooter>
         </>

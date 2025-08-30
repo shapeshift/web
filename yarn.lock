@@ -10614,7 +10614,6 @@ __metadata:
     "@types/node": ^22.13.14
     "@types/node-polyglot": ^2.4.2
     "@types/pify": ^5.0.4
-    "@types/qr-image": ^3.2.5
     "@types/qs": ^6.9.18
     "@types/react": ^19.0.0
     "@types/react-dom": ^19.0.0
@@ -10713,7 +10712,6 @@ __metadata:
     pify: ^5.0.0
     prettier: ^3.0.3
     pretty-ms: 7.0.1
-    qr-image: ^3.2.0
     qs: ^6.10.5
     re-reselect: ^4.0.0
     react: ^19.0.0
@@ -10730,6 +10728,7 @@ __metadata:
     react-multi-ref: ^1.0.1
     react-number-format: ^4.9.3
     react-polyglot: ^0.7.2
+    react-qrcode-logo: ^4.0.0
     react-redux: ^9.2.0
     react-router: ^6.30.0
     react-router-breadcrumbs-hoc: ^4.1.0
@@ -12149,15 +12148,6 @@ __metadata:
   version: 5.0.4
   resolution: "@types/pify@npm:5.0.4"
   checksum: 765a4f130fac9eb4ca2fb14d95a218d605f671ddd1ed4ebeb6ee0e0fa937ec59cf91fd55a9bb702c0472ca1296cb00ab081bdf9e908ee4abb8105068994f309f
-  languageName: node
-  linkType: hard
-
-"@types/qr-image@npm:^3.2.5":
-  version: 3.2.5
-  resolution: "@types/qr-image@npm:3.2.5"
-  dependencies:
-    "@types/node": "*"
-  checksum: 5b197ea858499ad95cd99fb457981dfe7b750f1301246f3f9944515c2d42f662746290525b564dbd79ecc2176632b2dd399d499a9a2552f4b7125395ae286a26
   languageName: node
   linkType: hard
 
@@ -26982,17 +26972,17 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"qr-image@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "qr-image@npm:3.2.0"
-  checksum: 9d22d9425234b8dfbcf954cff334d1594aa7391f999b15cf3e07d554c99341e7c2303646ddf58237fc498455c11d505b8803a995ff22d8385ddd05f58b3259b5
-  languageName: node
-  linkType: hard
-
 "qrcode-generator@npm:^1.4.3":
   version: 1.4.4
   resolution: "qrcode-generator@npm:1.4.4"
   checksum: 860cfdd2a7a608d34e92cab99774cc08182e1911432f30ed36d16f8a5cdabd7fdf40239caed91fa2691cfe66c8d95c1340a2fc9cc439eed07a9f2eb328c6f527
+  languageName: node
+  linkType: hard
+
+"qrcode-generator@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "qrcode-generator@npm:2.0.4"
+  checksum: d0a212e5126f0fe8f7238cc944f74eed57a8deadf7ec75cf5b052e254ae1fb4487732b0f2e856f3dfbb47e7482b31a9e5cbf3658bbf7fb85624f0dae6a6143e9
   languageName: node
   linkType: hard
 
@@ -27431,6 +27421,18 @@ pvutils@latest:
   version: 2.0.2
   resolution: "react-property@npm:2.0.2"
   checksum: c67fb2590dad9102239b2e574fbc078b472e227b66c3d64e1949426e33889d78c2ac5369cc4c740bb8fe61665505940e39a78d113261ac52410f7538089fe367
+  languageName: node
+  linkType: hard
+
+"react-qrcode-logo@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "react-qrcode-logo@npm:4.0.0"
+  dependencies:
+    qrcode-generator: ^2.0.4
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  checksum: 752a37626f65ea385f64ba22ce4b510813b15f21b20e0a71396f49786cf10e97616ac63b25431c8df5f265b1ead08aa110ded4dea81a89e614fe0bad20ebc759
   languageName: node
   linkType: hard
 

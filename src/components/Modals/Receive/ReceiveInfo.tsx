@@ -1,4 +1,4 @@
-import { CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
+import { CheckIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -7,6 +7,7 @@ import {
   Circle,
   Flex,
   HStack,
+  Icon,
   LightMode,
   Link,
   Skeleton,
@@ -22,9 +23,12 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { TbCopy } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
+
+import { SupportedNetworks } from './SupportedNetworks'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -207,6 +211,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
             <Card
               variant='unstyled'
               borderRadius='xl'
+              mb={4}
               display='inline-block'
               p={0}
               mx='auto'
@@ -240,6 +245,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                 </LightMode>
               </CardBody>
             </Card>
+            <SupportedNetworks assetId={asset.assetId} />
           </DialogBody>
           <DialogFooter flexDir='column' mt='auto'>
             <HStack pb={6} spacing={8}>
@@ -256,10 +262,10 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                 <Circle
                   bg='background.button.secondary.base'
                   mb={2}
-                  size='40px'
+                  size='48px'
                   _groupHover={circleGroupHover}
                 >
-                  <CopyIcon />
+                  <Icon as={TbCopy} color='text.base' boxSize={6} />
                 </Circle>
                 <Text translation='modals.receive.copy' />
               </Button>

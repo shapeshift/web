@@ -1436,7 +1436,8 @@
       "verify": "Verify",
       "verified": "Verified",
       "notVerified": "Address Mismatch",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "supportedNetworks": "Supported Networks"
     },
     "deposit": {
       "allocation": {

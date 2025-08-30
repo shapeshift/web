@@ -218,7 +218,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
               <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
                   <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
-                    <QRCode text={receiveAddress} data-test='receive-qr-code' />
+                    <QRCode text={receiveAddress} asset={asset} data-test='receive-qr-code' />
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
                     <Flex

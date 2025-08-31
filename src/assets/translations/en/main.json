@@ -34,7 +34,6 @@
     "reset": "Reset",
     "confirm": "Confirm",
     "seeDetails": "See details",
-    "activity": "Activity",
     "reject": "Reject",
     "goBack": "Go back",
     "connected": "Connected",
@@ -546,6 +545,7 @@
     "netWorth": "Net Worth",
     "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
     "walletBalance": "Wallet Balance",
+    "walletBalanceChange24Hr": "24-hour change",
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
@@ -640,6 +640,7 @@
     "accountAsset": "Account Asset",
     "accountDetails": "Account Details",
     "defi": "DeFi",
+    "activity": "Activity",
     "openMenu": "Open menu",
     "closeNav": "Close Nav",
     "openNotif": "Open notifications",
@@ -2273,7 +2274,8 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
-    "thisMonth": "This Month"
+    "thisMonth": "This Month",
+    "transactionDetails": "Transaction Details"
   },
   "plugins": {
     "foxPage": {

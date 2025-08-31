@@ -1,5 +1,5 @@
 import type { FlexProps } from '@chakra-ui/react'
-import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs, useColorModeValue } from '@chakra-ui/react'
+import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -44,18 +44,10 @@ const getTabIndexFromPath = (pathname: string) => {
   return MobileTab.MyCrypto
 }
 
-const unselectedTabStyle = { color: 'text.base' }
-
 const MobileHome = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
   const navigate = useNavigate()
-  const selectedTabBg = useColorModeValue('black', 'white')
-  const selectedTabColor = useColorModeValue('white', 'black')
-  const selectedTabStyle = useMemo(
-    () => ({ bg: selectedTabBg, color: selectedTabColor }),
-    [selectedTabBg, selectedTabColor],
-  )
 
   const pathTabIndex = useMemo(() => getTabIndexFromPath(location.pathname), [location.pathname])
 
@@ -100,12 +92,8 @@ const MobileHome = memo(() => {
         pb={2}
       >
         <TabList bg='transparent' borderWidth={0} pt={0} px={4} gap={2}>
-          <Tab _selected={selectedTabStyle} sx={unselectedTabStyle}>
-            {translate('dashboard.portfolio.myCrypto')}
-          </Tab>
-          <Tab _selected={selectedTabStyle} sx={unselectedTabStyle}>
-            {translate('watchlist.title')}
-          </Tab>
+          <Tab>{translate('dashboard.portfolio.myCrypto')}</Tab>
+          <Tab>{translate('watchlist.title')}</Tab>
         </TabList>
         <TabPanels>
           <TabPanel p={0} pt={2}>

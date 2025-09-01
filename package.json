@@ -271,7 +271,7 @@
     "fake-indexeddb": "^6.0.1",
     "fast-json-stable-stringify": "^2.1.0",
     "happy-dom": "^15.10.2",
-    "http-proxy-middleware": "^2.0.7",
+    "http-proxy-middleware": "^2.0.9",
     "inquirer": "8.2.4",
     "jscodeshift": "^0.15.2",
     "limiter": "^2.1.0",

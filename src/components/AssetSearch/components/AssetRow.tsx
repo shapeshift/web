@@ -22,10 +22,6 @@ const focus = {
   shadow: 'outline-inset',
 }
 
-const assetIconPairProps = {
-  showFirst: true,
-}
-
 export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = memo(
   ({ asset, data: { handleClick, disableUnsupported, hideZeroBalanceAmounts } }) => {
     const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
@@ -62,12 +58,7 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
         width='100%'
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
-          <AssetIcon
-            assetId={asset.assetId}
-            size='sm'
-            pairProps={assetIconPairProps}
-            flexShrink={0}
-          />
+          <AssetIcon assetId={asset.assetId} size='sm' flexShrink={0} />
           <Box textAlign='left' flex={1} minWidth={0}>
             <Text lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
               {asset.name}

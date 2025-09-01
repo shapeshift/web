@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "Connecter un porte-monnaie pour recevoir des %{symbol}",
       "receiveAsset": "Recevoir des %{asset}",
-      "onlySend": "Seul %{asset} (%{symbol}) peut être envoyé à cette adresse. L'envoi de toute autre monnaie peut entraîner une perte définitive.",
       "copy": "Copier",
       "copied": "Adresse de réception pour %{symbol} copiée vers le presse-papiers",
       "copyFailed": "Échec de la copie de l'adresse de réception %{symbol} dans le presse-papiers",

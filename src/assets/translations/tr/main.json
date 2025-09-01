@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "%{symbol} almak için bir cüzdan bağlayın",
       "receiveAsset": "%{asset} alın",
-      "onlySend": "Bu adrese yalnızca %{asset} (%{symbol}) gönderin. Başka coinlerin gönderilmesi kalıcı kayba neden olabilir.",
       "copy": "Kopyala",
       "copied": "%{symbol} alım adresi panoya kopyalandı",
       "copyFailed": "%{symbol} alım adresi panoya kopyalanamadı",

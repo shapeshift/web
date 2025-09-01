@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "连接钱包来接收 %{symbol}",
       "receiveAsset": "接收 %{asset}",
-      "onlySend": "请只将 %{asset} (%{symbol}) 发送到此地址。发送任何其他代币都可能导致永久丢失。",
       "copy": "复制",
       "copied": "%{symbol} 的接收地址已复制到剪贴板",
       "copyFailed": "无法将 %{symbol} 接收地址复制到剪贴板",

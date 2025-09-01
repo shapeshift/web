@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "Conecte sua carteira para receber %{symbol}",
       "receiveAsset": "Receber %{asset}",
-      "onlySend": "Envie apenas %{asset} (%{symbol}) para este endereço. O envio de outras moedas pode resultar em perda permanente.",
       "copy": "Copiar",
       "copied": "Endereço %{symbol} copiado para a área de transferência",
       "copyFailed": "Falha ao copiar o endereço %{symbol} para a área de transferência",

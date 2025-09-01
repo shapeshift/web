@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "Verbinden Sie eine Wallet, um %{symbol} zu erhalten",
       "receiveAsset": "Erhalte %{asset}",
-      "onlySend": "Senden Sie nur %{asset} (%{symbol}) an diese Adresse. Das Senden anderer Coins kann zu einem dauerhaften Verlust führen.",
       "copy": "Kopieren",
       "copied": "%{symbol} Empfangsadresse in die Zwischenablage kopiert",
       "copyFailed": "%{symbol} Empfangsadresse konnte nicht in die Zwischenablage kopiert werden",

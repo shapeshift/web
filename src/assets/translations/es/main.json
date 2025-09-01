@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "Conecte una billetera para recibir %{symbol}",
       "receiveAsset": "Recibir %{asset}",
-      "onlySend": "Solo enviar %{asset} (%{symbol}) A esta dirección. Enviar cualquier otra moneda puede resultar en una pérdida permanente.",
       "copy": "Copiar",
       "copied": "%{symbol} dirección de recepción copiada al portapapeles",
       "copyFailed": "Error al copiar %{symbol} dirección de recibo al portapapeles",

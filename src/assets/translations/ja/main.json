@@ -1380,7 +1380,6 @@
     "receive": {
       "connectAWallet": "ウォレットに接続して %{symbol} を受け取ります",
       "receiveAsset": "%{asset} を受け取る",
-      "onlySend": "%{asset} (%{symbol}) のみをこのアドレスに送信してください。他のコインを送信すると永久に損失する可能性があります。",
       "copy": "コピー",
       "copied": "%{symbol} 受信アドレスがクリップボードにコピーされました",
       "copyFailed": "%{symbol} 受信アドレスをクリップボードにコピーできませんでした",

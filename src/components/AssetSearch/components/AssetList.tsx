@@ -2,6 +2,7 @@ import type { ListProps } from '@chakra-ui/react'
 import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
+import groupBy from 'lodash/groupBy'
 import type { CSSProperties, FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
@@ -22,12 +23,10 @@ export type AssetData = {
     asset: Asset
     index: number
     data: AssetData
-    additionalProps?: Record<string, unknown>
   }>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
   showPrice?: boolean
-  additionalProps?: Record<string, unknown>
   onImportClick?: (asset: Asset) => void
   shouldDisplayRelatedAssets?: boolean
 }
@@ -52,28 +51,14 @@ export const AssetList: FC<AssetListProps> = ({
   portalsAssets,
   showPrice = false,
   height = '50vh',
-  additionalProps,
   onImportClick,
   shouldDisplayRelatedAssets = false,
 }) => {
-  const filteredAssets = useMemo(() => {
+  const uniqueAssets = useMemo(() => {
     if (!shouldDisplayRelatedAssets) return assets
 
-    const seenRelatedKeys = new Set<string>()
-    const filtered: Asset[] = []
-
-    assets.forEach(asset => {
-      if (asset.relatedAssetKey) {
-        if (!seenRelatedKeys.has(asset.relatedAssetKey)) {
-          seenRelatedKeys.add(asset.relatedAssetKey)
-          filtered.push(asset)
-        }
-      } else {
-        filtered.push(asset)
-      }
-    })
-
-    return filtered
+    const grouped = groupBy(assets, 'relatedAssetKey')
+    return Object.values(grouped).map(group => group[0])
   }, [assets, shouldDisplayRelatedAssets])
 
   const virtuosoStyle = useMemo(
@@ -86,7 +71,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   const itemData = useMemo(
     () => ({
-      assets: filteredAssets,
+      assets: uniqueAssets,
       handleClick,
       handleLongPress,
       disableUnsupported,
@@ -96,7 +81,7 @@ export const AssetList: FC<AssetListProps> = ({
       shouldDisplayRelatedAssets,
     }),
     [
-      filteredAssets,
+      uniqueAssets,
       disableUnsupported,
       handleClick,
       handleLongPress,
@@ -109,7 +94,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   const renderRow = useCallback(
     (index: number) => {
-      const asset = filteredAssets[index]
+      const asset = uniqueAssets[index]
       const RowComponent = rowComponent
 
       return (
@@ -120,19 +105,10 @@ export const AssetList: FC<AssetListProps> = ({
           showPrice={showPrice}
           onImportClick={onImportClick}
           shouldDisplayRelatedAssets={shouldDisplayRelatedAssets}
-          additionalProps={additionalProps}
         />
       )
     },
-    [
-      filteredAssets,
-      itemData,
-      rowComponent,
-      showPrice,
-      onImportClick,
-      additionalProps,
-      shouldDisplayRelatedAssets,
-    ],
+    [uniqueAssets, itemData, rowComponent, showPrice, onImportClick, shouldDisplayRelatedAssets],
   )
 
   if (isLoading) {
@@ -157,7 +133,7 @@ export const AssetList: FC<AssetListProps> = ({
     )
   }
 
-  if (filteredAssets?.length === 0) {
+  if (uniqueAssets?.length === 0) {
     return (
       <Center flexDir='column' gap={2} mt={4}>
         <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
@@ -166,10 +142,10 @@ export const AssetList: FC<AssetListProps> = ({
     )
   }
 
-  if (filteredAssets.length <= 10) {
+  if (uniqueAssets.length <= 10) {
     return (
       <Box maxHeight={height} overflow='auto' height='auto'>
-        {filteredAssets.map((asset, index) => (
+        {uniqueAssets.map((asset, index) => (
           <Box key={asset.assetId}>{renderRow(index)}</Box>
         ))}
       </Box>
@@ -178,7 +154,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
-      data={filteredAssets}
+      data={uniqueAssets}
       itemContent={renderRow}
       style={virtuosoStyle}
       overscan={1000}

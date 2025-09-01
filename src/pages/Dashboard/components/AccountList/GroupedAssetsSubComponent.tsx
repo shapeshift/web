@@ -84,8 +84,6 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
   )
 })
 
-RelatedAssetRow.displayName = 'RelatedAssetRow'
-
 type GroupedAssetsSubComponentProps = {
   row: Row<GroupedAccountRowData>
   onRowClick: (row: Row<AccountRowData>) => void
@@ -111,5 +109,3 @@ export const GroupedAssetsSubComponent = memo<GroupedAssetsSubComponentProps>(
     )
   },
 )
-
-GroupedAssetsSubComponent.displayName = 'GroupedAssetsSubComponent'

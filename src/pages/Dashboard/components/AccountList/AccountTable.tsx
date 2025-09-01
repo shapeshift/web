@@ -11,7 +11,9 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
-import { range, truncate } from 'lodash'
+import groupBy from 'lodash/groupBy'
+import range from 'lodash/range'
+import truncate from 'lodash/truncate'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -31,15 +33,13 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
-import type { AccountRowData } from '@/state/slices/selectors'
+import type { AccountRowData, RowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
   selectIsPortfolioLoading,
   selectPortfolioAccountRows,
 } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
-
-type RowProps = Row<AccountRowData>
 
 const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', lg: 'left' }
 
@@ -68,63 +68,36 @@ export const AccountTable = memo(() => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   // Group assets by asset type (base symbol/name) for desktop view
-  const groupedData = useMemo(() => {
+  const uniqueRows = useMemo(() => {
     if (!isLargerThanMd) return data
 
-    const assetGroups = new Map<string, { assets: Asset[]; rows: AccountRowData[] }>()
-
-    data.forEach(row => {
+    const grouped = groupBy(data, row => {
       const asset = assets[row.assetId]
-      if (!asset) return
-
-      // Extract base asset name/symbol (remove " on Chain" suffix)
+      if (!asset) return row.assetId
       const baseAssetName = asset.name.split(' on ')[0]
-      const baseAssetKey = `${baseAssetName}_${asset.symbol}`
-
-      if (!assetGroups.has(baseAssetKey)) {
-        assetGroups.set(baseAssetKey, { assets: [], rows: [] })
-      }
-
-      const group = assetGroups.get(baseAssetKey)
-      if (!group) return
-
-      group.assets.push(asset)
-      group.rows.push(row)
+      return `${baseAssetName}_${asset.symbol}`
     })
 
-    const grouped: AccountRowData[] = []
+    return Object.values(grouped).map(group => {
+      if (group.length === 1) return group[0]
 
-    assetGroups.forEach(group => {
-      if (group.assets.length > 1) {
-        const totalFiatAmount = group.rows.reduce((sum, row) => {
-          return sum + Number(row.fiatAmount)
-        }, 0)
+      const totalFiatAmount = group.reduce((sum, row) => sum + Number(row.fiatAmount), 0)
+      const totalCryptoAmount = group.reduce((sum, row) => sum + Number(row.cryptoAmount), 0)
 
-        const totalCryptoAmount = group.rows.reduce((sum, row) => {
-          return sum + Number(row.cryptoAmount)
-        }, 0)
+      const primaryAsset =
+        group.find(row => {
+          const asset = assets[row.assetId]
+          return asset && !asset.name.includes(' on ')
+        }) || group[0]
 
-        const primaryAsset =
-          group.assets.find(asset => !asset.name.includes(' on ')) || group.assets[0]
-
-        const primaryRow = group.rows.find(r => r.assetId === primaryAsset.assetId) || group.rows[0]
-
-        const relatedAssetIds = group.rows.map(row => row.assetId)
-
-        grouped.push({
-          ...primaryRow,
-          assetId: primaryAsset.assetId, // Use the primary asset ID
-          fiatAmount: totalFiatAmount.toString(),
-          cryptoAmount: totalCryptoAmount.toString(),
-          isGrouped: true,
-          relatedAssetIds,
-        })
-      } else {
-        grouped.push(group.rows[0])
+      return {
+        ...primaryAsset,
+        fiatAmount: totalFiatAmount.toString(),
+        cryptoAmount: totalCryptoAmount.toString(),
+        isGrouped: true,
+        relatedAssetIds: group.map(row => row.assetId),
       }
     })
-
-    return grouped
   }, [data, assets, isLargerThanMd])
 
   const textColor = useColorModeValue('black', 'white')
@@ -262,7 +235,7 @@ export const AccountTable = memo(() => {
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
       if (row.original.isGrouped) {
-        // Virtuoso handles expansion automatically when renderSubComponent is provided
+        // InfiniteTable handles expansion automatically
         return
       }
 
@@ -334,7 +307,7 @@ export const AccountTable = memo(() => {
   return (
     <InfiniteTable
       columns={columns}
-      data={groupedData}
+      data={uniqueRows}
       onRowClick={handleRowClick}
       onRowLongPress={handleRowLongPress}
       displayHeaders={isLargerThanMd}

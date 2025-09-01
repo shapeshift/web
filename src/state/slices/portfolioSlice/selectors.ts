@@ -16,6 +16,7 @@ import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
+import type { Row } from 'react-table'
 
 import { selectAssets } from '../assetsSlice/selectors'
 import {
@@ -722,6 +723,8 @@ export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeep
       ? accountIdsAboveThreshold.filter(listAccount => listAccount === accountId)
       : accountIdsAboveThreshold,
 )
+
+export type RowProps = Row<AccountRowData>
 
 export type AccountRowData = {
   name: string

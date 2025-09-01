@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "Voir dans l'explorateur",
-    "approval": "Autorisation"
+    "approval": "Autorisation",
+    "permit2Approval": "Autorisation Permit2"
+  },
+  "quickBuy": {
+    "title": "Achat rapide de %{assetOnChain}",
+    "nativeNotAvailable": "Achat rapide non disponible pour les actifs natifs",
+    "balance": "Solde disponible",
+    "confirm": "Êtes-vous sûr de vouloir acheter ?",
+    "edit": "Modifier les montants d'achat",
+    "error": {
+      "insufficientFunds": "L'achat rapide de %{amount} a échoué, fonds insuffisants, essayez un autre montant ?",
+      "noQuote": "L'achat rapide de %{amount} a échoué, impossible de récupérer un devis valide.",
+      "failed": "L'achat rapide de %{amount} a échoué."
+    }
   },
   "consentBanner": {
     "body": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez %{privateLink} si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre %{privacyPolicyLink} pour plus de détails.",
@@ -224,6 +237,28 @@
     "title": "Oups !",
     "body": "Quelque chose s'est mal passé",
     "cta": "Réessayer"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "Erreur de composant",
+      "body": "Ce composant a rencontré une erreur et n'a pas pu se charger correctement.",
+      "retry": "Réessayer"
+    },
+    "chart": {
+      "title": "Graphique indisponible",
+      "body": "Impossible de charger les données du graphique pour le moment.",
+      "retry": "Réessayer"
+    },
+    "trading": {
+      "title": "Erreur de trading",
+      "body": "L'interface de trading a rencontré une erreur. Vous pouvez réessayer ou actualiser la page.",
+      "retry": "Réessayer"
+    },
+    "suspense": {
+      "title": "Le chargement a échoué",
+      "body": "Ce contenu n'a pas pu être chargé correctement.",
+      "retry": "Réessayer"
+    }
   },
   "buyPage": {
     "title": "Acheter des cryptos <span>en quelques secondes</span>",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
     "manualReceiveAddress": "Adresse de réception",
     "recipientAddress": "Adresse du destinataire",
+    "changeAddress": "Adresse de change",
+    "changeAddressExplainer": "Lors de l'envoi de cryptomonnaies sur les réseaux basés sur UTXO, tous les fonds restants de votre transaction vous sont renvoyés à cette adresse.",
     "customRecipientAddress": "Adresse de destinataire personnalisée",
     "customRecipientAddressDescription": "Saisissez une adresse de destinataire personnalisée pour cet échange",
     "thisIsYourCustomRecipientAddress": "Il s'agit de l'adresse personnalisée du destinataire",
@@ -969,7 +1006,7 @@
     },
     "permit2Allowance": {
       "title": "Allocation de contrat Permit2",
-      "tooltip": "Cet échange utilise Permit2, qui nécessite une approbation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
+      "tooltip": "Cet échange utilise Permit2, qui nécessite une autorisation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
     },
     "permit2Eip712": {
       "title": "Autoriser le transfert de jetons",
@@ -1086,7 +1123,19 @@
       "youGotMore": "Vous avez obtenu %{cryptoUpside} en plus sur cette échange"
     },
     "networkFee": "Frais de réseau",
-    "feeExplainer": "Le devis comprend des frais ShapeShift de %{feePercentage}%"
+    "feeExplainer": "Le devis comprend des frais ShapeShift de %{feePercentage}%",
+    "claim": {
+      "pending": "Votre réclamation de %{amount} %{symbol} est en cours de traitement.",
+      "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Votre récompense de %{amountAndSymbol} est en cours de traitement..."
+      },
+      "complete": {
+        "description": "Votre récompense de %{amountAndSymbol} est terminée."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1172,7 +1221,7 @@
     "orderCard": {
       "warning": {
         "insufficientBalance": "Votre porte-monnaie ne dispose actuellement pas d'un solde en %{symbol} suffisant sur %{chainName} pour exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable lorsque vous approvisionnerez votre solde en %{symbol} sur %{chainName}.",
-        "insufficientAllowance": "Cet ordre nécessite qu'une allocation supplémentaire en %{symbol} sur %{chainName} soit approuvée pour que CoW Swap puisse exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable une fois l'approbation d'allocation terminée."
+        "insufficientAllowance": "Cet ordre nécessite qu'une allocation supplémentaire en %{symbol} sur %{chainName} soit approuvée pour que CoW Swap puisse exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable une fois l'autorisation d'allocation terminée."
       }
     },
     "limitOrderFilled": "Ordre à cours limité exécuté",
@@ -1380,6 +1429,7 @@
     "receive": {
       "connectAWallet": "Connecter un porte-monnaie pour recevoir des %{symbol}",
       "receiveAsset": "Recevoir des %{asset}",
+      "onlySend": "Envoyez uniquement des %{symbol} sur les réseaux pris en charge. L'utilisation d'autres jetons ou réseaux peut entraîner une perte définitive.",
       "copy": "Copier",
       "copied": "Adresse de réception pour %{symbol} copiée vers le presse-papiers",
       "copyFailed": "Échec de la copie de l'adresse de réception %{symbol} dans le presse-papiers",
@@ -1388,7 +1438,8 @@
       "verify": "Vérifier",
       "verified": "Vérifié",
       "notVerified": "Mauvaise concordance d'adresse",
-      "blockExplorer": "Explorateur"
+      "blockExplorer": "Explorateur",
+      "supportedNetworks": "Réseaux pris en charge"
     },
     "deposit": {
       "allocation": {
@@ -1723,6 +1774,7 @@
       "failure": {
         "body": "Impossible de connecter le porte-monnaie Ledger"
       },
+      "gettingChangeAddress": "Obtention de l'adresse de change...",
       "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil.",
       "signWarning": "Avant de signer, assurez-vous que l'app %{chain} est ouverte sur votre appareil."
     },
@@ -2679,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Mise initiée",
+    "unstakeInitiated": "Démise initiée",
+    "claimWithdraw": "Réclamer le retrait",
     "staking": "Mises en rFOX",
     "bridge": "Bridger",
     "bridgeFunds": "Bridger des fonds",
@@ -3014,7 +3069,9 @@
       "claimAvailable": "Réclamation disponible",
       "claimed": "Réclamé",
       "unknown": "Inconnu",
-      "initiated": "Initié"
+      "initiated": "Initié",
+      "awaitingApproval": "En attente d'autorisation",
+      "awaitingSwap": "En attente d'échange"
     },
     "emptyState": {
       "title": "Bienvenue sur ShapeShift",
@@ -3026,7 +3083,9 @@
       "processing": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de traitement.",
       "complete": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est terminé.",
       "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
-      "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming."
+      "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming.",
+      "awaitingApproval": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'approbation.",
+      "awaitingSwap": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'exécution."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} et %{asset2}",
@@ -3079,13 +3138,21 @@
       "claimTxComplete": "Votre réclamation TCY de %{amount} %{symbol} est terminée."
     },
     "approve": {
-      "approvalTxPending": "Approbation de %{contractName}  pour utiliser %{amountCryptoPrecision} %{symbol} en cours.",
+      "approvalTxPending": "Autorisation de %{contractName}  pour utiliser %{amountCryptoPrecision} %{symbol} en cours.",
       "approvalTxComplete": "Approuvé %{contractName} pour utiliser %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} en attente",
     "orderCancelled": "Ordre annulé",
-    "orderExpired": "Ordre expiré"
+    "orderExpired": "Ordre expiré",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Votre récompense de %{amountAndSymbol} est en cours de traitement..."
+      },
+      "complete": {
+        "description": "Votre récompense de %{amountAndSymbol} est terminée."
+      }
+    }
   }
 }

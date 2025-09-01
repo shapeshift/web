@@ -967,7 +967,7 @@
     "manualReceiveAddress": "Receive address",
     "recipientAddress": "Recipient address",
     "changeAddress": "Change address",
-    "changeAddressExplainer": "When sending Bitcoin-like cryptocurrencies, any leftover funds from your transaction are sent back to you at this address. This is normal and ensures you don't lose any funds.",
+    "changeAddressExplainer": "When sending cryptocurrencies on UTXO-based networks, any leftover funds from your transaction are sent back to you at this address.",
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",

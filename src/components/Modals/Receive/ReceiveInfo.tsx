@@ -28,6 +28,7 @@ import type { Address } from 'viem'
 import { SupportedNetworks } from './SupportedNetworks'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { LogoQRCode } from '@/components/LogoQRCode/LogoQRCode'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -36,7 +37,6 @@ import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader, DialogHeaderRight } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
-import { QRCode } from '@/components/QRCode/QRCode'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -222,7 +222,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
               <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
                   <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
-                    <QRCode text={receiveAddress} data-test='receive-qr-code' />
+                    <LogoQRCode text={receiveAddress} asset={asset} data-test='receive-qr-code' />
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
                     <Flex

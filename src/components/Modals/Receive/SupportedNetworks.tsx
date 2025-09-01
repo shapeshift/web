@@ -1,6 +1,6 @@
 import { Box, Circle, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types/dist/cjs'
+import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

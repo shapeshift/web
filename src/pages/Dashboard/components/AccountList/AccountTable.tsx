@@ -343,7 +343,6 @@ export const AccountTable = memo(() => {
       renderSubComponent={renderSubComponent}
       hasMore={hasMore}
       loadMore={next}
-      scrollableTarget='scroll-view-0'
     />
   )
 })

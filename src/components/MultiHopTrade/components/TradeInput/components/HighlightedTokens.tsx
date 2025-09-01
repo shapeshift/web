@@ -21,7 +21,7 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
-import { AssetSearchRow } from '@/pages/Explore/components/AssetSearchRow'
+import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -250,12 +250,15 @@ export const HighlightedTokens = () => {
     }
 
     return (
-      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} px={4}>
+      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} px={2}>
         <AssetList
           assets={filteredAssets}
           handleClick={handleRowClick}
           handleLongPress={handleRowLongPress}
-          rowComponent={AssetSearchRow}
+          portalsAssets={portalsAssets}
+          rowComponent={
+            selectedCategory === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined
+          }
           disableUnsupported={false}
           height='100vh'
           showPrice
@@ -272,6 +275,7 @@ export const HighlightedTokens = () => {
     filteredAssets,
     handleRowClick,
     handleRowLongPress,
+    portalsAssets,
   ])
 
   const title = useMemo(() => {
@@ -287,7 +291,7 @@ export const HighlightedTokens = () => {
   }, [selectedCategory])
 
   return (
-    <Flex flexDir='column' height='100%' flex='1' minHeight={0}>
+    <Flex flexDir='column' height='100%' flex='1' minHeight={0} maxWidth='100%'>
       <Flex justifyContent='space-between' alignItems='center' mb={2} mt={2} px={5} flex='0 0 auto'>
         <Flex align='center' onClick={handleOpenCategoriesDialog}>
           <Text color='text.primary' fontWeight='bold' translation={title} />

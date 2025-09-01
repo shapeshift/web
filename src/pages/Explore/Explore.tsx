@@ -20,7 +20,6 @@ import { RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { AssetSearchRow } from './components/AssetSearchRow'
 import { CategoryCard } from './components/CategoryCard'
 import { Tags } from './components/Tags'
 
@@ -199,7 +198,6 @@ export const Explore = memo(() => {
               assets={assetResults}
               handleClick={handleAssetClick}
               disableUnsupported={false}
-              rowComponent={AssetSearchRow}
               height='100vh'
               showPrice
               shouldDisplayRelatedAssets

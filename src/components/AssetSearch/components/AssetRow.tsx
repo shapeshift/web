@@ -1,8 +1,9 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Tag, TagLeftIcon, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
+import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 
 import type { AssetData } from './AssetList'
@@ -17,6 +18,7 @@ import { middleEllipsis } from '@/lib/utils'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
@@ -55,6 +57,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const {
       state: { isConnected, wallet },
     } = useWallet()
+    const textColor = useColorModeValue('black', 'white')
 
     const assetId = asset?.assetId
     const filter = useMemo(() => ({ assetId }), [assetId])
@@ -83,6 +86,103 @@ export const AssetRow: FC<AssetRowProps> = memo(
     )
 
     const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
+
+    const marketData = useAppSelector(state =>
+      selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+    )
+
+    const changePercent24Hr = marketData?.changePercent24Hr
+
+    const changePercentTagColorsScheme = useMemo(() => {
+      if (bnOrZero(changePercent24Hr).gt(0)) {
+        return 'green'
+      }
+
+      if (bnOrZero(changePercent24Hr).lt(0)) {
+        return 'red'
+      }
+
+      return 'gray'
+    }, [changePercent24Hr])
+
+    const priceChange = useMemo(() => {
+      if (!changePercent24Hr) return null
+
+      return (
+        <Tag colorScheme={changePercentTagColorsScheme} width='max-content' px={1} size='sm'>
+          {changePercentTagColorsScheme !== 'gray' ? (
+            <TagLeftIcon
+              as={
+                changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine
+              }
+              me={1}
+            />
+          ) : null}
+          <Amount.Percent
+            value={bnOrZero(changePercent24Hr).times('0.01').toString()}
+            fontSize='xs'
+          />
+        </Tag>
+      )
+    }, [changePercent24Hr, changePercentTagColorsScheme])
+
+    const rightContent = useMemo(() => {
+      if (isCustomAsset) {
+        return (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+            <Button colorScheme='blue' onClick={handleImportClick}>
+              {translate('common.import')}
+            </Button>
+          </Flex>
+        )
+      }
+
+      if (showPrice) {
+        return (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+            <Amount.Fiat
+              fontWeight='semibold'
+              color={textColor}
+              lineHeight='shorter'
+              height='20px'
+              value={marketData?.price}
+            />
+            {priceChange}
+          </Flex>
+        )
+      }
+
+      if (isConnected && !hideAssetBalance && !isCustomAsset)
+        return (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
+            <Amount.Fiat
+              color='var(--chakra-colors-chakra-body-text)'
+              value={userCurrencyBalance}
+            />
+            <Amount.Crypto
+              fontSize='sm'
+              fontWeight='normal'
+              value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+              symbol={asset.symbol}
+            />
+          </Flex>
+        )
+
+      return null
+    }, [
+      marketData?.price,
+      priceChange,
+      textColor,
+      userCurrencyBalance,
+      cryptoHumanBalance,
+      asset.symbol,
+      handleImportClick,
+      hideAssetBalance,
+      isConnected,
+      isCustomAsset,
+      showPrice,
+      translate,
+    ])
 
     if (shouldDisplayRelatedAssets && asset.relatedAssetKey) {
       return (
@@ -136,27 +236,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
             </Flex>
           </Box>
         </Flex>
-        {isConnected && !hideAssetBalance && !isCustomAsset && (
-          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
-            <Amount.Fiat
-              color='var(--chakra-colors-chakra-body-text)'
-              value={userCurrencyBalance}
-            />
-            <Amount.Crypto
-              fontSize='sm'
-              fontWeight='normal'
-              value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
-              symbol={asset.symbol}
-            />
-          </Flex>
-        )}
-        {isCustomAsset && (
-          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-            <Button colorScheme='blue' onClick={handleImportClick}>
-              {translate('common.import')}
-            </Button>
-          </Flex>
-        )}
+        {rightContent}
       </Button>
     )
   },

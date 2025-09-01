@@ -29,10 +29,6 @@ export const DefaultAssetList = ({
     return portfolioAssetsSortedByBalance.concat(popularAssets)
   }, [portfolioAssetsSortedByBalance, popularAssets])
 
-  console.log({
-    allAssets,
-  })
-
   return (
     <>
       <Text
@@ -48,8 +44,8 @@ export const DefaultAssetList = ({
           handleClick={onAssetClick}
           hideZeroBalanceAmounts={true}
           shouldDisplayRelatedAssets
-          height='50vh'
           isLoading={isConnected && isPortfolioLoading && isPopularAssetIdsLoading}
+          height='70vh'
         />
       </Box>
     </>

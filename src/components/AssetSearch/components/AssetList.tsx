@@ -168,7 +168,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (filteredAssets.length <= 10) {
     return (
-      <Box maxHeight={height} overflow='auto' height='auto' py={4}>
+      <Box maxHeight={height} overflow='auto' height='auto'>
         {filteredAssets.map((asset, index) => (
           <Box key={asset.assetId}>{renderRow(index)}</Box>
         ))}

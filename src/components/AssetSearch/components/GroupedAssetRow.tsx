@@ -3,11 +3,11 @@ import {
   Box,
   Button,
   Collapse,
-  Text as CText,
   Flex,
   Icon,
   Tag,
   TagLeftIcon,
+  Text as CText,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -169,7 +169,7 @@ export const GroupedAssetRow: FC<{
   }, [changePercent24Hr, changePercentTagColorsScheme])
 
   return (
-    <Box bg={isOpen ? 'background.surface.raised.base' : 'transparent'} borderRadius='lg'>
+    <Box bg={isOpen ? 'background.surface.raised.base' : 'transparent'} borderRadius='lg' my={2}>
       <Button
         variant='ghost'
         onClick={handleGroupClick}
@@ -181,6 +181,7 @@ export const GroupedAssetRow: FC<{
         py={2}
         pr={2}
         borderBottomRadius={isOpen ? 0 : 'lg'}
+        bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon

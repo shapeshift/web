@@ -182,7 +182,7 @@ export const SearchTermAssetList = ({
           onImportClick={onImportClick}
           shouldDisplayRelatedAssets
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
-          height='50vh'
+          height='70vh'
         />
       </Box>
     </>

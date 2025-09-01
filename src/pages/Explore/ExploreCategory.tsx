@@ -17,7 +17,6 @@ import { MarketsCategories } from '../Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '../Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '../Markets/hooks/usePortalsAssetsQuery'
 import { useRows } from '../Markets/hooks/useRows'
-import { AssetSearchRow } from './components/AssetSearchRow'
 import { Tags } from './components/Tags'
 
 import { AssetListFiltersDialog } from '@/components/AssetListFiltersDialog/AssetListFiltersDialog'
@@ -28,6 +27,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { isSome } from '@/lib/utils'
+import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -265,7 +265,6 @@ export const ExploreCategory = () => {
             assets={filteredAssets}
             handleClick={handleAssetClick}
             disableUnsupported={false}
-            rowComponent={AssetSearchRow}
             portalsAssets={portalsAssets}
             isLoading={
               isPortalsAssetsLoading ||
@@ -276,6 +275,7 @@ export const ExploreCategory = () => {
             height='100vh'
             showPrice
             shouldDisplayRelatedAssets
+            rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
           />
         </Box>
       </Main>

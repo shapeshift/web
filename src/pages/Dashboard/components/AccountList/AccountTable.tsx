@@ -1,3 +1,4 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
@@ -15,6 +16,8 @@ import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
+
+import { GroupedAssetsSubComponent } from './GroupedAssetsSubComponent'
 
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
@@ -53,6 +56,7 @@ export const AccountTable = memo(() => {
   const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
+
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
   }, [rowData])
@@ -60,9 +64,72 @@ export const AccountTable = memo(() => {
     array: sortedRows,
     isScrollable: true,
   })
-  const textColor = useColorModeValue('black', 'white')
+
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+  // Group assets by asset type (base symbol/name) for desktop view
+  const groupedData = useMemo(() => {
+    if (!isLargerThanMd) return data
+
+    const assetGroups = new Map<string, { assets: Asset[]; rows: AccountRowData[] }>()
+
+    data.forEach(row => {
+      const asset = assets[row.assetId]
+      if (!asset) return
+
+      // Extract base asset name/symbol (remove " on Chain" suffix)
+      const baseAssetName = asset.name.split(' on ')[0]
+      const baseAssetKey = `${baseAssetName}_${asset.symbol}`
+
+      if (!assetGroups.has(baseAssetKey)) {
+        assetGroups.set(baseAssetKey, { assets: [], rows: [] })
+      }
+
+      const group = assetGroups.get(baseAssetKey)
+      if (!group) return
+
+      group.assets.push(asset)
+      group.rows.push(row)
+    })
+
+    const grouped: AccountRowData[] = []
+
+    assetGroups.forEach(group => {
+      if (group.assets.length > 1) {
+        const totalFiatAmount = group.rows.reduce((sum, row) => {
+          return sum + Number(row.fiatAmount)
+        }, 0)
+
+        const totalCryptoAmount = group.rows.reduce((sum, row) => {
+          return sum + Number(row.cryptoAmount)
+        }, 0)
+
+        const primaryAsset =
+          group.assets.find(asset => !asset.name.includes(' on ')) || group.assets[0]
+
+        const primaryRow = group.rows.find(r => r.assetId === primaryAsset.assetId) || group.rows[0]
+
+        const relatedAssetIds = group.rows.map(row => row.assetId)
+
+        grouped.push({
+          ...primaryRow,
+          assetId: primaryAsset.assetId, // Use the primary asset ID
+          fiatAmount: totalFiatAmount.toString(),
+          cryptoAmount: totalCryptoAmount.toString(),
+          isGrouped: true,
+          relatedAssetIds,
+        })
+      } else {
+        grouped.push(group.rows[0])
+      }
+    })
+
+    return grouped
+  }, [data, assets, isLargerThanMd])
+
+  const textColor = useColorModeValue('black', 'white')
   const navigate = useNavigate()
+
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
       {
@@ -73,6 +140,7 @@ export const AccountTable = memo(() => {
           <AssetCell
             assetId={row.original.assetId}
             subText={truncate(row.original.symbol, { length: 6 })}
+            isGrouped={row.original.isGrouped}
           />
         ),
       },
@@ -143,6 +211,16 @@ export const AccountTable = memo(() => {
         sortType: (a: RowProps, b: RowProps): number =>
           bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
       },
+      {
+        Header: '',
+        id: 'toggle',
+        width: 50,
+        Cell: ({ row }: { row: RowProps }) => {
+          if (!row.original.isGrouped) return null
+
+          return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
+        },
+      },
     ],
     [textColor],
   )
@@ -183,6 +261,11 @@ export const AccountTable = memo(() => {
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
+      if (row.original.isGrouped) {
+        // Virtuoso handles expansion automatically when renderSubComponent is provided
+        return
+      }
+
       vibrate('heavy')
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
@@ -217,6 +300,17 @@ export const AccountTable = memo(() => {
     [assetActionsDrawer],
   )
 
+  const renderSubComponent = useCallback(
+    (row: Row<AccountRowData>) => (
+      <GroupedAssetsSubComponent
+        row={row}
+        onRowClick={handleRowClick}
+        onRowLongPress={handleRowLongPress}
+      />
+    ),
+    [handleRowClick, handleRowLongPress],
+  )
+
   const accountsAssets = useMemo(() => {
     return rowData.map(row => assets[row.assetId]).filter(isSome)
   }, [rowData, assets])
@@ -240,12 +334,13 @@ export const AccountTable = memo(() => {
   return (
     <InfiniteTable
       columns={columns}
-      data={data}
+      data={groupedData}
       onRowClick={handleRowClick}
       onRowLongPress={handleRowLongPress}
       displayHeaders={isLargerThanMd}
       variant='clickable'
       renderEmptyComponent={renderEmptyComponent}
+      renderSubComponent={renderSubComponent}
       hasMore={hasMore}
       loadMore={next}
       scrollableTarget='scroll-view-0'

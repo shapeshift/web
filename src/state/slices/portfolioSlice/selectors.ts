@@ -733,6 +733,8 @@ export type AccountRowData = {
   allocation: number
   price: string
   priceChange: number
+  isGrouped?: boolean
+  relatedAssetIds?: string[]
 }
 
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(

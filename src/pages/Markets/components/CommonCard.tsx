@@ -4,7 +4,6 @@ import type { JSX, PropsWithChildren } from 'react'
 import { useCallback } from 'react'
 
 import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
-import type { AssetIconProps } from '@/components/AssetIcon'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { vibrate } from '@/lib/vibrate'
@@ -32,7 +31,6 @@ type CommonCardProps = {
   title: string
   subtitle: string
   assetId: AssetId
-  pairProps?: AssetIconProps['pairProps']
   onClick: (assetId: AssetId) => void
 } & PropsWithChildren
 
@@ -41,7 +39,6 @@ export const CommonCard: React.FC<CommonCardProps> = ({
   subtitle,
   assetId,
   onClick,
-  pairProps,
   children,
 }) => {
   const handleClick = useCallback(() => {
@@ -71,7 +68,7 @@ export const CommonCard: React.FC<CommonCardProps> = ({
         height='100%'
       >
         <Flex align='center'>
-          <AssetIcon assetId={assetId} size='md' mr={2} pairProps={pairProps} />
+          <AssetIcon assetId={assetId} size='md' mr={2} />
           <Box textAlign='left' overflow='hidden' width='100%'>
             <Tooltip label={title} placement='top-start'>
               <CText fontWeight='medium' textOverflow='ellipsis' overflow='hidden'>

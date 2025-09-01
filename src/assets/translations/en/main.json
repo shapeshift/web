@@ -966,6 +966,8 @@
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "manualReceiveAddress": "Receive address",
     "recipientAddress": "Recipient address",
+    "changeAddress": "Change address",
+    "changeAddressExplainer": "When sending cryptocurrencies on UTXO-based networks, any leftover funds from your transaction are sent back to you at this address.",
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
@@ -1772,6 +1774,7 @@
       "failure": {
         "body": "Unable to connect Ledger wallet"
       },
+      "gettingChangeAddress": "Getting change address...",
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },

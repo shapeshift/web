@@ -276,6 +276,7 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
+    sellAssetUtxoChangeAddress: undefined,
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
   },

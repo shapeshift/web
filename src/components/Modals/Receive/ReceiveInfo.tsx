@@ -295,9 +295,13 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                   as={Link}
                   icon={externalLinkIcon}
                   aria-label={translate('modals.receive.blockExplorer')}
-                  href={`${asset?.explorerAddressLink}${receiveAddress}`}
+                  href={
+                    asset?.explorerAddressLink && receiveAddress
+                      ? `${asset.explorerAddressLink}${receiveAddress}`
+                      : undefined
+                  }
                   isExternal
-                  isDisabled={!receiveAddress}
+                  isDisabled={!receiveAddress || !asset?.explorerAddressLink}
                   size='lg'
                   borderRadius='full'
                   color='text.base'

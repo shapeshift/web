@@ -23,10 +23,6 @@ const focus = {
   shadow: 'outline-inset',
 }
 
-const assetIconPairProps = {
-  showFirst: true,
-}
-
 type PortalAssetRowProps = {
   asset: Asset
   index: number
@@ -102,12 +98,7 @@ export const PortalAssetRow: FC<PortalAssetRowProps> = memo(
         sx={longPressSx}
       >
         <Flex gap={4} alignItems='center'>
-          <AssetIcon
-            assetId={asset.assetId}
-            size='sm'
-            pairProps={assetIconPairProps}
-            showNetworkIcon={showNetworkIcon}
-          />
+          <AssetIcon assetId={asset.assetId} size='sm' showNetworkIcon={showNetworkIcon} />
           <Box textAlign='left'>
             <Text
               lineHeight={1}

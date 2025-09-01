@@ -86,6 +86,7 @@ const carouselOptions = {
 export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const allAssets = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)
@@ -120,8 +121,8 @@ export const Explore = memo(() => {
   }, [navigate])
 
   const handleFoxClick = useCallback(() => {
-    navigate('/fox')
-  }, [navigate])
+    navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+  }, [navigate, isRfoxFoxEcosystemPageEnabled])
 
   const handleTCYClick = useCallback(() => {
     navigate('/tcy')

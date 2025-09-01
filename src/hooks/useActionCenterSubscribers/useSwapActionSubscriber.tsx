@@ -40,6 +40,7 @@ import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSli
 import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -108,6 +109,7 @@ export const useSwapActionSubscriber = () => {
   } = useWallet()
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+  const tradeQuoteState = useAppSelector(tradeQuoteSlice.selectSlice)
 
   const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
 
@@ -138,6 +140,7 @@ export const useSwapActionSubscriber = () => {
       const approvalMetadata = isActiveSwap
         ? confirmedTradeExecution?.firstHop?.allowanceApproval
         : undefined
+      const isPermit2Required = confirmedTradeExecution?.firstHop?.permit2?.isRequired
 
       // Calculate the correct action status
       const targetStatus = getActionStatusFromSwap(
@@ -159,6 +162,7 @@ export const useSwapActionSubscriber = () => {
             swapMetadata: {
               swapId: swap.id,
               allowanceApproval: approvalMetadata,
+              isPermit2Required,
             },
           }),
         )
@@ -172,6 +176,7 @@ export const useSwapActionSubscriber = () => {
             swapMetadata: {
               swapId: swapAction.swapMetadata.swapId,
               allowanceApproval: approvalMetadata,
+              isPermit2Required,
             },
           }),
         )
@@ -381,6 +386,8 @@ export const useSwapActionSubscriber = () => {
         buyTxHash,
       }
     },
+    // we explicitly want to be reactive on the tradeQuote slice here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       dispatch,
       toast,
@@ -389,6 +396,7 @@ export const useSwapActionSubscriber = () => {
       openRatingModal,
       handleHasSeenRatingModal,
       mobileFeaturesCompatibility,
+      tradeQuoteState,
       fetchBasePortfolio,
       upsertBasePortfolio,
     ],

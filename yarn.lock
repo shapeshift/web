@@ -10614,7 +10614,6 @@ __metadata:
     "@types/node": ^22.13.14
     "@types/node-polyglot": ^2.4.2
     "@types/pify": ^5.0.4
-    "@types/qr-image": ^3.2.5
     "@types/qs": ^6.9.18
     "@types/react": ^19.0.0
     "@types/react-dom": ^19.0.0
@@ -10689,7 +10688,7 @@ __metadata:
     happy-dom: ^15.10.2
     html-react-parser: ^5.2.3
     html5-qrcode: ^2.3.8
-    http-proxy-middleware: ^2.0.7
+    http-proxy-middleware: ^2.0.9
     inquirer: 8.2.4
     js-file-download: ^0.4.12
     jscodeshift: ^0.15.2
@@ -10713,7 +10712,6 @@ __metadata:
     pify: ^5.0.0
     prettier: ^3.0.3
     pretty-ms: 7.0.1
-    qr-image: ^3.2.0
     qs: ^6.10.5
     re-reselect: ^4.0.0
     react: ^19.0.0
@@ -10729,6 +10727,7 @@ __metadata:
     react-multi-ref: ^1.0.1
     react-number-format: ^4.9.3
     react-polyglot: ^0.7.2
+    react-qrcode-logo: ^4.0.0
     react-redux: ^9.2.0
     react-router: ^6.30.0
     react-router-breadcrumbs-hoc: ^4.1.0
@@ -12148,15 +12147,6 @@ __metadata:
   version: 5.0.4
   resolution: "@types/pify@npm:5.0.4"
   checksum: 765a4f130fac9eb4ca2fb14d95a218d605f671ddd1ed4ebeb6ee0e0fa937ec59cf91fd55a9bb702c0472ca1296cb00ab081bdf9e908ee4abb8105068994f309f
-  languageName: node
-  linkType: hard
-
-"@types/qr-image@npm:^3.2.5":
-  version: 3.2.5
-  resolution: "@types/qr-image@npm:3.2.5"
-  dependencies:
-    "@types/node": "*"
-  checksum: 5b197ea858499ad95cd99fb457981dfe7b750f1301246f3f9944515c2d42f662746290525b564dbd79ecc2176632b2dd399d499a9a2552f4b7125395ae286a26
   languageName: node
   linkType: hard
 
@@ -17437,6 +17427,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"create-hash@npm:~1.1.3":
+  version: 1.1.3
+  resolution: "create-hash@npm:1.1.3"
+  dependencies:
+    cipher-base: ^1.0.1
+    inherits: ^2.0.1
+    ripemd160: ^2.0.0
+    sha.js: ^2.4.0
+  checksum: 8d7d9bade6ab432f22737bf6f584155bab26d11b5abd98214034dda1e087bd2c395595f6729751b94d37f95f737dddffeb2db198bbbd5717a125906756ed3012
+  languageName: node
+  linkType: hard
+
 "create-hmac@npm:1.1.7, create-hmac@npm:^1.1.0, create-hmac@npm:^1.1.3, create-hmac@npm:^1.1.4, create-hmac@npm:^1.1.7":
   version: 1.1.7
   resolution: "create-hmac@npm:1.1.7"
@@ -21846,6 +21848,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hash-base@npm:^2.0.0":
+  version: 2.0.2
+  resolution: "hash-base@npm:2.0.2"
+  dependencies:
+    inherits: ^2.0.1
+  checksum: e39f3f2bb91679ed350bd2eb81035acb1e1e6e9bb86d9f1197fcfdc3cf39a2c56bf82a1870f000fae651477883b4c107fd6ac0c640a18ab06298b87c39939396
+  languageName: node
+  linkType: hard
+
 "hash-base@npm:^3.0.0":
   version: 3.1.0
   resolution: "hash-base@npm:3.1.0"
@@ -22065,9 +22076,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.7":
-  version: 2.0.7
-  resolution: "http-proxy-middleware@npm:2.0.7"
+"http-proxy-middleware@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "http-proxy-middleware@npm:2.0.9"
   dependencies:
     "@types/http-proxy": ^1.17.8
     http-proxy: ^1.18.1
@@ -22079,7 +22090,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/express":
       optional: true
-  checksum: 18caa21145917aa1054740353916e8f03f5a3a93bede9106f1f44d84f7b174df17af1c72bf5fade5cc440c2058ee813f47cbb2bdd6ae6874af1cf33e0ac575f3
+  checksum: 0ea88609b9c13fa03b89f8e6b85bd5c537027ec6990005dd81a7fbb3e73fcf8d6a6e3db2b57b1c6cddbcda80965704584dc6291d0e721b2700198c4e59ee0d0b
   languageName: node
   linkType: hard
 
@@ -26413,15 +26424,16 @@ __metadata:
   linkType: hard
 
 "pbkdf2@npm:^3.0.17, pbkdf2@npm:^3.0.3, pbkdf2@npm:^3.0.9, pbkdf2@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "pbkdf2@npm:3.1.2"
+  version: 3.1.3
+  resolution: "pbkdf2@npm:3.1.3"
   dependencies:
-    create-hash: ^1.1.2
-    create-hmac: ^1.1.4
-    ripemd160: ^2.0.1
-    safe-buffer: ^5.0.1
-    sha.js: ^2.4.8
-  checksum: 2c950a100b1da72123449208e231afc188d980177d021d7121e96a2de7f2abbc96ead2b87d03d8fe5c318face097f203270d7e27908af9f471c165a4e8e69c92
+    create-hash: ~1.1.3
+    create-hmac: ^1.1.7
+    ripemd160: =2.0.1
+    safe-buffer: ^5.2.1
+    sha.js: ^2.4.11
+    to-buffer: ^1.2.0
+  checksum: afd1ec13044343ad877065b806d5b4d7625806139d22bec46cb146d1d52bb8debf4200767e33672b681e024307048e558a16f5997d86838d95552b88fa546530
   languageName: node
   linkType: hard
 
@@ -26981,17 +26993,17 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"qr-image@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "qr-image@npm:3.2.0"
-  checksum: 9d22d9425234b8dfbcf954cff334d1594aa7391f999b15cf3e07d554c99341e7c2303646ddf58237fc498455c11d505b8803a995ff22d8385ddd05f58b3259b5
-  languageName: node
-  linkType: hard
-
 "qrcode-generator@npm:^1.4.3":
   version: 1.4.4
   resolution: "qrcode-generator@npm:1.4.4"
   checksum: 860cfdd2a7a608d34e92cab99774cc08182e1911432f30ed36d16f8a5cdabd7fdf40239caed91fa2691cfe66c8d95c1340a2fc9cc439eed07a9f2eb328c6f527
+  languageName: node
+  linkType: hard
+
+"qrcode-generator@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "qrcode-generator@npm:2.0.4"
+  checksum: d0a212e5126f0fe8f7238cc944f74eed57a8deadf7ec75cf5b052e254ae1fb4487732b0f2e856f3dfbb47e7482b31a9e5cbf3658bbf7fb85624f0dae6a6143e9
   languageName: node
   linkType: hard
 
@@ -27419,6 +27431,18 @@ pvutils@latest:
   version: 2.0.2
   resolution: "react-property@npm:2.0.2"
   checksum: c67fb2590dad9102239b2e574fbc078b472e227b66c3d64e1949426e33889d78c2ac5369cc4c740bb8fe61665505940e39a78d113261ac52410f7538089fe367
+  languageName: node
+  linkType: hard
+
+"react-qrcode-logo@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "react-qrcode-logo@npm:4.0.0"
+  dependencies:
+    qrcode-generator: ^2.0.4
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  checksum: 752a37626f65ea385f64ba22ce4b510813b15f21b20e0a71396f49786cf10e97616ac63b25431c8df5f265b1ead08aa110ded4dea81a89e614fe0bad20ebc759
   languageName: node
   linkType: hard
 
@@ -28412,6 +28436,16 @@ pvutils@latest:
     hash-base: ^3.0.0
     inherits: ^2.0.1
   checksum: 006accc40578ee2beae382757c4ce2908a826b27e2b079efdcd2959ee544ddf210b7b5d7d5e80467807604244e7388427330f5c6d4cd61e6edaddc5773ccc393
+  languageName: node
+  linkType: hard
+
+"ripemd160@npm:=2.0.1":
+  version: 2.0.1
+  resolution: "ripemd160@npm:2.0.1"
+  dependencies:
+    hash-base: ^2.0.0
+    inherits: ^2.0.1
+  checksum: 865bcb4be1f04762c4afc9375f9172c326bed7057f388913512850493c22af9092efe21d7a488ec25665530333a1900f2f81d39b3fdfcc37a39f97b8f4ce13d0
   languageName: node
   linkType: hard
 

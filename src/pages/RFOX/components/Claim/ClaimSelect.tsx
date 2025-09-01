@@ -17,20 +17,21 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { RfoxTabIndex } from '@/pages/RFOX/Widget'
 
 type NoClaimsAvailableProps = {
   isError?: boolean
-  setStepIndex: (index: number) => void
+  setStepIndex?: (index: number) => void
 }
 
 const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError, setStepIndex }) => {
   const translate = useTranslate()
 
   const handleUnstakeClick = useCallback(() => {
-    setStepIndex(RfoxTabIndex.Unstake)
+    setStepIndex?.(RfoxTabIndex.Unstake)
   }, [setStepIndex])
 
   return (
@@ -43,7 +44,7 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError, setStepIndex }
         color='gray.400'
         mb={4}
       />
-      {!isError && (
+      {!isError && setStepIndex && (
         <Button colorScheme='blue' onClick={handleUnstakeClick}>
           {translate('RFOX.unstakeNow')}
         </Button>
@@ -56,6 +57,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
   const navigate = useNavigate()
   const { isConnected } = useWallet().state
   const { stakingAssetAccountId } = useRFOXContext()
+  const isRFOXFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
 
@@ -95,11 +97,16 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
 
       const handleClaimClick = (claimId: number) => {
-        navigate(`${RfoxRoute.Claim}/${claimId}/confirm`, {
-          state: {
-            selectedUnstakingRequest: unstakingRequest,
+        navigate(
+          !isRFOXFoxEcosystemPageEnabled
+            ? `${RfoxRoute.Claim}/${claimId}/confirm`
+            : `/fox-ecosystem/${claimId}/confirm`,
+          {
+            state: {
+              selectedUnstakingRequest: unstakingRequest,
+            },
           },
-        })
+        )
       }
 
       return (
@@ -122,6 +129,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
     navigate,
     stakingAssetAccountId,
     accountUnstakingRequests,
+    isRFOXFoxEcosystemPageEnabled,
   ])
 
   return (

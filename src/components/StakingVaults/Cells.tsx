@@ -78,8 +78,6 @@ const buildRowTitle = (
   return asset.name
 }
 
-const pairProps = { showFirst: true }
-
 export const AssetCell = ({
   assetId,
   subText,
@@ -124,7 +122,7 @@ export const AssetCell = ({
       <HStack flex={1} width='100%'>
         <SkeletonCircle isLoaded={!!asset} mr={2} width='auto' height='auto'>
           {icons && icons.length > 1 ? (
-            <PairIcons icons={icons} iconSize='sm' bg='none' {...pairProps} />
+            <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
             <AssetIcon assetId={asset.assetId} size='md' showNetworkIcon={!isGrouped} />
           )}

@@ -28,10 +28,6 @@ const focus = {
   shadow: 'outline-inset',
 }
 
-const assetIconPairProps = {
-  showFirst: true,
-}
-
 export type AssetRowProps = {
   asset: Asset
   index: number
@@ -67,13 +63,18 @@ export const AssetRow: FC<AssetRowProps> = memo(
     )
     const userCurrencyBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
+
     const assetFromStore = useAppSelector(s => selectAssetById(s, assetId))
 
-    const isCustomAsset = !assetFromStore
+    const handleOnClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation()
+        handleClick(asset)
+      },
+      [asset, handleClick],
+    )
 
-    const handleOnClick = useCallback(() => {
-      handleClick(asset)
-    }, [asset, handleClick])
+    const isCustomAsset = !assetFromStore
 
     const handleImportClick = useCallback(
       (e: React.MouseEvent) => {
@@ -208,12 +209,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
         {...props}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
-          <AssetIcon
-            assetId={asset.assetId}
-            size='sm'
-            pairProps={assetIconPairProps}
-            flexShrink={0}
-          />
+          <AssetIcon assetId={asset.assetId} size='sm' flexShrink={0} />
           <Box textAlign='left' flex={1} minWidth={0}>
             <Text
               color={assetNameColor}

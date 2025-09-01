@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo"
+  },
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../caip/tsconfig.cjs.json" },
+    { "path": "../contracts/tsconfig.cjs.json" }
+  ]
+}

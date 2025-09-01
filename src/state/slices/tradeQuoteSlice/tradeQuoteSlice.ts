@@ -195,6 +195,10 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[id][hopKey].permit2.state = TransactionExecutionState.Complete
         state.tradeExecution[id][hopKey].permit2.permit2Signature = permit2Signature
 
+        // Mark the allowance approval as complete since Permit2 replaces traditional allowance approval
+        state.tradeExecution[id][hopKey].allowanceApproval.state =
+          TransactionExecutionState.Complete
+
         // Mark the whole Permit2 step complete. We can do this here because no on-chain processing is
         // required, unlike allowance reset and allowance approval.
         state.tradeExecution[id][hopKey].state = HopExecutionState.AwaitingSwap

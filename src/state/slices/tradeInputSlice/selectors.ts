@@ -141,3 +141,8 @@ export const selectSecondHopSellAccountId = createSelector(
     return chainIdAccountNumbers?.[secondHopSellAssetChainId]
   },
 )
+
+export const selectSellAssetUtxoChangeAddress = createSelector(
+  selectBaseSlice,
+  tradeInput => tradeInput.sellAssetUtxoChangeAddress,
+)

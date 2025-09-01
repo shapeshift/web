@@ -15,12 +15,12 @@ import {
   polygon,
 } from 'viem/chains'
 
-const env = import.meta.env ?? process.env
-
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
   transport: fallback(
-    [env.VITE_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com'].filter(Boolean).map(url => http(url)),
+    [process.env.VITE_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
@@ -28,7 +28,7 @@ export const viemBscClient = createPublicClient({
   chain: bsc,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L30
-    [env.VITE_BNBSMARTCHAIN_NODE_URL, 'https://binance.llamarpc.com']
+    [process.env.VITE_BNBSMARTCHAIN_NODE_URL, 'https://binance.llamarpc.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -36,39 +36,43 @@ export const viemBscClient = createPublicClient({
 
 export const viemAvalancheClient = createPublicClient({
   chain: avalanche,
-  transport: fallback([env.VITE_AVALANCHE_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: fallback([process.env.VITE_AVALANCHE_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
-  transport: fallback([env.VITE_ARBITRUM_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: fallback([process.env.VITE_ARBITRUM_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemArbitrumNovaClient = createPublicClient({
   chain: arbitrumNova,
-  transport: fallback([env.VITE_ARBITRUM_NOVA_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: fallback(
+    [process.env.VITE_ARBITRUM_NOVA_NODE_URL].filter(Boolean).map(url => http(url)),
+  ),
 }) as PublicClient
 
 export const viemOptimismClient = createPublicClient({
   chain: optimism,
-  transport: fallback([env.VITE_OPTIMISM_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: fallback([process.env.VITE_OPTIMISM_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemGnosisClient = createPublicClient({
   chain: gnosis,
-  transport: fallback([env.VITE_GNOSIS_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: fallback([process.env.VITE_GNOSIS_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemPolygonClient = createPublicClient({
   chain: polygon,
-  transport: fallback([env.VITE_POLYGON_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: fallback([process.env.VITE_POLYGON_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemBaseClient = createPublicClient({
   chain: base,
   transport: fallback(
     // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
-    [env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com'].filter(Boolean).map(url => http(url)),
+    [process.env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 

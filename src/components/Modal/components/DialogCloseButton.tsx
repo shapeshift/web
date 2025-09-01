@@ -14,22 +14,25 @@ const closeIcon = <IoClose />
 
 export const DialogCloseButton: React.FC<DialogCloseButtonProps> = ({ children, ...rest }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { setIsOpen, isOpen } = useDialog()
+  const { setIsOpen } = useDialog()
 
-  const handleCloseClick = useCallback(() => {
-    setIsOpen(!isOpen)
-  }, [isOpen, setIsOpen])
+  const handleCloseClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation()
+      setIsOpen(false)
+    },
+    [setIsOpen],
+  )
 
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Close>
+      <Drawer.Close onClick={handleCloseClick}>
         <IconButton
           fontSize='2xl'
           variant='ghost'
           isRound
           icon={closeIcon}
           aria-label='close dialog'
-          onClick={handleCloseClick}
         />
       </Drawer.Close>
     )

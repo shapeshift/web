@@ -1123,7 +1123,19 @@
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee",
+    "claim": {
+      "pending": "Your claim of %{amount} %{symbol} is being processed.",
+      "complete": "Your claim of %{amount} %{symbol} is complete."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Your reward of %{amountAndSymbol} is processing..."
+      },
+      "complete": {
+        "description": "Your reward of %{amountAndSymbol} is complete."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1354,7 +1366,7 @@
         },
         "skip": {
           "title": "Skip this step?",
-          "description": "Skipping the backup means you won't be able to recover your wallet if you lose access to your device.",
+          "description": "Skipping the backup means you won’t be able to recover your wallet if you lose access to your device.",
           "confirmCta": "Yes, I’ve saved my seed phrase"
         }
       }
@@ -1417,7 +1429,7 @@
     "receive": {
       "connectAWallet": "Connect a wallet to receive %{symbol}",
       "receiveAsset": "Receive %{asset}",
-      "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
+      "onlySend": "Only send %{symbol} on supported networks. Other tokens or networks may result in permanent loss.",
       "copy": "Copy",
       "copied": "%{symbol} receive address copied to clipboard",
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
@@ -1426,7 +1438,8 @@
       "verify": "Verify",
       "verified": "Verified",
       "notVerified": "Address Mismatch",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "supportedNetworks": "Supported Networks"
     },
     "deposit": {
       "allocation": {
@@ -2718,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Initiated",
+    "unstakeInitiated": "Unstake Initiated",
+    "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Funds",
@@ -2882,7 +2898,7 @@
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",
-      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -3129,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",
     "orderCancelled": "Order Cancelled",
-    "orderExpired": "Order Expired"
+    "orderExpired": "Order Expired",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Your reward of %{amountAndSymbol} is processing..."
+      },
+      "complete": {
+        "description": "Your reward of %{amountAndSymbol} is complete."
+      }
+    }
   }
 }

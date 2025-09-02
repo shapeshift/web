@@ -103,11 +103,15 @@ export const Header = memo(() => {
     <>
       <Flex
         direction='column'
-        width='full'
+        width='calc(100% - 32px)'
         position='sticky'
         zIndex='banner'
         ref={ref}
         bg={y > height ? 'background.surface.base' : 'transparent'}
+        border='1px solid'
+        borderColor='border.base'
+        borderRadius='lg'
+        margin='4'
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'

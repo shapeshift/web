@@ -40,7 +40,7 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
 
   const longPressHandlers = useLongPress((_, { context: row }) => {
     vibrate('heavy')
-    onRowLongPress?.(row as Row<AccountRowData>)
+    onRowLongPress?.({ original: row } as Row<AccountRowData>)
   }, defaultLongPressConfig)
 
   if (!relatedRow) return null
@@ -92,11 +92,26 @@ type GroupedAccountsProps = {
 
 export const GroupedAccounts = memo<GroupedAccountsProps>(({ row, onRowClick, onRowLongPress }) => {
   const groupedRow = row.original as GroupedAccountRowData
+  const rowData = useSelector(selectPortfolioAccountRows)
+
+  const sortedAssetIds = useMemo(() => {
+    if (!groupedRow.relatedAssetIds) return []
+
+    return [...groupedRow.relatedAssetIds].sort((a, b) => {
+      const aRow = rowData.find(r => r.assetId === a)
+      const bRow = rowData.find(r => r.assetId === b)
+
+      if (!aRow || !bRow) return 0
+
+      return Number(bRow.fiatAmount) - Number(aRow.fiatAmount)
+    })
+  }, [groupedRow.relatedAssetIds, rowData])
+
   if (!groupedRow.isGrouped || !groupedRow.relatedAssetIds) return null
 
   return (
     <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-      {groupedRow.relatedAssetIds.map(assetId => (
+      {sortedAssetIds.map(assetId => (
         <RelatedAssetRow
           key={assetId}
           assetId={assetId}

@@ -22,6 +22,9 @@ export type AssetData = {
     asset: Asset
     index: number
     data: AssetData
+    showPrice?: boolean
+    onImportClick?: (asset: Asset) => void
+    shouldDisplayRelatedAssets?: boolean
   }>
   isLoading?: boolean
   portalsAssets?: PortalsAssets

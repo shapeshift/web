@@ -1,6 +1,6 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import type { Row } from 'react-table'
 import { useLongPress } from 'use-long-press'
@@ -8,7 +8,7 @@ import { useLongPress } from 'use-long-press'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectAssets, selectPortfolioAccountRows } from '@/state/slices/selectors'
 
 export type AssetWithRelatedAssetIds = Asset & {
   isGrouped?: boolean
@@ -36,7 +36,6 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
   }, [asset, onRowClick])
 
   const longPressHandlers = useLongPress((_, { context: asset }) => {
-    vibrate('heavy')
     onRowLongPress?.(asset as Asset)
   }, defaultLongPressConfig)
 
@@ -68,11 +67,26 @@ type GroupedAssetsProps = {
 
 export const GroupedAssets = memo<GroupedAssetsProps>(({ row, onRowClick, onRowLongPress }) => {
   const groupedRow = row.original as AssetWithRelatedAssetIds
+  const rowData = useSelector(selectPortfolioAccountRows)
+
+  const sortedAssetIds = useMemo(() => {
+    if (!groupedRow.relatedAssetIds) return []
+
+    return [...groupedRow.relatedAssetIds].sort((a, b) => {
+      const aRow = rowData.find(r => r.assetId === a)
+      const bRow = rowData.find(r => r.assetId === b)
+
+      if (!aRow || !bRow) return 0
+
+      return Number(bRow.fiatAmount) - Number(aRow.fiatAmount)
+    })
+  }, [groupedRow.relatedAssetIds, rowData])
+
   if (!groupedRow.isGrouped || !groupedRow.relatedAssetIds) return null
 
   return (
     <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-      {groupedRow.relatedAssetIds.map(assetId => (
+      {sortedAssetIds.map(assetId => (
         <RelatedAssetRow
           key={assetId}
           assetId={assetId}

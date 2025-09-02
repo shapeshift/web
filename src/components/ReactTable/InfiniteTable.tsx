@@ -102,7 +102,8 @@ export const InfiniteTable = <T extends {}>({
 
   const handleRangeChanged = useCallback(
     ({ startIndex, endIndex }: { startIndex: number; endIndex: number }) => {
-      const visibleRows = preparedRows.slice(startIndex, endIndex)
+      if (startIndex < 0 || endIndex < startIndex) return
+      const visibleRows = preparedRows.slice(startIndex, endIndex + 1)
       onVisibleRowsChange?.(visibleRows.map(row => row.original))
     },
     [preparedRows, onVisibleRowsChange],

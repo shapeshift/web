@@ -57,19 +57,8 @@ export const AccountTable = memo(() => {
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
 
-  const sortedRows = useMemo(() => {
-    return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
-  }, [rowData])
-
-  const { hasMore, next, data } = useInfiniteScroll({
-    array: sortedRows,
-    isScrollable: true,
-  })
-
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-
-  const uniqueRows = useMemo(() => {
-    const grouped = groupBy(data, row => {
+  const uniqueRowsAll = useMemo(() => {
+    const grouped = groupBy(rowData, row => {
       const asset = assets[row.assetId]
       if (!asset) return row.assetId
       const baseAssetName = asset.name.split(' on ')[0]
@@ -83,9 +72,9 @@ export const AccountTable = memo(() => {
       const totalCryptoAmount = group.reduce((sum, row) => sum + Number(row.cryptoAmount), 0)
 
       const primaryAsset =
-        group.find(row => {
-          const asset = assets[row.assetId]
-          return asset && !asset.name.includes(' on ')
+        group.find(r => {
+          const a = assets[r.assetId]
+          return a && !a.name.includes(' on ')
         }) || group[0]
 
       return {
@@ -93,12 +82,19 @@ export const AccountTable = memo(() => {
         fiatAmount: totalFiatAmount.toString(),
         cryptoAmount: totalCryptoAmount.toString(),
         isGrouped: true,
-        relatedAssetIds: group.map(row => row.assetId),
+        relatedAssetIds: group.map(r => r.assetId),
       }
     })
 
     return groupedResults.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
-  }, [data, assets])
+  }, [rowData, assets])
+
+  const { hasMore, next, data } = useInfiniteScroll({
+    array: uniqueRowsAll,
+    isScrollable: true,
+  })
+
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const textColor = useColorModeValue('black', 'white')
   const navigate = useNavigate()
@@ -281,8 +277,8 @@ export const AccountTable = memo(() => {
   )
 
   const accountsAssets = useMemo(() => {
-    return uniqueRows.map(row => assets[row.assetId]).filter(isSome)
-  }, [uniqueRows, assets])
+    return uniqueRowsAll.map(row => assets[row.assetId]).filter(isSome)
+  }, [uniqueRowsAll, assets])
 
   if (!isLargerThanMd) {
     return (
@@ -303,7 +299,7 @@ export const AccountTable = memo(() => {
   return (
     <InfiniteTable
       columns={columns}
-      data={uniqueRows}
+      data={data}
       onRowClick={handleRowClick}
       onRowLongPress={handleRowLongPress}
       displayHeaders={isLargerThanMd}

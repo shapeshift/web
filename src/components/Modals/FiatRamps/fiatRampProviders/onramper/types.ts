@@ -27,7 +27,6 @@ export type OnRamperGatewaysResponse = {
   }
 }
 
-// Types for buy quotes based on https://docs.onramper.com/reference/get_quotes-fiat-crypto
 type PaymentLimits = {
   min: number
   max: number

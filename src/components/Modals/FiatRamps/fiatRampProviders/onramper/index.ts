@@ -60,11 +60,9 @@ export const createOnRamperUrl = async ({
   fiatCurrency,
   options: { language, mode, currentUrl },
 }: CreateUrlProps): Promise<string> => {
-  // Get supported currencies to enable dynamic token resolution
   const supportedCurrencies = await getSupportedOnramperCurrencies()
   if (!supportedCurrencies) throw new Error('Failed to get supported currencies from Onramper')
 
-  // Try native asset mapping first
   const onRamperSymbols = (() => {
     const maybeMappingSymbols = adapters.assetIdToOnRamperTokenList(assetId)
     if (maybeMappingSymbols?.length) return maybeMappingSymbols

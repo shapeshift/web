@@ -6,7 +6,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Doge from '@/assets/doge.png'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { SlideTransitionY } from '@/components/SlideTransitionY'
 
 dayjs.extend(isBetween)
@@ -44,8 +44,8 @@ export const AppLoadingIcon: React.FC = memo(() => {
             <Image src={Doge} alt={'Doge'} boxSize='7' />
           </motion.div>
         ) : (
-          <SlideTransitionY key='fox'>
-            <FoxIcon boxSize='7' />
+          <SlideTransitionY key='shapeshift'>
+            <ShapeShiftLogoText height='28px' width='auto' color='white' />
           </SlideTransitionY>
         )}
       </AnimatePresence>

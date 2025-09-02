@@ -177,8 +177,8 @@ const WalletButton: FC<WalletButtonProps> = ({
       </Flex>
     </MenuButton>
   ) : (
-    <Button 
-      onClick={onConnect} 
+    <Button
+      onClick={onConnect}
       leftIcon={connectIcon}
       size='md'
       fontSize='sm'

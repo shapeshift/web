@@ -158,6 +158,16 @@ export const ActionCenter = memo(() => {
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
           onClick={openActionCenter}
+          size='md'
+          variant='ghost'
+          color='text.subtle'
+          _hover={{
+            bg: 'background.surface.elevated',
+            color: 'text.base',
+          }}
+          _active={{
+            bg: 'background.surface.elevated',
+          }}
         />
       </Box>
     )

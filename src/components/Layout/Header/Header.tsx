@@ -1,9 +1,11 @@
-import { BellIcon } from '@chakra-ui/icons'
-import { Box, Flex, HStack, IconButton, Link, Text, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, HStack, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FaCreditCard, FaExchangeAlt } from 'react-icons/fa'
+import { RiExchangeFundsLine } from 'react-icons/ri'
+import { TbGraph } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
-import { useNavigate, Link as ReactRouterLink } from 'react-router-dom'
+import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { AppLoadingIcon } from './AppLoadingIcon'
@@ -11,6 +13,7 @@ import { DegradedStateBanner } from './DegradedStateBanner'
 import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
+import { NavigationDropdown } from './NavBar/NavigationDropdown'
 import { UserMenu } from './NavBar/UserMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
@@ -36,10 +39,22 @@ const paddingTopProp = {
 }
 
 // Navigation links for horizontal navbar
-const navigationLinks = [
-  { label: 'Trade', path: '/trade' },
-  { label: 'Explore', path: '/explore' },
-  { label: 'Earn', path: '/earn' },
+const tradeSubMenuItems = [
+  { label: 'Swap', path: '/trade', icon: RiExchangeFundsLine },
+  { label: 'Limit', path: '/limit', icon: TbGraph },
+  { label: 'Buy', path: '/buy-crypto', icon: FaCreditCard },
+  { label: 'Sell', path: '/buy-crypto', icon: FaExchangeAlt }, // Using buy-crypto for sell until dedicated sell route is created
+]
+
+const exploreSubMenuItems = [
+  { label: 'Tokens', path: '/explore' },
+  { label: 'Markets', path: '/markets' },
+]
+
+const earnSubMenuItems = [
+  { label: 'TCY', path: '/tcy' },
+  { label: 'Pools', path: '/pools' },
+  { label: 'Lending', path: '/lending' },
 ]
 
 export const Header = memo(() => {
@@ -104,18 +119,13 @@ export const Header = memo(() => {
           <HStack spacing={8}>
             <AppLoadingIcon />
             <HStack spacing={6}>
-              {navigationLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  as={ReactRouterLink}
-                  to={link.path}
-                  _hover={{ textDecoration: 'none' }}
-                >
-                  <Text fontSize='md' fontWeight='medium' color='text.base'>
-                    {link.label}
-                  </Text>
-                </Link>
-              ))}
+              <NavigationDropdown label='Trade' items={tradeSubMenuItems} defaultPath='/trade' />
+              <NavigationDropdown
+                label='Explore'
+                items={exploreSubMenuItems}
+                defaultPath='/explore'
+              />
+              <NavigationDropdown label='Earn' items={earnSubMenuItems} defaultPath='/tcy' />
             </HStack>
           </HStack>
 
@@ -126,19 +136,6 @@ export const Header = memo(() => {
 
           {/* Right side - Actions */}
           <HStack spacing={4}>
-            {/* Notification Bell */}
-            <IconButton
-              aria-label='Notifications'
-              icon={<BellIcon />}
-              size='md'
-              variant='ghost'
-              color='text.subtle'
-              _hover={{
-                bg: 'background.surface.elevated',
-                color: 'text.base',
-              }}
-            />
-            
             {/* Hide degraded state and connect dapp buttons for now */}
             {false && isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />

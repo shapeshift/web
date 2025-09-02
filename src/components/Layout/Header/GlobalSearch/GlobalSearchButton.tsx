@@ -7,11 +7,11 @@ import { GlobalSearchModal } from './GlobalSearchModal'
 
 import { isMobile as isMobileApp } from '@/lib/globals'
 
-const mrProp = { base: 0, md: 'auto' }
+const mrProp = { base: 0, md: 0 }
 const widthProp = { base: 'auto', md: 'full' }
 const displayProp1 = { base: 'flex', md: 'none' }
 const displayProp2 = { base: 'none', md: 'flex' }
-const sxProp1 = { svg: { width: '18px', height: '18px' } }
+const sxProp1 = { svg: { width: '16px', height: '16px' } }
 
 const searchIcon = <SearchIcon />
 
@@ -41,12 +41,19 @@ export const GlobalSeachButton = memo(() => {
           width='full'
           leftIcon={searchIcon}
           onClick={onOpen}
-          size='lg'
-          fontSize='md'
+          size='md'
+          fontSize='sm'
           alignItems='center'
           color='text.subtle'
           display={displayProp2}
           sx={sxProp1}
+          bg='background.surface.base'
+          border='1px solid'
+          borderColor='border.base'
+          _hover={{
+            bg: 'background.surface.elevated',
+            borderColor: 'border.hover',
+          }}
         >
           {translate('common.search')}
           {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.

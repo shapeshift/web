@@ -1,8 +1,9 @@
-import { Box, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { BellIcon } from '@chakra-ui/icons'
+import { Box, Flex, HStack, IconButton, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link as ReactRouterLink } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { AppLoadingIcon } from './AppLoadingIcon'
@@ -33,6 +34,13 @@ const paddingTopProp = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
   md: 0,
 }
+
+// Navigation links for horizontal navbar
+const navigationLinks = [
+  { label: 'Trade', path: '/trade' },
+  { label: 'Explore', path: '/explore' },
+  { label: 'Earn', path: '/earn' },
+]
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
@@ -91,38 +99,63 @@ export const Header = memo(() => {
         top={0}
         paddingTop={paddingTopProp}
       >
-        <HStack height='4.5rem' width='full' px={4}>
-          <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
-            <Box display={displayProp} mx='auto'>
-              <AppLoadingIcon />
-            </Box>
+        <HStack height='4.5rem' width='full' px={4} justifyContent='space-between'>
+          {/* Left side - Logo and Navigation */}
+          <HStack spacing={8}>
+            <AppLoadingIcon />
+            <HStack spacing={6}>
+              {navigationLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  as={ReactRouterLink}
+                  to={link.path}
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  <Text fontSize='md' fontWeight='medium' color='text.base'>
+                    {link.label}
+                  </Text>
+                </Link>
+              ))}
+            </HStack>
+          </HStack>
 
-            <Flex
-              justifyContent='flex-end'
-              alignItems='center'
-              width={widthProp}
-              flex={1}
-              rowGap={4}
-              columnGap={2}
-            >
-              <GlobalSeachButton />
-              {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
-                <DegradedStateBanner />
-              )}
-              {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
-                <Suspense>
-                  <WalletConnectToDappsHeaderButton />
-                </Suspense>
-              )}
-              {isLargerThanMd && <ChainMenu display={displayProp2} />}
-              {isConnected && !isActionCenterEnabled && <TxWindow />}
-              {isConnected && isActionCenterEnabled && <ActionCenter />}
-              {isLargerThanMd && (
-                <Box display={displayProp2}>
-                  <UserMenu />
-                </Box>
-              )}
-            </Flex>
+          {/* Center - Search */}
+          <Box flex={1} maxWidth='400px' mx={8}>
+            <GlobalSeachButton />
+          </Box>
+
+          {/* Right side - Actions */}
+          <HStack spacing={4}>
+            {/* Notification Bell */}
+            <IconButton
+              aria-label='Notifications'
+              icon={<BellIcon />}
+              size='md'
+              variant='ghost'
+              color='text.subtle'
+              _hover={{
+                bg: 'background.surface.elevated',
+                color: 'text.base',
+              }}
+            />
+            
+            {/* Hide degraded state and connect dapp buttons for now */}
+            {false && isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
+              <DegradedStateBanner />
+            )}
+            {false && isLargerThanMd && isWalletConnectToDappsV2Enabled && (
+              <Suspense>
+                <WalletConnectToDappsHeaderButton />
+              </Suspense>
+            )}
+            {isLargerThanMd && <ChainMenu display={displayProp2} />}
+            {isConnected && !isActionCenterEnabled && <TxWindow />}
+            {isConnected && isActionCenterEnabled && <ActionCenter />}
+            {isLargerThanMd && (
+              <Box display={displayProp2}>
+                <UserMenu />
+              </Box>
+            )}
           </HStack>
         </HStack>
       </Flex>

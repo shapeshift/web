@@ -149,6 +149,15 @@ const WalletButton: FC<WalletButtonProps> = ({
       rightIcon={rightIcon}
       leftIcon={leftIcon}
       onClick={handleMenuClick}
+      size='md'
+      fontSize='sm'
+      bg='background.surface.base'
+      border='1px solid'
+      borderColor='border.base'
+      _hover={{
+        bg: 'background.surface.elevated',
+        borderColor: 'border.hover',
+      }}
     >
       <Flex>
         {walletLabel ? (
@@ -168,7 +177,19 @@ const WalletButton: FC<WalletButtonProps> = ({
       </Flex>
     </MenuButton>
   ) : (
-    <Button onClick={onConnect} leftIcon={connectIcon}>
+    <Button 
+      onClick={onConnect} 
+      leftIcon={connectIcon}
+      size='md'
+      fontSize='sm'
+      bg='background.surface.base'
+      border='1px solid'
+      borderColor='border.base'
+      _hover={{
+        bg: 'background.surface.elevated',
+        borderColor: 'border.hover',
+      }}
+    >
       <Text translation='common.connectWallet' />
     </Button>
   )

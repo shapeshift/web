@@ -54,7 +54,7 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
       cursor='pointer'
       onClick={handleClick}
       _hover={relatedAssetRowHoverStyles}
-      {...longPressHandlers()}
+      {...longPressHandlers(relatedRow)}
     >
       <Flex align='center' gap={3} width='50%'>
         <AssetCell
@@ -84,28 +84,26 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
   )
 })
 
-type GroupedAssetsSubComponentProps = {
+type GroupedAccountsProps = {
   row: Row<GroupedAccountRowData>
   onRowClick: (row: Row<AccountRowData>) => void
   onRowLongPress: (row: Row<AccountRowData>) => void
 }
 
-export const GroupedAssetsSubComponent = memo<GroupedAssetsSubComponentProps>(
-  ({ row, onRowClick, onRowLongPress }) => {
-    const groupedRow = row.original as GroupedAccountRowData
-    if (!groupedRow.isGrouped || !groupedRow.relatedAssetIds) return null
+export const GroupedAccounts = memo<GroupedAccountsProps>(({ row, onRowClick, onRowLongPress }) => {
+  const groupedRow = row.original as GroupedAccountRowData
+  if (!groupedRow.isGrouped || !groupedRow.relatedAssetIds) return null
 
-    return (
-      <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-        {groupedRow.relatedAssetIds.map(assetId => (
-          <RelatedAssetRow
-            key={assetId}
-            assetId={assetId}
-            onRowClick={onRowClick}
-            onRowLongPress={onRowLongPress}
-          />
-        ))}
-      </Stack>
-    )
-  },
-)
+  return (
+    <Stack spacing={2} p={4} bg='background.surface.raised.base'>
+      {groupedRow.relatedAssetIds.map(assetId => (
+        <RelatedAssetRow
+          key={assetId}
+          assetId={assetId}
+          onRowClick={onRowClick}
+          onRowLongPress={onRowLongPress}
+        />
+      ))}
+    </Stack>
+  )
+})

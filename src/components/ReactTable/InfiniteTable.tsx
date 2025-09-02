@@ -31,6 +31,7 @@ type ReactTableProps<T extends {}> = {
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
   onRowLongPress?: (row: Row<T>) => void
+  onVisibleRowsChange?: (visibleRows: T[]) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
@@ -51,6 +52,7 @@ export const InfiniteTable = <T extends {}>({
   rowDataTestPrefix,
   onRowClick,
   onRowLongPress,
+  onVisibleRowsChange,
   initialState,
   renderSubComponent,
   renderEmptyComponent,
@@ -98,6 +100,14 @@ export const InfiniteTable = <T extends {}>({
     })
   }, [rows, prepareRow])
 
+  const handleRangeChanged = useCallback(
+    ({ startIndex, endIndex }: { startIndex: number; endIndex: number }) => {
+      const visibleRows = preparedRows.slice(startIndex, endIndex)
+      onVisibleRowsChange?.(visibleRows.map(row => row.original))
+    },
+    [preparedRows, onVisibleRowsChange],
+  )
+
   const handleRowToggle = useCallback((rowId: string) => {
     setExpandedItems(prev => {
       const newSet = new Set(prev)
@@ -113,6 +123,7 @@ export const InfiniteTable = <T extends {}>({
   const handleRowClick = useCallback(
     (row: Row<T>) => {
       if (renderSubComponent) {
+        row.toggleRowExpanded?.()
         handleRowToggle(row.id)
       }
 
@@ -294,6 +305,7 @@ export const InfiniteTable = <T extends {}>({
       useWindowScroll
       style={tableStyle}
       overscan={2000}
+      rangeChanged={handleRangeChanged}
     />
   )
 }

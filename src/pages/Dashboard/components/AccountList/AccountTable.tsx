@@ -19,7 +19,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
-import { GroupedAssetsSubComponent } from './GroupedAssetsSubComponent'
+import { GroupedAccounts } from './GroupedAccounts'
 
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
@@ -60,6 +60,7 @@ export const AccountTable = memo(() => {
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
   }, [rowData])
+
   const { hasMore, next, data } = useInfiniteScroll({
     array: sortedRows,
     isScrollable: true,
@@ -67,10 +68,7 @@ export const AccountTable = memo(() => {
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
-  // Group assets by asset type (base symbol/name) for desktop view
   const uniqueRows = useMemo(() => {
-    if (!isLargerThanMd) return data
-
     const grouped = groupBy(data, row => {
       const asset = assets[row.assetId]
       if (!asset) return row.assetId
@@ -78,7 +76,7 @@ export const AccountTable = memo(() => {
       return `${baseAssetName}_${asset.symbol}`
     })
 
-    return Object.values(grouped).map(group => {
+    const groupedResults = Object.values(grouped).map(group => {
       if (group.length === 1) return group[0]
 
       const totalFiatAmount = group.reduce((sum, row) => sum + Number(row.fiatAmount), 0)
@@ -98,7 +96,9 @@ export const AccountTable = memo(() => {
         relatedAssetIds: group.map(row => row.assetId),
       }
     })
-  }, [data, assets, isLargerThanMd])
+
+    return groupedResults.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
+  }, [data, assets])
 
   const textColor = useColorModeValue('black', 'white')
   const navigate = useNavigate()
@@ -275,18 +275,14 @@ export const AccountTable = memo(() => {
 
   const renderSubComponent = useCallback(
     (row: Row<AccountRowData>) => (
-      <GroupedAssetsSubComponent
-        row={row}
-        onRowClick={handleRowClick}
-        onRowLongPress={handleRowLongPress}
-      />
+      <GroupedAccounts row={row} onRowClick={handleRowClick} onRowLongPress={handleRowLongPress} />
     ),
     [handleRowClick, handleRowLongPress],
   )
 
   const accountsAssets = useMemo(() => {
-    return rowData.map(row => assets[row.assetId]).filter(isSome)
-  }, [rowData, assets])
+    return uniqueRows.map(row => assets[row.assetId]).filter(isSome)
+  }, [uniqueRows, assets])
 
   if (!isLargerThanMd) {
     return (
@@ -294,7 +290,7 @@ export const AccountTable = memo(() => {
         assets={accountsAssets}
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
-        height='60vh'
+        height='53vh'
         shouldDisplayRelatedAssets
       />
     )

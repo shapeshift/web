@@ -5,16 +5,19 @@ import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
+import { useLongPress } from 'use-long-press'
 
 import type { AssetData } from './AssetList'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
+import { defaultLongPressConfig } from '@/constants/longPress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
+import { vibrate } from '@/lib/vibrate'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
@@ -41,7 +44,7 @@ export type AssetRowProps = {
 export const AssetRow: FC<AssetRowProps> = memo(
   ({
     asset,
-    data: { handleClick, disableUnsupported, hideZeroBalanceAmounts },
+    data: { handleClick, handleLongPress, disableUnsupported, hideZeroBalanceAmounts },
     showPrice = false,
     onImportClick,
     shouldDisplayRelatedAssets = false,
@@ -85,6 +88,11 @@ export const AssetRow: FC<AssetRowProps> = memo(
       },
       [asset, onImportClick],
     )
+
+    const longPressHandlers = useLongPress((_, { context: row }) => {
+      vibrate('heavy')
+      handleLongPress?.(row as Asset)
+    }, defaultLongPressConfig)
 
     const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
 
@@ -193,6 +201,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           disableUnsupported={disableUnsupported}
           hideZeroBalanceAmounts={hideZeroBalanceAmounts}
           showPrice={showPrice}
+          onLongPress={handleLongPress}
         />
       )
     }
@@ -207,6 +216,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
         width='100%'
         py={8}
         {...props}
+        {...longPressHandlers(asset)}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon assetId={asset.assetId} size='sm' flexShrink={0} />

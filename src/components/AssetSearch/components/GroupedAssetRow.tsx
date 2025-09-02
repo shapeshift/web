@@ -3,11 +3,11 @@ import {
   Box,
   Button,
   Collapse,
+  Text as CText,
   Flex,
   Icon,
   Tag,
   TagLeftIcon,
-  Text as CText,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -21,6 +21,7 @@ import { AssetRow } from './AssetRow'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
@@ -32,17 +33,31 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
-import { store, useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
-export const GroupedAssetRow: FC<{
+type GroupedAssetRowProps = {
   asset: Asset
   handleClick: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
   showPrice?: boolean
-}> = ({ asset, handleClick, disableUnsupported, hideZeroBalanceAmounts, showPrice }) => {
+  onLongPress?: (asset: Asset) => void
+}
+
+export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
+  asset,
+  handleClick,
+  disableUnsupported,
+  hideZeroBalanceAmounts,
+  showPrice,
+  onLongPress,
+}) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
+  const {
+    state: { isConnected },
+  } = useWallet()
+
   const relatedAssetIdsFilter = useMemo(
     () => ({
       assetId: asset.assetId,
@@ -82,21 +97,25 @@ export const GroupedAssetRow: FC<{
     return primaryAsset.name.split(' on ')[0]
   }, [primaryAsset.name])
 
-  const totalBalance = useMemo(() => {
-    return relatedAssets.reduce((sum, asset) => {
-      const filter = { assetId: asset.assetId }
-      const balance = selectPortfolioUserCurrencyBalanceByAssetId(store.getState(), filter) ?? '0'
-      return sum + bnOrZero(balance).toNumber()
-    }, 0)
-  }, [relatedAssets])
+  const relatedFiatBalances = useAppSelector(state =>
+    relatedAssetIds.map(
+      id => selectPortfolioUserCurrencyBalanceByAssetId(state, { assetId: id }) ?? '0',
+    ),
+  )
+  const totalBalanceUserCurrency = useMemo(
+    () => relatedFiatBalances.reduce((sum, v) => bnOrZero(sum).plus(v).toString(), '0'),
+    [relatedFiatBalances],
+  )
 
-  const totalBalanceBaseUnit = useMemo(() => {
-    return relatedAssets.reduce((sum, asset) => {
-      const filter = { assetId: asset.assetId }
-      const balance = selectPortfolioCryptoPrecisionBalanceByFilter(store.getState(), filter) ?? '0'
-      return bnOrZero(balance).plus(sum).toFixed()
-    }, '0')
-  }, [relatedAssets])
+  const relatedCryptoBalances = useAppSelector(state =>
+    relatedAssetIds.map(id =>
+      selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: id }),
+    ),
+  )
+  const totalBalanceCryptoHuman = useMemo(
+    () => relatedCryptoBalances.reduce((sum, v) => bnOrZero(sum).plus(v).toString(), '0'),
+    [relatedCryptoBalances],
+  )
 
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {
@@ -113,10 +132,13 @@ export const GroupedAssetRow: FC<{
     [handleClick],
   )
 
-  const networksIcons = useMemo(() => {
-    return relatedAssets.map(asset => {
-      const feeAsset = selectFeeAssetByChainId(store.getState(), asset.chainId)
+  const feeAssets = useAppSelector(state =>
+    relatedAssets.map(a => selectFeeAssetByChainId(state, a.chainId)),
+  )
 
+  const networksIcons = useMemo(() => {
+    return relatedAssets.map((asset, i) => {
+      const feeAsset = feeAssets[i]
       return (
         <Box
           key={asset.chainId}
@@ -133,7 +155,7 @@ export const GroupedAssetRow: FC<{
         </Box>
       )
     })
-  }, [relatedAssets])
+  }, [relatedAssets, feeAssets])
 
   const changePercent24Hr = marketData?.changePercent24Hr
 
@@ -205,7 +227,7 @@ export const GroupedAssetRow: FC<{
                 <Amount.Crypto
                   color='text.secondary'
                   fontSize='sm'
-                  value={totalBalanceBaseUnit}
+                  value={totalBalanceCryptoHuman}
                   symbol={primaryAsset.symbol}
                 />
               ) : (
@@ -225,7 +247,7 @@ export const GroupedAssetRow: FC<{
           </Box>
         </Flex>
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
-          {showPrice ? (
+          {showPrice && (
             <Flex gap={1} mt={1}>
               <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
                 <Amount.Fiat
@@ -238,15 +260,20 @@ export const GroupedAssetRow: FC<{
                 {priceChange}
               </Flex>
             </Flex>
-          ) : (
-            <Flex gap={1} flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-              <Amount.Fiat
-                color='var(--chakra-colors-chakra-body-text)'
-                value={totalBalance.toString()}
-              />
-              <Flex>{networksIcons}</Flex>
-            </Flex>
           )}
+
+          {!showPrice &&
+            isConnected &&
+            ((bnOrZero(totalBalanceCryptoHuman).gt(0) && hideZeroBalanceAmounts) ||
+              !hideZeroBalanceAmounts) && (
+              <Flex gap={1} flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+                <Amount.Fiat
+                  color='var(--chakra-colors-chakra-body-text)'
+                  value={totalBalanceUserCurrency.toString()}
+                />
+                <Flex>{networksIcons}</Flex>
+              </Flex>
+            )}
         </Flex>
         <Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} ml={2} />
       </Button>
@@ -264,6 +291,7 @@ export const GroupedAssetRow: FC<{
               handleClick: handleAssetClick,
               disableUnsupported,
               hideZeroBalanceAmounts,
+              handleLongPress: onLongPress,
             }}
           />
         ))}

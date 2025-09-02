@@ -2,7 +2,6 @@ import type { ListProps } from '@chakra-ui/react'
 import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
-import groupBy from 'lodash/groupBy'
 import type { CSSProperties, FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
@@ -57,8 +56,21 @@ export const AssetList: FC<AssetListProps> = ({
   const uniqueAssets = useMemo(() => {
     if (!shouldDisplayRelatedAssets) return assets
 
-    const grouped = groupBy(assets, 'relatedAssetKey')
-    return Object.values(grouped).map(group => group[0])
+    const seenRelatedKeys = new Set<string>()
+    const filtered: Asset[] = []
+
+    assets.forEach(asset => {
+      if (asset.relatedAssetKey) {
+        if (!seenRelatedKeys.has(asset.relatedAssetKey)) {
+          seenRelatedKeys.add(asset.relatedAssetKey)
+          filtered.push(asset)
+        }
+      } else {
+        filtered.push(asset)
+      }
+    })
+
+    return filtered
   }, [assets, shouldDisplayRelatedAssets])
 
   const virtuosoStyle = useMemo(

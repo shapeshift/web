@@ -54,22 +54,21 @@ export const getOnramperBuyQuote = async ({
   }
 }
 
-// Dynamic token resolution functions using Onramper API response
 export const findOnramperTokenIdByAssetId = (
   assetId: AssetId,
   onramperCurrencies: OnRamperGatewaysResponse,
 ): string | undefined => {
   const { chainId, assetReference } = fromAssetId(assetId)
 
-  // For native assets, use the existing mapping
-  const nativeMapping = adapters.assetIdToOnRamperTokenList(assetId)
-  if (nativeMapping && nativeMapping.length > 0) {
-    return nativeMapping[0] // Return first available token ID
+  const maybeMappingAssetIds = adapters.assetIdToOnRamperTokenList(assetId)
+
+  // Return mapping onramper ID if available (i.e native assets)
+  if (maybeMappingAssetIds && maybeMappingAssetIds.length > 0) {
+    return maybeMappingAssetIds[0]
   }
 
-  // For non-native assets, search in the API response
   const crypto = onramperCurrencies.message.crypto.find(currency => {
-    // Match by network and address (not chainId, as some networks don't have chainId)
+    // Note network + address here = we do NOT use chainId, as it's only available for EVM networks, but not Ethereum
     if (currency.network && currency.address) {
       const expectedChainId = getChainIdFromOnramperNetwork(currency.network)
       return (

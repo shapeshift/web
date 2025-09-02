@@ -65,17 +65,18 @@ export const createOnRamperUrl = async ({
   if (!supportedCurrencies) throw new Error('Failed to get supported currencies from Onramper')
 
   // Try native asset mapping first
-  let onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
+  const onRamperSymbols = (() => {
+    const maybeMappingSymbols = adapters.assetIdToOnRamperTokenList(assetId)
+    if (maybeMappingSymbols?.length) return maybeMappingSymbols
 
-  // If not found in native mapping, try dynamic resolution
-  if (!onRamperSymbols || onRamperSymbols.length === 0) {
-    const dynamicTokenId = findOnramperTokenIdByAssetId(assetId, supportedCurrencies)
-    if (dynamicTokenId) {
-      onRamperSymbols = [dynamicTokenId]
-    }
-  }
+    const tokenId = findOnramperTokenIdByAssetId(assetId, supportedCurrencies)
 
-  if (!onRamperSymbols || onRamperSymbols.length === 0) {
+    if (!tokenId) return
+
+    return [tokenId]
+  })()
+
+  if (!onRamperSymbols?.length) {
     throw new Error('Asset not supported by OnRamper')
   }
 

@@ -8,12 +8,9 @@ import { useLongPress } from 'use-long-press'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
-import { selectAssets, selectPortfolioAccountRows } from '@/state/slices/selectors'
-
-export type AssetWithRelatedAssetIds = Asset & {
-  isGrouped?: boolean
-  relatedAssetIds?: string[]
-}
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
+import { selectAssets } from '@/state/slices/selectors'
+import { useSelectorWithArgs } from '@/state/store'
 
 type RelatedAssetRowProps = {
   assetId: string
@@ -60,33 +57,38 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
 })
 
 type GroupedAssetsProps = {
-  row: Row<AssetWithRelatedAssetIds>
+  row: Row<Asset>
   onRowClick: (asset: Asset) => void
   onRowLongPress?: (asset: Asset) => void
 }
 
 export const GroupedAssets = memo<GroupedAssetsProps>(({ row, onRowClick, onRowLongPress }) => {
-  const groupedRow = row.original as AssetWithRelatedAssetIds
-  const rowData = useSelector(selectPortfolioAccountRows)
+  const asset = row.original as Asset
 
-  const sortedAssetIds = useMemo(() => {
-    if (!groupedRow.relatedAssetIds) return []
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: asset.assetId,
+      // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
+      // disabled in the UI. This allows users to see our product supports more assets than they
+      // have connected chains for.
+      onlyConnectedChains: false,
+    }),
+    [asset],
+  )
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
+  )
 
-    return [...groupedRow.relatedAssetIds].sort((a, b) => {
-      const aRow = rowData.find(r => r.assetId === a)
-      const bRow = rowData.find(r => r.assetId === b)
+  console.log({
+    relatedAssetIds,
+  })
 
-      if (!aRow || !bRow) return 0
-
-      return Number(bRow.fiatAmount) - Number(aRow.fiatAmount)
-    })
-  }, [groupedRow.relatedAssetIds, rowData])
-
-  if (!groupedRow.isGrouped || !groupedRow.relatedAssetIds) return null
+  if (relatedAssetIds.length === 0) return null
 
   return (
     <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-      {sortedAssetIds.map(assetId => (
+      {relatedAssetIds.map(assetId => (
         <RelatedAssetRow
           key={assetId}
           assetId={assetId}

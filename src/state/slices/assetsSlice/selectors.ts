@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 
@@ -41,6 +41,18 @@ export const selectAssets = createDeepEqualOutputSelector(
   byId => byId,
 )
 
+export const selectPrimaryAssets = createDeepEqualOutputSelector(
+  assets.selectors.selectAssetsById,
+  byId => {
+    return Object.values(byId).reduce<AssetsById>((acc, asset) => {
+      if (asset && (asset.relatedAssetKey === null || asset.relatedAssetKey === asset.assetId))
+        acc[asset.assetId] = asset
+
+      return acc
+    }, {})
+  },
+)
+
 export const selectAssetIds = createDeepEqualOutputSelector(
   assets.selectors.selectAssetIds,
   ids => ids,
@@ -51,6 +63,14 @@ export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
   selectAssets,
   (assetIds, assets): Asset[] => {
     // The asset data is already maintained in order by market cap, so map the IDs into assets
+    return assetIds.map(assetId => assets[assetId]).filter(isSome)
+  },
+)
+
+export const selectPrimaryAssetsSortedByMarketCap = createDeepEqualOutputSelector(
+  selectAssetIds,
+  selectPrimaryAssets,
+  (assetIds, assets): Asset[] => {
     return assetIds.map(assetId => assets[assetId]).filter(isSome)
   },
 )
@@ -71,7 +91,7 @@ export const selectFeeAssetById = createCachedSelector(
 ) => ReturnType<typeof getFeeAssetByAssetId>
 
 export const selectAssetsNoSpam = createSelector(
-  selectAssetsSortedByMarketCap,
+  selectPrimaryAssetsSortedByMarketCap,
   preferences.selectors.selectSpamMarkedAssetIds,
   (assets, spamMarkedAssetIds) => {
     const spamAssetSet = new Set(spamMarkedAssetIds)

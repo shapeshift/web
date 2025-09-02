@@ -56,26 +56,6 @@ export const AssetList: FC<AssetListProps> = ({
   onImportClick,
   shouldDisplayRelatedAssets = false,
 }) => {
-  const uniqueAssets = useMemo(() => {
-    if (!shouldDisplayRelatedAssets) return assets
-
-    const seenRelatedKeys = new Set<string>()
-    const filtered: Asset[] = []
-
-    assets.forEach(asset => {
-      if (asset.relatedAssetKey) {
-        if (!seenRelatedKeys.has(asset.relatedAssetKey)) {
-          seenRelatedKeys.add(asset.relatedAssetKey)
-          filtered.push(asset)
-        }
-      } else {
-        filtered.push(asset)
-      }
-    })
-
-    return filtered
-  }, [assets, shouldDisplayRelatedAssets])
-
   const virtuosoStyle = useMemo(
     () => ({
       height: typeof height === 'string' ? height : `${height}px`,
@@ -86,7 +66,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   const itemData = useMemo(
     () => ({
-      assets: uniqueAssets,
+      assets,
       handleClick,
       handleLongPress,
       disableUnsupported,
@@ -96,7 +76,7 @@ export const AssetList: FC<AssetListProps> = ({
       shouldDisplayRelatedAssets,
     }),
     [
-      uniqueAssets,
+      assets,
       disableUnsupported,
       handleClick,
       handleLongPress,
@@ -109,7 +89,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   const renderRow = useCallback(
     (index: number) => {
-      const asset = uniqueAssets[index]
+      const asset = assets[index]
       const RowComponent = rowComponent
 
       return (
@@ -123,7 +103,7 @@ export const AssetList: FC<AssetListProps> = ({
         />
       )
     },
-    [uniqueAssets, itemData, rowComponent, showPrice, onImportClick, shouldDisplayRelatedAssets],
+    [assets, itemData, rowComponent, showPrice, onImportClick, shouldDisplayRelatedAssets],
   )
 
   if (isLoading) {
@@ -148,7 +128,7 @@ export const AssetList: FC<AssetListProps> = ({
     )
   }
 
-  if (uniqueAssets?.length === 0) {
+  if (assets?.length === 0) {
     return (
       <Center flexDir='column' gap={2} mt={4}>
         <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
@@ -157,10 +137,10 @@ export const AssetList: FC<AssetListProps> = ({
     )
   }
 
-  if (uniqueAssets.length <= 10) {
+  if (assets.length <= 10) {
     return (
       <Box maxHeight={height} overflow='auto' height='auto'>
-        {uniqueAssets.map((asset, index) => (
+        {assets.map((asset, index) => (
           <Box key={asset.assetId}>{renderRow(index)}</Box>
         ))}
       </Box>
@@ -169,7 +149,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
-      data={uniqueAssets}
+      data={assets}
       itemContent={renderRow}
       style={virtuosoStyle}
       overscan={1000}

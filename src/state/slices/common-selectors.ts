@@ -8,7 +8,7 @@ import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
-import { selectAssets, selectAssetsSortedByMarketCap } from './assetsSlice/selectors'
+import { selectAssets, selectAssetsSortedByMarketCap, selectPrimaryAssets } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { marketData } from './marketDataSlice/marketDataSlice'
 import {
@@ -241,9 +241,9 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
 })
 
-export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutputSelector(
+export const selectPortfolioFungiblePrimaryAssetsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalances,
-  selectAssets,
+  selectPrimaryAssets,
   (portfolioUserCurrencyBalances, assets) => {
     const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => bnOrZero(balance).toNumber()
 

@@ -2,7 +2,6 @@ import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { noop } from 'lodash'
-import groupBy from 'lodash/groupBy'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -28,38 +27,11 @@ type MarketsTableVirtualizedProps = {
   onRowLongPress?: (asset: Asset) => void
 }
 
-type AssetWithRelatedAssetIds = Asset & {
-  isGrouped?: boolean
-  relatedAssetIds?: string[]
-}
-
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
   ({ rows, onRowClick, onRowLongPress }) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-
-    const uniqueRows = useMemo(() => {
-      if (!isLargerThanMd) return rows
-
-      const grouped = groupBy(rows, asset => {
-        const baseAssetName = asset.name.split(' on ')[0]
-        return `${baseAssetName}_${asset.symbol}`
-      })
-
-      const groupedResults = Object.values(grouped).map(group => {
-        if (group.length === 1) return group[0]
-
-        const primaryAsset = group[0]
-        return {
-          ...primaryAsset,
-          isGrouped: true,
-          relatedAssetIds: group.map(asset => asset.assetId),
-        }
-      })
-
-      return groupedResults
-    }, [rows, isLargerThanMd])
 
     const [visibleAssetIds, setVisibleAssetIds] = useState<Set<string>>(new Set())
 
@@ -85,16 +57,19 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       [translate],
     )
 
+    console.log('rows', rows)
+
     const columns = useMemo<Column<Asset>[]>(
       () => [
         {
           id: 'assetId',
           Header: () => <Text translation='dashboard.portfolio.asset' />,
-          Cell: ({ row }: { row: Row<AssetWithRelatedAssetIds> }) => (
+          Cell: ({ row }: { row: Row<Asset> }) => (
             <AssetCell
               assetId={row.original.assetId}
               symbol={row.original.symbol}
-              isGrouped={Boolean(row.original.isGrouped)}
+              // @TODO: remove me as we probably want to cleanup "on" assets names
+              isGrouped={row.original.relatedAssetKey === row.original.assetId}
             />
           ),
         },
@@ -153,8 +128,12 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           Header: '',
           id: 'toggle',
           width: 50,
-          Cell: ({ row }: { row: Row<AssetWithRelatedAssetIds> }) => {
-            if (!row.original.isGrouped) return null
+          Cell: ({ row }: { row: Row<Asset> }) => {
+            if (
+              row.original.relatedAssetKey === null &&
+              row.original.relatedAssetKey !== row.original.assetId
+            )
+              return null
 
             return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
           },
@@ -164,24 +143,32 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     )
 
     const handleRowClick = useCallback(
-      (row: Row<AssetWithRelatedAssetIds>) => {
-        if (row.original.isGrouped) return
+      (row: Row<Asset>) => {
+        if (row.original.relatedAssetKey === row.original.assetId) return
         onRowClick(row.original)
       },
       [onRowClick],
     )
 
     const handleRowLongPress = useCallback(
-      (row: Row<AssetWithRelatedAssetIds>) => {
-        if (row.original.isGrouped) return
+      (row: Row<Asset>) => {
+        if (
+          row.original.relatedAssetKey === null ||
+          row.original.relatedAssetKey !== row.original.assetId
+        )
+          return
         onRowLongPress?.(row.original)
       },
       [onRowLongPress],
     )
 
     const renderSubComponent = useCallback(
-      (row: Row<AssetWithRelatedAssetIds>) => {
-        if (!row.original.isGrouped) return null
+      (row: Row<Asset>) => {
+        if (
+          row.original.relatedAssetKey === null ||
+          row.original.relatedAssetKey !== row.original.assetId
+        )
+          return null
 
         return <GroupedAssets row={row} onRowClick={onRowClick} onRowLongPress={onRowLongPress} />
       },
@@ -206,7 +193,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     return (
       <InfiniteTable
         columns={columns}
-        data={uniqueRows}
+        data={rows}
         onRowClick={handleRowClick}
         onRowLongPress={handleRowLongPress}
         onVisibleRowsChange={handleVisibleRowsChange}

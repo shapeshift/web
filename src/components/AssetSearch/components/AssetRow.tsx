@@ -19,13 +19,14 @@ import { firstNonZeroDecimal } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByAssetId
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 const focus = {
   shadow: 'outline-inset',
@@ -59,6 +60,21 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const textColor = useColorModeValue('black', 'white')
 
     const assetId = asset?.assetId
+    const relatedAssetIdsFilter = useMemo(
+      () => ({
+        assetId: asset.assetId,
+        // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
+        // disabled in the UI. This allows users to see our product supports more assets than they
+        // have connected chains for.
+        onlyConnectedChains: false,
+      }),
+      [asset],
+    )
+    const relatedAssetIds = useSelectorWithArgs(
+      selectRelatedAssetIdsInclusiveSorted,
+      relatedAssetIdsFilter,
+    )
+
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoHumanBalance = useAppSelector(s =>
@@ -193,7 +209,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       translate,
     ])
 
-    if (shouldDisplayRelatedAssets && asset.relatedAssetKey) {
+    if (shouldDisplayRelatedAssets && relatedAssetIds.length > 0) {
       return (
         <GroupedAssetRow
           asset={asset}

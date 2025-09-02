@@ -97,6 +97,9 @@ export const AssetCell = ({
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  console.log({
+    asset,
+  })
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isSpamMarked = useAppSelector(state => selectIsSpamMarkedByAssetId(state, assetId))

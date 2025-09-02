@@ -1,45 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
-import axios from 'axios'
 import head from 'lodash/head'
 
-import type { CommonFiatCurrencies } from '../config'
-import { FiatRampAction } from '../FiatRampsCommon'
-import type { CreateUrlProps } from '../types'
+import type { CommonFiatCurrencies } from '../../config'
+import { FiatRampAction } from '../../FiatRampsCommon'
+import type { CreateUrlProps } from '../../types'
+import type { OnRamperGatewaysResponse } from './types'
+import { getSupportedOnramperCurrencies } from './utils'
 
 import { getConfig } from '@/config'
-
-// Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
-type Crypto = {
-  id: string
-  code: string
-  name: string
-  symbol: string
-  network: string
-  icon: string
-}
-
-type OnRamperGatewaysResponse = {
-  message: {
-    crypto: Crypto[]
-  }
-}
-
-const getGatewayData = async () => {
-  try {
-    const baseUrl = getConfig().VITE_ONRAMPER_API_URL
-    const apiKey = getConfig().VITE_ONRAMPER_API_KEY
-    return (
-      await axios.get<OnRamperGatewaysResponse>(`${baseUrl}supported`, {
-        headers: {
-          Authorization: apiKey,
-        },
-      })
-    ).data
-  } catch (e) {
-    console.error(e)
-  }
-}
 
 export const getSupportedOnRamperFiatCurrencies = (): CommonFiatCurrencies[] => {
   return [
@@ -132,7 +101,7 @@ export const getSupportedOnRamperFiatCurrencies = (): CommonFiatCurrencies[] => 
 }
 
 export const getOnRamperAssets = async (): Promise<AssetId[]> => {
-  const data = await getGatewayData()
+  const data = await getSupportedOnramperCurrencies()
   if (!data) return []
   return convertOnRamperDataToFiatRampAsset(data)
 }

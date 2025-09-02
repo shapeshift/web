@@ -3,11 +3,11 @@ import {
   Box,
   Button,
   Collapse,
-  Text as CText,
   Flex,
   Icon,
   Tag,
   TagLeftIcon,
+  Text as CText,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'

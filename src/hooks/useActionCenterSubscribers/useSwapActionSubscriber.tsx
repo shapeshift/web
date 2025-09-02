@@ -13,6 +13,7 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { isMobile } from '../../lib/globals'
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
@@ -25,6 +26,7 @@ import { useBasePortfolioManagement } from './useFetchBasePortfolio'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
@@ -93,6 +95,7 @@ export const useSwapActionSubscriber = () => {
   const { open: openRatingModal } = useModal('rating')
   const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const navigate = useNavigate()
 
   const dispatch = useAppDispatch()
 
@@ -166,6 +169,35 @@ export const useSwapActionSubscriber = () => {
             },
           }),
         )
+
+        // Show pending notification and route back to input when swap transaction is placed
+        if (swap.status === SwapStatus.Pending && swap.sellTxHash && isActiveSwap) {
+          if (toast.isActive(swap.id)) return
+
+          toast({
+            id: swap.id,
+            status: 'info',
+            render: ({ onClose, ...props }) => {
+              const handleClick = () => {
+                onClose()
+                openActionCenter()
+              }
+
+              return (
+                <SwapNotification
+                  // eslint-disable-next-line react-memo/require-usememo
+                  handleClick={handleClick}
+                  swapId={swap.id}
+                  onClose={onClose}
+                  {...props}
+                />
+              )
+            },
+          })
+
+          // Route back to input (similar to limit orders)
+          navigate(TradeRoutePaths.Input)
+        }
       } else if (isSwapAction(swapAction) && swapAction.status !== targetStatus) {
         // Update existing action if status changed
         dispatch(
@@ -182,7 +214,15 @@ export const useSwapActionSubscriber = () => {
         )
       }
     })
-  }, [dispatch, activeSwapId, swapsById, confirmedTradeExecution])
+  }, [
+    dispatch,
+    activeSwapId,
+    swapsById,
+    confirmedTradeExecution,
+    toast,
+    openActionCenter,
+    navigate,
+  ])
 
   const swapStatusHandler = useCallback(
     async (swap: Swap) => {
@@ -289,7 +329,10 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
+        if (toast.isActive(swap.id)) return
+
         toast({
+          id: swap.id,
           status: 'success',
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {
@@ -345,7 +388,10 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
+        if (toast.isActive(swap.id)) return
+
         toast({
+          id: swap.id,
           status: 'error',
           render: ({ title, status, description, onClose, ...props }) => {
             const handleClick = () => {

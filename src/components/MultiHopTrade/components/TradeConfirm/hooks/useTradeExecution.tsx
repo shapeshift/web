@@ -38,6 +38,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -169,6 +170,7 @@ export const useTradeExecution = (
         dispatch(
           tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
         )
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
 
         const swap = activeSwapId ? swapsById[activeSwapId] : undefined
         if (swap) {

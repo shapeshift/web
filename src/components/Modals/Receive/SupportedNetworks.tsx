@@ -73,7 +73,7 @@ export const SupportedNetworks = ({
           {visibleChains.map((chain, index) => {
             return (
               <Box key={chain.chainId} ml={index === 0 ? 0 : -1.5} zIndex={index}>
-                <LazyLoadAvatar boxSize={5} src={chain.icon} title={chain.name} />
+                <LazyLoadAvatar boxSize={5} src={chain.icon} />
               </Box>
             )
           })}

@@ -1,5 +1,5 @@
 // Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
-type Crypto = {
+export type Crypto = {
   id: string
   code: string
   name: string

@@ -5,7 +5,11 @@ import head from 'lodash/head'
 import { FiatRampAction } from '../../FiatRampsCommon'
 import type { CreateUrlProps } from '../../types'
 import type { OnRamperGatewaysResponse } from './types'
-import { getSupportedOnramperCurrencies } from './utils'
+import {
+  findAssetIdByOnramperCrypto,
+  findOnramperTokenIdByAssetId,
+  getSupportedOnramperCurrencies,
+} from './utils'
 
 import { getConfig } from '@/config'
 
@@ -19,7 +23,7 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
   return Array.from(
     new Set(
       response.message.crypto
-        .map(currency => adapters.onRamperTokenIdToAssetId(currency.id))
+        .map(currency => findAssetIdByOnramperCrypto(currency))
         .filter((assetId): assetId is AssetId => Boolean(assetId)),
     ),
   )
@@ -56,8 +60,24 @@ export const createOnRamperUrl = async ({
   fiatCurrency,
   options: { language, mode, currentUrl },
 }: CreateUrlProps): Promise<string> => {
-  const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
-  if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
+  // Get supported currencies to enable dynamic token resolution
+  const supportedCurrencies = await getSupportedOnramperCurrencies()
+  if (!supportedCurrencies) throw new Error('Failed to get supported currencies from Onramper')
+
+  // Try native asset mapping first
+  let onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
+
+  // If not found in native mapping, try dynamic resolution
+  if (!onRamperSymbols || onRamperSymbols.length === 0) {
+    const dynamicTokenId = findOnramperTokenIdByAssetId(assetId, supportedCurrencies)
+    if (dynamicTokenId) {
+      onRamperSymbols = [dynamicTokenId]
+    }
+  }
+
+  if (!onRamperSymbols || onRamperSymbols.length === 0) {
+    throw new Error('Asset not supported by OnRamper')
+  }
 
   const baseUrl = getConfig().VITE_ONRAMPER_WIDGET_URL
   const apiKey = getConfig().VITE_ONRAMPER_API_KEY

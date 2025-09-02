@@ -4,7 +4,6 @@ import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
-import type { Row } from 'react-table'
 
 import { Display } from '@/components/Display'
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary'
@@ -43,8 +42,8 @@ export const Assets = () => {
   }, [assetsNoSpam, filterRowsBySearchTerm, isSearching, searchQuery])
 
   const handleRowClick = useCallback(
-    (row: Row<Asset>) => {
-      const { assetId } = row.original
+    (asset: Asset) => {
+      const { assetId } = asset
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
@@ -52,8 +51,8 @@ export const Assets = () => {
   )
 
   const handleRowLongPress = useCallback(
-    (row: Row<Asset>) => {
-      const { assetId } = row.original
+    (asset: Asset) => {
+      const { assetId } = asset
       assetActionsDrawer.open({ assetId })
     },
     [assetActionsDrawer],

@@ -17,8 +17,8 @@ export type AssetWithRelatedAssetIds = Asset & {
 
 type RelatedAssetRowProps = {
   assetId: string
-  onRowClick: (row: Row<Asset>) => void
-  onRowLongPress?: (row: Row<Asset>) => void
+  onRowClick: (asset: Asset) => void
+  onRowLongPress?: (asset: Asset) => void
 }
 
 const relatedAssetRowHoverStyles = {
@@ -32,12 +32,12 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
   const handleClick = useCallback(() => {
     if (!asset) return
     vibrate('heavy')
-    onRowClick({ original: asset } as Row<Asset>)
+    onRowClick(asset)
   }, [asset, onRowClick])
 
-  const longPressHandlers = useLongPress((_, { context: row }) => {
+  const longPressHandlers = useLongPress((_, { context: asset }) => {
     vibrate('heavy')
-    onRowLongPress?.(row as Row<Asset>)
+    onRowLongPress?.(asset as Asset)
   }, defaultLongPressConfig)
 
   if (!asset) return null
@@ -62,8 +62,8 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRow
 
 type GroupedAssetsProps = {
   row: Row<AssetWithRelatedAssetIds>
-  onRowClick: (row: Row<Asset>) => void
-  onRowLongPress?: (row: Row<Asset>) => void
+  onRowClick: (asset: Asset) => void
+  onRowLongPress?: (asset: Asset) => void
 }
 
 export const GroupedAssets = memo<GroupedAssetsProps>(({ row, onRowClick, onRowLongPress }) => {

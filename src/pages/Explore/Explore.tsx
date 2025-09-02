@@ -35,6 +35,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { useAssetSearchWorker } from '@/components/TradeAssetSearch/hooks/useAssetSearchWorker'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories } from '@/pages/Markets/constants'
@@ -88,6 +89,7 @@ export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const allAssets = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)
@@ -139,6 +141,14 @@ export const Explore = memo(() => {
       navigate(`/assets/${asset.assetId}`)
     },
     [navigate],
+  )
+
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
   )
 
   const inputProps = useMemo(
@@ -203,6 +213,7 @@ export const Explore = memo(() => {
               height='100vh'
               showPrice
               shouldDisplayRelatedAssets
+              handleLongPress={handleAssetLongPress}
             />
           )}
         </Box>

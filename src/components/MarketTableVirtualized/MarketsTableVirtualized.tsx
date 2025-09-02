@@ -24,8 +24,8 @@ import { breakpoints } from '@/theme/theme'
 
 type MarketsTableVirtualizedProps = {
   rows: Asset[]
-  onRowClick: (row: Row<Asset>) => void
-  onRowLongPress?: (row: Row<Asset>) => void
+  onRowClick: (asset: Asset) => void
+  onRowLongPress?: (asset: Asset) => void
 }
 
 type AssetWithRelatedAssetIds = Asset & {
@@ -166,9 +166,17 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
     const handleRowClick = useCallback(
       (row: Row<AssetWithRelatedAssetIds>) => {
         if (row.original.isGrouped) return
-        onRowClick(row)
+        onRowClick(row.original)
       },
       [onRowClick],
+    )
+
+    const handleRowLongPress = useCallback(
+      (row: Row<AssetWithRelatedAssetIds>) => {
+        if (row.original.isGrouped) return
+        onRowLongPress?.(row.original)
+      },
+      [onRowLongPress],
     )
 
     const renderSubComponent = useCallback(
@@ -185,13 +193,8 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         <Box px={2}>
           <AssetList
             assets={rows}
-            // eslint-disable-next-line react-memo/require-usememo
-            handleClick={asset => onRowClick({ original: asset } as Row<Asset>)}
-            handleLongPress={
-              onRowLongPress
-                ? asset => onRowLongPress({ original: asset } as Row<Asset>)
-                : undefined
-            }
+            handleClick={onRowClick}
+            handleLongPress={onRowLongPress}
             height='100vh'
             shouldDisplayRelatedAssets
             showPrice
@@ -205,7 +208,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         columns={columns}
         data={uniqueRows}
         onRowClick={handleRowClick}
-        onRowLongPress={onRowLongPress}
+        onRowLongPress={handleRowLongPress}
         onVisibleRowsChange={handleVisibleRowsChange}
         renderSubComponent={renderSubComponent}
         displayHeaders={true}

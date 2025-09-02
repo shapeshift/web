@@ -26,6 +26,7 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { useModal } from '@/hooks/useModal/useModal'
 import { isSome } from '@/lib/utils'
 import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -46,6 +47,7 @@ export const ExploreCategory = () => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
 
   const tag = useMemo(() => (tagParam ? `#${tagParam}` : undefined), [tagParam])
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const { register, watch, setValue } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -217,6 +219,14 @@ export const ExploreCategory = () => {
     setSelectedChainId(chainId)
   }, [])
 
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   if (!category) return null
 
   return (
@@ -275,6 +285,7 @@ export const ExploreCategory = () => {
             height='100vh'
             showPrice
             shouldDisplayRelatedAssets
+            handleLongPress={handleAssetLongPress}
             rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
           />
         </Box>

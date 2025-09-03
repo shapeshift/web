@@ -13,7 +13,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from '@/lib/address/address'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
-import { fiatRampApi } from '@/state/apis/fiatRamps/fiatRamps'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectEnabledWalletAccountIds,
@@ -48,7 +48,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
     state: { wallet },
   } = useWallet()
 
-  const { data: ramps } = useAppSelector(fiatRampApi.endpoints.getFiatRamps.select())
+  const { data: ramps } = useGetFiatRampsQuery()
   const assetSearch = useModal('assetSearch')
 
   const buyAssets: Asset[] = useMemo(() => {

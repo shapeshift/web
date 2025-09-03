@@ -92,28 +92,34 @@ export const TradeTab = memo(() => {
     [handleChangeTab, defaultBuyAssetId, defaultSellAssetId],
   )
 
+  const beforeStyles = useMemo(
+    () => ({
+      content: '""',
+      position: 'fixed' as const,
+      bottom: '0',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '1200px',
+      height: '30vh',
+      background:
+        'radial-gradient(ellipse 120% 100% at 50% 100%, rgba(55, 97, 249, 1) 0%, rgba(55, 97, 249, 0.6) 30%, rgba(55, 97, 249, 0) 100%)',
+      filter: 'blur(300px)',
+      zIndex: 0,
+      pointerEvents: 'none' as const,
+    }),
+    [],
+  )
+
   return (
-    <Main 
-      pt={mainPaddingTop} 
-      mt={mainMarginTop} 
-      px={0} 
-      display='flex' 
-      flex={1} 
+    <Main
+      pt={mainPaddingTop}
+      mt={mainMarginTop}
+      px={0}
+      display='flex'
+      flex={1}
       width='full'
       position='relative'
-      _before={{
-        content: '""',
-        position: 'fixed',
-        bottom: '0',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '1200px',
-        height: '30vh',
-        background: 'radial-gradient(ellipse 120% 100% at 50% 100%, rgba(55, 97, 249, 1) 0%, rgba(55, 97, 249, 0.6) 30%, rgba(55, 97, 249, 0) 100%)',
-        filter: 'blur(300px)',
-        zIndex: 0,
-        pointerEvents: 'none',
-      }}
+      _before={beforeStyles}
     >
       <SEO title={title} />
       <Flex

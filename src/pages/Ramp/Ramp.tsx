@@ -48,7 +48,7 @@ const RampContent: React.FC = () => {
   const location = useLocation()
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
-  
+
   const isSellRoute = location.pathname.startsWith('/ramp/sell')
   const titleKey = isSellRoute ? 'rampPage.sellTitle' : 'rampPage.buyTitle'
   const bodyKey = isSellRoute ? 'rampPage.sellBody' : 'rampPage.buyBody'

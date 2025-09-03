@@ -12,18 +12,22 @@ const paddingBottomProp = {
 }
 const paddingXProp = { base: 4, md: 8, lg: 12 }
 
-export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
+export type LayoutProps = {
+  fullWidth?: boolean
+} & ContainerProps
+
+export const Layout: React.FC<LayoutProps> = ({ children, fullWidth = false, ...rest }) => {
   return (
     <Flex margin='0 auto' flexDir='column' minHeight='100vh'>
       <Header />
       <Container
         as='main'
-        maxWidth='full'
+        maxWidth={fullWidth ? 'full' : { base: 'full', '2xl': 'container.2xl' }}
         flexDir='column'
         width={widthProp}
         paddingBottom={paddingBottomProp}
         marginInline='auto'
-        px={paddingXProp}
+        px={fullWidth ? 0 : paddingXProp}
         flex='1 1 0%'
         {...rest}
       >

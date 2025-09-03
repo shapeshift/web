@@ -119,13 +119,7 @@ const FooterLink = ({
   }
 
   return (
-    <Link
-      as={ReactRouterLink}
-      to={href}
-      fontSize='sm'
-      color='whiteAlpha.700'
-      _hover={hoverStyle}
-    >
+    <Link as={ReactRouterLink} to={href} fontSize='sm' color='whiteAlpha.700' _hover={hoverStyle}>
       {children}
     </Link>
   )

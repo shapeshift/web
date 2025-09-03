@@ -100,7 +100,7 @@ const RampContent: React.FC = () => {
 
   return (
     <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
-      <SEO title={translate('navBar.buyCrypto')} description={translate('buyPage.body')} />
+      <SEO title={translate('navBar.buyCrypto')} description={translate('rampPage.body')} />
       <Box
         bgImg={AuroraBg}
         backgroundSize='cover'

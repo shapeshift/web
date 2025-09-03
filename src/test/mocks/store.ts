@@ -161,6 +161,7 @@ export const mockStore: ReduxState = {
       LazyTxHistory: false,
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,
+      NewWalletManager: false,
     },
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,

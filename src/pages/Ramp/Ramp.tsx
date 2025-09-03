@@ -48,6 +48,9 @@ const RampContent: React.FC = () => {
   const location = useLocation()
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
+  
+  const isSellRoute = location.pathname.startsWith('/ramp/sell')
+  const titleKey = isSellRoute ? 'rampPage.sellTitle' : 'rampPage.buyTitle'
 
   const {
     dispatch,
@@ -125,7 +128,7 @@ const RampContent: React.FC = () => {
                 lineHeight='1em'
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
-                translation='rampPage.title'
+                translation={titleKey}
                 components={titleTransaltionsComponents}
               />
 
@@ -151,13 +154,14 @@ const RampContent: React.FC = () => {
                   translation={ctaTitleTranslation}
                   components={ctaTranslationComponents}
                 />
-                <Text
-                  fontSize='lg'
-                  translation={'rampPage.ctaBody'}
-                  components={ctaTranslationComponents}
-                />
-                <Button onClick={handleConnect} size='lg'>
-                  {translate('common.getStarted')}
+                <Button
+                  size='lg'
+                  data-test='ramp-page-connect-wallet-button'
+                  variant='solid'
+                  colorScheme='blue'
+                  onClick={handleConnect}
+                >
+                  {translate('common.connectWallet')}
                 </Button>
               </Stack>
               <Box display={displayXlBlock} overflow='visible' width='400px'>

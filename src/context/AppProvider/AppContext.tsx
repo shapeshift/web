@@ -108,7 +108,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useDiscoverAccounts()
   usePortfolioFetch()
 
-  // Load fiat ramps data globally
   useGetFiatRampsQuery()
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)

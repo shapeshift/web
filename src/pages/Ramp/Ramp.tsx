@@ -43,7 +43,6 @@ const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
 const RampContent: React.FC = () => {
-  // load fiat ramps
   useGetFiatRampsQuery()
 
   const location = useLocation()
@@ -189,7 +188,6 @@ export const Ramp: React.FC = () => {
     <Routes>
       <Route path='/buy/*' element={rampContentElement} />
       <Route path='/sell/*' element={rampContentElement} />
-      {/* Default redirect to buy */}
       <Route path='/' element={navigateElement} />
     </Routes>
   )

@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Icon, Link, Text, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Icon, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCreditCard, FaArrowRight } from 'react-icons/fa'
@@ -156,6 +156,7 @@ export const Header = memo(() => {
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isConnected && !isActionCenterEnabled && <TxWindow />}
             {isConnected && isActionCenterEnabled && <ActionCenter />}
+            <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
             {isLargerThanMd && (
               <Box display={displayProp2}>
                 <UserMenu />

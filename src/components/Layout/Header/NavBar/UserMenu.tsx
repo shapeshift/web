@@ -151,24 +151,20 @@ const WalletButton: FC<WalletButtonProps> = ({
       onClick={handleMenuClick}
       size='md'
       fontSize='sm'
-      bg='background.surface.base'
-      border='1px solid'
-      borderColor='border.base'
+      variant='ghost'
+      bg='transparent'
       _hover={{
         bg: 'background.surface.elevated',
-        borderColor: 'border.hover',
+      }}
+      _active={{
+        bg: 'background.surface.elevated',
       }}
     >
       <Flex>
         {walletLabel ? (
           <MiddleEllipsis
-            rounded='lg'
             fontSize='sm'
-            p='1'
-            pl='2'
-            pr='2'
             shouldShorten={shouldShorten}
-            bgColor={bgColor}
             value={walletLabel}
           />
         ) : (

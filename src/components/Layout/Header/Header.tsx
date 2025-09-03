@@ -98,7 +98,7 @@ export const Header = memo(() => {
     <>
       <Flex
         direction='column'
-        width='calc(100% - 32px)'
+        width='98%'
         position='sticky'
         zIndex='banner'
         ref={ref}

@@ -14,7 +14,7 @@ type AssetNameProps = {
   assetId: AssetId
   postFix?: string
   showAssetSymbol?: boolean
-  ref?: React.RefObject<HTMLDivElement>
+  ref?: React.RefObject<HTMLDivElement> | ((el: HTMLElement | null) => void)
 } & TextProps
 
 export const buildAssetTitle = (

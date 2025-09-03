@@ -17,11 +17,13 @@ import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { FiSmartphone } from 'react-icons/fi'
 import { RiTwitterXLine } from 'react-icons/ri'
-import { TbBrowser, TbCoin, TbWallet } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 
+import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
+import { WalletIcon } from '@/components/Icons/WalletIcon'
 
 const ProductItem = ({
   icon,
@@ -195,20 +197,20 @@ export const ShapeShiftMenu = () => {
                 isExternal
               />
               <ProductItem
-                icon={TbCoin}
+                icon={FoxIcon}
                 title={translate('shapeShiftMenu.foxToken.title')}
                 subtitle={translate('shapeShiftMenu.foxToken.subtitle')}
                 href='/fox-ecosystem'
               />
               <ProductItem
-                icon={TbBrowser}
+                icon={OGIcon}
                 title={translate('shapeShiftMenu.classic.title')}
                 subtitle={translate('shapeShiftMenu.classic.subtitle')}
                 href='https://og.shapeshift.com/'
                 isExternal
               />
               <ProductItem
-                icon={TbWallet}
+                icon={WalletIcon}
                 title={translate('shapeShiftMenu.wallet.title')}
                 subtitle={translate('shapeShiftMenu.wallet.subtitle')}
                 href='https://shapeshift.com/defi-wallet'

@@ -33,8 +33,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   // Use the first item's path as default if no defaultPath is provided
   const defaultRoute = defaultPath || items[0]?.path || '/'
 
-  const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
-  const activeStyle = useMemo(() => ({ bg: 'transparent' }), [])
   const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
   const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
 
@@ -76,8 +74,9 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         px={3}
         py={2}
         borderRadius='md'
-        _hover={hoverStyle}
-        _active={activeStyle}
+        bg='transparent'
+        _hover={{ bg: 'background.surface.elevated' }}
+        _active={{ bg: 'transparent' }}
       >
         <Box
           fontSize='md'

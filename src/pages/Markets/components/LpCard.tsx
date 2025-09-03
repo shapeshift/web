@@ -1,4 +1,4 @@
-import { Text as CText, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
+import { GridItem, Text as CText, Text, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

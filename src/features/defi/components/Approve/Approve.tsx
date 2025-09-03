@@ -1,12 +1,12 @@
 import {
   Box,
   Button,
-  Text as CText,
   Divider,
   Icon,
   Link,
   Stack,
   Switch,
+  Text as CText,
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'

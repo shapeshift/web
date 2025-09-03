@@ -13,7 +13,7 @@ import {
   Spinner,
   Stack,
   useColorMode,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'

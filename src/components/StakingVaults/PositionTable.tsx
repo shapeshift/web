@@ -28,7 +28,7 @@ import {
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
-  selectIsAnyOpportunitiesApiQueryPending
+  selectIsAnyOpportunitiesApiQueryPending,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

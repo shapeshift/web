@@ -1,4 +1,4 @@
-import { Box, Button, Text as CText, Divider, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'

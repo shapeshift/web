@@ -161,13 +161,6 @@ export const ActionCenter = memo(() => {
           size='md'
           variant='ghost'
           color='text.subtle'
-          _hover={{
-            bg: 'background.surface.elevated',
-            color: 'text.base',
-          }}
-          _active={{
-            bg: 'background.surface.elevated',
-          }}
         />
       </Box>
     )

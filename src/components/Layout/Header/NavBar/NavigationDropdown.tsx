@@ -43,6 +43,15 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       )
     }
     
+    // Special case for Explore dropdown - check for assets, markets, and explore paths
+    if (label === 'Explore') {
+      return (
+        currentPath.startsWith('/assets') ||
+        currentPath.startsWith('/markets') ||
+        currentPath.startsWith('/explore')
+      )
+    }
+    
     // For other dropdowns, check if current path matches any item path
     return items.some(item => currentPath.startsWith(item.path))
   }, [location.pathname, label, items])
@@ -86,35 +95,48 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
       >
-        {items.map(item => (
-          <MenuItem
-            key={item.path}
-            as={ReactRouterLink}
-            to={item.path}
-            bg='transparent'
-            color='whiteAlpha.800'
-            _hover={{
-              bg: 'whiteAlpha.200',
-              color: 'white',
-            }}
-            _focus={{
-              bg: 'whiteAlpha.200',
-              color: 'white',
-            }}
-            borderRadius='md'
-            mx={2}
-            my={1}
-            px={3}
-            py={2}
-          >
-            <HStack spacing={3}>
-              {item.icon && <Icon as={item.icon} boxSize={4} color='whiteAlpha.600' />}
-              <Text fontSize='sm' fontWeight='medium'>
-                {item.label}
-              </Text>
-            </HStack>
-          </MenuItem>
-        ))}
+        {items.map(item => {
+          const isItemActive = location.pathname.startsWith(item.path)
+          
+          return (
+            <MenuItem
+              key={item.path}
+              as={ReactRouterLink}
+              to={item.path}
+              bg={isItemActive ? 'whiteAlpha.200' : 'transparent'}
+              color={isItemActive ? 'white' : 'whiteAlpha.800'}
+              _hover={{
+                bg: 'whiteAlpha.200',
+                color: 'white',
+              }}
+              _focus={{
+                bg: 'whiteAlpha.200',
+                color: 'white',
+              }}
+              borderRadius='md'
+              mx={2}
+              my={1}
+              px={3}
+              py={2}
+            >
+              <HStack spacing={3}>
+                {item.icon && (
+                  <Icon
+                    as={item.icon}
+                    boxSize={4}
+                    color={isItemActive ? 'white' : 'whiteAlpha.600'}
+                  />
+                )}
+                <Text
+                  fontSize='sm'
+                  fontWeight={isItemActive ? 'semibold' : 'medium'}
+                >
+                  {item.label}
+                </Text>
+              </HStack>
+            </MenuItem>
+          )
+        })}
       </MenuList>
     </Menu>
   )

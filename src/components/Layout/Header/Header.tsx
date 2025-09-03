@@ -49,7 +49,7 @@ const tradeSubMenuItems = [
 ]
 
 const exploreSubMenuItems = [
-  { label: 'Tokens', path: '/explore' },
+  { label: 'Tokens', path: '/assets' },
   { label: 'Markets', path: '/markets' },
 ]
 
@@ -129,7 +129,7 @@ export const Header = memo(() => {
               <NavigationDropdown
                 label='Explore'
                 items={exploreSubMenuItems}
-                defaultPath='/explore'
+                defaultPath='/assets'
               />
               <NavigationDropdown label='Earn' items={earnSubMenuItems} defaultPath='/tcy' />
             </HStack>

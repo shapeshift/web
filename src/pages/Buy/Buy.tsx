@@ -96,7 +96,7 @@ export const Buy = () => {
 
   return (
     <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
-      <SEO title={translate('navBar.buyCrypto')} description={translate('rampPage.body')} />
+      <SEO title={translate('navBar.buyCrypto')} description={translate('rampPage.buyBody')} />
       <Box
         bgImg={AuroraBg}
         backgroundSize='cover'
@@ -128,7 +128,7 @@ export const Buy = () => {
                 components={titleTransaltionsComponents}
               />
 
-              <Text fontSize='lg' translation='rampPage.body' color='whiteAlpha.900' />
+              <Text fontSize='lg' translation='rampPage.buyBody' color='whiteAlpha.900' />
               <Text fontSize='sm' color='text.subtle' translation='rampPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>

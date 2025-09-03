@@ -51,6 +51,7 @@ const RampContent: React.FC = () => {
   
   const isSellRoute = location.pathname.startsWith('/ramp/sell')
   const titleKey = isSellRoute ? 'rampPage.sellTitle' : 'rampPage.buyTitle'
+  const bodyKey = isSellRoute ? 'rampPage.sellBody' : 'rampPage.buyBody'
 
   const {
     dispatch,
@@ -100,7 +101,7 @@ const RampContent: React.FC = () => {
 
   return (
     <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
-      <SEO title={translate('navBar.buyCrypto')} description={translate('rampPage.body')} />
+      <SEO title={translate('navBar.buyCrypto')} description={translate(bodyKey)} />
       <Box
         bgImg={AuroraBg}
         backgroundSize='cover'
@@ -132,7 +133,7 @@ const RampContent: React.FC = () => {
                 components={titleTransaltionsComponents}
               />
 
-              <Text fontSize='lg' translation='rampPage.body' color='whiteAlpha.900' />
+              <Text fontSize='lg' translation={bodyKey} color='whiteAlpha.900' />
               <Text fontSize='sm' color='text.subtle' translation='rampPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>

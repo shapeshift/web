@@ -43,6 +43,7 @@ const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
 export const Buy = () => {
+  // load fiat ramps
   useGetFiatRampsQuery()
 
   const { chainId, assetSubId } = useParams<MatchParams>()

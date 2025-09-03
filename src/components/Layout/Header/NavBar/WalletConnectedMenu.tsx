@@ -104,16 +104,29 @@ const ConnectedMenu = memo(
                         bg='whiteAlpha.200'
                         color='whiteAlpha.700'
                         cursor='pointer'
-                        zIndex={9999}
+                        zIndex={99999}
                         position='relative'
                         pointerEvents='all'
                         display='flex'
                         alignItems='center'
                         justifyContent='center'
                         _hover={{ bg: 'whiteAlpha.300', color: 'white' }}
-                        onMouseDown={e => {
+                        onPointerDown={e => {
                           e.stopPropagation()
                           e.preventDefault()
+                          console.log('Rename pointer down!')
+                          handleRenameClick()
+                        }}
+                        onTouchStart={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          console.log('Rename touch!')
+                          handleRenameClick()
+                        }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          console.log('Rename click!')
                           handleRenameClick()
                         }}
                       >
@@ -126,16 +139,29 @@ const ConnectedMenu = memo(
                         bg='red.500'
                         color='white'
                         cursor='pointer'
-                        zIndex={9999}
+                        zIndex={99999}
                         position='relative'
                         pointerEvents='all'
                         display='flex'
                         alignItems='center'
                         justifyContent='center'
                         _hover={{ bg: 'red.400' }}
-                        onMouseDown={e => {
+                        onPointerDown={e => {
                           e.stopPropagation()
                           e.preventDefault()
+                          console.log('Delete pointer down!')
+                          handleDeleteClick()
+                        }}
+                        onTouchStart={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          console.log('Delete touch!')
+                          handleDeleteClick()
+                        }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          console.log('Delete click!')
                           handleDeleteClick()
                         }}
                       >

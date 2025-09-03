@@ -15,6 +15,7 @@ import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { NavigationDropdown } from './NavBar/NavigationDropdown'
+import { ShapeShiftMenu } from './NavBar/ShapeShiftMenu'
 import { UserMenu } from './NavBar/UserMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
@@ -122,10 +123,7 @@ export const Header = memo(() => {
         <HStack height='4.5rem' width='full' px={4} justifyContent='space-between'>
           {/* Left side - Logo and Navigation */}
           <HStack spacing={8}>
-            <HStack spacing={2}>
-              <AppLoadingIcon />
-              <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' />
-            </HStack>
+            <ShapeShiftMenu />
             <HStack spacing={6}>
               <NavigationDropdown label='Trade' items={tradeSubMenuItems} defaultPath='/trade' />
               <NavigationDropdown

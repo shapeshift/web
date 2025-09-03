@@ -1,0 +1,205 @@
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Icon,
+  Link,
+  Menu,
+  MenuButton,
+  MenuList,
+  Text,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { RiTwitterXLine } from 'react-icons/ri'
+import { TbBrowser, TbCoin, TbWallet } from 'react-icons/tb'
+import { FiSmartphone } from 'react-icons/fi'
+import { Link as ReactRouterLink } from 'react-router-dom'
+
+import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
+
+const ProductItem = ({ icon, title, subtitle, href, isExternal = false }: {
+  icon: React.ComponentType
+  title: string
+  subtitle: string
+  href: string
+  isExternal?: boolean
+}) => (
+  <Link
+    as={isExternal ? 'a' : ReactRouterLink}
+    to={isExternal ? undefined : href}
+    href={isExternal ? href : undefined}
+    target={isExternal ? '_blank' : undefined}
+    rel={isExternal ? 'noopener noreferrer' : undefined}
+    p={3}
+    borderRadius='lg'
+    _hover={{ bg: 'whiteAlpha.100' }}
+    textDecoration='none'
+  >
+    <HStack spacing={3} align='flex-start'>
+      <Box
+        p={2}
+        borderRadius='md'
+        bg='whiteAlpha.100'
+        color='blue.400'
+      >
+        <Icon as={icon} boxSize={5} />
+      </Box>
+      <VStack align='flex-start' spacing={1}>
+        <Text fontWeight='semibold' color='white' fontSize='sm'>
+          {title}
+        </Text>
+        <Text fontSize='xs' color='whiteAlpha.700'>
+          {subtitle}
+        </Text>
+      </VStack>
+    </HStack>
+  </Link>
+)
+
+const FooterLink = ({ href, children, isExternal = false }: {
+  href: string
+  children: React.ReactNode
+  isExternal?: boolean
+}) => (
+  <Link
+    as={isExternal ? 'a' : ReactRouterLink}
+    to={isExternal ? undefined : href}
+    href={isExternal ? href : undefined}
+    target={isExternal ? '_blank' : undefined}
+    rel={isExternal ? 'noopener noreferrer' : undefined}
+    fontSize='sm'
+    color='whiteAlpha.700'
+    _hover={{ color: 'white' }}
+  >
+    {children}
+  </Link>
+)
+
+const SocialIcon = ({ href, icon, label }: {
+  href: string
+  icon: React.ComponentType
+  label: string
+}) => (
+  <Link
+    href={href}
+    target='_blank'
+    rel='noopener noreferrer'
+    p={2}
+    borderRadius='md'
+    color='whiteAlpha.600'
+    _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
+    aria-label={label}
+  >
+    <Icon as={icon} boxSize={5} />
+  </Link>
+)
+
+export const ShapeShiftMenu = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  return (
+    <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+      <MenuButton
+        as={HStack}
+        spacing={2}
+        cursor='pointer'
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+      >
+        <ShapeShiftLogoText height='28px' width='auto' color='white' />
+        <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' />
+      </MenuButton>
+      
+      <MenuList
+        bg='whiteAlpha.100'
+        backdropFilter='blur(20px)'
+        border='1px solid'
+        borderColor='whiteAlpha.200'
+        boxShadow='xl'
+        borderRadius='lg'
+        p={6}
+        minW='500px'
+        onMouseEnter={onOpen}
+        onMouseLeave={onClose}
+      >
+        <VStack align='stretch' spacing={6}>
+          {/* Products Grid */}
+          <Box>
+            <Text fontSize='sm' fontWeight='semibold' color='whiteAlpha.600' mb={3}>
+              Products
+            </Text>
+            <Grid templateColumns='1fr 1fr' gap={2}>
+              <ProductItem
+                icon={FiSmartphone}
+                title='Mobile App'
+                subtitle='Trade and manage crypto'
+                href='https://shapeshift.com/mobile-app'
+                isExternal
+              />
+              <ProductItem
+                icon={TbCoin}
+                title='FOX Token'
+                subtitle='Our Governance Token'
+                href='/fox'
+              />
+              <ProductItem
+                icon={TbBrowser}
+                title='Classic'
+                subtitle='The OG ShapeShift'
+                href='https://og.shapeshift.com/'
+                isExternal
+              />
+              <ProductItem
+                icon={TbWallet}
+                title='ShapeShift Wallet'
+                subtitle='Learn about our wallet'
+                href='https://shapeshift.com/defi-wallet'
+                isExternal
+              />
+            </Grid>
+          </Box>
+
+          {/* Footer */}
+          <Flex justify='space-between' align='center' pt={4} borderTop='1px solid' borderColor='whiteAlpha.200'>
+            <HStack spacing={6}>
+              <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>
+                Governance
+              </FooterLink>
+              <FooterLink href='https://shapeshift.notion.site/' isExternal>
+                Documentation
+              </FooterLink>
+              <FooterLink href='https://shapeshift.com/blog' isExternal>
+                Blog
+              </FooterLink>
+              <FooterLink href='https://shapeshift.com/faq' isExternal>
+                FAQ
+              </FooterLink>
+            </HStack>
+            
+            <HStack spacing={1}>
+              <SocialIcon
+                href='https://github.com/shapeshift/web'
+                icon={FaGithub}
+                label='GitHub'
+              />
+              <SocialIcon
+                href='https://discord.gg/shapeshift'
+                icon={FaDiscord}
+                label='Discord'
+              />
+              <SocialIcon
+                href='https://x.com/shapeshift'
+                icon={RiTwitterXLine}
+                label='Twitter'
+              />
+            </HStack>
+          </Flex>
+        </VStack>
+      </MenuList>
+    </Menu>
+  )
+}

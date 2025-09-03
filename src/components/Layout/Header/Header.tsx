@@ -1,9 +1,10 @@
-import { Box, Flex, HStack, Link, Text, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, HStack, Icon, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaCreditCard, FaExchangeAlt } from 'react-icons/fa'
-import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
+import { FaCreditCard, FaArrowRight } from 'react-icons/fa'
+import { RiRefreshLine } from 'react-icons/ri'
+import { TbChartHistogram } from 'react-icons/tb'
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useSelector } from 'react-redux'
 import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 
@@ -40,10 +41,10 @@ const paddingTopProp = {
 
 // Navigation links for horizontal navbar
 const tradeSubMenuItems = [
-  { label: 'Swap', path: '/trade', icon: RiExchangeFundsLine },
-  { label: 'Limit', path: '/limit', icon: TbGraph },
+  { label: 'Swap', path: '/trade', icon: RiRefreshLine },
+  { label: 'Limit', path: '/limit', icon: TbChartHistogram },
   { label: 'Buy', path: '/buy-crypto', icon: FaCreditCard },
-  { label: 'Sell', path: '/buy-crypto', icon: FaExchangeAlt }, // Using buy-crypto for sell until dedicated sell route is created
+  { label: 'Sell', path: '/buy-crypto', icon: FaArrowRight }, // Using buy-crypto for sell until dedicated sell route is created
 ]
 
 const exploreSubMenuItems = [
@@ -121,7 +122,10 @@ export const Header = memo(() => {
         <HStack height='4.5rem' width='full' px={4} justifyContent='space-between'>
           {/* Left side - Logo and Navigation */}
           <HStack spacing={8}>
-            <AppLoadingIcon />
+            <HStack spacing={2}>
+              <AppLoadingIcon />
+              <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' />
+            </HStack>
             <HStack spacing={6}>
               <NavigationDropdown label='Trade' items={tradeSubMenuItems} defaultPath='/trade' />
               <NavigationDropdown

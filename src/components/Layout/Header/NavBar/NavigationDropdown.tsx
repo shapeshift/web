@@ -58,9 +58,10 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         {label}
       </MenuButton>
       <MenuList
-        bg='background.surface.base'
+        bg='whiteAlpha.100'
+        backdropFilter='blur(20px)'
         border='1px solid'
-        borderColor='border.base'
+        borderColor='whiteAlpha.200'
         boxShadow='xl'
         minW='200px'
         py={2}
@@ -75,14 +76,14 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
             as={ReactRouterLink}
             to={item.path}
             bg='transparent'
-            color='text.subtle'
+            color='whiteAlpha.800'
             _hover={{
-              bg: 'background.surface.hover',
-              color: 'text.base',
+              bg: 'whiteAlpha.200',
+              color: 'white',
             }}
             _focus={{
-              bg: 'background.surface.hover',
-              color: 'text.base',
+              bg: 'whiteAlpha.200',
+              color: 'white',
             }}
             borderRadius='md'
             mx={2}
@@ -91,7 +92,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
             py={2}
           >
             <HStack spacing={3}>
-              {item.icon && <Icon as={item.icon} boxSize={4} color='text.subtle' />}
+              {item.icon && <Icon as={item.icon} boxSize={4} color='whiteAlpha.600' />}
               <Text fontSize='sm' fontWeight='medium'>
                 {item.label}
               </Text>

@@ -115,9 +115,9 @@ export const Header = memo(() => {
         top={0}
         paddingTop={paddingTopProp}
       >
-        <HStack height='4.5rem' width='full' px={4} justifyContent='space-between'>
+        <HStack height='4.5rem' width='full' px={4}>
           {/* Left side - Logo and Navigation */}
-          <HStack spacing={8}>
+          <HStack spacing={8} flex='1'>
             <ShapeShiftMenu />
             <HStack spacing={6}>
               <NavigationDropdown
@@ -135,12 +135,12 @@ export const Header = memo(() => {
           </HStack>
 
           {/* Center - Search */}
-          <Box flex={1} maxWidth='400px' mx={8}>
+          <Box flex='0 0 auto' width='400px'>
             <GlobalSeachButton />
           </Box>
 
           {/* Right side - Actions */}
-          <HStack spacing={4}>
+          <HStack spacing={4} flex='1' justifyContent='flex-end'>
             {/* Hide degraded state and connect dapp buttons for now */}
             {false && isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />

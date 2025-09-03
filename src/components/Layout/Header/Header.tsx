@@ -44,8 +44,8 @@ const paddingTopProp = {
 const tradeSubMenuItems = [
   { label: 'Swap', path: '/trade', icon: RiRefreshLine },
   { label: 'Limit', path: '/limit', icon: TbChartHistogram },
-  { label: 'Buy', path: '/buy-crypto', icon: FaCreditCard },
-  { label: 'Sell', path: '/buy-crypto', icon: FaArrowRight }, // Using buy-crypto for sell until dedicated sell route is created
+  { label: 'Buy', path: '/ramp', icon: FaCreditCard },
+  { label: 'Sell', path: '/ramp', icon: FaArrowRight }, // Using ramp for sell until dedicated sell route is created
 ]
 
 const exploreSubMenuItems = [

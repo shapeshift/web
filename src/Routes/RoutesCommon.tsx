@@ -228,7 +228,7 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
-    path: '/buy-crypto',
+    path: '/ramp',
     label: 'navBar.buyCrypto',
     shortLabel: 'navBar.buyCryptoShort',
     icon: <FaCreditCard />,

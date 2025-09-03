@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   HStack,
   Icon,
   Menu,
@@ -11,10 +10,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { FaCreditCard, FaExchangeAlt } from 'react-icons/fa'
-import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
-import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation } from 'react-router-dom'
 
 type NavigationDropdownProps = {
@@ -28,7 +23,6 @@ type NavigationDropdownProps = {
 }
 
 export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDropdownProps) => {
-  const translate = useTranslate()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const location = useLocation()
 
@@ -39,13 +33,13 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const isActive = useMemo(() => {
     const currentPath = location.pathname
     
-    // Special case for Trade dropdown - check for trade, limit, claim, and buy-crypto paths
+    // Special case for Trade dropdown - check for trade, limit, claim, and ramp paths
     if (label === 'Trade') {
       return (
         currentPath.startsWith('/trade') ||
         currentPath.startsWith('/limit') ||
         currentPath.startsWith('/claim') ||
-        currentPath.startsWith('/buy-crypto')
+        currentPath.startsWith('/ramp')
       )
     }
     
@@ -75,7 +69,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
           fontSize='md'
           fontWeight={isActive ? 'semibold' : 'medium'}
           color={isActive ? 'white' : 'whiteAlpha.600'}
-          textDecoration='none'
         >
           {label}
         </Box>

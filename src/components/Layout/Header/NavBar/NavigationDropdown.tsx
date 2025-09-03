@@ -13,6 +13,11 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom'
 
+const menuButtonHoverSx = { bg: 'background.surface.elevated' }
+const menuButtonActiveSx = { bg: 'transparent' }
+const menuItemHoverSx = { bg: 'whiteAlpha.200', color: 'white' }
+const menuItemFocusSx = { bg: 'whiteAlpha.200', color: 'white' }
+
 type NavigationDropdownItem = {
   label: string
   path: string
@@ -32,10 +37,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const translate = useTranslate()
 
   const handleClick = useCallback(() => navigate(defaultPath), [navigate, defaultPath])
-  const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
-  const activeStyle = useMemo(() => ({ bg: 'transparent' }), [])
-  const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
-  const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
 
   const isActive = useMemo(() => {
     const currentPath = location.pathname
@@ -66,8 +67,8 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         py={2}
         borderRadius='md'
         bg='transparent'
-        _hover={hoverStyle}
-        _active={activeStyle}
+        _hover={menuButtonHoverSx}
+        _active={menuButtonActiveSx}
         as={Box}
         cursor='pointer'
       >
@@ -102,8 +103,8 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
               to={item.path}
               bg={isItemActive ? 'whiteAlpha.200' : 'transparent'}
               color={isItemActive ? 'white' : 'whiteAlpha.800'}
-              _hover={menuItemHoverStyle}
-              _focus={menuItemFocusStyle}
+              _hover={menuItemHoverSx}
+              _focus={menuItemFocusSx}
               borderRadius='md'
               mx={2}
               my={1}

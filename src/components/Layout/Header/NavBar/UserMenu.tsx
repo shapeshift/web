@@ -39,6 +39,8 @@ const maxWidthProp = { base: 'full', md: 'xs' }
 const minWidthProp = { base: 0, md: 'xs' }
 const widthProp = { base: '100%', lg: 'auto' }
 
+const connectButtonHoverSx = { bg: 'background.surface.elevated', borderColor: 'border.hover' }
+
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()
   return (
@@ -96,11 +98,6 @@ const WalletButton: FC<WalletButtonProps> = ({
   })
 
   const maybeRdns = useAppSelector(selectWalletRdns)
-
-  const connectButtonHoverStyle = useMemo(
-    () => ({ bg: 'background.surface.elevated', borderColor: 'border.hover' }),
-    [],
-  )
 
   const mipdProviders = useMipdProviders()
   const maybeMipdProvider = useMemo(
@@ -174,7 +171,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       bg='background.surface.base'
       border='1px solid'
       borderColor='border.base'
-      _hover={connectButtonHoverStyle}
+      _hover={connectButtonHoverSx}
     >
       <Text translation='common.connectWallet' />
     </Button>

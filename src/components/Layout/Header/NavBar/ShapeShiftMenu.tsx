@@ -13,17 +13,20 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { FiSmartphone } from 'react-icons/fi'
 import { RiTwitterXLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { Link as ReactRouterLink } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+
+const productItemHoverSx = { bg: 'whiteAlpha.100' }
+const footerLinkHoverSx = { color: 'white' }
+const socialIconHoverSx = { color: 'white', bg: 'whiteAlpha.100' }
 
 const ProductItem = ({
   icon,
@@ -38,45 +41,12 @@ const ProductItem = ({
   href: string
   isExternal?: boolean
 }) => {
-  const hoverStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
-
-  if (isExternal) {
-    return (
-      <Link
-        href={href}
-        target='_blank'
-        rel='noopener noreferrer'
-        p={3}
-        borderRadius='lg'
-        _hover={hoverStyle}
-        textDecoration='none'
-      >
-        <HStack spacing={3} align='flex-start'>
-          <Box p={2} borderRadius='md' bg='whiteAlpha.100' color='blue.400'>
-            <Icon as={icon} boxSize={5} />
-          </Box>
-          <VStack align='flex-start' spacing={1}>
-            <Text fontWeight='semibold' color='white' fontSize='sm'>
-              {title}
-            </Text>
-            <Text fontSize='xs' color='whiteAlpha.700'>
-              {subtitle}
-            </Text>
-          </VStack>
-        </HStack>
-      </Link>
-    )
-  }
+  const linkProps = isExternal
+    ? { href, target: '_blank', rel: 'noopener noreferrer' }
+    : { as: RouterLink, to: href }
 
   return (
-    <Link
-      as={ReactRouterLink}
-      to={href}
-      p={3}
-      borderRadius='lg'
-      _hover={hoverStyle}
-      textDecoration='none'
-    >
+    <Link {...linkProps} p={3} borderRadius='lg' _hover={productItemHoverSx} textDecoration='none'>
       <HStack spacing={3} align='flex-start'>
         <Box p={2} borderRadius='md' bg='whiteAlpha.100' color='blue.400'>
           <Icon as={icon} boxSize={5} />
@@ -103,25 +73,12 @@ const FooterLink = ({
   children: React.ReactNode
   isExternal?: boolean
 }) => {
-  const hoverStyle = useMemo(() => ({ color: 'white' }), [])
-
-  if (isExternal) {
-    return (
-      <Link
-        href={href}
-        target='_blank'
-        rel='noopener noreferrer'
-        fontSize='sm'
-        color='whiteAlpha.700'
-        _hover={hoverStyle}
-      >
-        {children}
-      </Link>
-    )
-  }
+  const linkProps = isExternal
+    ? { href, target: '_blank', rel: 'noopener noreferrer' }
+    : { as: RouterLink, to: href }
 
   return (
-    <Link as={ReactRouterLink} to={href} fontSize='sm' color='whiteAlpha.700' _hover={hoverStyle}>
+    <Link {...linkProps} fontSize='sm' color='whiteAlpha.700' _hover={footerLinkHoverSx}>
       {children}
     </Link>
   )
@@ -136,8 +93,6 @@ const SocialIcon = ({
   icon: React.ComponentType
   label: string
 }) => {
-  const hoverStyle = useMemo(() => ({ color: 'white', bg: 'whiteAlpha.100' }), [])
-
   return (
     <Link
       href={href}
@@ -146,7 +101,7 @@ const SocialIcon = ({
       p={2}
       borderRadius='md'
       color='whiteAlpha.600'
-      _hover={hoverStyle}
+      _hover={socialIconHoverSx}
       aria-label={label}
     >
       <Icon as={icon} boxSize={5} />

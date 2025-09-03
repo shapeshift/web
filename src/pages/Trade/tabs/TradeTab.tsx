@@ -20,6 +20,35 @@ const mainMarginTop = { base: 0, md: '-4.5rem' }
 const containerPaddingTop = { base: 0, md: 12 }
 const containerPaddingBottom = { base: 0, md: 12 }
 
+const gridOverlaySx = {
+  content: '""',
+  position: 'fixed' as const,
+  top: '0',
+  left: '0',
+  right: '0',
+  bottom: '0',
+  backgroundImage:
+    'linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
+  backgroundSize: '30px 30px',
+  zIndex: 0,
+  pointerEvents: 'none' as const,
+}
+
+const blurBackgroundSx = {
+  content: '""',
+  position: 'fixed' as const,
+  bottom: '0',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '1200px',
+  height: '50vh',
+  background:
+    'radial-gradient(ellipse 120% 120% at 50% 100%, rgba(55, 97, 249, 1) 0%, rgba(55, 97, 249, 0.8) 20%, rgba(55, 97, 249, 0.4) 40%, rgba(55, 97, 249, 0) 70%), radial-gradient(ellipse 100% 80% at 20% 90%, rgba(165, 55, 249, 1) 0%, rgba(165, 55, 249, 0.8) 20%, rgba(165, 55, 249, 0.3) 40%, rgba(165, 55, 249, 0) 70%)',
+  filter: 'blur(300px)',
+  zIndex: 0.1,
+  pointerEvents: 'none' as const,
+}
+
 export const TradeTab = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
@@ -92,40 +121,6 @@ export const TradeTab = memo(() => {
     [handleChangeTab, defaultBuyAssetId, defaultSellAssetId],
   )
 
-  const beforeStyles = useMemo(
-    () => ({
-      content: '""',
-      position: 'fixed' as const,
-      top: '0',
-      left: '0',
-      right: '0',
-      bottom: '0',
-      backgroundImage:
-        'linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
-      backgroundSize: '30px 30px',
-      zIndex: 0,
-      pointerEvents: 'none' as const,
-    }),
-    [],
-  )
-
-  const afterStyles = useMemo(
-    () => ({
-      content: '""',
-      position: 'fixed' as const,
-      bottom: '0',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '1200px',
-      height: '50vh',
-      background:
-        'radial-gradient(ellipse 120% 120% at 50% 100%, rgba(55, 97, 249, 1) 0%, rgba(55, 97, 249, 0.8) 20%, rgba(55, 97, 249, 0.4) 40%, rgba(55, 97, 249, 0) 70%), radial-gradient(ellipse 100% 80% at 20% 90%, rgba(165, 55, 249, 1) 0%, rgba(165, 55, 249, 0.8) 20%, rgba(165, 55, 249, 0.3) 40%, rgba(165, 55, 249, 0) 70%)',
-      filter: 'blur(300px)',
-      zIndex: 0.1,
-      pointerEvents: 'none' as const,
-    }),
-    [],
-  )
 
   return (
     <Main
@@ -135,9 +130,8 @@ export const TradeTab = memo(() => {
       display='flex'
       flex={1}
       width='full'
-      position='relative'
-      _before={beforeStyles}
-      _after={afterStyles}
+      _before={gridOverlaySx}
+      _after={blurBackgroundSx}
     >
       <SEO title={title} />
       <Flex
@@ -148,7 +142,6 @@ export const TradeTab = memo(() => {
         width='full'
         justifyContent='center'
         gap={4}
-        position='relative'
         zIndex={1}
       >
         <FormProvider {...methods}>

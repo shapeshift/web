@@ -7,11 +7,11 @@ import { GlobalSearchModal } from './GlobalSearchModal'
 
 import { isMobile as isMobileApp } from '@/lib/globals'
 
-const mrProp = { base: 0, md: 0 }
+const mrProp = { base: 0, md: 'auto' }
 const widthProp = { base: 'auto', md: 'full' }
 const displayProp1 = { base: 'flex', md: 'none' }
 const displayProp2 = { base: 'none', md: 'flex' }
-const sxProp1 = { svg: { width: '16px', height: '16px' } }
+const sxProp1 = { svg: { width: '18px', height: '18px' } }
 
 const searchIcon = <SearchIcon />
 

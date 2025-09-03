@@ -182,7 +182,7 @@ export const routes: Route[] = [
   {
     path: '/trade/*',
     label: 'navBar.trade',
-    shortLabel: 'navBar.tradeShort',
+    shortLabel: 'common.trade',
     icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,

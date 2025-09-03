@@ -10,21 +10,25 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation } from 'react-router-dom'
+
+type NavigationDropdownItem = {
+  label: string
+  path: string
+  icon?: React.ComponentType
+}
 
 type NavigationDropdownProps = {
   label: string
-  items: {
-    label: string
-    path: string
-    icon?: React.ComponentType
-  }[]
+  items: NavigationDropdownItem[]
   defaultPath?: string
 }
 
 export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDropdownProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const location = useLocation()
+  const translate = useTranslate()
 
   // Use the first item's path as default if no defaultPath is provided
   const defaultRoute = defaultPath || items[0]?.path || '/'
@@ -39,7 +43,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
     const currentPath = location.pathname
 
     // Special case for Trade dropdown - check for trade, limit, claim, and ramp paths
-    if (label === 'Trade') {
+    if (label === 'common.trade') {
       return (
         currentPath.startsWith('/trade') ||
         currentPath.startsWith('/limit') ||
@@ -49,7 +53,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
     }
 
     // Special case for Explore dropdown - check for assets, markets, and explore paths
-    if (label === 'Explore') {
+    if (label === 'navBar.explore') {
       return (
         currentPath.startsWith('/assets') ||
         currentPath.startsWith('/markets') ||
@@ -80,7 +84,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
           fontWeight={isActive ? 'semibold' : 'medium'}
           color={isActive ? 'white' : 'whiteAlpha.600'}
         >
-          {label}
+          {translate(label)}
         </Box>
       </MenuButton>
       <MenuList
@@ -123,7 +127,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                   />
                 )}
                 <Text fontSize='sm' fontWeight={isItemActive ? 'semibold' : 'medium'}>
-                  {item.label}
+                  {translate(item.label)}
                 </Text>
               </HStack>
             </MenuItem>

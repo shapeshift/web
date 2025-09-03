@@ -659,7 +659,6 @@
     "market": "Market",
     "limitOrder": "Limit Orders",
     "claims": "Claims",
-    "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
@@ -668,6 +667,7 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
+    "tokens": "Tokens",
     "actionMenu": {
       "send": {
         "title": "Send",

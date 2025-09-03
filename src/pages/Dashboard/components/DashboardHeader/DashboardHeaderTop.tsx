@@ -147,7 +147,7 @@ export const DashboardHeaderTop = memo(() => {
       >
         <MobileActionButton
           icon={swapIcon}
-          label={translate('navBar.tradeShort')}
+          label={translate('common.trade')}
           onClick={handleTradeClick}
         />
         <MobileActionButton
@@ -192,7 +192,7 @@ export const DashboardHeaderTop = memo(() => {
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>
-          {translate('navBar.tradeShort')}
+          {translate('common.trade')}
         </Button>
       </Flex>
     ),

@@ -37,21 +37,21 @@ const paddingTopProp = {
 
 // Navigation links for horizontal navbar
 const tradeSubMenuItems = [
-  { label: 'Swap', path: '/trade', icon: RiRefreshLine },
-  { label: 'Limit', path: '/limit', icon: TbChartHistogram },
-  { label: 'Buy', path: '/ramp/buy', icon: FaCreditCard },
-  { label: 'Sell', path: '/ramp/sell', icon: FaArrowRight },
+  { label: 'navBar.swap', path: '/trade', icon: RiRefreshLine },
+  { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
+  { label: 'fiatRamps.buy', path: '/ramp/buy', icon: FaCreditCard },
+  { label: 'fiatRamps.sell', path: '/ramp/sell', icon: FaArrowRight },
 ]
 
 const exploreSubMenuItems = [
-  { label: 'Tokens', path: '/assets' },
-  { label: 'Markets', path: '/markets' },
+  { label: 'navBar.tokens', path: '/assets' },
+  { label: 'navBar.markets', path: '/markets' },
 ]
 
 const earnSubMenuItems = [
-  { label: 'TCY', path: '/tcy' },
-  { label: 'Pools', path: '/pools' },
-  { label: 'Lending', path: '/lending' },
+  { label: 'navBar.tcy', path: '/tcy' },
+  { label: 'navBar.pools', path: '/pools' },
+  { label: 'navBar.lending', path: '/lending' },
 ]
 
 export const Header = memo(() => {
@@ -120,13 +120,13 @@ export const Header = memo(() => {
           <HStack spacing={8}>
             <ShapeShiftMenu />
             <HStack spacing={6}>
-              <NavigationDropdown label='Trade' items={tradeSubMenuItems} defaultPath='/trade' />
+              <NavigationDropdown label='common.trade' items={tradeSubMenuItems} defaultPath='/trade' />
               <NavigationDropdown
-                label='Explore'
+                label='navBar.explore'
                 items={exploreSubMenuItems}
                 defaultPath='/assets'
               />
-              <NavigationDropdown label='Earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
             </HStack>
           </HStack>
 

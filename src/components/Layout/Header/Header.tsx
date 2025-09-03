@@ -59,7 +59,7 @@ export const Header = memo(() => {
 
   const navigate = useNavigate()
   const {
-    state: { isConnected },
+    state: { isConnected, walletInfo },
   } = useWallet()
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
@@ -73,6 +73,8 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const { degradedChainIds } = useDiscoverAccounts()
+
+  const hasWallet = Boolean(walletInfo?.deviceId)
 
   /**
    * FOR DEVELOPERS:
@@ -146,7 +148,9 @@ export const Header = memo(() => {
             )}
             {isConnected && !isActionCenterEnabled && <TxWindow />}
             {isConnected && isActionCenterEnabled && <ActionCenter />}
-            <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
+            {hasWallet && (
+              <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
+            )}
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (
               <Box display={displayProp2}>

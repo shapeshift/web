@@ -69,6 +69,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       <MenuButton
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
+        onClick={() => navigate(defaultRoute)}
         variant='unstyled'
         px={3}
         py={2}
@@ -83,7 +84,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
           fontSize='md'
           fontWeight={isActive ? 'semibold' : 'medium'}
           color={isActive ? 'white' : 'whiteAlpha.600'}
-          onClick={() => navigate(defaultRoute)}
         >
           {translate(label)}
         </Box>

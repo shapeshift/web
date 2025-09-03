@@ -1,4 +1,4 @@
-import type { FlexProps } from '@chakra-ui/react'
+import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
   Stack,
@@ -8,6 +8,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -30,17 +31,16 @@ import { breakpoints } from '@/theme/theme'
 
 type RowProps = Row<AccountRowData>
 
+const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', lg: 'left' }
+
+const buttonWidth = { base: 'full', lg: 'auto' }
+
 const emptyContainerProps: FlexProps = {
   width: 'full',
   px: 0,
 }
 
-type AccountTableProps = {
-  forceCompactView?: boolean
-  onRowClick?: () => void
-}
-
-export const AccountTable = memo(({ forceCompactView = false, onRowClick }: AccountTableProps) => {
+export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
   const receive = useModal('receive')
@@ -54,14 +54,6 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
   })
   const textColor = useColorModeValue('black', 'white')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
-
-  const isCompactCols = !isLargerThanLg || forceCompactView
-
-  const showHeaders = isLargerThanMd && !forceCompactView
-  const stackTextAlign = isCompactCols ? 'right' : 'left'
-  const buttonWidth = isCompactCols ? 'full' : 'auto'
-
   const navigate = useNavigate()
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
@@ -80,7 +72,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Header: () => <Text translation='dashboard.portfolio.balance' />,
         accessor: 'fiatAmount',
         id: 'balance',
-        justifyContent: isCompactCols ? 'flex-end' : 'flex-start',
+        justifyContent: { base: 'flex-end', lg: 'flex-start' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Stack spacing={0} fontWeight='medium' textAlign={stackTextAlign}>
             <Amount.Fiat
@@ -107,7 +99,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Header: () => <Text translation='dashboard.portfolio.price' />,
         accessor: 'price',
         isNumeric: true,
-        display: isCompactCols ? 'none' : 'table-cell',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: string }) => (
           <Amount.Fiat color={textColor} value={value} lineHeight='tall' />
         ),
@@ -115,7 +107,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       {
         Header: () => <Text translation='dashboard.portfolio.priceChange' />,
         accessor: 'priceChange',
-        display: isCompactCols ? 'none' : 'table-cell',
+        display: { base: 'none', lg: 'table-cell' },
         sortType: (a: RowProps, b: RowProps): number =>
           bnOrZero(a.original.priceChange).gt(bnOrZero(b.original.priceChange)) ? 1 : -1,
         Cell: ({ value }: { value: number }) => (
@@ -136,7 +128,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       {
         Header: () => <Text textAlign='right' translation='dashboard.portfolio.allocation' />,
         accessor: 'allocation',
-        display: isCompactCols ? 'none' : 'table-cell',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: number }) => (
           <Amount.Percent fontWeight='medium' textColor='text.subtle' value={value * 0.01} />
         ),
@@ -144,7 +136,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
           bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
       },
     ],
-    [isCompactCols, stackTextAlign, textColor],
+    [textColor],
   )
   const loadingRows = useMemo(() => {
     return (
@@ -179,17 +171,16 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         </Button>
       </ResultsEmpty>
     )
-  }, [buttonWidth, handleReceiveClick])
+  }, [handleReceiveClick])
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
       vibrate('heavy')
-      onRowClick?.()
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [navigate, onRowClick],
+    [navigate],
   )
 
   const handleRowLongPress = useCallback(
@@ -208,7 +199,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       data={data}
       onRowClick={handleRowClick}
       onRowLongPress={handleRowLongPress}
-      displayHeaders={showHeaders}
+      displayHeaders={isLargerThanMd}
       variant='clickable'
       renderEmptyComponent={renderEmptyComponent}
       hasMore={hasMore}

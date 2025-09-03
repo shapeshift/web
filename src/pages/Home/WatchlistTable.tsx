@@ -16,17 +16,7 @@ import { useAppSelector } from '@/state/store'
 const starFilled = <FaStar />
 const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue' }
 
-type WatchlistTableProps = {
-  forceCompactView?: boolean
-  onRowClick?: () => void
-  hideExploreMore?: boolean
-}
-
-export const WatchlistTable = ({
-  forceCompactView = false,
-  hideExploreMore = false,
-  onRowClick,
-}: WatchlistTableProps) => {
+export const WatchlistTable = () => {
   const watchedAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const navigate = useNavigate()
@@ -41,13 +31,12 @@ export const WatchlistTable = ({
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
-      onRowClick?.()
       vibrate('heavy')
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [navigate, onRowClick],
+    [navigate],
   )
 
   if (watchedAssetIds.length === 0) {
@@ -64,12 +53,10 @@ export const WatchlistTable = ({
   }
   return (
     <>
-      <MarketsTable rows={rows} onRowClick={handleRowClick} forceCompactView={forceCompactView} />
-      {!hideExploreMore && (
-        <Button mx={6} onClick={handleButtonClick}>
-          {translate('watchlist.empty.cta')}
-        </Button>
-      )}
+      <MarketsTable rows={rows} onRowClick={handleRowClick} />
+      <Button mx={6} onClick={handleButtonClick}>
+        {translate('watchlist.empty.cta')}
+      </Button>
     </>
   )
 }

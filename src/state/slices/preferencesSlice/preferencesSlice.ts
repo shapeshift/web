@@ -89,7 +89,6 @@ export type FeatureFlags = {
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   QuickBuy: boolean
-  NewWalletManager: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -212,7 +211,6 @@ const initialState: Preferences = {
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
-    NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

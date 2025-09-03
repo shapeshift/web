@@ -1,7 +1,6 @@
 import { Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { truncate } from 'lodash'
-import { memo, useCallback, useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { memo, useCallback } from 'react'
 import type { Row } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
@@ -10,15 +9,11 @@ import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
 import type { AccountRowData } from '@/state/slices/selectors'
-import { selectPortfolioAccountRows } from '@/state/slices/selectors'
-
-type GroupedAccountRowData = AccountRowData & {
-  isGrouped?: boolean
-  relatedAssetIds?: string[]
-}
+import { selectGroupedAssetBalances } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type RelatedAssetRowProps = {
-  assetId: string
+  relatedAssetRow: AccountRowData
   onRowClick: (row: Row<AccountRowData>) => void
   onRowLongPress: (row: Row<AccountRowData>) => void
 }
@@ -27,94 +22,81 @@ const relatedAssetRowHoverStyles = {
   bg: 'background.surface.raised.base',
 }
 
-const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRowLongPress }) => {
-  const textColor = useColorModeValue('black', 'white')
-  const rowData = useSelector(selectPortfolioAccountRows)
+const RelatedAssetRow = memo<RelatedAssetRowProps>(
+  ({ relatedAssetRow, onRowClick, onRowLongPress }) => {
+    const textColor = useColorModeValue('black', 'white')
 
-  const relatedRow = useMemo(() => rowData.find(r => r.assetId === assetId), [rowData, assetId])
+    const handleClick = useCallback(() => {
+      vibrate('heavy')
+      onRowClick({ original: relatedAssetRow } as Row<AccountRowData>)
+    }, [relatedAssetRow, onRowClick])
 
-  const handleClick = useCallback(() => {
-    vibrate('heavy')
-    onRowClick({ original: relatedRow } as Row<AccountRowData>)
-  }, [relatedRow, onRowClick])
+    const longPressHandlers = useLongPress((_, { context: relatedAssetRow }) => {
+      vibrate('heavy')
+      onRowLongPress?.({ original: relatedAssetRow } as Row<AccountRowData>)
+    }, defaultLongPressConfig)
 
-  const longPressHandlers = useLongPress((_, { context: row }) => {
-    vibrate('heavy')
-    onRowLongPress?.({ original: row } as Row<AccountRowData>)
-  }, defaultLongPressConfig)
+    if (!relatedAssetRow) return null
 
-  if (!relatedRow) return null
-
-  return (
-    <Flex
-      justify='space-between'
-      align='center'
-      p={2}
-      borderRadius='md'
-      cursor='pointer'
-      onClick={handleClick}
-      _hover={relatedAssetRowHoverStyles}
-      {...longPressHandlers(relatedRow)}
-    >
-      <Flex align='center' gap={3} width='50%'>
-        <AssetCell
-          assetId={relatedRow.assetId}
-          subText={truncate(relatedRow.symbol, { length: 6 })}
-        />
+    return (
+      <Flex
+        justify='space-between'
+        align='center'
+        p={2}
+        borderRadius='md'
+        cursor='pointer'
+        onClick={handleClick}
+        _hover={relatedAssetRowHoverStyles}
+        {...longPressHandlers(relatedAssetRow)}
+      >
+        <Flex align='center' gap={3} width='50%'>
+          <AssetCell
+            assetId={relatedAssetRow.assetId}
+            subText={truncate(relatedAssetRow.symbol, { length: 6 })}
+          />
+        </Flex>
+        <Stack spacing={0} fontWeight='medium' textAlign='right'>
+          <Amount.Fiat
+            fontWeight='semibold'
+            color={textColor}
+            lineHeight='shorter'
+            height='20px'
+            value={relatedAssetRow.fiatAmount}
+          />
+          <Amount.Crypto
+            lineHeight='shorter'
+            fontWeight='normal'
+            fontSize='sm'
+            whiteSpace='nowrap'
+            value={relatedAssetRow.cryptoAmount}
+            symbol={truncate(relatedAssetRow.symbol, { length: 6 })}
+            truncateLargeNumbers={true}
+          />
+        </Stack>
       </Flex>
-      <Stack spacing={0} fontWeight='medium' textAlign='right'>
-        <Amount.Fiat
-          fontWeight='semibold'
-          color={textColor}
-          lineHeight='shorter'
-          height='20px'
-          value={relatedRow.fiatAmount}
-        />
-        <Amount.Crypto
-          lineHeight='shorter'
-          fontWeight='normal'
-          fontSize='sm'
-          whiteSpace='nowrap'
-          value={relatedRow.cryptoAmount}
-          symbol={truncate(relatedRow.symbol, { length: 6 })}
-          truncateLargeNumbers={true}
-        />
-      </Stack>
-    </Flex>
-  )
-})
+    )
+  },
+)
 
 type GroupedAccountsProps = {
-  row: Row<GroupedAccountRowData>
+  row: Row<AccountRowData>
   onRowClick: (row: Row<AccountRowData>) => void
   onRowLongPress: (row: Row<AccountRowData>) => void
 }
 
 export const GroupedAccounts = memo<GroupedAccountsProps>(({ row, onRowClick, onRowLongPress }) => {
-  const groupedRow = row.original as GroupedAccountRowData
-  const rowData = useSelector(selectPortfolioAccountRows)
+  const groupedAssetBalances = useAppSelector(state =>
+    selectGroupedAssetBalances(state, row.original.assetId),
+  )
 
-  const sortedAssetIds = useMemo(() => {
-    if (!groupedRow.relatedAssetIds) return []
-
-    return [...groupedRow.relatedAssetIds].sort((a, b) => {
-      const aRow = rowData.find(r => r.assetId === a)
-      const bRow = rowData.find(r => r.assetId === b)
-
-      if (!aRow || !bRow) return 0
-
-      return Number(bRow.fiatAmount) - Number(aRow.fiatAmount)
-    })
-  }, [groupedRow.relatedAssetIds, rowData])
-
-  if (!groupedRow.isGrouped || !groupedRow.relatedAssetIds) return null
+  if (groupedAssetBalances?.relatedAssets.length === 1) return null
 
   return (
     <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-      {sortedAssetIds.map(assetId => (
+      {groupedAssetBalances?.relatedAssets.map(asset => (
         <RelatedAssetRow
-          key={assetId}
-          assetId={assetId}
+          key={asset.assetId}
+          relatedAssetRow={asset}
           onRowClick={onRowClick}
           onRowLongPress={onRowLongPress}
         />

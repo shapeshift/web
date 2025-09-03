@@ -24,7 +24,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId
+  selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
@@ -209,7 +209,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       translate,
     ])
 
-    if (shouldDisplayRelatedAssets && relatedAssetIds.length > 0) {
+    if (shouldDisplayRelatedAssets && relatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
           asset={asset}

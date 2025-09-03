@@ -8,7 +8,11 @@ import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
-import { selectAssets, selectAssetsSortedByMarketCap, selectPrimaryAssets } from './assetsSlice/selectors'
+import {
+  selectAssets,
+  selectPrimaryAssets,
+  selectPrimaryAssetsSortedByMarketCap,
+} from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { marketData } from './marketDataSlice/marketDataSlice'
 import {
@@ -87,22 +91,25 @@ export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelec
     ),
 )
 
+export const selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances =
+  createDeepEqualOutputSelector(
+    selectPortfolioAccountBalancesBaseUnit,
+    (accountBalancesById): Record<AssetId, string> =>
+      Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAssetId) => {
+        Object.entries(byAssetId).forEach(([assetId, balance]) => {
+          const bnBalance = bnOrZero(balance)
+
+          acc[assetId] = bnOrZero(acc[assetId]).plus(bnBalance).toFixed()
+        })
+        return acc
+      }, {}),
+  )
+
 export const selectPortfolioAssetBalancesBaseUnit = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalancesBaseUnit,
-  (accountBalancesById): Record<AssetId, string> =>
-    Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAssetId) => {
-      Object.entries(byAssetId).forEach(([assetId, balance]) => {
-        const bnBalance = bnOrZero(balance)
-
-        // don't include assets with zero crypto balance
-        if (bnBalance.isZero()) {
-          return
-        }
-
-        acc[assetId] = bnOrZero(acc[assetId]).plus(bnBalance).toFixed()
-      })
-      return acc
-    }, {}),
+  selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances,
+  (assetBalancesById): Record<AssetId, string> => {
+    return pickBy(assetBalancesById, balance => !bnOrZero(balance).isZero())
+  },
 )
 
 export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector(
@@ -206,7 +213,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
 
 export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName =
   createDeepEqualOutputSelector(
-    selectAssets,
+    selectPrimaryAssets,
     selectPortfolioAssetBalancesBaseUnit,
     selectPortfolioUserCurrencyBalances,
     marketData.selectors.selectMarketDataUsd,
@@ -287,7 +294,7 @@ export const selectIsAssetWithoutMarketData = createSelector(
 )
 
 export const selectAssetsBySearchQuery = createCachedSelector(
-  selectAssetsSortedByMarketCap,
+  selectPrimaryAssetsSortedByMarketCap,
   marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,

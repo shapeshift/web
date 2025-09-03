@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
-import groupBy from 'lodash/groupBy'
 import range from 'lodash/range'
 import truncate from 'lodash/truncate'
 import { memo, useCallback, useMemo } from 'react'
@@ -37,7 +36,7 @@ import type { AccountRowData, RowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
   selectIsPortfolioLoading,
-  selectPortfolioAccountRows,
+  selectPrimaryPortfolioAccountRows,
 } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
 
@@ -52,45 +51,13 @@ const emptyContainerProps: FlexProps = {
 
 export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
-  const rowData = useSelector(selectPortfolioAccountRows)
+  const rowData = useSelector(selectPrimaryPortfolioAccountRows)
   const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
 
-  const uniqueRowsAll = useMemo(() => {
-    const grouped = groupBy(rowData, row => {
-      const asset = assets[row.assetId]
-      if (!asset) return row.assetId
-      const baseAssetName = asset.name.split(' on ')[0]
-      return `${baseAssetName}_${asset.symbol}`
-    })
-
-    const groupedResults = Object.values(grouped).map(group => {
-      if (group.length === 1) return group[0]
-
-      const totalFiatAmount = group.reduce((sum, row) => sum + Number(row.fiatAmount), 0)
-      const totalCryptoAmount = group.reduce((sum, row) => sum + Number(row.cryptoAmount), 0)
-
-      const primaryAsset =
-        group.find(r => {
-          const a = assets[r.assetId]
-          return a && !a.name.includes(' on ')
-        }) || group[0]
-
-      return {
-        ...primaryAsset,
-        fiatAmount: totalFiatAmount.toString(),
-        cryptoAmount: totalCryptoAmount.toString(),
-        isGrouped: true,
-        relatedAssetIds: group.map(r => r.assetId),
-      }
-    })
-
-    return groupedResults.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
-  }, [rowData, assets])
-
   const { hasMore, next, data } = useInfiniteScroll({
-    array: uniqueRowsAll,
+    array: rowData,
     isScrollable: true,
   })
 
@@ -109,7 +76,10 @@ export const AccountTable = memo(() => {
           <AssetCell
             assetId={row.original.assetId}
             subText={truncate(row.original.symbol, { length: 6 })}
-            isGrouped={row.original.isGrouped}
+            isGrouped={Boolean(
+              !row.original.relatedAssetKey ||
+                row.original.relatedAssetKey === row.original.assetId,
+            )}
           />
         ),
       },
@@ -185,7 +155,7 @@ export const AccountTable = memo(() => {
         id: 'toggle',
         width: 50,
         Cell: ({ row }: { row: RowProps }) => {
-          if (!row.original.isGrouped) return null
+          if (row.original.relatedAssetKey !== row.original.assetId) return null
 
           return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
         },
@@ -230,7 +200,7 @@ export const AccountTable = memo(() => {
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
-      if (row.original.isGrouped) {
+      if (row.original.relatedAssetKey === row.original.assetId) {
         // InfiniteTable handles expansion automatically
         return
       }
@@ -277,8 +247,8 @@ export const AccountTable = memo(() => {
   )
 
   const accountsAssets = useMemo(() => {
-    return uniqueRowsAll.map(row => assets[row.assetId]).filter(isSome)
-  }, [uniqueRowsAll, assets])
+    return rowData.map(row => assets[row.assetId]).filter(isSome)
+  }, [rowData, assets])
 
   if (!isLargerThanMd) {
     return (

@@ -3,11 +3,11 @@ import {
   Box,
   Button,
   Collapse,
+  Text as CText,
   Flex,
   Icon,
   Tag,
   TagLeftIcon,
-  Text as CText,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -23,17 +23,12 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { isSome } from '@/lib/utils'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssets,
   selectFeeAssetByChainId,
-  selectFeeAssetById,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId,
+  selectGroupedAssetBalances,
 } from '@/state/slices/selectors'
-import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { store, useAppSelector } from '@/state/store'
 
 type GroupedAssetRowProps = {
   asset: Asset
@@ -57,65 +52,11 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   const {
     state: { isConnected },
   } = useWallet()
-
-  const relatedAssetIdsFilter = useMemo(
-    () => ({
-      assetId: asset.assetId,
-      // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
-      // disabled in the UI. This allows users to see our product supports more assets than they
-      // have connected chains for.
-      onlyConnectedChains: false,
-    }),
-    [asset],
+  const groupedAssetBalances = useAppSelector(state =>
+    selectGroupedAssetBalances(state, asset.assetId),
   )
-  const relatedAssetIds = useSelectorWithArgs(
-    selectRelatedAssetIdsInclusiveSorted,
-    relatedAssetIdsFilter,
-  )
-
-  const relatedAssets = useMemo(() => {
-    return relatedAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [assets, relatedAssetIds])
 
   const titleColor = useColorModeValue('black', 'white')
-
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
-
-  const primaryAsset = useMemo(() => {
-    const assetWithoutChainSuffix = relatedAssets.find(
-      relatedAsset =>
-        relatedAsset?.name.includes(' on ') || feeAsset?.assetId === relatedAsset?.assetId,
-    )
-    return assetWithoutChainSuffix || asset
-  }, [relatedAssets, feeAsset, asset])
-
-  const marketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, primaryAsset.assetId ?? ''),
-  )
-
-  const primaryAssetNameWithoutChain = useMemo(() => {
-    return primaryAsset.name.split(' on ')[0]
-  }, [primaryAsset.name])
-
-  const relatedFiatBalances = useAppSelector(state =>
-    relatedAssetIds.map(
-      id => selectPortfolioUserCurrencyBalanceByAssetId(state, { assetId: id }) ?? '0',
-    ),
-  )
-  const totalBalanceUserCurrency = useMemo(
-    () => relatedFiatBalances.reduce((sum, v) => bnOrZero(sum).plus(v).toString(), '0'),
-    [relatedFiatBalances],
-  )
-
-  const relatedCryptoBalances = useAppSelector(state =>
-    relatedAssetIds.map(id =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: id }),
-    ),
-  )
-  const totalBalanceCryptoHuman = useMemo(
-    () => relatedCryptoBalances.reduce((sum, v) => bnOrZero(sum).plus(v).toString(), '0'),
-    [relatedCryptoBalances],
-  )
 
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {
@@ -132,16 +73,15 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     [handleClick],
   )
 
-  const feeAssets = useAppSelector(state =>
-    relatedAssets.map(a => selectFeeAssetByChainId(state, a.chainId)),
-  )
-
   const networksIcons = useMemo(() => {
-    return relatedAssets.map((asset, i) => {
-      const feeAsset = feeAssets[i]
+    return groupedAssetBalances?.relatedAssets.map(asset => {
+      const feeAsset = selectFeeAssetByChainId(
+        store.getState(),
+        assets[asset.assetId]?.chainId ?? '',
+      )
       return (
         <Box
-          key={asset.chainId}
+          key={feeAsset?.chainId}
           w={2}
           borderRadius='full'
           display='flex'
@@ -155,9 +95,9 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         </Box>
       )
     })
-  }, [relatedAssets, feeAssets])
+  }, [groupedAssetBalances?.relatedAssets, assets])
 
-  const changePercent24Hr = marketData?.changePercent24Hr
+  const changePercent24Hr = groupedAssetBalances?.primaryAsset.priceChange
 
   const changePercentTagColorsScheme = useMemo(() => {
     if (bnOrZero(changePercent24Hr).gt(0)) {
@@ -190,6 +130,38 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     )
   }, [changePercent24Hr, changePercentTagColorsScheme])
 
+  const relatedAssets = useMemo(() => {
+    return groupedAssetBalances?.relatedAssets.map(asset => {
+      const relatedAsset = assets[asset.assetId]
+
+      if (!relatedAsset) return null
+
+      return (
+        <AssetRow
+          key={asset.assetId}
+          asset={relatedAsset}
+          index={0}
+          py={8}
+          // eslint-disable-next-line react-memo/require-usememo
+          data={{
+            assets: [relatedAsset],
+            handleClick: handleAssetClick,
+            disableUnsupported,
+            hideZeroBalanceAmounts,
+            handleLongPress: onLongPress,
+          }}
+        />
+      )
+    })
+  }, [
+    assets,
+    disableUnsupported,
+    groupedAssetBalances?.relatedAssets,
+    handleAssetClick,
+    hideZeroBalanceAmounts,
+    onLongPress,
+  ])
+
   return (
     <Box bg={isOpen ? 'background.surface.raised.base' : 'transparent'} borderRadius='lg' my={2}>
       <Button
@@ -206,12 +178,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
       >
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
-          <AssetIcon
-            assetId={primaryAsset.assetId}
-            showNetworkIcon={false}
-            size='sm'
-            flexShrink={0}
-          />
+          <AssetIcon assetId={asset.assetId} showNetworkIcon={false} size='sm' flexShrink={0} />
           <Box textAlign='left' flex={1} minWidth={0}>
             <CText
               lineHeight={1}
@@ -220,15 +187,15 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               overflow='hidden'
               color={titleColor}
             >
-              {primaryAssetNameWithoutChain}
+              {asset.name}
             </CText>
             <Flex alignItems='center' gap={2}>
-              {!showPrice ? (
+              {!showPrice && isConnected ? (
                 <Amount.Crypto
                   color='text.secondary'
                   fontSize='sm'
-                  value={totalBalanceCryptoHuman}
-                  symbol={primaryAsset.symbol}
+                  value={groupedAssetBalances?.primaryAsset.cryptoAmount}
+                  symbol={asset.symbol}
                 />
               ) : (
                 <CText
@@ -240,7 +207,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   maxWidth='150px'
                   overflow='hidden'
                 >
-                  {primaryAsset.symbol}
+                  {asset.symbol}
                 </CText>
               )}
             </Flex>
@@ -255,7 +222,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   color={titleColor}
                   lineHeight='shorter'
                   height='20px'
-                  value={marketData?.price}
+                  value={groupedAssetBalances?.primaryAsset.price}
                 />
                 {priceChange}
               </Flex>
@@ -264,12 +231,13 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
 
           {!showPrice &&
             isConnected &&
-            ((bnOrZero(totalBalanceCryptoHuman).gt(0) && hideZeroBalanceAmounts) ||
+            ((bnOrZero(groupedAssetBalances?.primaryAsset.cryptoAmount).gt(0) &&
+              hideZeroBalanceAmounts) ||
               !hideZeroBalanceAmounts) && (
               <Flex gap={1} flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
                 <Amount.Fiat
                   color='var(--chakra-colors-chakra-body-text)'
-                  value={totalBalanceUserCurrency.toString()}
+                  value={groupedAssetBalances?.primaryAsset.fiatAmount.toString()}
                 />
                 <Flex>{networksIcons}</Flex>
               </Flex>
@@ -279,22 +247,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
       </Button>
 
       <Collapse in={isOpen} unmountOnExit>
-        {relatedAssets.map(asset => (
-          <AssetRow
-            key={asset.assetId}
-            asset={asset}
-            index={0}
-            py={8}
-            // eslint-disable-next-line react-memo/require-usememo
-            data={{
-              assets: [asset],
-              handleClick: handleAssetClick,
-              disableUnsupported,
-              hideZeroBalanceAmounts,
-              handleLongPress: onLongPress,
-            }}
-          />
-        ))}
+        {relatedAssets}
       </Collapse>
     </Box>
   )

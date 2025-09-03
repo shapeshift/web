@@ -1,6 +1,6 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import type { Row } from 'react-table'
 import { useLongPress } from 'use-long-press'
@@ -8,12 +8,12 @@ import { useLongPress } from 'use-long-press'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
-import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
-import { selectAssets } from '@/state/slices/selectors'
-import { useSelectorWithArgs } from '@/state/store'
+import type { AccountRowData } from '@/state/slices/selectors'
+import { selectAssets, selectGroupedAssetBalances } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type RelatedAssetRowProps = {
-  assetId: string
+  asset: AccountRowData
   onRowClick: (asset: Asset) => void
   onRowLongPress?: (asset: Asset) => void
 }
@@ -22,15 +22,15 @@ const relatedAssetRowHoverStyles = {
   bg: 'background.surface.raised.base',
 }
 
-const RelatedAssetRow = memo<RelatedAssetRowProps>(({ assetId, onRowClick, onRowLongPress }) => {
+const RelatedAssetRow = memo<RelatedAssetRowProps>(({ asset, onRowClick, onRowLongPress }) => {
   const assets = useSelector(selectAssets)
-  const asset = assets[assetId]
+  const relatedAsset = assets[asset.assetId]
 
   const handleClick = useCallback(() => {
-    if (!asset) return
+    if (!relatedAsset) return
     vibrate('heavy')
-    onRowClick(asset)
-  }, [asset, onRowClick])
+    onRowClick(relatedAsset)
+  }, [relatedAsset, onRowClick])
 
   const longPressHandlers = useLongPress((_, { context: asset }) => {
     onRowLongPress?.(asset as Asset)
@@ -63,35 +63,19 @@ type GroupedAssetsProps = {
 }
 
 export const GroupedAssets = memo<GroupedAssetsProps>(({ row, onRowClick, onRowLongPress }) => {
-  const asset = row.original as Asset
-
-  const relatedAssetIdsFilter = useMemo(
-    () => ({
-      assetId: asset.assetId,
-      // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
-      // disabled in the UI. This allows users to see our product supports more assets than they
-      // have connected chains for.
-      onlyConnectedChains: false,
-    }),
-    [asset],
-  )
-  const relatedAssetIds = useSelectorWithArgs(
-    selectRelatedAssetIdsInclusiveSorted,
-    relatedAssetIdsFilter,
+  const asset = row.original
+  const groupedAssetBalances = useAppSelector(state =>
+    selectGroupedAssetBalances(state, asset.assetId),
   )
 
-  console.log({
-    relatedAssetIds,
-  })
-
-  if (relatedAssetIds.length === 0) return null
+  if (groupedAssetBalances?.relatedAssets.length === 1) return null
 
   return (
     <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-      {relatedAssetIds.map(assetId => (
+      {groupedAssetBalances?.relatedAssets.map(asset => (
         <RelatedAssetRow
-          key={assetId}
-          assetId={assetId}
+          key={asset.assetId}
+          asset={asset}
           onRowClick={onRowClick}
           onRowLongPress={onRowLongPress}
         />

@@ -136,7 +136,6 @@ export const Header = memo(() => {
           <Box flex='0 0 auto' width='400px'>
             <GlobalSeachButton />
           </Box>
-
           <HStack spacing={4} flex='1' justifyContent='flex-end'>
             {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />

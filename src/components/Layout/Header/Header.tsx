@@ -120,7 +120,11 @@ export const Header = memo(() => {
           <HStack spacing={8}>
             <ShapeShiftMenu />
             <HStack spacing={6}>
-              <NavigationDropdown label='common.trade' items={tradeSubMenuItems} defaultPath='/trade' />
+              <NavigationDropdown
+                label='common.trade'
+                items={tradeSubMenuItems}
+                defaultPath='/trade'
+              />
               <NavigationDropdown
                 label='navBar.explore'
                 items={exploreSubMenuItems}

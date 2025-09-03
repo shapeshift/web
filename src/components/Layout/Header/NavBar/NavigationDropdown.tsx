@@ -9,7 +9,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom'
 
@@ -34,6 +34,9 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   // Use the first item's path as default if no defaultPath is provided
   const defaultRoute = defaultPath || items[0]?.path || '/'
 
+  const handleClick = useCallback(() => navigate(defaultRoute), [navigate, defaultRoute])
+  const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
+  const activeStyle = useMemo(() => ({ bg: 'transparent' }), [])
   const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
   const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
 
@@ -69,14 +72,13 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       <MenuButton
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
-        onClick={() => navigate(defaultRoute)}
-        variant='unstyled'
+        onClick={handleClick}
         px={3}
         py={2}
         borderRadius='md'
         bg='transparent'
-        _hover={{ bg: 'background.surface.elevated' }}
-        _active={{ bg: 'transparent' }}
+        _hover={hoverStyle}
+        _active={activeStyle}
         as={Box}
         cursor='pointer'
       >

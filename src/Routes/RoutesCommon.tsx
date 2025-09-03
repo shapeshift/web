@@ -239,22 +239,26 @@ export const routes: Route[] = [
     routes: [
       {
         path: '/ramp/buy/*',
+        label: 'fiatRamps.buy',
         main: Ramp,
         hide: true,
       },
       {
         path: '/ramp/sell/*',
+        label: 'fiatRamps.sell',
         main: Ramp,
         hide: true,
       },
       ...assetIdPaths.flatMap(assetIdPath => [
         {
           path: `/ramp/buy${assetIdPath}`,
+          label: 'fiatRamps.buy',
           main: Ramp,
           hide: true,
         },
         {
           path: `/ramp/sell${assetIdPath}`,
+          label: 'fiatRamps.sell',
           main: Ramp,
           hide: true,
         },

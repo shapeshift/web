@@ -38,13 +38,38 @@ const ProductItem = ({
 }) => {
   const hoverStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
 
+  if (isExternal) {
+    return (
+      <Link
+        href={href}
+        target='_blank'
+        rel='noopener noreferrer'
+        p={3}
+        borderRadius='lg'
+        _hover={hoverStyle}
+        textDecoration='none'
+      >
+        <HStack spacing={3} align='flex-start'>
+          <Box p={2} borderRadius='md' bg='whiteAlpha.100' color='blue.400'>
+            <Icon as={icon} boxSize={5} />
+          </Box>
+          <VStack align='flex-start' spacing={1}>
+            <Text fontWeight='semibold' color='white' fontSize='sm'>
+              {title}
+            </Text>
+            <Text fontSize='xs' color='whiteAlpha.700'>
+              {subtitle}
+            </Text>
+          </VStack>
+        </HStack>
+      </Link>
+    )
+  }
+
   return (
     <Link
-      as={isExternal ? 'a' : ReactRouterLink}
-      to={isExternal ? undefined : href}
-      href={isExternal ? href : undefined}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noopener noreferrer' : undefined}
+      as={ReactRouterLink}
+      to={href}
       p={3}
       borderRadius='lg'
       _hover={hoverStyle}
@@ -78,13 +103,25 @@ const FooterLink = ({
 }) => {
   const hoverStyle = useMemo(() => ({ color: 'white' }), [])
 
+  if (isExternal) {
+    return (
+      <Link
+        href={href}
+        target='_blank'
+        rel='noopener noreferrer'
+        fontSize='sm'
+        color='whiteAlpha.700'
+        _hover={hoverStyle}
+      >
+        {children}
+      </Link>
+    )
+  }
+
   return (
     <Link
-      as={isExternal ? 'a' : ReactRouterLink}
-      to={isExternal ? undefined : href}
-      href={isExternal ? href : undefined}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noopener noreferrer' : undefined}
+      as={ReactRouterLink}
+      to={href}
       fontSize='sm'
       color='whiteAlpha.700'
       _hover={hoverStyle}
@@ -211,9 +248,21 @@ export const ShapeShiftMenu = () => {
             </HStack>
 
             <HStack spacing={1}>
-              <SocialIcon href='https://github.com/shapeshift/web' icon={FaGithub} label={translate('shapeShiftMenu.footer.github')} />
-              <SocialIcon href='https://discord.gg/shapeshift' icon={FaDiscord} label={translate('shapeShiftMenu.footer.discord')} />
-              <SocialIcon href='https://x.com/shapeshift' icon={RiTwitterXLine} label={translate('shapeShiftMenu.footer.twitter')} />
+              <SocialIcon
+                href='https://github.com/shapeshift/web'
+                icon={FaGithub}
+                label={translate('shapeShiftMenu.footer.github')}
+              />
+              <SocialIcon
+                href='https://discord.gg/shapeshift'
+                icon={FaDiscord}
+                label={translate('shapeShiftMenu.footer.discord')}
+              />
+              <SocialIcon
+                href='https://x.com/shapeshift'
+                icon={RiTwitterXLine}
+                label={translate('shapeShiftMenu.footer.twitter')}
+              />
             </HStack>
           </Flex>
         </VStack>

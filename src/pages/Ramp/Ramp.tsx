@@ -175,7 +175,7 @@ const RampContent: React.FC = () => {
           </Flex>
         )}
       </Box>
-      <TopAssets setAssetId={setSelectedAssetId} />
+      <TopAssets />
     </Main>
   )
 }

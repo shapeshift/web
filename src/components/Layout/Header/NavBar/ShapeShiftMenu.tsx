@@ -166,7 +166,7 @@ export const ShapeShiftMenu = () => {
                 icon={TbCoin}
                 title='FOX Token'
                 subtitle='Our Governance Token'
-                href='/fox'
+                href='/fox-ecosystem'
               />
               <ProductItem
                 icon={TbBrowser}

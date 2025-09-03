@@ -3,13 +3,7 @@ import { createIcon } from '@chakra-ui/react'
 export const ShapeShiftLogoText = createIcon({
   displayName: 'ShapeShiftLogoText',
   path: (
-    <svg
-      width='130'
-      height='32'
-      viewBox='0 0 130 32'
-      fill='none'
-      xmlns='http://www.w3.org/2000/svg'
-    >
+    <>
       <mask
         id='mask0_2606_9'
         style={{ maskType: 'luminance' }}
@@ -64,7 +58,7 @@ export const ShapeShiftLogoText = createIcon({
           fill='currentColor'
         />
       </g>
-    </svg>
+    </>
   ),
   viewBox: '0 0 130 32',
 })

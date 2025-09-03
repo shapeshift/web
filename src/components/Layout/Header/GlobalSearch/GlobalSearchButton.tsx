@@ -15,7 +15,7 @@ const sxProp1 = { svg: { width: '18px', height: '18px' } }
 
 const searchIcon = <SearchIcon />
 
-export const GlobalSeachButton = memo(() => {
+export const GlobalSearchButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
 

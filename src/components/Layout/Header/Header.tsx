@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
-import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
+import { GlobalSearchButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { NavigationDropdown } from './NavBar/NavigationDropdown'
@@ -134,7 +134,7 @@ export const Header = memo(() => {
           </HStack>
 
           <Box flex='0 0 auto' width='400px'>
-            <GlobalSeachButton />
+            <GlobalSearchButton />
           </Box>
           <HStack spacing={4} flex='1' justifyContent='flex-end'>
             {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (

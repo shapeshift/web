@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   HStack,
   Icon,
   Menu,
@@ -60,17 +61,17 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   return (
     <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
       <MenuButton
+        as={Button}
+        variant='ghost'
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
         onClick={handleClick}
         px={3}
         py={2}
         borderRadius='md'
-        bg='transparent'
         _hover={menuButtonHoverSx}
         _active={menuButtonActiveSx}
-        as={Box}
-        cursor='pointer'
+        aria-current={isActive ? 'page' : undefined}
       >
         <Box
           fontSize='md'

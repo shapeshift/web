@@ -136,10 +136,10 @@ export const Header = memo(() => {
           </Box>
 
           <HStack spacing={4} flex='1' justifyContent='flex-end'>
-            {false && isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
+            {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />
             )}
-            {false && isLargerThanMd && isWalletConnectToDappsV2Enabled && (
+            {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
               <Suspense>
                 <WalletConnectToDappsHeaderButton />
               </Suspense>

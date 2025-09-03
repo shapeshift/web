@@ -23,7 +23,7 @@ const promoData: PromoItem[] = [
     startDate: '2023-01-01 08:00 AM',
     endDate: '2023-01-01 08:00 AM',
     id: 'apple-pay',
-    href: 'https://widget.onramper.com/?apiKey=pk_prod_ViOib9FcqKQeqqBsLF6ZPYis8X0Wdl9ma16rBhTxXmw0&defaultCrypto=ETH&supportSell=false&isAddressEditable=false&language=en&darkMode=true&redirectURL=https%3A%2F%2Fapp.shapeshift.com%2F%23%2Framp&onlyGateways=Mercuryo',
+    href: 'https://widget.onramper.com/?apiKey=pk_prod_ViOib9FcqKQeqqBsLF6ZPYis8X0Wdl9ma16rBhTxXmw0&defaultCrypto=ETH&supportSell=false&isAddressEditable=false&language=en&darkMode=true&redirectURL=https%3A%2F%2Fapp.shapeshift.com%2F%23%2Framp%2Fbuy&onlyGateways=Mercuryo',
     walletRequired: false,
     rightElement: <Image width='80px' overflow='hidden' borderRadius='lg' src={OnRamperLogo} />,
     isExternal: true,

@@ -31,7 +31,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  // Use the first item's path as default if no defaultPath is provided
   const defaultRoute = defaultPath || items[0]?.path || '/'
 
   const handleClick = useCallback(() => navigate(defaultRoute), [navigate, defaultRoute])
@@ -40,11 +39,9 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
   const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
 
-  // Check if any of the dropdown's items match the current path
   const isActive = useMemo(() => {
     const currentPath = location.pathname
 
-    // Special case for Trade dropdown - check for trade, limit, claim, and ramp paths
     if (label === 'common.trade') {
       return (
         currentPath.startsWith('/trade') ||
@@ -54,7 +51,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       )
     }
 
-    // Special case for Explore dropdown - check for assets, markets, and explore paths
     if (label === 'navBar.explore') {
       return (
         currentPath.startsWith('/assets') ||
@@ -63,7 +59,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       )
     }
 
-    // For other dropdowns, check if current path matches any item path
     return items.some(item => currentPath.startsWith(item.path))
   }, [location.pathname, label, items])
 

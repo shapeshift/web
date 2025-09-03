@@ -267,6 +267,14 @@
     "ctaTitle": "You can also use ShapeShift with all the top wallets to trade, earn yield and <span>track your crypto across %{chainCount} chains</span>",
     "availableAssets": "Available Assets"
   },
+  "rampPage": {
+    "title": "Buy Crypto <span>in Seconds</span>",
+    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
+    "ctaTitle": "You can also use ShapeShift with all the top wallets to trade, earn yield and <span>track your crypto across %{chainCount} chains</span>",
+    "ctaBody": "Connect Wallet",
+    "availableAssets": "Available Assets"
+  },
   "updateToast": {
     "body": "There is an app update available!",
     "cta": "Reload App",

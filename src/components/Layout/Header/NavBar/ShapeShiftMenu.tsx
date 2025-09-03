@@ -188,7 +188,6 @@ export const ShapeShiftMenu = () => {
         onMouseLeave={onClose}
       >
         <VStack align='stretch' spacing={6}>
-          {/* Products Grid */}
           <Box>
             <Text fontSize='sm' fontWeight='semibold' color='whiteAlpha.600' mb={3}>
               {translate('shapeShiftMenu.products')}
@@ -224,7 +223,6 @@ export const ShapeShiftMenu = () => {
             </Grid>
           </Box>
 
-          {/* Footer */}
           <Flex
             justify='space-between'
             align='center'

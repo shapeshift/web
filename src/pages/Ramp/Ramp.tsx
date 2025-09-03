@@ -84,7 +84,7 @@ const RampContent: React.FC = () => {
   )
 
   const ctaTitleTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['buyPage.ctaTitle', { chainCount }],
+    () => ['rampPage.ctaTitle', { chainCount }],
     [chainCount],
   )
 
@@ -125,12 +125,12 @@ const RampContent: React.FC = () => {
                 lineHeight='1em'
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
-                translation='buyPage.title'
+                translation='rampPage.title'
                 components={titleTransaltionsComponents}
               />
 
-              <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
-              <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
+              <Text fontSize='lg' translation='rampPage.body' color='whiteAlpha.900' />
+              <Text fontSize='sm' color='text.subtle' translation='rampPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
               <Card bg='background.surface.base' mx={cardMxOffsetBase}>
@@ -153,11 +153,11 @@ const RampContent: React.FC = () => {
                 />
                 <Text
                   fontSize='lg'
-                  translation={'buyPage.ctaBody'}
+                  translation={'rampPage.ctaBody'}
                   components={ctaTranslationComponents}
                 />
                 <Button onClick={handleConnect} size='lg'>
-                  {translate('connectWallet.getStarted')}
+                  {translate('common.getStarted')}
                 </Button>
               </Stack>
               <Box display={displayXlBlock} overflow='visible' width='400px'>
@@ -180,10 +180,10 @@ const RampContent: React.FC = () => {
   )
 }
 
-export const Ramp: React.FC = () => {
-  const rampContentElement = useMemo(() => <RampContent />, [])
-  const navigateElement = useMemo(() => <Navigate to='/ramp/buy' replace />, [])
+const rampContentElement = <RampContent />
+const navigateElement = <Navigate to='/ramp/buy' replace />
 
+export const Ramp: React.FC = () => {
   return (
     <Routes>
       <Route path='/buy/*' element={rampContentElement} />

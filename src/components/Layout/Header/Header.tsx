@@ -35,7 +35,6 @@ const paddingTopProp = {
   md: 0,
 }
 
-// Navigation links for horizontal navbar
 const tradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: RiRefreshLine },
   { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
@@ -93,7 +92,6 @@ export const Header = memo(() => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  // Hide the header on mobile
   if (!isLargerThanMd) return null
 
   return (
@@ -116,7 +114,6 @@ export const Header = memo(() => {
         paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          {/* Left side - Logo and Navigation */}
           <HStack spacing={8} flex='1'>
             <ShapeShiftMenu />
             <HStack spacing={6}>
@@ -134,14 +131,11 @@ export const Header = memo(() => {
             </HStack>
           </HStack>
 
-          {/* Center - Search */}
           <Box flex='0 0 auto' width='400px'>
             <GlobalSeachButton />
           </Box>
 
-          {/* Right side - Actions */}
           <HStack spacing={4} flex='1' justifyContent='flex-end'>
-            {/* Hide degraded state and connect dapp buttons for now */}
             {false && isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />
             )}
@@ -150,10 +144,10 @@ export const Header = memo(() => {
                 <WalletConnectToDappsHeaderButton />
               </Suspense>
             )}
-            {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isConnected && !isActionCenterEnabled && <TxWindow />}
             {isConnected && isActionCenterEnabled && <ActionCenter />}
             <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
+            {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (
               <Box display={displayProp2}>
                 <UserMenu />

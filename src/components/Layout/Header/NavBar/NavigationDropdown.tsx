@@ -22,7 +22,7 @@ type NavigationDropdownItem = {
 type NavigationDropdownProps = {
   label: string
   items: NavigationDropdownItem[]
-  defaultPath?: string
+  defaultPath: string
 }
 
 export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDropdownProps) => {
@@ -31,9 +31,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  const defaultRoute = defaultPath || items[0]?.path || '/'
-
-  const handleClick = useCallback(() => navigate(defaultRoute), [navigate, defaultRoute])
+  const handleClick = useCallback(() => navigate(defaultPath), [navigate, defaultPath])
   const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
   const activeStyle = useMemo(() => ({ bg: 'transparent' }), [])
   const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
@@ -52,11 +50,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
     }
 
     if (label === 'navBar.explore') {
-      return (
-        currentPath.startsWith('/assets') ||
-        currentPath.startsWith('/markets') ||
-        currentPath.startsWith('/explore')
-      )
+      return currentPath.startsWith('/assets') || currentPath.startsWith('/markets')
     }
 
     return items.some(item => currentPath.startsWith(item.path))

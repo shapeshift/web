@@ -42,7 +42,6 @@ const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
 export const Buy = () => {
-
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
 

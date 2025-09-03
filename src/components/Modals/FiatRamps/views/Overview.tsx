@@ -84,7 +84,7 @@ export const Overview: React.FC<OverviewProps> = ({
   vanityAddress,
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
-  
+
   // Sync with prop when it changes (for URL-driven updates)
   useEffect(() => {
     setFiatRampAction(defaultAction)

@@ -22,11 +22,11 @@ import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   marketApi,
   useFindAllMarketDataQuery,
 } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -107,7 +107,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useDiscoverAccounts()
   usePortfolioFetch()
-  
+
   // Load fiat ramps data globally
   useGetFiatRampsQuery()
 

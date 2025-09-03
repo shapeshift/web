@@ -1,15 +1,13 @@
-import { Box, Divider, Flex, HStack, Icon, Link, Text, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaCreditCard, FaArrowRight } from 'react-icons/fa'
+import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
 import { RiRefreshLine } from 'react-icons/ri'
 import { TbChartHistogram } from 'react-icons/tb'
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useSelector } from 'react-redux'
-import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
-import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
 import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
@@ -31,10 +29,7 @@ const WalletConnectToDappsHeaderButton = lazy(() =>
   ),
 )
 
-const pxProp = { base: 0, xl: 4 }
-const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
-const widthProp = { base: 'auto', md: 'full' }
 const paddingTopProp = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
   md: 0,

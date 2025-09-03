@@ -4,7 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 
 import { PageContainer } from '../Buy/components/PageContainer'
 import { TopAssets } from '../Buy/TopAssets'
@@ -42,7 +42,6 @@ const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
 const RampContent: React.FC = () => {
-
   const location = useLocation()
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
@@ -179,12 +178,15 @@ const RampContent: React.FC = () => {
 }
 
 export const Ramp: React.FC = () => {
+  const rampContentElement = useMemo(() => <RampContent />, [])
+  const navigateElement = useMemo(() => <Navigate to='/ramp/buy' replace />, [])
+
   return (
     <Routes>
-      <Route path="/buy/*" element={<RampContent />} />
-      <Route path="/sell/*" element={<RampContent />} />
+      <Route path='/buy/*' element={rampContentElement} />
+      <Route path='/sell/*' element={rampContentElement} />
       {/* Default redirect to buy */}
-      <Route path="/" element={<Navigate to="/ramp/buy" replace />} />
+      <Route path='/' element={navigateElement} />
     </Routes>
   )
 }

@@ -18,6 +18,14 @@ const searchIcon = <SearchIcon />
 export const GlobalSeachButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
+
+  const buttonHoverStyle = useMemo(
+    () => ({
+      bg: 'background.surface.elevated',
+      borderColor: 'border.hover',
+    }),
+    [],
+  )
   const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
   useEventListener(document, 'keydown', event => {
@@ -50,10 +58,7 @@ export const GlobalSeachButton = memo(() => {
           bg='background.surface.base'
           border='1px solid'
           borderColor='border.base'
-          _hover={{
-            bg: 'background.surface.elevated',
-            borderColor: 'border.hover',
-          }}
+          _hover={buttonHoverStyle}
         >
           {translate('common.search')}
           {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.

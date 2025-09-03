@@ -11,7 +11,6 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -91,13 +90,19 @@ const WalletButton: FC<WalletButtonProps> = ({
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
-  const bgColor = useColorModeValue('gray.200', 'gray.800')
 
   const { data: ensName } = useEnsName({
     address: walletInfo?.meta?.address ? getAddress(walletInfo.meta.address) : undefined,
   })
 
   const maybeRdns = useAppSelector(selectWalletRdns)
+
+  const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
+  const activeStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
+  const connectButtonHoverStyle = useMemo(
+    () => ({ bg: 'background.surface.elevated', borderColor: 'border.hover' }),
+    [],
+  )
 
   const mipdProviders = useMipdProviders()
   const maybeMipdProvider = useMemo(
@@ -153,20 +158,12 @@ const WalletButton: FC<WalletButtonProps> = ({
       fontSize='sm'
       variant='ghost'
       bg='transparent'
-      _hover={{
-        bg: 'background.surface.elevated',
-      }}
-      _active={{
-        bg: 'background.surface.elevated',
-      }}
+      _hover={hoverStyle}
+      _active={activeStyle}
     >
       <Flex>
         {walletLabel ? (
-          <MiddleEllipsis
-            fontSize='sm'
-            shouldShorten={shouldShorten}
-            value={walletLabel}
-          />
+          <MiddleEllipsis fontSize='sm' shouldShorten={shouldShorten} value={walletLabel} />
         ) : (
           <RawText>{walletInfo?.name}</RawText>
         )}
@@ -181,10 +178,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       bg='background.surface.base'
       border='1px solid'
       borderColor='border.base'
-      _hover={{
-        bg: 'background.surface.elevated',
-        borderColor: 'border.hover',
-      }}
+      _hover={connectButtonHoverStyle}
     >
       <Text translation='common.connectWallet' />
     </Button>

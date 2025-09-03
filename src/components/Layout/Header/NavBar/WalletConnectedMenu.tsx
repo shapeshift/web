@@ -1,5 +1,5 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Box, Flex, Icon, IconButton, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
+import { Box, Flex, Icon, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { TbEdit, TbTrash } from 'react-icons/tb'
@@ -75,6 +75,69 @@ const ConnectedMenu = memo(
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isNativeWallet = connectedType === KeyManager.Native
 
+    const renameHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.300', color: 'white' }), [])
+    const deleteHoverStyle = useMemo(() => ({ bg: 'red.400' }), [])
+
+    const handleRenamePointerDown = useCallback(
+      (e: React.PointerEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        console.log('Rename pointer down!')
+        handleRenameClick()
+      },
+      [handleRenameClick],
+    )
+
+    const handleRenameTouchStart = useCallback(
+      (e: React.TouchEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        console.log('Rename touch!')
+        handleRenameClick()
+      },
+      [handleRenameClick],
+    )
+
+    const handleRenameClickEvent = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        console.log('Rename click!')
+        handleRenameClick()
+      },
+      [handleRenameClick],
+    )
+
+    const handleDeletePointerDown = useCallback(
+      (e: React.PointerEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        console.log('Delete pointer down!')
+        handleDeleteClick()
+      },
+      [handleDeleteClick],
+    )
+
+    const handleDeleteTouchStart = useCallback(
+      (e: React.TouchEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        console.log('Delete touch!')
+        handleDeleteClick()
+      },
+      [handleDeleteClick],
+    )
+
+    const handleDeleteClickEvent = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        console.log('Delete click!')
+        handleDeleteClick()
+      },
+      [handleDeleteClick],
+    )
+
     return (
       <>
         <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
@@ -110,25 +173,10 @@ const ConnectedMenu = memo(
                         display='flex'
                         alignItems='center'
                         justifyContent='center'
-                        _hover={{ bg: 'whiteAlpha.300', color: 'white' }}
-                        onPointerDown={e => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          console.log('Rename pointer down!')
-                          handleRenameClick()
-                        }}
-                        onTouchStart={e => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          console.log('Rename touch!')
-                          handleRenameClick()
-                        }}
-                        onClick={e => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          console.log('Rename click!')
-                          handleRenameClick()
-                        }}
+                        _hover={renameHoverStyle}
+                        onPointerDown={handleRenamePointerDown}
+                        onTouchStart={handleRenameTouchStart}
+                        onClick={handleRenameClickEvent}
                       >
                         <Icon as={TbEdit} boxSize={3} pointerEvents='none' />
                       </Box>
@@ -145,25 +193,10 @@ const ConnectedMenu = memo(
                         display='flex'
                         alignItems='center'
                         justifyContent='center'
-                        _hover={{ bg: 'red.400' }}
-                        onPointerDown={e => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          console.log('Delete pointer down!')
-                          handleDeleteClick()
-                        }}
-                        onTouchStart={e => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          console.log('Delete touch!')
-                          handleDeleteClick()
-                        }}
-                        onClick={e => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          console.log('Delete click!')
-                          handleDeleteClick()
-                        }}
+                        _hover={deleteHoverStyle}
+                        onPointerDown={handleDeletePointerDown}
+                        onTouchStart={handleDeleteTouchStart}
+                        onClick={handleDeleteClickEvent}
                       >
                         <Icon as={TbTrash} boxSize={3} pointerEvents='none' />
                       </Box>

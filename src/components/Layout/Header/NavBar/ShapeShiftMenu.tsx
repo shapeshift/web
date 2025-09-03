@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
@@ -12,91 +13,112 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { ChevronDownIcon } from '@chakra-ui/icons'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FiSmartphone } from 'react-icons/fi'
 import { RiTwitterXLine } from 'react-icons/ri'
 import { TbBrowser, TbCoin, TbWallet } from 'react-icons/tb'
-import { FiSmartphone } from 'react-icons/fi'
 import { Link as ReactRouterLink } from 'react-router-dom'
 
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 
-const ProductItem = ({ icon, title, subtitle, href, isExternal = false }: {
+const ProductItem = ({
+  icon,
+  title,
+  subtitle,
+  href,
+  isExternal = false,
+}: {
   icon: React.ComponentType
   title: string
   subtitle: string
   href: string
   isExternal?: boolean
-}) => (
-  <Link
-    as={isExternal ? 'a' : ReactRouterLink}
-    to={isExternal ? undefined : href}
-    href={isExternal ? href : undefined}
-    target={isExternal ? '_blank' : undefined}
-    rel={isExternal ? 'noopener noreferrer' : undefined}
-    p={3}
-    borderRadius='lg'
-    _hover={{ bg: 'whiteAlpha.100' }}
-    textDecoration='none'
-  >
-    <HStack spacing={3} align='flex-start'>
-      <Box
-        p={2}
-        borderRadius='md'
-        bg='whiteAlpha.100'
-        color='blue.400'
-      >
-        <Icon as={icon} boxSize={5} />
-      </Box>
-      <VStack align='flex-start' spacing={1}>
-        <Text fontWeight='semibold' color='white' fontSize='sm'>
-          {title}
-        </Text>
-        <Text fontSize='xs' color='whiteAlpha.700'>
-          {subtitle}
-        </Text>
-      </VStack>
-    </HStack>
-  </Link>
-)
+}) => {
+  const hoverStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
 
-const FooterLink = ({ href, children, isExternal = false }: {
+  return (
+    <Link
+      as={isExternal ? 'a' : ReactRouterLink}
+      to={isExternal ? undefined : href}
+      href={isExternal ? href : undefined}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      p={3}
+      borderRadius='lg'
+      _hover={hoverStyle}
+      textDecoration='none'
+    >
+      <HStack spacing={3} align='flex-start'>
+        <Box p={2} borderRadius='md' bg='whiteAlpha.100' color='blue.400'>
+          <Icon as={icon} boxSize={5} />
+        </Box>
+        <VStack align='flex-start' spacing={1}>
+          <Text fontWeight='semibold' color='white' fontSize='sm'>
+            {title}
+          </Text>
+          <Text fontSize='xs' color='whiteAlpha.700'>
+            {subtitle}
+          </Text>
+        </VStack>
+      </HStack>
+    </Link>
+  )
+}
+
+const FooterLink = ({
+  href,
+  children,
+  isExternal = false,
+}: {
   href: string
   children: React.ReactNode
   isExternal?: boolean
-}) => (
-  <Link
-    as={isExternal ? 'a' : ReactRouterLink}
-    to={isExternal ? undefined : href}
-    href={isExternal ? href : undefined}
-    target={isExternal ? '_blank' : undefined}
-    rel={isExternal ? 'noopener noreferrer' : undefined}
-    fontSize='sm'
-    color='whiteAlpha.700'
-    _hover={{ color: 'white' }}
-  >
-    {children}
-  </Link>
-)
+}) => {
+  const hoverStyle = useMemo(() => ({ color: 'white' }), [])
 
-const SocialIcon = ({ href, icon, label }: {
+  return (
+    <Link
+      as={isExternal ? 'a' : ReactRouterLink}
+      to={isExternal ? undefined : href}
+      href={isExternal ? href : undefined}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      fontSize='sm'
+      color='whiteAlpha.700'
+      _hover={hoverStyle}
+    >
+      {children}
+    </Link>
+  )
+}
+
+const SocialIcon = ({
+  href,
+  icon,
+  label,
+}: {
   href: string
   icon: React.ComponentType
   label: string
-}) => (
-  <Link
-    href={href}
-    target='_blank'
-    rel='noopener noreferrer'
-    p={2}
-    borderRadius='md'
-    color='whiteAlpha.600'
-    _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
-    aria-label={label}
-  >
-    <Icon as={icon} boxSize={5} />
-  </Link>
-)
+}) => {
+  const hoverStyle = useMemo(() => ({ color: 'white', bg: 'whiteAlpha.100' }), [])
+
+  return (
+    <Link
+      href={href}
+      target='_blank'
+      rel='noopener noreferrer'
+      p={2}
+      borderRadius='md'
+      color='whiteAlpha.600'
+      _hover={hoverStyle}
+      aria-label={label}
+    >
+      <Icon as={icon} boxSize={5} />
+    </Link>
+  )
+}
 
 export const ShapeShiftMenu = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -113,7 +135,7 @@ export const ShapeShiftMenu = () => {
         <ShapeShiftLogoText height='28px' width='auto' color='white' />
         <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' />
       </MenuButton>
-      
+
       <MenuList
         bg='whiteAlpha.100'
         backdropFilter='blur(20px)'
@@ -164,7 +186,13 @@ export const ShapeShiftMenu = () => {
           </Box>
 
           {/* Footer */}
-          <Flex justify='space-between' align='center' pt={4} borderTop='1px solid' borderColor='whiteAlpha.200'>
+          <Flex
+            justify='space-between'
+            align='center'
+            pt={4}
+            borderTop='1px solid'
+            borderColor='whiteAlpha.200'
+          >
             <HStack spacing={6}>
               <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>
                 Governance
@@ -179,23 +207,11 @@ export const ShapeShiftMenu = () => {
                 FAQ
               </FooterLink>
             </HStack>
-            
+
             <HStack spacing={1}>
-              <SocialIcon
-                href='https://github.com/shapeshift/web'
-                icon={FaGithub}
-                label='GitHub'
-              />
-              <SocialIcon
-                href='https://discord.gg/shapeshift'
-                icon={FaDiscord}
-                label='Discord'
-              />
-              <SocialIcon
-                href='https://x.com/shapeshift'
-                icon={RiTwitterXLine}
-                label='Twitter'
-              />
+              <SocialIcon href='https://github.com/shapeshift/web' icon={FaGithub} label='GitHub' />
+              <SocialIcon href='https://discord.gg/shapeshift' icon={FaDiscord} label='Discord' />
+              <SocialIcon href='https://x.com/shapeshift' icon={RiTwitterXLine} label='Twitter' />
             </HStack>
           </Flex>
         </VStack>

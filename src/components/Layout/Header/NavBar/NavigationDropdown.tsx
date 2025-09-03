@@ -29,10 +29,15 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   // Use the first item's path as default if no defaultPath is provided
   const defaultRoute = defaultPath || items[0]?.path || '/'
 
+  const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
+  const activeStyle = useMemo(() => ({ bg: 'transparent' }), [])
+  const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
+  const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.200', color: 'white' }), [])
+
   // Check if any of the dropdown's items match the current path
   const isActive = useMemo(() => {
     const currentPath = location.pathname
-    
+
     // Special case for Trade dropdown - check for trade, limit, claim, and ramp paths
     if (label === 'Trade') {
       return (
@@ -42,7 +47,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         currentPath.startsWith('/ramp')
       )
     }
-    
+
     // Special case for Explore dropdown - check for assets, markets, and explore paths
     if (label === 'Explore') {
       return (
@@ -51,7 +56,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         currentPath.startsWith('/explore')
       )
     }
-    
+
     // For other dropdowns, check if current path matches any item path
     return items.some(item => currentPath.startsWith(item.path))
   }, [location.pathname, label, items])
@@ -67,12 +72,8 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         px={3}
         py={2}
         borderRadius='md'
-        _hover={{
-          bg: 'background.surface.elevated',
-        }}
-        _active={{
-          bg: 'transparent',
-        }}
+        _hover={hoverStyle}
+        _active={activeStyle}
       >
         <Box
           fontSize='md'
@@ -97,7 +98,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       >
         {items.map(item => {
           const isItemActive = location.pathname.startsWith(item.path)
-          
+
           return (
             <MenuItem
               key={item.path}
@@ -105,14 +106,8 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
               to={item.path}
               bg={isItemActive ? 'whiteAlpha.200' : 'transparent'}
               color={isItemActive ? 'white' : 'whiteAlpha.800'}
-              _hover={{
-                bg: 'whiteAlpha.200',
-                color: 'white',
-              }}
-              _focus={{
-                bg: 'whiteAlpha.200',
-                color: 'white',
-              }}
+              _hover={menuItemHoverStyle}
+              _focus={menuItemFocusStyle}
               borderRadius='md'
               mx={2}
               my={1}
@@ -127,10 +122,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                     color={isItemActive ? 'white' : 'whiteAlpha.600'}
                   />
                 )}
-                <Text
-                  fontSize='sm'
-                  fontWeight={isItemActive ? 'semibold' : 'medium'}
-                >
+                <Text fontSize='sm' fontWeight={isItemActive ? 'semibold' : 'medium'}>
                   {item.label}
                 </Text>
               </HStack>

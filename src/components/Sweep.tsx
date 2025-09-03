@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
+import { Box, Button, Text as CText, Divider, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -9,6 +9,7 @@ import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
 import { handleSend } from './Modals/Send/utils'
 
+import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
@@ -164,7 +165,9 @@ export const Sweep = ({
           </Stack>
           <Stack>
             <CText color='text.subtle'>
-              {translate('modals.send.consolidate.body', { asset: asset.name })}
+              {translate('modals.send.consolidate.body', {
+                asset: buildAssetTitle(asset, translate),
+              })}
             </CText>
           </Stack>
           <Stack justifyContent='space-between'>

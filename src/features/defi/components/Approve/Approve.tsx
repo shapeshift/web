@@ -1,12 +1,12 @@
 import {
   Box,
   Button,
+  Text as CText,
   Divider,
   Icon,
   Link,
   Stack,
   Switch,
-  Text as CText,
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -20,6 +20,7 @@ import { PairIcons } from './PairIcons'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -85,9 +86,9 @@ export const Approve = ({
   const approveHeaderTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       isReset ? 'modals.approve.resetHeader' : 'modals.approve.header',
-      { asset: asset.name, spenderName },
+      { asset: buildAssetTitle(asset, translate), spenderName },
     ],
-    [asset.name, isReset, spenderName],
+    [asset, isReset, spenderName, translate],
   )
 
   const approveCopy = useMemo(() => {
@@ -145,7 +146,7 @@ export const Approve = ({
             >
               {spenderName}
             </Link>
-            {translate('modals.approve.body', { asset: asset.name })}
+            {translate('modals.approve.body', { asset: buildAssetTitle(asset, translate) })}
           </CText>
           <Link color='blue.500' href={learnMoreLink} isExternal>
             {translate('modals.approve.learnMore')}

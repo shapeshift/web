@@ -8,6 +8,7 @@ import { ResultButton } from '../ResultButton'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { RawText } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -56,15 +57,14 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
           <AssetIcon showNetworkIcon={true} assetId={asset.assetId} size='sm' />
           <Flex flexDir='column' alignItems='flex-start' textAlign='left'>
             <Flex gap={1} alignItems='center'>
-              <RawText
+              <AssetName
+                assetId={asset.assetId}
                 color='chakra-body-text'
                 width='100%'
                 textOverflow='ellipsis'
                 overflow='hidden'
                 whiteSpace='nowrap'
-              >
-                {asset.name}
-              </RawText>
+              />
               {isSpamAsset && (
                 <TooltipWithTouch label={translate('assets.spam.marked')}>
                   <Icon as={TbAlertTriangle} color='yellow.500' strokeWidth={2} />

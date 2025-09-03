@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetActions } from '@/components/AssetHeader/AssetActions'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { RawText } from '@/components/Text'
 import {
   selectAssetById,
@@ -81,7 +82,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
         </Button>
         <Flex alignItems='center' gap={2}>
           <AssetIcon assetId={asset.assetId} height='30px' width='auto' />
-          <RawText fontWeight='bold'>{asset.name}</RawText>
+          <AssetName fontWeight='bold' assetId={asset.assetId} />
         </Flex>
       </CardHeader>
       <CardBody

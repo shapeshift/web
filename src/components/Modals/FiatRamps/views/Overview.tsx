@@ -12,9 +12,8 @@ import {
   Select,
   Spinner,
   Stack,
-  Text as RawText,
   useColorMode,
-  useToast,
+  useToast
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -33,6 +32,7 @@ import { middleEllipsis } from '../utils'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { IconCircle } from '@/components/IconCircle'
 import { Text } from '@/components/Text'
@@ -331,7 +331,7 @@ export const Overview: React.FC<OverviewProps> = ({
               <Flex alignItems='center'>
                 <AssetIcon size='sm' assetId={assetId} mr={4} />
                 <Box textAlign='left'>
-                  <RawText lineHeight={1}>{asset.name}</RawText>
+                  <AssetName lineHeight={1} assetId={assetId} />
                 </Box>
               </Flex>
             ) : (

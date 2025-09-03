@@ -13,10 +13,9 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import type { JSX } from 'react'
-import { isValidElement, useCallback, useState } from 'react'
+import { isValidElement, useCallback, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { TbAlertTriangle } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -25,6 +24,7 @@ import { TooltipWithTouch } from '../TooltipWithTouch'
 import { AssetTeaser } from './AssetTeaser'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { RawText } from '@/components/Text'
 import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
 import { selectAssetById, selectIsSpamMarkedByAssetId } from '@/state/slices/selectors'
@@ -52,22 +52,6 @@ const rowTitleBoxAfter = {
 
 const rowTitleTextFontSize = { base: 'sm', md: 'md' }
 
-const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
-  if (showAssetSymbol && postFix) {
-    return `${asset.symbol} ${postFix}`
-  }
-
-  if (showAssetSymbol) {
-    return asset.symbol
-  }
-
-  if (postFix) {
-    return `${asset.name} ${postFix}`
-  }
-
-  return asset.name
-}
-
 export const AssetCell = ({
   assetId,
   subText,
@@ -92,9 +76,45 @@ export const AssetCell = ({
 
   const handlePopoverClose = useCallback(() => setShowPopover(false), [])
 
-  if (!asset) return null
+  const rowTitle = useMemo(() => {
+    if (opportunityName)
+      return (
+        <RawText
+          fontWeight='semibold'
+          as='span'
+          position='absolute'
+          lineHeight='shorter'
+          whiteSpace='nowrap'
+          noOfLines={1}
+          display='block'
+          maxWidth='100%'
+          color={linkColor}
+          fontSize={rowTitleTextFontSize}
+        >
+          {opportunityName}
+        </RawText>
+      )
 
-  const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
+    return (
+      <AssetName
+        assetId={assetId}
+        postFix={postFix}
+        showAssetSymbol={showAssetSymbol}
+        fontWeight='semibold'
+        as='span'
+        position='absolute'
+        lineHeight='shorter'
+        whiteSpace='nowrap'
+        noOfLines={1}
+        display='block'
+        maxWidth='100%'
+        color={linkColor}
+        fontSize={rowTitleTextFontSize}
+      />
+    )
+  }, [opportunityName, assetId, linkColor, postFix, showAssetSymbol])
+
+  if (!asset) return null
 
   return (
     <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
@@ -124,25 +144,11 @@ export const AssetCell = ({
                 overflow='hidden'
                 height='20px'
                 width='full'
-                title={rowTitle}
                 wordBreak='break-all'
                 data-test={`account-row-asset-name-${asset.symbol}`}
                 _after={rowTitleBoxAfter}
               >
-                <RawText
-                  fontWeight='semibold'
-                  as='span'
-                  position='absolute'
-                  lineHeight='shorter'
-                  whiteSpace='nowrap'
-                  noOfLines={1}
-                  display='block'
-                  maxWidth='100%'
-                  color={linkColor}
-                  fontSize={rowTitleTextFontSize}
-                >
-                  {rowTitle}
-                </RawText>
+                {rowTitle}
               </Box>
               {isExternal && <ExternalLinkIcon boxSize={4} />}
               {isSpamMarked && !isLargerThanMd && (

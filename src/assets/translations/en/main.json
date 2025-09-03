@@ -14,6 +14,7 @@
     "next": "Next",
     "edit": "Edit",
     "error": "Error",
+    "assetOnChain": "%{assetName} on %{chainName}",
     "show": "Show",
     "account": "Account",
     "address": "Address",

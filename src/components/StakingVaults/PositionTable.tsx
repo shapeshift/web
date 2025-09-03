@@ -11,6 +11,7 @@ import { SearchEmpty } from './SearchEmpty'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { PositionDetails } from '@/components/EarnDashboard/components/PositionDetails/PositionDetails'
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
@@ -27,8 +28,7 @@ import {
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
-  selectFeeAssetByChainId,
-  selectIsAnyOpportunitiesApiQueryPending,
+  selectIsAnyOpportunitiesApiQueryPending
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -40,21 +40,12 @@ const initialState = { pageSize: 30 }
 
 const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
-  const networkName = feeAsset?.networkName || feeAsset?.name
   if (!asset) return null
   return (
     <Flex alignItems='center' gap={4}>
       <AssetIcon size='sm' assetId={assetId} key={assetId} />
       <Flex flexDir='column'>
-        <RawText>
-          {asset.name} {`(${asset.symbol})`}
-        </RawText>
-        {networkName !== asset.name ? (
-          <RawText variant='sub-text' size='xs'>
-            {`on ${networkName}`}
-          </RawText>
-        ) : null}
+        <AssetName assetId={assetId}>{`(${asset.symbol})`}</AssetName>
       </Flex>
     </Flex>
   )

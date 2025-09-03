@@ -12,11 +12,11 @@ import { AssetActions } from './AssetActions'
 import { WatchAssetButton } from './WatchAssetButton'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName, buildAssetTitle } from '@/components/AssetName/AssetName'
 import { Display } from '@/components/Display'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { SEO } from '@/components/Layout/Seo'
 import { ScrollDisplay } from '@/components/ScrollDisplay'
-import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -55,7 +55,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
     isEqual,
   )
   const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
-  const { name, symbol } = asset || {}
+  const { symbol } = asset || {}
 
   const {
     state: { wallet },
@@ -94,7 +94,8 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             <AssetIcon assetId={asset.assetId} />
             <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
               <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
-                {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
+                {buildAssetTitle(asset, translate)}{' '}
+                {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
               </Heading>
 
               <WatchAssetButton assetId={assetId} />
@@ -118,7 +119,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
         <Display.Mobile>
           <ScrollDisplay>
             <ScrollDisplay.Default>
-              <RawText>{asset.name}</RawText>
+              <AssetName assetId={assetId} />
             </ScrollDisplay.Default>
             <ScrollDisplay.OutOfView>{formattedPrice}</ScrollDisplay.OutOfView>
           </ScrollDisplay>

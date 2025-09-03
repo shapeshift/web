@@ -7,7 +7,8 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
-import { RawText } from './Text'
+
+import { AssetName, buildAssetTitle } from '@/components/AssetName/AssetName'
 
 type AccountCardProps = {
   asset: Asset
@@ -80,9 +81,10 @@ export const AccountCard = ({
           asset.icons ? leftMultipleIconBoxSize : leftIconBoxSize
         } - var(--chakra-sizes-${rightIconBoxSize}))`}
       >
-        <Tooltip label={asset.name} isDisabled={!willOverflow}>
+        <Tooltip label={buildAssetTitle(asset, translate)} isDisabled={!willOverflow}>
           <Box overflow='hidden'>
-            <RawText
+            <AssetName
+              assetId={asset.assetId}
               lineHeight='1'
               mb={1}
               data-test='account-card-asset-name-label'
@@ -90,9 +92,7 @@ export const AccountCard = ({
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               ref={checkOverflow}
-            >
-              {asset.name}
-            </RawText>
+            />
           </Box>
         </Tooltip>
         {showCrypto ? (

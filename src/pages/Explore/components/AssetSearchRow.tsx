@@ -9,6 +9,7 @@ import { useLongPress } from 'use-long-press'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import type { AssetData } from '@/components/AssetSearch/components/AssetList'
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -159,15 +160,14 @@ export const AssetSearchRow: FC<AssetSearchRowProps> = memo(
         <Flex gap={4} alignItems='center'>
           <AssetIcon assetId={asset.assetId} size='sm' showNetworkIcon={showNetworkIcon} />
           <Box textAlign='left'>
-            <Text
+            <AssetName
+              assetId={asset.assetId}
               lineHeight={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               maxWidth='150px'
               overflow='hidden'
-            >
-              {asset.name}
-            </Text>
+            />
             <Flex alignItems='center' gap={2}>
               <Text
                 fontWeight='normal'

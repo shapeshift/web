@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -80,15 +81,14 @@ export const AssetCard: FC<AssetCardProps> = memo(({ asset, width = '80%' }) => 
 
         <Flex justifyContent='space-between' alignItems='center'>
           <Box flex={1} minWidth={0}>
-            <Text
+            <AssetName
+              assetId={asset.assetId}
               fontWeight='semibold'
               fontSize='sm'
               color={textColor}
               noOfLines={1}
               textOverflow='ellipsis'
-            >
-              {asset.name}
-            </Text>
+            />
             <Text fontSize='xs' color='text.subtle'>
               {asset.symbol}
             </Text>

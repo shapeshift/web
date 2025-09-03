@@ -24,7 +24,8 @@ import { useTranslate } from 'react-polyglot'
 import { availableLedgerAppAssetIds, availableLedgerAppChainIds } from '../constants'
 
 import { AssetIcon } from '@/components/AssetIcon'
-import { RawText, Text } from '@/components/Text'
+import { AssetName } from '@/components/AssetName/AssetName'
+import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from '@/lib/account/account'
@@ -132,7 +133,7 @@ export const LedgerChains = () => {
         <Flex alignItems='center' justifyContent='space-between' mb={4} key={asset.assetId}>
           <Flex alignItems='center' gap={2}>
             <AssetIcon assetId={asset.assetId} size='sm' />
-            <RawText fontWeight='bold'>{asset.name}</RawText>
+            <AssetName assetId={asset.assetId} fontWeight='bold' />
             {asset.assetId === thorchainAssetId && (
               <Popover trigger='hover' placement='right-start'>
                 <PopoverTrigger>

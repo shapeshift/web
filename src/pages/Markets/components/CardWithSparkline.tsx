@@ -8,6 +8,7 @@ import { useCallback } from 'react'
 import { Amount } from '@/components/Amount/Amount'
 import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from '@/components/AssetIcon'
+import { AssetName } from '@/components/AssetName/AssetName'
 import { ChartErrorBoundary } from '@/components/ErrorBoundary'
 import { ParsedHtml } from '@/components/ParsedHtml/ParsedHtml'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
@@ -50,9 +51,7 @@ export const CardWithSparkline: React.FC<{
             <Flex width='100%'>
               <AssetIcon assetId={assetId} size='md' mr={3} />
               <Box textAlign='left'>
-                <Text fontWeight='bold' fontSize='lg' mb={1}>
-                  {asset.name}
-                </Text>
+                <AssetName fontWeight='bold' fontSize='lg' mb={1} assetId={assetId} />
                 <Text fontSize='sm' color='text.subtle'>
                   {asset.symbol}
                 </Text>

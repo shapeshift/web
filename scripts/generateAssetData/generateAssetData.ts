@@ -1,16 +1,8 @@
 import '../loadEnv'
 
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  avalancheAssetId,
-  ethAssetId,
-  foxOnArbitrumOneAssetId,
-  fromAssetId,
-  gnosisAssetId,
-  polygonAssetId,
-} from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   atom,
   bitcoin,
@@ -89,28 +81,6 @@ const generateAssetData = async () => {
   // deterministic order so diffs are readable
   const orderedAssetList = orderBy(filteredAssetData, 'assetId')
 
-  const evmAssetNamesByChainId = {
-    [KnownChainIds.EthereumMainnet]: ethAssets.map(asset => asset.name),
-    [KnownChainIds.AvalancheMainnet]: avalancheAssets.map(asset => asset.name),
-    [KnownChainIds.OptimismMainnet]: optimismAssets.map(asset => asset.name),
-    [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map(asset => asset.name),
-    [KnownChainIds.PolygonMainnet]: polygonAssets.map(asset => asset.name),
-    [KnownChainIds.GnosisMainnet]: gnosisAssets.map(asset => asset.name),
-    [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
-    [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNovaAssets.map(asset => asset.name),
-    [KnownChainIds.BaseMainnet]: baseAssets.map(asset => asset.name),
-  }
-
-  const isNotUniqueAsset = (asset: Asset) => {
-    const { chainId } = fromAssetId(asset.assetId)
-    return Object.entries(evmAssetNamesByChainId)
-      .reduce<string[]>((prev, [_chainId, assetNames]) => {
-        if (chainId === _chainId) return prev
-        return prev.concat(assetNames)
-      }, [])
-      .includes(asset.name)
-  }
-
   const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
   const { assetData: currentGeneratedAssetData } = decodeAssetData(encodedAssetData)
 
@@ -119,74 +89,6 @@ const generateAssetData = async () => {
     // Ensures we don't overwrite existing relatedAssetIndex with the generated one, triggering a refetch
     if (currentGeneratedAssetId?.relatedAssetKey !== undefined) {
       asset.relatedAssetKey = currentGeneratedAssetId.relatedAssetKey
-    }
-
-    const { chainId } = fromAssetId(asset.assetId)
-
-    // mark any ethereum assets that also exist on other chains (EVM chains and Solana)
-    if (
-      chainId === KnownChainIds.EthereumMainnet &&
-      asset.assetId !== ethAssetId && // don't mark native asset
-      isNotUniqueAsset(asset)
-    ) {
-      asset.name = `${asset.name} on Ethereum`
-    }
-
-    // mark any avalanche assets that also exist on other chains (EVM chains and Solana)
-    if (
-      chainId === KnownChainIds.AvalancheMainnet &&
-      asset.assetId !== avalancheAssetId && // don't mark native asset
-      isNotUniqueAsset(asset)
-    ) {
-      asset.name = `${asset.name} on Avalanche`
-    }
-
-    // mark any bnbsmartchain assets that also exist on other chains (EVM chains and Solana)
-    if (chainId === KnownChainIds.BnbSmartChainMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on BNB Smart Chain`
-    }
-
-    // mark any polygon assets that also exist on other chains (EVM chains and Solana)
-    if (
-      chainId === KnownChainIds.PolygonMainnet &&
-      asset.assetId !== polygonAssetId &&
-      isNotUniqueAsset(asset)
-    ) {
-      asset.name = `${asset.name} on Polygon`
-    }
-
-    // mark any gnosis assets that also exist on other chains (EVM chains and Solana)
-    if (
-      chainId === KnownChainIds.GnosisMainnet &&
-      asset.assetId !== gnosisAssetId &&
-      isNotUniqueAsset(asset)
-    ) {
-      asset.name = `${asset.name} on Gnosis`
-    }
-
-    // mark any arbitrum one assets that also exist on other chains (EVM chains and Solana)
-    if (chainId === KnownChainIds.ArbitrumMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Arbitrum One`
-    }
-
-    // mark any arbitrum nova assets that also exist on other chains (EVM chains and Solana)
-    if (chainId === KnownChainIds.ArbitrumNovaMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Arbitrum Nova`
-    }
-
-    // mark any optimism assets that also exist on other chains (EVM chains and Solana)
-    if (chainId === KnownChainIds.OptimismMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Optimism`
-    }
-
-    // mark any base assets that also exist on other chains (EVM chains and Solana)
-    if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Base`
-    }
-
-    // mark any base assets that also exist on EVM chains
-    if (chainId === KnownChainIds.SolanaMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Solana`
     }
 
     acc[asset.assetId] = asset

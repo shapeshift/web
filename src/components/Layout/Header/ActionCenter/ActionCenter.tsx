@@ -158,9 +158,7 @@ export const ActionCenter = memo(() => {
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
           onClick={openActionCenter}
-          size='md'
           variant='ghost'
-          color='text.subtle'
         />
       </Box>
     )

@@ -132,7 +132,7 @@ export const ShapeShiftMenu = () => {
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
       >
-        <ShapeShiftLogoText height='28px' width='auto' color='white' />
+        <ShapeShiftLogoText boxSize='7' width='auto' />
         <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' />
       </MenuButton>
 

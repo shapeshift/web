@@ -19,7 +19,7 @@ export const GlobalSeachButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
 
-  const buttonHoverStyle = useMemo(
+  const buttonHoverSx = useMemo(
     () => ({
       bg: 'background.surface.elevated',
       borderColor: 'border.hover',
@@ -58,7 +58,7 @@ export const GlobalSeachButton = memo(() => {
           bg='background.surface.base'
           border='1px solid'
           borderColor='border.base'
-          _hover={buttonHoverStyle}
+          _hover={buttonHoverSx}
         >
           {translate('common.search')}
           {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.

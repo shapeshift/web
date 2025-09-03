@@ -19,7 +19,6 @@ import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { selectFiatRampChainCount } from '@/state/apis/fiatRamps/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -43,8 +42,6 @@ const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
 export const Buy = () => {
-  // load fiat ramps
-  useGetFiatRampsQuery()
 
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()

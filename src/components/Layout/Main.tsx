@@ -5,7 +5,7 @@ import { memo } from 'react'
 
 import { Page } from './Page'
 
-const contentPaddingX = { base: 4, md: 6, xl: 8, '2xl': 12 }
+const contentPaddingX = { base: 0, md: 6, xl: 8, '2xl': 12 }
 
 export type MainProps = {
   headerComponent?: ReactNode

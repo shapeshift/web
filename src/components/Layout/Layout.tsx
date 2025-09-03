@@ -10,7 +10,7 @@ const paddingBottomProp = {
   base: 'calc(0 + env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
   md: 0,
 }
-const paddingXProp = { base: 4, md: 8, lg: 12 }
+const paddingXProp = { base: 0, md: 8, lg: 12 }
 
 export type LayoutProps = {
   fullWidth?: boolean

@@ -18,20 +18,14 @@ export const FiatRampActionButtons = ({
   const isRampPage = location.pathname.includes('/ramp')
 
   const handleBuyClick = useCallback(() => {
-    // On ramp page, just navigate - the URL change will update everything
-    if (isRampPage) {
-      navigate('/ramp/buy')
-      return
-    }
+    // i.e not as a modal
+    if (isRampPage) navigate('/ramp/buy')
     setAction(FiatRampAction.Buy)
   }, [isRampPage, navigate, setAction])
 
   const handleSellClick = useCallback(() => {
-    // On ramp page, just navigate - the URL change will update everything
-    if (isRampPage) {
-      navigate('/ramp/sell')
-      return
-    }
+    // i.e not as a modal
+    if (isRampPage) navigate('/ramp/sell')
     setAction(FiatRampAction.Sell)
   }, [isRampPage, navigate, setAction])
 

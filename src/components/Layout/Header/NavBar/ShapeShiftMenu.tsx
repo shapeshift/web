@@ -18,6 +18,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { FiSmartphone } from 'react-icons/fi'
 import { RiTwitterXLine } from 'react-icons/ri'
 import { TbBrowser, TbCoin, TbWallet } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
@@ -122,6 +123,7 @@ const SocialIcon = ({
 
 export const ShapeShiftMenu = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const translate = useTranslate()
 
   return (
     <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
@@ -152,33 +154,33 @@ export const ShapeShiftMenu = () => {
           {/* Products Grid */}
           <Box>
             <Text fontSize='sm' fontWeight='semibold' color='whiteAlpha.600' mb={3}>
-              Products
+              {translate('shapeShiftMenu.products')}
             </Text>
             <Grid templateColumns='1fr 1fr' gap={2}>
               <ProductItem
                 icon={FiSmartphone}
-                title='Mobile App'
-                subtitle='Trade and manage crypto'
+                title={translate('shapeShiftMenu.mobileApp.title')}
+                subtitle={translate('shapeShiftMenu.mobileApp.subtitle')}
                 href='https://shapeshift.com/mobile-app'
                 isExternal
               />
               <ProductItem
                 icon={TbCoin}
-                title='FOX Token'
-                subtitle='Our Governance Token'
+                title={translate('shapeShiftMenu.foxToken.title')}
+                subtitle={translate('shapeShiftMenu.foxToken.subtitle')}
                 href='/fox-ecosystem'
               />
               <ProductItem
                 icon={TbBrowser}
-                title='Classic'
-                subtitle='The OG ShapeShift'
+                title={translate('shapeShiftMenu.classic.title')}
+                subtitle={translate('shapeShiftMenu.classic.subtitle')}
                 href='https://og.shapeshift.com/'
                 isExternal
               />
               <ProductItem
                 icon={TbWallet}
-                title='ShapeShift Wallet'
-                subtitle='Learn about our wallet'
+                title={translate('shapeShiftMenu.wallet.title')}
+                subtitle={translate('shapeShiftMenu.wallet.subtitle')}
                 href='https://shapeshift.com/defi-wallet'
                 isExternal
               />
@@ -195,23 +197,23 @@ export const ShapeShiftMenu = () => {
           >
             <HStack spacing={6}>
               <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>
-                Governance
+                {translate('shapeShiftMenu.footer.governance')}
               </FooterLink>
               <FooterLink href='https://shapeshift.notion.site/' isExternal>
-                Documentation
+                {translate('shapeShiftMenu.footer.documentation')}
               </FooterLink>
               <FooterLink href='https://shapeshift.com/blog' isExternal>
-                Blog
+                {translate('shapeShiftMenu.footer.blog')}
               </FooterLink>
               <FooterLink href='https://shapeshift.com/faq' isExternal>
-                FAQ
+                {translate('shapeShiftMenu.footer.faq')}
               </FooterLink>
             </HStack>
 
             <HStack spacing={1}>
-              <SocialIcon href='https://github.com/shapeshift/web' icon={FaGithub} label='GitHub' />
-              <SocialIcon href='https://discord.gg/shapeshift' icon={FaDiscord} label='Discord' />
-              <SocialIcon href='https://x.com/shapeshift' icon={RiTwitterXLine} label='Twitter' />
+              <SocialIcon href='https://github.com/shapeshift/web' icon={FaGithub} label={translate('shapeShiftMenu.footer.github')} />
+              <SocialIcon href='https://discord.gg/shapeshift' icon={FaDiscord} label={translate('shapeShiftMenu.footer.discord')} />
+              <SocialIcon href='https://x.com/shapeshift' icon={RiTwitterXLine} label={translate('shapeShiftMenu.footer.twitter')} />
             </HStack>
           </Flex>
         </VStack>

@@ -692,6 +692,34 @@
       }
     }
   },
+  "shapeShiftMenu": {
+    "products": "Products",
+    "mobileApp": {
+      "title": "Mobile App",
+      "subtitle": "Trade and manage crypto"
+    },
+    "foxToken": {
+      "title": "FOX Token",
+      "subtitle": "Our Governance Token"
+    },
+    "classic": {
+      "title": "Classic",
+      "subtitle": "The OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift Wallet",
+      "subtitle": "Learn about our wallet"
+    },
+    "footer": {
+      "governance": "Governance",
+      "documentation": "Documentation",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
+    }
+  },
   "transactionRow": {
     "send": "Sent",
     "receive": "Received",

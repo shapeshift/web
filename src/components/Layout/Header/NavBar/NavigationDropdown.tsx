@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Link as ReactRouterLink, useLocation } from 'react-router-dom'
+import { Link as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom'
 
 type NavigationDropdownItem = {
   label: string
@@ -28,6 +28,7 @@ type NavigationDropdownProps = {
 export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDropdownProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const location = useLocation()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   // Use the first item's path as default if no defaultPath is provided
@@ -66,8 +67,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   return (
     <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
       <MenuButton
-        as={ReactRouterLink}
-        to={defaultRoute}
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
         variant='unstyled'
@@ -77,11 +76,14 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
         bg='transparent'
         _hover={{ bg: 'background.surface.elevated' }}
         _active={{ bg: 'transparent' }}
+        as={Box}
+        cursor='pointer'
       >
         <Box
           fontSize='md'
           fontWeight={isActive ? 'semibold' : 'medium'}
           color={isActive ? 'white' : 'whiteAlpha.600'}
+          onClick={() => navigate(defaultRoute)}
         >
           {translate(label)}
         </Box>

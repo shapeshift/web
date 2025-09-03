@@ -10,6 +10,7 @@ const paddingBottomProp = {
   base: 'calc(0 + env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
   md: 0,
 }
+const paddingXProp = { base: 4, md: 8, lg: 12 }
 
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
   return (
@@ -22,8 +23,7 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
         width={widthProp}
         paddingBottom={paddingBottomProp}
         marginInline='auto'
-        paddingInlineStart='0'
-        paddingInlineEnd='0'
+        px={paddingXProp}
         flex='1 1 0%'
         {...rest}
       >

@@ -30,32 +30,55 @@ type NavigationDropdownProps = {
 export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDropdownProps) => {
   const translate = useTranslate()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const location = useLocation()
 
   // Use the first item's path as default if no defaultPath is provided
   const defaultRoute = defaultPath || items[0]?.path || '/'
+
+  // Check if any of the dropdown's items match the current path
+  const isActive = useMemo(() => {
+    const currentPath = location.pathname
+    
+    // Special case for Trade dropdown - check for trade, limit, claim, and buy-crypto paths
+    if (label === 'Trade') {
+      return (
+        currentPath.startsWith('/trade') ||
+        currentPath.startsWith('/limit') ||
+        currentPath.startsWith('/claim') ||
+        currentPath.startsWith('/buy-crypto')
+      )
+    }
+    
+    // For other dropdowns, check if current path matches any item path
+    return items.some(item => currentPath.startsWith(item.path))
+  }, [location.pathname, label, items])
 
   return (
     <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
       <MenuButton
         as={ReactRouterLink}
         to={defaultRoute}
-        variant='ghost'
-        size='md'
-        fontSize='md'
-        fontWeight='medium'
-        color='text.subtle'
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
+        variant='unstyled'
+        px={3}
+        py={2}
+        borderRadius='md'
         _hover={{
-          color: 'text.base',
           bg: 'background.surface.elevated',
-          textDecoration: 'none',
         }}
         _active={{
-          bg: 'background.surface.elevated',
+          bg: 'transparent',
         }}
       >
-        {label}
+        <Box
+          fontSize='md'
+          fontWeight={isActive ? 'semibold' : 'medium'}
+          color={isActive ? 'white' : 'whiteAlpha.600'}
+          textDecoration='none'
+        >
+          {label}
+        </Box>
       </MenuButton>
       <MenuList
         bg='whiteAlpha.100'

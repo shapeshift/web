@@ -97,8 +97,6 @@ const WalletButton: FC<WalletButtonProps> = ({
 
   const maybeRdns = useAppSelector(selectWalletRdns)
 
-  const hoverStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
-  const activeStyle = useMemo(() => ({ bg: 'background.surface.elevated' }), [])
   const connectButtonHoverStyle = useMemo(
     () => ({ bg: 'background.surface.elevated', borderColor: 'border.hover' }),
     [],
@@ -158,8 +156,6 @@ const WalletButton: FC<WalletButtonProps> = ({
       fontSize='sm'
       variant='ghost'
       bg='transparent'
-      _hover={hoverStyle}
-      _active={activeStyle}
     >
       <Flex>
         {walletLabel ? (

@@ -26,6 +26,37 @@ const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
 const repeatIcon = <RepeatIcon />
 
+const renameHoverStyle = { bg: 'whiteAlpha.300', color: 'white' }
+const deleteHoverStyle = { bg: 'red.400' }
+const editButtonStyle = {
+  w: 6,
+  h: 6,
+  borderRadius: 'full',
+  bg: 'whiteAlpha.200',
+  color: 'whiteAlpha.700',
+  cursor: 'pointer',
+  zIndex: 99999,
+  position: 'relative' as const,
+  pointerEvents: 'all' as const,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+const deleteButtonStyle = {
+  w: 6,
+  h: 6,
+  borderRadius: 'full',
+  bg: 'red.500',
+  color: 'white',
+  cursor: 'pointer',
+  zIndex: 99999,
+  position: 'relative' as const,
+  pointerEvents: 'all' as const,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
 const ConnectedMenu = memo(
   ({
     connectedWalletMenuRoutes,
@@ -54,88 +85,37 @@ const ConnectedMenu = memo(
       )
     }, [connectedWalletMenuRoutes, navigateToRoute, connectedType])
 
-    const handleRenameClick = useCallback(() => {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: NativeWalletRoutes.Rename,
-      })
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      onClose && onClose()
-    }, [dispatch, onClose])
-
-    const handleDeleteClick = useCallback(() => {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: NativeWalletRoutes.Delete,
-      })
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      onClose && onClose()
-    }, [dispatch, onClose])
-
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isNativeWallet = connectedType === KeyManager.Native
 
-    const renameHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.300', color: 'white' }), [])
-    const deleteHoverStyle = useMemo(() => ({ bg: 'red.400' }), [])
-
-    const handleRenamePointerDown = useCallback(
-      (e: React.PointerEvent) => {
+    const handleRenameClick = useCallback(
+      (e: React.MouseEvent | React.PointerEvent | React.TouchEvent) => {
         e.stopPropagation()
         e.preventDefault()
-        console.log('Rename pointer down!')
-        handleRenameClick()
+
+        dispatch({
+          type: WalletActions.SET_INITIAL_ROUTE,
+          payload: NativeWalletRoutes.Rename,
+        })
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        onClose && onClose()
       },
-      [handleRenameClick],
+      [dispatch, onClose],
     )
 
-    const handleRenameTouchStart = useCallback(
-      (e: React.TouchEvent) => {
+    const handleDeleteClick = useCallback(
+      (e: React.MouseEvent | React.PointerEvent | React.TouchEvent) => {
         e.stopPropagation()
         e.preventDefault()
-        console.log('Rename touch!')
-        handleRenameClick()
-      },
-      [handleRenameClick],
-    )
 
-    const handleRenameClickEvent = useCallback(
-      (e: React.MouseEvent) => {
-        e.stopPropagation()
-        e.preventDefault()
-        console.log('Rename click!')
-        handleRenameClick()
+        dispatch({
+          type: WalletActions.SET_INITIAL_ROUTE,
+          payload: NativeWalletRoutes.Delete,
+        })
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        onClose && onClose()
       },
-      [handleRenameClick],
-    )
-
-    const handleDeletePointerDown = useCallback(
-      (e: React.PointerEvent) => {
-        e.stopPropagation()
-        e.preventDefault()
-        console.log('Delete pointer down!')
-        handleDeleteClick()
-      },
-      [handleDeleteClick],
-    )
-
-    const handleDeleteTouchStart = useCallback(
-      (e: React.TouchEvent) => {
-        e.stopPropagation()
-        e.preventDefault()
-        console.log('Delete touch!')
-        handleDeleteClick()
-      },
-      [handleDeleteClick],
-    )
-
-    const handleDeleteClickEvent = useCallback(
-      (e: React.MouseEvent) => {
-        e.stopPropagation()
-        e.preventDefault()
-        console.log('Delete click!')
-        handleDeleteClick()
-      },
-      [handleDeleteClick],
+      [dispatch, onClose],
     )
 
     return (
@@ -161,42 +141,20 @@ const ConnectedMenu = memo(
                   {isNativeWallet && (
                     <>
                       <Box
-                        w={6}
-                        h={6}
-                        borderRadius='full'
-                        bg='whiteAlpha.200'
-                        color='whiteAlpha.700'
-                        cursor='pointer'
-                        zIndex={99999}
-                        position='relative'
-                        pointerEvents='all'
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
+                        {...editButtonStyle}
                         _hover={renameHoverStyle}
-                        onPointerDown={handleRenamePointerDown}
-                        onTouchStart={handleRenameTouchStart}
-                        onClick={handleRenameClickEvent}
+                        onPointerDown={handleRenameClick}
+                        onTouchStart={handleRenameClick}
+                        onClick={handleRenameClick}
                       >
                         <Icon as={TbEdit} boxSize={3} pointerEvents='none' />
                       </Box>
                       <Box
-                        w={6}
-                        h={6}
-                        borderRadius='full'
-                        bg='red.500'
-                        color='white'
-                        cursor='pointer'
-                        zIndex={99999}
-                        position='relative'
-                        pointerEvents='all'
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
+                        {...deleteButtonStyle}
                         _hover={deleteHoverStyle}
-                        onPointerDown={handleDeletePointerDown}
-                        onTouchStart={handleDeleteTouchStart}
-                        onClick={handleDeleteClickEvent}
+                        onPointerDown={handleDeleteClick}
+                        onTouchStart={handleDeleteClick}
+                        onClick={handleDeleteClick}
                       >
                         <Icon as={TbTrash} boxSize={3} pointerEvents='none' />
                       </Box>

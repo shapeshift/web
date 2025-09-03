@@ -102,7 +102,7 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? 'background.surface.base' : 'transparent'}
+        bg={y > height ? 'background.surface.base' : 'gray.950'}
         border='1px solid'
         borderColor='border.base'
         borderRadius='lg'

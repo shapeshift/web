@@ -110,6 +110,23 @@ export const TradeTab = memo(() => {
     [],
   )
 
+  const afterStyles = useMemo(
+    () => ({
+      content: '""',
+      position: 'fixed' as const,
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      backgroundImage:
+        'linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
+      backgroundSize: '30px 30px',
+      zIndex: 0.1,
+      pointerEvents: 'none' as const,
+    }),
+    [],
+  )
+
   return (
     <Main
       pt={mainPaddingTop}
@@ -120,6 +137,7 @@ export const TradeTab = memo(() => {
       width='full'
       position='relative'
       _before={beforeStyles}
+      _after={afterStyles}
     >
       <SEO title={title} />
       <Flex

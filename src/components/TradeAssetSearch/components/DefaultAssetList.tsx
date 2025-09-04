@@ -1,11 +1,9 @@
-import { Box } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { useGetPopularAssetsQuery } from '../hooks/useGetPopularAssetsQuery'
 
-import { AssetList } from '@/components/AssetSearch/components/AssetList'
-import { Text } from '@/components/Text'
+import { GroupedAssetList } from '@/components/TradeAssetSearch/components/GroupedAssetList/GroupedAssetList'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectIsPortfolioLoading } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -25,29 +23,35 @@ export const DefaultAssetList = ({
   const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
   const { isLoading: isPopularAssetIdsLoading } = useGetPopularAssetsQuery()
 
-  const allAssets = useMemo(() => {
-    return portfolioAssetsSortedByBalance.concat(popularAssets)
-  }, [portfolioAssetsSortedByBalance, popularAssets])
+  const groupIsLoading = useMemo(() => {
+    return [isConnected && isPortfolioLoading, isPopularAssetIdsLoading]
+  }, [isConnected, isPopularAssetIdsLoading, isPortfolioLoading])
+
+  const { allAssets, groups, groupCounts } = useMemo(() => {
+    // only show popular assets if user wallet is empty
+    if (portfolioAssetsSortedByBalance.length === 0) {
+      return {
+        groups: ['modals.assetSearch.popularAssets'],
+        groupCounts: [popularAssets.length],
+        allAssets: popularAssets,
+      }
+    }
+
+    return {
+      groups: ['modals.assetSearch.myAssets', 'modals.assetSearch.popularAssets'],
+      groupCounts: [portfolioAssetsSortedByBalance.length, popularAssets.length],
+      allAssets: portfolioAssetsSortedByBalance.concat(popularAssets),
+    }
+  }, [popularAssets, portfolioAssetsSortedByBalance])
 
   return (
-    <>
-      <Text
-        color='text.subtle'
-        fontWeight='medium'
-        pt={4}
-        px={6}
-        translation={'modals.assetSearch.myAssets'}
-      />
-      <Box px={2}>
-        <AssetList
-          assets={allAssets}
-          handleClick={onAssetClick}
-          hideZeroBalanceAmounts={true}
-          shouldDisplayRelatedAssets
-          isLoading={isConnected && isPortfolioLoading && isPopularAssetIdsLoading}
-          height='70vh'
-        />
-      </Box>
-    </>
+    <GroupedAssetList
+      assets={allAssets}
+      onAssetClick={onAssetClick}
+      hideZeroBalanceAmounts={true}
+      groups={groups}
+      groupCounts={groupCounts}
+      groupIsLoading={groupIsLoading}
+    />
   )
 }

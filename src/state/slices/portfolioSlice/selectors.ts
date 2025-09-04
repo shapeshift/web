@@ -26,6 +26,7 @@ import {
   selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances,
   selectPortfolioUserCurrencyBalances,
   selectPortfolioUserCurrencyBalancesByAccountId,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletAccountIds,
   selectWalletId,
   selectWalletName,
@@ -70,7 +71,6 @@ import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '@/state/slices/portfolioSlice/utils'
-import { selectRelatedAssetIdsByAssetIdInclusive } from '@/state/slices/related-assets-selectors'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
@@ -909,23 +909,19 @@ export const selectGroupedAssetBalances = createCachedSelector(
       .filter(item => item !== null)
       .sort((a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber())
 
-    const totalFiatBalance = bnOrZero(primaryRow?.fiatAmount ?? '0')
-      .plus(
-        allRelatedAssetIds.reduce((sum, assetId) => {
-          const row = accountRows.find(row => row.assetId === assetId)
-          return sum.plus(row?.fiatAmount ?? '0')
-        }, bnOrZero(0)),
-      )
-      .toString()
+    const totalFiatBalance = allRelatedAssetIds
+      .reduce((sum, assetId) => {
+        const row = accountRows.find(row => row.assetId === assetId)
+        return sum.plus(row?.fiatAmount ?? '0')
+      }, bnOrZero(0))
+      .toFixed(2)
 
-    const totalCryptoBalance = bnOrZero(primaryRow?.cryptoAmount ?? '0')
-      .plus(
-        allRelatedAssetIds.reduce((sum, assetId) => {
-          const row = accountRows.find(row => row.assetId === assetId)
-          return sum.plus(row?.cryptoAmount ?? '0')
-        }, bnOrZero(0)),
-      )
-      .toString()
+    const totalCryptoBalance = allRelatedAssetIds
+      .reduce((sum, assetId) => {
+        const row = accountRows.find(row => row.assetId === assetId)
+        return sum.plus(row?.cryptoAmount ?? '0')
+      }, bnOrZero(0))
+      .toFixed(2)
 
     return {
       primaryAsset: {

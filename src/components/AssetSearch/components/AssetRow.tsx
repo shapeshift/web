@@ -177,7 +177,12 @@ export const AssetRow: FC<AssetRowProps> = memo(
         )
       }
 
-      if (isConnected && !hideAssetBalance && !isCustomAsset)
+      if (
+        isConnected &&
+        !hideAssetBalance &&
+        !isCustomAsset &&
+        (!hideZeroBalanceAmounts || bnOrZero(userCurrencyBalance).gt(0))
+      )
         return (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
             <Amount.Fiat
@@ -207,6 +212,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       isCustomAsset,
       showPrice,
       translate,
+      hideZeroBalanceAmounts,
     ])
 
     if (shouldDisplayRelatedAssets && relatedAssetIds.length > 1) {

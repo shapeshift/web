@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
@@ -18,9 +18,10 @@ import { isSome } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPortfolioUserCurrencyBalances,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletConnectedChainIds,
 } from '@/state/slices/common-selectors'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectPrimaryAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type SearchTermAssetListProps = {
@@ -47,8 +48,9 @@ export const SearchTermAssetList = ({
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
+  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetsById = useAppSelector(selectAssets)
+  const assetsById = useAppSelector(selectPrimaryAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const customTokenSupportedChainIds = useMemo(() => {
@@ -83,13 +85,20 @@ export const SearchTermAssetList = ({
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return _assets.filter(asset => asset.chainId === activeChainId && !isNft(asset.assetId))
+    return _assets.filter(
+      asset =>
+        (asset.chainId === activeChainId && !isNft(asset.assetId)) ||
+        relatedAssetIdsById[asset.assetId]?.some(
+          relatedAssetId => fromAssetId(relatedAssetId).chainId === activeChainId,
+        ),
+    )
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,
     assets,
     walletConnectedChainIds,
     assetFilterPredicate,
+    relatedAssetIdsById,
   ])
 
   // Build a Set of existing asset IDs once when assetsForChain changes

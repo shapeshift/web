@@ -2,6 +2,7 @@ import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { FC, FormEvent } from 'react'
@@ -25,6 +26,7 @@ import {
   selectPortfolioFungiblePrimaryAssetsSortedByBalance,
   selectPortfolioTotalUserCurrencyBalance,
   selectPrimaryAssetsSortedByMarketCap,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -73,6 +75,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
+  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
 
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
@@ -175,8 +178,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       return filteredPortfolioAssetsSortedByBalance
     }
 
-    return filteredPortfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate])
+    return filteredPortfolioAssetsSortedByBalance.filter(
+      asset =>
+        asset.chainId === activeChainId ||
+        relatedAssetIdsById[asset.assetId]?.some(
+          relatedAssetId => fromAssetId(relatedAssetId).chainId === activeChainId,
+        ),
+    )
+  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate, relatedAssetIdsById])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {

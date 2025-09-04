@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdRelatedAssetKey, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import { matchSorter } from 'match-sorter'
@@ -25,6 +25,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
+import { isPrimaryAsset } from '@/lib/utils/asset'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -160,6 +161,54 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
     }, {}),
 )
 
+export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSelector(
+  selectAssets,
+  byId => {
+    return Object.values(byId).reduce<AssetsByIdRelatedAssetKey>((acc, asset) => {
+      if (!asset) return acc
+      if (!asset.relatedAssetKey) {
+        acc[asset.assetId] = [...(acc[asset.assetId] ?? []), asset.assetId]
+        return acc
+      }
+      if (asset.relatedAssetKey)
+        acc[asset.relatedAssetKey] = [...(acc[asset.relatedAssetKey] ?? []), asset.assetId]
+      return acc
+    }, {})
+  },
+)
+
+export const selectPortfolioPrimaryAssetUserCurrencyBalances = createDeepEqualOutputSelector(
+  selectAssets,
+  selectMarketDataUserCurrency,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectRelatedAssetIdsByAssetIdInclusive,
+  preferences.selectors.selectBalanceThreshold,
+  (assetsById, marketData, balances, relatedAssetIdsById, balanceThreshold) =>
+    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [primaryAssetId]) => {
+      const primaryAsset = assetsById[primaryAssetId]
+      if (!primaryAsset) return acc
+      if (!isPrimaryAsset(primaryAsset.relatedAssetKey, primaryAsset.assetId)) return acc
+      const precision = primaryAsset.precision
+      if (precision === undefined) return acc
+      const price = marketData[primaryAssetId]?.price
+
+      const totalCryptoBalance = relatedAssetIdsById[primaryAssetId]?.reduce(
+        (acc, relatedAssetId) => {
+          return acc.plus(
+            fromBaseUnit(balances[relatedAssetId], assetsById[relatedAssetId]?.precision ?? 0),
+          )
+        },
+        bnOrZero(0),
+      )
+
+      const assetUserCurrencyBalance = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
+      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold)) && totalCryptoBalance.lte(0))
+        return acc
+      acc[primaryAssetId] = assetUserCurrencyBalance.toFixed(2)
+      return acc
+    }, {}),
+)
+
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalancesBaseUnit,
@@ -249,7 +298,7 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
 })
 
 export const selectPortfolioFungiblePrimaryAssetsSortedByBalance = createDeepEqualOutputSelector(
-  selectPortfolioUserCurrencyBalances,
+  selectPortfolioPrimaryAssetUserCurrencyBalances,
   selectPrimaryAssets,
   (portfolioUserCurrencyBalances, assets) => {
     const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => bnOrZero(balance).toNumber()

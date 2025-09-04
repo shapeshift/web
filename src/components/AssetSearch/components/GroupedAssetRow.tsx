@@ -190,7 +190,10 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               {asset.name}
             </CText>
             <Flex alignItems='center' gap={2}>
-              {!showPrice && isConnected ? (
+              {!showPrice &&
+              isConnected &&
+              (!hideZeroBalanceAmounts ||
+                bnOrZero(groupedAssetBalances?.primaryAsset.cryptoAmount).gt(0)) ? (
                 <Amount.Crypto
                   color='text.secondary'
                   fontSize='sm'

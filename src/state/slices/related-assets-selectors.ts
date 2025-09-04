@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { AssetsByIdRelatedAssetKey } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
 
@@ -13,7 +12,6 @@ import {
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from '@/state/reducer'
-import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectOnlyConnectedChainsParamFromFilter } from '@/state/selectors'
 
 /**
@@ -90,20 +88,4 @@ export const selectRelatedAssetIdsInclusiveSorted = createCachedSelector(
 )(
   (_s: ReduxState, filter) =>
     `${filter?.assetId ?? 'assetId'}-${filter?.onlyConnectedChains ?? false}`,
-)
-
-export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSelector(
-  assets.selectors.selectAssetsById,
-  byId => {
-    return Object.values(byId).reduce<AssetsByIdRelatedAssetKey>((acc, asset) => {
-      if (!asset) return acc
-      if (!asset.relatedAssetKey) {
-        acc[asset.assetId] = [...(acc[asset.assetId] ?? []), asset.assetId]
-        return acc
-      }
-      if (asset.relatedAssetKey)
-        acc[asset.relatedAssetKey] = [...(acc[asset.relatedAssetKey] ?? []), asset.assetId]
-      return acc
-    }, {})
-  },
 )

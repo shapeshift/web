@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { CommonCard, CommonStat } from './CommonCard'
 
 import { Amount } from '@/components/Amount/Amount'
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -48,7 +47,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, showMarketCap, on
   return (
     <>
       <CommonCard
-        title={buildAssetTitle(asset, translate)}
+        title={asset.name}
         subtitle={asset.symbol}
         assetId={assetId}
         onClick={handleClick}

@@ -19,7 +19,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { AssetIcon } from '@/components/AssetIcon'
-import { AssetName } from '@/components/AssetName/AssetName'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -106,8 +105,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
         <Flex gap={4} alignItems='center' padding={4}>
           <AssetIcon asset={asset} size='sm' />
           <Box textAlign='left'>
-            <AssetName
-              assetId={asset.assetId}
+            <Text
               lineHeight='normal'
               textOverflow='ellipsis'
               whiteSpace='nowrap'
@@ -115,7 +113,9 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
               overflow='hidden'
               fontWeight='semibold'
               color='text.base'
-            />
+            >
+              {asset.name}
+            </Text>
             <Flex
               alignItems='center'
               gap={2}

@@ -10,7 +10,6 @@ import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
@@ -104,9 +103,7 @@ export const Address = () => {
       <DialogHeader>
         <DialogBackButton aria-label={translate('common.back')} onClick={handleBackClick} />
         <DialogTitle textAlign='center'>
-          {translate('modals.send.sendForm.sendAsset', {
-            asset: buildAssetTitle(asset, translate),
-          })}
+          {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
       </DialogHeader>
       <DialogBody>

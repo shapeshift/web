@@ -16,7 +16,6 @@ import { useNavigate } from 'react-router-dom'
 import { AccountNumberRow } from './AccountNumberRow'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetName } from '@/components/AssetName/AssetName'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
@@ -99,11 +98,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
       >
         <Stack direction='row' alignItems='center' spacing={4}>
           <Circle size={8} borderWidth={2} borderColor={asset.networkColor ?? asset.color} />
-          {asset.networkName ? (
-            <RawText>{asset.networkName}</RawText>
-          ) : (
-            <AssetName assetId={asset.assetId} />
-          )}
+          <RawText>{asset.networkName ?? asset.name}</RawText>
         </Stack>
         <Stack direction='row' alignItems='center' spacing={6}>
           <Skeleton isLoaded={!!chainUserCurrencyBalance}>

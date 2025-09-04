@@ -27,7 +27,6 @@ import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -133,11 +132,11 @@ const MenuOptions = ({
           return accountIdToLabel(accountId)
         }
         default: {
-          return buildAssetTitle(asset, translate) ?? ''
+          return asset?.name ?? ''
         }
       }
     },
-    [asset, chainId, translate],
+    [asset?.name, chainId],
   )
 
   return (
@@ -159,9 +158,7 @@ const MenuOptions = ({
             <Flex px={2} py={2}>
               <AccountSegment
                 title={translate('accounts.accountNumber', { accountNumber })}
-                subtitle={
-                  isUtxo ? buildAssetTitle(asset, translate) : accountIdToLabel(firstAccountId)
-                }
+                subtitle={isUtxo ? asset.name : accountIdToLabel(firstAccountId)}
               />
               {!isUtxo && <InlineCopyButton value={fromAccountId(firstAccountId).account} />}
             </Flex>

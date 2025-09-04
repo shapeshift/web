@@ -7,7 +7,6 @@ import { useTranslate } from 'react-polyglot'
 import type { SendInput } from '../../Form'
 import { handleSend } from '../../utils'
 
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -34,7 +33,7 @@ export const useFormSend = () => {
           if (!toastOnBroadcast) return
 
           toast({
-            title: translate('modals.send.sent', { asset: buildAssetTitle(asset, translate) }),
+            title: translate('modals.send.sent', { asset: asset.name }),
             description: (
               <Text>
                 <Text>
@@ -70,7 +69,7 @@ export const useFormSend = () => {
         toast({
           title: asset
             ? translate('modals.send.errorTitle', {
-                asset: buildAssetTitle(asset, translate),
+                asset: asset.name,
               })
             : translate('common.error'),
           description: (

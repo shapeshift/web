@@ -574,6 +574,8 @@ export const makeAssets = async ({
         if (!asset.precision && !isNft(asset.assetId)) {
           return prev
         }
+
+
         prev.byId[token.assetId] = asset
         prev.ids.push(token.assetId)
 

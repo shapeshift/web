@@ -7,7 +7,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { AssetName } from '@/components/AssetName/AssetName'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -98,15 +97,16 @@ export const GroupedAssetRow = ({
         >
           {icon}
           <Box textAlign='left' maxWidth='100%' overflow='hidden'>
-            <AssetName
-              assetId={asset.assetId}
+            <Text
               lineHeight='normal'
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
               fontWeight='semibold'
               color='text.base'
-            />
+            >
+              {asset.name}
+            </Text>
             <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
               {hideAssetBalance ? (
                 <>
@@ -166,8 +166,7 @@ export const GroupedAssetRow = ({
         <Flex gap={4} alignItems='center'>
           <AssetIcon asset={asset} size='sm' />
           <Box textAlign='left'>
-            <AssetName
-              assetId={asset.assetId}
+            <Text
               lineHeight='normal'
               textOverflow='ellipsis'
               whiteSpace='nowrap'
@@ -175,7 +174,9 @@ export const GroupedAssetRow = ({
               overflow='hidden'
               fontWeight='semibold'
               color='text.base'
-            />
+            >
+              {asset.name}
+            </Text>
             <Flex
               alignItems='center'
               gap={2}

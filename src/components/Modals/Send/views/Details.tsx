@@ -28,7 +28,6 @@ import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 import { AccountCard } from '@/components/AccountCard'
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -221,9 +220,7 @@ export const Details = () => {
       <DialogHeader>
         <DialogBackButton onClick={handleArrowBackClick} />
         <DialogTitle textAlign='center'>
-          {translate('modals.send.sendForm.sendAsset', {
-            asset: buildAssetTitle(asset, translate),
-          })}
+          {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
       </DialogHeader>
       <DialogBody>

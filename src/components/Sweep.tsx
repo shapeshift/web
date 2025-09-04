@@ -9,7 +9,6 @@ import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
 import { handleSend } from './Modals/Send/utils'
 
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
@@ -165,9 +164,7 @@ export const Sweep = ({
           </Stack>
           <Stack>
             <CText color='text.subtle'>
-              {translate('modals.send.consolidate.body', {
-                asset: buildAssetTitle(asset, translate),
-              })}
+              {translate('modals.send.consolidate.body', { asset: asset.name })}
             </CText>
           </Stack>
           <Stack justifyContent='space-between'>

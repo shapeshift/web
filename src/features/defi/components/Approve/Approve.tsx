@@ -20,7 +20,6 @@ import { PairIcons } from './PairIcons'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -86,9 +85,9 @@ export const Approve = ({
   const approveHeaderTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       isReset ? 'modals.approve.resetHeader' : 'modals.approve.header',
-      { asset: buildAssetTitle(asset, translate), spenderName },
+      { asset: asset.name, spenderName },
     ],
-    [asset, isReset, spenderName, translate],
+    [asset.name, isReset, spenderName],
   )
 
   const approveCopy = useMemo(() => {
@@ -146,7 +145,7 @@ export const Approve = ({
             >
               {spenderName}
             </Link>
-            {translate('modals.approve.body', { asset: buildAssetTitle(asset, translate) })}
+            {translate('modals.approve.body', { asset: asset.name })}
           </CText>
           <Link color='blue.500' href={learnMoreLink} isExternal>
             {translate('modals.approve.learnMore')}

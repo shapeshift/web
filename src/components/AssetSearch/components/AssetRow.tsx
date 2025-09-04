@@ -7,7 +7,6 @@ import type { AssetData } from './AssetList'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { AssetName } from '@/components/AssetName/AssetName'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
@@ -61,13 +60,9 @@ export const AssetRow: FC<{ asset: Asset; index: number; data: AssetData }> = me
         <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon assetId={asset.assetId} size='sm' flexShrink={0} />
           <Box textAlign='left' flex={1} minWidth={0}>
-            <AssetName
-              assetId={asset.assetId}
-              lineHeight={1}
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-              overflow='hidden'
-            />
+            <Text lineHeight={1} textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>
+              {asset.name}
+            </Text>
             <Flex alignItems='center' gap={2}>
               <Text fontWeight='normal' fontSize='sm' color={color}>
                 {asset.symbol}

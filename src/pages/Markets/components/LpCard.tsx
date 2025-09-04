@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { CommonCard, CommonStat } from './CommonCard'
 
 import { Amount } from '@/components/Amount/Amount'
-import { buildAssetTitle } from '@/components/AssetName/AssetName'
 import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
@@ -54,12 +53,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
   if (!asset) return null
 
   return (
-    <CommonCard
-      title={buildAssetTitle(asset, translate)}
-      subtitle={asset.symbol}
-      assetId={assetId}
-      onClick={handleClick}
-    >
+    <CommonCard title={asset.name} subtitle={asset.symbol} assetId={assetId} onClick={handleClick}>
       <HoverTooltip placement='top' label={apyPercentValue} isDisabled={apyPercent.lt(10000)}>
         <CommonStat value={apyPercentValueOrDefault} label={translate('common.apy')} />
       </HoverTooltip>

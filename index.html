@@ -38,6 +38,28 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>ShapeShift</title>
+    <!-- Addressable Pixel base code -->
+    <script type="module">
+      import { getConfig } from '/src/config'
+      ;(function (w, d) {
+        const ENABLE = getConfig().VITE_ENABLE_ADDRESSABLE
+        const TID = getConfig().VITE_ADDRESSABLE_TID
+        if (!(ENABLE && TID)) return
+
+        w.__adrsbl = {
+          queue: [],
+          run: function () {
+            this.queue.push(arguments)
+          },
+        }
+        const s = d.createElement('script')
+        s.async = true
+        s.src = 'https://tag.adrsbl.io/p.js?tid=' + TID
+        const b = d.getElementsByTagName('script')[0]
+        b.parentNode.insertBefore(s, b)
+      })(window, document)
+    </script>
+    <!-- End Addressable Pixel base code -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -40,11 +40,13 @@ export const WalletManagerPopover: FC = memo(() => {
           />
         </Box>
       </PopoverTrigger>
-      <PopoverContent width='430px' bg={'background.surface.base'} p={0}>
-        <PopoverBody p={4} width='430px'>
-          <PopoverWallet onClose={handleClose} />
-        </PopoverBody>
-      </PopoverContent>
+      {isOpen && (
+        <PopoverContent width='430px' bg={'background.surface.base'} p={0}>
+          <PopoverBody p={4} width='430px'>
+            <PopoverWallet onClose={handleClose} />
+          </PopoverBody>
+        </PopoverContent>
+      )}
     </Popover>
   )
 })

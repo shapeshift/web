@@ -54,7 +54,7 @@ import { isMobile } from '@/lib/globals'
 import { fromBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from '@/lib/mixpanel/types'
-import { hashCode } from '@/lib/utils'
+import { hashCode, isSome } from '@/lib/utils'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -907,7 +907,7 @@ export const selectGroupedAssetBalances = createCachedSelector(
 
         return row
       })
-      .filter(item => item !== null)
+      .filter(isSome)
       .sort((a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber())
 
     const totalFiatBalance = allRelatedAssetIds

@@ -10537,6 +10537,7 @@ __metadata:
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
   languageName: unknown
   linkType: soft
 

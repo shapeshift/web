@@ -520,7 +520,7 @@ export const RepayInput = ({
   ])
 
   const quoteErrorTooltipTranslation = useMemo(() => {
-    if (!isLendingQuoteCloseError) return null
+    if (!isLendingQuoteCloseError) return ''
 
     if (
       /not enough fee/i.test(lendingQuoteCloseError.message) ||
@@ -539,6 +539,8 @@ export const RepayInput = ({
 
     if (/trading is halted/i.test(lendingQuoteCloseError.message))
       return translate('lending.errors.repaymentsHaltedTooltip')
+
+    return ''
   }, [isLendingQuoteCloseError, lendingQuoteCloseError?.message, repaymentPercent, translate])
 
   const confirmTranslation = useMemo(() => {
@@ -727,10 +729,7 @@ export const RepayInput = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Tooltip
-          label={translate(quoteErrorTooltipTranslation ?? '')}
-          isDisabled={!lendingQuoteCloseError}
-        >
+        <Tooltip label={quoteErrorTooltipTranslation} isDisabled={!lendingQuoteCloseError}>
           <ButtonWalletPredicate
             isValidWallet={!disableSmartContractRepayment}
             isDisabled={Boolean(

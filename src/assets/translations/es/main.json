@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "Aumentar",
     "viewOnExplorer": "Ver en el explorador",
-    "approval": "Aprobación"
+    "approval": "Aprobación",
+    "permit2Approval": "Permiso para Aprobar"
+  },
+  "quickBuy": {
+    "title": "Compra Rápida %{assetOnChain}",
+    "nativeNotAvailable": "Compra rápida no disponible para activos nativos",
+    "balance": "Saldo Disponible",
+    "confirm": "¿Estás seguro que deseas comprar?",
+    "edit": "Editar cantidades a comprar",
+    "error": {
+      "insufficientFunds": "Compra rápida de %{amount} falló, no hay fondos suficientes, ¿probar con otra cantidad?",
+      "noQuote": "Compra rápida de %{amount} falló, no se pudo recuperar una cotización válida.",
+      "failed": "Compra rápida de %{amount} falló."
+    }
   },
   "consentBanner": {
     "body": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita %{privateLink} si no quieres que te rastreen de forma anónima. Vea nuestra %{privacyPolicyLink} para más detalles.",
@@ -224,6 +237,28 @@
     "title": "¡Ups!",
     "body": "Algo salió mal",
     "cta": "Intentar otra vez"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "Error de Componente",
+      "body": "Este componente encontró un error y no se pudo cargar correctamente.",
+      "retry": "Intentar nuevamente"
+    },
+    "chart": {
+      "title": "Gráfico no disponible",
+      "body": "No es posible cargar datos del gráfico en este momento.",
+      "retry": "Intentar Nuevamente"
+    },
+    "trading": {
+      "title": "Error en Intercambio",
+      "body": "Se ha producido un error en la interfaz de intercambio. Vuelve a intentar o actualiza la página.",
+      "retry": "Intentar Nuevamente"
+    },
+    "suspense": {
+      "title": "Error al cargar",
+      "body": "Este contenido no se pudo cargar correctamente.",
+      "retry": "Volver a Intentar"
+    }
   },
   "buyPage": {
     "title": "Comprar Cripto <span>en Segundos</span>",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
     "manualReceiveAddress": "Dirección de Recepción",
     "recipientAddress": "Dirección del receptor",
+    "changeAddress": "Cambiar dirección",
+    "changeAddressExplainer": "Al enviar criptomonedas de redes basadas en UTXO, los fondos sobrantes se envían de vuelta a esta dirección.",
     "customRecipientAddress": "Dirección de destinatario personalizada",
     "customRecipientAddressDescription": "Ingrese una dirección de destinatario personalizada para la transacción",
     "thisIsYourCustomRecipientAddress": "Esta es su dirección de destino personalizada",
@@ -1086,7 +1123,19 @@
       "youGotMore": "Obtuviste %{cryptoUpside} más en este intercambio"
     },
     "networkFee": "Tarifa de Red",
-    "feeExplainer": "Cotización incluye una tarifa de ShapeShift del %{feePercentage}%"
+    "feeExplainer": "Cotización incluye una tarifa de ShapeShift del %{feePercentage}%",
+    "claim": {
+      "pending": "Su reclamo de %{amount} %{symbol} está siendo procesado.",
+      "complete": "Su reclamo de %{amount} %{symbol} está completo."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Su recompensa de %{amountAndSymbol} se está procesando..."
+      },
+      "complete": {
+        "description": "Tu recompensa de %{amountAndSymbol} está completa."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Límite",
@@ -1380,6 +1429,7 @@
     "receive": {
       "connectAWallet": "Conecte una billetera para recibir %{symbol}",
       "receiveAsset": "Recibir %{asset}",
+      "onlySend": "Envíe %{symbol} solo en redes compatibles. El uso de otros tokens o redes podría provocar una pérdida permanente.",
       "copy": "Copiar",
       "copied": "%{symbol} dirección de recepción copiada al portapapeles",
       "copyFailed": "Error al copiar %{symbol} dirección de recibo al portapapeles",
@@ -1388,7 +1438,8 @@
       "verify": "Verificar",
       "verified": "Verificado",
       "notVerified": "Discrepancia de dirección",
-      "blockExplorer": "Explorador"
+      "blockExplorer": "Explorador",
+      "supportedNetworks": "Redes Compatibles"
     },
     "deposit": {
       "allocation": {
@@ -1723,6 +1774,7 @@
       "failure": {
         "body": "No se puede conectar la billetera Ledger"
       },
+      "gettingChangeAddress": "Obteniendo cambio de dirección...",
       "connectWarning": "Antes de conectar una cadena, asegúrese de tener la app abierta en su dispositivo.",
       "signWarning": "Antes de firmar, asegúrese de tener la app %{chain} abierta en su dispositivo."
     },
@@ -2679,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Iniciado",
+    "unstakeInitiated": "Unstake Iniciado",
+    "claimWithdraw": "Reclamar Retiro",
     "staking": "Staking rFOX",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Fondos",
@@ -3014,7 +3069,9 @@
       "claimAvailable": "Reclamo Disponible",
       "claimed": "Reclamado",
       "unknown": "Desconocido",
-      "initiated": "Iniciado"
+      "initiated": "Iniciado",
+      "awaitingApproval": "Esperando Aprobación",
+      "awaitingSwap": "Esperando Intercambio"
     },
     "emptyState": {
       "title": "Bienvenido a ShapeShift",
@@ -3026,7 +3083,9 @@
       "processing": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está procesando.",
       "complete": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se ha completado.",
       "failed": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} ha fallado.",
-      "streaming": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está transmitiendo."
+      "streaming": "Intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} se está transmitiendo.",
+      "awaitingApproval": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} está esperando aprobación.",
+      "awaitingSwap": "Su intercambio de %{sellAmountAndSymbol} a %{buyAmountAndSymbol} está esperando ejecución."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} y %{asset2}",
@@ -3086,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pendiente",
     "orderCancelled": "Orden Cancelada",
-    "orderExpired": "Orden Caducada"
+    "orderExpired": "Orden Caducada",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Su recompensa de %{amountAndSymbol} se está procesando..."
+      },
+      "complete": {
+        "description": "Tu recompensa de %{amountAndSymbol} está completa."
+      }
+    }
   }
 }

@@ -54,9 +54,14 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
 
     if (
       activeChainId &&
-      relatedAssetIdsById[asset.assetId]?.some(relatedAssetId =>
-        walletConnectedChainIds.includes(fromAssetId(relatedAssetId).chainId),
-      )
+      relatedAssetIdsById[asset.assetId]?.some(relatedAssetId => {
+        const relatedAssetChainId = fromAssetId(relatedAssetId).chainId
+
+        return (
+          walletConnectedChainIds.includes(relatedAssetChainId) &&
+          activeChainId === relatedAssetChainId
+        )
+      })
     )
       return true
 

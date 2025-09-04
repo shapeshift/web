@@ -3,7 +3,7 @@
   Receives an initial dataset of minimal assets, caches it,
   and responds to search requests with filtered assetIds.
 */
-import type { AssetId } from '@shapeshiftoss/caip/dist/cjs'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 import type {
   AssetSearchWorkerInboundMessage,
@@ -70,4 +70,4 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   }
 }
 
-export {}
+export { }

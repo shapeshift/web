@@ -202,7 +202,10 @@ export const selectPortfolioPrimaryAssetUserCurrencyBalances = createDeepEqualOu
       )
 
       const assetUserCurrencyBalance = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold)) && totalCryptoBalance.lte(0))
+      if (
+        assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold)) &&
+        totalCryptoBalance.lte(balanceThreshold)
+      )
         return acc
       acc[primaryAssetId] = assetUserCurrencyBalance.toFixed(2)
       return acc

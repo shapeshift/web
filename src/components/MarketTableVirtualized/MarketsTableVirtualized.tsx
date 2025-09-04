@@ -136,7 +136,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
 
     const handleRowClick = useCallback(
       (row: Row<Asset>) => {
-        if (row.original.relatedAssetKey === row.original.assetId) return
+        if (!isUniqueAsset(row.original.relatedAssetKey)) return
         onRowClick(row.original)
       },
       [onRowClick],

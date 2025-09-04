@@ -27,31 +27,31 @@ export const DefaultAssetList = ({
     return [isConnected && isPortfolioLoading, isPopularAssetIdsLoading]
   }, [isConnected, isPopularAssetIdsLoading, isPortfolioLoading])
 
-  const { allAssets, groups, groupCounts } = useMemo(() => {
+  const { assets, groups, groupCounts } = useMemo(() => {
     // only show popular assets if user wallet is empty
     if (portfolioAssetsSortedByBalance.length === 0) {
       return {
         groups: ['modals.assetSearch.popularAssets'],
         groupCounts: [popularAssets.length],
-        allAssets: popularAssets,
+        assets: popularAssets,
       }
     }
 
     return {
       groups: ['modals.assetSearch.myAssets', 'modals.assetSearch.popularAssets'],
       groupCounts: [portfolioAssetsSortedByBalance.length, popularAssets.length],
-      allAssets: portfolioAssetsSortedByBalance.concat(popularAssets),
+      assets: portfolioAssetsSortedByBalance.concat(popularAssets),
     }
   }, [popularAssets, portfolioAssetsSortedByBalance])
 
   return (
     <GroupedAssetList
-      assets={allAssets}
-      onAssetClick={onAssetClick}
-      hideZeroBalanceAmounts={true}
+      assets={assets}
       groups={groups}
       groupCounts={groupCounts}
+      hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
+      onAssetClick={onAssetClick}
     />
   )
 }

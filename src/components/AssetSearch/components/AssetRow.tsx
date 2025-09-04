@@ -1,9 +1,8 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Tag, TagLeftIcon, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
-import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useLongPress } from 'use-long-press'
 
@@ -12,6 +11,7 @@ import type { AssetData } from './AssetList'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
+import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -32,15 +32,16 @@ const focus = {
   shadow: 'outline-inset',
 }
 
-export type AssetRowProps = {
+export type AssetRowData = {
   asset: Asset
   index: number
   data: AssetData
-  py?: number
   showPrice?: boolean
   onImportClick?: (asset: Asset) => void
-  shouldDisplayRelatedAssets?: boolean
-} & ButtonProps
+  showRelatedAssets?: boolean
+}
+
+export type AssetRowProps = AssetRowData & ButtonProps
 
 export const AssetRow: FC<AssetRowProps> = memo(
   ({
@@ -48,7 +49,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     data: { handleClick, handleLongPress, disableUnsupported, hideZeroBalanceAmounts },
     showPrice = false,
     onImportClick,
-    shouldDisplayRelatedAssets = false,
+    showRelatedAssets = false,
     ...props
   }) => {
     const translate = useTranslate()
@@ -83,7 +84,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const userCurrencyBalance =
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
 
-    const assetFromStore = useAppSelector(s => selectAssetById(s, assetId))
+    const knownAsset = useAppSelector(s => selectAssetById(s, assetId))
 
     const handleOnClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -93,7 +94,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       [asset, handleClick],
     )
 
-    const isCustomAsset = !assetFromStore
+    const isCustomAsset = !knownAsset
 
     const handleImportClick = useCallback(
       (e: React.MouseEvent) => {
@@ -118,39 +119,6 @@ export const AssetRow: FC<AssetRowProps> = memo(
 
     const changePercent24Hr = marketData?.changePercent24Hr
 
-    const changePercentTagColorsScheme = useMemo(() => {
-      if (bnOrZero(changePercent24Hr).gt(0)) {
-        return 'green'
-      }
-
-      if (bnOrZero(changePercent24Hr).lt(0)) {
-        return 'red'
-      }
-
-      return 'gray'
-    }, [changePercent24Hr])
-
-    const priceChange = useMemo(() => {
-      if (!changePercent24Hr) return null
-
-      return (
-        <Tag colorScheme={changePercentTagColorsScheme} width='max-content' px={1} size='sm'>
-          {changePercentTagColorsScheme !== 'gray' ? (
-            <TagLeftIcon
-              as={
-                changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine
-              }
-              me={1}
-            />
-          ) : null}
-          <Amount.Percent
-            value={bnOrZero(changePercent24Hr).times('0.01').toString()}
-            fontSize='xs'
-          />
-        </Tag>
-      )
-    }, [changePercent24Hr, changePercentTagColorsScheme])
-
     const rightContent = useMemo(() => {
       if (isCustomAsset) {
         return (
@@ -172,7 +140,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
               height='20px'
               value={marketData?.price}
             />
-            {priceChange}
+            <PriceChangeTag changePercent24Hr={changePercent24Hr} />
           </Flex>
         )
       }
@@ -201,7 +169,6 @@ export const AssetRow: FC<AssetRowProps> = memo(
       return null
     }, [
       marketData?.price,
-      priceChange,
       textColor,
       userCurrencyBalance,
       cryptoHumanBalance,
@@ -213,9 +180,10 @@ export const AssetRow: FC<AssetRowProps> = memo(
       showPrice,
       translate,
       hideZeroBalanceAmounts,
+      changePercent24Hr,
     ])
 
-    if (shouldDisplayRelatedAssets && relatedAssetIds.length > 1) {
+    if (showRelatedAssets && relatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
           asset={asset}

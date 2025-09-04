@@ -31,12 +31,13 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
+import { isUniqueAsset } from '@/lib/utils/asset'
 import { vibrate } from '@/lib/vibrate'
 import type { AccountRowData, RowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
   selectIsPortfolioLoading,
-  selectPrimaryPortfolioAccountRows,
+  selectPrimaryPortfolioAccountRowsSortedByBalance,
 } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
 
@@ -51,7 +52,7 @@ const emptyContainerProps: FlexProps = {
 
 export const AccountTable = memo(() => {
   const loading = useSelector(selectIsPortfolioLoading)
-  const rowData = useSelector(selectPrimaryPortfolioAccountRows)
+  const rowData = useSelector(selectPrimaryPortfolioAccountRowsSortedByBalance)
   const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
@@ -76,10 +77,6 @@ export const AccountTable = memo(() => {
           <AssetCell
             assetId={row.original.assetId}
             subText={truncate(row.original.symbol, { length: 6 })}
-            isGrouped={Boolean(
-              !row.original.relatedAssetKey ||
-                row.original.relatedAssetKey === row.original.assetId,
-            )}
           />
         ),
       },
@@ -155,7 +152,7 @@ export const AccountTable = memo(() => {
         id: 'toggle',
         width: 50,
         Cell: ({ row }: { row: RowProps }) => {
-          if (row.original.relatedAssetKey !== row.original.assetId) return null
+          if (isUniqueAsset(row.original.relatedAssetKey)) return null
 
           return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
         },
@@ -257,7 +254,7 @@ export const AccountTable = memo(() => {
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
         height='53vh'
-        shouldDisplayRelatedAssets
+        showRelatedAssets
       />
     )
   }

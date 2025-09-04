@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdRelatedAssetKey, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
@@ -366,3 +366,41 @@ export const selectAssetsBySearchQuery = createCachedSelector(
     return limit ? matchedAssets.slice(0, limit) : matchedAssets
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
+
+export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector(
+  selectPortfolioFungiblePrimaryAssetsSortedByBalance,
+  selectRelatedAssetIdsByAssetIdInclusive,
+  (_state: ReduxState, chainId: ChainId | 'All') => chainId,
+  (portfolioAssets, relatedAssetIdsById, chainId) => {
+    if (chainId === 'All') return portfolioAssets
+
+    return portfolioAssets.filter(asset => {
+      if (asset.chainId === chainId) return true
+
+      return (
+        relatedAssetIdsById[asset.assetId]?.some(
+          relatedAssetId => fromAssetId(relatedAssetId).chainId === chainId,
+        ) ?? false
+      )
+    })
+  },
+)
+
+export const selectPrimaryAssetsByChain = createDeepEqualOutputSelector(
+  selectPrimaryAssetsSortedByMarketCap,
+  selectRelatedAssetIdsByAssetIdInclusive,
+  (_state: ReduxState, chainId: ChainId | 'All') => chainId,
+  (primaryAssets, relatedAssetIdsById, chainId) => {
+    if (chainId === 'All') return primaryAssets
+
+    return primaryAssets.filter(asset => {
+      if (asset.chainId === chainId) return true
+
+      return (
+        relatedAssetIdsById[asset.assetId]?.some(
+          relatedAssetId => fromAssetId(relatedAssetId).chainId === chainId,
+        ) ?? false
+      )
+    })
+  },
+)

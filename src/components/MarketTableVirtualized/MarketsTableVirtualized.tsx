@@ -18,7 +18,7 @@ import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { GroupedAssets } from '@/components/MarketTableVirtualized/GroupedAssets'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { Text } from '@/components/Text'
-import { isPrimaryAsset } from '@/lib/utils/asset'
+import { isPrimaryAsset, isUniqueAsset } from '@/lib/utils/asset'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
 
@@ -66,12 +66,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           id: 'assetId',
           Header: () => <Text translation='dashboard.portfolio.asset' />,
           Cell: ({ row }: { row: Row<Asset> }) => (
-            <AssetCell
-              assetId={row.original.assetId}
-              symbol={row.original.symbol}
-              // @TODO: remove me as we probably want to cleanup "on" assets names
-              isGrouped={row.original.relatedAssetKey === row.original.assetId}
-            />
+            <AssetCell assetId={row.original.assetId} symbol={row.original.symbol} />
           ),
         },
         ...(isLargerThanMd
@@ -130,7 +125,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           id: 'toggle',
           width: 50,
           Cell: ({ row }: { row: Row<Asset> }) => {
-            if (row.original.relatedAssetKey !== row.original.assetId) return null
+            if (isUniqueAsset(row.original.relatedAssetKey)) return null
 
             return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
           },
@@ -172,7 +167,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             handleClick={onRowClick}
             handleLongPress={onRowLongPress}
             height='100vh'
-            shouldDisplayRelatedAssets
+            showRelatedAssets
             showPrice
           />
         </Box>

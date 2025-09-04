@@ -786,7 +786,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   },
 )
 
-export const selectPrimaryPortfolioAccountRows = createDeepEqualOutputSelector(
+export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioAccountRows,
   selectPortfolioAccountBalancesBaseUnit,
   selectAssets,
@@ -836,7 +836,7 @@ export const selectPrimaryPortfolioAccountRows = createDeepEqualOutputSelector(
           symbol: primaryAsset?.symbol ?? '',
           fiatAmount: userCurrencyAmount.toFixed(2),
           cryptoAmount: totalCryptoBalance.toFixed(),
-          // We probably don't need this anymore as we will remove balance chart
+          // @TODO: We probably don't need this anymore as we will remove balance chart
           allocation: 0,
           price,
           priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
@@ -850,8 +850,8 @@ export const selectPrimaryPortfolioAccountRows = createDeepEqualOutputSelector(
       [],
     )
 
-    return primaryAccountRowsWithAggregatedBalances.sort(
-      (a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber(), // Fixed sort order (descending)
+    return primaryAccountRowsWithAggregatedBalances.sort((a, b) =>
+      bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber(),
     )
   },
 )
@@ -869,11 +869,12 @@ export const selectGroupedAssetBalances = createCachedSelector(
     marketData,
     primaryAssetId,
   ): GroupedAssetBalance | null => {
+    const primaryAsset = assetsById[primaryAssetId]
     const primaryRow = accountRows.find(row => row.assetId === primaryAssetId) ?? {
       assetId: primaryAssetId,
-      name: '',
-      icon: '',
-      symbol: '',
+      name: primaryAsset?.name ?? '',
+      icon: primaryAsset?.icon ?? '',
+      symbol: primaryAsset?.symbol ?? '',
       fiatAmount: '0',
       cryptoAmount: '0',
       allocation: 0,

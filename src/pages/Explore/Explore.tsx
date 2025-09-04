@@ -212,7 +212,7 @@ export const Explore = memo(() => {
               disableUnsupported={false}
               height='100vh'
               showPrice
-              shouldDisplayRelatedAssets
+              showRelatedAssets
               handleLongPress={handleAssetLongPress}
             />
           )}

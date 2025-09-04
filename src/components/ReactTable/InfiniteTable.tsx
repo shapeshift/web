@@ -111,13 +111,13 @@ export const InfiniteTable = <T extends {}>({
 
   const handleRowToggle = useCallback((rowId: string) => {
     setExpandedItems(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(rowId)) {
-        newSet.delete(rowId)
+      const expandedItems = new Set(prev)
+      if (expandedItems.has(rowId)) {
+        expandedItems.delete(rowId)
       } else {
-        newSet.add(rowId)
+        expandedItems.add(rowId)
       }
-      return newSet
+      return expandedItems
     })
   }, [])
 

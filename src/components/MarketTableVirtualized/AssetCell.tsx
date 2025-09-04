@@ -11,15 +11,10 @@ const assetCellSx = {
 type AssetCellProps = {
   assetId: string
   symbol: string
-  isGrouped?: boolean
 }
 
-export const AssetCell = memo<AssetCellProps>(({ assetId, symbol, isGrouped }) => (
+export const AssetCell = memo<AssetCellProps>(({ assetId, symbol }) => (
   <Box sx={assetCellSx}>
-    <StakingVaultsAssetCell
-      assetId={assetId}
-      subText={truncate(symbol, { length: 6 })}
-      isGrouped={isGrouped}
-    />
+    <StakingVaultsAssetCell assetId={assetId} subText={truncate(symbol, { length: 6 })} />
   </Box>
 ))

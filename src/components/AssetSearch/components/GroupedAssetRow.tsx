@@ -3,24 +3,22 @@ import {
   Box,
   Button,
   Collapse,
-  Text as CText,
   Flex,
   Icon,
-  Tag,
-  TagLeftIcon,
+  Text as CText,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
 
 import { AssetRow } from './AssetRow'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
@@ -98,37 +96,6 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   }, [groupedAssetBalances?.relatedAssets, assets])
 
   const changePercent24Hr = groupedAssetBalances?.primaryAsset.priceChange
-
-  const changePercentTagColorsScheme = useMemo(() => {
-    if (bnOrZero(changePercent24Hr).gt(0)) {
-      return 'green'
-    }
-
-    if (bnOrZero(changePercent24Hr).lt(0)) {
-      return 'red'
-    }
-
-    return 'gray'
-  }, [changePercent24Hr])
-
-  const priceChange = useMemo(() => {
-    if (!changePercent24Hr) return null
-
-    return (
-      <Tag colorScheme={changePercentTagColorsScheme} width='max-content' px={1} size='sm'>
-        {changePercentTagColorsScheme !== 'gray' ? (
-          <TagLeftIcon
-            as={changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine}
-            me={1}
-          />
-        ) : null}
-        <Amount.Percent
-          value={bnOrZero(changePercent24Hr).times('0.01').toString()}
-          fontSize='xs'
-        />
-      </Tag>
-    )
-  }, [changePercent24Hr, changePercentTagColorsScheme])
 
   const relatedAssets = useMemo(() => {
     return groupedAssetBalances?.relatedAssets.map(asset => {
@@ -227,7 +194,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   height='20px'
                   value={groupedAssetBalances?.primaryAsset.price}
                 />
-                {priceChange}
+                <PriceChangeTag changePercent24Hr={changePercent24Hr} />
               </Flex>
             </Flex>
           )}

@@ -262,7 +262,7 @@ export const HighlightedTokens = () => {
           disableUnsupported={false}
           height='100vh'
           showPrice
-          shouldDisplayRelatedAssets
+          showRelatedAssets
         />
       </Flex>
     )

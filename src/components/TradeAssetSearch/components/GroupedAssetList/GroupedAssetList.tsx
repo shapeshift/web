@@ -91,7 +91,7 @@ export const GroupedAssetList = ({
           // eslint-disable-next-line react-memo/require-usememo
           data={itemData}
           onImportClick={onImportClick}
-          shouldDisplayRelatedAssets
+          showRelatedAssets
         />
       )
     },

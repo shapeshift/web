@@ -205,7 +205,7 @@ export const CategoryCard = memo(
               color={assetTitleColor}
               showPrice
             />
-          ))}{' '}
+          ))}
         </Flex>
       )
     }, [

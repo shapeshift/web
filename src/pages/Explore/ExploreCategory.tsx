@@ -284,7 +284,7 @@ export const ExploreCategory = () => {
             }
             height='100vh'
             showPrice
-            shouldDisplayRelatedAssets
+            showRelatedAssets
             handleLongPress={handleAssetLongPress}
             rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
           />

@@ -31,7 +31,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   assets,
   title = 'common.selectAsset',
   allowWalletUnsupportedAssets,
-  shouldDisplayRelatedAssets,
+  showRelatedAssets,
 }) => {
   const translate = useTranslate()
 
@@ -54,7 +54,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         onAssetClick={handleAssetClick}
         assets={assets}
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
-        shouldDisplayRelatedAssets={shouldDisplayRelatedAssets}
+        showRelatedAssets={showRelatedAssets}
       />
     </Dialog>
   )

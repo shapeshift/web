@@ -189,7 +189,7 @@ export const SearchTermAssetList = ({
           handleClick={handleAssetClick}
           hideZeroBalanceAmounts={true}
           onImportClick={onImportClick}
-          shouldDisplayRelatedAssets
+          showRelatedAssets
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
           height='70vh'
         />

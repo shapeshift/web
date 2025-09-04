@@ -41,7 +41,6 @@ type AssetCellProps = {
   opportunityName?: string
   isExternal?: boolean
   version?: string
-  isGrouped?: boolean
 } & StackProps
 
 const rowTitleBoxAfter = {
@@ -53,12 +52,7 @@ const rowTitleBoxAfter = {
 
 const rowTitleTextFontSize = { base: 'sm', md: 'md' }
 
-const buildRowTitle = (
-  asset: Asset,
-  postFix?: string,
-  showAssetSymbol?: boolean,
-  isGrouped?: boolean,
-): string => {
+const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
   if (showAssetSymbol && postFix) {
     return `${asset.symbol} ${postFix}`
   }
@@ -69,10 +63,6 @@ const buildRowTitle = (
 
   if (postFix) {
     return `${asset.name} ${postFix}`
-  }
-
-  if (isGrouped) {
-    return asset.name.split(' on ')[0] ?? asset.name
   }
 
   return asset.name
@@ -88,7 +78,6 @@ export const AssetCell = ({
   opportunityName,
   isExternal,
   version,
-  isGrouped,
   ...rest
 }: AssetCellProps) => {
   const translate = useTranslate()
@@ -105,7 +94,7 @@ export const AssetCell = ({
 
   if (!asset) return null
 
-  const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol, isGrouped)
+  const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
     <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
@@ -124,7 +113,7 @@ export const AssetCell = ({
           {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='md' showNetworkIcon={!isGrouped} />
+            <AssetIcon assetId={asset.assetId} size='md' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1} width='50%'>

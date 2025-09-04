@@ -16,7 +16,7 @@ export type AssetResultsProps = {
 export const AssetResults: React.FC<AssetResultsProps> = ({ results, onClick, searchQuery }) => {
   const translate = useTranslate()
   const renderItems = useMemo(() => {
-    return <AssetList assets={results} handleClick={onClick} shouldDisplayRelatedAssets />
+    return <AssetList assets={results} handleClick={onClick} showRelatedAssets />
   }, [results, onClick])
 
   if (searchQuery && !results.length) return null

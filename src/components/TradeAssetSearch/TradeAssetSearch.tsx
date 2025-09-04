@@ -2,7 +2,6 @@ import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { FC, FormEvent } from 'react'
@@ -23,10 +22,9 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
-  selectPortfolioFungiblePrimaryAssetsSortedByBalance,
+  selectPortfolioPrimaryAssetsByChain,
   selectPortfolioTotalUserCurrencyBalance,
-  selectPrimaryAssetsSortedByMarketCap,
-  selectRelatedAssetIdsByAssetIdInclusive,
+  selectPrimaryAssetsByChain,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -75,15 +73,15 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
-  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
 
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
     // If a wallet is connected with zero balances everywhere, we do the same
     // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
-    hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
-      ? selectPortfolioFungiblePrimaryAssetsSortedByBalance
-      : selectPrimaryAssetsSortedByMarketCap,
+    state =>
+      hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
+        ? selectPortfolioPrimaryAssetsByChain(state, activeChainId)
+        : selectPrimaryAssetsByChain(state, activeChainId),
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -174,18 +172,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       asset => assetFilterPredicate?.(asset.assetId) ?? true,
     )
 
-    if (activeChainId === 'All') {
-      return filteredPortfolioAssetsSortedByBalance
-    }
-
-    return filteredPortfolioAssetsSortedByBalance.filter(
-      asset =>
-        asset.chainId === activeChainId ||
-        relatedAssetIdsById[asset.assetId]?.some(
-          relatedAssetId => fromAssetId(relatedAssetId).chainId === activeChainId,
-        ),
-    )
-  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate, relatedAssetIdsById])
+    return filteredPortfolioAssetsSortedByBalance
+  }, [portfolioAssetsSortedByBalance, assetFilterPredicate])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {

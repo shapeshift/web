@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
 import { Virtuoso } from 'react-virtuoso'
 
+import type { AssetRowData } from './AssetRow'
 import { AssetRow } from './AssetRow'
 
 import { Text } from '@/components/Text'
@@ -18,19 +19,12 @@ export type AssetData = {
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
-  rowComponent?: FC<{
-    asset: Asset
-    index: number
-    data: AssetData
-    showPrice?: boolean
-    onImportClick?: (asset: Asset) => void
-    shouldDisplayRelatedAssets?: boolean
-  }>
+  rowComponent?: FC<AssetRowData>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
   showPrice?: boolean
   onImportClick?: (asset: Asset) => void
-  shouldDisplayRelatedAssets?: boolean
+  showRelatedAssets?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
@@ -54,7 +48,7 @@ export const AssetList: FC<AssetListProps> = ({
   showPrice = false,
   height = '50vh',
   onImportClick,
-  shouldDisplayRelatedAssets = false,
+  showRelatedAssets = false,
 }) => {
   const virtuosoStyle = useMemo(
     () => ({
@@ -73,7 +67,7 @@ export const AssetList: FC<AssetListProps> = ({
       hideZeroBalanceAmounts,
       portalsAssets,
       onImportClick,
-      shouldDisplayRelatedAssets,
+      showRelatedAssets,
     }),
     [
       assets,
@@ -83,7 +77,7 @@ export const AssetList: FC<AssetListProps> = ({
       hideZeroBalanceAmounts,
       portalsAssets,
       onImportClick,
-      shouldDisplayRelatedAssets,
+      showRelatedAssets,
     ],
   )
 
@@ -99,11 +93,11 @@ export const AssetList: FC<AssetListProps> = ({
           data={itemData}
           showPrice={showPrice}
           onImportClick={onImportClick}
-          shouldDisplayRelatedAssets={shouldDisplayRelatedAssets}
+          showRelatedAssets={showRelatedAssets}
         />
       )
     },
-    [assets, itemData, rowComponent, showPrice, onImportClick, shouldDisplayRelatedAssets],
+    [assets, itemData, rowComponent, showPrice, onImportClick, showRelatedAssets],
   )
 
   if (isLoading) {

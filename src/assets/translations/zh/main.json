@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "加速",
     "viewOnExplorer": "在区块浏览器上查看",
-    "approval": "批准"
+    "approval": "批准",
+    "permit2Approval": "Permit2 授权"
+  },
+  "quickBuy": {
+    "title": "快速购买 %{assetOnChain}",
+    "nativeNotAvailable": "快速购买不适用于原生资产",
+    "balance": "可用余额",
+    "confirm": "您确定要购买吗？",
+    "edit": "编辑购买数量",
+    "error": {
+      "insufficientFunds": "快速购买 %{amount} 失败，没有足够的资金，要尝试另一笔数量吗？",
+      "noQuote": "快速购买 %{amount} 失败，无法检索有效余额。",
+      "failed": "快速购买 %{amount} 失败。"
+    }
   },
   "consentBanner": {
     "body": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问 %{privateLink} 如果您不希望被匿名跟踪。请查看我们的 %{privacyPolicyLink} 更多细节。",
@@ -224,6 +237,28 @@
     "title": "哎呀！",
     "body": "出了些问题",
     "cta": "再试一次"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "组件错误",
+      "body": "该组件出现错误，无法正确加载。",
+      "retry": "重试"
+    },
+    "chart": {
+      "title": "图表不可用",
+      "body": "目前无法加载图表数据。",
+      "retry": "重试"
+    },
+    "trading": {
+      "title": "交易错误",
+      "body": "交易界面出现错误。您可以重试或刷新本页面。",
+      "retry": "重试"
+    },
+    "suspense": {
+      "title": "加载失败",
+      "body": "无法正确加载此内容。",
+      "retry": "重试"
+    }
   },
   "buyPage": {
     "title": "<span>快速</span>购买加密货币 ",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "你可以继续进行此交易，但接收 %{assetSymbol} 的交易历史记录暂时不可用",
     "manualReceiveAddress": "接收地址",
     "recipientAddress": "接收者地址",
+    "changeAddress": "退款地址",
+    "changeAddressExplainer": "在基于 UTXO 的网络上发送加密货币时，交易中未使用的余额将会通过此地址返回给您。",
     "customRecipientAddress": "自定义接收者地址",
     "customRecipientAddressDescription": "输入此交易的自定义接收者地址",
     "thisIsYourCustomRecipientAddress": "这是您的自定义接收者地址",
@@ -1086,7 +1123,19 @@
       "youGotMore": "您在本次交易中额外获得了 %{cryptoUpside}"
     },
     "networkFee": "网络费用",
-    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用"
+    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用",
+    "claim": {
+      "pending": "您领取的 %{amount} %{symbol} 正在处理中。",
+      "complete": "您领取的 %{amount} %{symbol} 已完成。"
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "您的领取的 %{amountAndSymbol} 奖励正在处理中。"
+      },
+      "complete": {
+        "description": "您领取的 %{amountAndSymbol} 奖励已完成。"
+      }
+    }
   },
   "limitOrder": {
     "heading": "限价",
@@ -1380,6 +1429,7 @@
     "receive": {
       "connectAWallet": "连接钱包来接收 %{symbol}",
       "receiveAsset": "接收 %{asset}",
+      "onlySend": "请只将 %{symbol} 发送到支持的网络。发送其他代币或发送到其他网络可能会导致代币永久丢失。",
       "copy": "复制",
       "copied": "%{symbol} 的接收地址已复制到剪贴板",
       "copyFailed": "无法将 %{symbol} 接收地址复制到剪贴板",
@@ -1388,7 +1438,8 @@
       "verify": "验证",
       "verified": "已验证",
       "notVerified": "地址不匹配",
-      "blockExplorer": "探索"
+      "blockExplorer": "探索",
+      "supportedNetworks": "支持的网络"
     },
     "deposit": {
       "allocation": {
@@ -1723,6 +1774,7 @@
       "failure": {
         "body": "无法连接 Ledger 钱包"
       },
+      "gettingChangeAddress": "正在获取退款地址...",
       "connectWarning": "在连接链之前，请确保您的设备上已打开该应用程序。",
       "signWarning": "在签名之前，请确保您的设备上已打开 %{chain} 应用程序。"
     },
@@ -2679,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "质押已发起",
+    "unstakeInitiated": "取消质押已发起",
+    "claimWithdraw": "领取提款",
     "staking": "rFOX 质押",
     "bridge": "桥接",
     "bridgeFunds": "桥接资金",
@@ -3014,7 +3069,9 @@
       "claimAvailable": "可领取",
       "claimed": "已领取",
       "unknown": "未知",
-      "initiated": "已发起"
+      "initiated": "已发起",
+      "awaitingApproval": "等待授权中",
+      "awaitingSwap": "等待兑换中"
     },
     "emptyState": {
       "title": "欢迎使用 ShapeShift",
@@ -3023,10 +3080,12 @@
       "startSwapping": "开始兑换"
     },
     "swap": {
-      "processing": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在进行中。",
-      "complete": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已完成。",
-      "failed": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
-      "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。"
+      "processing": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在进行中。",
+      "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已完成。",
+      "failed": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
+      "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。",
+      "awaitingApproval": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在等待授权。",
+      "awaitingSwap": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在等待执行。"
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} 和 %{asset2}",
@@ -3086,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} 笔待处理交易",
     "orderCancelled": "订单已取消",
-    "orderExpired": "订单已到期"
+    "orderExpired": "订单已到期",
+    "rewardDistribution": {
+      "pending": {
+        "description": "您领取的 %{amountAndSymbol} 正在处理中..."
+      },
+      "complete": {
+        "description": "您领取的 %{amountAndSymbol} 已完成。"
+      }
+    }
   }
 }

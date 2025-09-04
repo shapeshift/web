@@ -250,7 +250,7 @@ export const useSwapActionSubscriber = () => {
 
         // Use selectTxByFilter to find tx by hash instead of leveraging serialized index
         // This handles the special case of RUNE outbounds i.e our serialized Tx would be
-        // cosmos:thorchain-1:thorAddy*txHash*thor1clpczglrkrvdq9xtcsmj9a8ayrjeet2llcqufl:thorAddy but the Tx in store is
+        // cosmos:thorchain-1:thorAddy*txHash*:thorAddy but the Tx in store is
         // cosmos:thorchain-1:thorAddy*txHash*thorAddy*OUT:txHash (note memo part)
 
         const maybeTx = selectTxByFilter(store.getState(), {

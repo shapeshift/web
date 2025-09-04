@@ -728,7 +728,7 @@ export const RepayInput = ({
         borderBottomRadius='xl'
       >
         <Tooltip
-          label={translate(quoteErrorTooltipTranslation)}
+          label={translate(quoteErrorTooltipTranslation ?? '')}
           isDisabled={!lendingQuoteCloseError}
         >
           <ButtonWalletPredicate

@@ -261,7 +261,6 @@ export const useSwapActionSubscriber = () => {
       })()
 
       const actualBuyAmountCryptoPrecision = (() => {
-        console.log({ tx, buyTxHash, buyAccountId: swap?.buyAccountId })
         if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
 
         const receiveTransfer = tx.transfers.find(

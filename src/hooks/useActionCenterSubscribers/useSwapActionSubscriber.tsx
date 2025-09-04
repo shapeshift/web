@@ -289,6 +289,7 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
+        if (toast.isActive(swap.id)) return
         toast({
           status: 'success',
           render: ({ title, status, description, onClose, ...props }) => {
@@ -344,6 +345,8 @@ export const useSwapActionSubscriber = () => {
             txLink,
           }),
         )
+
+        if (toast.isActive(swap.id)) return
 
         toast({
           status: 'error',

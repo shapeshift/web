@@ -15,6 +15,7 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -96,6 +97,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const filteredDown = useMemo(
     () =>
       stakingOpportunities.filter(
@@ -126,7 +128,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
       if (provider === DefiProvider.rFOX) {
-        return navigate('/rfox')
+        return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
       }
 
       if (!isConnected) {
@@ -163,7 +165,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       )
     },
-    [assets, dispatch, navigate, isConnected, location],
+    [isConnected, assets, navigate, location, isRfoxFoxEcosystemPageEnabled, dispatch],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

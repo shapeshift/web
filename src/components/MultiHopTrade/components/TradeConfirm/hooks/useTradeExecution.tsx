@@ -16,10 +16,15 @@ import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { useMixpanel } from './useMixpanel'
 
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
+import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecution } from '@/lib/tradeExecution'
@@ -32,6 +37,8 @@ import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -48,9 +55,12 @@ export const useTradeExecution = (
 ) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const wallet = useWallet().state.wallet
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const { showErrorToast } = useErrorToast()
+  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
@@ -84,6 +94,8 @@ export const useTradeExecution = (
   )
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuote = useAppSelector(selectActiveQuote)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
+  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   // This is ugly, but we need to use refs to get around the fact that the
   // poll fn effectively creates a closure and will hold stale variables forever
@@ -158,6 +170,36 @@ export const useTradeExecution = (
         dispatch(
           tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
         )
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
+
+        const swap = activeSwapId ? swapsById[activeSwapId] : undefined
+        if (swap) {
+          // No double-toasty
+          if (toast.isActive(swap.id)) return
+
+          toast({
+            id: swap.id,
+            status: 'info',
+            render: ({ onClose, ...props }) => {
+              const handleClick = () => {
+                onClose()
+                openActionCenter()
+              }
+
+              return (
+                <SwapNotification
+                  // eslint-disable-next-line react-memo/require-usememo
+                  handleClick={handleClick}
+                  swapId={swap.id}
+                  onClose={onClose}
+                  {...props}
+                />
+              )
+            },
+          })
+        }
+
+        navigate(TradeRoutePaths.Input)
       })
       execution.on(
         TradeExecutionEvent.RelayerTxHash,
@@ -409,6 +451,11 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
+    activeSwapId,
+    navigate,
+    openActionCenter,
+    swapsById,
+    toast,
   ])
 
   return executeTrade

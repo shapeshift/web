@@ -253,7 +253,7 @@ export const AccountTable = memo(() => {
         assets={accountsAssets}
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
-        height='53vh'
+        height='calc(100vh - var(--mobile-header-offset) - var(--safe-area-inset-bottom) - var(--safe-area-inset-top) - env(safe-area-inset-bottom) - env(safe-area-inset-top) - env(safe-area-inset-top) - var(--mobile-nav-offset) - 54px)'
         showRelatedAssets
       />
     )

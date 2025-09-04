@@ -165,30 +165,35 @@ export const InfiniteTable = <T extends {}>({
   const renderHeader = useCallback(() => {
     if (!displayHeaders) return null
 
-    return headerGroups.map(headerGroup =>
-      headerGroup.headers.map(column => (
-        <Th
-          {...column.getHeaderProps(column.getSortByToggleProps())}
-          color='text.subtle'
-          textAlign={column.textAlign}
-          display={column.display}
-          // eslint-disable-next-line react-memo/require-usememo
-          _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
-        >
-          <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-            {column.render('Header')}
-            <Flex alignItems='center'>
-              {column.isSorted ? (
-                column.isSortedDesc ? (
-                  <ArrowDownIcon ml={2} aria-label={translate('common.table.sortedDesc')} />
-                ) : (
-                  <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
-                )
-              ) : null}
-            </Flex>
-          </Flex>
-        </Th>
-      )),
+    return (
+      <Tr>
+        {headerGroups.map(headerGroup =>
+          headerGroup.headers.map(column => (
+            <Th
+              {...column.getHeaderProps(column.getSortByToggleProps())}
+              key={column.key}
+              color='text.subtle'
+              textAlign={column.textAlign}
+              display={column.display}
+              // eslint-disable-next-line react-memo/require-usememo
+              _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
+            >
+              <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
+                {column.render('Header')}
+                <Flex alignItems='center'>
+                  {column.isSorted ? (
+                    column.isSortedDesc ? (
+                      <ArrowDownIcon ml={2} aria-label={translate('common.table.sortedDesc')} />
+                    ) : (
+                      <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
+                    )
+                  ) : null}
+                </Flex>
+              </Flex>
+            </Th>
+          )),
+        )}
+      </Tr>
     )
   }, [displayHeaders, headerGroups, hoverColor, translate])
 

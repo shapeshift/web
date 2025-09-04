@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "Im Explorer anzeigen",
-    "approval": "Genehmigung"
+    "approval": "Genehmigung",
+    "permit2Approval": "Permit2 Genehmigung"
+  },
+  "quickBuy": {
+    "title": "Schnellkauf %{assetOnChain}",
+    "nativeNotAvailable": "Schnellkauf ist für native Assets nicht verfügbar",
+    "balance": "Verfügbares Guthaben",
+    "confirm": "Möchten Sie wirklich kaufen?",
+    "edit": "Kaufbeträge bearbeiten",
+    "error": {
+      "insufficientFunds": "Schnellkauf von %{amount} fehlgeschlagen, nicht genügend Guthaben, versuchen Sie es mit einem kleineren Betrag?",
+      "noQuote": "Der Schnellkauf von %{amount} ist fehlgeschlagen, es konnte kein gültiges Angebot abgerufen werden.",
+      "failed": "Schnellkauf von %{amount} fehlgeschlagen."
+    }
   },
   "consentBanner": {
     "body": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen %{privateLink} wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere %{privacyPolicyLink} für mehr Details.",
@@ -224,6 +237,28 @@
     "title": "Hoppala!",
     "body": "Etwas ist schief gelaufen",
     "cta": "Versuchen Sie es nochmal"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "Inhaltsfehler",
+      "body": "Bei diesem Inhalt ist ein Fehler aufgetreten und er konnte nicht ordnungsgemäß geladen werden.",
+      "retry": "Wiederholen"
+    },
+    "chart": {
+      "title": "Diagramm nicht verfügbar",
+      "body": "Diagrammdaten können derzeit nicht geladen werden.",
+      "retry": "Wiederholen"
+    },
+    "trading": {
+      "title": "Handelsfehler",
+      "body": "In der Handelsschnittstelle ist ein Fehler aufgetreten. Sie können es erneut versuchen oder die Seite aktualisieren.",
+      "retry": "Versuchen Sie es erneut"
+    },
+    "suspense": {
+      "title": "Laden fehlgeschlagen",
+      "body": "Dieser Inhalt konnte nicht richtig geladen werden.",
+      "retry": "Wiederholen"
+    }
   },
   "buyPage": {
     "title": "Krypto kaufen <span>in Sekunden</span>",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "Sie können mit diesem Handel fortfahren, aber der Transaktionsverlauf für den Erhalt von %{assetSymbol} ist vorübergehend nicht verfügbar",
     "manualReceiveAddress": "Adresse erhalten",
     "recipientAddress": "Empfängeradresse",
+    "changeAddress": "Retourgeld Adresse",
+    "changeAddressExplainer": "Beim Senden von Kryptowährungen über UTXO-basierte Netzwerke werden alle Restbeträge Ihrer Transaktion an diese Adresse zurückgesendet.",
     "customRecipientAddress": "Benutzerdefinierte Empfängeradresse",
     "customRecipientAddressDescription": "Geben Sie eine benutzerdefinierte Empfängeradresse für diesen Handel ein",
     "thisIsYourCustomRecipientAddress": "Dies ist Ihre benutzerdefinierte Empfängeradresse",
@@ -1086,7 +1123,19 @@
       "youGotMore": "Sie haben beim Handel %{cryptoUpside} mehr bekommen"
     },
     "networkFee": "Netzwerkgebühr",
-    "feeExplainer": "Das Angebot beinhaltet eine ShapeShift-Gebühr von %{feePercentage} %"
+    "feeExplainer": "Das Angebot beinhaltet eine ShapeShift-Gebühr von %{feePercentage} %",
+    "claim": {
+      "pending": "Ihr Anspruch in Höhe von %{amount} %{symbol} wird bearbeitet.",
+      "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Ihre Belohnung in Höhe von %{amountAndSymbol} wird verarbeitet …"
+      },
+      "complete": {
+        "description": "Ihre Belohnung von %{amountAndSymbol} ist vollständig."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1380,6 +1429,7 @@
     "receive": {
       "connectAWallet": "Verbinden Sie eine Wallet, um %{symbol} zu erhalten",
       "receiveAsset": "Erhalte %{asset}",
+      "onlySend": "Senden Sie %{symbol} nur in unterstützten Netzwerken. Token im falschen Netzwerk können zu dauerhaftem Verlust führen.",
       "copy": "Kopieren",
       "copied": "%{symbol} Empfangsadresse in die Zwischenablage kopiert",
       "copyFailed": "%{symbol} Empfangsadresse konnte nicht in die Zwischenablage kopiert werden",
@@ -1388,7 +1438,8 @@
       "verify": "Verifizieren",
       "verified": "Verifiziert",
       "notVerified": "Adresskonflikt",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "supportedNetworks": "Unterstützte Netzwerke"
     },
     "deposit": {
       "allocation": {
@@ -1723,6 +1774,7 @@
       "failure": {
         "body": "Ledger Wallet kann nicht verbunden werden"
       },
+      "gettingChangeAddress": "Erhalte Retourgeld Adresse",
       "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
       "signWarning": "Stellen Sie vor dem Signieren sicher, dass die %{chain} App auf Ihrem Gerät geöffnet ist."
     },
@@ -2679,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Staking initiiert",
+    "unstakeInitiated": "Unstake eingeleitet",
+    "claimWithdraw": "Anspruch einfordern",
     "staking": "rFOX Staking",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Betrag",
@@ -3014,7 +3069,9 @@
       "claimAvailable": "Anspruch verfügbar",
       "claimed": "Beansprucht",
       "unknown": "Unbekannt",
-      "initiated": "Initiiert"
+      "initiated": "Initiiert",
+      "awaitingApproval": "Wartet auf Genehmigung",
+      "awaitingSwap": "Warte auf Tausch"
     },
     "emptyState": {
       "title": "Willkommen bei ShapeShift",
@@ -3026,7 +3083,9 @@
       "processing": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} wird verarbeitet.",
       "complete": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} ist abgeschlossen.",
       "failed": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} ist fehlgeschlagen.",
-      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} läuft."
+      "streaming": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} läuft.",
+      "awaitingApproval": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} wartet auf Genehmigung.",
+      "awaitingSwap": "Ihr Tausch von %{sellAmountAndSymbol} gegen %{buyAmountAndSymbol} wartet auf Ausführung."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} und %{asset2}",
@@ -3086,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Ausstehend",
     "orderCancelled": "Bestellung storniert",
-    "orderExpired": "Bestellung abgelaufen"
+    "orderExpired": "Bestellung abgelaufen",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Ihre Belohnung in Höhe von %{amountAndSymbol} wird verarbeitet …"
+      },
+      "complete": {
+        "description": "Ihre Belohnung von %{amountAndSymbol} ist vollständig."
+      }
+    }
   }
 }

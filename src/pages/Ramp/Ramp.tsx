@@ -4,10 +4,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 
-import { PageContainer } from './components/PageContainer'
-import { TopAssets } from './TopAssets'
+import { PageContainer } from '../Buy/components/PageContainer'
+import { TopAssets } from '../Buy/TopAssets'
 
 import AuroraBg from '@/assets/aurorabg.jpg'
 import FoxPane from '@/assets/fox-cta-pane.png'
@@ -42,12 +42,16 @@ const cardMxOffsetBase = { base: -4, md: 0 }
 const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
-export const Buy = () => {
-  // load fiat ramps
+const RampContent: React.FC = () => {
   useGetFiatRampsQuery()
 
+  const location = useLocation()
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
+
+  const isSellRoute = location.pathname.startsWith('/ramp/sell')
+  const titleKey = isSellRoute ? 'rampPage.sellTitle' : 'rampPage.buyTitle'
+  const bodyKey = isSellRoute ? 'rampPage.sellBody' : 'rampPage.buyBody'
 
   const {
     dispatch,
@@ -57,6 +61,8 @@ export const Buy = () => {
 
   const chainCount = useAppSelector(selectFiatRampChainCount)
 
+  const action = location.pathname.includes('/sell') ? FiatRampAction.Sell : FiatRampAction.Buy
+
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
@@ -64,8 +70,7 @@ export const Buy = () => {
   useEffect(() => {
     // Auto select asset when passed in via params
     if (chainId && assetSubId) {
-      const assetId = `${chainId}/${assetSubId}`
-      setSelectedAssetId(assetId)
+      setSelectedAssetId(`${chainId}/${assetSubId}`)
     }
   }, [assetSubId, chainId])
 
@@ -96,7 +101,7 @@ export const Buy = () => {
 
   return (
     <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
-      <SEO title={translate('navBar.buyCrypto')} description={translate('rampPage.buyBody')} />
+      <SEO title={translate('navBar.buyCrypto')} description={translate(bodyKey)} />
       <Box
         bgImg={AuroraBg}
         backgroundSize='cover'
@@ -124,16 +129,16 @@ export const Buy = () => {
                 lineHeight='1em'
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
-                translation='rampPage.buyTitle'
+                translation={titleKey}
                 components={titleTransaltionsComponents}
               />
 
-              <Text fontSize='lg' translation='rampPage.buyBody' color='whiteAlpha.900' />
+              <Text fontSize='lg' translation={bodyKey} color='whiteAlpha.900' />
               <Text fontSize='sm' color='text.subtle' translation='rampPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
               <Card bg='background.surface.base' mx={cardMxOffsetBase}>
-                <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
+                <FiatForm assetId={selectedAssetId} fiatRampAction={action} />
               </Card>
             </Box>
           </Flex>
@@ -152,7 +157,7 @@ export const Buy = () => {
                 />
                 <Button
                   size='lg'
-                  data-test='buy-page-connect-wallet-button'
+                  data-test='ramp-page-connect-wallet-button'
                   variant='solid'
                   colorScheme='blue'
                   onClick={handleConnect}
@@ -160,17 +165,35 @@ export const Buy = () => {
                   {translate('common.connectWallet')}
                 </Button>
               </Stack>
-              <Box
-                width='300px'
-                bgImage={FoxPane}
-                backgroundSize='cover'
-                display={displayXlBlock}
-              />
+              <Box display={displayXlBlock} overflow='visible' width='400px'>
+                <Box
+                  backgroundImage={FoxPane}
+                  backgroundSize='cover'
+                  backgroundPosition='center'
+                  width='500px'
+                  height='500px'
+                  ml={-50}
+                  mt={-100}
+                />
+              </Box>
             </PageContainer>
           </Flex>
         )}
       </Box>
       <TopAssets />
     </Main>
+  )
+}
+
+const rampContentElement = <RampContent />
+const navigateElement = <Navigate to='/ramp/buy' replace />
+
+export const Ramp: React.FC = () => {
+  return (
+    <Routes>
+      <Route path='/buy/*' element={rampContentElement} />
+      <Route path='/sell/*' element={rampContentElement} />
+      <Route path='/' element={navigateElement} />
+    </Routes>
   )
 }

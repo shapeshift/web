@@ -75,6 +75,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
+        variant='ghost'
         leftIcon={leftIcon}
         rightIcon={rightIcon}
         width={widthProp}

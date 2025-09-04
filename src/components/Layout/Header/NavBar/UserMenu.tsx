@@ -11,7 +11,6 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -39,6 +38,8 @@ export const entries = [WalletConnectedRoutes.Connected]
 const maxWidthProp = { base: 'full', md: 'xs' }
 const minWidthProp = { base: 0, md: 'xs' }
 const widthProp = { base: '100%', lg: 'auto' }
+
+const connectButtonHoverSx = { bg: 'background.surface.elevated', borderColor: 'border.hover' }
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()
@@ -91,7 +92,6 @@ const WalletButton: FC<WalletButtonProps> = ({
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
-  const bgColor = useColorModeValue('gray.200', 'gray.800')
 
   const { data: ensName } = useEnsName({
     address: walletInfo?.meta?.address ? getAddress(walletInfo.meta.address) : undefined,
@@ -149,26 +149,30 @@ const WalletButton: FC<WalletButtonProps> = ({
       rightIcon={rightIcon}
       leftIcon={leftIcon}
       onClick={handleMenuClick}
+      size='md'
+      fontSize='sm'
+      variant='ghost'
+      bg='transparent'
     >
       <Flex>
         {walletLabel ? (
-          <MiddleEllipsis
-            rounded='lg'
-            fontSize='sm'
-            p='1'
-            pl='2'
-            pr='2'
-            shouldShorten={shouldShorten}
-            bgColor={bgColor}
-            value={walletLabel}
-          />
+          <MiddleEllipsis fontSize='sm' shouldShorten={shouldShorten} value={walletLabel} />
         ) : (
           <RawText>{walletInfo?.name}</RawText>
         )}
       </Flex>
     </MenuButton>
   ) : (
-    <Button onClick={onConnect} leftIcon={connectIcon}>
+    <Button
+      onClick={onConnect}
+      leftIcon={connectIcon}
+      size='md'
+      fontSize='sm'
+      bg='background.surface.base'
+      border='1px solid'
+      borderColor='border.base'
+      _hover={connectButtonHoverSx}
+    >
       <Text translation='common.connectWallet' />
     </Button>
   )

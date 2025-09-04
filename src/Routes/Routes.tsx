@@ -175,7 +175,7 @@ export const AppRoutes = memo(() => {
         // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
         // eslint-disable-next-line react-memo/require-usememo
         element={
-          <Layout>
+          <Layout fullWidth={location.pathname.startsWith('/ramp')}>
             <InnerRoutes appRoutesList={appRoutesList} />
           </Layout>
         }

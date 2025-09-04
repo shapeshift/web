@@ -15,9 +15,17 @@ const sxProp1 = { svg: { width: '18px', height: '18px' } }
 
 const searchIcon = <SearchIcon />
 
-export const GlobalSeachButton = memo(() => {
+export const GlobalSearchButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
+
+  const buttonHoverSx = useMemo(
+    () => ({
+      bg: 'background.surface.elevated',
+      borderColor: 'border.hover',
+    }),
+    [],
+  )
   const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
   useEventListener(document, 'keydown', event => {
@@ -41,12 +49,16 @@ export const GlobalSeachButton = memo(() => {
           width='full'
           leftIcon={searchIcon}
           onClick={onOpen}
-          size='lg'
-          fontSize='md'
+          size='md'
+          fontSize='sm'
           alignItems='center'
           color='text.subtle'
           display={displayProp2}
           sx={sxProp1}
+          bg='background.surface.base'
+          border='1px solid'
+          borderColor='border.base'
+          _hover={buttonHoverSx}
         >
           {translate('common.search')}
           {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.

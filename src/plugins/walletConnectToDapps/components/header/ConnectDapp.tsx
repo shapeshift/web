@@ -26,6 +26,7 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
     <>
       <Tooltip isDisabled={!buttonProps?.isDisabled} label={translate('common.featureDisabled')}>
         <Button
+          variant='ghost'
           leftIcon={walletConnectIcon}
           rightIcon={chevronRightIcon}
           onClick={handleOpen}

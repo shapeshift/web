@@ -1,9 +1,9 @@
-import { getConfig } from '@/config'
-
 const initAddressablePixel = (): void => {
-  const cfg = getConfig()
-  const enabled = cfg.VITE_ENABLE_ADDRESSABLE
-  const tidRaw = cfg.VITE_ADDRESSABLE_TID
+  // Read from Vite's public env at build-time. These are statically injected.
+  const enabledRaw = import.meta.env.VITE_ENABLE_ADDRESSABLE
+  const tidRaw = import.meta.env.VITE_ADDRESSABLE_TID
+
+  const enabled = String(enabledRaw).toLowerCase() === 'true'
   const tid = typeof tidRaw === 'string' ? tidRaw.trim() : ''
 
   if (!enabled || !tid) return

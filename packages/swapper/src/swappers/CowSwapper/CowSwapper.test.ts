@@ -120,7 +120,7 @@ describe('cowApi', () => {
                   asset: {
                     assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
                     chainId: 'eip155:1',
-                    name: 'FOX on Ethereum',
+                    name: 'FOX',
                     precision: 18,
                     color: '#3761F9',
                     icon: '/fox-token-logo.png',
@@ -154,7 +154,7 @@ describe('cowApi', () => {
             sellAsset: {
               assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
               chainId: 'eip155:1',
-              name: 'FOX on Ethereum',
+              name: 'FOX',
               precision: 18,
               color: '#3761F9',
               icon: '/fox-token-logo.png',

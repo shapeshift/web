@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/types": "workspace:^",
-    "@shapeshiftoss/utils": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
   }
 }

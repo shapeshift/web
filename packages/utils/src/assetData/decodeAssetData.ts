@@ -18,7 +18,10 @@ const decodeAssetId = (encodedAssetId: string, assetIdPrefixes: string[]) => {
   return assetIdPrefixes[prefixIdx] + ':' + assetReference
 }
 
-export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
+export const decodeAssetData = (
+  encodedAssetData: EncodedAssetData,
+  shouldAddNetworkName = false,
+) => {
   const { assetIdPrefixes, encodedAssetIds, encodedAssets } = encodedAssetData
 
   const sortedAssetIds: AssetId[] = encodedAssetIds.map(encodedAssetId =>
@@ -73,7 +76,12 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
           const assetIdx = value as FieldToType[typeof field]
           const relatedAssetId = assetIdx === null ? null : sortedAssetIds[assetIdx]
           // if (relatedAssetId === undefined) throw Error()
-          if (relatedAssetId && relatedAssetId !== asset.assetId && baseAsset.networkName) {
+          if (
+            relatedAssetId &&
+            relatedAssetId !== asset.assetId &&
+            baseAsset.networkName &&
+            shouldAddNetworkName
+          ) {
             asset.name = `${asset.name} on ${baseAsset.networkName}`
           }
           asset.relatedAssetKey = relatedAssetId

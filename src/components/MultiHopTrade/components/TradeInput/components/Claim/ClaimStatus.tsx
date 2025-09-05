@@ -61,7 +61,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
     return (
       <StatusBody txStatus={claimTxStatus}>
         <Amount.Crypto
-          prefix={prefix}
+          prefix={prefix ?? ''}
           value={amountCryptoPrecision}
           symbol={asset.symbol}
           color='text.subtle'

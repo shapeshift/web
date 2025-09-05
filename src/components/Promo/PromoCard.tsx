@@ -120,7 +120,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
                   data-test={`${id}-button`}
                   letterSpacing='0.012em'
                 >
-                  {translate(cta)}
+                  {typeof cta === 'string' ? translate(cta) : translate(...cta)}
                 </Button>
               </Flex>
               {rightElement && <Flex alignItems='center'>{rightElement}</Flex>}

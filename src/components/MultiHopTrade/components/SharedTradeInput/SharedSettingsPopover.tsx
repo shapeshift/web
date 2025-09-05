@@ -132,7 +132,7 @@ export const SharedSettingsPopover: FC<SharedSettingsPopoverProps> = memo(
 
     return (
       <Popover isLazy placement='bottom-end' onClose={handleClose}>
-        <Tooltip isDisabled={!isDisabled} label={translate(tooltipTranslation)}>
+        <Tooltip isDisabled={!isDisabled} label={translate(tooltipTranslation ?? '')}>
           <Box display='inline-block'>
             <PopoverTrigger>
               <IconButton

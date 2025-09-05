@@ -64,7 +64,7 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
       underlyingAssetId={action.tcyClaimActionMetadata.claim.assetId}
       txHash={action.tcyClaimActionMetadata.txHash}
       onClaimClick={handleClaimClick}
-      message={message}
+      message={message ?? ''}
     />
   )
 }

@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "Буст",
     "viewOnExplorer": "Переглянути в браузері",
-    "approval": "Затвердження"
+    "approval": "Затвердження",
+    "permit2Approval": "Permit2 Схвалення"
+  },
+  "quickBuy": {
+    "title": "Швидка покупка %{assetOnChain}",
+    "nativeNotAvailable": "Швидка покупка недоступна для власних активів",
+    "balance": "Доступний баланс",
+    "confirm": "Ви впевнені, що хочете купити?",
+    "edit": "Редагувати суму покупки",
+    "error": {
+      "insufficientFunds": "Швидка покупка на amount %{amount} не вдалася, недостатньо коштів, спробувати іншу суму?",
+      "noQuote": "Швидка покупка на суму %{amount} не вдалася, не вдалося отримати дійсну цінову пропозицію.",
+      "failed": "Швидка покупка на суму %{amount} не вдалася."
+    }
   },
   "consentBanner": {
     "body": "Наш dApp використовує анонімне відстеження кліків для аналізу продуктивності та покращення вашого досвіду. Використовуючи app.shapeshift.com, ви погоджуєтеся на наше відстеження. Відвідати %{privateLink} якщо ви не хочете, щоб вас відстежували анонімно. Дивіться нашу %{privacyPolicyLink} для більш детальної інформації.",
@@ -224,6 +237,28 @@
     "title": "Упс!",
     "body": "Щось пішло не так.",
     "cta": "Спробуйте ще раз"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "Помилка компонента",
+      "body": "Цей компонент зіткнувся з помилкою і не зміг завантажитися належним чином.",
+      "retry": "Повторити спробу"
+    },
+    "chart": {
+      "title": "Графік недоступний",
+      "body": "Наразі неможливо завантажити дані графіку.",
+      "retry": "Повторити спробу"
+    },
+    "trading": {
+      "title": "Помилка в торгівлі",
+      "body": "У торговому інтерфейсі сталася помилка. Ви можете спробувати ще раз або оновити сторінку.",
+      "retry": "Спробувати ще раз"
+    },
+    "suspense": {
+      "title": "Завантаження не вдалося",
+      "body": "Цей вміст не вдалося завантажити належним чином.",
+      "retry": "Повторити спробу"
+    }
   },
   "buyPage": {
     "title": "Купити криптовалюту <span>за секунду</span>",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "Ви можете продовжити цю угоду, але історія транзакцій по отриманню %{assetSymbol} тимчасово недоступна",
     "manualReceiveAddress": "Адреса отримання",
     "recipientAddress": "Адреса одержувача",
+    "changeAddress": "Змінити адресу",
+    "changeAddressExplainer": "При відправленні криптовалют у мережах на основі UTXO будь-які залишки коштів від вашої транзакції повертаються вам на цю адресу.",
     "customRecipientAddress": "Користувацька адреса одержувача",
     "customRecipientAddressDescription": "Введіть спеціальну адресу одержувача для цієї операції",
     "thisIsYourCustomRecipientAddress": "Це ваша користувацька адреса одержувача",
@@ -1086,7 +1123,19 @@
       "youGotMore": "Ви отримали на %{cryptoUpside} більше на цій угоді"
     },
     "networkFee": "Мережева плата",
-    "feeExplainer": "Ціна включає комісію ShapeShift у розмірі %{feePercentage}%."
+    "feeExplainer": "Ціна включає комісію ShapeShift у розмірі %{feePercentage}%.",
+    "claim": {
+      "pending": "Ваша заявка на суму %{amount} %{symbol} знаходиться в процесі обробки.",
+      "complete": "Ваша заявка на суму %{amount} %{symbol} оброблена."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Ваша винагорода в розмірі %{amountAndSymbol} обробляється..."
+      },
+      "complete": {
+        "description": "Ваша винагорода в розмірі %{amountAndSymbol} отримана."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Ліміт",
@@ -1380,7 +1429,7 @@
     "receive": {
       "connectAWallet": "Підключіть гаманець, щоб отримати %{symbol}",
       "receiveAsset": "Отримати %{asset}",
-      "onlySend": "Надсилайте тільки %{asset} (%{symbol}) на цю адресу. Надсилання будь-яких інших монет може призвести до їх безповоротної втрати.",
+      "onlySend": "Надсилайте %{symbol} тільки в підтримуваних мережах. Інші токени або мережі можуть призвести до остаточної втрати.",
       "copy": "Скопіювати.",
       "copied": "%{symbol} адреса отримання скопійована в буфер обміну",
       "copyFailed": "Не вдалося скопіювати %{symbol} адреса отримання в буфер обміну",
@@ -1389,7 +1438,8 @@
       "verify": "Перевірити",
       "verified": "Перевірено",
       "notVerified": "Адреса не співпадає",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "supportedNetworks": "Підтримувані мережі"
     },
     "deposit": {
       "allocation": {
@@ -1724,6 +1774,7 @@
       "failure": {
         "body": "Не вдається підключити гаманець Ledger"
       },
+      "gettingChangeAddress": "Отримання адреси для зміни...",
       "connectWarning": "Перш ніж підключати мережу, переконайтеся, що на вашому пристрої відкрито додаток.",
       "signWarning": "Перш ніж підписувати, переконайтеся, що на вашому пристрої відкрито додаток %{chain}."
     },
@@ -2680,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Ініційований стейкінг",
+    "unstakeInitiated": "Ініційовано розблокування",
+    "claimWithdraw": "Підтвердити Вивід",
     "staking": "Стейкінг rFOX ",
     "bridge": "Міст",
     "bridgeFunds": "Перевести кошти",
@@ -3015,7 +3069,9 @@
       "claimAvailable": "Клейм доступний",
       "claimed": "Забрано",
       "unknown": "Невідомо",
-      "initiated": "Ініційовано"
+      "initiated": "Ініційовано",
+      "awaitingApproval": "Очікується затвердження",
+      "awaitingSwap": "Очікування обміну"
     },
     "emptyState": {
       "title": "Ласкаво просимо до ShapeShift",
@@ -3027,7 +3083,9 @@
       "processing": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} обробляється.",
       "complete": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершено.",
       "failed": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершився невдало.",
-      "streaming": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} відбувається в потоковому режимі."
+      "streaming": "Ваш обмін %{sellAmountAndSymbol} на %{buyAmountAndSymbol} відбувається в потоковому режимі.",
+      "awaitingApproval": "Ваша операція обміну %{sellAmountAndSymbol} на %{buyAmountAndSymbol} очікує на затвердження.",
+      "awaitingSwap": "Ваша операція обміну %{sellAmountAndSymbol} на %{buyAmountAndSymbol} очікує на виконання."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} і %{asset2}",
@@ -3087,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} На розгляді",
     "orderCancelled": "Замовлення скасовано",
-    "orderExpired": "Термін дії замовлення закінчився"
+    "orderExpired": "Термін дії замовлення закінчився",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Ваша винагорода в розмірі %{amountAndSymbol} обробляється..."
+      },
+      "complete": {
+        "description": "Ваша винагорода в розмірі %{amountAndSymbol} отримана."
+      }
+    }
   }
 }

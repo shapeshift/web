@@ -463,7 +463,6 @@
     "receive": {
       "connectAWallet": "Hubungkan dompet untuk menerima %{symbol}",
       "receiveAsset": "Menerima %{asset}",
-      "onlySend": "Hanya kirim %{asset} (%{symbol}) ke alamat ini. Mengirim koin lain dapat mengakibatkan kerugian permanen.",
       "copy": "Salin",
       "copied": "&{symbol}menerima alamat yang disalin ke papan klip",
       "copyFailed": "Gagal menyalin %{symbol} menerima alamat ke papan klip",

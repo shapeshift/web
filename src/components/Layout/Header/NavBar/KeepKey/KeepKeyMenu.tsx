@@ -115,7 +115,7 @@ export const KeepKeyMenu = () => {
   const deviceTimeoutTranslation: string =
     typeof deviceTimeout?.label === 'object'
       ? translate(...deviceTimeout?.label)
-      : translate(deviceTimeout?.label)
+      : translate(deviceTimeout?.label ?? '')
 
   const RenderMenu = () => {
     const keepKeyStateLoading = (

@@ -260,7 +260,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         isLoading={isLoading}
         type='submit'
       >
-        {translate(fieldError || 'common.continue')}
+        {translate(typeof fieldError === 'string' ? fieldError : 'common.continue')}
       </Button>
     </Stack>
   )

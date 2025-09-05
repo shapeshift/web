@@ -62,7 +62,7 @@ function HeaderTimeDisplay({ time, timePlaceholder }: HeaderTimeDisplayProps) {
   const translate = useTranslate()
   return (
     <Heading as='h5' fontWeight='normal' color='text.subtle'>
-      {time ? headerDateFormatter(time) : translate(timePlaceholder)}
+      {time ? headerDateFormatter(time) : translate(timePlaceholder ?? '')}
     </Heading>
   )
 }

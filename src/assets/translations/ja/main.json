@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "ブースト",
     "viewOnExplorer": "エクスプローラーで表示",
-    "approval": "承認"
+    "approval": "承認",
+    "permit2Approval": "Permit2の承認"
+  },
+  "quickBuy": {
+    "title": "クイック購入 %{assetOnChain}",
+    "nativeNotAvailable": "ネイティブアセットではクイックバイは利用できません",
+    "balance": "利用可能残高",
+    "confirm": "本当に購入しますか?",
+    "edit": "購入金額を編集する",
+    "error": {
+      "insufficientFunds": "%{amount} のクイック購入に失敗しました。資金が足りません。別の金額を試してみませんか?",
+      "noQuote": "%{amount} のクイック購入に失敗しました。有効なレート（価格情報）を取得できませんでした。",
+      "failed": "%{amount} のクイック購入に失敗しました。"
+    }
   },
   "consentBanner": {
     "body": "当社のdAppは、匿名化されたクリック追跡を使用してパフォーマンスを分析し、エクスペリエンスを向上させます。 app.shapeshift.com を使用すると、追跡に同意したことになります。 %{privateLink} を確認する。匿名で追跡されたくない場合は、こちらを参照してください。 %{privacyPolicyLink} で詳細を確認する。",
@@ -224,6 +237,28 @@
     "title": "Oops!",
     "body": "問題が発生しました",
     "cta": "もう一度やり直してください"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "コンポーネントエラー",
+      "body": "このコンポーネントにエラーが発生したため、正しく読み込むことができませんでした。",
+      "retry": "リトライ"
+    },
+    "chart": {
+      "title": "チャートが利用できません",
+      "body": "現時点ではチャートデータを読み込むことができません。",
+      "retry": "リトライ"
+    },
+    "trading": {
+      "title": "取引エラー",
+      "body": "取引インターフェースでエラーが発生しました。もう一度お試しいただくか、ページを更新してください。",
+      "retry": "もう一度やり直してください"
+    },
+    "suspense": {
+      "title": "読み込みに失敗しました",
+      "body": "このコンテンツは正しく読み込めませんでした。",
+      "retry": "リトライ"
+    }
   },
   "buyPage": {
     "title": "暗号通貨を購入 <span>即時に</span>",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
     "manualReceiveAddress": "受信アドレス",
     "recipientAddress": "受信者のアドレス",
+    "changeAddress": "アドレスを変更",
+    "changeAddressExplainer": "UTXO ベースのネットワークで暗号通貨を送信すると、トランザクションで残った資金はこのアドレスに送り返されます。",
     "customRecipientAddress": "カスタム受信者アドレス",
     "customRecipientAddressDescription": "この取引のカスタム受信者アドレスを入力してください",
     "thisIsYourCustomRecipientAddress": "これはカスタム受信者アドレスです",
@@ -1086,7 +1123,19 @@
       "youGotMore": "この取引で %{cryptoUpside} 増加しました"
     },
     "networkFee": "ネットワーク料金",
-    "feeExplainer": "見積もりには%{feePercentage}%のShapeShift料金が含まれています"
+    "feeExplainer": "見積もりには%{feePercentage}%のShapeShift料金が含まれています",
+    "claim": {
+      "pending": "%{amount} %{symbol} の請求を処理中です。",
+      "complete": "%{amount} %{symbol} の請求が完了しました。"
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "%{amountAndSymbol} の報酬を処理中です..."
+      },
+      "complete": {
+        "description": "%{amountAndSymbol} の報酬が完了しました。"
+      }
+    }
   },
   "limitOrder": {
     "heading": "制限",
@@ -1380,7 +1429,7 @@
     "receive": {
       "connectAWallet": "ウォレットに接続して %{symbol} を受け取ります",
       "receiveAsset": "%{asset} を受け取る",
-      "onlySend": "%{asset} (%{symbol}) のみをこのアドレスに送信してください。他のコインを送信すると永久に損失する可能性があります。",
+      "onlySend": "%{symbol} はサポートされているネットワークでのみ送信してください。その他のトークンまたはネットワークでは、永久に失われる可能性があります。",
       "copy": "コピー",
       "copied": "%{symbol} 受信アドレスがクリップボードにコピーされました",
       "copyFailed": "%{symbol} 受信アドレスをクリップボードにコピーできませんでした",
@@ -1389,7 +1438,8 @@
       "verify": "確認する",
       "verified": "確認済み",
       "notVerified": "アドレスの不一致",
-      "blockExplorer": "エクスプローラー"
+      "blockExplorer": "エクスプローラー",
+      "supportedNetworks": "サポートされているネットワーク"
     },
     "deposit": {
       "allocation": {
@@ -1724,6 +1774,7 @@
       "failure": {
         "body": "Ledgerウォレットに接続できません"
       },
+      "gettingChangeAddress": "住所変更を取得しています...",
       "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
       "signWarning": "署名する前に、デバイスで %{chain} アプリが開いていることを確認してください。"
     },
@@ -2680,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "ステーク開始",
+    "unstakeInitiated": "ステーク解除開始",
+    "claimWithdraw": "引き出し申請",
     "staking": "rFOXステーキング",
     "bridge": "ブリッジ",
     "bridgeFunds": "資金のブリッジ",
@@ -3015,7 +3069,9 @@
       "claimAvailable": "請求可能",
       "claimed": "請求済み",
       "unknown": "未知",
-      "initiated": "開始済み"
+      "initiated": "開始済み",
+      "awaitingApproval": "承認待ち",
+      "awaitingSwap": "スワップ待ち"
     },
     "emptyState": {
       "title": "ShapeShiftへようこそ",
@@ -3027,7 +3083,9 @@
       "processing": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップを処理中です。",
       "complete": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップが完了しました。",
       "failed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップに失敗しました。",
-      "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。"
+      "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。",
+      "awaitingApproval": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップは承認待ちです。",
+      "awaitingSwap": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップが実行を待機しています。"
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} と %{asset2}",
@@ -3087,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} 保留中",
     "orderCancelled": "注文キャンセル済み",
-    "orderExpired": "注文期限切れ"
+    "orderExpired": "注文期限切れ",
+    "rewardDistribution": {
+      "pending": {
+        "description": "%{amountAndSymbol} の報酬を処理中です..."
+      },
+      "complete": {
+        "description": "%{amountAndSymbol} の報酬が完了しました。"
+      }
+    }
   }
 }

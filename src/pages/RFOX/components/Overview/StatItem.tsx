@@ -44,7 +44,7 @@ export const StatItem = ({
     <Stack spacing={0} flex={1} flexDir={'column'}>
       <Skeleton isLoaded={!isLoading}>
         <HelperTooltip
-          label={translate(helperDescription)}
+          label={translate(helperDescription ?? '')}
           flexProps={helperToolTipFlexProps}
           iconProps={helperIconProps}
         >

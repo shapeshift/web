@@ -5,7 +5,9 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-const tabPaddingY = { base: 4, md: 6 }
+const tabPaddingBottom = { base: 4, md: 6 }
+const tabPaddingTop = { base: 4, md: 0 }
+const tabMarginTop = { base: 0, md: 6 }
 
 type DashboardTabProps = {
   label: string
@@ -45,7 +47,9 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
         variant='tab'
         ref={ref}
         flexShrink={0}
-        py={tabPaddingY}
+        pt={tabPaddingTop}
+        pb={tabPaddingBottom}
+        mt={tabMarginTop}
         onClick={handleClick}
         isActive={isActive}
         borderBottomWidth={4}

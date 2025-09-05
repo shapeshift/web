@@ -77,7 +77,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
     >
       {icon}
       <Flex flexDir='column' fontSize='11px' letterSpacing='-0.020em'>
-        {translate(shortLabel ?? label)}
+        {translate(shortLabel ?? label ?? '')}
       </Flex>
     </Button>
   )

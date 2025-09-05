@@ -155,9 +155,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
             <TooltipWithTouch
-              label={translate(
-                ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
-              )}
+              label={
+                typeof translationParams === 'string'
+                  ? translate(translationParams)
+                  : translate(...translationParams)
+              }
             >
               <Circle size={6}>
                 <WarningIcon color='text.error' boxSize={4} />

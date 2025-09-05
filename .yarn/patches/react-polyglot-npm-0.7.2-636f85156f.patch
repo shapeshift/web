@@ -1,0 +1,12 @@
+diff --git a/src/useTranslate.d.ts b/src/useTranslate.d.ts
+index e2c8595cc3cd7881be70906968dcd1013359889b..258261e2493fba8947d5993baa361b050a940262 100644
+--- a/src/useTranslate.d.ts
++++ b/src/useTranslate.d.ts
+@@ -5,6 +5,6 @@ type TranslateFunction = (
+     options?: number| InterpolationOptions
+ ) => string
+ 
+-declare const useTranslate = () => TranslateFunction
++declare function useTranslate(): TranslateFunction
+ 
+ export default useTranslate

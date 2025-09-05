@@ -76,7 +76,7 @@ export const StakingInfoItem = ({
 
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
-      <HelperTooltip label={translate(helperDescription)} iconProps={helperIconProps}>
+      <HelperTooltip label={translate(helperDescription ?? '')} iconProps={helperIconProps}>
         <Text
           fontSize='sm'
           color='text.subtle'

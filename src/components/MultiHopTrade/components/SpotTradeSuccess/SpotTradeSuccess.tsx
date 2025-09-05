@@ -217,7 +217,9 @@ export const SpotTradeSuccess = ({
             <SlideTransition>
               <HStack width='full' justifyContent='space-between'>
                 <Button variant='link' onClick={handleToggle}>
-                  {translate(summaryTranslation)}
+                  {typeof summaryTranslation === 'string'
+                    ? translate(summaryTranslation)
+                    : translate(...summaryTranslation)}
                 </Button>
                 <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
               </HStack>
@@ -227,7 +229,9 @@ export const SpotTradeSuccess = ({
             </SlideTransition>
 
             <Button mt={4} size='lg' width='full' onClick={handleBack} colorScheme='blue'>
-              {translate(buttonTranslation)}
+              {typeof buttonTranslation === 'string'
+                ? translate(buttonTranslation)
+                : translate(...buttonTranslation)}
             </Button>
           </CardFooter>
         </>

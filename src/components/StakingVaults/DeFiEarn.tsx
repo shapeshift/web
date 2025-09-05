@@ -20,14 +20,20 @@ import { useAppSelector } from '@/state/store'
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
   header?: JSX.Element
+  forceCompactView?: boolean
 } & FlexProps
 
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const flexPaddingX = { base: 2, xl: 0 }
 const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
-const tablePx = { base: 2, md: 0 }
+const tablePx = { base: 0, md: 0 }
 
-export const DeFiEarn: React.FC<DefiEarnProps> = ({ positionTableProps, header, ...rest }) => {
+export const DeFiEarn: React.FC<DefiEarnProps> = ({
+  positionTableProps,
+  header,
+  forceCompactView,
+  ...rest
+}) => {
   const { isConnected } = useWallet().state
   const { q } = useQuery<{ q?: string }>()
   const [searchQuery, setSearchQuery] = useState(q ?? '')
@@ -40,31 +46,37 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({ positionTableProps, header, 
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      <Flex
-        justifyContent='space-between'
-        alignItems='center'
-        gap={4}
-        flexWrap='wrap'
-        flexDir={flexDir}
-        px={flexPaddingX}
-        {...rest}
-      >
-        {header && header}
-        <Flex alignItems='center' gap={4}>
-          <ChainDropdown
-            chainIds={chainIds}
-            chainId={selectedChainId}
-            onClick={setSelectedChainId}
-            showAll
-            includeBalance
-          />
-          <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
-            <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+      {!forceCompactView && (
+        <Flex
+          justifyContent='space-between'
+          alignItems='center'
+          gap={4}
+          flexWrap='wrap'
+          flexDir={flexDir}
+          px={flexPaddingX}
+          {...rest}
+        >
+          {header && header}
+          <Flex alignItems='center' gap={4}>
+            <ChainDropdown
+              chainIds={chainIds}
+              chainId={selectedChainId}
+              onClick={setSelectedChainId}
+              showAll
+              includeBalance
+            />
+            <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
+              <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+            </Flex>
           </Flex>
         </Flex>
-      </Flex>
+      )}
       <Box px={tablePx}>
-        <PositionTable chainId={selectedChainId} searchQuery={searchQuery} />
+        <PositionTable
+          chainId={selectedChainId}
+          searchQuery={searchQuery}
+          forceCompactView={forceCompactView}
+        />
       </Box>
     </Flex>
   )

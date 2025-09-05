@@ -86,16 +86,16 @@ export const TabsStyle = {
     'soft-rounded': (props: Record<string, any>) => ({
       tab: {
         borderRadius: 'full',
-        color: 'text.subtle',
+        color: 'text.base',
         bg: 'background.button.secondary.base',
         _hover: {
           color: mode('gray.800', 'white')(props),
         },
         _selected: {
-          bg: 'blue.500',
-          color: 'white',
+          bg: mode('black', 'white')(props),
+          color: mode('white', 'black')(props),
           _hover: {
-            color: 'white',
+            color: mode('white', 'black')(props),
           },
         },
       },

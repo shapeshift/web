@@ -214,7 +214,20 @@
     "dca": "DCA",
     "boost": "Yükseltme",
     "viewOnExplorer": "Explorer'da görüntüle",
-    "approval": "Onay"
+    "approval": "Onay",
+    "permit2Approval": "Permit2 Onayı"
+  },
+  "quickBuy": {
+    "title": "Hızlı Satın Al %{assetOnChain}",
+    "nativeNotAvailable": "Hızlı Satın Al yerel varlıklarda mevcut değildir",
+    "balance": "Mevcut Bakiye",
+    "confirm": "Satın almak istediğinizden emin misiniz?",
+    "edit": "Satın alma miktarlarını düzenle",
+    "error": {
+      "insufficientFunds": "%{amount} tutarındaki hızlı satın al işlemi başarısız oldu, yeterli bakiye yok, başka bir tutar deneyin?",
+      "noQuote": "%{amount} tutarındaki hızlı satın al işlemi başarısız oldu, geçerli bir teklif alınamadı.",
+      "failed": "%{amount} tutarındaki hızlı satın al işlemi başarısız oldu."
+    }
   },
   "consentBanner": {
     "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
@@ -224,6 +237,28 @@
     "title": "Hata!",
     "body": "Bir şeyler ters gitti",
     "cta": "Tekrar dene"
+  },
+  "errorBoundary": {
+    "component": {
+      "title": "Bileşen Hatası",
+      "body": "Bu bileşen bir hatayla karşılaştı ve düzgün yüklenemedi.",
+      "retry": "Tekrar dene"
+    },
+    "chart": {
+      "title": "Grafik mevcut değil",
+      "body": "Şu anda grafik verileri yüklenemiyor.",
+      "retry": "Tekrar dene"
+    },
+    "trading": {
+      "title": "İşlem Hatası",
+      "body": "İşlem arayüzünde bir hata oluştu. Tekrar deneyebilir veya sayfayı yenileyebilirsiniz.",
+      "retry": "Tekrar deneyin"
+    },
+    "suspense": {
+      "title": "Yükleme başarısız oldu",
+      "body": "Bu içerik düzgün şekilde yüklenemedi.",
+      "retry": "Tekrar dene"
+    }
   },
   "buyPage": {
     "title": "Saniyeler içinde <span>Kripto Satın Alın</span>",
@@ -931,6 +966,8 @@
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
     "manualReceiveAddress": "Alıcı adresi",
     "recipientAddress": "Alıcı adresi",
+    "changeAddress": "Adresi değiştir",
+    "changeAddressExplainer": "UTXO tabanlı ağlar üzerinden kripto para gönderirken, işlemden kalan fonlar bu adrese geri gönderilir.",
     "customRecipientAddress": "Özel alıcı adresi",
     "customRecipientAddressDescription": "Bu takas için özel bir alıcı adresi girin",
     "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
@@ -1086,7 +1123,19 @@
       "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız"
     },
     "networkFee": "Ağ Ücreti",
-    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir"
+    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir",
+    "claim": {
+      "pending": "%{amount} %{symbol} tutarındaki talebiniz işleniyor.",
+      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz işleniyor..."
+      },
+      "complete": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz tamamlandı."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1380,7 +1429,7 @@
     "receive": {
       "connectAWallet": "%{symbol} almak için bir cüzdan bağlayın",
       "receiveAsset": "%{asset} alın",
-      "onlySend": "Bu adrese yalnızca %{asset} (%{symbol}) gönderin. Başka coinlerin gönderilmesi kalıcı kayba neden olabilir.",
+      "onlySend": "%{symbol} sembolünü yalnızca desteklenen ağlarda gönderin. Diğer belirteçler veya ağlar kalıcı kayba neden olabilir.",
       "copy": "Kopyala",
       "copied": "%{symbol} alım adresi panoya kopyalandı",
       "copyFailed": "%{symbol} alım adresi panoya kopyalanamadı",
@@ -1389,7 +1438,8 @@
       "verify": "Doğrulayın",
       "verified": "Doğrulandı",
       "notVerified": "Adres Uyuşmazlığı",
-      "blockExplorer": "Tarayıcı"
+      "blockExplorer": "Tarayıcı",
+      "supportedNetworks": "Desteklenen Ağlar"
     },
     "deposit": {
       "allocation": {
@@ -1724,6 +1774,7 @@
       "failure": {
         "body": "Ledger cüzdanına bağlanılamıyor"
       },
+      "gettingChangeAddress": "Adres değişikliği alınıyor...",
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
       "signWarning": "İmzalamadan önce cihazınızda %{chain} uygulamasının açık olduğundan emin olun."
     },
@@ -2680,6 +2731,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Başlatıldı",
+    "unstakeInitiated": "Unstake Başlatıldı",
+    "claimWithdraw": "Talep Geri Çekme",
     "staking": "rFOX Stake Etme",
     "bridge": "Köprü",
     "bridgeFunds": "Köprü Fonları",
@@ -3015,7 +3069,9 @@
       "claimAvailable": "Talep Mevcuttur",
       "claimed": "Talep edildi",
       "unknown": "Bilinmeyen",
-      "initiated": "Başlatıldı"
+      "initiated": "Başlatıldı",
+      "awaitingApproval": "Onay Bekleniyor",
+      "awaitingSwap": "Takas Bekleniyor"
     },
     "emptyState": {
       "title": "ShapeShift'e hoş geldiniz",
@@ -3027,7 +3083,9 @@
       "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz işleniyor.",
       "complete": "%{sellAmountAndSymbol} ürününü %{buyAmountAndSymbol} ürününe dönüştürme işleminiz tamamlandı.",
       "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz başarısız oldu.",
-      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında."
+      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında.",
+      "awaitingApproval": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız onay bekliyor.",
+      "awaitingSwap": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız gerçekleştirilmeyi bekliyor."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} ve %{asset2}",
@@ -3087,6 +3145,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Bekliyor",
     "orderCancelled": "İşlem İptal Edildi",
-    "orderExpired": "İşlem Süresi Doldu"
+    "orderExpired": "İşlem Süresi Doldu",
+    "rewardDistribution": {
+      "pending": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz işleniyor..."
+      },
+      "complete": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz tamamlandı."
+      }
+    }
   }
 }

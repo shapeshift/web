@@ -20,7 +20,7 @@ const VirtuosoItem = ({ children }: ItemProps<React.FC>) => (
 const components = { TopItemList, Footer, Item: VirtuosoItem }
 
 const backgroundColor = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
-const style = { minHeight: '50vh' }
+const style = { minHeight: 'calc(50vh + 40px)' }
 
 export type GroupedAssetListProps = {
   assets: Asset[]
@@ -100,6 +100,7 @@ export const GroupedAssetList = ({
 
   return (
     <GroupedVirtuoso
+      className='scroll-container'
       groupCounts={groupCounts}
       groupContent={renderGroupContent}
       itemContent={renderItem}

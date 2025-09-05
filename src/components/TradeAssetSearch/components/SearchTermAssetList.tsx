@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react'
+import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -23,6 +23,7 @@ import {
 } from '@/state/slices/common-selectors'
 import { selectPrimaryAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 export type SearchTermAssetListProps = {
   isLoading: boolean
@@ -45,6 +46,7 @@ export const SearchTermAssetList = ({
   onImportClick,
   workerSearchState,
 }: SearchTermAssetListProps) => {
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
@@ -203,7 +205,7 @@ export const SearchTermAssetList = ({
           onImportClick={onImportClick}
           showRelatedAssets
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
-          height='70vh'
+          height={isLargerThanMd ? '50vh' : '70vh'}
         />
       </Box>
     </>

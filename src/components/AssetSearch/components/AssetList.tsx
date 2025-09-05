@@ -2,7 +2,7 @@ import type { ListProps } from '@chakra-ui/react'
 import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
-import type { CSSProperties, FC } from 'react'
+import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
 import { Virtuoso } from 'react-virtuoso'
@@ -29,11 +29,6 @@ export type AssetData = {
 
 type AssetListProps = AssetData & ListProps
 
-const scrollbarStyle: CSSProperties = {
-  scrollbarWidth: 'none',
-  msOverflowStyle: 'none',
-}
-
 export const INCREASE_VIEWPORT_BY = { top: 300, bottom: 100 } as const
 
 export const AssetList: FC<AssetListProps> = ({
@@ -53,7 +48,6 @@ export const AssetList: FC<AssetListProps> = ({
   const virtuosoStyle = useMemo(
     () => ({
       height: typeof height === 'string' ? height : `${height}px`,
-      ...scrollbarStyle,
     }),
     [height],
   )
@@ -102,7 +96,15 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (isLoading) {
     return (
-      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} mt={4} px={2}>
+      <Flex
+        flexDir='column'
+        width='100%'
+        overflowY='auto'
+        flex='1'
+        minHeight='calc(50vh - 16px)'
+        mt={4}
+        px={2}
+      >
         {range(3).map(index => (
           <Flex key={index} align='center' width='100%' justifyContent='space-between' mb={4}>
             <Flex align='center'>
@@ -124,7 +126,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (assets?.length === 0) {
     return (
-      <Center flexDir='column' gap={2} mt={4}>
+      <Center flexDir='column' gap={2} mt={4} minH='50vh'>
         <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
         <Text color='text.subtle' translation='common.noResultsFound' />
       </Center>
@@ -133,7 +135,13 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (assets.length <= 10) {
     return (
-      <Box maxHeight={height} overflow='auto' height='auto'>
+      <Box
+        maxHeight={height}
+        overflow='auto'
+        height='auto'
+        minH='50vh'
+        className='scroll-container'
+      >
         {assets.map((asset, index) => (
           <Box key={asset.assetId}>{renderRow(index)}</Box>
         ))}
@@ -143,6 +151,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
+      className='scroll-container'
       data={assets}
       itemContent={renderRow}
       style={virtuosoStyle}

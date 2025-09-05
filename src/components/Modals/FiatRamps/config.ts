@@ -13,11 +13,8 @@ import {
   getMtPelerinAssets,
   getMtPelerinFiatCurrencies,
 } from './fiatRampProviders/mtpelerin'
-import {
-  createOnRamperUrl,
-  getOnRamperAssets,
-  getSupportedOnRamperFiatCurrencies,
-} from './fiatRampProviders/onramper'
+import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
+import { SUPPORTED_ONRAMPER_FIAT_CURRENCIES } from './fiatRampProviders/onramper/constants'
 import type { CreateUrlProps } from './types'
 
 import banxaLogo from '@/assets/banxa.png'
@@ -97,7 +94,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       )
       return [filteredBuyAndSellAssetIds, filteredBuyAndSellAssetIds]
     },
-    getSupportedFiatList: () => getSupportedOnRamperFiatCurrencies(),
+    getSupportedFiatList: () => SUPPORTED_ONRAMPER_FIAT_CURRENCIES,
     onSubmit: async props => {
       try {
         const onRamperCheckoutUrl = await createOnRamperUrl(props)

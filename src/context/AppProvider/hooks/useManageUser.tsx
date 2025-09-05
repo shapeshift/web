@@ -32,7 +32,7 @@ const getUserOrCreate = async (accountIds: string[]): Promise<UserInitResponse> 
   const serverUrl = import.meta.env.VITE_USER_SERVER_URL
 
   if (!serverUrl) {
-    throw new Error('SWAPS_SERVER_URL not configured')
+    throw new Error('USER_SERVER_URL not configured')
   }
 
   try {

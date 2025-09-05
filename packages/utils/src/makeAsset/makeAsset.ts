@@ -5,7 +5,6 @@ import type { Asset } from '@shapeshiftoss/types'
 import { chainIdToFeeAsset } from '../chainIdToFeeAsset'
 import { sha256 } from '../sha256'
 
-
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
 
 /**

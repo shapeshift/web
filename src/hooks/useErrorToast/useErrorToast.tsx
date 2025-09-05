@@ -21,25 +21,23 @@ export const useErrorToast = () => {
       errorMsgTranslation?: string,
       errorMsgTranslationOptions?: InterpolationOptions,
     ) => {
-      const translationArgs = (() => {
+      const description = (() => {
         if (error instanceof SolanaLogsError) {
-          return [`trade.errors.${camelCase(error.name)}`]
+          return translate(`trade.errors.${camelCase(error.name)}`)
         }
 
         // Chain adapter errors take priority
         if (error instanceof ChainAdapterError) {
-          return [error.metadata.translation, error.metadata.options]
+          return translate(error.metadata.translation, error.metadata.options)
         }
 
         // If we specified an error translation, use it
         if (errorMsgTranslation) {
-          return [errorMsgTranslation, errorMsgTranslationOptions]
+          return translate(errorMsgTranslation, errorMsgTranslationOptions)
         }
 
-        return [defaultErrorMsgTranslation]
+        return translate(defaultErrorMsgTranslation)
       })()
-
-      const description = translate(...translationArgs)
 
       console.error(error)
 

@@ -27414,7 +27414,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-polyglot@npm:^0.7.2":
+"react-polyglot@npm:0.7.2":
   version: 0.7.2
   resolution: "react-polyglot@npm:0.7.2"
   dependencies:
@@ -27424,6 +27424,19 @@ pvutils@latest:
     node-polyglot: ^2.0.0
     react: ">=16.8.0"
   checksum: 5fd61cc6bc74b3a6cda40936551f3dd36beeb0e4f8794da81b954b1d52bde01a91bdec6d03644bd212f6ec480444143e24075cdeae72b52efa01992127f0983a
+  languageName: node
+  linkType: hard
+
+"react-polyglot@patch:react-polyglot@npm%3A0.7.2#./.yarn/patches/react-polyglot-npm-0.7.2-636f85156f.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 0.7.2
+  resolution: "react-polyglot@patch:react-polyglot@npm%3A0.7.2#./.yarn/patches/react-polyglot-npm-0.7.2-636f85156f.patch::version=0.7.2&hash=b32034&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  dependencies:
+    hoist-non-react-statics: ^3.3.0
+    prop-types: ^15.5.8
+  peerDependencies:
+    node-polyglot: ^2.0.0
+    react: ">=16.8.0"
+  checksum: f5baa1fb1ca9f0d29ad0148eceebe8e4b6e58dcaffafcc7733801a52344a8f3da7cd72e476329d96f81c01fa49761f2fcc522fb2097d5c0c60374172f990ee77
   languageName: node
   linkType: hard
 

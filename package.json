@@ -311,6 +311,7 @@
     "react-router@6.30.0": "patch:react-router@npm%3A6.30.0#./.yarn/patches/react-router-npm-6.30.0-cd12804d8c.patch",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "readable-stream": "3.6.0"
+    "readable-stream": "3.6.0",
+    "react-polyglot@^0.7.2": "patch:react-polyglot@npm%3A0.7.2#./.yarn/patches/react-polyglot-npm-0.7.2-636f85156f.patch"
   }
 }

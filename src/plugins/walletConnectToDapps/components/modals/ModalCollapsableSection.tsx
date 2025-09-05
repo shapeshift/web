@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { RawText } from '@/components/Text'
 
 type ModalCollapsableSectionProps = {
-  title: ReactElement
+  title: ReactElement | string
   titleRightComponent?: ReactElement
   icon?: ReactElement
   defaultOpen?: boolean

@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset, AssetsByIdRelatedAssetKey, PartialRecord } from '@shapeshiftoss/types'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import { matchSorter } from 'match-sorter'
@@ -25,7 +25,6 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
-import { isPrimaryAsset } from '@/lib/utils/asset'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -34,6 +33,7 @@ import {
   selectLimitParamFromFilter,
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
+import type { RelatedAssetIdsById } from '@/state/slices/assetsSlice/types'
 
 export const selectWalletId = portfolio.selectors.selectWalletId
 export const selectWalletName = portfolio.selectors.selectWalletName
@@ -164,7 +164,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSelector(
   selectAssets,
   byId => {
-    return Object.values(byId).reduce<AssetsByIdRelatedAssetKey>((acc, asset) => {
+    return Object.values(byId).reduce<RelatedAssetIdsById>((acc, asset) => {
       if (!asset) return acc
       if (!asset.relatedAssetKey) {
         acc[asset.assetId] = [...(acc[asset.assetId] ?? []), asset.assetId]
@@ -184,10 +184,14 @@ export const selectPortfolioPrimaryAssetUserCurrencyBalances = createDeepEqualOu
   selectRelatedAssetIdsByAssetIdInclusive,
   preferences.selectors.selectBalanceThreshold,
   (assetsById, marketData, balances, relatedAssetIdsById, balanceThreshold) =>
-    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [primaryAssetId]) => {
-      const primaryAsset = assetsById[primaryAssetId]
-      if (!primaryAsset) return acc
-      if (!isPrimaryAsset(primaryAsset.relatedAssetKey, primaryAsset.assetId)) return acc
+    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
+      const asset = assetsById[assetId]
+      const primaryAsset = asset?.isPrimary ? asset : assetsById[asset?.relatedAssetKey ?? '']
+      const primaryAssetId = primaryAsset?.assetId
+
+      if (!primaryAssetId) return acc
+      if (!primaryAsset.isPrimary) return acc
+      if (acc[primaryAssetId]) return acc
       const precision = primaryAsset.precision
       if (precision === undefined) return acc
       const price = marketData[primaryAssetId]?.price
@@ -269,12 +273,44 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndN
     selectPortfolioAssetBalancesBaseUnit,
     selectPortfolioUserCurrencyBalances,
     marketData.selectors.selectMarketDataUsd,
-    (assets, portfolioBalancesCryptoBaseUnit, portfolioBalancesUserCurrency, marketDataUsd) => {
-      const getAssetBalanceCryptoPrecision = (asset: Asset) =>
-        fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
+    selectRelatedAssetIdsByAssetIdInclusive,
+    (
+      assets,
+      portfolioBalancesCryptoBaseUnit,
+      portfolioBalancesUserCurrency,
+      marketDataUsd,
+      relatedAssetIdsById,
+    ) => {
+      const getAssetBalanceCryptoPrecision = (asset: Asset) => {
+        if (asset.isChainSpecific)
+          return fromBaseUnit(
+            bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]),
+            asset.precision,
+          )
 
-      const getAssetUserCurrencyBalance = (asset: Asset) =>
-        bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
+        const primaryAssetTotalCryptoBalance = relatedAssetIdsById[asset.assetId]?.reduce(
+          (acc, relatedAssetId) => {
+            return acc.plus(bnOrZero(portfolioBalancesCryptoBaseUnit[relatedAssetId]))
+          },
+          bnOrZero(0),
+        )
+
+        return primaryAssetTotalCryptoBalance.toNumber()
+      }
+
+      const getAssetUserCurrencyBalance = (asset: Asset) => {
+        if (asset.isChainSpecific)
+          return bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
+
+        const primaryAssetTotalUserCurrencyBalance = relatedAssetIdsById[asset.assetId]?.reduce(
+          (acc, relatedAssetId) => {
+            return acc.plus(bnOrZero(portfolioBalancesUserCurrency[relatedAssetId]))
+          },
+          bnOrZero(0),
+        )
+
+        return primaryAssetTotalUserCurrencyBalance.toNumber()
+      }
 
       // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
       // but we actually can't - this would rug the quadruple-sorting
@@ -303,8 +339,22 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
 export const selectPortfolioFungiblePrimaryAssetsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioPrimaryAssetUserCurrencyBalances,
   selectPrimaryAssets,
-  (portfolioUserCurrencyBalances, assets) => {
-    const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => bnOrZero(balance).toNumber()
+  selectRelatedAssetIdsByAssetIdInclusive,
+  (portfolioUserCurrencyBalances, assets, relatedAssetIdsById) => {
+    const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => {
+      const asset = assets[_assetId]
+      if (!asset) return 0
+      if (asset.isChainSpecific) return bnOrZero(balance).toNumber()
+
+      const primaryAssetTotalBalance = relatedAssetIdsById[asset.assetId]?.reduce(
+        (acc, relatedAssetId) => {
+          return acc.plus(bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]))
+        },
+        bnOrZero(0),
+      )
+
+      return primaryAssetTotalBalance.toNumber()
+    }
 
     return orderBy<[AssetId, string][]>(
       Object.entries(portfolioUserCurrencyBalances),

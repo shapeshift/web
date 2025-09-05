@@ -18,7 +18,6 @@ import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { GroupedAssets } from '@/components/MarketTableVirtualized/GroupedAssets'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { Text } from '@/components/Text'
-import { isPrimaryAsset, isUniqueAsset } from '@/lib/utils/asset'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
 import { breakpoints } from '@/theme/theme'
 
@@ -125,7 +124,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           id: 'toggle',
           width: 50,
           Cell: ({ row }: { row: Row<Asset> }) => {
-            if (isUniqueAsset(row.original.relatedAssetKey)) return null
+            if (row.original.isChainSpecific) return null
 
             return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
           },
@@ -136,7 +135,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
 
     const handleRowClick = useCallback(
       (row: Row<Asset>) => {
-        if (!isUniqueAsset(row.original.relatedAssetKey)) return
+        if (!row.original.isChainSpecific) return
         onRowClick(row.original)
       },
       [onRowClick],
@@ -144,7 +143,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
 
     const handleRowLongPress = useCallback(
       (row: Row<Asset>) => {
-        if (isPrimaryAsset(row.original.relatedAssetKey, row.original.assetId)) return
+        if (row.original.isPrimary) return
         onRowLongPress?.(row.original)
       },
       [onRowLongPress],
@@ -152,7 +151,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
 
     const renderSubComponent = useCallback(
       (row: Row<Asset>) => {
-        if (!isPrimaryAsset(row.original.relatedAssetKey, row.original.assetId)) return null
+        if (!row.original.isPrimary) return null
 
         return <GroupedAssets row={row} onRowClick={onRowClick} onRowLongPress={onRowLongPress} />
       },

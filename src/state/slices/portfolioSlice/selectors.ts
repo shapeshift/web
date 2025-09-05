@@ -726,7 +726,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeep
       : accountIdsAboveThreshold,
 )
 
-export type RowProps = Row<AccountRowData>
+export type AccountRowProps = Row<AccountRowData>
 
 export type AccountRowData = {
   name: string
@@ -739,6 +739,8 @@ export type AccountRowData = {
   price: string
   priceChange: number
   relatedAssetKey: string | null | undefined
+  isChainSpecific: boolean
+  isPrimary: boolean
 }
 
 export type GroupedAssetBalance = {
@@ -776,6 +778,8 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
           price,
           priceChange,
           relatedAssetKey: asset.relatedAssetKey,
+          isChainSpecific: asset.isChainSpecific ?? false,
+          isPrimary: asset.isPrimary ?? false,
         }
         acc.push(data)
         return acc
@@ -801,9 +805,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
     relatedAssetIdsByAssetId,
     balanceThreshold,
   ): AccountRowData[] => {
-    const primaryAccountRows = portfolioAccountRows.filter(
-      row => row.relatedAssetKey === null || row.relatedAssetKey === row.assetId,
-    )
+    const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
 
     const primaryAccountRowsWithAggregatedBalances = primaryAccountRows.reduce<AccountRowData[]>(
       (acc, { assetId: primaryAssetId }) => {
@@ -841,6 +843,8 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
           price,
           priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
           relatedAssetKey: primaryAsset?.relatedAssetKey,
+          isChainSpecific: primaryAsset?.isChainSpecific ?? false,
+          isPrimary: primaryAsset?.isPrimary ?? false,
         }
 
         acc.push(primaryAccountRow)
@@ -881,6 +885,8 @@ export const selectGroupedAssetBalances = createCachedSelector(
       price: marketData[primaryAssetId]?.price ?? '0',
       priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
       relatedAssetKey: assetsById[primaryAssetId]?.relatedAssetKey ?? null,
+      isChainSpecific: primaryAsset?.isChainSpecific ?? false,
+      isPrimary: primaryAsset?.isPrimary ?? false,
     }
 
     const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId] || []
@@ -903,6 +909,8 @@ export const selectGroupedAssetBalances = createCachedSelector(
             price: marketData[assetId]?.price ?? '0',
             priceChange: marketData[assetId]?.changePercent24Hr ?? 0,
             relatedAssetKey: asset?.relatedAssetKey ?? null,
+            isChainSpecific: asset?.isChainSpecific ?? false,
+            isPrimary: asset?.isPrimary ?? false,
           }
 
         return row

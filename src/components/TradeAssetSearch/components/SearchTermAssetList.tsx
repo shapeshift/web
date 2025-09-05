@@ -156,8 +156,19 @@ export const SearchTermAssetList = ({
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
     const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
-    const getAssetBalance = (asset: Asset) =>
-      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+    const getAssetBalance = (asset: Asset) => {
+      if (asset.isChainSpecific)
+        return bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+
+      const primaryAssetTotalBalance = relatedAssetIdsById[asset.assetId]?.reduce(
+        (acc, relatedAssetId) => {
+          return acc.plus(bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]))
+        },
+        bnOrZero(0),
+      )
+
+      return primaryAssetTotalBalance.toNumber()
+    }
 
     return orderBy(
       Object.values(assetsWithCustomAssets).filter(isSome),
@@ -172,6 +183,7 @@ export const SearchTermAssetList = ({
     assetsForChain,
     assetIdMap,
     portfolioUserCurrencyBalances,
+    relatedAssetIdsById,
   ])
 
   return (

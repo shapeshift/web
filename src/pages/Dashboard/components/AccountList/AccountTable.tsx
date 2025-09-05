@@ -30,9 +30,8 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
-import { isUniqueAsset } from '@/lib/utils/asset'
 import { vibrate } from '@/lib/vibrate'
-import type { AccountRowData, RowProps } from '@/state/slices/selectors'
+import type { AccountRowData, AccountRowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
   selectIsPortfolioLoading,
@@ -80,7 +79,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Header: () => <Text translation='dashboard.portfolio.asset' />,
         accessor: 'assetId',
         disableSortBy: true,
-        Cell: ({ row }: { row: RowProps }) => (
+        Cell: ({ row }: { row: AccountRowProps }) => (
           <AssetCell
             assetId={row.original.assetId}
             subText={truncate(row.original.symbol, { length: 6 })}
@@ -92,7 +91,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         accessor: 'fiatAmount',
         id: 'balance',
         justifyContent: isCompactCols ? 'flex-end' : 'flex-start',
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value, row }: { value: string; row: AccountRowProps }) => (
           <Stack spacing={0} fontWeight='medium' textAlign={stackTextAlign}>
             <Amount.Fiat
               fontWeight='semibold'
@@ -127,7 +126,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Header: () => <Text translation='dashboard.portfolio.priceChange' />,
         accessor: 'priceChange',
         display: isCompactCols ? 'none' : 'table-cell',
-        sortType: (a: RowProps, b: RowProps): number =>
+        sortType: (a: AccountRowProps, b: AccountRowProps): number =>
           bnOrZero(a.original.priceChange).gt(bnOrZero(b.original.priceChange)) ? 1 : -1,
         Cell: ({ value }: { value: number }) => (
           <Stat>
@@ -151,15 +150,15 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Cell: ({ value }: { value: number }) => (
           <Amount.Percent fontWeight='medium' textColor='text.subtle' value={value * 0.01} />
         ),
-        sortType: (a: RowProps, b: RowProps): number =>
+        sortType: (a: AccountRowProps, b: AccountRowProps): number =>
           bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
       },
       {
         Header: '',
         id: 'toggle',
         width: 50,
-        Cell: ({ row }: { row: RowProps }) => {
-          if (isUniqueAsset(row.original.relatedAssetKey)) return null
+        Cell: ({ row }: { row: AccountRowProps }) => {
+          if (row.original.isChainSpecific) return null
 
           return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
         },

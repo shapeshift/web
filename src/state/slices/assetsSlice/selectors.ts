@@ -8,7 +8,6 @@ import { assets } from './assetsSlice'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { isPrimaryAsset } from '@/lib/utils/asset'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectAssetIdParamFromFilter } from '@/state/selectors'
@@ -44,7 +43,7 @@ export const selectAssets = createDeepEqualOutputSelector(
 
 export const selectPrimaryAssets = createCachedSelector(assets.selectors.selectAssetsById, byId => {
   return Object.values(byId).reduce<AssetsById>((acc, asset) => {
-    if (asset && isPrimaryAsset(asset.relatedAssetKey, asset.assetId)) acc[asset.assetId] = asset
+    if (asset && asset.isPrimary) acc[asset.assetId] = asset
 
     return acc
   }, {})

@@ -85,12 +85,13 @@ export type Asset = {
   explorerTxLink: string
   explorerAddressLink: string
   relatedAssetKey: AssetId | null | undefined
+  isPrimary?: boolean
+  isChainSpecific?: boolean
   isPool?: boolean
 }
 
 export type AssetsById = Record<AssetId, Asset>
 export type AssetsByIdPartial = PartialRecord<AssetId, Asset>
-export type AssetsByIdRelatedAssetKey = Record<AssetId, AssetId[]>
 
 export type AccountMetadata = {
   bip44Params: Bip44Params

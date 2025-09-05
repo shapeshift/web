@@ -85,6 +85,8 @@ export const decodeAssetData = (
             asset.name = `${asset.name} on ${baseAsset.networkName}`
           }
           asset.relatedAssetKey = relatedAssetId
+          asset.isPrimary = relatedAssetId === null || relatedAssetId === asset.assetId
+          asset.isChainSpecific = relatedAssetId === null
           break
         }
         case 'name':

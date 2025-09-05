@@ -3,6 +3,8 @@
   Receives an initial dataset of minimal assets, caches it,
   and responds to search requests with filtered assetIds.
 */
+import type { AssetId } from '@shapeshiftoss/caip'
+
 import type {
   AssetSearchWorkerInboundMessage,
   AssetSearchWorkerOutboundMessage,
@@ -12,6 +14,7 @@ import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
 
 // Internal state
 let ASSETS: SearchableAsset[] = []
+let RELATED_ASSET_IDS_BY_ASSET_ID: Record<AssetId, AssetId[]> = {}
 
 const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
   const {
@@ -25,6 +28,7 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
     activeChainId,
     allowWalletUnsupportedAssets,
     walletConnectedChainIds,
+    relatedAssetIdsById: RELATED_ASSET_IDS_BY_ASSET_ID,
   })
   const filtered = searchAssets(searchString, preFiltered)
 
@@ -43,6 +47,10 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   switch (data.type) {
     case 'updateAssets': {
       ASSETS = data.payload.assets
+      break
+    }
+    case 'updateRelatedAssetIds': {
+      RELATED_ASSET_IDS_BY_ASSET_ID = data.payload.relatedAssetIdsById
       break
     }
     case 'search': {

@@ -3,29 +3,25 @@ import { Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import noop from 'lodash/noop'
 import range from 'lodash/range'
-import truncate from 'lodash/truncate'
 import { useCallback, useMemo, useState } from 'react'
 import { MdOutlineFilterAlt } from 'react-icons/md'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import type { Column, Row } from 'react-table'
 
 import { AssetListFiltersDialog } from '../../../../AssetListFiltersDialog/AssetListFiltersDialog'
 import { HighlightedTokensCategoryDialog } from './HighlightedTokensCategoryDialog'
-import { HighlightedTokensPriceCell } from './HighlightedTokensPriceCell'
 
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import type { OrderDirection } from '@/components/OrderDropdown/types'
-import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
-import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
+import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -163,57 +159,29 @@ export const HighlightedTokens = () => {
     [dispatch],
   )
 
-  const columns: Column<Asset>[] = useMemo(
-    () => [
-      {
-        accessor: 'assetId',
-        disableSortBy: true,
-        Cell: ({ row }: { row: Row<Asset> }) => (
-          <AssetCell
-            assetId={row.original.assetId}
-            subText={truncate(row.original.symbol, { length: 6 }) ?? ''}
-          />
-        ),
-      },
-      {
-        accessor: 'symbol',
-        id: 'symbol',
-        justifyContent: { base: 'flex-end', lg: 'flex-start' },
-        Cell: ({ row }: { row: Row<Asset> }) => (
-          <HighlightedTokensPriceCell
-            assetId={row.original.assetId}
-            selectedSort={selectedSort}
-            portalsAssets={portalsAssets}
-          />
-        ),
-      },
-    ],
-    [portalsAssets, selectedSort],
-  )
-
   const handleRowClick = useCallback(
-    (row: Row<Asset>) => {
+    (asset: Asset) => {
       const mixpanel = getMixPanel()
       vibrate('heavy')
 
       mixpanel?.track(MixPanelEvent.HighlightedTokenClicked, {
-        assetId: row.original.assetId,
-        asset: row.original.symbol,
-        name: row.original.name,
+        assetId: asset.assetId,
+        asset: asset.symbol,
+        name: asset.name,
         category: selectedCategory,
         chainId: selectedChainId,
         order: selectedOrder,
         sort: selectedSort,
       })
 
-      dispatch(tradeInput.actions.setBuyAsset(row.original))
+      dispatch(tradeInput.actions.setBuyAsset(asset))
     },
     [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
   )
 
   const handleRowLongPress = useCallback(
-    (row: Row<Asset>) => {
-      const { assetId } = row.original
+    (asset: Asset) => {
+      const { assetId } = asset
       assetActionsDrawer.open({ assetId })
     },
     [assetActionsDrawer],
@@ -282,17 +250,19 @@ export const HighlightedTokens = () => {
     }
 
     return (
-      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} px={4}>
-        <InfiniteTable
-          columns={columns}
-          data={filteredAssets ?? []}
-          onRowClick={handleRowClick}
-          onRowLongPress={handleRowLongPress}
-          displayHeaders={false}
-          variant='clickable'
-          loadMore={noop}
-          hasMore={false}
-          scrollableTarget='scroll-view-0'
+      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} px={2}>
+        <AssetList
+          assets={filteredAssets}
+          handleClick={handleRowClick}
+          handleLongPress={handleRowLongPress}
+          portalsAssets={portalsAssets}
+          rowComponent={
+            selectedCategory === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined
+          }
+          disableUnsupported={false}
+          height='100vh'
+          showPrice
+          showRelatedAssets
         />
       </Flex>
     )
@@ -303,9 +273,9 @@ export const HighlightedTokens = () => {
     isCategoryQueryDataError,
     isPortalsAssetsError,
     filteredAssets,
-    columns,
     handleRowClick,
     handleRowLongPress,
+    portalsAssets,
   ])
 
   const title = useMemo(() => {
@@ -321,7 +291,7 @@ export const HighlightedTokens = () => {
   }, [selectedCategory])
 
   return (
-    <Flex flexDir='column' height='100%' flex='1' minHeight={0}>
+    <Flex flexDir='column' height='100%' flex='1' minHeight={0} maxWidth='100%'>
       <Flex justifyContent='space-between' alignItems='center' mb={2} mt={2} px={5} flex='0 0 auto'>
         <Flex align='center' onClick={handleOpenCategoriesDialog}>
           <Text color='text.primary' fontWeight='bold' translation={title} />

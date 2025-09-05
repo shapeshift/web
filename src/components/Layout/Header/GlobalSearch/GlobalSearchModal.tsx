@@ -226,7 +226,6 @@ export const GlobalSearchModal = memo(
           <ModalBody px={0} ref={menuRef}>
             <AssetSearchResults
               results={assetResults}
-              activeIndex={activeIndex}
               searchQuery={searchQuery}
               isSearching={isSearching}
               onClickResult={handleClick}

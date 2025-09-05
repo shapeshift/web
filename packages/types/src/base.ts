@@ -85,6 +85,8 @@ export type Asset = {
   explorerTxLink: string
   explorerAddressLink: string
   relatedAssetKey: AssetId | null | undefined
+  isPrimary?: boolean
+  isChainSpecific?: boolean
   isPool?: boolean
 }
 

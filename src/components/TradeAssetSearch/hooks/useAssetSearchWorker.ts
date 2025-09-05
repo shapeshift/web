@@ -7,7 +7,10 @@ import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/selectors'
+import {
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  selectRelatedAssetIdsByAssetIdInclusive,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'
@@ -35,6 +38,7 @@ export const useAssetSearchWorker = ({
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
+  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const [searchString, setSearchString] = useState('')
@@ -90,11 +94,15 @@ export const useAssetSearchWorker = ({
         type: 'updateAssets',
         payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
       })
+      workerRef.current.postMessage({
+        type: 'updateRelatedAssetIds',
+        payload: { relatedAssetIdsById },
+      })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
       setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
     }
-  }, [assets])
+  }, [assets, relatedAssetIdsById])
 
   // Event-driven search function
   const performSearch = useCallback(

@@ -1,6 +1,5 @@
 import { Flex } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import type { Row } from '@tanstack/react-table'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -43,8 +42,8 @@ export const Assets = () => {
   }, [assetsNoSpam, filterRowsBySearchTerm, isSearching, searchQuery])
 
   const handleRowClick = useCallback(
-    (row: Row<Asset>) => {
-      const { assetId } = row.original
+    (asset: Asset) => {
+      const { assetId } = asset
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
@@ -52,8 +51,8 @@ export const Assets = () => {
   )
 
   const handleRowLongPress = useCallback(
-    (row: Row<Asset>) => {
-      const { assetId } = row.original
+    (asset: Asset) => {
+      const { assetId } = asset
       assetActionsDrawer.open({ assetId })
     },
     [assetActionsDrawer],

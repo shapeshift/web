@@ -1,3 +1,4 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import {
   Button,
@@ -8,14 +9,19 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { range, truncate } from 'lodash'
+import type { Asset } from '@shapeshiftoss/types'
+import range from 'lodash/range'
+import truncate from 'lodash/truncate'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
+import { GroupedAccounts } from './GroupedAccounts'
+
 import { LoadingRow } from '@/components/AccountRow/LoadingRow'
 import { Amount } from '@/components/Amount/Amount'
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
@@ -23,12 +29,15 @@ import { Text } from '@/components/Text'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
-import type { AccountRowData } from '@/state/slices/selectors'
-import { selectIsPortfolioLoading, selectPortfolioAccountRows } from '@/state/slices/selectors'
+import type { AccountRowData, AccountRowProps } from '@/state/slices/selectors'
+import {
+  selectAssets,
+  selectIsPortfolioLoading,
+  selectPrimaryPortfolioAccountRowsSortedByBalance,
+} from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
-
-type RowProps = Row<AccountRowData>
 
 const emptyContainerProps: FlexProps = {
   width: 'full',
@@ -42,16 +51,16 @@ type AccountTableProps = {
 
 export const AccountTable = memo(({ forceCompactView = false, onRowClick }: AccountTableProps) => {
   const loading = useSelector(selectIsPortfolioLoading)
-  const rowData = useSelector(selectPortfolioAccountRows)
+  const rowData = useSelector(selectPrimaryPortfolioAccountRowsSortedByBalance)
+  const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
-  const sortedRows = useMemo(() => {
-    return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
-  }, [rowData])
+
   const { hasMore, next, data } = useInfiniteScroll({
-    array: sortedRows,
+    array: rowData,
     isScrollable: true,
   })
+
   const textColor = useColorModeValue('black', 'white')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
@@ -63,13 +72,14 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
   const buttonWidth = isCompactCols ? 'full' : 'auto'
 
   const navigate = useNavigate()
+
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
       {
         Header: () => <Text translation='dashboard.portfolio.asset' />,
         accessor: 'assetId',
         disableSortBy: true,
-        Cell: ({ row }: { row: RowProps }) => (
+        Cell: ({ row }: { row: AccountRowProps }) => (
           <AssetCell
             assetId={row.original.assetId}
             subText={truncate(row.original.symbol, { length: 6 })}
@@ -81,7 +91,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         accessor: 'fiatAmount',
         id: 'balance',
         justifyContent: isCompactCols ? 'flex-end' : 'flex-start',
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value, row }: { value: string; row: AccountRowProps }) => (
           <Stack spacing={0} fontWeight='medium' textAlign={stackTextAlign}>
             <Amount.Fiat
               fontWeight='semibold'
@@ -116,7 +126,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Header: () => <Text translation='dashboard.portfolio.priceChange' />,
         accessor: 'priceChange',
         display: isCompactCols ? 'none' : 'table-cell',
-        sortType: (a: RowProps, b: RowProps): number =>
+        sortType: (a: AccountRowProps, b: AccountRowProps): number =>
           bnOrZero(a.original.priceChange).gt(bnOrZero(b.original.priceChange)) ? 1 : -1,
         Cell: ({ value }: { value: number }) => (
           <Stat>
@@ -140,8 +150,18 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         Cell: ({ value }: { value: number }) => (
           <Amount.Percent fontWeight='medium' textColor='text.subtle' value={value * 0.01} />
         ),
-        sortType: (a: RowProps, b: RowProps): number =>
+        sortType: (a: AccountRowProps, b: AccountRowProps): number =>
           bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,
+      },
+      {
+        Header: '',
+        id: 'toggle',
+        width: 50,
+        Cell: ({ row }: { row: AccountRowProps }) => {
+          if (row.original.isChainSpecific) return null
+
+          return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
+        },
       },
     ],
     [isCompactCols, stackTextAlign, textColor],
@@ -183,6 +203,11 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
+      if (row.original.relatedAssetKey === row.original.assetId) {
+        // InfiniteTable handles expansion automatically
+        return
+      }
+
       vibrate('heavy')
       onRowClick?.()
       const { assetId } = row.original
@@ -190,6 +215,16 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       navigate(url)
     },
     [navigate, onRowClick],
+  )
+
+  const handleAssetClick = useCallback(
+    (asset: Asset) => {
+      vibrate('heavy')
+      const { assetId } = asset
+      const url = assetId ? `/assets/${assetId}` : ''
+      navigate(url)
+    },
+    [navigate],
   )
 
   const handleRowLongPress = useCallback(
@@ -200,9 +235,42 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
     [assetActionsDrawer],
   )
 
-  return loading ? (
-    loadingRows
-  ) : (
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
+  const renderSubComponent = useCallback(
+    (row: Row<AccountRowData>) => (
+      <GroupedAccounts row={row} onRowClick={handleRowClick} onRowLongPress={handleRowLongPress} />
+    ),
+    [handleRowClick, handleRowLongPress],
+  )
+
+  const accountsAssets = useMemo(() => {
+    return rowData.map(row => assets[row.assetId]).filter(isSome)
+  }, [rowData, assets])
+
+  if (!isLargerThanMd) {
+    return (
+      <AssetList
+        assets={accountsAssets}
+        handleClick={handleAssetClick}
+        handleLongPress={handleAssetLongPress}
+        height='calc(100vh - var(--mobile-header-offset) - var(--safe-area-inset-bottom) - var(--safe-area-inset-top) - env(safe-area-inset-bottom) - env(safe-area-inset-top) - env(safe-area-inset-top) - var(--mobile-nav-offset) - 54px)'
+        showRelatedAssets
+      />
+    )
+  }
+
+  if (loading) {
+    return loadingRows
+  }
+
+  return (
     <InfiniteTable
       columns={columns}
       data={data}
@@ -211,9 +279,9 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       displayHeaders={showHeaders}
       variant='clickable'
       renderEmptyComponent={renderEmptyComponent}
+      renderSubComponent={renderSubComponent}
       hasMore={hasMore}
       loadMore={next}
-      scrollableTarget='scroll-view-0'
     />
   )
 })

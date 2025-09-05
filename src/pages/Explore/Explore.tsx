@@ -20,8 +20,6 @@ import { RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { useFeatureFlag } from '../../hooks/useFeatureFlag/useFeatureFlag'
-import { AssetSearchRow } from './components/AssetSearchRow'
 import { CategoryCard } from './components/CategoryCard'
 import { Tags } from './components/Tags'
 
@@ -36,6 +34,8 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { useAssetSearchWorker } from '@/components/TradeAssetSearch/hooks/useAssetSearchWorker'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories } from '@/pages/Markets/constants'
@@ -89,6 +89,7 @@ export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const allAssets = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)
@@ -140,6 +141,14 @@ export const Explore = memo(() => {
       navigate(`/assets/${asset.assetId}`)
     },
     [navigate],
+  )
+
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
   )
 
   const inputProps = useMemo(
@@ -201,8 +210,10 @@ export const Explore = memo(() => {
               assets={assetResults}
               handleClick={handleAssetClick}
               disableUnsupported={false}
-              rowComponent={AssetSearchRow}
               height='100vh'
+              showPrice
+              showRelatedAssets
+              handleLongPress={handleAssetLongPress}
             />
           )}
         </Box>

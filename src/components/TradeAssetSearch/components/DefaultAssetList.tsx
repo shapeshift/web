@@ -2,8 +2,8 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { useGetPopularAssetsQuery } from '../hooks/useGetPopularAssetsQuery'
-import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
+import { GroupedAssetList } from '@/components/TradeAssetSearch/components/GroupedAssetList/GroupedAssetList'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectIsPortfolioLoading } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -27,26 +27,26 @@ export const DefaultAssetList = ({
     return [isConnected && isPortfolioLoading, isPopularAssetIdsLoading]
   }, [isConnected, isPopularAssetIdsLoading, isPortfolioLoading])
 
-  const { allAssets, groups, groupCounts } = useMemo(() => {
+  const { assets, groups, groupCounts } = useMemo(() => {
     // only show popular assets if user wallet is empty
     if (portfolioAssetsSortedByBalance.length === 0) {
       return {
         groups: ['modals.assetSearch.popularAssets'],
         groupCounts: [popularAssets.length],
-        allAssets: popularAssets,
+        assets: popularAssets,
       }
     }
 
     return {
       groups: ['modals.assetSearch.myAssets', 'modals.assetSearch.popularAssets'],
       groupCounts: [portfolioAssetsSortedByBalance.length, popularAssets.length],
-      allAssets: portfolioAssetsSortedByBalance.concat(popularAssets),
+      assets: portfolioAssetsSortedByBalance.concat(popularAssets),
     }
   }, [popularAssets, portfolioAssetsSortedByBalance])
 
   return (
     <GroupedAssetList
-      assets={allAssets}
+      assets={assets}
       groups={groups}
       groupCounts={groupCounts}
       hideZeroBalanceAmounts={true}

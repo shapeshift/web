@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_MAYACHAIN: string
   readonly VITE_FEATURE_OPTIMISM: string
   readonly VITE_FEATURE_MIXPANEL: string
+  readonly VITE_ENABLE_ADDRESSABLE: string
   readonly VITE_FEATURE_SAVERS_VAULTS: string
   readonly VITE_FEATURE_SAVERS_VAULTS_DEPOSIT: string
   readonly VITE_FEATURE_SAVERS_VAULTS_WITHDRAW: string
@@ -94,6 +95,7 @@ interface ImportMetaEnv {
   readonly VITE_ONRAMPER_WIDGET_URL: string
   readonly VITE_ONRAMPER_API_URL: string
   readonly VITE_ONRAMPER_API_KEY: string
+  readonly VITE_ADDRESSABLE_TID: string
   readonly VITE_YAT_NODE_URL: string
   readonly VITE_KEEPKEY_UPDATER_RELEASE_PAGE: string
   readonly VITE_KEEPKEY_DESKTOP_URL: string

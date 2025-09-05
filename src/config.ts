@@ -118,6 +118,8 @@ const validators = {
   VITE_MIXPANEL_TOKEN: str({ default: '' }),
   VITE_SNAPSHOT_BASE_URL: url({ default: 'https://snapshot.org/#/shapeshiftdao.eth' }),
   VITE_FEATURE_MIXPANEL: bool({ default: false }),
+  VITE_ENABLE_ADDRESSABLE: bool({ default: false }),
+  VITE_ADDRESSABLE_TID: str({ default: '' }),
   VITE_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
   VITE_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   VITE_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),

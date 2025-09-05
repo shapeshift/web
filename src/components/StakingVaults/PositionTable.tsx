@@ -27,7 +27,6 @@ import {
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
-  selectFeeAssetByChainId,
   selectIsAnyOpportunitiesApiQueryPending,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -40,8 +39,6 @@ const initialState = { pageSize: 30 }
 
 const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
-  const networkName = feeAsset?.networkName || feeAsset?.name
   if (!asset) return null
   return (
     <Flex alignItems='center' gap={4}>
@@ -50,11 +47,6 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
         <RawText>
           {asset.name} {`(${asset.symbol})`}
         </RawText>
-        {networkName !== asset.name ? (
-          <RawText variant='sub-text' size='xs'>
-            {`on ${networkName}`}
-          </RawText>
-        ) : null}
       </Flex>
     </Flex>
   )

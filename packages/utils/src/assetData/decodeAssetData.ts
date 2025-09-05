@@ -73,6 +73,9 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
           const assetIdx = value as FieldToType[typeof field]
           const relatedAssetId = assetIdx === null ? null : sortedAssetIds[assetIdx]
           // if (relatedAssetId === undefined) throw Error()
+          if (relatedAssetId && relatedAssetId !== asset.assetId && baseAsset.networkName) {
+            asset.name = `${asset.name} on ${baseAsset.networkName}`
+          }
           asset.relatedAssetKey = relatedAssetId
           break
         }

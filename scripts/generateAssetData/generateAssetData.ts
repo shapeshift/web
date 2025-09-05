@@ -108,7 +108,7 @@ const generateAssetData = async () => {
   const foxOnArbitrumOne = {
     assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
     chainId: 'eip155:42161',
-    name: 'FOX on Arbitrum One',
+    name: 'FOX',
     precision: 18,
     color: '#3761F9',
     icon: '/fox-token-logo.png',

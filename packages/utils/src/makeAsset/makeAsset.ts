@@ -5,7 +5,6 @@ import type { Asset } from '@shapeshiftoss/types'
 import { chainIdToFeeAsset } from '../chainIdToFeeAsset'
 import { sha256 } from '../sha256'
 
-import { chainIdToChainDisplayName } from '@/lib/utils'
 
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
 
@@ -35,18 +34,6 @@ export const makeAsset = (
   // currently, dynamic assets are LP pairs, and they have two icon urls and are rendered differently
   const icon = minimalAsset?.icon ?? ''
 
-  const name = (() => {
-    if (
-      minimalAsset.relatedAssetKey &&
-      minimalAsset.relatedAssetKey !== minimalAsset.assetId &&
-      minimalAsset.chainId
-    ) {
-      return `${minimalAsset.name} on ${chainIdToChainDisplayName(minimalAsset.chainId)}`
-    }
-
-    return minimalAsset.name
-  })()
-
   type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
 
   const explorerLinks = ((): ExplorerLinks => {
@@ -62,7 +49,6 @@ export const makeAsset = (
     chainId,
     color,
     icon,
-    name,
     relatedAssetKey: null,
   })
 }

@@ -37,11 +37,10 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
-import { selectTxById } from '@/state/slices/selectors'
+import { selectTxByFilter } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapStatusToActionStatus = {
@@ -242,19 +241,24 @@ export const useSwapActionSubscriber = () => {
         }),
       })
 
-      const serializedTxIndex = (() => {
-        if (!swap) return
+      const tx = (() => {
+        if (!swap || !buyTxHash) return
 
         const { buyAccountId } = swap
 
-        if (!buyAccountId || !buyTxHash) return
+        if (!buyAccountId) return
 
-        const accountAddress = fromAccountId(buyAccountId).account
+        // Use selectTxByFilter to find tx by hash instead of leveraging serialized index
+        // This handles the special case of RUNE outbounds i.e our serialized Tx would be
+        // cosmos:thorchain-1:thorAddy*txHash*:thorAddy but the Tx in store is
+        // cosmos:thorchain-1:thorAddy*txHash*thorAddy*OUT:txHash (note memo part)
 
-        return serializeTxIndex(buyAccountId, buyTxHash, accountAddress)
+        const maybeTx = selectTxByFilter(store.getState(), {
+          accountId: buyAccountId,
+          txHash: buyTxHash,
+        })
+        return maybeTx
       })()
-
-      const tx = selectTxById(store.getState(), serializedTxIndex ?? '')
 
       const actualBuyAmountCryptoPrecision = (() => {
         if (!tx?.transfers?.length || !swap?.buyAsset) return undefined

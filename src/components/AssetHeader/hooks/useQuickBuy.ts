@@ -5,8 +5,10 @@ import { bn } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCurrentHopIndex } from '../../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
+import { useMixpanel } from '../../MultiHopTrade/components/TradeConfirm/hooks/useMixpanel'
 import { useGetTradeRates } from '../../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -144,16 +146,20 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     }
   }, [])
 
+  const trackMixpanelEvent = useMixpanel(true)
+
   const setErrorState = useCallback(
     (messageKey: string, amount: number) => {
+      trackMixpanelEvent(MixPanelEvent.QuickBuyFailed)
       setQuickBuyState({ status: 'error', amount, messageKey })
       resetTrade()
     },
-    [resetTrade],
+    [resetTrade, trackMixpanelEvent],
   )
 
   const setSuccessState = useCallback(
     (amount: number) => {
+      trackMixpanelEvent(MixPanelEvent.QuickBuySuccess)
       setQuickBuyState({ status: 'success', amount })
       resetTrade()
 
@@ -164,7 +170,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
         )
       }, SUCCESS_TIMEOUT_MS)
     },
-    [resetTrade, clearSuccessTimer],
+    [resetTrade, clearSuccessTimer, trackMixpanelEvent],
   )
 
   const startPurchase = useCallback(

@@ -28,6 +28,12 @@ export const StatusBody = ({
 }: StatusBodyProps) => {
   const translate = useTranslate()
 
+  const unknownTitleTranslation = useMemo(() => {
+    if (!defaultTitleTranslation) return ''
+    if (typeof defaultTitleTranslation === 'string') return translate(defaultTitleTranslation)
+    return translate(...defaultTitleTranslation)
+  }, [defaultTitleTranslation, translate])
+
   const { title, icon } = useMemo(() => {
     switch (txStatus) {
       case TxStatus.Pending:
@@ -39,15 +45,11 @@ export const StatusBody = ({
       case TxStatus.Unknown:
       default:
         return {
-          title: translate(
-            ...(Array.isArray(defaultTitleTranslation)
-              ? defaultTitleTranslation
-              : [defaultTitleTranslation]),
-          ),
+          title: unknownTitleTranslation,
           icon: defaultIcon ?? null,
         }
     }
-  }, [txStatus, translate, defaultTitleTranslation, defaultIcon])
+  }, [txStatus, translate, unknownTitleTranslation, defaultIcon])
 
   return (
     <SlideTransitionY key={txStatus}>

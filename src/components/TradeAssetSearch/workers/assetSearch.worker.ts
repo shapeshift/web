@@ -3,6 +3,7 @@
   Receives an initial dataset of minimal assets, caches it,
   and responds to search requests with filtered assetIds.
 */
+
 import type {
   AssetSearchWorkerInboundMessage,
   AssetSearchWorkerOutboundMessage,
@@ -12,6 +13,7 @@ import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
 
 // Internal state
 let ASSETS: SearchableAsset[] = []
+let PRIMARY_ASSETS: SearchableAsset[] = []
 
 const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
   const {
@@ -21,7 +23,9 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
     walletConnectedChainIds = [],
   } = msg.payload
 
-  const preFiltered = filterAssetsByChainSupport(ASSETS, {
+  const assets = activeChainId === 'All' ? PRIMARY_ASSETS : ASSETS
+
+  const preFiltered = filterAssetsByChainSupport(assets, {
     activeChainId,
     allowWalletUnsupportedAssets,
     walletConnectedChainIds,
@@ -41,6 +45,10 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
 self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   const data = event.data
   switch (data.type) {
+    case 'updatePrimaryAssets': {
+      PRIMARY_ASSETS = data.payload.assets
+      break
+    }
     case 'updateAssets': {
       ASSETS = data.payload.assets
       break

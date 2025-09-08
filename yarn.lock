@@ -10723,7 +10723,6 @@ __metadata:
     react-helmet-async: ^1.3.0
     react-hook-form: ^7.51.5
     react-icons: ^5.5.0
-    react-infinite-scroll-component: ^6.1.0
     react-intersection-observer: ^9.13.1
     react-multi-ref: ^1.0.1
     react-number-format: ^4.9.3
@@ -27354,17 +27353,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-infinite-scroll-component@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "react-infinite-scroll-component@npm:6.1.0"
-  dependencies:
-    throttle-debounce: ^2.1.0
-  peerDependencies:
-    react: ">=16.0.0"
-  checksum: 3708398934366df907dbad215247ebc1033221957ce7e32289ea31750cce70aa16513e2d03743e06c8b868ac7c542d12d5dbb6c830fd408433a4762f3cb5ecfb
-  languageName: node
-  linkType: hard
-
 "react-intersection-observer@npm:^9.13.1":
   version: 9.13.1
   resolution: "react-intersection-observer@npm:9.13.1"
@@ -27426,7 +27414,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-polyglot@npm:^0.7.2":
+"react-polyglot@npm:0.7.2":
   version: 0.7.2
   resolution: "react-polyglot@npm:0.7.2"
   dependencies:
@@ -27436,6 +27424,19 @@ pvutils@latest:
     node-polyglot: ^2.0.0
     react: ">=16.8.0"
   checksum: 5fd61cc6bc74b3a6cda40936551f3dd36beeb0e4f8794da81b954b1d52bde01a91bdec6d03644bd212f6ec480444143e24075cdeae72b52efa01992127f0983a
+  languageName: node
+  linkType: hard
+
+"react-polyglot@patch:react-polyglot@npm%3A0.7.2#./.yarn/patches/react-polyglot-npm-0.7.2-636f85156f.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 0.7.2
+  resolution: "react-polyglot@patch:react-polyglot@npm%3A0.7.2#./.yarn/patches/react-polyglot-npm-0.7.2-636f85156f.patch::version=0.7.2&hash=b32034&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  dependencies:
+    hoist-non-react-statics: ^3.3.0
+    prop-types: ^15.5.8
+  peerDependencies:
+    node-polyglot: ^2.0.0
+    react: ">=16.8.0"
+  checksum: f5baa1fb1ca9f0d29ad0148eceebe8e4b6e58dcaffafcc7733801a52344a8f3da7cd72e476329d96f81c01fa49761f2fcc522fb2097d5c0c60374172f990ee77
   languageName: node
   linkType: hard
 
@@ -30207,13 +30208,6 @@ pvutils@latest:
   dependencies:
     real-require: ^0.1.0
   checksum: 0547795a8f357ba1ac0dba29c71f965182e29e21752951a04a7167515ee37524bfba6c410f31e65a01a8d3e5b93400b812889aa09523e38ce4d744c894ffa6c0
-  languageName: node
-  linkType: hard
-
-"throttle-debounce@npm:^2.1.0":
-  version: 2.3.0
-  resolution: "throttle-debounce@npm:2.3.0"
-  checksum: 6d90aa2ddb294f8dad13d854a1cfcd88fdb757469669a096a7da10f515ee466857ac1e750649cb9da931165c6f36feb448318e7cb92570f0a3679d20e860a925
   languageName: node
   linkType: hard
 

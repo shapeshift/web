@@ -20,6 +20,18 @@ export interface AssetSearchWorkerMessages {
       assets: SearchableAsset[]
     }
   }
+  UpdatePrimaryAssetsMessage: {
+    type: 'updatePrimaryAssets'
+    payload: {
+      assets: SearchableAsset[]
+    }
+  }
+  UpdateRelatedAssetIdsMessage: {
+    type: 'updateRelatedAssetIds'
+    payload: {
+      relatedAssetIdsById: Record<AssetId, AssetId[]>
+    }
+  }
   SearchMessage: {
     type: 'search'
     requestId: number
@@ -42,6 +54,8 @@ export interface AssetSearchWorkerMessages {
 export type AssetSearchWorkerInboundMessage =
   | AssetSearchWorkerMessages['InitMessage']
   | AssetSearchWorkerMessages['UpdateAssetsMessage']
+  | AssetSearchWorkerMessages['UpdatePrimaryAssetsMessage']
+  | AssetSearchWorkerMessages['UpdateRelatedAssetIdsMessage']
   | AssetSearchWorkerMessages['SearchMessage']
 
 export type AssetSearchWorkerOutboundMessage = AssetSearchWorkerMessages['SearchResultMessage']

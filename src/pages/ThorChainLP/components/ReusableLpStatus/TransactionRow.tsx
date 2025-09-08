@@ -158,7 +158,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         asset2: `${runeAmount} ${baseAsset.symbol}`,
       })
 
-      return assetAmountsAndSymbols
+      return typeof assetAmountsAndSymbols === 'string' ? assetAmountsAndSymbols : ''
     }
     if (actionSide === AsymSide.Asset) {
       const assetAmount = confirmedQuote.assetWithdrawAmountCryptoPrecision
@@ -173,7 +173,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return assetAmountsAndSymbols
     }
 
-    return { assetAmountsAndSymbols: '', poolName: '' }
+    return ''
   }, [poolAsset, baseAsset, confirmedQuote, actionSide, poolAssets.length, translate])
 
   const poolAssetAccountId = currentAccountIdByChainId[fromAssetId(poolAssetId).chainId]

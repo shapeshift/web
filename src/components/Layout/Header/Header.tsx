@@ -15,6 +15,7 @@ import { MobileNavBar } from './NavBar/MobileNavBar'
 import { NavigationDropdown } from './NavBar/NavigationDropdown'
 import { ShapeShiftMenu } from './NavBar/ShapeShiftMenu'
 import { UserMenu } from './NavBar/UserMenu'
+import { WalletManagerPopover } from './NavBar/WalletManagerPopover'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
@@ -72,6 +73,7 @@ export const Header = memo(() => {
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
+  const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -153,7 +155,7 @@ export const Header = memo(() => {
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (
               <Box display={displayProp2}>
-                <UserMenu />
+                {isNewWalletManagerEnabled ? <WalletManagerPopover /> : <UserMenu />}
               </Box>
             )}
           </HStack>

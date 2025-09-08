@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
@@ -438,12 +438,13 @@ export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector
         chainAssets.push(asset)
       } else {
         const relatedAssetIds = relatedAssetIdsById[asset.assetId] ?? []
-        const chainVariant = relatedAssetIds
-          .map(id => allAssets[id])
-          .find(a => a && a.chainId === chainId)
+        const maybeChainVariant = relatedAssetIds.find(
+          asset => fromAssetId(asset).chainId === chainId,
+        )
+        const maybeAsset = allAssets[maybeChainVariant ?? '']
 
-        if (chainVariant) {
-          chainAssets.push(chainVariant)
+        if (maybeAsset) {
+          chainAssets.push(maybeAsset)
         }
       }
     }
@@ -462,19 +463,21 @@ export const selectPrimaryAssetsByChain = createDeepEqualOutputSelector(
 
     const chainAssets: Asset[] = []
 
+    // This selector name may be a misnomer - if a chain is selected, there is no such thing as a "primary" asset
+    // as we want to select and display only the chain-specific flavour
     for (const asset of primaryAssets) {
       if (asset.chainId === chainId) {
-        // Asset is already on the correct chain
+        // Asset is already on the selected chain
         chainAssets.push(asset)
       } else {
-        // Find the chain-specific variant
         const relatedAssetIds = relatedAssetIdsById[asset.assetId] ?? []
-        const chainVariant = relatedAssetIds
-          .map(id => allAssets[id])
-          .find(a => a && a.chainId === chainId)
+        const maybeChainVariant = relatedAssetIds.find(
+          asset => fromAssetId(asset).chainId === chainId,
+        )
+        const maybeAsset = allAssets[maybeChainVariant ?? '']
 
-        if (chainVariant) {
-          chainAssets.push(chainVariant)
+        if (maybeAsset) {
+          chainAssets.push(maybeAsset)
         }
       }
     }

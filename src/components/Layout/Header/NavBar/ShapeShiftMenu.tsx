@@ -47,8 +47,17 @@ const ProductItem = ({
 
   return (
     <Link {...linkProps} p={3} borderRadius='lg' _hover={productItemHoverSx} textDecoration='none'>
-      <HStack spacing={3} align='flex-start'>
-        <Box p={2} borderRadius='md' bg='whiteAlpha.100' color='blue.400'>
+      <HStack spacing={3} align='center'>
+        <Box
+          p={2}
+          borderRadius='md'
+          bg='whiteAlpha.100'
+          color='blue.400'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          flexShrink={0}
+        >
           <Icon as={icon} boxSize={5} />
         </Box>
         <VStack align='flex-start' spacing={1}>
@@ -181,7 +190,7 @@ export const ShapeShiftMenu = () => {
             borderTop='1px solid'
             borderColor='whiteAlpha.200'
           >
-            <HStack spacing={6}>
+            <HStack spacing={6} align='center'>
               <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>
                 {translate('shapeShiftMenu.footer.governance')}
               </FooterLink>
@@ -196,7 +205,7 @@ export const ShapeShiftMenu = () => {
               </FooterLink>
             </HStack>
 
-            <HStack spacing={1}>
+            <HStack spacing={1} align='center'>
               <SocialIcon
                 href='https://github.com/shapeshift/web'
                 icon={FaGithub}

@@ -292,6 +292,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
           popularAssets={popularAssets}
           onAssetClick={handleAssetClick}
+          activeChainId={activeChainId}
         />
       )}
     </>

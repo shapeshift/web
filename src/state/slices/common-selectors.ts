@@ -423,37 +423,65 @@ export const selectAssetsBySearchQuery = createCachedSelector(
 export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector(
   selectPortfolioFungiblePrimaryAssetsSortedByBalance,
   selectRelatedAssetIdsByAssetIdInclusive,
+  selectAssets,
   (_state: ReduxState, chainId: ChainId | 'All') => chainId,
-  (portfolioAssets, relatedAssetIdsById, chainId) => {
+  (portfolioAssets, relatedAssetIdsById, allAssets, chainId) => {
     if (chainId === 'All') return portfolioAssets
 
-    return portfolioAssets.filter(asset => {
-      if (asset.chainId === chainId) return true
+    const chainAssets: Asset[] = []
 
-      return (
-        relatedAssetIdsById[asset.assetId]?.some(
-          relatedAssetId => fromAssetId(relatedAssetId).chainId === chainId,
-        ) ?? false
-      )
-    })
+    // This selector name may be a misnomer - if a chain is selected, there is no such thing as a "primary" asset
+    // as we want to select and display only the chain-specific flavour
+    for (const asset of portfolioAssets) {
+      if (asset.chainId === chainId) {
+        // Asset is already on the selected chain
+        chainAssets.push(asset)
+      } else {
+        const relatedAssetIds = relatedAssetIdsById[asset.assetId] ?? []
+        const maybeChainVariant = relatedAssetIds.find(
+          asset => fromAssetId(asset).chainId === chainId,
+        )
+        const maybeAsset = allAssets[maybeChainVariant ?? '']
+
+        if (maybeAsset) {
+          chainAssets.push(maybeAsset)
+        }
+      }
+    }
+
+    return chainAssets
   },
 )
 
 export const selectPrimaryAssetsByChain = createDeepEqualOutputSelector(
   selectPrimaryAssetsSortedByMarketCap,
   selectRelatedAssetIdsByAssetIdInclusive,
+  selectAssets,
   (_state: ReduxState, chainId: ChainId | 'All') => chainId,
-  (primaryAssets, relatedAssetIdsById, chainId) => {
+  (primaryAssets, relatedAssetIdsById, allAssets, chainId) => {
     if (chainId === 'All') return primaryAssets
 
-    return primaryAssets.filter(asset => {
-      if (asset.chainId === chainId) return true
+    const chainAssets: Asset[] = []
 
-      return (
-        relatedAssetIdsById[asset.assetId]?.some(
-          relatedAssetId => fromAssetId(relatedAssetId).chainId === chainId,
-        ) ?? false
-      )
-    })
+    // This selector name may be a misnomer - if a chain is selected, there is no such thing as a "primary" asset
+    // as we want to select and display only the chain-specific flavour
+    for (const asset of primaryAssets) {
+      if (asset.chainId === chainId) {
+        // Asset is already on the selected chain
+        chainAssets.push(asset)
+      } else {
+        const relatedAssetIds = relatedAssetIdsById[asset.assetId] ?? []
+        const maybeChainVariant = relatedAssetIds.find(
+          asset => fromAssetId(asset).chainId === chainId,
+        )
+        const maybeAsset = allAssets[maybeChainVariant ?? '']
+
+        if (maybeAsset) {
+          chainAssets.push(maybeAsset)
+        }
+      }
+    }
+
+    return chainAssets
   },
 )

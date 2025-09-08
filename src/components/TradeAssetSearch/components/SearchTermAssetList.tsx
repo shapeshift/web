@@ -159,7 +159,7 @@ export const SearchTermAssetList = ({
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
     const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
     const getAssetBalance = (asset: Asset) => {
-      if (asset.isChainSpecific)
+      if (asset.isChainSpecific || !asset.isPrimary)
         return bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
       const primaryAssetTotalBalance = relatedAssetIdsById[asset.assetId]?.reduce(
@@ -203,7 +203,7 @@ export const SearchTermAssetList = ({
           handleClick={handleAssetClick}
           hideZeroBalanceAmounts={true}
           onImportClick={onImportClick}
-          showRelatedAssets
+          showRelatedAssets={activeChainId === 'All'}
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
           height={isLargerThanMd ? '50vh' : '70vh'}
         />

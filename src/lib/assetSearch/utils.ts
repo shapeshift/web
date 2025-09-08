@@ -25,15 +25,9 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
     activeChainId?: ChainId | 'All'
     allowWalletUnsupportedAssets?: boolean
     walletConnectedChainIds: ChainId[]
-    relatedAssetIdsById: Record<AssetId, AssetId[]>
   },
 ): T[] => {
-  const {
-    activeChainId,
-    allowWalletUnsupportedAssets,
-    walletConnectedChainIds,
-    relatedAssetIdsById,
-  } = options
+  const { activeChainId, allowWalletUnsupportedAssets, walletConnectedChainIds } = options
 
   return assets.filter(asset => {
     // Always filter out NFTs
@@ -51,19 +45,6 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
     ) {
       return false
     }
-
-    if (
-      activeChainId &&
-      relatedAssetIdsById[asset.assetId]?.some(relatedAssetId => {
-        const relatedAssetChainId = fromAssetId(relatedAssetId).chainId
-
-        return (
-          walletConnectedChainIds.includes(relatedAssetChainId) &&
-          activeChainId === relatedAssetChainId
-        )
-      })
-    )
-      return true
 
     return activeChainId ? asset.chainId === activeChainId : false
   })

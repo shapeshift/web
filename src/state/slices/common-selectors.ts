@@ -269,6 +269,40 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
 
 export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName =
   createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAssetBalancesBaseUnit,
+    selectPortfolioUserCurrencyBalances,
+    marketData.selectors.selectMarketDataUsd,
+    (assets, portfolioBalancesCryptoBaseUnit, portfolioBalancesUserCurrency, marketDataUsd) => {
+      const getAssetBalanceCryptoPrecision = (asset: Asset) =>
+        bnOrZero(
+          fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision),
+        ).toNumber()
+
+      const getAssetUserCurrencyBalance = (asset: Asset) =>
+        bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
+
+      // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+      // but we actually can't - this would rug the quadruple-sorting
+      const getAssetMarketCap = (asset: Asset) =>
+        bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+      const getAssetName = (asset: Asset) => asset.name
+
+      return orderBy(
+        Object.values(assets).filter(isSome),
+        [
+          getAssetUserCurrencyBalance,
+          getAssetMarketCap,
+          getAssetBalanceCryptoPrecision,
+          getAssetName,
+        ],
+        ['desc', 'desc', 'desc', 'asc'],
+      )
+    },
+  )
+
+export const selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName =
+  createDeepEqualOutputSelector(
     selectPrimaryAssets,
     selectPortfolioAssetBalancesBaseUnit,
     selectPortfolioUserCurrencyBalances,

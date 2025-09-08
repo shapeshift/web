@@ -107,13 +107,16 @@ const SocialIcon = ({
       href={href}
       target='_blank'
       rel='noopener noreferrer'
-      p={2}
+      p={1}
       borderRadius='md'
       color='whiteAlpha.600'
       _hover={socialIconHoverSx}
       aria-label={label}
+      display='flex'
+      alignItems='center'
+      justifyContent='center'
     >
-      <Icon as={icon} boxSize={5} />
+      <Icon as={icon} boxSize={4} />
     </Link>
   )
 }
@@ -190,7 +193,7 @@ export const ShapeShiftMenu = () => {
             borderTop='1px solid'
             borderColor='whiteAlpha.200'
           >
-            <HStack spacing={6} align='center'>
+            <HStack spacing={6} align='baseline'>
               <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>
                 {translate('shapeShiftMenu.footer.governance')}
               </FooterLink>
@@ -205,7 +208,7 @@ export const ShapeShiftMenu = () => {
               </FooterLink>
             </HStack>
 
-            <HStack spacing={1} align='center'>
+            <HStack spacing={1} align='baseline'>
               <SocialIcon
                 href='https://github.com/shapeshift/web'
                 icon={FaGithub}

@@ -1,5 +1,6 @@
+import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
@@ -8,18 +9,21 @@ import { useMemo } from 'react'
 
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
-import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
+import { Text } from '@/components/Text'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPortfolioUserCurrencyBalances,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletConnectedChainIds,
 } from '@/state/slices/common-selectors'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectPrimaryAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 export type SearchTermAssetListProps = {
   isLoading: boolean
@@ -42,11 +46,13 @@ export const SearchTermAssetList = ({
   onImportClick,
   workerSearchState,
 }: SearchTermAssetListProps) => {
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
+  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetsById = useAppSelector(selectAssets)
+  const assetsById = useAppSelector(selectPrimaryAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const customTokenSupportedChainIds = useMemo(() => {
@@ -81,13 +87,20 @@ export const SearchTermAssetList = ({
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return _assets.filter(asset => asset.chainId === activeChainId && !isNft(asset.assetId))
+    return _assets.filter(
+      asset =>
+        (asset.chainId === activeChainId && !isNft(asset.assetId)) ||
+        relatedAssetIdsById[asset.assetId]?.some(
+          relatedAssetId => fromAssetId(relatedAssetId).chainId === activeChainId,
+        ),
+    )
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,
     assets,
     walletConnectedChainIds,
     assetFilterPredicate,
+    relatedAssetIdsById,
   ])
 
   // Build a Set of existing asset IDs once when assetsForChain changes
@@ -145,8 +158,19 @@ export const SearchTermAssetList = ({
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
     const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
-    const getAssetBalance = (asset: Asset) =>
-      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+    const getAssetBalance = (asset: Asset) => {
+      if (asset.isChainSpecific)
+        return bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+
+      const primaryAssetTotalBalance = relatedAssetIdsById[asset.assetId]?.reduce(
+        (acc, relatedAssetId) => {
+          return acc.plus(bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]))
+        },
+        bnOrZero(0),
+      )
+
+      return primaryAssetTotalBalance.toNumber()
+    }
 
     return orderBy(
       Object.values(assetsWithCustomAssets).filter(isSome),
@@ -161,24 +185,29 @@ export const SearchTermAssetList = ({
     assetsForChain,
     assetIdMap,
     portfolioUserCurrencyBalances,
+    relatedAssetIdsById,
   ])
 
-  const groups = useMemo(() => ['modals.assetSearch.searchResults'], [])
-  const groupCounts = useMemo(() => [searchTermAssets.length], [searchTermAssets.length])
-  const groupIsLoading = useMemo(
-    () => [isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching],
-    [isLoadingCustomTokens, isAssetListLoading, workerSearchState.isSearching],
-  )
-
   return (
-    <GroupedAssetList
-      assets={searchTermAssets}
-      groups={groups}
-      groupCounts={groupCounts}
-      hideZeroBalanceAmounts={true}
-      groupIsLoading={groupIsLoading}
-      onAssetClick={handleAssetClick}
-      onImportClick={onImportClick}
-    />
+    <>
+      <Text
+        color='text.subtle'
+        fontWeight='medium'
+        pt={4}
+        px={6}
+        translation={'modals.assetSearch.searchResults'}
+      />
+      <Box px={2}>
+        <AssetList
+          assets={searchTermAssets}
+          handleClick={handleAssetClick}
+          hideZeroBalanceAmounts={true}
+          onImportClick={onImportClick}
+          showRelatedAssets
+          isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
+          height={isLargerThanMd ? '50vh' : '70vh'}
+        />
+      </Box>
+    </>
   )
 }

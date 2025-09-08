@@ -18,6 +18,8 @@ const mockGeneratedAssetData: AssetsById = {
     explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     relatedAssetKey: null,
+    isPrimary: true,
+    isChainSpecific: true,
   },
   'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c': {
     assetId: 'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c',
@@ -31,6 +33,8 @@ const mockGeneratedAssetData: AssetsById = {
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
     relatedAssetKey: 'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c',
+    isPrimary: true,
+    isChainSpecific: false,
   },
   'eip155:1/erc20:0xeed3ae7b0f8b5b9bb8c035a9941382b1822671cd': {
     assetId: 'eip155:1/erc20:0xeed3ae7b0f8b5b9bb8c035a9941382b1822671cd',
@@ -44,6 +48,8 @@ const mockGeneratedAssetData: AssetsById = {
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
     relatedAssetKey: null,
+    isPrimary: true,
+    isChainSpecific: true,
   },
   'eip155:1/erc20:0xeeda34a377dd0ca676b9511ee1324974fa8d980d': {
     explorer: 'https://etherscan.io',
@@ -62,6 +68,8 @@ const mockGeneratedAssetData: AssetsById = {
     assetId: 'eip155:1/erc20:0xeeda34a377dd0ca676b9511ee1324974fa8d980d',
     relatedAssetKey: null,
     isPool: true,
+    isPrimary: true,
+    isChainSpecific: true,
   },
   'eip155:1/erc20:0xeee0fe52299f2de8e2ed5111cd521ab67dcf0faf': {
     assetId: 'eip155:1/erc20:0xeee0fe52299f2de8e2ed5111cd521ab67dcf0faf',
@@ -75,6 +83,8 @@ const mockGeneratedAssetData: AssetsById = {
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
     relatedAssetKey: null,
+    isPrimary: true,
+    isChainSpecific: true,
   },
   'eip155:1/erc20:0xeeecd285f60e802ecb6d8d8d37790c887f9a4b33': {
     assetId: 'eip155:1/erc20:0xeeecd285f60e802ecb6d8d8d37790c887f9a4b33',
@@ -88,6 +98,8 @@ const mockGeneratedAssetData: AssetsById = {
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
     relatedAssetKey: null,
+    isPrimary: true,
+    isChainSpecific: true,
   },
   'eip155:1/erc20:0xeeee2a2e650697d2a8e8bc990c2f3d04203be06f': {
     assetId: 'eip155:1/erc20:0xeeee2a2e650697d2a8e8bc990c2f3d04203be06f',
@@ -101,6 +113,8 @@ const mockGeneratedAssetData: AssetsById = {
     explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
     relatedAssetKey: null,
+    isPrimary: true,
+    isChainSpecific: true,
   },
 }
 

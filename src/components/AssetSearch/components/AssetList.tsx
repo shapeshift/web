@@ -1,12 +1,13 @@
 import type { ListProps } from '@chakra-ui/react'
-import { Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
-import type { CSSProperties, FC } from 'react'
+import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
 import { Virtuoso } from 'react-virtuoso'
 
+import type { AssetRowData } from './AssetRow'
 import { AssetRow } from './AssetRow'
 
 import { Text } from '@/components/Text'
@@ -18,20 +19,17 @@ export type AssetData = {
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
-  rowComponent?: FC<{ asset: Asset; index: number; data: AssetData }>
+  rowComponent?: FC<AssetRowData>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
-  height?: string
+  showPrice?: boolean
+  onImportClick?: (asset: Asset) => void
+  showRelatedAssets?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
 
-const scrollbarStyle: CSSProperties = {
-  scrollbarWidth: 'none',
-  msOverflowStyle: 'none',
-}
-
-const INCREASE_VIEWPORT_BY = { top: 100, bottom: 100 } as const
+export const INCREASE_VIEWPORT_BY = { top: 300, bottom: 100 } as const
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
@@ -42,12 +40,14 @@ export const AssetList: FC<AssetListProps> = ({
   rowComponent = AssetRow,
   isLoading = false,
   portalsAssets,
+  showPrice = false,
   height = '50vh',
+  onImportClick,
+  showRelatedAssets = false,
 }) => {
   const virtuosoStyle = useMemo(
     () => ({
-      height,
-      ...scrollbarStyle,
+      height: typeof height === 'string' ? height : `${height}px`,
     }),
     [height],
   )
@@ -60,6 +60,8 @@ export const AssetList: FC<AssetListProps> = ({
       disableUnsupported,
       hideZeroBalanceAmounts,
       portalsAssets,
+      onImportClick,
+      showRelatedAssets,
     }),
     [
       assets,
@@ -68,6 +70,8 @@ export const AssetList: FC<AssetListProps> = ({
       handleLongPress,
       hideZeroBalanceAmounts,
       portalsAssets,
+      onImportClick,
+      showRelatedAssets,
     ],
   )
 
@@ -75,14 +79,32 @@ export const AssetList: FC<AssetListProps> = ({
     (index: number) => {
       const asset = assets[index]
       const RowComponent = rowComponent
-      return <RowComponent asset={asset} index={index} data={itemData} />
+
+      return (
+        <RowComponent
+          asset={asset}
+          index={index}
+          data={itemData}
+          showPrice={showPrice}
+          onImportClick={onImportClick}
+          showRelatedAssets={showRelatedAssets}
+        />
+      )
     },
-    [assets, itemData, rowComponent],
+    [assets, itemData, rowComponent, showPrice, onImportClick, showRelatedAssets],
   )
 
   if (isLoading) {
     return (
-      <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} mt={4}>
+      <Flex
+        flexDir='column'
+        width='100%'
+        overflowY='auto'
+        flex='1'
+        minHeight='calc(50vh - 16px)'
+        mt={4}
+        px={2}
+      >
         {range(3).map(index => (
           <Flex key={index} align='center' width='100%' justifyContent='space-between' mb={4}>
             <Flex align='center'>
@@ -104,19 +126,36 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (assets?.length === 0) {
     return (
-      <Center flexDir='column' gap={2} mt={4}>
+      <Center flexDir='column' gap={2} mt={4} minH='50vh'>
         <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
         <Text color='text.subtle' translation='common.noResultsFound' />
       </Center>
     )
   }
 
+  if (assets.length <= 10) {
+    return (
+      <Box
+        maxHeight={height}
+        overflow='auto'
+        height='auto'
+        minH='50vh'
+        className='scroll-container'
+      >
+        {assets.map((asset, index) => (
+          <Box key={asset.assetId}>{renderRow(index)}</Box>
+        ))}
+      </Box>
+    )
+  }
+
   return (
     <Virtuoso
+      className='scroll-container'
       data={assets}
       itemContent={renderRow}
       style={virtuosoStyle}
-      overscan={200}
+      overscan={1000}
       increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )

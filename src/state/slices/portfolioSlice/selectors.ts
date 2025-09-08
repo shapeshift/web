@@ -16,14 +16,17 @@ import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
+import type { Row } from 'react-table'
 
 import { selectAssets } from '../assetsSlice/selectors'
 import {
   selectEnabledWalletAccountIds,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances,
   selectPortfolioUserCurrencyBalances,
   selectPortfolioUserCurrencyBalancesByAccountId,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletAccountIds,
   selectWalletId,
   selectWalletName,
@@ -51,7 +54,7 @@ import { isMobile } from '@/lib/globals'
 import { fromBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from '@/lib/mixpanel/types'
-import { hashCode } from '@/lib/utils'
+import { hashCode, isSome } from '@/lib/utils'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -723,6 +726,8 @@ export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeep
       : accountIdsAboveThreshold,
 )
 
+export type AccountRowProps = Row<AccountRowData>
+
 export type AccountRowData = {
   name: string
   icon: string | undefined
@@ -733,21 +738,22 @@ export type AccountRowData = {
   allocation: number
   price: string
   priceChange: number
+  relatedAssetKey: string | null | undefined
+  isChainSpecific: boolean
+  isPrimary: boolean
+}
+
+export type GroupedAssetBalance = {
+  primaryAsset: AccountRowData
+  relatedAssets: AccountRowData[]
 }
 
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances,
   selectPortfolioTotalUserCurrencyBalance,
-  preferences.selectors.selectBalanceThreshold,
-  (
-    assetsById,
-    marketData,
-    balances,
-    totalPortfolioUserCurrencyBalance,
-    balanceThreshold,
-  ): AccountRowData[] => {
+  (assetsById, marketData, balances, totalPortfolioUserCurrencyBalance): AccountRowData[] => {
     const assetRows = Object.entries(balances).reduce<AccountRowData[]>(
       (acc, [assetId, baseUnitBalance]) => {
         const asset = assetsById[assetId]
@@ -756,11 +762,6 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         const price = marketData[assetId]?.price ?? '0'
         const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
         const userCurrencyAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
-        /**
-         * if fiatAmount is less than the selected threshold,
-         * continue to the next asset balance by returning acc
-         */
-        if (userCurrencyAmount.lt(bnOrZero(balanceThreshold))) return acc
         const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
           .times(100)
@@ -776,6 +777,9 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
           allocation,
           price,
           priceChange,
+          relatedAssetKey: asset.relatedAssetKey,
+          isChainSpecific: asset.isChainSpecific ?? false,
+          isPrimary: asset.isPrimary ?? false,
         }
         acc.push(data)
         return acc
@@ -785,6 +789,159 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
     return assetRows
   },
 )
+
+export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
+  selectPortfolioAccountRows,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAssets,
+  selectMarketDataUserCurrency,
+  selectRelatedAssetIdsByAssetIdInclusive,
+  preferences.selectors.selectBalanceThreshold,
+  (
+    portfolioAccountRows,
+    accountBalancesById,
+    assets,
+    marketData,
+    relatedAssetIdsByAssetId,
+    balanceThreshold,
+  ): AccountRowData[] => {
+    const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
+
+    const primaryAccountRowsWithAggregatedBalances = primaryAccountRows.reduce<AccountRowData[]>(
+      (acc, { assetId: primaryAssetId }) => {
+        const primaryAsset = assets[primaryAssetId]
+        const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId]
+
+        let totalCryptoBalance = bnOrZero(0)
+
+        Object.values(accountBalancesById).forEach(accountBalances => {
+          allRelatedAssetIds.forEach(relatedAssetId => {
+            const relatedAsset = assets[relatedAssetId]
+            const balance = accountBalances[relatedAssetId]
+            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset?.precision ?? 0)
+
+            if (cryptoBalance) {
+              totalCryptoBalance = totalCryptoBalance.plus(bnOrZero(cryptoBalance))
+            }
+          })
+        })
+
+        const price = marketData[primaryAssetId]?.price ?? '0'
+        const userCurrencyAmount = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
+
+        if (userCurrencyAmount.lt(bnOrZero(balanceThreshold))) return acc
+
+        const primaryAccountRow: AccountRowData = {
+          assetId: primaryAssetId,
+          name: primaryAsset?.name ?? '',
+          icon: primaryAsset?.icon ?? '',
+          symbol: primaryAsset?.symbol ?? '',
+          fiatAmount: userCurrencyAmount.toFixed(2),
+          cryptoAmount: totalCryptoBalance.toFixed(),
+          // @TODO: We probably don't need this anymore as we will remove balance chart
+          allocation: 0,
+          price,
+          priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
+          relatedAssetKey: primaryAsset?.relatedAssetKey,
+          isChainSpecific: primaryAsset?.isChainSpecific ?? false,
+          isPrimary: primaryAsset?.isPrimary ?? false,
+        }
+
+        acc.push(primaryAccountRow)
+
+        return acc
+      },
+      [],
+    )
+
+    return primaryAccountRowsWithAggregatedBalances.sort((a, b) =>
+      bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber(),
+    )
+  },
+)
+
+export const selectGroupedAssetBalances = createCachedSelector(
+  selectPortfolioAccountRows,
+  selectRelatedAssetIdsByAssetIdInclusive,
+  selectAssets,
+  selectMarketDataUserCurrency,
+  (_state: ReduxState, primaryAssetId: AssetId) => primaryAssetId,
+  (
+    accountRows,
+    relatedAssetIdsByAssetId,
+    assetsById,
+    marketData,
+    primaryAssetId,
+  ): GroupedAssetBalance | null => {
+    const primaryAsset = assetsById[primaryAssetId]
+    const primaryRow = accountRows.find(row => row.assetId === primaryAssetId) ?? {
+      assetId: primaryAssetId,
+      name: primaryAsset?.name ?? '',
+      icon: primaryAsset?.icon ?? '',
+      symbol: primaryAsset?.symbol ?? '',
+      fiatAmount: '0',
+      cryptoAmount: '0',
+      allocation: 0,
+      price: marketData[primaryAssetId]?.price ?? '0',
+      priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
+      relatedAssetKey: assetsById[primaryAssetId]?.relatedAssetKey ?? null,
+      isChainSpecific: primaryAsset?.isChainSpecific ?? false,
+      isPrimary: primaryAsset?.isPrimary ?? false,
+    }
+
+    const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId] || []
+    const relatedAssets = allRelatedAssetIds
+      .map(assetId => {
+        const row = accountRows.find(row => row.assetId === assetId)
+        const asset = assetsById[assetId]
+
+        if (!row && !asset) return null
+
+        if (!row)
+          return {
+            assetId,
+            name: asset?.name ?? '',
+            icon: asset?.icon ?? '',
+            symbol: asset?.symbol ?? '',
+            fiatAmount: '0',
+            cryptoAmount: '0',
+            allocation: 0,
+            price: marketData[assetId]?.price ?? '0',
+            priceChange: marketData[assetId]?.changePercent24Hr ?? 0,
+            relatedAssetKey: asset?.relatedAssetKey ?? null,
+            isChainSpecific: asset?.isChainSpecific ?? false,
+            isPrimary: asset?.isPrimary ?? false,
+          }
+
+        return row
+      })
+      .filter(isSome)
+      .sort((a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber())
+
+    const totalFiatBalance = allRelatedAssetIds
+      .reduce((sum, assetId) => {
+        const row = accountRows.find(row => row.assetId === assetId)
+        return sum.plus(row?.fiatAmount ?? '0')
+      }, bnOrZero(0))
+      .toFixed(2)
+
+    const totalCryptoBalance = allRelatedAssetIds
+      .reduce((sum, assetId) => {
+        const row = accountRows.find(row => row.assetId === assetId)
+        return sum.plus(row?.cryptoAmount ?? '0')
+      }, bnOrZero(0))
+      .toFixed(2)
+
+    return {
+      primaryAsset: {
+        ...primaryRow,
+        fiatAmount: totalFiatBalance,
+        cryptoAmount: totalCryptoBalance,
+      },
+      relatedAssets,
+    }
+  },
+)((_state: ReduxState, primaryAssetId: AssetId) => primaryAssetId)
 
 export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
   selectAssets,

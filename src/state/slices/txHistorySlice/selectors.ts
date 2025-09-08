@@ -192,11 +192,11 @@ export const selectTxIdsByFilter = createCachedSelector(
       : maybeFilteredByMemo
 
     const maybeFilteredByTxHash = txHash
-      ? maybeFilteredByOriginMemo.filter(
-          txId =>
-            txs[txId].txid.toLowerCase().startsWith(txHash.toLowerCase()) ||
-            txs[txId].txid.toLowerCase().startsWith(txHash.toLowerCase().replace(/^0x/, '')),
-        )
+      ? maybeFilteredByOriginMemo.filter(txId => {
+          const txIdNormalized = txs[txId].txid.toLowerCase().replace(/^0x/, '')
+          const filterNormalized = txHash.toLowerCase().replace(/^0x/, '')
+          return txIdNormalized.startsWith(filterNormalized)
+        })
       : maybeFilteredByOriginMemo
 
     const maybeUniqueIdsByStatus = txStatusFilter

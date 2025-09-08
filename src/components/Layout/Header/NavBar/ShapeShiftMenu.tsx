@@ -171,6 +171,9 @@ export const ShapeShiftMenu = () => {
           p={6}
           minW='500px'
           mt={0}
+          onMouseEnter={onOpen}
+          onMouseLeave={onClose}
+          onClickCapture={onClose}
         >
           <VStack align='stretch' spacing={6}>
             <Box>

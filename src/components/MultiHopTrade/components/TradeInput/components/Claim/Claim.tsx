@@ -13,7 +13,7 @@ import { ClaimRoutePaths } from './types'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 const cardBorderRadius = { base: '0', md: '2xl' }
-const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
+const cardBgProp = { base: 'background.surface.base', md: 'darkNeutral.800' }
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {

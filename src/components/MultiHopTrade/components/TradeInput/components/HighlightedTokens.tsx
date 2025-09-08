@@ -262,7 +262,7 @@ export const HighlightedTokens = () => {
           disableUnsupported={false}
           height='100vh'
           showPrice
-          showRelatedAssets
+          showRelatedAssets={selectedChainId === 'all'}
         />
       </Flex>
     )
@@ -276,6 +276,7 @@ export const HighlightedTokens = () => {
     handleRowClick,
     handleRowLongPress,
     portalsAssets,
+    selectedChainId,
   ])
 
   const title = useMemo(() => {

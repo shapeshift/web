@@ -236,7 +236,6 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     mobileNav: false,
     priority: 4,
-    fullWidth: true,
     routes: [
       {
         path: '/ramp/buy/*',

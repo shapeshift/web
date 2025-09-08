@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
@@ -12,12 +13,14 @@ export type DefaultAssetListProps = {
   portfolioAssetsSortedByBalance: Asset[]
   popularAssets: Asset[]
   onAssetClick: (asset: Asset) => void
+  activeChainId: ChainId | 'All'
 }
 
 export const DefaultAssetList = ({
   portfolioAssetsSortedByBalance,
   popularAssets,
   onAssetClick,
+  activeChainId,
 }: DefaultAssetListProps) => {
   const { isConnected } = useWallet().state
   const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
@@ -52,6 +55,7 @@ export const DefaultAssetList = ({
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
       onAssetClick={onAssetClick}
+      activeChainId={activeChainId}
     />
   )
 }

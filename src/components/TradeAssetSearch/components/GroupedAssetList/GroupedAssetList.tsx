@@ -1,4 +1,5 @@
 import { Box, Center } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import type { ItemProps, TopItemListProps } from 'react-virtuoso'
@@ -30,6 +31,7 @@ export type GroupedAssetListProps = {
   onAssetClick: (asset: Asset) => void
   onImportClick?: (asset: Asset) => void
   hideZeroBalanceAmounts: boolean
+  activeChainId: ChainId | 'All'
 }
 
 export const GroupedAssetList = ({
@@ -40,6 +42,7 @@ export const GroupedAssetList = ({
   onAssetClick,
   onImportClick,
   hideZeroBalanceAmounts,
+  activeChainId,
 }: GroupedAssetListProps) => {
   const renderGroupContent = useCallback(
     (index: number) => {
@@ -91,11 +94,11 @@ export const GroupedAssetList = ({
           // eslint-disable-next-line react-memo/require-usememo
           data={itemData}
           onImportClick={onImportClick}
-          showRelatedAssets
+          showRelatedAssets={activeChainId === 'All'}
         />
       )
     },
-    [assets, onAssetClick, onImportClick, hideZeroBalanceAmounts],
+    [assets, onAssetClick, hideZeroBalanceAmounts, onImportClick, activeChainId],
   )
 
   return (

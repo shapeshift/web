@@ -83,7 +83,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
         variant='ghost'
         leftIcon={leftIcon}
         rightIcon={rightIcon}
-        width={isLargerThanXl ? widthProp.md : 'auto'}
+        width={isLargerThanXl ? widthProp.md : widthProp.base}
         textAlign='left'
         flexShrink='none'
       >

@@ -58,76 +58,87 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
     return items.some(item => currentPath.startsWith(item.path))
   }, [location.pathname, label, items])
 
-  return (
-    <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
-      <MenuButton
-        as={Button}
-        variant='ghost'
-        onMouseEnter={onOpen}
-        onMouseLeave={onClose}
-        onClick={handleClick}
-        px={3}
-        py={2}
-        borderRadius='md'
-        _hover={menuButtonHoverSx}
-        _active={menuButtonActiveSx}
-        aria-current={isActive ? 'page' : undefined}
-      >
-        <Box
-          fontSize='md'
-          fontWeight={isActive ? 'semibold' : 'medium'}
-          color={isActive ? 'white' : 'whiteAlpha.600'}
-        >
-          {translate(label)}
-        </Box>
-      </MenuButton>
-      <MenuList
-        bg='whiteAlpha.100'
-        backdropFilter='blur(20px)'
-        border='1px solid'
-        borderColor='whiteAlpha.200'
-        boxShadow='xl'
-        minW='200px'
-        py={2}
-        borderRadius='lg'
-        mt={2}
-        onMouseEnter={onOpen}
-        onMouseLeave={onClose}
-      >
-        {items.map(item => {
-          const isItemActive = location.pathname.startsWith(item.path)
+  const afterSx = useMemo(
+    () => ({
+      content: '""',
+      position: 'absolute' as const,
+      top: '100%',
+      left: 0,
+      right: 0,
+      height: '10px',
+      display: isOpen ? 'block' : 'none',
+    }),
+    [isOpen],
+  )
 
-          return (
-            <MenuItem
-              key={item.path}
-              as={ReactRouterLink}
-              to={item.path}
-              bg={isItemActive ? 'whiteAlpha.200' : 'transparent'}
-              color={isItemActive ? 'white' : 'whiteAlpha.800'}
-              _hover={menuItemHoverSx}
-              _focus={menuItemFocusSx}
-              borderRadius='md'
-              mx={2}
-              my={1}
-              px={3}
-              py={2}
-            >
-              <HStack spacing={3}>
-                {item.icon && (
-                  <Icon
-                    as={item.icon}
-                    boxSize={4}
-                    color={isItemActive ? 'white' : 'whiteAlpha.600'}
-                  />
-                )}
-                <Text fontSize='sm' fontWeight={isItemActive ? 'semibold' : 'medium'}>
-                  {translate(item.label)}
-                </Text>
-              </HStack>
-            </MenuItem>
-          )
-        })}
-      </MenuList>
-    </Menu>
+  return (
+    <Box onMouseEnter={onOpen} onMouseLeave={onClose} position='relative' _after={afterSx}>
+      <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+        <MenuButton
+          as={Button}
+          variant='ghost'
+          onClick={handleClick}
+          px={3}
+          py={2}
+          borderRadius='md'
+          _hover={menuButtonHoverSx}
+          _active={menuButtonActiveSx}
+          aria-current={isActive ? 'page' : undefined}
+        >
+          <Box
+            fontSize='md'
+            fontWeight={isActive ? 'semibold' : 'medium'}
+            color={isActive ? 'white' : 'whiteAlpha.600'}
+          >
+            {translate(label)}
+          </Box>
+        </MenuButton>
+        <MenuList
+          bg='whiteAlpha.100'
+          backdropFilter='blur(20px)'
+          border='1px solid'
+          borderColor='whiteAlpha.200'
+          boxShadow='xl'
+          minW='200px'
+          py={2}
+          borderRadius='lg'
+          mt={0}
+        >
+          {items.map(item => {
+            const isItemActive = location.pathname.startsWith(item.path)
+
+            return (
+              <MenuItem
+                key={item.path}
+                as={ReactRouterLink}
+                to={item.path}
+                bg={isItemActive ? 'whiteAlpha.200' : 'transparent'}
+                color={isItemActive ? 'white' : 'whiteAlpha.800'}
+                _hover={menuItemHoverSx}
+                _focus={menuItemFocusSx}
+                borderRadius='md'
+                mx={2}
+                my={1}
+                px={3}
+                py={2}
+              >
+                <HStack spacing={3}>
+                  {item.icon && (
+                    <Icon
+                      as={item.icon}
+                      boxSize={4}
+                      color={isItemActive ? 'white' : 'whiteAlpha.600'}
+                    />
+                  )}
+                  <Text fontSize='sm' fontWeight={isItemActive ? 'semibold' : 'medium'}>
+                    {translate(item.label)}
+                  </Text>
+                </HStack>
+              </MenuItem>
+            )
+          })}
+        </MenuList>
+      </Menu>
+    </Box>
   )
 }

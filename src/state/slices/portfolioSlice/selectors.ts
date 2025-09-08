@@ -860,7 +860,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
   },
 )
 
-export const selectGroupedAssetBalances = createCachedSelector(
+export const selectGroupedAssetsWithBalances = createCachedSelector(
   selectPortfolioAccountRows,
   selectRelatedAssetIdsByAssetIdInclusive,
   selectAssets,

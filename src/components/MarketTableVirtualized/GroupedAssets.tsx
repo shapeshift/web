@@ -9,7 +9,7 @@ import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
 import type { AccountRowData } from '@/state/slices/selectors'
-import { selectAssets, selectGroupedAssetBalances } from '@/state/slices/selectors'
+import { selectAssets, selectGroupedAssetsWithBalances } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type RelatedAssetRowProps = {
@@ -64,15 +64,15 @@ type GroupedAssetsProps = {
 
 export const GroupedAssets = memo<GroupedAssetsProps>(({ row, onRowClick, onRowLongPress }) => {
   const asset = row.original
-  const groupedAssetBalances = useAppSelector(state =>
-    selectGroupedAssetBalances(state, asset.assetId),
+  const groupedAssetWithBalances = useAppSelector(state =>
+    selectGroupedAssetsWithBalances(state, asset.assetId),
   )
 
-  if (groupedAssetBalances?.relatedAssets.length === 1) return null
+  if (groupedAssetWithBalances?.relatedAssets.length === 1) return null
 
   return (
     <Stack spacing={2} p={4} bg='background.surface.raised.base'>
-      {groupedAssetBalances?.relatedAssets.map(asset => (
+      {groupedAssetWithBalances?.relatedAssets.map(asset => (
         <RelatedAssetRow
           key={asset.assetId}
           asset={asset}

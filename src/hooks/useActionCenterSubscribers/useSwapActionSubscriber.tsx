@@ -257,7 +257,8 @@ export const useSwapActionSubscriber = () => {
           accountId: buyAccountId,
           txHash: buyTxHash,
           // For THOR chain buys (i.e RUNE, RUJI, TCY and other potential non-fee native AssetIds we add in the future)
-          // we accountId and txHash won't be enough of a discriminator to narrow to one Tx, since both the inbound and outbound Tx will share the same tx Hash *and* the same AccountId
+          // accountId and txHash won't be enough of discriminators to narrow to one Tx, since
+          // both the inbound and outbound Tx will share the same tx Hash *and* the same AccountId
           // So we use the OUT: memo discriminator to ensure we select the outbound Tx, not the inbound
           memo: swap?.buyAsset?.chainId === thorchainChainId ? 'OUT:' : undefined,
         })

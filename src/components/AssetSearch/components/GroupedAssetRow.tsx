@@ -9,6 +9,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -21,12 +22,13 @@ import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssets,
   selectFeeAssetByChainId,
-  selectGroupedAssetBalances,
+  selectGroupedAssetsWithBalances,
 } from '@/state/slices/selectors'
-import { store, useAppSelector } from '@/state/store'
+import { store, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 type GroupedAssetRowProps = {
   asset: Asset
@@ -51,7 +53,22 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     state: { isConnected },
   } = useWallet()
   const groupedAssetBalances = useAppSelector(state =>
-    selectGroupedAssetBalances(state, asset.assetId),
+    selectGroupedAssetsWithBalances(state, asset.assetId),
+  )
+
+  const relatedAssetIdsFilter = useMemo(
+    () => ({
+      assetId: asset.assetId,
+      // We want all related assetIds, and conditionally mark the disconnected/unsupported ones as
+      // disabled in the UI. This allows users to see our product supports more assets than they
+      // have connected chains for.
+      onlyConnectedChains: false,
+    }),
+    [asset],
+  )
+  const relatedAssetIds = useSelectorWithArgs(
+    selectRelatedAssetIdsInclusiveSorted,
+    relatedAssetIdsFilter,
   )
 
   const titleColor = useColorModeValue('black', 'white')
@@ -72,11 +89,8 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   )
 
   const networksIcons = useMemo(() => {
-    return groupedAssetBalances?.relatedAssets.map(asset => {
-      const feeAsset = selectFeeAssetByChainId(
-        store.getState(),
-        assets[asset.assetId]?.chainId ?? '',
-      )
+    return relatedAssetIds.map(assetId => {
+      const feeAsset = selectFeeAssetByChainId(store.getState(), fromAssetId(assetId).chainId)
       return (
         <Box
           key={feeAsset?.chainId}
@@ -93,19 +107,19 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         </Box>
       )
     })
-  }, [groupedAssetBalances?.relatedAssets, assets])
+  }, [relatedAssetIds])
 
   const changePercent24Hr = groupedAssetBalances?.primaryAsset.priceChange
 
   const relatedAssets = useMemo(() => {
-    return groupedAssetBalances?.relatedAssets.map(asset => {
-      const relatedAsset = assets[asset.assetId]
+    return relatedAssetIds.map(assetId => {
+      const relatedAsset = assets[assetId]
 
       if (!relatedAsset) return null
 
       return (
         <AssetRow
-          key={asset.assetId}
+          key={assetId}
           asset={relatedAsset}
           index={0}
           py={8}
@@ -123,7 +137,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   }, [
     assets,
     disableUnsupported,
-    groupedAssetBalances?.relatedAssets,
+    relatedAssetIds,
     handleAssetClick,
     hideZeroBalanceAmounts,
     onLongPress,

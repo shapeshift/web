@@ -9,7 +9,7 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
-  selectRelatedAssetIdsByAssetIdInclusive,
+  selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,10 +35,13 @@ export const useAssetSearchWorker = ({
   walletConnectedChainIds,
   hasWallet,
 }: UseAssetSearchWorkerProps) => {
+  const primaryAssets = useAppSelector(
+    selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  )
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
-  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
+
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const [searchString, setSearchString] = useState('')
@@ -89,20 +92,22 @@ export const useAssetSearchWorker = ({
 
   // Update worker with new assets
   useEffect(() => {
-    if (workerRef.current && assets.length) {
+    if (workerRef.current && primaryAssets.length && assets.length) {
       workerRef.current.postMessage({
         type: 'updateAssets',
         payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
       })
       workerRef.current.postMessage({
-        type: 'updateRelatedAssetIds',
-        payload: { relatedAssetIdsById },
+        type: 'updatePrimaryAssets',
+        payload: {
+          assets: primaryAssets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])),
+        },
       })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
       setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
     }
-  }, [assets, relatedAssetIdsById])
+  }, [assets, primaryAssets])
 
   // Event-driven search function
   const performSearch = useCallback(

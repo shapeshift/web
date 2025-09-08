@@ -81,6 +81,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
         disableSortBy: true,
         Cell: ({ row }: { row: AccountRowProps }) => (
           <AssetCell
+            isChainSpecific={row.original.isChainSpecific}
             assetId={row.original.assetId}
             subText={truncate(row.original.symbol, { length: 6 })}
           />

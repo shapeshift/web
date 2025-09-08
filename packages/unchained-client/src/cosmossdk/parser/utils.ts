@@ -17,6 +17,7 @@ const assetIdByDenom = new Map<string, AssetId>([
   ['rune', thorchainAssetId],
   ['tcy', tcyAssetId],
   ['x/ruji', rujiAssetId],
+  ['thor.ruji', rujiAssetId],
   ['maya', mayaTokenAssetId],
   ['thor.tcy', tcyAssetId],
   ['cacao', mayachainAssetId],

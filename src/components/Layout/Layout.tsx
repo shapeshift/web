@@ -11,23 +11,20 @@ const paddingBottomProp = {
   md: 0,
 }
 const paddingXProp = { base: 0, md: 8, lg: 12 }
+const maxWidth = { base: 'full', '2xl': 'container.2xl' }
 
-export type LayoutProps = {
-  fullWidth?: boolean
-} & ContainerProps
-
-export const Layout: React.FC<LayoutProps> = ({ children, fullWidth = false, ...rest }) => {
+export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
   return (
     <Flex margin='0 auto' flexDir='column' minHeight='100vh'>
       <Header />
       <Container
         as='main'
-        maxWidth={fullWidth ? 'full' : { base: 'full', '2xl': 'container.2xl' }}
+        maxWidth={maxWidth}
         flexDir='column'
         width={widthProp}
         paddingBottom={paddingBottomProp}
         marginInline='auto'
-        px={fullWidth ? 0 : paddingXProp}
+        px={paddingXProp}
         flex='1 1 0%'
         {...rest}
       >

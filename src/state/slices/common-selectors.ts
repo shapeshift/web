@@ -275,7 +275,9 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndN
     marketData.selectors.selectMarketDataUsd,
     (assets, portfolioBalancesCryptoBaseUnit, portfolioBalancesUserCurrency, marketDataUsd) => {
       const getAssetBalanceCryptoPrecision = (asset: Asset) =>
-        fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision)
+        bnOrZero(
+          fromBaseUnit(bnOrZero(portfolioBalancesCryptoBaseUnit[asset.assetId]), asset.precision),
+        ).toNumber()
 
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()

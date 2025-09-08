@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { baseChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { baseChainId, ethChainId, fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -256,6 +256,10 @@ export const useSwapActionSubscriber = () => {
         const maybeTx = selectTxByFilter(store.getState(), {
           accountId: buyAccountId,
           txHash: buyTxHash,
+          // For THOR chain buys (i.e RUNE, RUJI, TCY and other potential non-fee native AssetIds we add in the future)
+          // we accountId and txHash won't be enough of a discriminator to narrow to one Tx, since both the inbound and outbound Tx will share the same tx Hash *and* the same AccountId
+          // So we use the OUT: memo discriminator to ensure we select the outbound Tx, not the inbound
+          memo: swap?.buyAsset?.chainId === thorchainChainId ? 'OUT:' : undefined,
         })
         return maybeTx
       })()

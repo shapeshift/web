@@ -186,7 +186,7 @@ export class TradeExecution {
         buyAccountId: accountId,
         receiveAddress: updatedSwap.receiveAddress,
         isStreaming: updatedSwap.isStreaming,
-        metadata: JSON.stringify(updatedSwap.metadata),
+        metadata: updatedSwap.metadata,
       })
 
       const { cancelPolling } = poll({

@@ -36,6 +36,14 @@ const paddingTopProp = {
   md: 0,
 }
 
+const leftHStackSpacingSx = { base: 4, lg: 8 }
+const navHStackSpacingSx = { base: 3, lg: 6 }
+const navHStackDisplaySx = { base: 'none', md: 'flex' }
+const searchBoxFlexSx = { base: 'none', lg: '1' }
+const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
+const searchBoxMxSx = { base: 0, lg: 0 }
+const rightHStackSpacingSx = { base: 2, lg: 4 }
+
 const tradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: RiRefreshLine },
   { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
@@ -118,9 +126,9 @@ export const Header = memo(() => {
         paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          <HStack spacing={8} flex='1'>
+          <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
             <ShapeShiftMenu />
-            <HStack spacing={6}>
+            <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>
               <NavigationDropdown
                 label='common.trade'
                 items={tradeSubMenuItems}
@@ -135,10 +143,10 @@ export const Header = memo(() => {
             </HStack>
           </HStack>
 
-          <Box flex='0 0 auto' width='400px'>
+          <Box flex={searchBoxFlexSx} maxW={searchBoxMaxWSx} mx={searchBoxMxSx}>
             <GlobalSearchButton />
           </Box>
-          <HStack spacing={4} flex='1' justifyContent='flex-end'>
+          <HStack spacing={rightHStackSpacingSx} flex='1' justifyContent='flex-end' minW={0}>
             {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />
             )}

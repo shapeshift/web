@@ -11,6 +11,7 @@ import {
   MenuList,
   Text,
   useDisclosure,
+  useMediaQuery,
   VStack,
 } from '@chakra-ui/react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
@@ -23,6 +24,7 @@ import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { breakpoints } from '@/theme/theme'
 
 const productItemHoverSx = { bg: 'whiteAlpha.100' }
 const footerLinkHoverSx = { color: 'white' }
@@ -124,6 +126,7 @@ const SocialIcon = ({
 export const ShapeShiftMenu = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const translate = useTranslate()
+  const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
 
   return (
     <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
@@ -133,9 +136,16 @@ export const ShapeShiftMenu = () => {
         cursor='pointer'
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
+        flexShrink={0}
+        whiteSpace='nowrap'
+        alignItems='center'
       >
-        <ShapeShiftLogoText boxSize='7' width='auto' />
-        <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' />
+        {isLargerThanXl ? (
+          <ShapeShiftLogoText height='6' width='auto' flexShrink={0} />
+        ) : (
+          <FoxIcon boxSize='5' flexShrink={0} />
+        )}
+        <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' flexShrink={0} />
       </MenuButton>
 
       <MenuList

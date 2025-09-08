@@ -20,6 +20,7 @@ import { useAppSelector } from '@/state/store'
 export const entries = [WalletConnectedRoutes.Connected]
 
 const widthProp = { base: '100%', lg: 'auto' }
+const connectButtonHoverSx = { bg: 'background.surface.elevated', borderColor: 'border.hover' }
 
 type WalletButtonProps = {
   isMenuContext?: boolean
@@ -121,7 +122,7 @@ export const WalletButton: FC<WalletButtonProps> = ({
       bg='background.surface.base'
       border='1px solid'
       borderColor='border.base'
-      _hover={{ bg: 'background.surface.elevated', borderColor: 'border.hover' }}
+      _hover={connectButtonHoverSx}
     >
       <Text translation='common.connectWallet' />
     </Button>

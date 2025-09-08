@@ -450,7 +450,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
 
     return limit ? matchedAssets.slice(0, limit) : matchedAssets
   },
-)
+)((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 
 export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector(
   selectPortfolioFungiblePrimaryAssetsSortedByBalance,

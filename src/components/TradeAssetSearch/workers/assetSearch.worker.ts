@@ -70,4 +70,4 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   }
 }
 
-export { }
+export {}

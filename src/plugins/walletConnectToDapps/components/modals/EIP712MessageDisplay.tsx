@@ -43,7 +43,7 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
   const cardBg = useColorModeValue('white', 'gray.850')
 
   const domainChainId = useMemo(() => {
-    if (!domain.chainId) return undefined
+    if (!domain.chainId) return
 
     try {
       return toChainId({
@@ -51,7 +51,8 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
         chainReference: String(domain.chainId) as ChainReference,
       })
     } catch {
-      return undefined
+      // This shouldn't happen, as this should be an evm networkId we support but...
+      return
     }
   }, [domain.chainId])
 
@@ -60,11 +61,11 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
   )
 
   const contractExplorerLink = useMemo(() => {
-    if (!domain.verifyingContract || !domainFeeAsset?.explorerAddressLink) {
-      return undefined
-    }
+    if (!domainFeeAsset) return
+    if (!domain.verifyingContract) return
+
     return `${domainFeeAsset.explorerAddressLink}${domain.verifyingContract}`
-  }, [domain.verifyingContract, domainFeeAsset?.explorerAddressLink])
+  }, [domain?.verifyingContract, domainFeeAsset])
 
   return (
     <Card bg={cardBg} borderRadius='md' p={4}>
@@ -89,18 +90,15 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
             </HStack>
           </HStack>
         )}
-
-        {domain.chainId && (
+        {domainFeeAsset && (
           <HStack justify='space-between' align='center' minH='24px'>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('common.network')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText>{domainFeeAsset?.networkName || `Chain ID: ${domain.chainId}`}</RawText>
+              <RawText>{domainFeeAsset.networkName}</RawText>
               <HStack w='24px' h='24px' justify='center' align='center'>
-                {domainFeeAsset && (
-                  <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
-                )}
+                <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
               </HStack>
             </HStack>
           </HStack>
@@ -110,7 +108,7 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
   )
 }
 
-export type EIP712MessageDisplayProps = {
+type EIP712MessageDisplayProps = {
   typedData: string
 }
 

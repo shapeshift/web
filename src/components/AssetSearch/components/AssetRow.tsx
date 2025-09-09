@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, Text, Tooltip } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -64,12 +64,10 @@ export const AssetRow: FC<AssetRowProps> = memo(
     ...props
   }) => {
     const translate = useTranslate()
-    const assetNameColor = useColorModeValue('black', 'white')
     const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 })
     const {
       state: { isConnected, wallet },
     } = useWallet()
-    const textColor = useColorModeValue('black', 'white')
 
     const assetId = asset?.assetId
     const relatedAssetIdsFilter = useMemo(
@@ -161,7 +159,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
             <Amount.Fiat
               fontWeight='medium'
-              color={textColor}
+              color='text.base'
               lineHeight={1}
               value={marketData?.price}
             />
@@ -188,7 +186,6 @@ export const AssetRow: FC<AssetRowProps> = memo(
       return null
     }, [
       marketData?.price,
-      textColor,
       userCurrencyBalance,
       handleImportClick,
       hideAssetBalance,
@@ -229,7 +226,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           <AssetIcon assetId={asset.assetId} size='md' flexShrink={0} />
           <Flex gap={1} flexDir='column' textAlign='left' flex={1} minWidth={0}>
             <Text
-              color={assetNameColor}
+              color='text.base'
               lineHeight={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'

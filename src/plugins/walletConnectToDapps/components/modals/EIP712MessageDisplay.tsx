@@ -254,7 +254,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
               <MessageField
                 key={key}
                 name={key}
-                value={value as string | number | boolean | string[] | number[] | boolean[] | null}
+                value={value as EIP712FieldValue}
                 type={fieldType}
               />
             )

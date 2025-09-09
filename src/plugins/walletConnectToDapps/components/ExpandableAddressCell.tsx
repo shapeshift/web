@@ -52,11 +52,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         _hover={hoverStyle}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
-        <Box
-          as={FaChevronRight}
-          boxSize='10px'
-          color='gray.400'
-        />
+        <Box as={FaChevronRight} boxSize='10px' color='gray.400' />
       </HStack>
     )
   }
@@ -76,12 +72,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         _hover={hoverStyle}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
-        <Box
-          as={FaChevronRight}
-          boxSize='10px'
-          transform='rotate(90deg)'
-          color='gray.400'
-        />
+        <Box as={FaChevronRight} boxSize='10px' transform='rotate(90deg)' color='gray.400' />
       </HStack>
       <Box
         fontSize='xs'

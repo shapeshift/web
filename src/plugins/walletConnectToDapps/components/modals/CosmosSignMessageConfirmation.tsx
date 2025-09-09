@@ -15,9 +15,9 @@ import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { WalletConnectSigningFromSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
@@ -150,13 +150,11 @@ export const CosmosSignMessageConfirmationModal: FC<
 
   return (
     <>
-      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard
-          address={address ?? ''}
-          icon={walletIcon}
-          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
-        />
-      </ModalSection>
+      <WalletConnectSigningFromSection
+        address={address ?? ''}
+        walletIcon={walletIcon}
+        explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+      />
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='2xl'>
           <HStack align='center' p={4}>

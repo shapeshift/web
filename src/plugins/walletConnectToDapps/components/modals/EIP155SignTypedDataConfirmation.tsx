@@ -7,10 +7,9 @@ import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertIsDefined } from '@/lib/utils'
-import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { EIP712MessageDisplay } from '@/plugins/walletConnectToDapps/components/modals/EIP712MessageDisplay'
-import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
+import { WalletConnectSigningFromSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { EthSignTypedDataCallRequest } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
@@ -56,13 +55,11 @@ export const EIP155SignTypedDataConfirmation: FC<
   return (
     <>
       <WalletConnectPeerHeader peerMetadata={peerMetadata} />
-      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard
-          address={address ?? ''}
-          icon={walletIcon}
-          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
-        />
-      </ModalSection>
+      <WalletConnectSigningFromSection
+        address={address ?? ''}
+        walletIcon={walletIcon}
+        explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+      />
       <EIP712MessageDisplay typedData={message} chainId={chainId} />
       <Text
         fontWeight='medium'

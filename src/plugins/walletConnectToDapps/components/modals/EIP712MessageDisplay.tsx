@@ -11,12 +11,13 @@ import { ModalSection } from './ModalSection'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
+import type { EIP712TypedData, EIP712Value } from '@/plugins/walletConnectToDapps/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type MessageFieldProps = {
   name: string
-  value: string | number | boolean | (string | number | boolean)[] | null
+  value: EIP712Value
 }
 
 const MessageField: React.FC<MessageFieldProps> = ({ name, value }) => {
@@ -113,13 +114,14 @@ type EIP712MessageDisplayProps = {
 }
 
 export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ typedData }) => {
+  const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
 
-  const parsedData = useMemo(() => {
+  const parsedData = useMemo((): EIP712TypedData | null => {
     try {
       const parsed = JSON.parse(typedData)
       validateTypedData(parsed)
-      return parsed
+      return parsed as EIP712TypedData
     } catch {
       return null
     }
@@ -147,13 +149,12 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ type
 
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
         <VStack align='stretch' spacing={2}>
-          <MessageField name='Primary Type' value={primaryType} />
+          <MessageField
+            name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
+            value={primaryType}
+          />
           {Object.entries(message).map(([key, value]) => (
-            <MessageField
-              key={key}
-              name={key}
-              value={value as string | number | boolean | (string | number | boolean)[] | null}
-            />
+            <MessageField key={key} name={key} value={value} />
           ))}
         </VStack>
       </ModalSection>

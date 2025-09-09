@@ -2374,7 +2374,8 @@
           "authInfo": "Auth info",
           "body": "Body",
           "comingSoon": "Coming soon",
-          "contract": "Contract"
+          "contract": "Contract",
+          "primaryType": "Primary Type"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",

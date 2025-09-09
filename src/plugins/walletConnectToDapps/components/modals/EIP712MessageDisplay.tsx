@@ -113,9 +113,9 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
 
-  // Convert networkId to chainId for asset lookup
-  const chainId = useMemo(() => {
+  const domainChainId = useMemo(() => {
     if (!networkId) return undefined
+
     try {
       return toChainId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -126,17 +126,16 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
     }
   }, [networkId])
 
-  const connectedChainFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, chainId ?? ''),
+  const domainFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, domainChainId ?? ''),
   )
 
-  // Build contract explorer link
   const contractExplorerLink = useMemo(() => {
-    if (!domain.verifyingContract || !connectedChainFeeAsset?.explorerAddressLink) {
+    if (!domain.verifyingContract || !domainFeeAsset?.explorerAddressLink) {
       return undefined
     }
-    return `${connectedChainFeeAsset.explorerAddressLink}${domain.verifyingContract}`
-  }, [domain.verifyingContract, connectedChainFeeAsset?.explorerAddressLink])
+    return `${domainFeeAsset.explorerAddressLink}${domain.verifyingContract}`
+  }, [domain.verifyingContract, domainFeeAsset?.explorerAddressLink])
 
   return (
     <Card bg={cardBg} borderRadius='md' p={4}>
@@ -168,12 +167,10 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
               {translate('plugins.walletConnectToDapps.modal.signMessage.network')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText>
-                {connectedChainFeeAsset?.networkName || `Chain ID: ${domain.chainId}`}
-              </RawText>
+              <RawText>{domainFeeAsset?.networkName || `Chain ID: ${domain.chainId}`}</RawText>
               <HStack w='24px' h='24px' justify='center' align='center'>
-                {connectedChainFeeAsset?.networkIcon && (
-                  <Image boxSize='16px' src={connectedChainFeeAsset.networkIcon} />
+                {domainFeeAsset && (
+                  <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
                 )}
               </HStack>
             </HStack>

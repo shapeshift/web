@@ -164,7 +164,7 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
         {domain.chainId && (
           <HStack justify='space-between' align='center' minH='24px'>
             <RawText color='text.subtle' fontSize='sm'>
-              {translate('plugins.walletConnectToDapps.modal.signMessage.network')}
+              {translate('common.network')}
             </RawText>
             <HStack spacing={2} align='center'>
               <RawText>{domainFeeAsset?.networkName || `Chain ID: ${domain.chainId}`}</RawText>

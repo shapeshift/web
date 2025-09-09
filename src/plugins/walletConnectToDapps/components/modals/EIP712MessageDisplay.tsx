@@ -1,10 +1,10 @@
 import { Box, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import type { TypedDataDomain } from 'abitype'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { validateTypedData } from 'viem'
+import { isAddress, validateTypedData } from 'viem'
 
 import { ModalSection } from './ModalSection'
 
@@ -12,23 +12,57 @@ import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import type { EIP712TypedData, EIP712Value } from '@/plugins/walletConnectToDapps/types'
-import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type MessageFieldProps = {
   name: string
   value: EIP712Value
+  chainId?: string
 }
 
-const MessageField: React.FC<MessageFieldProps> = ({ name, value }) => {
+const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => {
+  const maybeAssetId = useMemo(() => {
+    if (!chainId || typeof value !== 'string' || !isAddress(value)) return null
+    
+    try {
+      return toAssetId({
+        chainId,
+        assetNamespace: 'erc20',
+        assetReference: value,
+      })
+    } catch {
+      return null
+    }
+  }, [value, chainId])
+
+  const asset = useAppSelector(state => 
+    maybeAssetId ? selectAssetById(state, maybeAssetId) : null
+  )
+
+  const displayValue = useMemo(() => {
+    if (asset) {
+      return (
+        <HStack spacing={2} align='center'>
+          <RawText fontSize='sm'>{asset.symbol}</RawText>
+          <Image boxSize='16px' src={asset.icon} borderRadius='full' />
+        </HStack>
+      )
+    }
+    
+    return (
+      <RawText fontSize='sm' wordBreak='break-all' whiteSpace='pre-wrap'>
+        {value}
+      </RawText>
+    )
+  }, [asset, value])
+
   return (
     <VStack align='stretch' spacing={1} py={3}>
       <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
         {name}
       </RawText>
-      <RawText fontSize='sm' wordBreak='break-all' whiteSpace='pre-wrap'>
-        {value}
-      </RawText>
+      {displayValue}
     </VStack>
   )
 }
@@ -109,9 +143,10 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
 
 type EIP712MessageDisplayProps = {
   typedData: string
+  chainId?: string
 }
 
-export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ typedData }) => {
+export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ typedData, chainId }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
 
@@ -151,9 +186,10 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ type
             <MessageField
               name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
               value={primaryType}
+              chainId={chainId}
             />
             {Object.entries(message).map(([key, value]) => (
-              <MessageField key={key} name={key} value={value} />
+              <MessageField key={key} name={key} value={value} chainId={chainId} />
             ))}
           </VStack>
         </Card>

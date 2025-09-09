@@ -63,7 +63,7 @@ export const EIP155SignTypedDataConfirmation: FC<
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>
-      <EIP712MessageDisplay typedData={message} />
+      <EIP712MessageDisplay typedData={message} chainId={chainId} />
       <Text
         fontWeight='medium'
         color='text.subtle'

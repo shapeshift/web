@@ -8,7 +8,7 @@ import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
-import { WalletConnectSigningFromSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
+import { WalletConnectAddressSection } from '@/plugins/walletConnectToDapps/components/WalletConnectAddressSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   EthPersonalSignCallRequest,
@@ -56,7 +56,7 @@ export const EIP155SignMessageConfirmationModal: FC<
 
   return (
     <>
-      <WalletConnectSigningFromSection
+      <WalletConnectAddressSection
         address={address ?? ''}
         walletIcon={walletIcon}
         explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}

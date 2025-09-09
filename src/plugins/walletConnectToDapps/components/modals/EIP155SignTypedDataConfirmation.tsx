@@ -1,15 +1,13 @@
 import { Button, HStack } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Text } from '@/components/Text'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertIsDefined } from '@/lib/utils'
 import { EIP712MessageDisplay } from '@/plugins/walletConnectToDapps/components/modals/EIP712MessageDisplay'
 import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
-import { WalletConnectSigningFromSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
+import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { EthSignTypedDataCallRequest } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
@@ -31,12 +29,6 @@ export const EIP155SignTypedDataConfirmation: FC<
   )
 
   const translate = useTranslate()
-  const walletInfo = useWallet().state.walletInfo
-  const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(
-    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
-    [WalletIcon],
-  )
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -55,17 +47,13 @@ export const EIP155SignTypedDataConfirmation: FC<
   return (
     <>
       <WalletConnectPeerHeader peerMetadata={peerMetadata} />
-      <WalletConnectSigningFromSection
-        address={address ?? ''}
-        walletIcon={walletIcon}
-        explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
-      />
       <EIP712MessageDisplay typedData={message} chainId={chainId} />
-      <Text
-        fontWeight='medium'
-        color='text.subtle'
-        translation='plugins.walletConnectToDapps.modal.signMessage.description'
-      />
+      {connectedAccountFeeAsset && (
+        <WalletConnectSigningWithSection
+          feeAssetId={connectedAccountFeeAsset.assetId}
+          address={address ?? ''}
+        />
+      )}
       <HStack spacing={4}>
         <Button
           size='lg'

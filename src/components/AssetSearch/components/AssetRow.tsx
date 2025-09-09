@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -15,6 +15,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { defaultLongPressConfig } from '@/constants/longPress'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
@@ -44,6 +45,12 @@ export type AssetRowData = {
   showRelatedAssets?: boolean
 }
 
+const contractAddressHoverProps = {
+  cursor: 'pointer',
+  color: 'text.base',
+  opacity: 1,
+}
+
 export type AssetRowProps = AssetRowData & ButtonProps
 
 export const AssetRow: FC<AssetRowProps> = memo(
@@ -58,6 +65,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const assetNameColor = useColorModeValue('black', 'white')
+    const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 })
     const {
       state: { isConnected, wallet },
     } = useWallet()
@@ -94,6 +102,15 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const isAssetToken = isToken(assetId)
 
     const chainName = chainIdToChainDisplayName(asset.chainId) ?? ''
+
+    const handleCopyContractAddress = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        copyToClipboard(contractAddress)
+      },
+      [copyToClipboard, contractAddress],
+    )
 
     const handleOnClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -234,9 +251,20 @@ export const AssetRow: FC<AssetRowProps> = memo(
                     {asset.symbol}
                   </Text>
                   {isAssetToken && (
-                    <Text fontWeight='medium' fontSize='sm' color='text.subtle' opacity={0.75}>
-                      {middleEllipsis(contractAddress)}
-                    </Text>
+                    <Tooltip
+                      label={isCopied ? translate('common.copied') : translate('common.copy')}
+                    >
+                      <Text
+                        fontWeight='medium'
+                        fontSize='sm'
+                        color='text.subtle'
+                        opacity={0.75}
+                        onClick={handleCopyContractAddress}
+                        _hover={contractAddressHoverProps}
+                      >
+                        {middleEllipsis(contractAddress)}
+                      </Text>
+                    </Tooltip>
                   )}
                 </>
               )}

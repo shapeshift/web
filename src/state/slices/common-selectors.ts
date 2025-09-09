@@ -177,7 +177,7 @@ export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSele
   },
 )
 
-export const selectPortfolioAssetUserCurrencyBalances = createDeepEqualOutputSelector(
+export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
@@ -192,51 +192,54 @@ export const selectPortfolioAssetUserCurrencyBalances = createDeepEqualOutputSel
       if (precision === undefined) return acc
       const price = marketData[assetId]?.price
 
-      const assetUserCurrencyBalance = bnOrZero(balances[assetId]).times(bnOrZero(price))
+      const assetUserCurrencyBalance = bnOrZero(fromBaseUnit(balances[assetId], precision)).times(
+        bnOrZero(price),
+      )
       if (assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc
     }, {}),
 )
 
-export const selectPortfolioPrimaryAssetUserCurrencyBalances = createDeepEqualOutputSelector(
-  selectAssets,
-  selectMarketDataUserCurrency,
-  selectPortfolioAssetBalancesBaseUnit,
-  selectRelatedAssetIdsByAssetIdInclusive,
-  preferences.selectors.selectBalanceThreshold,
-  (assetsById, marketData, balances, relatedAssetIdsById, balanceThreshold) =>
-    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
-      const asset = assetsById[assetId]
-      const primaryAsset = asset?.isPrimary ? asset : assetsById[asset?.relatedAssetKey ?? '']
-      const primaryAssetId = primaryAsset?.assetId
+export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectMarketDataUserCurrency,
+    selectPortfolioAssetBalancesBaseUnit,
+    selectRelatedAssetIdsByAssetIdInclusive,
+    preferences.selectors.selectBalanceThreshold,
+    (assetsById, marketData, balances, relatedAssetIdsById, balanceThreshold) =>
+      Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
+        const asset = assetsById[assetId]
+        const primaryAsset = asset?.isPrimary ? asset : assetsById[asset?.relatedAssetKey ?? '']
+        const primaryAssetId = primaryAsset?.assetId
 
-      if (!primaryAssetId) return acc
-      if (!primaryAsset.isPrimary) return acc
-      if (acc[primaryAssetId]) return acc
-      const precision = primaryAsset.precision
-      if (precision === undefined) return acc
-      const price = marketData[primaryAssetId]?.price
+        if (!primaryAssetId) return acc
+        if (!primaryAsset.isPrimary) return acc
+        if (acc[primaryAssetId]) return acc
+        const precision = primaryAsset.precision
+        if (precision === undefined) return acc
+        const price = marketData[primaryAssetId]?.price
 
-      const totalCryptoBalance = relatedAssetIdsById[primaryAssetId]?.reduce(
-        (acc, relatedAssetId) => {
-          return acc.plus(
-            fromBaseUnit(balances[relatedAssetId], assetsById[relatedAssetId]?.precision ?? 0),
-          )
-        },
-        bnOrZero(0),
-      )
+        const totalCryptoBalance = relatedAssetIdsById[primaryAssetId]?.reduce(
+          (acc, relatedAssetId) => {
+            return acc.plus(
+              fromBaseUnit(balances[relatedAssetId], assetsById[relatedAssetId]?.precision ?? 0),
+            )
+          },
+          bnOrZero(0),
+        )
 
-      const assetUserCurrencyBalance = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
-      if (
-        assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold)) &&
-        totalCryptoBalance.lte(balanceThreshold)
-      )
+        const assetUserCurrencyBalance = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
+        if (
+          assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold)) &&
+          totalCryptoBalance.lte(balanceThreshold)
+        )
+          return acc
+        acc[primaryAssetId] = assetUserCurrencyBalance.toFixed(2)
         return acc
-      acc[primaryAssetId] = assetUserCurrencyBalance.toFixed(2)
-      return acc
-    }, {}),
-)
+      }, {}),
+  )
 
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
   selectAssets,
@@ -393,7 +396,7 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
 })
 
 export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutputSelector(
-  selectPortfolioAssetUserCurrencyBalances,
+  selectPortfolioAssetBalancesByAssetIdUserCurrency,
   selectAssets,
   (portfolioUserCurrencyBalances, assets) => {
     const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => {
@@ -421,7 +424,7 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
 )
 
 export const selectPortfolioFungiblePrimaryAssetsSortedByBalance = createDeepEqualOutputSelector(
-  selectPortfolioPrimaryAssetUserCurrencyBalances,
+  selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency,
   selectPrimaryAssets,
   selectRelatedAssetIdsByAssetIdInclusive,
   (portfolioUserCurrencyBalances, assets, relatedAssetIdsById) => {
@@ -504,41 +507,20 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 
-export const selectPortfolioAssetsByChain = createDeepEqualOutputSelector(
+export const selectPortfolioAssetsByChainId = createDeepEqualOutputSelector(
   selectPortfolioFungiblePrimaryAssetsSortedByBalance,
   selectPortfolioFungibleAssetsSortedByBalance,
-  selectRelatedAssetIdsByAssetIdInclusive,
-  selectAssets,
   (_state: ReduxState, chainId: ChainId | 'All') => chainId,
-  (portfolioPrimaryAssets, portfolioAssets, relatedAssetIdsById, allAssets, chainId) => {
+  (portfolioPrimaryAssets, portfolioAssets, chainId) => {
     if (chainId === 'All') return portfolioPrimaryAssets
 
-    const chainAssets: Asset[] = []
-
-    // This selector name may be a misnomer - if a chain is selected, there is no such thing as a "primary" asset
-    // as we want to select and display only the chain-specific flavour
-    for (const asset of portfolioAssets) {
-      if (asset.chainId === chainId) {
-        // Asset is already on the selected chain
-        chainAssets.push(asset)
-      } else {
-        const relatedAssetIds = relatedAssetIdsById[asset.assetId] ?? []
-        const maybeChainVariant = relatedAssetIds.find(
-          asset => fromAssetId(asset).chainId === chainId,
-        )
-        const maybeAsset = allAssets[maybeChainVariant ?? '']
-
-        if (maybeAsset) {
-          chainAssets.push(maybeAsset)
-        }
-      }
-    }
+    const chainAssets: Asset[] = portfolioAssets.filter(asset => asset.chainId === chainId)
 
     return chainAssets
   },
 )
 
-export const selectPrimaryAssetsByChain = createDeepEqualOutputSelector(
+export const selectPrimaryAssetsByChainId = createDeepEqualOutputSelector(
   selectPrimaryAssetsSortedByMarketCap,
   selectRelatedAssetIdsByAssetIdInclusive,
   selectAssets,

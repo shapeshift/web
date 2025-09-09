@@ -1,3 +1,4 @@
+import { csp as addressable } from './addressable'
 import { csp as alchemy } from './alchemy'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
@@ -57,6 +58,7 @@ import { csp as webflow } from './webflow'
 
 export const csps = [
   base,
+  addressable,
   alchemy,
   moralis,
   chainflip,

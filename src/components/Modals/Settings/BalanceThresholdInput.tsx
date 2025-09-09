@@ -25,7 +25,9 @@ const InputComponent = (props: InputProps) => (
 )
 
 export const BalanceThresholdInput = () => {
-  const balanceThreshold = useAppSelector(preferences.selectors.selectBalanceThreshold)
+  const balanceThresholdUserCurrency = useAppSelector(
+    preferences.selectors.selectBalanceThresholdUserCurrency,
+  )
   const dispatch = useAppDispatch()
   const {
     number: { localeParts },
@@ -49,7 +51,7 @@ export const BalanceThresholdInput = () => {
         customInput={InputComponent}
         allowedDecimalSeparators={allowedDecimalSeparators}
         isNumericString={true}
-        value={balanceThreshold}
+        value={balanceThresholdUserCurrency}
         prefix={localeParts.prefix}
         onValueChange={handleChange}
       />

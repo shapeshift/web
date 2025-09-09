@@ -89,6 +89,7 @@ export type FeatureFlags = {
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   QuickBuy: boolean
+  NewWalletManager: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -116,7 +117,7 @@ export enum QuoteDisplayOption {
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
-  balanceThreshold: string
+  balanceThresholdUserCurrency: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
   chartTimeframe: HistoryTimeframe
@@ -211,10 +212,11 @@ const initialState: Preferences = {
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
+    NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},
-  balanceThreshold: '0',
+  balanceThresholdUserCurrency: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
@@ -259,7 +261,7 @@ export const preferences = createSlice({
 
     setBalanceThreshold: create.reducer(
       (state, { payload }: { payload: { threshold: string } }) => {
-        state.balanceThreshold = payload.threshold
+        state.balanceThresholdUserCurrency = payload.threshold
       },
     ),
     setCurrencyFormat: create.reducer(
@@ -353,7 +355,7 @@ export const preferences = createSlice({
     selectSpamMarkedAssetIds: state => state.spamMarkedAssets,
     selectSelectedLocale: state => state.selectedLocale,
     selectSelectedCurrency: state => state.selectedCurrency,
-    selectBalanceThreshold: state => state.balanceThreshold,
+    selectBalanceThresholdUserCurrency: state => state.balanceThresholdUserCurrency,
     selectCurrencyFormat: state => state.currencyFormat,
     selectChartTimeframe: state => state.chartTimeframe,
     selectShowWelcomeModal: state => state.showWelcomeModal,

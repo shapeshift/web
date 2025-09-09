@@ -17,7 +17,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { isEmpty, uniq } from 'lodash'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -47,6 +47,7 @@ export const DegradedStateBanner = memo(() => {
   const { isSnapInstalled } = useIsSnapInstalled()
   const { deviceId } = useWallet().state
   const queryClient = useQueryClient()
+  const [isOpen, setIsOpen] = useState(false)
 
   const erroredChainIds = useMemo(() => {
     const erroredChains = uniq(
@@ -102,6 +103,9 @@ export const DegradedStateBanner = memo(() => {
     }
   }, [erroredChainIds, erroredAccounts.names, erroredAccounts.icons])
 
+  const handleOpen = useCallback(() => setIsOpen(true), [])
+  const handleClose = useCallback(() => setIsOpen(false), [])
+
   const handleRetry = useCallback(() => {
     degradedChainIds.forEach(chainId => {
       queryClient.invalidateQueries({
@@ -142,7 +146,7 @@ export const DegradedStateBanner = memo(() => {
   if (!erroredChains?.names?.length) return null
 
   return (
-    <Popover>
+    <Popover isOpen={isOpen} onOpen={handleOpen} onClose={handleClose}>
       <PopoverTrigger>
         <IconButton
           variant='ghost-filled'
@@ -151,29 +155,31 @@ export const DegradedStateBanner = memo(() => {
           icon={warningIcon}
         />
       </PopoverTrigger>
-      <PopoverContent overflow='hidden'>
-        <PopoverCloseButton />
-        <PopoverHeader fontWeight='bold' borderWidth={0} pt={4} px={4} pb={2}>
-          <Text translation='common.degradedState' />
-        </PopoverHeader>
-        <PopoverBody display='flex' flexDir='column' gap={4} px={4} pb={4} pt={0}>
-          <Text color='text.subtle' translation='common.accountError' />
-          {renderIcons}
-        </PopoverBody>
-        <PopoverFooter borderWidth={0} bg={footerBg} p={4}>
-          <Button
-            bg={buttonBg}
-            leftIcon={idMdRefreshIcon}
-            onClick={handleRetry}
-            size='sm'
-            borderRadius='lg'
-            width='full'
-            isLoading={isDiscoverAccountsFetching}
-          >
-            {translate('errorPage.cta')}
-          </Button>
-        </PopoverFooter>
-      </PopoverContent>
+      {isOpen && (
+        <PopoverContent overflow='hidden'>
+          <PopoverCloseButton />
+          <PopoverHeader fontWeight='bold' borderWidth={0} pt={4} px={4} pb={2}>
+            <Text translation='common.degradedState' />
+          </PopoverHeader>
+          <PopoverBody display='flex' flexDir='column' gap={4} px={4} pb={4} pt={0}>
+            <Text color='text.subtle' translation='common.accountError' />
+            {renderIcons}
+          </PopoverBody>
+          <PopoverFooter borderWidth={0} bg={footerBg} p={4}>
+            <Button
+              bg={buttonBg}
+              leftIcon={idMdRefreshIcon}
+              onClick={handleRetry}
+              size='sm'
+              borderRadius='lg'
+              width='full'
+              isLoading={isDiscoverAccountsFetching}
+            >
+              {translate('errorPage.cta')}
+            </Button>
+          </PopoverFooter>
+        </PopoverContent>
+      )}
     </Popover>
   )
 })

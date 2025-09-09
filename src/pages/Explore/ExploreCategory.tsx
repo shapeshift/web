@@ -17,7 +17,6 @@ import { MarketsCategories } from '../Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '../Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '../Markets/hooks/usePortalsAssetsQuery'
 import { useRows } from '../Markets/hooks/useRows'
-import { AssetSearchRow } from './components/AssetSearchRow'
 import { Tags } from './components/Tags'
 
 import { AssetListFiltersDialog } from '@/components/AssetListFiltersDialog/AssetListFiltersDialog'
@@ -27,7 +26,9 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { useModal } from '@/hooks/useModal/useModal'
 import { isSome } from '@/lib/utils'
+import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -46,6 +47,7 @@ export const ExploreCategory = () => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
 
   const tag = useMemo(() => (tagParam ? `#${tagParam}` : undefined), [tagParam])
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const { register, watch, setValue } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -217,6 +219,14 @@ export const ExploreCategory = () => {
     setSelectedChainId(chainId)
   }, [])
 
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   if (!category) return null
 
   return (
@@ -265,7 +275,6 @@ export const ExploreCategory = () => {
             assets={filteredAssets}
             handleClick={handleAssetClick}
             disableUnsupported={false}
-            rowComponent={AssetSearchRow}
             portalsAssets={portalsAssets}
             isLoading={
               isPortalsAssetsLoading ||
@@ -274,6 +283,10 @@ export const ExploreCategory = () => {
               isCategoryQueryDataFetching
             }
             height='100vh'
+            showPrice
+            showRelatedAssets
+            handleLongPress={handleAssetLongPress}
+            rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
           />
         </Box>
       </Main>

@@ -49,5 +49,7 @@ export const makeAsset = (
     color,
     icon,
     relatedAssetKey: null,
+    isPrimary: true,
+    isChainSpecific: true,
   })
 }

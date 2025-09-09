@@ -41,6 +41,7 @@ type AssetCellProps = {
   opportunityName?: string
   isExternal?: boolean
   version?: string
+  isChainSpecific?: boolean
 } & StackProps
 
 const rowTitleBoxAfter = {
@@ -78,6 +79,7 @@ export const AssetCell = ({
   opportunityName,
   isExternal,
   version,
+  isChainSpecific,
   ...rest
 }: AssetCellProps) => {
   const translate = useTranslate()
@@ -113,7 +115,7 @@ export const AssetCell = ({
           {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='md' />
+            <AssetIcon assetId={asset.assetId} size='md' showNetworkIcon={isChainSpecific} />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1} width='50%'>

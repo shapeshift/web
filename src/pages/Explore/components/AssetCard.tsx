@@ -1,13 +1,12 @@
-import { Box, Flex, Tag, TagLeftIcon, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
-import { memo, useCallback, useMemo } from 'react'
-import { RiArrowLeftDownLine, RiArrowRightUpLine } from 'react-icons/ri'
+import { memo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { vibrate } from '@/lib/vibrate'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -25,37 +24,6 @@ export const AssetCard: FC<AssetCardProps> = memo(({ asset, width = '80%' }) => 
     selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
   )
   const changePercent24Hr = marketData?.changePercent24Hr
-
-  const changePercentTagColorsScheme = useMemo(() => {
-    if (bnOrZero(changePercent24Hr).gt(0)) {
-      return 'green'
-    }
-
-    if (bnOrZero(changePercent24Hr).lt(0)) {
-      return 'red'
-    }
-
-    return 'gray'
-  }, [changePercent24Hr])
-
-  const priceChange = useMemo(() => {
-    if (!changePercent24Hr) return null
-
-    return (
-      <Tag colorScheme={changePercentTagColorsScheme} size='sm' px={2} py={1} borderRadius='md'>
-        {changePercentTagColorsScheme !== 'gray' ? (
-          <TagLeftIcon
-            as={changePercentTagColorsScheme === 'green' ? RiArrowRightUpLine : RiArrowLeftDownLine}
-            me={1}
-          />
-        ) : null}
-        <Amount.Percent
-          value={bnOrZero(changePercent24Hr).times('0.01').toString()}
-          fontSize='xs'
-        />
-      </Tag>
-    )
-  }, [changePercent24Hr, changePercentTagColorsScheme])
 
   const handleClick = useCallback(() => {
     vibrate('heavy')
@@ -100,7 +68,7 @@ export const AssetCard: FC<AssetCardProps> = memo(({ asset, width = '80%' }) => 
               fontSize='sm'
               value={marketData?.price}
             />
-            {priceChange}
+            <PriceChangeTag changePercent24Hr={changePercent24Hr} />
           </Flex>
         </Flex>
       </Flex>

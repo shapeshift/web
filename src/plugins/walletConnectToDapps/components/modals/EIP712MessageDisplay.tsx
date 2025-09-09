@@ -1,9 +1,8 @@
-import { Box, Card, Collapse, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import type { TypedDataDomain } from 'abitype'
-import { useCallback, useMemo, useState } from 'react'
-import { FaChevronRight } from 'react-icons/fa'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { isAddress, validateTypedData } from 'viem'
 
@@ -11,6 +10,7 @@ import { ModalSection } from './ModalSection'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { ExpandableAddressCell } from '@/plugins/walletConnectToDapps/components/ExpandableAddressCell'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import type { EIP712TypedData, EIP712Value } from '@/plugins/walletConnectToDapps/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
@@ -23,14 +23,6 @@ type MessageFieldProps = {
 }
 
 const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  const handleExpandToggle = useCallback(() => {
-    setIsExpanded(!isExpanded)
-  }, [isExpanded])
-
-  const hoverStyle = useMemo(() => ({ borderColor: 'gray.500' }), [])
-
   const maybeAssetId = useMemo(() => {
     if (!chainId || typeof value !== 'string' || !isAddress(value)) return null
 
@@ -69,48 +61,13 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => 
 
   if (isAddressWithoutAsset) {
     return (
-      <Box>
-        <HStack justify='space-between' align='center' py={2}>
+      <Box py={2}>
+        <HStack justify='space-between' align='flex-start'>
           <RawText color='text.subtle' fontSize='sm'>
             {name}
           </RawText>
-          <HStack
-            spacing={2}
-            align='center'
-            borderWidth={1}
-            borderColor='gray.600'
-            borderRadius='md'
-            px={2}
-            py={1}
-            cursor='pointer'
-            onClick={handleExpandToggle}
-            _hover={hoverStyle}
-          >
-            <MiddleEllipsis value={valueString} fontSize='sm' />
-            <Box
-              as={FaChevronRight}
-              boxSize='10px'
-              transform={isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}
-              transition='transform 0.2s'
-              color='gray.400'
-            />
-          </HStack>
+          <ExpandableAddressCell address={valueString} />
         </HStack>
-        <Collapse in={isExpanded}>
-          <Box
-            fontSize='xs'
-            fontFamily='mono'
-            wordBreak='break-all'
-            color='gray.400'
-            bg='gray.800'
-            px={3}
-            py={2}
-            borderRadius='md'
-            mt={1}
-          >
-            {valueString}
-          </Box>
-        </Collapse>
       </Box>
     )
   }

@@ -73,7 +73,7 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
         {domain.verifyingContract && (
           <HStack justify='space-between' align='center' minH='24px'>
             <RawText color='text.subtle' fontSize='sm'>
-              Contract
+              {translate('plugins.walletConnectToDapps.modal.signMessage.contract')}
             </RawText>
             <HStack spacing={2} align='center'>
               <RawText>

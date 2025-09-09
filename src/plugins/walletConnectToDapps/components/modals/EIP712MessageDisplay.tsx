@@ -43,27 +43,36 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => 
   const displayValue = useMemo(() => {
     if (asset) {
       return (
-        <HStack spacing={2} align='center'>
+        <HStack spacing={2} align='center' justify='flex-end'>
           <RawText fontSize='sm'>{asset.symbol}</RawText>
           <Image boxSize='16px' src={asset.icon} borderRadius='full' />
         </HStack>
       )
     }
     
+    const valueString = String(value)
+    const shouldTruncate = valueString.length > 20 // Only truncate long values
+    
     return (
-      <RawText fontSize='sm' wordBreak='break-all' whiteSpace='pre-wrap'>
-        {value}
-      </RawText>
+      <Box display='flex' justifyContent='flex-end'>
+        {shouldTruncate ? (
+          <MiddleEllipsis value={valueString} fontSize='sm' />
+        ) : (
+          <RawText fontSize='sm'>{value}</RawText>
+        )}
+      </Box>
     )
   }, [asset, value])
 
   return (
-    <VStack align='stretch' spacing={1} py={3}>
-      <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
+    <HStack align='center' spacing={4} py={3}>
+      <RawText color='text.subtle' fontWeight='medium' fontSize='sm' minW='120px'>
         {name}
       </RawText>
-      {displayValue}
-    </VStack>
+      <Box flex={1}>
+        {displayValue}
+      </Box>
+    </HStack>
   )
 }
 

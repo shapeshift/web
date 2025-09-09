@@ -1,4 +1,4 @@
-import { Button, VStack } from '@chakra-ui/react'
+import { Button, HStack, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -69,10 +69,19 @@ export const EIP155SignTypedDataConfirmation: FC<
         color='text.subtle'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
-      <VStack spacing={4}>
+      <HStack spacing={4}>
         <Button
           size='lg'
-          width='full'
+          flex={1}
+          onClick={handleReject}
+          isDisabled={isLoading}
+          _disabled={disabledProp}
+        >
+          {translate('common.cancel')}
+        </Button>
+        <Button
+          size='lg'
+          flex={1}
           colorScheme='blue'
           type='submit'
           onClick={handleConfirm}
@@ -81,16 +90,7 @@ export const EIP155SignTypedDataConfirmation: FC<
         >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button
-          size='lg'
-          width='full'
-          onClick={handleReject}
-          isDisabled={isLoading}
-          _disabled={disabledProp}
-        >
-          {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
-        </Button>
-      </VStack>
+      </HStack>
     </>
   )
 }

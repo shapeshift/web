@@ -191,10 +191,19 @@ export const EIP155TransactionConfirmation: FC<
             : 'plugins.walletConnectToDapps.modal.signTransaction.description'
         }
       />
-      <VStack spacing={4}>
+      <HStack spacing={4}>
         <Button
           size='lg'
-          width='full'
+          flex={1}
+          onClick={handleReject}
+          isDisabled={form.formState.isSubmitting}
+          _disabled={disabledProp}
+        >
+          {translate('common.cancel')}
+        </Button>
+        <Button
+          size='lg'
+          flex={1}
           colorScheme='blue'
           type='submit'
           onClick={form.handleSubmit(handleConfirm)}
@@ -204,16 +213,7 @@ export const EIP155TransactionConfirmation: FC<
         >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button
-          size='lg'
-          width='full'
-          onClick={handleReject}
-          isDisabled={form.formState.isSubmitting}
-          _disabled={disabledProp}
-        >
-          {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
-        </Button>
-      </VStack>
+      </HStack>
     </FormProvider>
   )
 }

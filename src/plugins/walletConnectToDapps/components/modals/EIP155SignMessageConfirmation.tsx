@@ -1,4 +1,4 @@
-import { Box, Button, Card, Divider, HStack, Image, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Card, Divider, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,6 +9,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { WalletConnectAddressSection } from '@/plugins/walletConnectToDapps/components/WalletConnectAddressSection'
+import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   EthPersonalSignCallRequest,
@@ -83,33 +84,49 @@ export const EIP155SignMessageConfirmationModal: FC<
           </Box>
         </Card>
       </ModalSection>
-      <Text
-        fontWeight='medium'
-        color='text.subtle'
-        translation='plugins.walletConnectToDapps.modal.signMessage.description'
-      />
-      <HStack spacing={4}>
-        <Button
-          size='lg'
-          flex={1}
-          onClick={handleReject}
-          isDisabled={isLoading}
-          _disabled={disabledProp}
-        >
-          {translate('common.cancel')}
-        </Button>
-        <Button
-          size='lg'
-          flex={1}
-          colorScheme='blue'
-          type='submit'
-          onClick={handleConfirm}
-          _disabled={disabledProp}
-          isLoading={isLoading}
-        >
-          {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
-        </Button>
-      </HStack>
+      <Box
+        bg='transparent'
+        borderTopRadius='24px'
+        borderTop='1px solid'
+        borderLeft='1px solid'
+        borderRight='1px solid'
+        borderColor='rgba(255, 255, 255, 0.08)'
+        px={8}
+        py={4}
+        mx={-6}
+        mb={-6}
+      >
+        <VStack spacing={4}>
+          {connectedAccountFeeAsset && (
+            <WalletConnectSigningWithSection
+              feeAssetId={connectedAccountFeeAsset.assetId}
+              address={address ?? ''}
+            />
+          )}
+          <HStack spacing={4}>
+            <Button
+              size='lg'
+              flex={1}
+              onClick={handleReject}
+              isDisabled={isLoading}
+              _disabled={disabledProp}
+            >
+              {translate('common.cancel')}
+            </Button>
+            <Button
+              size='lg'
+              flex={1}
+              colorScheme='blue'
+              type='submit'
+              onClick={handleConfirm}
+              _disabled={disabledProp}
+              isLoading={isLoading}
+            >
+              {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+            </Button>
+          </HStack>
+        </VStack>
+      </Box>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { Box, Button, Card, Center, HStack, Image, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Card, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -22,6 +22,7 @@ import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/componen
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
+import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useCallRequestEvmFees } from '@/plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -126,13 +127,6 @@ export const EIP155TransactionConfirmation: FC<
   return (
     <FormProvider {...form}>
       {!isInteractingWithContract && <WalletConnectPeerHeader peerMetadata={peerMetadata} />}
-      <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
-        <AddressSummaryCard
-          address={address ?? ''}
-          icon={walletIcon}
-          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
-        />
-      </ModalSection>
       <ModalSection
         title={`plugins.walletConnectToDapps.modal.sendTransaction.${
           isInteractingWithContract ? 'interactingWith' : 'sendingTo'
@@ -173,38 +167,50 @@ export const EIP155TransactionConfirmation: FC<
       >
         <TransactionAdvancedParameters />
       </ModalCollapsableSection>
-      <Text
-        fontWeight='medium'
-        color='text.subtle'
-        translation={
-          method === EIP155_SigningMethod.ETH_SEND_TRANSACTION
-            ? 'plugins.walletConnectToDapps.modal.sendTransaction.description'
-            : 'plugins.walletConnectToDapps.modal.signTransaction.description'
-        }
-      />
-      <HStack spacing={4}>
-        <Button
-          size='lg'
-          flex={1}
-          onClick={handleReject}
-          isDisabled={form.formState.isSubmitting}
-          _disabled={disabledProp}
-        >
-          {translate('common.cancel')}
-        </Button>
-        <Button
-          size='lg'
-          flex={1}
-          colorScheme='blue'
-          type='submit'
-          onClick={form.handleSubmit(handleConfirm)}
-          isLoading={form.formState.isSubmitting}
-          isDisabled={!fees}
-          _disabled={disabledProp}
-        >
-          {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
-        </Button>
-      </HStack>
+      <Box
+        bg='transparent'
+        borderTopRadius='24px'
+        borderTop='1px solid'
+        borderLeft='1px solid'
+        borderRight='1px solid'
+        borderColor='rgba(255, 255, 255, 0.08)'
+        px={8}
+        py={4}
+        mx={-6}
+        mb={-6}
+      >
+        <VStack spacing={4}>
+          {feeAsset && (
+            <WalletConnectSigningWithSection
+              feeAssetId={feeAsset.assetId}
+              address={address ?? ''}
+            />
+          )}
+          <HStack spacing={4}>
+            <Button
+              size='lg'
+              flex={1}
+              onClick={handleReject}
+              isDisabled={form.formState.isSubmitting}
+              _disabled={disabledProp}
+            >
+              {translate('common.cancel')}
+            </Button>
+            <Button
+              size='lg'
+              flex={1}
+              colorScheme='blue'
+              type='submit'
+              onClick={form.handleSubmit(handleConfirm)}
+              isLoading={form.formState.isSubmitting}
+              isDisabled={!fees}
+              _disabled={disabledProp}
+            >
+              {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+            </Button>
+          </HStack>
+        </VStack>
+      </Box>
     </FormProvider>
   )
 }

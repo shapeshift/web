@@ -22,7 +22,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
-  selectPortfolioPrimaryAssetsByChain,
+  selectPortfolioAssetsByChain,
   selectPortfolioTotalUserCurrencyBalance,
   selectPrimaryAssetsByChain,
   selectWalletConnectedChainIds,
@@ -80,7 +80,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
     state =>
       hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
-        ? selectPortfolioPrimaryAssetsByChain(state, activeChainId)
+        ? selectPortfolioAssetsByChain(state, activeChainId)
         : selectPrimaryAssetsByChain(state, activeChainId),
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)

@@ -504,7 +504,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 
-export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector(
+export const selectPortfolioAssetsByChain = createDeepEqualOutputSelector(
   selectPortfolioFungiblePrimaryAssetsSortedByBalance,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectRelatedAssetIdsByAssetIdInclusive,

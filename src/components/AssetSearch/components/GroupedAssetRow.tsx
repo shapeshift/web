@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Center, Collapse, Flex, Text as CText, useDisclosure } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'

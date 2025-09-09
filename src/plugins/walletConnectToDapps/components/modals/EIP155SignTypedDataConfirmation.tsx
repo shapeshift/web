@@ -1,15 +1,16 @@
-import { Button, VStack } from '@chakra-ui/react'
+import { Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertIsDefined } from '@/lib/utils'
 import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
+import { EIP712MessageDisplay } from '@/plugins/walletConnectToDapps/components/modals/EIP712MessageDisplay'
+import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
-import { TypedMessageInfo } from '@/plugins/walletConnectToDapps/components/modals/TypedMessageInfo'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { EthSignTypedDataCallRequest } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
@@ -20,9 +21,10 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 export const EIP155SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
-> = ({ onConfirm, onReject, state }) => {
+> = ({ onConfirm, onReject, state, topic }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { address, message, chainId } = useWalletConnectState(state)
+  const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
   assertIsDefined(message)
 
   const connectedAccountFeeAsset = useAppSelector(state =>
@@ -36,6 +38,7 @@ export const EIP155SignTypedDataConfirmation: FC<
     () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
     [WalletIcon],
   )
+  const cardBg = useColorModeValue('white', 'gray.850')
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -49,6 +52,8 @@ export const EIP155SignTypedDataConfirmation: FC<
     setIsLoading(false)
   }, [onReject])
 
+  if (!peerMetadata) return null
+
   return (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
@@ -58,7 +63,18 @@ export const EIP155SignTypedDataConfirmation: FC<
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
       </ModalSection>
-      <TypedMessageInfo typedData={message} />
+      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
+        <Card bg={cardBg} borderRadius='md'>
+          <HStack align='center' p={4}>
+            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
+            <RawText fontWeight='semibold' flex={1}>
+              {peerMetadata.name}
+            </RawText>
+            <ExternalLinkButton href={peerMetadata.url} ariaLabel={peerMetadata.name} />
+          </HStack>
+        </Card>
+      </ModalSection>
+      <EIP712MessageDisplay typedData={message} chainId={chainId} />
       <Text
         fontWeight='medium'
         color='text.subtle'

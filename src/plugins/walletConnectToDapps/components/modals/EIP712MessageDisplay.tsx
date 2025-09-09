@@ -1,4 +1,4 @@
-import { Box, Card, Divider, HStack, Image, Tag, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import type { TypedDataDomain } from 'abitype'
@@ -18,50 +18,18 @@ import { useAppSelector } from '@/state/store'
 type MessageFieldProps = {
   name: string
   value: EIP712Value
-  isPrimaryType?: boolean
 }
 
-const MessageField: React.FC<MessageFieldProps> = ({ name, value, isPrimaryType = false }) => {
-  const valueString = String(value)
-  const isLongValue = valueString.length > 30 // Threshold for switching to vertical layout
-  
-  const renderValue = () => {
-    if (isPrimaryType) {
-      return (
-        <Tag size='sm' colorScheme='blue' variant='subtle'>
-          {value}
-        </Tag>
-      )
-    }
-    return (
-      <RawText fontSize='sm' wordBreak='break-all' whiteSpace='pre-wrap' flex={1}>
-        {value}
-      </RawText>
-    )
-  }
-  
-  if (isLongValue) {
-    // Vertical layout for long values
-    return (
-      <VStack align='stretch' spacing={2} py={3}>
-        <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
-          {name}
-        </RawText>
-        {renderValue()}
-      </VStack>
-    )
-  }
-  
-  // Horizontal layout for short values
+const MessageField: React.FC<MessageFieldProps> = ({ name, value }) => {
   return (
-    <HStack align='flex-start' spacing={4} py={3}>
-      <RawText color='text.subtle' fontWeight='medium' fontSize='sm' minW='120px'>
+    <VStack align='stretch' spacing={1} py={3}>
+      <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
         {name}
       </RawText>
-      <Box flex={1}>
-        {renderValue()}
-      </Box>
-    </HStack>
+      <RawText fontSize='sm' wordBreak='break-all' whiteSpace='pre-wrap'>
+        {value}
+      </RawText>
+    </VStack>
   )
 }
 
@@ -183,7 +151,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ type
             <MessageField
               name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
               value={primaryType}
-              isPrimaryType={true}
             />
             {Object.entries(message).map(([key, value]) => (
               <MessageField key={key} name={key} value={value} />

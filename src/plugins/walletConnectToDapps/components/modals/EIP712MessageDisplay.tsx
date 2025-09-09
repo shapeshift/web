@@ -1,7 +1,7 @@
 import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
-// Using simple interface for parsed JSON instead of strict abitype types
-import { CHAIN_NAMESPACE, fromChainId, toChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
+import type { TypedDataDomain } from 'abitype'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { validateTypedData } from 'viem'
@@ -14,117 +14,46 @@ import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/mo
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type EIP712FieldValue = string | number | boolean | string[] | number[] | boolean[] | null
-
-interface MessageFieldProps {
+type MessageFieldProps = {
   name: string
-  value: EIP712FieldValue
-  type?: string
+  value: string | number | boolean | (string | number | boolean)[] | null
 }
 
-const MessageField: React.FC<MessageFieldProps> = ({ name, value, type }) => {
+const MessageField: React.FC<MessageFieldProps> = ({ name, value }) => {
   const cardBg = useColorModeValue('gray.50', 'gray.850')
-
-  const formattedValue = useMemo(() => {
-    if (value === null || value === undefined) return 'null'
-
-    if (!type) {
-      return String(value)
-    }
-
-    // Address type
-    if (type === 'address') {
-      // Always show full address for security - no ellipsis
-      return String(value)
-    }
-
-    // Number types
-    if (type.startsWith('uint') || type.startsWith('int')) {
-      // Format large numbers with thousand separators
-      const numStr = String(value)
-      if (numStr.length > 12) {
-        // For very large numbers, show in scientific notation or abbreviated
-        return numStr
-      }
-      return Number(value).toLocaleString()
-    }
-
-    // Bytes types
-    if (type.startsWith('bytes')) {
-      // Show bytes data in monospace with ellipsis for long values
-      const bytesStr = String(value)
-      if (bytesStr.length > 66) {
-        return <MiddleEllipsis value={bytesStr} />
-      }
-      return bytesStr
-    }
-
-    // Boolean type
-    if (type === 'bool') {
-      return value ? 'true' : 'false'
-    }
-
-    // Array types
-    if (type.includes('[')) {
-      return JSON.stringify(value)
-    }
-
-    // Default to string
-    return String(value)
-  }, [value, type])
-
-  const formatFieldName = (fieldName: string): string => {
-    // Convert camelCase to Title Case
-    return fieldName
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim()
-  }
 
   return (
     <VStack align='stretch' py={3} px={3} bg={cardBg} borderRadius='md' spacing={2}>
       <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
-        {formatFieldName(name)}
+        {name}
       </RawText>
-      <RawText
-        fontFamily={type === 'address' || type?.startsWith('bytes') ? 'monospace' : 'body'}
-        fontSize='sm'
-        wordBreak='break-all'
-        whiteSpace='pre-wrap'
-      >
-        {formattedValue}
+      <RawText fontSize='sm' wordBreak='break-all' whiteSpace='pre-wrap'>
+        {value}
       </RawText>
     </VStack>
   )
 }
 
-interface DomainSectionProps {
-  domain: {
-    name?: string
-    version?: string
-    chainId?: string | number
-    verifyingContract?: string
-    salt?: string
-  }
-  networkId?: string
+type DomainSectionProps = {
+  domain: TypedDataDomain
 }
 
-const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
+const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
 
   const domainChainId = useMemo(() => {
-    if (!networkId) return undefined
+    if (!domain.chainId) return undefined
 
     try {
       return toChainId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: networkId as ChainReference,
+        chainReference: String(domain.chainId) as ChainReference,
       })
     } catch {
       return undefined
     }
-  }, [networkId])
+  }, [domain.chainId])
 
   const domainFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, domainChainId ?? ''),
@@ -181,27 +110,12 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
   )
 }
 
-export interface EIP712MessageDisplayProps {
+export type EIP712MessageDisplayProps = {
   typedData: string
-  chainId?: string
 }
 
-export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
-  typedData,
-  chainId,
-}) => {
+export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ typedData }) => {
   const cardBg = useColorModeValue('white', 'gray.850')
-
-  // Extract networkId from chainId for passing to DomainSection
-  const networkId = useMemo(() => {
-    if (!chainId) return undefined
-    try {
-      const { chainReference } = fromChainId(chainId)
-      return chainReference
-    } catch {
-      return undefined
-    }
-  }, [chainId])
 
   const parsedData = useMemo(() => {
     try {
@@ -214,7 +128,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
   }, [typedData])
 
   if (!parsedData) {
-    // Fallback to raw display if not proper EIP-712
     return (
       <Card bg={cardBg} borderRadius='md' p={4}>
         <RawText fontFamily='monospace' fontSize='sm' wordBreak='break-all'>
@@ -224,38 +137,26 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
     )
   }
 
-  const { types, primaryType, domain, message } = parsedData
-  const messageType = types[primaryType]
+  const { primaryType, domain, message } = parsedData
 
   return (
     <>
-      {/* Domain Information */}
       {domain && Object.keys(domain).length > 0 && (
         <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.domain'>
-          <DomainSection domain={domain} networkId={networkId} />
+          <DomainSection domain={domain} />
         </ModalSection>
       )}
 
-      {/* Message Content */}
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
         <VStack align='stretch' spacing={2}>
-          {/* Primary Type as first field */}
           <MessageField name='Primary Type' value={primaryType} />
-
-          {/* Message fields */}
-          {Object.entries(message).map(([key, value]) => {
-            const fieldType = Array.isArray(messageType)
-              ? messageType.find(field => field.name === key)?.type
-              : undefined
-            return (
-              <MessageField
-                key={key}
-                name={key}
-                value={value as EIP712FieldValue}
-                type={fieldType}
-              />
-            )
-          })}
+          {Object.entries(message).map(([key, value]) => (
+            <MessageField
+              key={key}
+              name={key}
+              value={value as string | number | boolean | (string | number | boolean)[] | null}
+            />
+          ))}
         </VStack>
       </ModalSection>
     </>

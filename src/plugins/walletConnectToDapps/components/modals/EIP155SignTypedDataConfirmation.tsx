@@ -74,7 +74,7 @@ export const EIP155SignTypedDataConfirmation: FC<
           </HStack>
         </Card>
       </ModalSection>
-      <EIP712MessageDisplay typedData={message} chainId={chainId} />
+      <EIP712MessageDisplay typedData={message} />
       <Text
         fontWeight='medium'
         color='text.subtle'

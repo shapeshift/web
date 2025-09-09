@@ -145,8 +145,8 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
-  preferences.selectors.selectBalanceThreshold,
-  (assetsById, marketData, balances, balanceThreshold) =>
+  preferences.selectors.selectBalanceThresholdUserCurrency,
+  (assetsById, marketData, balances, balanceThresholdUserCurrency) =>
     Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
       const asset = assetsById[assetId]
       if (!asset) return acc
@@ -155,7 +155,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
       const price = marketData[assetId]?.price
       const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
       const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold))) return acc
+      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc
     }, {}),
@@ -181,8 +181,8 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
-  preferences.selectors.selectBalanceThreshold,
-  (assetsById, marketData, balances, balanceThreshold) =>
+  preferences.selectors.selectBalanceThresholdUserCurrency,
+  (assetsById, marketData, balances, balanceThresholdUserCurrency) =>
     Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
       const asset = assetsById[assetId]
 
@@ -195,7 +195,7 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
       const assetUserCurrencyBalance = bnOrZero(fromBaseUnit(balances[assetId], precision)).times(
         bnOrZero(price),
       )
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold))) return acc
+      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc
     }, {}),
@@ -207,8 +207,8 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
     selectMarketDataUserCurrency,
     selectPortfolioAssetBalancesBaseUnit,
     selectRelatedAssetIdsByAssetIdInclusive,
-    preferences.selectors.selectBalanceThreshold,
-    (assetsById, marketData, balances, relatedAssetIdsById, balanceThreshold) =>
+    preferences.selectors.selectBalanceThresholdUserCurrency,
+    (assetsById, marketData, balances, relatedAssetIdsById, balanceThresholdUserCurrency) =>
       Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
         const asset = assetsById[assetId]
         const primaryAsset = asset?.isPrimary ? asset : assetsById[asset?.relatedAssetKey ?? '']
@@ -221,7 +221,7 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
         if (precision === undefined) return acc
         const price = marketData[primaryAssetId]?.price
 
-        const totalCryptoBalance = relatedAssetIdsById[primaryAssetId]?.reduce(
+        const totalCryptoBalanceCryptoPrecision = relatedAssetIdsById[primaryAssetId]?.reduce(
           (acc, relatedAssetId) => {
             return acc.plus(
               fromBaseUnit(balances[relatedAssetId], assetsById[relatedAssetId]?.precision ?? 0),
@@ -230,13 +230,14 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
           bnOrZero(0),
         )
 
-        const assetUserCurrencyBalance = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
-        if (
-          assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold)) &&
-          totalCryptoBalance.lte(balanceThreshold)
+        const assetUserCurrencyBalance = bnOrZero(totalCryptoBalanceCryptoPrecision).times(
+          bnOrZero(price),
         )
-          return acc
+
+        if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+
         acc[primaryAssetId] = assetUserCurrencyBalance.toFixed(2)
+
         return acc
       }, {}),
   )
@@ -404,9 +405,9 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
       if (!asset) return 0
       if (asset.isChainSpecific) return bnOrZero(balance).toNumber()
 
-      const assetBalance = bnOrZero(portfolioUserCurrencyBalances[asset.assetId])
+      const assetBalanceUserCurrency = bnOrZero(portfolioUserCurrencyBalances[asset.assetId])
 
-      return assetBalance.toNumber()
+      return assetBalanceUserCurrency.toNumber()
     }
 
     return orderBy<[AssetId, string][]>(

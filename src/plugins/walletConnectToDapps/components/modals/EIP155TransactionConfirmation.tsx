@@ -30,6 +30,7 @@ import { GasInput } from '@/plugins/walletConnectToDapps/components/modals/GasIn
 import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
+import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
 import { useCallRequestEvmFees } from '@/plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -49,9 +50,10 @@ const faWrenchIcon = <FaWrench />
 
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
-> = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
+> = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
   const { address, transaction, isInteractingWithContract, method, chainId } =
     useWalletConnectState(state)
+  const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
   const connectedAccountFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, chainId ?? ''),
@@ -61,7 +63,7 @@ export const EIP155TransactionConfirmation: FC<
 
   const { showErrorToast } = useErrorToast()
   const translate = useTranslate()
-  const cardBg = useColorModeValue('white', 'gray.850')
+  const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const {
     state: { walletInfo },
   } = useWallet()
@@ -132,6 +134,7 @@ export const EIP155TransactionConfirmation: FC<
 
   return (
     <FormProvider {...form}>
+      {!isInteractingWithContract && <WalletConnectPeerHeader peerMetadata={peerMetadata} />}
       <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
         <AddressSummaryCard
           address={address ?? ''}
@@ -153,7 +156,7 @@ export const EIP155TransactionConfirmation: FC<
       </ModalSection>
       {isInteractingWithContract ? (
         <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
-          <Card bg={cardBg} borderRadius='md' px={4} py={2}>
+          <Card bg={cardBg} borderRadius='2xl' px={4} py={2}>
             <ContractInteractionBreakdown
               request={transaction}
               feeAsset={connectedAccountFeeAsset}

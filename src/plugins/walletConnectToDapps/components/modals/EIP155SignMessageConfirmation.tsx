@@ -47,7 +47,7 @@ export const EIP155SignMessageConfirmationModal: FC<
     () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
     [WalletIcon],
   )
-  const cardBg = useColorModeValue('white', 'gray.850')
+  const cardBg = useColorModeValue('white', 'whiteAlpha.50')
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -73,7 +73,7 @@ export const EIP155SignMessageConfirmationModal: FC<
         />
       </ModalSection>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
-        <Card bg={cardBg} borderRadius='md'>
+        <Card bg={cardBg} borderRadius='2xl'>
           <HStack align='center' p={4}>
             <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
             <RawText fontWeight='semibold' flex={1}>

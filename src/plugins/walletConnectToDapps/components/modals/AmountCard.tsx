@@ -12,10 +12,10 @@ type AmountCardProps = {
 
 export const AmountCard = ({ assetId, value }: AmountCardProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const bgColor = useColorModeValue('white', 'gray.850')
+  const bgColor = useColorModeValue('white', 'whiteAlpha.50')
   if (!asset) return null
   return (
-    <Card bg={bgColor} py={4} pl={4} pr={2} borderRadius='md'>
+    <Card bg={bgColor} py={4} pl={4} pr={2} borderRadius='2xl'>
       <HStack spacing={0}>
         <Box w={10} h={6} pr={4}>
           <Image borderRadius='full' w='full' h='full' src={asset.icon} />

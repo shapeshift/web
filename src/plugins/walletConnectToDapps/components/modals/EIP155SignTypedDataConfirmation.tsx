@@ -1,16 +1,16 @@
-import { Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Button, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { RawText, Text } from '@/components/Text'
+import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertIsDefined } from '@/lib/utils'
 import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { EIP712MessageDisplay } from '@/plugins/walletConnectToDapps/components/modals/EIP712MessageDisplay'
-import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type { EthSignTypedDataCallRequest } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
@@ -38,7 +38,6 @@ export const EIP155SignTypedDataConfirmation: FC<
     () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
     [WalletIcon],
   )
-  const cardBg = useColorModeValue('white', 'gray.850')
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -56,23 +55,13 @@ export const EIP155SignTypedDataConfirmation: FC<
 
   return (
     <>
+      <WalletConnectPeerHeader peerMetadata={peerMetadata} />
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
         <AddressSummaryCard
           address={address ?? ''}
           icon={walletIcon}
           explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
         />
-      </ModalSection>
-      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
-        <Card bg={cardBg} borderRadius='md'>
-          <HStack align='center' p={4}>
-            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
-            <RawText fontWeight='semibold' flex={1}>
-              {peerMetadata.name}
-            </RawText>
-            <ExternalLinkButton href={peerMetadata.url} ariaLabel={peerMetadata.name} />
-          </HStack>
-        </Card>
       </ModalSection>
       <EIP712MessageDisplay typedData={message} />
       <Text

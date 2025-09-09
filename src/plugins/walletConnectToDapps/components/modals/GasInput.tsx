@@ -43,7 +43,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
   const speed = useWatch({ control, name: 'speed' })
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const bgColor = useColorModeValue('white', 'gray.850')
+  const bgColor = useColorModeValue('white', 'whiteAlpha.50')
   const translate = useTranslate()
 
   const options = useMemo(
@@ -87,7 +87,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
       borderWidth={1}
       borderColor={borderColor}
       bg={bgColor}
-      borderRadius='xl'
+      borderRadius='2xl'
       px={4}
       pt={2}
       pb={4}
@@ -103,7 +103,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
         )}
       </HStack>
 
-      <Box borderWidth={1} borderRadius='lg' borderColor={borderColor}>
+      <Box borderWidth={1} borderRadius='2xl' borderColor={borderColor}>
         <RadioGroup alignItems='stretch' value={speed} onChange={handleChange}>
           <VStack spacing={0}>
             {options.map(option => (

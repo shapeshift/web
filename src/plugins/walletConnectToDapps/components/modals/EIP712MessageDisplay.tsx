@@ -1,4 +1,4 @@
-import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Card, Divider, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import type { TypedDataDomain } from 'abitype'
@@ -21,10 +21,8 @@ type MessageFieldProps = {
 }
 
 const MessageField: React.FC<MessageFieldProps> = ({ name, value }) => {
-  const cardBg = useColorModeValue('gray.50', 'gray.850')
-
   return (
-    <VStack align='stretch' py={3} px={3} bg={cardBg} borderRadius='md' spacing={2}>
+    <VStack align='stretch' spacing={1} py={3}>
       <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
         {name}
       </RawText>
@@ -41,7 +39,7 @@ type DomainSectionProps = {
 
 const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
   const translate = useTranslate()
-  const cardBg = useColorModeValue('white', 'gray.850')
+  const cardBg = useColorModeValue('white', 'whiteAlpha.50')
 
   const domainChainId = useMemo(() => {
     if (!domain.chainId) return
@@ -69,7 +67,7 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
   }, [domain?.verifyingContract, domainFeeAsset])
 
   return (
-    <Card bg={cardBg} borderRadius='md' p={4}>
+    <Card bg={cardBg} borderRadius='2xl' p={4}>
       <VStack align='stretch' spacing={2}>
         {domain.verifyingContract && (
           <HStack justify='space-between' align='center' minH='24px'>
@@ -115,7 +113,7 @@ type EIP712MessageDisplayProps = {
 
 export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ typedData }) => {
   const translate = useTranslate()
-  const cardBg = useColorModeValue('white', 'gray.850')
+  const cardBg = useColorModeValue('white', 'whiteAlpha.50')
 
   const parsedData = useMemo((): EIP712TypedData | null => {
     try {
@@ -129,7 +127,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ type
 
   if (!parsedData) {
     return (
-      <Card bg={cardBg} borderRadius='md' p={4}>
+      <Card bg={cardBg} borderRadius='2xl' p={4}>
         <RawText fontFamily='monospace' fontSize='sm' wordBreak='break-all'>
           {typedData}
         </RawText>
@@ -148,15 +146,17 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ type
       )}
 
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
-        <VStack align='stretch' spacing={2}>
-          <MessageField
-            name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
-            value={primaryType}
-          />
-          {Object.entries(message).map(([key, value]) => (
-            <MessageField key={key} name={key} value={value} />
-          ))}
-        </VStack>
+        <Card bg={cardBg} borderRadius='2xl' p={4}>
+          <VStack align='stretch' spacing={2}>
+            <MessageField
+              name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
+              value={primaryType}
+            />
+            {Object.entries(message).map(([key, value]) => (
+              <MessageField key={key} name={key} value={value} />
+            ))}
+          </VStack>
+        </Card>
       </ModalSection>
     </>
   )

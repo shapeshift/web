@@ -1,10 +1,7 @@
 import {
-  HStack,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalHeader,
   ModalOverlay,
   VStack,
 } from '@chakra-ui/react'
@@ -14,8 +11,6 @@ import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
 
-import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
-import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -273,14 +268,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         borderRadius={borderRadiusProp}
         minWidth={minWidthProp}
         maxWidth={maxWidthProp}
+        bg='rgba(16, 18, 20, 1)'
       >
-        <ModalHeader py={2}>
-          <HStack alignItems='center' spacing={2}>
-            <WalletConnectIcon />
-            <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-            <ModalCloseButton position='static' />
-          </HStack>
-        </ModalHeader>
         <ModalBody p={0}>
           <VStack p={6} spacing={6} alignItems='stretch'>
             {modalContent}

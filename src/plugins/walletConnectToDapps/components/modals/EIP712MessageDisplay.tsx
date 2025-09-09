@@ -1,5 +1,7 @@
-import { Box, Card, HStack, Tag, useColorModeValue, VStack } from '@chakra-ui/react'
-import type { TypedData, TypedDataDomain } from 'abitype'
+import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import type { ChainReference } from '@shapeshiftoss/caip'
+// Using simple interface for parsed JSON instead of strict abitype types
+import { CHAIN_NAMESPACE, fromChainId, toChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -11,6 +13,7 @@ import {
   getSolidityTypeCategory,
   isEIP712TypedData,
 } from '@/plugins/walletConnectToDapps/types/eip712'
+import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -72,87 +75,95 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, type }) => {
 
   return (
     <VStack align='stretch' py={3} px={3} bg={cardBg} borderRadius='md' spacing={2}>
-      <HStack justify='space-between' align='center'>
-        <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
-          {formatFieldName(name)}
-        </RawText>
-        {type && (
-          <Tag size='sm' colorScheme='gray' variant='subtle'>
-            {type}
-          </Tag>
-        )}
-      </HStack>
-      <Box>
-        <RawText
-          fontFamily={type === 'address' || type?.startsWith('bytes') ? 'monospace' : 'body'}
-          fontSize='sm'
-          wordBreak='break-all'
-          whiteSpace='pre-wrap'
-        >
-          {formattedValue}
-        </RawText>
-      </Box>
+      <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
+        {formatFieldName(name)}
+      </RawText>
+      <RawText
+        fontFamily={type === 'address' || type?.startsWith('bytes') ? 'monospace' : 'body'}
+        fontSize='sm'
+        wordBreak='break-all'
+        whiteSpace='pre-wrap'
+      >
+        {formattedValue}
+      </RawText>
     </VStack>
   )
 }
 
 interface DomainSectionProps {
-  domain: TypedDataDomain
-  chainId?: string
+  domain: {
+    name?: string
+    version?: string
+    chainId?: string | number
+    verifyingContract?: string
+    salt?: string
+  }
+  networkId?: string
 }
 
-const DomainSection: React.FC<DomainSectionProps> = ({ domain, chainId }) => {
+const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
+
+  // Convert networkId to chainId for asset lookup
+  const chainId = useMemo(() => {
+    if (!networkId) return undefined
+    try {
+      return toChainId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: networkId as ChainReference,
+      })
+    } catch {
+      return undefined
+    }
+  }, [networkId])
 
   const connectedChainFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, chainId ?? ''),
   )
 
+  // Build contract explorer link
+  const contractExplorerLink = useMemo(() => {
+    if (!domain.verifyingContract || !connectedChainFeeAsset?.explorerAddressLink) {
+      return undefined
+    }
+    return `${connectedChainFeeAsset.explorerAddressLink}${domain.verifyingContract}`
+  }, [domain.verifyingContract, connectedChainFeeAsset?.explorerAddressLink])
+
   return (
     <Card bg={cardBg} borderRadius='md' p={4}>
-      <VStack align='stretch' spacing={2}>
-        <Text
-          translation='plugins.walletConnectToDapps.modal.signMessage.signingDomain'
-          fontWeight='bold'
-          fontSize='md'
-        />
-
-        {domain.name && (
-          <HStack justify='space-between'>
-            <RawText color='text.subtle' fontSize='sm'>
-              {translate('plugins.walletConnectToDapps.modal.signMessage.contractName')}
-            </RawText>
-            <RawText fontWeight='medium'>{domain.name}</RawText>
-          </HStack>
-        )}
-
-        {domain.version && (
-          <HStack justify='space-between'>
-            <RawText color='text.subtle' fontSize='sm'>
-              {translate('plugins.walletConnectToDapps.modal.signMessage.version')}
-            </RawText>
-            <RawText>{domain.version}</RawText>
+      <VStack align='stretch' spacing={2}>        
+        {domain.verifyingContract && (
+          <HStack justify='space-between' align='center' minH='24px'>
+            <RawText color='text.subtle' fontSize='sm'>Contract</RawText>
+            <HStack spacing={2} align='center'>
+              <RawText>
+                {domain.name || <MiddleEllipsis value={domain.verifyingContract} />}
+              </RawText>
+              <HStack w='24px' h='24px' justify='center' align='center'>
+                {contractExplorerLink && (
+                  <ExternalLinkButton href={contractExplorerLink} ariaLabel="View contract on explorer" />
+                )}
+              </HStack>
+            </HStack>
           </HStack>
         )}
 
         {domain.chainId && (
-          <HStack justify='space-between'>
+          <HStack justify='space-between' align='center' minH='24px'>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('plugins.walletConnectToDapps.modal.signMessage.network')}
             </RawText>
-            <RawText>
-              {connectedChainFeeAsset?.networkName || `Chain ID: ${domain.chainId}`}
-            </RawText>
-          </HStack>
-        )}
-
-        {domain.verifyingContract && (
-          <HStack justify='space-between'>
-            <RawText color='text.subtle' fontSize='sm'>
-              {translate('plugins.walletConnectToDapps.modal.signMessage.verifyingContract')}
-            </RawText>
-            <MiddleEllipsis value={domain.verifyingContract} />
+            <HStack spacing={2} align='center'>
+              <RawText>
+                {connectedChainFeeAsset?.networkName || `Chain ID: ${domain.chainId}`}
+              </RawText>
+              <HStack w='24px' h='24px' justify='center' align='center'>
+                {connectedChainFeeAsset?.networkIcon && (
+                  <Image boxSize='16px' src={connectedChainFeeAsset.networkIcon} />
+                )}
+              </HStack>
+            </HStack>
           </HStack>
         )}
       </VStack>
@@ -171,11 +182,22 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
 }) => {
   const cardBg = useColorModeValue('white', 'gray.850')
 
-  const parsedData = useMemo((): TypedData | null => {
+  // Extract networkId from chainId for passing to DomainSection
+  const networkId = useMemo(() => {
+    if (!chainId) return undefined
+    try {
+      const { chainReference } = fromChainId(chainId)
+      return chainReference
+    } catch {
+      return undefined
+    }
+  }, [chainId])
+
+  const parsedData = useMemo(() => {
     try {
       const parsed = JSON.parse(typedData)
       if (isEIP712TypedData(parsed)) {
-        return parsed as TypedData
+        return parsed
       }
       return null
     } catch {
@@ -199,25 +221,20 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
 
   return (
     <>
-      {/* Primary Type Header */}
-      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.messageType'>
-        <Card bg={cardBg} borderRadius='md' p={3}>
-          <HStack>
-            <Text
-              translation='plugins.walletConnectToDapps.modal.signMessage.signingType'
-              color='text.subtle'
-              fontSize='sm'
-            />
-            <Tag size='md' colorScheme='blue'>
-              {primaryType}
-            </Tag>
-          </HStack>
-        </Card>
-      </ModalSection>
+      {/* Domain Information */}
+      {domain && Object.keys(domain).length > 0 && (
+        <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.domain'>
+          <DomainSection domain={domain} networkId={networkId} />
+        </ModalSection>
+      )}
 
       {/* Message Content */}
-      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.messageContent'>
+      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
         <VStack align='stretch' spacing={2}>
+          {/* Primary Type as first field */}
+          <MessageField name='Primary Type' value={primaryType} />
+
+          {/* Message fields */}
           {Object.entries(message).map(([key, value]) => {
             const fieldType = Array.isArray(messageType)
               ? messageType.find(field => field.name === key)?.type
@@ -226,13 +243,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
           })}
         </VStack>
       </ModalSection>
-
-      {/* Domain Information */}
-      {domain && Object.keys(domain).length > 0 && (
-        <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.domain'>
-          <DomainSection domain={domain} chainId={chainId} />
-        </ModalSection>
-      )}
     </>
   )
 }

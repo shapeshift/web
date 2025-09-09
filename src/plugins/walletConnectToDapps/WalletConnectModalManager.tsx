@@ -1,10 +1,4 @@
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalOverlay,
-  VStack,
-} from '@chakra-ui/react'
+import { Modal, ModalBody, ModalContent, ModalOverlay, VStack } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'

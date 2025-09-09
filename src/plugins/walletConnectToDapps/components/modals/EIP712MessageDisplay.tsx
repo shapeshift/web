@@ -1,8 +1,9 @@
-import { Box, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Card, Collapse, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toAssetId, toChainId } from '@shapeshiftoss/caip'
 import type { TypedDataDomain } from 'abitype'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { FaChevronRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { isAddress, validateTypedData } from 'viem'
 
@@ -22,9 +23,17 @@ type MessageFieldProps = {
 }
 
 const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => {
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  const handleExpandToggle = useCallback(() => {
+    setIsExpanded(!isExpanded)
+  }, [isExpanded])
+
+  const hoverStyle = useMemo(() => ({ borderColor: 'gray.500' }), [])
+
   const maybeAssetId = useMemo(() => {
     if (!chainId || typeof value !== 'string' || !isAddress(value)) return null
-    
+
     try {
       return toAssetId({
         chainId,
@@ -36,42 +45,88 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => 
     }
   }, [value, chainId])
 
-  const asset = useAppSelector(state => 
-    maybeAssetId ? selectAssetById(state, maybeAssetId) : null
+  const asset = useAppSelector(state =>
+    maybeAssetId ? selectAssetById(state, maybeAssetId) : null,
   )
 
-  const displayValue = useMemo(() => {
-    if (asset) {
-      return (
-        <HStack spacing={2} align='center' justify='flex-end'>
+  const valueString = String(value)
+  const isAddressField = typeof value === 'string' && isAddress(value)
+  const isAddressWithoutAsset = isAddressField && !asset
+
+  if (asset) {
+    return (
+      <HStack justify='space-between' align='center' py={2}>
+        <RawText color='text.subtle' fontSize='sm'>
+          {name}
+        </RawText>
+        <HStack spacing={2} align='center'>
           <RawText fontSize='sm'>{asset.symbol}</RawText>
           <Image boxSize='16px' src={asset.icon} borderRadius='full' />
         </HStack>
-      )
-    }
-    
-    const valueString = String(value)
-    const shouldTruncate = valueString.length > 20 // Only truncate long values
-    
+      </HStack>
+    )
+  }
+
+  if (isAddressWithoutAsset) {
     return (
-      <Box display='flex' justifyContent='flex-end'>
-        {shouldTruncate ? (
-          <MiddleEllipsis value={valueString} fontSize='sm' />
-        ) : (
-          <RawText fontSize='sm'>{value}</RawText>
-        )}
+      <Box>
+        <HStack justify='space-between' align='center' py={2}>
+          <RawText color='text.subtle' fontSize='sm'>
+            {name}
+          </RawText>
+          <HStack
+            spacing={2}
+            align='center'
+            borderWidth={1}
+            borderColor='gray.600'
+            borderRadius='md'
+            px={2}
+            py={1}
+            cursor='pointer'
+            onClick={handleExpandToggle}
+            _hover={hoverStyle}
+          >
+            <MiddleEllipsis value={valueString} fontSize='sm' />
+            <Box
+              as={FaChevronRight}
+              boxSize='10px'
+              transform={isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}
+              transition='transform 0.2s'
+              color='gray.400'
+            />
+          </HStack>
+        </HStack>
+        <Collapse in={isExpanded}>
+          <Box
+            fontSize='xs'
+            fontFamily='mono'
+            wordBreak='break-all'
+            color='gray.400'
+            bg='gray.800'
+            px={3}
+            py={2}
+            borderRadius='md'
+            mt={1}
+          >
+            {valueString}
+          </Box>
+        </Collapse>
       </Box>
     )
-  }, [asset, value])
+  }
 
   return (
-    <HStack align='center' spacing={4} py={3}>
-      <RawText color='text.subtle' fontWeight='medium' fontSize='sm' minW='120px'>
+    <HStack justify='space-between' align='center' py={2}>
+      <RawText color='text.subtle' fontSize='sm'>
         {name}
       </RawText>
-      <Box flex={1}>
-        {displayValue}
-      </Box>
+      <RawText fontSize='sm'>
+        {valueString.length > 30 ? (
+          <MiddleEllipsis value={valueString} fontSize='sm' />
+        ) : (
+          valueString
+        )}
+      </RawText>
     </HStack>
   )
 }
@@ -111,37 +166,33 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
-      <VStack align='stretch' spacing={2}>
+      <VStack align='stretch' spacing={1}>
         {domain.verifyingContract && (
-          <HStack justify='space-between' align='center' minH='24px'>
+          <HStack justify='space-between' align='center' py={2}>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('plugins.walletConnectToDapps.modal.signMessage.contract')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText>
+              <RawText fontSize='sm'>
                 {domain.name || <MiddleEllipsis value={domain.verifyingContract} />}
               </RawText>
-              <HStack w='24px' h='24px' justify='center' align='center'>
-                {contractExplorerLink && (
-                  <ExternalLinkButton
-                    href={contractExplorerLink}
-                    ariaLabel='View contract on explorer'
-                  />
-                )}
-              </HStack>
+              {contractExplorerLink && (
+                <ExternalLinkButton
+                  href={contractExplorerLink}
+                  ariaLabel='View contract on explorer'
+                />
+              )}
             </HStack>
           </HStack>
         )}
         {domainFeeAsset && (
-          <HStack justify='space-between' align='center' minH='24px'>
+          <HStack justify='space-between' align='center' py={2}>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('common.network')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText>{domainFeeAsset.networkName}</RawText>
-              <HStack w='24px' h='24px' justify='center' align='center'>
-                <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
-              </HStack>
+              <RawText fontSize='sm'>{domainFeeAsset.networkName}</RawText>
+              <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
             </HStack>
           </HStack>
         )}
@@ -155,7 +206,10 @@ type EIP712MessageDisplayProps = {
   chainId?: string
 }
 
-export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ typedData, chainId }) => {
+export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
+  typedData,
+  chainId,
+}) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
 
@@ -191,7 +245,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ type
 
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
         <Card bg={cardBg} borderRadius='2xl' p={4}>
-          <VStack align='stretch' spacing={2}>
+          <VStack align='stretch' spacing={1}>
             <MessageField
               name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
               value={primaryType}

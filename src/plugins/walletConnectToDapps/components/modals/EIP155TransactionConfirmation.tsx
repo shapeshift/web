@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Card,
-  Center,
-  HStack,
-  Image,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Card, Center, HStack, Image, useColorModeValue } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useMemo } from 'react'

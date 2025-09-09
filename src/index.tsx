@@ -1,4 +1,5 @@
 import '@/lib/polyfills'
+import '@/pixels/addressable'
 
 import {
   breadcrumbsIntegration,

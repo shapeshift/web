@@ -1,7 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Container, Flex, Text, VStack } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
 import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
@@ -62,12 +61,7 @@ const mobileNetWorth = (
   // react-memo you're drunk, this is outside of component scope
   // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
-    <WalletBalanceChange
-      timeframe={HistoryTimeframe.DAY}
-      balanceFontSize={balanceFontSize}
-      label=''
-      showErroredAccounts={false}
-    />
+    <WalletBalanceChange showErroredAccounts={false} />
   </Flex>
 )
 

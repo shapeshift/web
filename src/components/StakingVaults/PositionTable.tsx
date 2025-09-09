@@ -47,7 +47,7 @@ const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 export const PositionTable: React.FC<PositionTableProps> = ({
   chainId,
   searchQuery,
-  forceCompactView,
+  forceCompactView = false,
 }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)

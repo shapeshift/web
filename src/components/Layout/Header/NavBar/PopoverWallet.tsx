@@ -11,7 +11,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -100,14 +99,7 @@ export const PopoverWallet: FC<PopoverWalletProps> = memo(({ onClose }) => {
         onSwitchProvider={handleSwitchProvider}
       />
       <Box pt={6} pb={8}>
-        <WalletBalanceChange
-          timeframe={HistoryTimeframe.DAY}
-          balanceFontSize='4xl'
-          label=''
-          showErroredAccounts={false}
-          alignItems='center'
-          justifyContent='center'
-        />
+        <WalletBalanceChange showErroredAccounts={false} />
       </Box>
 
       <Flex width='100%' pb={4} gap={2}>
@@ -140,7 +132,7 @@ export const PopoverWallet: FC<PopoverWalletProps> = memo(({ onClose }) => {
             <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
             <Tab>{translate('watchlist.title')}</Tab>
             <Tab>{translate('navBar.defi')}</Tab>
-            <Tab>{translate('navBar.activity')}</Tab>
+            <Tab>{translate('common.activity')}</Tab>
           </TabList>
           <TabPanels flex='1' overflow='auto' maxHeight={'35vh'} className='scroll-container'>
             <TabPanel p={0} pt={2}>

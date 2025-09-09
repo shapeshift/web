@@ -99,7 +99,7 @@ export const DashboardHeader = memo(() => {
         color: 'purple',
       },
       {
-        label: 'navBar.activity',
+        label: 'common.activity',
         path: '/wallet/activity',
         color: 'blue',
       },

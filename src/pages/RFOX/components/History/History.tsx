@@ -64,7 +64,7 @@ const TxHistoryHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex 
         onClick={handleClick}
         isActive={activeIndex === TxHistoryIndex.Activity}
       >
-        {translate('navBar.activity')}
+        {translate('common.activity')}
       </HistoryTab>
     </Flex>
   )

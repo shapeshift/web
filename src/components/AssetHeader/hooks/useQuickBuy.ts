@@ -146,7 +146,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     }
   }, [])
 
-  const trackMixpanelEvent = useMixpanel(true)
+  const trackMixpanelEvent = useMixpanel()
 
   const setErrorState = useCallback(
     (messageKey: string, amount: number) => {
@@ -239,7 +239,17 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
     dispatch(tradeQuoteSlice.actions.initializeQuickBuyTrade(bestNoErrorQuote.quote))
     hasInitializedTradeRef.current = true
-  }, [dispatch, quickBuyState.status, quickBuyState.amount, sortedTradeQuotes, setErrorState])
+
+    // Track preview event now that we have quote data
+    trackMixpanelEvent(MixPanelEvent.QuickBuyPreview)
+  }, [
+    dispatch,
+    quickBuyState.status,
+    quickBuyState.amount,
+    sortedTradeQuotes,
+    setErrorState,
+    trackMixpanelEvent,
+  ])
 
   useEffect(() => {
     if (quickBuyState.status !== 'executing') return

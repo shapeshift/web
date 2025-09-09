@@ -69,7 +69,7 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
     cancelPurchase()
   }, [cancelPurchase])
 
-  const trackMixpanelEvent = useMixpanel(true)
+  const trackMixpanelEvent = useMixpanel()
 
   const handleConfirmPurchase = useCallback((): void => {
     trackMixpanelEvent(MixPanelEvent.QuickBuyConfirm)
@@ -116,7 +116,6 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
                     background={isSuccess ? 'green.500' : undefined}
                     // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => {
-                      trackMixpanelEvent(MixPanelEvent.QuickBuyPreview)
                       startPurchase(amount)
                     }}
                     flex={1}

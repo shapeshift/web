@@ -4,22 +4,21 @@ import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId, toChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { validateTypedData } from 'viem'
 
 import { ModalSection } from './ModalSection'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
-import { RawText, Text } from '@/components/Text'
-import {
-  getSolidityTypeCategory,
-  isEIP712TypedData,
-} from '@/plugins/walletConnectToDapps/types/eip712'
+import { RawText } from '@/components/Text'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+type EIP712FieldValue = string | number | boolean | string[] | number[] | boolean[] | null
+
 interface MessageFieldProps {
   name: string
-  value: unknown
+  value: EIP712FieldValue
   type?: string
 }
 
@@ -29,40 +28,49 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, type }) => {
   const formattedValue = useMemo(() => {
     if (value === null || value === undefined) return 'null'
 
-    const typeCategory = type ? getSolidityTypeCategory(type) : 'string'
-
-    switch (typeCategory) {
-      case 'address':
-        // Always show full address for security - no ellipsis
-        return String(value)
-
-      case 'uint':
-      case 'int':
-        // Format large numbers with thousand separators
-        const numStr = String(value)
-        if (numStr.length > 12) {
-          // For very large numbers, show in scientific notation or abbreviated
-          return numStr
-        }
-        return Number(value).toLocaleString()
-
-      case 'bytes':
-        // Show bytes data in monospace with ellipsis for long values
-        const bytesStr = String(value)
-        if (bytesStr.length > 66) {
-          return <MiddleEllipsis value={bytesStr} />
-        }
-        return bytesStr
-
-      case 'bool':
-        return value ? 'true' : 'false'
-
-      case 'array':
-        return JSON.stringify(value)
-
-      default:
-        return String(value)
+    if (!type) {
+      return String(value)
     }
+
+    // Address type
+    if (type === 'address') {
+      // Always show full address for security - no ellipsis
+      return String(value)
+    }
+
+    // Number types
+    if (type.startsWith('uint') || type.startsWith('int')) {
+      // Format large numbers with thousand separators
+      const numStr = String(value)
+      if (numStr.length > 12) {
+        // For very large numbers, show in scientific notation or abbreviated
+        return numStr
+      }
+      return Number(value).toLocaleString()
+    }
+
+    // Bytes types
+    if (type.startsWith('bytes')) {
+      // Show bytes data in monospace with ellipsis for long values
+      const bytesStr = String(value)
+      if (bytesStr.length > 66) {
+        return <MiddleEllipsis value={bytesStr} />
+      }
+      return bytesStr
+    }
+
+    // Boolean type
+    if (type === 'bool') {
+      return value ? 'true' : 'false'
+    }
+
+    // Array types
+    if (type.includes('[')) {
+      return JSON.stringify(value)
+    }
+
+    // Default to string
+    return String(value)
   }, [value, type])
 
   const formatFieldName = (fieldName: string): string => {
@@ -132,17 +140,22 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain, networkId }) => {
 
   return (
     <Card bg={cardBg} borderRadius='md' p={4}>
-      <VStack align='stretch' spacing={2}>        
+      <VStack align='stretch' spacing={2}>
         {domain.verifyingContract && (
           <HStack justify='space-between' align='center' minH='24px'>
-            <RawText color='text.subtle' fontSize='sm'>Contract</RawText>
+            <RawText color='text.subtle' fontSize='sm'>
+              Contract
+            </RawText>
             <HStack spacing={2} align='center'>
               <RawText>
                 {domain.name || <MiddleEllipsis value={domain.verifyingContract} />}
               </RawText>
               <HStack w='24px' h='24px' justify='center' align='center'>
                 {contractExplorerLink && (
-                  <ExternalLinkButton href={contractExplorerLink} ariaLabel="View contract on explorer" />
+                  <ExternalLinkButton
+                    href={contractExplorerLink}
+                    ariaLabel='View contract on explorer'
+                  />
                 )}
               </HStack>
             </HStack>
@@ -196,10 +209,8 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
   const parsedData = useMemo(() => {
     try {
       const parsed = JSON.parse(typedData)
-      if (isEIP712TypedData(parsed)) {
-        return parsed
-      }
-      return null
+      validateTypedData(parsed)
+      return parsed
     } catch {
       return null
     }
@@ -239,7 +250,14 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
             const fieldType = Array.isArray(messageType)
               ? messageType.find(field => field.name === key)?.type
               : undefined
-            return <MessageField key={key} name={key} value={value} type={fieldType} />
+            return (
+              <MessageField
+                key={key}
+                name={key}
+                value={value as string | number | boolean | string[] | number[] | boolean[] | null}
+                type={fieldType}
+              />
+            )
           })}
         </VStack>
       </ModalSection>

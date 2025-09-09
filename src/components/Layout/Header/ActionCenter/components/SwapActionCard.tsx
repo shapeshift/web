@@ -145,6 +145,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     )
   }, [action.status, swap?.swapperName])
 
+  if (!swap) return null
+
   return (
     <ActionCard
       displayType={isArbitrumBridge ? GenericTransactionDisplayType.Bridge : undefined}

@@ -119,6 +119,8 @@ export const useSwapActionSubscriber = () => {
   // Sync swap status with action status
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
+      if (!swap) return
+
       const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,
       })
@@ -182,7 +184,9 @@ export const useSwapActionSubscriber = () => {
   }, [dispatch, activeSwapId, swapsById, confirmedTradeExecution])
 
   const swapStatusHandler = useCallback(
-    async (swap: Swap) => {
+    async (swap: Swap | undefined) => {
+      if (!swap) return
+
       const maybeSwapper = swappers[swap.swapperName]
 
       if (maybeSwapper === undefined)
@@ -384,10 +388,10 @@ export const useSwapActionSubscriber = () => {
         const swap = swapsById[swapId]
 
         return {
-          queryKey: ['action', action.id, swap.id, swap.sellTxHash],
+          queryKey: ['action', action.id, swap?.id, swap?.sellTxHash],
           queryFn: () => swapStatusHandler(swap),
           refetchInterval: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
-          enabled: isConnected && swap.status === SwapStatus.Pending,
+          enabled: isConnected && swap?.status === SwapStatus.Pending,
         }
       })
       .filter((query): query is NonNullable<typeof query> => query !== undefined)

@@ -6,5 +6,6 @@ import encodedRelatedAssetIndex from './encodedRelatedAssetIndex.json'
 
 export const { assetData: localAssetData, sortedAssetIds } = decodeAssetData(
   encodedAssetData as unknown as EncodedAssetData,
+  true,
 )
 export const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)

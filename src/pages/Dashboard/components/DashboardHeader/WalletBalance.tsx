@@ -52,8 +52,11 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(
               label={translate('defi.loadingAccounts', {
                 portfolioAccountsLoaded: Object.keys(walletAccounts).length,
               })}
+              position='absolute'
+              right={-8}
+              top={1}
             >
-              <Spinner color='blue.500' size='sm' position='absolute' right={-8} top={1} />
+              <Spinner color='blue.500' size='sm' />
             </TooltipWithTouch>
           )}
         </Box>

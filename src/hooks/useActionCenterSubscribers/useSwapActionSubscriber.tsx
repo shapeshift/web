@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { baseChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { baseChainId, ethChainId, fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -37,11 +37,10 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
-import { selectTxById } from '@/state/slices/selectors'
+import { selectTxByFilter } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapStatusToActionStatus = {
@@ -242,19 +241,29 @@ export const useSwapActionSubscriber = () => {
         }),
       })
 
-      const serializedTxIndex = (() => {
-        if (!swap) return
+      const tx = (() => {
+        if (!swap || !buyTxHash) return
 
         const { buyAccountId } = swap
 
-        if (!buyAccountId || !buyTxHash) return
+        if (!buyAccountId) return
 
-        const accountAddress = fromAccountId(buyAccountId).account
+        // Use selectTxByFilter to find tx by hash instead of leveraging serialized index
+        // This handles the special case of RUNE outbounds i.e our serialized Tx would be
+        // cosmos:thorchain-1:thorAddy*txHash*:thorAddy but the Tx in store is
+        // cosmos:thorchain-1:thorAddy*txHash*thorAddy*OUT:txHash (note memo part)
 
-        return serializeTxIndex(buyAccountId, buyTxHash, accountAddress)
+        const maybeTx = selectTxByFilter(store.getState(), {
+          accountId: buyAccountId,
+          txHash: buyTxHash,
+          // For THOR chain buys (i.e RUNE, RUJI, TCY and other potential non-fee native AssetIds we add in the future)
+          // accountId and txHash won't be enough of discriminators to narrow to one Tx, since
+          // both the inbound and outbound Tx will share the same tx Hash *and* the same AccountId
+          // So we use the OUT: memo discriminator to ensure we select the outbound Tx, not the inbound
+          memo: swap?.buyAsset?.chainId === thorchainChainId ? 'OUT:' : undefined,
+        })
+        return maybeTx
       })()
-
-      const tx = selectTxById(store.getState(), serializedTxIndex ?? '')
 
       const actualBuyAmountCryptoPrecision = (() => {
         if (!tx?.transfers?.length || !swap?.buyAsset) return undefined

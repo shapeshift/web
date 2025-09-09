@@ -6,14 +6,15 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
 import { AssetCard } from './AssetCard'
-import { AssetSearchRow } from './AssetSearchRow'
 
+import { AssetRow } from '@/components/AssetSearch/components/AssetRow'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
+import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -171,20 +172,38 @@ export const CategoryCard = memo(
         )
       }
 
+      if (category === MarketsCategories.OneClickDefi) {
+        return (
+          <Flex flexDir='column' width='100%'>
+            {filteredAssets.map((asset, index) => (
+              <PortalAssetRow
+                key={asset.assetId}
+                asset={asset}
+                data={assetSearchRowData}
+                index={index}
+                // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
+                style={emptyStyle}
+                color={assetTitleColor}
+                showNetworkIcon={false}
+                portalsAssets={portalsAssets}
+              />
+            ))}
+          </Flex>
+        )
+      }
+
       return (
         <Flex flexDir='column' width='100%'>
           {filteredAssets.map((asset, index) => (
-            <AssetSearchRow
+            <AssetRow
               key={asset.assetId}
               asset={asset}
               data={assetSearchRowData}
               index={index}
-              py={2}
               // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
               style={emptyStyle}
               color={assetTitleColor}
-              showNetworkIcon={false}
-              portalsAssets={portalsAssets}
+              showPrice
             />
           ))}
         </Flex>
@@ -198,6 +217,7 @@ export const CategoryCard = memo(
       layout,
       maxAssets,
       portalsAssets,
+      category,
     ])
 
     return (

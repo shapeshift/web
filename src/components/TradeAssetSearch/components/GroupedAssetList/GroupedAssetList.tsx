@@ -1,20 +1,27 @@
 import { Box, Center } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
-import type { TopItemListProps } from 'react-virtuoso'
+import type { ItemProps, TopItemListProps } from 'react-virtuoso'
 import { GroupedVirtuoso } from 'react-virtuoso'
 
-import { GroupedAssetRow } from './components/GroupedAssetRow'
-import { GroupedAssetRowLoading } from './components/GroupedAssetRowLoading'
+import { GroupedAssetRowLoading } from './GroupedAssetRowLoading'
 
+import { INCREASE_VIEWPORT_BY } from '@/components/AssetSearch/components/AssetList'
+import { AssetRow } from '@/components/AssetSearch/components/AssetRow'
 import { Text } from '@/components/Text'
 
 const Footer = () => <Box height='0.5rem' />
 const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> // this cannot be Fragment as styles are applied
-const components = { TopItemList, Footer }
+const VirtuosoItem = ({ children }: ItemProps<React.FC>) => (
+  <Box px={2} width='100%' minHeight='64px'>
+    {children}
+  </Box>
+)
+const components = { TopItemList, Footer, Item: VirtuosoItem }
 
 const backgroundColor = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
-const style = { minHeight: '50vh' }
+const style = { minHeight: 'calc(50vh + 40px)' }
 
 export type GroupedAssetListProps = {
   assets: Asset[]
@@ -24,6 +31,7 @@ export type GroupedAssetListProps = {
   onAssetClick: (asset: Asset) => void
   onImportClick?: (asset: Asset) => void
   hideZeroBalanceAmounts: boolean
+  activeChainId: ChainId | 'All'
 }
 
 export const GroupedAssetList = ({
@@ -34,6 +42,7 @@ export const GroupedAssetList = ({
   onAssetClick,
   onImportClick,
   hideZeroBalanceAmounts,
+  activeChainId,
 }: GroupedAssetListProps) => {
   const renderGroupContent = useCallback(
     (index: number) => {
@@ -63,31 +72,45 @@ export const GroupedAssetList = ({
         </>
       )
     },
-    [groupCounts, groups, groupIsLoading],
+    [groups, groupCounts, groupIsLoading],
   )
 
   const renderItem = useCallback(
     (index: number) => {
+      const asset = assets[index]
+
+      const itemData = {
+        assets: [asset],
+        handleClick: onAssetClick,
+        disableUnsupported: false,
+        hideZeroBalanceAmounts,
+        onImportClick,
+      }
+
       return (
-        <GroupedAssetRow
+        <AssetRow
+          asset={asset}
           index={index}
-          onAssetClick={onAssetClick}
+          // eslint-disable-next-line react-memo/require-usememo
+          data={itemData}
           onImportClick={onImportClick}
-          assets={assets}
-          hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+          showRelatedAssets={activeChainId === 'All'}
         />
       )
     },
-    [assets, hideZeroBalanceAmounts, onAssetClick, onImportClick],
+    [assets, onAssetClick, hideZeroBalanceAmounts, onImportClick, activeChainId],
   )
 
   return (
     <GroupedVirtuoso
+      className='scroll-container'
       groupCounts={groupCounts}
       groupContent={renderGroupContent}
       itemContent={renderItem}
       components={components}
       style={style}
+      overscan={200}
+      increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )
 }

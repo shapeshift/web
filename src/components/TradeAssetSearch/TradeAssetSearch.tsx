@@ -22,9 +22,9 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
-  selectAssetsSortedByMarketCap,
-  selectPortfolioFungibleAssetsSortedByBalance,
+  selectPortfolioPrimaryAssetsByChain,
   selectPortfolioTotalUserCurrencyBalance,
+  selectPrimaryAssetsByChain,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -78,9 +78,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     // When no wallet is connected, there is no portfolio, hence we display all Assets
     // If a wallet is connected with zero balances everywhere, we do the same
     // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
-    hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
-      ? selectPortfolioFungibleAssetsSortedByBalance
-      : selectAssetsSortedByMarketCap,
+    state =>
+      hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
+        ? selectPortfolioPrimaryAssetsByChain(state, activeChainId)
+        : selectPrimaryAssetsByChain(state, activeChainId),
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -171,12 +172,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       asset => assetFilterPredicate?.(asset.assetId) ?? true,
     )
 
-    if (activeChainId === 'All') {
-      return filteredPortfolioAssetsSortedByBalance
-    }
-
-    return filteredPortfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate])
+    return filteredPortfolioAssetsSortedByBalance
+  }, [portfolioAssetsSortedByBalance, assetFilterPredicate])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
@@ -295,6 +292,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
           popularAssets={popularAssets}
           onAssetClick={handleAssetClick}
+          activeChainId={activeChainId}
         />
       )}
     </>

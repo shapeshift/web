@@ -47,7 +47,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     action.swapMetadata.swapId,
   )
 
-  const isArbitrumBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
+  const isArbitrumBridge = useMemo(() => swap?.swapperName === SwapperName.ArbitrumBridge, [swap])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:

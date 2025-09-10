@@ -39,12 +39,6 @@ export const EIP155SignMessageConfirmationModal: FC<
   )
 
   const translate = useTranslate()
-  const walletInfo = useWallet().state.walletInfo
-  const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(
-    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
-    [WalletIcon],
-  )
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
 
   const handleConfirm = useCallback(async () => {

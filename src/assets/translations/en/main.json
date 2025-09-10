@@ -261,9 +261,11 @@
       "retry": "Retry"
     }
   },
-  "buyPage": {
-    "title": "Buy Crypto <span>in Seconds</span>",
-    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+  "rampPage": {
+    "buyTitle": "Buy Crypto <span>in Seconds</span>",
+    "sellTitle": "Sell Crypto <span>in Seconds</span>",
+    "buyBody": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+    "sellBody": "Use a credit card, debit card or bank account. Sell Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
     "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
     "ctaTitle": "You can also use ShapeShift with all the top wallets to trade, earn yield and <span>track your crypto across %{chainCount} chains</span>",
     "availableAssets": "Available Assets"
@@ -661,7 +663,6 @@
     "market": "Market",
     "limitOrder": "Limit Orders",
     "claims": "Claims",
-    "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
@@ -670,6 +671,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
+    "tokens": "Tokens",
+    "swap": "Swap",
     "actionMenu": {
       "send": {
         "title": "Send",
@@ -691,6 +694,34 @@
         "title": "Scan QR Code",
         "body": "Easily scan to send or receive crypto"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "Products",
+    "mobileApp": {
+      "title": "Mobile App",
+      "subtitle": "Trade and manage crypto"
+    },
+    "foxToken": {
+      "title": "FOX Token",
+      "subtitle": "Our Governance Token"
+    },
+    "classic": {
+      "title": "Classic",
+      "subtitle": "The OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift Wallet",
+      "subtitle": "Learn about our wallet"
+    },
+    "footer": {
+      "governance": "Governance",
+      "documentation": "Documentation",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
     }
   },
   "transactionRow": {

@@ -1,15 +1,19 @@
-import { Box, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
+import { RiRefreshLine } from 'react-icons/ri'
+import { TbChartHistogram } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
-import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
-import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
+import { GlobalSearchButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
+import { NavigationDropdown } from './NavBar/NavigationDropdown'
+import { ShapeShiftMenu } from './NavBar/ShapeShiftMenu'
 import { UserMenu } from './NavBar/UserMenu'
 import { WalletManagerPopover } from './NavBar/WalletManagerPopover'
 import { TxWindow } from './TxWindow/TxWindow'
@@ -26,14 +30,37 @@ const WalletConnectToDappsHeaderButton = lazy(() =>
   ),
 )
 
-const pxProp = { base: 0, xl: 4 }
-const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
-const widthProp = { base: 'auto', md: 'full' }
 const paddingTopProp = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
   md: 0,
 }
+
+const leftHStackSpacingSx = { base: 4, lg: 8 }
+const navHStackSpacingSx = { base: 3, lg: 6 }
+const navHStackDisplaySx = { base: 'none', md: 'flex' }
+const searchBoxFlexSx = { base: 'none', lg: '1' }
+const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
+const searchBoxMxSx = { base: 0, lg: 0 }
+const rightHStackSpacingSx = { base: 2, lg: 4 }
+
+const tradeSubMenuItems = [
+  { label: 'navBar.swap', path: '/trade', icon: RiRefreshLine },
+  { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
+  { label: 'fiatRamps.buy', path: '/ramp/buy', icon: FaCreditCard },
+  { label: 'fiatRamps.sell', path: '/ramp/sell', icon: FaArrowRight },
+]
+
+const exploreSubMenuItems = [
+  { label: 'navBar.tokens', path: '/assets' },
+  { label: 'navBar.markets', path: '/markets' },
+]
+
+const earnSubMenuItems = [
+  { label: 'navBar.tcy', path: '/tcy' },
+  { label: 'navBar.pools', path: '/pools' },
+  { label: 'navBar.lending', path: '/lending' },
+]
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
@@ -41,7 +68,7 @@ export const Header = memo(() => {
 
   const navigate = useNavigate()
   const {
-    state: { isConnected },
+    state: { isConnected, walletInfo },
   } = useWallet()
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
@@ -56,6 +83,8 @@ export const Header = memo(() => {
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
   const { degradedChainIds } = useDiscoverAccounts()
+
+  const hasWallet = Boolean(walletInfo?.deviceId)
 
   /**
    * FOR DEVELOPERS:
@@ -75,18 +104,21 @@ export const Header = memo(() => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  // Hide the header on mobile
   if (!isLargerThanMd) return null
 
   return (
     <>
       <Flex
         direction='column'
-        width='full'
+        width='98%'
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? 'background.surface.base' : 'transparent'}
+        bg={y > height ? 'background.surface.base' : 'gray.950'}
+        border='1px solid'
+        borderColor='border.base'
+        borderRadius='lg'
+        margin='4'
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
@@ -94,37 +126,46 @@ export const Header = memo(() => {
         paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
-            <Box display={displayProp} mx='auto'>
-              <AppLoadingIcon />
-            </Box>
+          <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
+            <ShapeShiftMenu />
+            <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>
+              <NavigationDropdown
+                label='common.trade'
+                items={tradeSubMenuItems}
+                defaultPath='/trade'
+              />
+              <NavigationDropdown
+                label='navBar.explore'
+                items={exploreSubMenuItems}
+                defaultPath='/assets'
+              />
+              <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+            </HStack>
+          </HStack>
 
-            <Flex
-              justifyContent='flex-end'
-              alignItems='center'
-              width={widthProp}
-              flex={1}
-              rowGap={4}
-              columnGap={2}
-            >
-              <GlobalSeachButton />
-              {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
-                <DegradedStateBanner />
-              )}
-              {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
-                <Suspense>
-                  <WalletConnectToDappsHeaderButton />
-                </Suspense>
-              )}
-              {isLargerThanMd && <ChainMenu display={displayProp2} />}
-              {isConnected && !isActionCenterEnabled && <TxWindow />}
-              {isConnected && isActionCenterEnabled && <ActionCenter />}
-              {isLargerThanMd && (
-                <Box display={displayProp2}>
-                  {isNewWalletManagerEnabled ? <WalletManagerPopover /> : <UserMenu />}
-                </Box>
-              )}
-            </Flex>
+          <Box flex={searchBoxFlexSx} maxW={searchBoxMaxWSx} mx={searchBoxMxSx}>
+            <GlobalSearchButton />
+          </Box>
+          <HStack spacing={rightHStackSpacingSx} flex='1' justifyContent='flex-end' minW={0}>
+            {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
+              <DegradedStateBanner />
+            )}
+            {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
+              <Suspense>
+                <WalletConnectToDappsHeaderButton />
+              </Suspense>
+            )}
+            {isConnected && !isActionCenterEnabled && <TxWindow />}
+            {isConnected && isActionCenterEnabled && <ActionCenter />}
+            {hasWallet && (
+              <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
+            )}
+            {isLargerThanMd && <ChainMenu display={displayProp2} />}
+            {isLargerThanMd && (
+              <Box display={displayProp2}>
+                {isNewWalletManagerEnabled ? <WalletManagerPopover /> : <UserMenu />}
+              </Box>
+            )}
           </HStack>
         </HStack>
       </Flex>

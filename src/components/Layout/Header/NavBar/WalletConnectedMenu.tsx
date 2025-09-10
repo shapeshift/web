@@ -1,7 +1,8 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
+import { Box, Flex, Icon, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
+import { TbEdit, TbTrash } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -14,12 +15,47 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import type { WalletConnectedProps } from '@/components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { NativeWalletRoutes } from '@/context/WalletProvider/types'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
 const repeatIcon = <RepeatIcon />
+
+const renameHoverStyle = { bg: 'whiteAlpha.300', color: 'white' }
+const deleteHoverStyle = { bg: 'red.400' }
+const editButtonStyle = {
+  w: 6,
+  h: 6,
+  borderRadius: 'full',
+  bg: 'whiteAlpha.200',
+  color: 'whiteAlpha.700',
+  cursor: 'pointer',
+  zIndex: 99999,
+  position: 'relative' as const,
+  pointerEvents: 'all' as const,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+const deleteButtonStyle = {
+  w: 6,
+  h: 6,
+  borderRadius: 'full',
+  bg: 'red.500',
+  color: 'white',
+  cursor: 'pointer',
+  zIndex: 99999,
+  position: 'relative' as const,
+  pointerEvents: 'all' as const,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
 
 const ConnectedMenu = memo(
   ({
@@ -35,6 +71,7 @@ const ConnectedMenu = memo(
   }) => {
     const { navigateToRoute } = useMenuRoutes()
     const translate = useTranslate()
+    const { dispatch } = useWallet()
     const ConnectMenuComponent = useMemo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
@@ -49,6 +86,37 @@ const ConnectedMenu = memo(
     }, [connectedWalletMenuRoutes, navigateToRoute, connectedType])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
+    const isNativeWallet = connectedType === KeyManager.Native
+
+    const handleRenameClick = useCallback(
+      (e: React.MouseEvent | React.PointerEvent | React.TouchEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+
+        dispatch({
+          type: WalletActions.SET_INITIAL_ROUTE,
+          payload: NativeWalletRoutes.Rename,
+        })
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        onClose && onClose()
+      },
+      [dispatch, onClose],
+    )
+
+    const handleDeleteClick = useCallback(
+      (e: React.MouseEvent | React.PointerEvent | React.TouchEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+
+        dispatch({
+          type: WalletActions.SET_INITIAL_ROUTE,
+          payload: NativeWalletRoutes.Delete,
+        })
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        onClose && onClose()
+      },
+      [dispatch, onClose],
+    )
 
     return (
       <>
@@ -60,16 +128,40 @@ const ConnectedMenu = memo(
               onClick={handleClick}
               icon={menuItemIcon}
             >
-              <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
+              <Flex flexDir='row' justifyContent='space-between' alignItems='center' width='full'>
                 <RawText>{walletInfo?.name}</RawText>
-                {!isConnected && (
-                  <Text
-                    translation={'connectWallet.menu.disconnected'}
-                    fontSize='sm'
-                    color='yellow.500'
-                  />
-                )}
-                {connectedWalletMenuRoutes && <ChevronRightIcon />}
+                <Flex alignItems='center' gap={2}>
+                  {!isConnected && (
+                    <Text
+                      translation={'connectWallet.menu.disconnected'}
+                      fontSize='sm'
+                      color='yellow.500'
+                    />
+                  )}
+                  {isNativeWallet && (
+                    <>
+                      <Box
+                        {...editButtonStyle}
+                        _hover={renameHoverStyle}
+                        onPointerDown={handleRenameClick}
+                        onTouchStart={handleRenameClick}
+                        onClick={handleRenameClick}
+                      >
+                        <Icon as={TbEdit} boxSize={3} pointerEvents='none' />
+                      </Box>
+                      <Box
+                        {...deleteButtonStyle}
+                        _hover={deleteHoverStyle}
+                        onPointerDown={handleDeleteClick}
+                        onTouchStart={handleDeleteClick}
+                        onClick={handleDeleteClick}
+                      >
+                        <Icon as={TbTrash} boxSize={3} pointerEvents='none' />
+                      </Box>
+                    </>
+                  )}
+                  {connectedWalletMenuRoutes && <ChevronRightIcon />}
+                </Flex>
               </Flex>
             </MenuItem>
           ) : (

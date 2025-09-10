@@ -16,7 +16,7 @@ type SharedConfirmProps = {
   headerTranslation: TextPropTypes['translation']
 }
 
-const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
+const cardBgProp = { base: 'background.surface.base', md: 'darkNeutral.800' }
 const cardBorderRadius = { base: '0', md: '2xl' }
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }

@@ -12,6 +12,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { TxLabel } from '@/components/MultiHopTrade/components/TradeConfirm/TxLabel'
 import { Row } from '@/components/Row/Row'
+import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 
 type SwapDetailsProps = {
@@ -22,6 +23,8 @@ type SwapDetailsProps = {
 
 export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }) => {
   const translate = useTranslate()
+  const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swap?.id)
+
   const {
     sellAsset,
     buyAsset,
@@ -30,7 +33,6 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
     swapperName,
     sellTxHash,
     buyTxHash,
-    actualBuyAmountCryptoPrecision,
     sellAmountCryptoPrecision,
     status,
   } = swap

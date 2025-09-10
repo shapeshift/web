@@ -18,6 +18,7 @@ import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons
 import { RawText } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
@@ -42,7 +43,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
-  const isArbitrumBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
+  const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(
+    action.swapMetadata.swapId,
+  )
+
+  const isArbitrumBridge = useMemo(() => swap?.swapperName === SwapperName.ArbitrumBridge, [swap])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -71,7 +76,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       ),
       buyAmountAndSymbol: (
         <Amount.Crypto
-          value={swap.actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
+          value={actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
           symbol={swap.buyAsset.symbol}
           fontSize='sm'
           fontWeight='bold'
@@ -86,7 +91,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
         </Box>
       ),
     }
-  }, [swap])
+  }, [swap, actualBuyAmountCryptoPrecision])
 
   const title = useMemo(() => {
     const { status } = action

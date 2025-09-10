@@ -1,39 +1,23 @@
 import { Box, HStack } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { FaChevronRight } from 'react-icons/fa'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 
 type ExpandableAddressCellProps = {
   address: string
-  onClick?: () => void
-  isExpanded?: boolean
-  onToggleExpanded?: (expanded: boolean) => void
   fontSize?: string
 }
 
 export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
   address,
-  onClick,
-  isExpanded: controlledExpanded,
-  onToggleExpanded,
   fontSize = 'sm',
 }) => {
-  const [internalExpanded, setInternalExpanded] = useState(false)
-  const isControlled = controlledExpanded !== undefined
-  const isExpanded = isControlled ? controlledExpanded : internalExpanded
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  const handleToggle = useCallback(() => {
-    const newExpanded = !isExpanded
-    if (isControlled && onToggleExpanded) {
-      onToggleExpanded(newExpanded)
-    } else {
-      setInternalExpanded(newExpanded)
-    }
-    onClick?.()
-  }, [isExpanded, isControlled, onToggleExpanded, onClick])
-
-  const hoverStyle = useMemo(() => ({ borderColor: 'gray.500' }), [])
+  const handleToggle = () => {
+    setIsExpanded(!isExpanded)
+  }
 
   if (!isExpanded) {
     return (
@@ -47,7 +31,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         py={1}
         cursor='pointer'
         onClick={handleToggle}
-        _hover={hoverStyle}
+        _hover={{ borderColor: 'gray.500' }}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
         <Box as={FaChevronRight} boxSize='10px' color='gray.400' />
@@ -67,7 +51,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         py={1}
         cursor='pointer'
         onClick={handleToggle}
-        _hover={hoverStyle}
+        _hover={{ borderColor: 'gray.500' }}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
         <Box as={FaChevronRight} boxSize='10px' transform='rotate(90deg)' color='gray.400' />

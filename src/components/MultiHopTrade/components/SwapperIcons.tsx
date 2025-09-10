@@ -5,7 +5,7 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo } from 'react'
 import { TbWifi } from 'react-icons/tb'
 
@@ -43,6 +43,27 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
     [animationTransition, isStreaming],
   )
 
+  const swapperInitial = useMemo(() => ({ opacity: 0, scale: 0.9 }), [])
+  const swapperAnimate = useMemo(
+    () => ({ opacity: 1, scale: 1, transition: animationTransition }),
+    [animationTransition],
+  )
+  const swapperExit = useMemo(
+    () => ({ opacity: 0, scale: 1.05, transition: animationTransition }),
+    [animationTransition],
+  )
+  const overlayStyle = useMemo(
+    () =>
+      ({
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }) as const,
+    [],
+  )
+
   return (
     <Box as={motion.div} display='inline-flex' alignItems='center'>
       <Box
@@ -77,7 +98,22 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
         borderColor='border.base'
         boxShadow='0 1px 2px rgba(0,0,0,.2)'
       >
-        {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
+        <Box position='relative' display='inline-flex'>
+          <Box visibility='hidden'>
+            {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
+          </Box>
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={swapperName ?? 'unknown'}
+              initial={swapperInitial}
+              animate={swapperAnimate}
+              exit={swapperExit}
+              style={overlayStyle}
+            >
+              {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
+            </motion.div>
+          </AnimatePresence>
+        </Box>
       </Center>
     </Box>
   )

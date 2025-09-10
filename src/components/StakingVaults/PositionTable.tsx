@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Flex, IconButton, Spinner, Tag } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { Box, Flex, IconButton, Spinner, Tag, useMediaQuery } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
@@ -10,11 +10,11 @@ import type { Column, Row } from 'react-table'
 import { SearchEmpty } from './SearchEmpty'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { PositionDetails } from '@/components/EarnDashboard/components/PositionDetails/PositionDetails'
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { AssetCell } from '@/components/StakingVaults/Cells'
 import { RawText } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -25,46 +25,38 @@ import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/oppo
 import {
   selectAccountIdsByChainId,
   selectAggregatedEarnOpportunitiesByAssetId,
-  selectAssetById,
   selectAssetsSortedByMarketCap,
   selectIsAnyOpportunitiesApiQueryPending,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
 const cellFlexJustifyContent = { base: 'flex-end', md: 'flex-start' }
 const cellTagSize = { base: 'sm', md: 'md' }
 const initialState = { pageSize: 30 }
-
-const AssetCell = ({ assetId }: { assetId: AssetId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) return null
-  return (
-    <Flex alignItems='center' gap={4}>
-      <AssetIcon size='sm' assetId={assetId} key={assetId} />
-      <Flex flexDir='column'>
-        <RawText>
-          {asset.name} {`(${asset.symbol})`}
-        </RawText>
-      </Flex>
-    </Flex>
-  )
-}
-
 export type PositionTableProps = {
   chainId?: ChainId
   searchQuery: string
+  forceCompactView?: boolean
 }
 
 const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 
-export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQuery }) => {
+export const PositionTable: React.FC<PositionTableProps> = ({
+  chainId,
+  searchQuery,
+  forceCompactView = false,
+}) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const isAnyOpportunitiesApiQueriesPending = useAppSelector(
     selectIsAnyOpportunitiesApiQueryPending,
   )
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+  const isCompactCols = !isLargerThanMd || forceCompactView
 
   const [processedRows, setProcessedRows] = useState<AggregatedOpportunitiesByAssetIdReturn[]>([])
   const [, startTransition] = useTransition()
@@ -110,6 +102,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
     () => [
       {
         Header: '#',
+        display: isCompactCols ? 'none' : undefined,
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
         ),
@@ -117,7 +110,10 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
       {
         Header: translate('defi.asset'),
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => <AssetCell assetId={row.original.assetId} />,
+        Cell: ({ row }: { row: RowProps }) => {
+          const asset = assets.find(a => a.assetId === row.original.assetId)
+          return <AssetCell assetId={row.original.assetId} subText={asset?.symbol} />
+        },
         disableSortBy: true,
       },
       {
@@ -160,7 +156,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
         Header: () => null,
         id: 'expander',
         textAlign: 'right',
-        display: { base: 'none', md: 'table-cell' },
+        display: isCompactCols ? 'none' : 'table-cell',
         Cell: ({ row }: { row: RowProps }) => (
           <Flex justifyContent='flex-end' width='full'>
             <IconButton
@@ -174,7 +170,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
         ),
       },
     ],
-    [translate],
+    [translate, isCompactCols, assets],
   )
 
   const filterRowsBySearchTerm = useCallback(
@@ -217,8 +213,10 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
   const handleRowClick = useCallback((row: RowProps) => row.toggleRowExpanded(), [])
 
   const renderSubComponent = useCallback(
-    ({ original }: RowProps) => <PositionDetails key={original.assetId} {...original} />,
-    [],
+    ({ original }: RowProps) => (
+      <PositionDetails key={original.assetId} {...original} forceCompactView={forceCompactView} />
+    ),
+    [forceCompactView],
   )
 
   const renderEmptyComponent = useCallback(() => {
@@ -251,6 +249,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ chainId, searchQue
       renderSubComponent={renderSubComponent}
       renderEmptyComponent={renderEmptyComponent}
       initialState={initialState}
+      displayHeaders={!isCompactCols}
     />
   )
 }

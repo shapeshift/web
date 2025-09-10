@@ -90,6 +90,7 @@ export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetail
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(initOpen)
+
     const toggleOpen = useCallback(
       () => (disableCollapse ? undefined : setIsOpen(!isOpen)),
       [disableCollapse, isOpen],

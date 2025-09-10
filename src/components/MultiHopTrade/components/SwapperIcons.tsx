@@ -64,6 +64,12 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
     [],
   )
 
+  const widthWillChangeStyle = useMemo(() => ({ willChange: 'width' }) as const, [])
+  const opacityTransformWillChangeStyle = useMemo(
+    () => ({ willChange: 'opacity, transform' }) as const,
+    [],
+  )
+
   return (
     <Box as={motion.div} display='inline-flex' alignItems='center'>
       <Box
@@ -72,8 +78,15 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
         animate={widthAnimate}
         overflow='hidden'
         display='inline-flex'
+        style={widthWillChangeStyle}
       >
-        <Box as={motion.div} initial={false} animate={streamingAnimate} display='inline-flex'>
+        <Box
+          as={motion.div}
+          initial={false}
+          animate={streamingAnimate}
+          display='inline-flex'
+          style={opacityTransformWillChangeStyle}
+        >
           <Center
             className='quote-icon'
             bg='background.surface.raised.base'

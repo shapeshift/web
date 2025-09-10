@@ -195,6 +195,7 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
       const assetUserCurrencyBalance = bnOrZero(fromBaseUnit(balances[assetId], precision)).times(
         bnOrZero(price),
       )
+
       if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc

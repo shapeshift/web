@@ -1,8 +1,8 @@
 import { Box, HStack } from '@chakra-ui/react'
-import { useState } from 'react'
 import { FaChevronRight } from 'react-icons/fa'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 
 type ExpandableAddressCellProps = {
   address: string
@@ -13,11 +13,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
   address,
   fontSize = 'sm',
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded)
-  }
+  const [isExpanded, toggleExpanded] = useToggle(false)
 
   if (!isExpanded) {
     return (
@@ -30,7 +26,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         px={2}
         py={1}
         cursor='pointer'
-        onClick={handleToggle}
+        onClick={toggleExpanded}
         _hover={{ borderColor: 'gray.500' }}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
@@ -50,7 +46,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         px={2}
         py={1}
         cursor='pointer'
-        onClick={handleToggle}
+        onClick={toggleExpanded}
         _hover={{ borderColor: 'gray.500' }}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />

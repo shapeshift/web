@@ -1,4 +1,5 @@
 import { Box, Button, HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -20,7 +21,7 @@ export type StructuredField = {
 
 type StructuredFieldProps = {
   field: StructuredField
-  chainId: string
+  chainId: ChainId
 }
 
 const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) => {
@@ -174,7 +175,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
 
 export type StructuredMessageProps = {
   fields: StructuredField[]
-  chainId: string
+  chainId: ChainId
   isLoading?: boolean
 }
 

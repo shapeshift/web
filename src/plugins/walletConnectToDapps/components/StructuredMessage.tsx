@@ -104,7 +104,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
                 return <ExpandableAddressCell key={index} address={itemString} />
               }
               return (
-                <RawText key={index} fontSize='sm'>
+                <RawText key={index} fontSize='sm' fontWeight='bold'>
                   {itemString.length > 20 ? (
                     <MiddleEllipsis value={itemString} fontSize='sm' />
                   ) : (
@@ -131,7 +131,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
           {key}
         </RawText>
         <HStack spacing={2} align='center'>
-          <RawText fontSize='sm'>{asset.symbol}</RawText>
+          <RawText fontSize='sm' fontWeight='bold'>{asset.symbol}</RawText>
           <Image boxSize='16px' src={asset.icon} borderRadius='full' />
         </HStack>
       </HStack>
@@ -158,7 +158,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
       <RawText color='text.subtle' fontSize='sm'>
         {key}
       </RawText>
-      <RawText fontSize='sm'>
+      <RawText fontSize='sm' fontWeight='bold'>
         {valueString.length > 30 ? (
           <MiddleEllipsis value={valueString} fontSize='sm' />
         ) : (

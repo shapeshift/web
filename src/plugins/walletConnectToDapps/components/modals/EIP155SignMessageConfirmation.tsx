@@ -12,12 +12,9 @@ import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { RawText, Text } from '@/components/Text'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
-import { WalletConnectAddressSection } from '@/plugins/walletConnectToDapps/components/WalletConnectAddressSection'
 import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -66,11 +63,6 @@ export const EIP155SignMessageConfirmationModal: FC<
 
   return (
     <>
-      <WalletConnectAddressSection
-        address={address ?? ''}
-        walletIcon={walletIcon}
-        explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
-      />
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='2xl'>
           <HStack align='center' p={4}>

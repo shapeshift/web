@@ -17,7 +17,7 @@ import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
-import { WalletConnectAddressSection } from '@/plugins/walletConnectToDapps/components/WalletConnectAddressSection'
+import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
@@ -150,11 +150,13 @@ export const CosmosSignMessageConfirmationModal: FC<
 
   return (
     <>
-      <WalletConnectAddressSection
-        address={address ?? ''}
-        walletIcon={walletIcon}
-        explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
-      />
+      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
+        <AddressSummaryCard
+          address={address ?? ''}
+          icon={walletIcon}
+          explorerAddressLink={connectedAccountFeeAsset?.explorerAddressLink}
+        />
+      </ModalSection>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='2xl'>
           <HStack align='center' p={4}>

@@ -11,7 +11,7 @@ import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
-import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
+import { EIP712TypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP712TypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
@@ -186,7 +186,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SignEIP155TypedDataConfirmation:
         if (!topic) return null
         return (
-          <EIP155SignTypedDataConfirmation
+          <EIP712TypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
             dispatch={dispatch}

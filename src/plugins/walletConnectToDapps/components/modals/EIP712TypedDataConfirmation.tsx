@@ -1,18 +1,15 @@
 import type { FC } from 'react'
 
-import { MessageContent } from '@/plugins/walletConnectToDapps/components/content/MessageContent'
+import { EIP712MessageDisplay } from '@/plugins/walletConnectToDapps/components/modals/EIP712MessageDisplay'
 import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import type {
-  EthPersonalSignCallRequest,
-  EthSignCallRequest,
-} from '@/plugins/walletConnectToDapps/types'
+import type { EthSignTypedDataCallRequest } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 
-export const EIP155SignMessageConfirmationModal: FC<
-  WalletConnectRequestModalProps<EthSignCallRequest | EthPersonalSignCallRequest>
-> = ({ onConfirm, onReject, state, topic }) => {
-  const { message } = useWalletConnectState(state)
+export const EIP712TypedDataConfirmation: FC<
+  WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
+> = ({ onConfirm, onReject, state, topic, dispatch: _dispatch }) => {
+  const { message, chainId } = useWalletConnectState(state)
 
   if (!message) return null
 
@@ -23,7 +20,7 @@ export const EIP155SignMessageConfirmationModal: FC<
       state={state}
       topic={topic}
     >
-      <MessageContent message={message} />
+      <EIP712MessageDisplay typedData={message} chainId={chainId} />
     </WalletConnectSigningModal>
   )
 }

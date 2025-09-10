@@ -154,7 +154,6 @@ export const parseAssetChanges = (
   const assetChanges = simulation.transaction.transaction_info?.asset_changes || []
 
   assetChanges.forEach(change => {
-    // Safety check for change.token_info
     if (!change || !change.token_info) {
       console.warn('Invalid asset change structure:', change)
       return
@@ -168,7 +167,6 @@ export const parseAssetChanges = (
       return
     }
 
-    // Check if user is sending tokens (including Burn operations)
     if (fromAddress === userAddressLower) {
       changes.push({
         userAddress,
@@ -187,7 +185,6 @@ export const parseAssetChanges = (
       })
     }
 
-    // Check if user is receiving tokens (only for Transfer operations that have 'to' address)
     if (toAddress && toAddress === userAddressLower) {
       changes.push({
         userAddress,
@@ -267,14 +264,11 @@ export const parseDecodedInput = (simulation: TenderlySimulationResponse): Parse
   const parseValue = (input: TenderlyDecodedInput): ParsedArgument => {
     const { soltype, value } = input
 
-    // Handle tuple/struct types with components
     if (soltype.type.includes('tuple') && soltype.components) {
       if (Array.isArray(value)) {
-        // Handle tuple[] - array of tuples
         const tupleItems = value
           .map((tupleItem: any, tupleIndex: number) => {
             if (typeof tupleItem === 'object' && tupleItem !== null) {
-              // Each tuple item is an object with key-value pairs
               const tupleComponents: ParsedArgument[] = Object.entries(tupleItem).map(
                 ([key, val]) => {
                   const componentDef = soltype.components?.find(comp => comp.name === key)
@@ -304,7 +298,6 @@ export const parseDecodedInput = (simulation: TenderlySimulationResponse): Parse
           components: tupleItems,
         }
       } else if (typeof value === 'object' && value !== null) {
-        // Handle single tuple - object with key-value pairs
         const components: ParsedArgument[] = Object.entries(value).map(([key, val]) => {
           const componentDef = soltype.components?.find(comp => comp.name === key)
           return {
@@ -324,7 +317,6 @@ export const parseDecodedInput = (simulation: TenderlySimulationResponse): Parse
       }
     }
 
-    // Handle array types
     if (soltype.type.includes('[]') && Array.isArray(value)) {
       return {
         name: soltype.name,
@@ -334,7 +326,6 @@ export const parseDecodedInput = (simulation: TenderlySimulationResponse): Parse
       }
     }
 
-    // Handle simple types
     return {
       name: soltype.name,
       type: soltype.type,

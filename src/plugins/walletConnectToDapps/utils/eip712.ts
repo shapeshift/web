@@ -13,7 +13,6 @@ export const convertEIP712ToStructuredFields = (
     fields.push({
       key: 'Primary Type',
       value: primaryType,
-      type: undefined, // No type annotation for EIP712
     })
   }
 
@@ -35,7 +34,6 @@ const convertEIP712Value = (key: string, value: EIP712Value): StructuredField =>
     return {
       key,
       value,
-      type: undefined,
       children,
     }
   }
@@ -45,7 +43,6 @@ const convertEIP712Value = (key: string, value: EIP712Value): StructuredField =>
     return {
       key,
       value,
-      type: undefined,
     }
   }
 
@@ -53,6 +50,5 @@ const convertEIP712Value = (key: string, value: EIP712Value): StructuredField =>
   return {
     key,
     value,
-    type: undefined,
   }
 }

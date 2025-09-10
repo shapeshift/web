@@ -57,7 +57,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
     selectFeeAssetByChainId(state, chainId ?? ''),
   )
 
-  // Tenderly simulation for enhanced transaction analysis
   const simulationQuery = useQuery({
     queryKey: [
       'tenderly-simulation',
@@ -85,7 +84,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
     return simulationQuery.data?.simulation?.method || null
   }, [simulationQuery.data?.simulation?.method])
 
-  // Parse asset changes from Tenderly simulation
   const assetChanges = useMemo((): AssetChange[] => {
     if (!simulationQuery.data || !transaction?.from) return []
     return parseAssetChanges(simulationQuery.data, transaction.from)
@@ -154,7 +152,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
       <VStack spacing={3} align='stretch'>
-        {/* Chain/Network */}
         {connectedAccountFeeAsset && (
           <HStack justify='space-between' align='center' py={1}>
             <RawText fontSize='sm' color='text.subtle'>
@@ -173,7 +170,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
           </HStack>
         )}
 
-        {/* Asset Changes - moved up right after Chain */}
         {(simulationQuery.isLoading || sendChanges.length > 0 || receiveChanges.length > 0) && (
           <Skeleton isLoaded={!simulationQuery.isLoading}>
             {simulationQuery.isLoading ? (
@@ -193,7 +189,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
               </VStack>
             ) : (
               <VStack spacing={2} align='stretch'>
-                {/* Send Changes */}
                 {sendChanges.map((change, index) => {
                   // Use Tenderly's parsed amount (already formatted) or fallback to our asset lookup
                   const asset = change.isNativeAsset
@@ -209,7 +204,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                   ).toUpperCase()
                   const icon = asset?.icon || asset?.networkIcon
 
-                  // Use bnOrZero and proper formatting with max 6 decimal places
                   const amount = bnOrZero(change.amount).abs()
                   const formattedAmount =
                     (amount?.dp() ?? 0) > 6 ? amount?.toFixed(6) ?? '0' : amount?.toFixed() ?? '0'
@@ -229,7 +223,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                   )
                 })}
 
-                {/* Receive Changes */}
                 {receiveChanges.map((change, index) => {
                   // Use Tenderly's parsed amount (already formatted) or fallback to our asset lookup
                   const asset = change.isNativeAsset
@@ -245,7 +238,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                   ).toUpperCase()
                   const icon = asset?.icon || asset?.networkIcon
 
-                  // Use bnOrZero and proper formatting with max 6 decimal places
                   const amount = bnOrZero(change.amount)
                   const formattedAmount =
                     (amount?.dp() ?? 0) > 6 ? amount?.toFixed(6) ?? '0' : amount?.toFixed() ?? '0'
@@ -269,7 +261,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
           </Skeleton>
         )}
 
-        {/* Interact Contract */}
         <HStack justify='space-between' align='center' py={1}>
           <RawText fontSize='sm' color='text.subtle'>
             Interact Contract
@@ -279,7 +270,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
           </RawText>
         </HStack>
 
-        {/* Transaction Data Section */}
         {transaction?.data &&
           (simulationQuery.isLoading || functionName || structuredFields.length > 0) && (
             <>
@@ -304,7 +294,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
 
                 {isTransactionDataExpanded && (
                   <VStack spacing={2} align='stretch'>
-                    {/* Method Name */}
                     {(simulationQuery.isLoading || functionName) && (
                       <HStack justify='space-between' align='center' py={1}>
                         <RawText fontSize='sm' color='text.subtle'>
@@ -318,7 +307,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                       </HStack>
                     )}
 
-                    {/* Arguments using StructuredMessage */}
                     {(simulationQuery.isLoading || structuredFields.length > 0) && (
                       <StructuredMessage
                         fields={structuredFields}

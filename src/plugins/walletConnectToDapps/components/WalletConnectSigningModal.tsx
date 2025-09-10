@@ -1,11 +1,11 @@
-import { VStack } from '@chakra-ui/react'
+import { Image, VStack } from '@chakra-ui/react'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 
-import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
+import { RawText } from '@/components/Text'
 import { WalletConnectSigningFooter } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFooter'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -66,9 +66,15 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
 
   return (
     <VStack spacing={0} align='stretch'>
-      <WalletConnectPeerHeader peerMetadata={peerMetadata} />
+      {peerMetadata && (
+        <VStack spacing={4} align='center' py={6}>
+          <Image borderRadius='full' boxSize='48px' src={peerMetadata.icons?.[0]} />
+          <RawText fontWeight='semibold' fontSize='lg'>
+            {peerMetadata.name}
+          </RawText>
+        </VStack>
+      )}
 
-      {/* Dynamic content area */}
       {children}
 
       <WalletConnectSigningFooter

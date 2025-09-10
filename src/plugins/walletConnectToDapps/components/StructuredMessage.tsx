@@ -14,7 +14,6 @@ import { useAppSelector } from '@/state/store'
 export type StructuredField = {
   key: string
   value: any
-  type?: string // "address", "uint256", "bool", "address[]", etc.
   children?: StructuredField[]
   level?: number
 }
@@ -59,7 +58,6 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     return children?.map(child => ({ ...child, level: level + 1 })) || []
   }, [children, level])
 
-  // Handle nested structures (objects, tuples)
   if (children && children.length > 0) {
     return (
       <Box py={1}>
@@ -96,7 +94,6 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     )
   }
 
-  // Handle array types
   if (Array.isArray(value)) {
     return (
       <Box py={0.5} pl={paddingLeft}>
@@ -130,7 +127,6 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
   const isAddressField = typeof value === 'string' && isAddress(value)
   const isAddressWithoutAsset = isAddressField && !asset
 
-  // Handle asset addresses
   if (asset) {
     return (
       <HStack justify='space-between' align='center' py={0.5} pl={paddingLeft}>
@@ -147,7 +143,6 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     )
   }
 
-  // Handle addresses without asset info
   if (isAddressWithoutAsset) {
     return (
       <Box py={0.5} pl={paddingLeft}>
@@ -161,7 +156,6 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     )
   }
 
-  // Handle simple types
   return (
     <HStack justify='space-between' align='center' py={0.5} pl={paddingLeft}>
       <RawText color='text.subtle' fontSize='sm'>

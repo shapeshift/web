@@ -52,7 +52,7 @@ type TenderlyDecodedInput = {
         type: string
       }
     }
-    components?: Array<{
+    components?: {
       name: string
       type: string
       storage_location?: string
@@ -62,7 +62,7 @@ type TenderlyDecodedInput = {
       simple_type?: {
         type: string
       }
-    }>
+    }[]
   }
   value: any
 }
@@ -152,8 +152,8 @@ export const parseAssetChanges = (
 
   // Parse asset changes from Tenderly's transaction.transaction_info.asset_changes array
   const assetChanges = simulation.transaction.transaction_info?.asset_changes || []
-  
-  assetChanges.forEach((change) => {
+
+  assetChanges.forEach(change => {
     // Safety check for change.token_info
     if (!change || !change.token_info) {
       console.warn('Invalid asset change structure:', change)
@@ -162,23 +162,25 @@ export const parseAssetChanges = (
 
     const fromAddress = change.from?.toLowerCase()
     const toAddress = change.to?.toLowerCase()
-    
+
     if (!fromAddress) {
       console.warn('Missing from address in asset change:', change)
       return
     }
-    
+
     // Check if user is sending tokens (including Burn operations)
     if (fromAddress === userAddressLower) {
       changes.push({
-        userAddress: userAddress,
-        tokenAddress: change.token_info.contract_address === '0x0000000000000000000000000000000000000000' 
-          ? undefined // Native ETH
-          : change.token_info.contract_address,
+        userAddress,
+        tokenAddress:
+          change.token_info.contract_address === '0x0000000000000000000000000000000000000000'
+            ? undefined // Native ETH
+            : change.token_info.contract_address,
         amount: `-${change.amount}`, // Negative for send
         rawAmount: `-${change.raw_amount}`,
         type: 'send',
-        isNativeAsset: change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
+        isNativeAsset:
+          change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
         symbol: change.token_info.symbol,
         decimals: change.token_info.decimals,
         dollarValue: change.dollar_value,
@@ -188,14 +190,16 @@ export const parseAssetChanges = (
     // Check if user is receiving tokens (only for Transfer operations that have 'to' address)
     if (toAddress && toAddress === userAddressLower) {
       changes.push({
-        userAddress: userAddress,
-        tokenAddress: change.token_info.contract_address === '0x0000000000000000000000000000000000000000' 
-          ? undefined // Native ETH
-          : change.token_info.contract_address,
+        userAddress,
+        tokenAddress:
+          change.token_info.contract_address === '0x0000000000000000000000000000000000000000'
+            ? undefined // Native ETH
+            : change.token_info.contract_address,
         amount: change.amount,
         rawAmount: change.raw_amount,
         type: 'receive',
-        isNativeAsset: change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
+        isNativeAsset:
+          change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
         symbol: change.token_info.symbol,
         decimals: change.token_info.decimals,
         dollarValue: change.dollar_value,
@@ -214,19 +218,30 @@ export type ParsedArgument = {
 }
 
 // Convert ParsedArgument to StructuredField format
-export const convertToStructuredFields = (args: ParsedArgument[]): Array<{
+export const convertToStructuredFields = (
+  args: ParsedArgument[],
+): {
   key: string
   value: any
   type: string
-  children?: Array<{
+  children?: {
     key: string
     value: any
     type: string
     children?: any
-  }>
-}> => {
+  }[]
+}[] => {
   return args.map(arg => {
-    const convertComponents = (components?: ParsedArgument[]) => {
+    const convertComponents = (
+      components?: ParsedArgument[],
+    ):
+      | {
+          key: string
+          value: any
+          type: string
+          children?: any
+        }[]
+      | undefined => {
       if (!components) return undefined
       return components.map(comp => ({
         key: comp.name,
@@ -245,41 +260,43 @@ export const convertToStructuredFields = (args: ParsedArgument[]): Array<{
   })
 }
 
-export const parseDecodedInput = (
-  simulation: TenderlySimulationResponse,
-): ParsedArgument[] => {
+export const parseDecodedInput = (simulation: TenderlySimulationResponse): ParsedArgument[] => {
   const decodedInput = simulation.transaction.transaction_info?.call_trace?.decoded_input
   if (!decodedInput || decodedInput.length === 0) return []
 
   const parseValue = (input: TenderlyDecodedInput): ParsedArgument => {
     const { soltype, value } = input
-    
+
     // Handle tuple/struct types with components
     if (soltype.type.includes('tuple') && soltype.components) {
       if (Array.isArray(value)) {
         // Handle tuple[] - array of tuples
-        const tupleItems = value.map((tupleItem: any, tupleIndex: number) => {
-          if (typeof tupleItem === 'object' && tupleItem !== null) {
-            // Each tuple item is an object with key-value pairs
-            const tupleComponents = Object.entries(tupleItem).map(([key, val]) => {
-              const componentDef = soltype.components!.find(comp => comp.name === key)
+        const tupleItems = value
+          .map((tupleItem: any, tupleIndex: number) => {
+            if (typeof tupleItem === 'object' && tupleItem !== null) {
+              // Each tuple item is an object with key-value pairs
+              const tupleComponents: ParsedArgument[] = Object.entries(tupleItem).map(
+                ([key, val]) => {
+                  const componentDef = soltype.components?.find(comp => comp.name === key)
+                  return {
+                    name: key,
+                    type: componentDef?.type || 'unknown',
+                    value: val,
+                    components: undefined,
+                  }
+                },
+              )
               return {
-                name: key,
-                type: componentDef?.type || 'unknown',
-                value: val,
-                components: undefined,
-              }
-            })
-            return {
-              name: `Item ${tupleIndex + 1}`,
-              type: soltype.type.replace('[]', ''),
-              value: tupleItem,
-              components: tupleComponents,
+                name: `Item ${tupleIndex + 1}`,
+                type: soltype.type.replace('[]', ''),
+                value: tupleItem,
+                components: tupleComponents,
+              } as ParsedArgument
             }
-          }
-          return null
-        }).filter(Boolean)
-        
+            return null
+          })
+          .filter((item): item is ParsedArgument => item !== null)
+
         return {
           name: soltype.name,
           type: soltype.type,
@@ -288,8 +305,8 @@ export const parseDecodedInput = (
         }
       } else if (typeof value === 'object' && value !== null) {
         // Handle single tuple - object with key-value pairs
-        const components = Object.entries(value).map(([key, val]) => {
-          const componentDef = soltype.components!.find(comp => comp.name === key)
+        const components: ParsedArgument[] = Object.entries(value).map(([key, val]) => {
+          const componentDef = soltype.components?.find(comp => comp.name === key)
           return {
             name: key,
             type: componentDef?.type || 'unknown',
@@ -297,7 +314,7 @@ export const parseDecodedInput = (
             components: undefined,
           }
         })
-        
+
         return {
           name: soltype.name,
           type: soltype.type,
@@ -312,7 +329,7 @@ export const parseDecodedInput = (
       return {
         name: soltype.name,
         type: soltype.type,
-        value: value,
+        value,
         components: undefined,
       }
     }

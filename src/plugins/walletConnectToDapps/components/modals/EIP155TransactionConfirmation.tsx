@@ -22,7 +22,7 @@ export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
   const { transaction, isInteractingWithContract, chainId } = useWalletConnectState(state)
-  const { isLoading, feeAsset, fees } = useCallRequestEvmFees(state)
+  const { feeAsset, fees } = useCallRequestEvmFees(state)
   const { showErrorToast } = useErrorToast()
 
   const form = useForm<CustomTransactionData>({
@@ -40,11 +40,14 @@ export const EIP155TransactionConfirmation: FC<
     },
   })
 
-  const handleFormSubmit = useCallback(async (formData?: CustomTransactionData) => {
-    await handleConfirm(formData)
-  }, [handleConfirm])
+  const handleFormSubmit = useCallback(
+    async (formData?: CustomTransactionData) => {
+      await handleConfirm(formData)
+    },
+    [handleConfirm],
+  )
 
-  if (isLoading || isInteractingWithContract === null) {
+  if (isInteractingWithContract === null) {
     return (
       <Center p={8}>
         <CircularProgress />

@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { isAddress } from 'viem'
 
@@ -24,14 +24,11 @@ type StructuredFieldProps = {
   chainId: string
 }
 
-const StructuredFieldComponent: FC<StructuredFieldProps> = ({ 
-  field, 
-  chainId,
-}) => {
+const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) => {
   const { key, value, children } = field
   const level = field.level ?? 0
   const [isExpanded, setIsExpanded] = useState(false)
-  
+
   const maybeAssetId = useMemo(() => {
     if (typeof value !== 'string' || !isAddress(value)) return null
 
@@ -52,10 +49,20 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
 
   const paddingLeft = level > 0 ? 4 : 0
 
+  const handleToggleExpanded = useCallback(() => {
+    setIsExpanded(!isExpanded)
+  }, [isExpanded])
+
+  const hoverStyle = useMemo(() => ({ bg: 'whiteAlpha.50' }), [])
+
+  const childrenWithLevel = useMemo(() => {
+    return children?.map(child => ({ ...child, level: level + 1 })) || []
+  }, [children, level])
+
   // Handle nested structures (objects, tuples)
   if (children && children.length > 0) {
     return (
-      <Box py={2}>
+      <Box py={1}>
         <Button
           variant='ghost'
           size='sm'
@@ -65,8 +72,8 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
           h='auto'
           fontWeight='normal'
           justifyContent='space-between'
-          onClick={() => setIsExpanded(!isExpanded)}
-          _hover={{ bg: 'whiteAlpha.50' }}
+          onClick={handleToggleExpanded}
+          _hover={hoverStyle}
           w='full'
         >
           <RawText color='text.subtle' fontSize='sm' fontWeight='medium'>
@@ -76,10 +83,10 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
         </Button>
         {isExpanded && (
           <VStack align='stretch' spacing={0}>
-            {children.map((child, index) => (
+            {childrenWithLevel.map((child, index) => (
               <StructuredFieldComponent
                 key={`${child.key}-${index}`}
-                field={{ ...child, level: level + 1 }}
+                field={child}
                 chainId={chainId}
               />
             ))}
@@ -92,7 +99,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
   // Handle array types
   if (Array.isArray(value)) {
     return (
-      <Box py={2} pl={paddingLeft}>
+      <Box py={0.5} pl={paddingLeft}>
         <HStack justify='space-between' align='flex-start'>
           <RawText color='text.subtle' fontSize='sm'>
             {key}
@@ -126,13 +133,15 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
   // Handle asset addresses
   if (asset) {
     return (
-      <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
+      <HStack justify='space-between' align='center' py={0.5} pl={paddingLeft}>
         <RawText color='text.subtle' fontSize='sm'>
           {key}
         </RawText>
         <HStack spacing={2} align='center'>
-          <RawText fontSize='sm' fontWeight='bold'>{asset.symbol}</RawText>
-          <Image boxSize='16px' src={asset.icon} borderRadius='full' />
+          <RawText fontSize='sm' fontWeight='bold'>
+            {asset.symbol}
+          </RawText>
+          <Image boxSize='20px' src={asset.icon} borderRadius='full' />
         </HStack>
       </HStack>
     )
@@ -141,7 +150,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
   // Handle addresses without asset info
   if (isAddressWithoutAsset) {
     return (
-      <Box py={2} pl={paddingLeft}>
+      <Box py={0.5} pl={paddingLeft}>
         <HStack justify='space-between' align='flex-start'>
           <RawText color='text.subtle' fontSize='sm'>
             {key}
@@ -154,7 +163,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({
 
   // Handle simple types
   return (
-    <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
+    <HStack justify='space-between' align='center' py={0.5} pl={paddingLeft}>
       <RawText color='text.subtle' fontSize='sm'>
         {key}
       </RawText>
@@ -195,11 +204,7 @@ export const StructuredMessage: FC<StructuredMessageProps> = ({
   return (
     <VStack align='stretch' spacing={0}>
       {fields.map((field, index) => (
-        <StructuredFieldComponent
-          key={`${field.key}-${index}`}
-          field={field}
-          chainId={chainId}
-        />
+        <StructuredFieldComponent key={`${field.key}-${index}`} field={field} chainId={chainId} />
       ))}
     </VStack>
   )

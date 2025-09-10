@@ -1,26 +1,36 @@
-import { Box, Button, Card, HStack, Image, Skeleton, Tag, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  HStack,
+  Image,
+  Skeleton,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
-import { useMemo, useState } from 'react'
-import { fromHex, isHex } from 'viem'
+import { useCallback, useMemo, useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import { ExpandableAddressCell } from '@/plugins/walletConnectToDapps/components/ExpandableAddressCell'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
-import { isAddress } from 'viem'
+import type { StructuredField } from '@/plugins/walletConnectToDapps/components/StructuredMessage'
+import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/StructuredMessage'
 import type {
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,
 } from '@/plugins/walletConnectToDapps/types'
-import { fetchSimulation, parseAssetChanges, parseDecodedInput, convertToStructuredFields, type AssetChange, type ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly'
-import { StructuredMessage, type StructuredField } from '@/plugins/walletConnectToDapps/components/StructuredMessage'
+import type { AssetChange, ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly'
+import {
+  convertToStructuredFields,
+  fetchSimulation,
+  parseAssetChanges,
+  parseDecodedInput,
+} from '@/plugins/walletConnectToDapps/utils/tenderly'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
 
 type TransactionContentProps = {
   transaction:
@@ -38,8 +48,7 @@ type TransactionContentProps = {
 export const TransactionContent: FC<TransactionContentProps> = ({
   transaction,
   chainId,
-  isInteractingWithContract,
-  feeAsset,
+  feeAsset: _feeAsset,
 }) => {
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const [isTransactionDataExpanded, setIsTransactionDataExpanded] = useState(true)
@@ -47,19 +56,6 @@ export const TransactionContent: FC<TransactionContentProps> = ({
   const connectedAccountFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, chainId ?? ''),
   )
-
-  const value = useMemo(() => {
-    if (!feeAsset) return '0'
-
-    const valueCryptoBaseUnit =
-      transaction?.value && isHex(transaction.value)
-        ? fromHex(transaction.value, 'bigint').toString()
-        : transaction?.value
-    const valueCryptoPrecision = fromBaseUnit(valueCryptoBaseUnit ?? '0', feeAsset.precision)
-    return valueCryptoPrecision
-  }, [feeAsset, transaction?.value])
-
-
 
   // Tenderly simulation for enhanced transaction analysis
   const simulationQuery = useQuery({
@@ -106,14 +102,14 @@ export const TransactionContent: FC<TransactionContentProps> = ({
     return convertToStructuredFields(decodedArguments)
   }, [decodedArguments])
 
-  const sendChanges = useMemo(() => 
-    assetChanges.filter(change => change.type === 'send'), 
-    [assetChanges]
+  const sendChanges = useMemo(
+    () => assetChanges.filter(change => change.type === 'send'),
+    [assetChanges],
   )
-  
-  const receiveChanges = useMemo(() => 
-    assetChanges.filter(change => change.type === 'receive'), 
-    [assetChanges]
+
+  const receiveChanges = useMemo(
+    () => assetChanges.filter(change => change.type === 'receive'),
+    [assetChanges],
   )
 
   // Create asset selectors for each unique token address
@@ -145,16 +141,22 @@ export const TransactionContent: FC<TransactionContentProps> = ({
     return assets
   })
 
+  const handleToggleTransactionData = useCallback(() => {
+    setIsTransactionDataExpanded(!isTransactionDataExpanded)
+  }, [isTransactionDataExpanded])
+
+  const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
+
   if (simulationQuery.error) {
     console.error('Tenderly simulation error:', simulationQuery.error)
   }
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
-      <VStack spacing={4} align='stretch'>
+      <VStack spacing={3} align='stretch'>
         {/* Chain/Network */}
         {connectedAccountFeeAsset && (
-          <HStack justify='space-between' py={2}>
+          <HStack justify='space-between' align='center' py={1}>
             <RawText fontSize='sm' color='text.subtle'>
               Chain
             </RawText>
@@ -163,7 +165,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                 {connectedAccountFeeAsset.networkName || connectedAccountFeeAsset.name}
               </RawText>
               <Image
-                boxSize='16px'
+                boxSize='20px'
                 src={connectedAccountFeeAsset.networkIcon || connectedAccountFeeAsset.icon}
                 borderRadius='full'
               />
@@ -175,14 +177,14 @@ export const TransactionContent: FC<TransactionContentProps> = ({
         {(simulationQuery.isLoading || sendChanges.length > 0 || receiveChanges.length > 0) && (
           <Skeleton isLoaded={!simulationQuery.isLoading}>
             {simulationQuery.isLoading ? (
-              <VStack spacing={3} align='stretch'>
-                <HStack justify='space-between' py={2}>
+              <VStack spacing={2} align='stretch'>
+                <HStack justify='space-between' align='center' py={1}>
                   <RawText fontSize='sm' color='text.subtle'>
                     Loading changes...
                   </RawText>
                   <Box />
                 </HStack>
-                <HStack justify='space-between' py={2}>
+                <HStack justify='space-between' align='center' py={1}>
                   <RawText fontSize='sm' color='text.subtle'>
                     Analyzing transaction...
                   </RawText>
@@ -190,25 +192,30 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                 </HStack>
               </VStack>
             ) : (
-              <VStack spacing={3} align='stretch'>
+              <VStack spacing={2} align='stretch'>
                 {/* Send Changes */}
                 {sendChanges.map((change, index) => {
                   // Use Tenderly's parsed amount (already formatted) or fallback to our asset lookup
-                  const asset = change.isNativeAsset 
+                  const asset = change.isNativeAsset
                     ? connectedAccountFeeAsset
-                    : change.tokenAddress 
-                      ? tokenAssets[change.tokenAddress]
-                      : null
+                    : change.tokenAddress
+                    ? tokenAssets[change.tokenAddress]
+                    : null
 
-                  const symbol = (change.symbol || asset?.symbol || (change.isNativeAsset ? 'ETH' : 'TOKEN')).toUpperCase()
+                  const symbol = (
+                    change.symbol ||
+                    asset?.symbol ||
+                    (change.isNativeAsset ? 'ETH' : 'TOKEN')
+                  ).toUpperCase()
                   const icon = asset?.icon || asset?.networkIcon
-                  
+
                   // Use bnOrZero and proper formatting with max 6 decimal places
                   const amount = bnOrZero(change.amount).abs()
-                  const formattedAmount = amount.dp() > 6 ? amount.toFixed(6) : amount.toFixed()
+                  const formattedAmount =
+                    (amount?.dp() ?? 0) > 6 ? amount?.toFixed(6) ?? '0' : amount?.toFixed() ?? '0'
 
                   return (
-                    <HStack key={`send-${index}`} justify='space-between' py={2}>
+                    <HStack key={`send-${index}`} justify='space-between' align='center' py={1}>
                       <RawText fontSize='sm' color='text.subtle'>
                         Send
                       </RawText>
@@ -216,9 +223,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                         <RawText fontSize='sm' color='red.400' fontWeight='bold'>
                           -{formattedAmount} {symbol}
                         </RawText>
-                        {icon && (
-                          <Image boxSize='16px' src={icon} borderRadius='full' />
-                        )}
+                        {icon && <Image boxSize='20px' src={icon} borderRadius='full' />}
                       </HStack>
                     </HStack>
                   )
@@ -227,21 +232,26 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                 {/* Receive Changes */}
                 {receiveChanges.map((change, index) => {
                   // Use Tenderly's parsed amount (already formatted) or fallback to our asset lookup
-                  const asset = change.isNativeAsset 
+                  const asset = change.isNativeAsset
                     ? connectedAccountFeeAsset
-                    : change.tokenAddress 
-                      ? tokenAssets[change.tokenAddress]
-                      : null
+                    : change.tokenAddress
+                    ? tokenAssets[change.tokenAddress]
+                    : null
 
-                  const symbol = (change.symbol || asset?.symbol || (change.isNativeAsset ? 'ETH' : 'TOKEN')).toUpperCase()
+                  const symbol = (
+                    change.symbol ||
+                    asset?.symbol ||
+                    (change.isNativeAsset ? 'ETH' : 'TOKEN')
+                  ).toUpperCase()
                   const icon = asset?.icon || asset?.networkIcon
-                  
+
                   // Use bnOrZero and proper formatting with max 6 decimal places
                   const amount = bnOrZero(change.amount)
-                  const formattedAmount = amount.dp() > 6 ? amount.toFixed(6) : amount.toFixed()
+                  const formattedAmount =
+                    (amount?.dp() ?? 0) > 6 ? amount?.toFixed(6) ?? '0' : amount?.toFixed() ?? '0'
 
                   return (
-                    <HStack key={`receive-${index}`} justify='space-between' py={2}>
+                    <HStack key={`receive-${index}`} justify='space-between' align='center' py={1}>
                       <RawText fontSize='sm' color='text.subtle'>
                         Receive
                       </RawText>
@@ -249,9 +259,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                         <RawText fontSize='sm' color='green.400' fontWeight='bold'>
                           +{formattedAmount} {symbol}
                         </RawText>
-                        {icon && (
-                          <Image boxSize='16px' src={icon} borderRadius='full' />
-                        )}
+                        {icon && <Image boxSize='20px' src={icon} borderRadius='full' />}
                       </HStack>
                     </HStack>
                   )
@@ -262,7 +270,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({
         )}
 
         {/* Interact Contract */}
-        <HStack justify='space-between' py={2}>
+        <HStack justify='space-between' align='center' py={1}>
           <RawText fontSize='sm' color='text.subtle'>
             Interact Contract
           </RawText>
@@ -272,56 +280,57 @@ export const TransactionContent: FC<TransactionContentProps> = ({
         </HStack>
 
         {/* Transaction Data Section */}
-        {transaction?.data && (simulationQuery.isLoading || functionName || structuredFields.length > 0) && (
-          <>
-            <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={4} mt={2}>
-              <Button
-                variant='ghost'
-                size='sm'
-                p={0}
-                h='auto'
-                fontWeight='medium'
-                justifyContent='space-between'
-                onClick={() => setIsTransactionDataExpanded(!isTransactionDataExpanded)}
-                _hover={{ bg: 'transparent' }}
-                w='full'
-                mb={3}
-              >
-                <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
-                  Transaction Data
-                </RawText>
-                <Box as={isTransactionDataExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
-              </Button>
-              
-              {isTransactionDataExpanded && (
-                <VStack spacing={4} align='stretch'>
-                  {/* Method Name */}
-                  {(simulationQuery.isLoading || functionName) && (
-                    <HStack justify='space-between' py={2}>
-                      <RawText fontSize='sm' color='text.subtle'>
-                        Method
-                      </RawText>
-                      <Skeleton isLoaded={!simulationQuery.isLoading}>
-                        <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
-                          {functionName || 'Loading...'}
-                        </RawText>
-                      </Skeleton>
-                    </HStack>
-                  )}
+        {transaction?.data &&
+          (simulationQuery.isLoading || functionName || structuredFields.length > 0) && (
+            <>
+              <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={4} mt={2}>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  p={0}
+                  h='auto'
+                  fontWeight='medium'
+                  justifyContent='space-between'
+                  onClick={handleToggleTransactionData}
+                  _hover={hoverStyle}
+                  w='full'
+                  mb={3}
+                >
+                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                    Transaction Data
+                  </RawText>
+                  <Box as={isTransactionDataExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
+                </Button>
 
-                  {/* Arguments using StructuredMessage */}
-                  {(simulationQuery.isLoading || structuredFields.length > 0) && (
-                    <StructuredMessage 
-                      fields={structuredFields}
-                      chainId={chainId}
-                      isLoading={simulationQuery.isLoading}
-                    />
-                  )}
-                </VStack>
-              )}
-            </Box>
-          </>
-        )}
+                {isTransactionDataExpanded && (
+                  <VStack spacing={2} align='stretch'>
+                    {/* Method Name */}
+                    {(simulationQuery.isLoading || functionName) && (
+                      <HStack justify='space-between' align='center' py={1}>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          Method
+                        </RawText>
+                        <Skeleton isLoaded={!simulationQuery.isLoading}>
+                          <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
+                            {functionName || 'Loading...'}
+                          </RawText>
+                        </Skeleton>
+                      </HStack>
+                    )}
+
+                    {/* Arguments using StructuredMessage */}
+                    {(simulationQuery.isLoading || structuredFields.length > 0) && (
+                      <StructuredMessage
+                        fields={structuredFields}
+                        chainId={chainId}
+                        isLoading={simulationQuery.isLoading}
+                      />
+                    )}
+                  </VStack>
+                )}
+              </Box>
+            </>
+          )}
       </VStack>
     </Card>
   )

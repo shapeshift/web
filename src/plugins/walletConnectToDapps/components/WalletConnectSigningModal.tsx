@@ -43,14 +43,17 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const handleConfirm = useCallback(async (customTransactionData?: CustomTransactionData) => {
-    setIsSubmitting(true)
-    try {
-      await onConfirm(customTransactionData)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [onConfirm])
+  const handleConfirm = useCallback(
+    async (customTransactionData?: CustomTransactionData) => {
+      setIsSubmitting(true)
+      try {
+        await onConfirm(customTransactionData)
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [onConfirm],
+  )
 
   const handleReject = useCallback(async () => {
     setIsSubmitting(true)

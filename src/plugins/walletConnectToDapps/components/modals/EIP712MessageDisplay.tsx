@@ -1,11 +1,10 @@
 import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, toAssetId, toChainId } from '@shapeshiftoss/caip'
-import type { TypedDataDomain } from 'abitype'
-import { useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { isAddress, validateTypedData } from 'viem'
+import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo, useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
+import { validateTypedData } from 'viem'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
@@ -39,6 +38,34 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
     }
   }, [typedData])
 
+  const domainChainId = useMemo(() => {
+    if (!parsedData?.domain?.chainId) return
+
+    try {
+      return toChainId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: String(parsedData.domain.chainId) as ChainReference,
+      })
+    } catch {
+      return
+    }
+  }, [parsedData?.domain?.chainId])
+
+  const domainFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, domainChainId ?? ''),
+  )
+
+  const contractExplorerLink = useMemo(() => {
+    if (!domainFeeAsset || !parsedData?.domain?.verifyingContract) return
+    return `${domainFeeAsset.explorerAddressLink}${parsedData.domain.verifyingContract}`
+  }, [parsedData?.domain?.verifyingContract, domainFeeAsset])
+
+  const handleToggleExpanded = useCallback(() => {
+    setIsMessageExpanded(!isMessageExpanded)
+  }, [isMessageExpanded])
+
+  const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
+
   if (!parsedData) {
     return (
       <Card bg={cardBg} borderRadius='2xl' p={4}>
@@ -51,36 +78,12 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
 
   const { primaryType, domain, message } = parsedData
 
-  const domainChainId = useMemo(() => {
-    if (!domain?.chainId) return
-
-    try {
-      return toChainId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: String(domain.chainId) as ChainReference,
-      })
-    } catch {
-      return
-    }
-  }, [domain?.chainId])
-
-  const domainFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, domainChainId ?? ''),
-  )
-
-  const contractExplorerLink = useMemo(() => {
-    if (!domainFeeAsset) return
-    if (!domain?.verifyingContract) return
-
-    return `${domainFeeAsset.explorerAddressLink}${domain.verifyingContract}`
-  }, [domain?.verifyingContract, domainFeeAsset])
-
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
       <VStack spacing={4} align='stretch'>
         {/* Domain fields consolidated into main layout */}
         {domain?.verifyingContract && (
-          <HStack justify='space-between' py={2}>
+          <HStack justify='space-between' align='center' py={2}>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('plugins.walletConnectToDapps.modal.signMessage.contract')}
             </RawText>
@@ -99,13 +102,15 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
         )}
 
         {domainFeeAsset && (
-          <HStack justify='space-between' py={2}>
+          <HStack justify='space-between' align='center' py={2}>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('common.network')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText fontSize='sm' fontWeight='bold'>{domainFeeAsset.networkName}</RawText>
-              <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
+              <RawText fontSize='sm' fontWeight='bold'>
+                {domainFeeAsset.networkName}
+              </RawText>
+              <Image boxSize='20px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
             </HStack>
           </HStack>
         )}
@@ -119,8 +124,8 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
             h='auto'
             fontWeight='medium'
             justifyContent='space-between'
-            onClick={() => setIsMessageExpanded(!isMessageExpanded)}
-            _hover={{ bg: 'transparent' }}
+            onClick={handleToggleExpanded}
+            _hover={hoverStyle}
             w='full'
             mb={3}
           >
@@ -129,7 +134,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
             </RawText>
             <Box as={isMessageExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
           </Button>
-          
+
           {isMessageExpanded && (
             <StructuredMessage
               fields={convertEIP712ToStructuredFields(message, primaryType)}

@@ -1,5 +1,5 @@
-import type { EIP712Value } from '@/plugins/walletConnectToDapps/types'
 import type { StructuredField } from '@/plugins/walletConnectToDapps/components/StructuredMessage'
+import type { EIP712Value } from '@/plugins/walletConnectToDapps/types'
 
 // Convert EIP712 message data to StructuredField format
 export const convertEIP712ToStructuredFields = (
@@ -28,10 +28,10 @@ export const convertEIP712ToStructuredFields = (
 const convertEIP712Value = (key: string, value: EIP712Value): StructuredField => {
   // Handle nested objects
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-    const children = Object.entries(value as Record<string, EIP712Value>).map(([childKey, childValue]) =>
-      convertEIP712Value(childKey, childValue)
+    const children = Object.entries(value as Record<string, EIP712Value>).map(
+      ([childKey, childValue]) => convertEIP712Value(childKey, childValue),
     )
-    
+
     return {
       key,
       value,

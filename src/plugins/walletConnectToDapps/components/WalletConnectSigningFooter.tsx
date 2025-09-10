@@ -75,7 +75,7 @@ export const WalletConnectSigningFooter: FC<WalletConnectSigningFooterProps> = (
         )}
 
         {/* Action Buttons */}
-        <HStack spacing={4}>
+        <HStack spacing={4} w='full'>
           <Button
             size='lg'
             flex={1}

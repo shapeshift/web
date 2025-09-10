@@ -68,7 +68,7 @@ export const useWalletConnectEventsHandler = (
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
-              modal: WalletConnectModal.SignEIP155MessageConfirmation,
+              modal: WalletConnectModal.SignEIP155TypedDataConfirmation,
               data: { requestEvent, requestSession: getRequestSession() },
             },
           })

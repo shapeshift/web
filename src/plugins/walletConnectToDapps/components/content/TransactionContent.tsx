@@ -1,5 +1,6 @@
 import { Box, Card, HStack, Image, Tag, useColorModeValue, VStack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { fromHex, isHex } from 'viem'
@@ -17,6 +18,7 @@ import {
   parseApprovalData,
   parseTransferData,
 } from '@/plugins/walletConnectToDapps/utils/contractDetection'
+import { fetchSimulation } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -133,6 +135,31 @@ export const TransactionContent: FC<TransactionContentProps> = ({
       formattedAmount: `${amountInPrecision} ${transferTokenAsset.symbol}`,
     }
   }, [transaction?.data, transferTokenAsset])
+
+  // Tenderly simulation for enhanced transaction analysis
+  const simulationQuery = useQuery({
+    queryKey: ['tenderly-simulation', chainId, transaction?.from, transaction?.to, transaction?.data],
+    queryFn: () =>
+      transaction?.from && transaction?.to && transaction?.data
+        ? fetchSimulation({
+            chainId,
+            from: transaction.from,
+            to: transaction.to,
+            data: transaction.data,
+          })
+        : null,
+    enabled: Boolean(transaction?.from && transaction?.to && transaction?.data),
+    staleTime: 30000, // Cache for 30 seconds
+    retry: false,
+  })
+
+  // Console log the simulation result
+  if (simulationQuery.data) {
+    console.log('Tenderly simulation result:', simulationQuery.data)
+  }
+  if (simulationQuery.error) {
+    console.error('Tenderly simulation error:', simulationQuery.error)
+  }
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>

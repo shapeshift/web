@@ -1,5 +1,4 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import pick from 'lodash/pick'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -95,12 +94,12 @@ export const useAssetSearchWorker = ({
     if (workerRef.current && primaryAssets.length && assets.length) {
       workerRef.current.postMessage({
         type: 'updateAssets',
-        payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
+        payload: { assets },
       })
       workerRef.current.postMessage({
         type: 'updatePrimaryAssets',
         payload: {
-          assets: primaryAssets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])),
+          assets: primaryAssets,
         },
       })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
@@ -113,6 +112,7 @@ export const useAssetSearchWorker = ({
   const performSearch = useCallback(
     (searchTerm: string) => {
       const worker = workerRef.current
+
       if (!worker || workerSearchState.workerState !== 'ready') {
         return
       }

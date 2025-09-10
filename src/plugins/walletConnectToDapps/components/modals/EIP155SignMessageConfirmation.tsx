@@ -15,6 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from '@/components/Text'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
 import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -57,6 +58,7 @@ export const EIP155SignMessageConfirmationModal: FC<
 
   return (
     <>
+      <WalletConnectPeerHeader peerMetadata={peerMetadata} />
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='2xl'>
           <HStack align='center' p={4}>

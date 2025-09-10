@@ -20,9 +20,10 @@ type MessageFieldProps = {
   name: string
   value: EIP712Value
   chainId?: string
+  level?: number // For indentation
 }
 
-const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => {
+const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId, level = 0 }) => {
   const maybeAssetId = useMemo(() => {
     if (!chainId || typeof value !== 'string' || !isAddress(value)) return null
 
@@ -41,13 +42,41 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => 
     maybeAssetId ? selectAssetById(state, maybeAssetId) : null,
   )
 
+  const paddingLeft = level > 0 ? 4 : 0 // Subtle indent for nested fields
+  
+  // Check if value is an object (nested fields)
+  const isNestedObject = typeof value === 'object' && value !== null && !Array.isArray(value)
+  
+  if (isNestedObject) {
+    return (
+      <Box py={2}>
+        <Box pl={paddingLeft}>
+          <RawText color='text.subtle' fontSize='sm' fontWeight='medium'>
+            {name}
+          </RawText>
+        </Box>
+        <VStack align='stretch' spacing={0}>
+          {Object.entries(value as Record<string, EIP712Value>).map(([key, nestedValue]) => (
+            <MessageField
+              key={key}
+              name={key}
+              value={nestedValue}
+              chainId={chainId}
+              level={level + 1}
+            />
+          ))}
+        </VStack>
+      </Box>
+    )
+  }
+
   const valueString = String(value)
   const isAddressField = typeof value === 'string' && isAddress(value)
   const isAddressWithoutAsset = isAddressField && !asset
 
   if (asset) {
     return (
-      <HStack justify='space-between' align='center' py={2}>
+      <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
         <RawText color='text.subtle' fontSize='sm'>
           {name}
         </RawText>
@@ -61,7 +90,7 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => 
 
   if (isAddressWithoutAsset) {
     return (
-      <Box py={2}>
+      <Box py={2} pl={paddingLeft}>
         <HStack justify='space-between' align='flex-start'>
           <RawText color='text.subtle' fontSize='sm'>
             {name}
@@ -73,7 +102,7 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId }) => 
   }
 
   return (
-    <HStack justify='space-between' align='center' py={2}>
+    <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
       <RawText color='text.subtle' fontSize='sm'>
         {name}
       </RawText>

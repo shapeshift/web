@@ -290,7 +290,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectPortfolioAccountBalancesBaseUnit,
     selectPortfolioAssetBalancesBaseUnit,
     selectMarketDataUserCurrency,
-    preferences.selectors.selectBalanceThresholdUserCurrency,
+    preferences.selectors.selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAccountIdParamFromFilter,
     (
@@ -298,7 +298,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       accountBalances,
       assetBalances,
       marketData,
-      balanceThresholdUserCurrency,
+      balanceThreshold,
       portfolioAccounts,
       accountId,
     ): AssetBalancesById => {
@@ -319,7 +319,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(bnOrZero(baseUnitBalance), precision)
         const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-        if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+        if (assetUserCurrencyBalance.lt(bnOrZero(balanceThreshold))) return acc
         // if it's above the threshold set the original object key and value to result
         acc[assetId] = baseUnitBalance ?? '0'
         return acc
@@ -339,19 +339,15 @@ export const selectIsPortfolioLoading = createSelector(
 
 export const selectPortfolioAssetAccountBalancesSortedUserCurrency = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalancesByAccountId,
-  preferences.selectors.selectBalanceThresholdUserCurrency,
-  (
-    portfolioUserCurrencyAccountBalances,
-    balanceThresholdUserCurrency,
-  ): PortfolioAccountBalancesById => {
+  preferences.selectors.selectBalanceThreshold,
+  (portfolioUserCurrencyAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
     return Object.entries(
       portfolioUserCurrencyAccountBalances,
     ).reduce<PortfolioAccountBalancesById>((acc, [accountId, assetBalanceObj]) => {
       const sortedAssetsByUserCurrencyBalances = Object.entries(assetBalanceObj ?? {})
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
         .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetUserCurrencyBalance]) => {
-          if (bnOrZero(assetUserCurrencyBalance).lt(bnOrZero(balanceThresholdUserCurrency)))
-            return acc
+          if (bnOrZero(assetUserCurrencyBalance).lt(bnOrZero(balanceThreshold))) return acc
           acc[assetId] = assetUserCurrencyBalance ?? '0'
           return acc
         }, {})
@@ -638,8 +634,8 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createCachedSel
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectAccountIdParamFromFilter,
   selectAssets,
-  preferences.selectors.selectBalanceThresholdUserCurrency,
-  (accountAssets, accountId, assets, balanceThresholdUserCurrency): AssetId[] => {
+  preferences.selectors.selectBalanceThreshold,
+  (accountAssets, accountId, assets, balanceThreshold): AssetId[] => {
     if (!accountId) return []
     const assetsByAccountIds = accountAssets?.[accountId] ?? {}
     return Object.entries(assetsByAccountIds)
@@ -647,7 +643,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createCachedSel
         ([assetId, assetFiatBalance]) =>
           !FEE_ASSET_IDS.includes(assetId) &&
           assets[assetId] &&
-          bnOrZero(assetFiatBalance).gte(bnOrZero(balanceThresholdUserCurrency)),
+          bnOrZero(assetFiatBalance).gte(bnOrZero(balanceThreshold)),
       )
       .map(([assetId]) => assetId)
   },
@@ -693,8 +689,8 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
-  preferences.selectors.selectBalanceThresholdUserCurrency,
-  (portfolioAccounts, assetId, accountBalances, balanceThresholdUserCurrency) => {
+  preferences.selectors.selectBalanceThreshold,
+  (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
     const accounts = findAccountsByAssetId(portfolioAccounts, assetId)
     const aboveThreshold = Object.entries(accountBalances).reduce<AccountId[]>(
       (acc, [accountId, balanceObj]) => {
@@ -705,7 +701,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
             },
             bnOrZero('0'),
           )
-          if (totalAccountUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+          if (totalAccountUserCurrencyBalance.lt(bnOrZero(balanceThreshold))) return acc
           acc.push(accountId)
         }
         return acc
@@ -800,14 +796,14 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
   selectAssets,
   selectMarketDataUserCurrency,
   selectRelatedAssetIdsByAssetIdInclusive,
-  preferences.selectors.selectBalanceThresholdUserCurrency,
+  preferences.selectors.selectBalanceThreshold,
   (
     portfolioAccountRows,
     accountBalancesById,
     assets,
     marketData,
     relatedAssetIdsByAssetId,
-    balanceThresholdUserCurrency,
+    balanceThreshold,
   ): AccountRowData[] => {
     const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
 
@@ -833,7 +829,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
         const price = marketData[primaryAssetId]?.price ?? '0'
         const userCurrencyAmount = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
 
-        if (userCurrencyAmount.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+        if (userCurrencyAmount.lt(bnOrZero(balanceThreshold))) return acc
 
         const primaryAccountRow: AccountRowData = {
           assetId: primaryAssetId,

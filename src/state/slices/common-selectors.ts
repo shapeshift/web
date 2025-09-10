@@ -458,8 +458,10 @@ export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector
   selectPortfolioFungiblePrimaryAssetsSortedByBalance,
   selectRelatedAssetIdsByAssetIdInclusive,
   selectAssets,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectMarketDataUserCurrency,
   (_state: ReduxState, chainId: ChainId | 'All') => chainId,
-  (portfolioAssets, relatedAssetIdsById, allAssets, chainId) => {
+  (portfolioAssets, relatedAssetIdsById, allAssets, balances, marketData, chainId) => {
     if (chainId === 'All') return portfolioAssets
 
     const chainAssets: Asset[] = []
@@ -483,7 +485,18 @@ export const selectPortfolioPrimaryAssetsByChain = createDeepEqualOutputSelector
       }
     }
 
-    return chainAssets
+    // Sort by balance on the selected chain
+    return chainAssets.sort((a, b) => {
+      const aBalance = balances[a.assetId] ?? '0'
+      const bBalance = balances[b.assetId] ?? '0'
+      const aPrice = marketData[a.assetId]?.price ?? '0'
+      const bPrice = marketData[b.assetId]?.price ?? '0'
+
+      const aValue = bnOrZero(fromBaseUnit(aBalance, a.precision)).times(aPrice)
+      const bValue = bnOrZero(fromBaseUnit(bBalance, b.precision)).times(bPrice)
+
+      return bValue.minus(aValue).toNumber()
+    })
   },
 )
 

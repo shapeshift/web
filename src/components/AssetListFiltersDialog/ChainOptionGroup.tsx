@@ -54,7 +54,7 @@ export const ChainOptionGroup = ({
 
   return (
     <>
-      <Text translation='transactionRow.network' mb={2} color='text.primary' fontWeight='bold' />
+      <Text translation='common.network' mb={2} color='text.primary' fontWeight='bold' />
       <Box backgroundColor='background.surface.raised.base' borderRadius='10' p={2} mb={4}>
         <MenuOptionGroup type='radio' value={selectedChainId}>
           <MenuItemOption

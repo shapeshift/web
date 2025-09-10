@@ -1,5 +1,5 @@
 import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Flex, Tag } from '@chakra-ui/react'
+import { Button, Flex, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
@@ -34,9 +34,11 @@ import {
   selectMarketDataUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
+  forceCompactView?: boolean
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -84,10 +86,17 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({ ids }) => {
+export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
+  ids,
+  forceCompactView,
+}) => {
   const location = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+  const isCompactCols = !isLargerThanMd || forceCompactView
+
   const {
     state: { isConnected },
     dispatch,
@@ -247,6 +256,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       {
         Header: translate('defi.claimableRewards'),
         accessor: 'rewardsCryptoBaseUnit',
+        display: isCompactCols ? 'none' : undefined,
         Cell: ({ row }: { row: RowProps }) => {
           const fiatAmount = calculateRewardFiatAmount({
             rewardAssetIds: row.original.rewardAssetIds,
@@ -296,6 +306,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       {
         Header: () => null,
         id: 'expander',
+        display: isCompactCols ? 'none' : undefined,
         Cell: ({ row }: { row: RowProps }) => {
           const url = getMetadataForProvider(row.original.provider)?.url
           const translation = (() => {
@@ -328,10 +339,26 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       },
     ],
-    [assets, handleClick, marketDataUserCurrency, translate],
+    [assets, handleClick, marketDataUserCurrency, translate, isCompactCols],
+  )
+
+  const handleRowClick = useCallback(
+    (row: RowProps) => {
+      if (isCompactCols) {
+        handleClick(row, DefiAction.Overview)
+      }
+    },
+    [isCompactCols, handleClick],
   )
 
   if (!filteredDown.length) return null
 
-  return <ReactTable data={filteredDown} columns={columns} />
+  return (
+    <ReactTable
+      data={filteredDown}
+      columns={columns}
+      displayHeaders={!isCompactCols}
+      onRowClick={isCompactCols ? handleRowClick : undefined}
+    />
+  )
 }

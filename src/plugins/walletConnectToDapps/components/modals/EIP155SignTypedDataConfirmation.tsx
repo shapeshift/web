@@ -6,7 +6,7 @@ import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useW
 import type { EthSignTypedDataCallRequest } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 
-export const EIP712TypedDataConfirmation: FC<
+export const EIP155SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
 > = ({ onConfirm, onReject, state, topic, dispatch: _dispatch }) => {
   const { message, chainId } = useWalletConnectState(state)

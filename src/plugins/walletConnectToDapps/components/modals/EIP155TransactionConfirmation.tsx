@@ -120,19 +120,27 @@ export const EIP155TransactionConfirmation: FC<
     () => speedOptions.find(option => option.value === selectedSpeed) || speedOptions[2], // default to Fast
     [speedOptions, selectedSpeed],
   )
-  
+
   const tooltipIconProps = useMemo(() => ({ boxSize: '12px', color: 'text.subtle' }), [])
   const chevronIcon = useMemo(() => <ChevronDownIcon />, [])
   const menuButtonHoverStyle = useMemo(() => ({ borderColor: 'whiteAlpha.300' }), [])
   const menuButtonActiveStyle = useMemo(() => ({ borderColor: 'whiteAlpha.400' }), [])
-  const menuListStyles = useMemo(() => ({
-    bg: 'gray.800',
-    borderColor: 'whiteAlpha.200',
-    borderRadius: 'lg',
-    py: 1
-  }), [])
+  const menuListStyles = useMemo(
+    () => ({
+      bg: 'gray.800',
+      borderColor: 'whiteAlpha.200',
+      borderRadius: 'lg',
+      py: 1,
+    }),
+    [],
+  )
   const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
   const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
+
+  const createMenuItemClickHandler = useCallback(
+    (speed: FeeDataKey) => () => handleSpeedChange(speed),
+    [handleSpeedChange],
+  )
 
   const value = useMemo(() => {
     if (!feeAsset) return '0'
@@ -466,7 +474,7 @@ export const EIP155TransactionConfirmation: FC<
               <Menu>
                 <MenuButton
                   as={Button}
-                  rightIcon={<ChevronDownIcon />}
+                  rightIcon={chevronIcon}
                   size='sm'
                   maxW='140px'
                   variant='outline'
@@ -477,8 +485,8 @@ export const EIP155TransactionConfirmation: FC<
                   color='white'
                   fontSize='sm'
                   fontWeight='medium'
-                  _hover={{ borderColor: 'whiteAlpha.300' }}
-                  _active={{ borderColor: 'whiteAlpha.400' }}
+                  _hover={menuButtonHoverStyle}
+                  _active={menuButtonActiveStyle}
                   px={3}
                 >
                   <HStack spacing={1}>
@@ -486,16 +494,16 @@ export const EIP155TransactionConfirmation: FC<
                     <Box>{currentSpeedOption.text}</Box>
                   </HStack>
                 </MenuButton>
-                <MenuList bg='gray.800' borderColor='whiteAlpha.200' borderRadius='lg' py={1}>
+                <MenuList {...menuListStyles}>
                   {speedOptions.map(option => (
                     <MenuItem
                       key={option.value}
-                      onClick={() => handleSpeedChange(option.value)}
+                      onClick={createMenuItemClickHandler(option.value)}
                       bg='transparent'
                       color='white'
                       fontSize='sm'
-                      _hover={{ bg: 'whiteAlpha.100' }}
-                      _focus={{ bg: 'whiteAlpha.100' }}
+                      _hover={menuItemHoverStyle}
+                      _focus={menuItemFocusStyle}
                       px={3}
                       py={2}
                     >

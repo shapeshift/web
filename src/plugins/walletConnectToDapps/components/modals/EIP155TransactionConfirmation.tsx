@@ -6,8 +6,8 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
-import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal'
 import { TransactionContent } from '@/plugins/walletConnectToDapps/components/content/TransactionContent'
+import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal'
 import { useCallRequestEvmFees } from '@/plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -28,7 +28,10 @@ export const EIP155TransactionConfirmation: FC<
   const form = useForm<CustomTransactionData>({
     defaultValues: {
       nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
-      gasLimit: transaction?.gasLimit ?? transaction?.gas ? convertHexToNumber(transaction.gasLimit ?? transaction.gas!).toString() : undefined,
+      gasLimit: (() => {
+        const gasValue = transaction?.gasLimit ?? transaction?.gas
+        return gasValue ? convertHexToNumber(gasValue).toString() : undefined
+      })(),
       speed: FeeDataKey.Fast,
       customFee: {
         baseFee: '0',
@@ -37,8 +40,8 @@ export const EIP155TransactionConfirmation: FC<
     },
   })
 
-  const handleFormSubmit = useCallback(async () => {
-    await handleConfirm()
+  const handleFormSubmit = useCallback(async (formData?: CustomTransactionData) => {
+    await handleConfirm(formData)
   }, [handleConfirm])
 
   if (isLoading || isInteractingWithContract === null) {
@@ -72,7 +75,15 @@ export const EIP155TransactionConfirmation: FC<
           transaction={transaction}
           chainId={chainId ?? ''}
           isInteractingWithContract={isInteractingWithContract}
-          feeAsset={feeAsset ? { symbol: feeAsset.symbol, precision: feeAsset.precision, icon: feeAsset.icon ?? '' } : undefined}
+          feeAsset={
+            feeAsset
+              ? {
+                  symbol: feeAsset.symbol,
+                  precision: feeAsset.precision,
+                  icon: feeAsset.icon ?? '',
+                }
+              : undefined
+          }
         />
       </WalletConnectSigningModal>
     </FormProvider>

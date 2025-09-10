@@ -138,7 +138,13 @@ export const TransactionContent: FC<TransactionContentProps> = ({
 
   // Tenderly simulation for enhanced transaction analysis
   const simulationQuery = useQuery({
-    queryKey: ['tenderly-simulation', chainId, transaction?.from, transaction?.to, transaction?.data],
+    queryKey: [
+      'tenderly-simulation',
+      chainId,
+      transaction?.from,
+      transaction?.to,
+      transaction?.data,
+    ],
     queryFn: () =>
       transaction?.from && transaction?.to && transaction?.data
         ? fetchSimulation({

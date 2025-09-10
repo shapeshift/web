@@ -11,8 +11,8 @@ import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
-import { EIP712TypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP712TypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
+import { EIP712TypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP712TypedDataConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -49,7 +49,7 @@ export type WalletConnectRequestModalProps<T> = {
   dispatch: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
   topic: string
-  onConfirm(): Promise<void>
+  onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
   onReject(): Promise<void>
 }
 

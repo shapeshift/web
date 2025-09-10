@@ -15,7 +15,7 @@ import type {
 
 type WalletConnectSigningModalProps = {
   // Core modal props
-  onConfirm: () => Promise<void>
+  onConfirm: (customTransactionData?: CustomTransactionData) => Promise<void>
   onReject: () => Promise<void>
   state: WalletConnectState
   topic: string
@@ -43,10 +43,10 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(async (customTransactionData?: CustomTransactionData) => {
     setIsSubmitting(true)
     try {
-      await onConfirm()
+      await onConfirm(customTransactionData)
     } finally {
       setIsSubmitting(false)
     }

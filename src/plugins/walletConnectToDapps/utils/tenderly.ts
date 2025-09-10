@@ -17,7 +17,7 @@ type TenderlySimulationResponse = {
     error_message?: string
     gas_used: number
     call_trace: {
-      calls?: Array<{
+      calls?: {
         from: string
         to: string
         input: string
@@ -25,7 +25,7 @@ type TenderlySimulationResponse = {
         gas_used: number
         type: string
         method?: string
-      }>
+      }[]
     }
   }
   simulation: {
@@ -43,22 +43,22 @@ type TenderlySimulationResponse = {
     gas_used: number
     value: string
     status: boolean
-    access_list?: Array<any>
+    access_list?: any[]
     method?: string
-    decoded_input?: Array<{
+    decoded_input?: {
       soltype: {
         name: string
         type: string
       }
       value: any
-    }>
-    decoded_output?: Array<{
+    }[]
+    decoded_output?: {
       soltype: {
         name: string
         type: string
       }
       value: any
-    }>
+    }[]
   }
 }
 
@@ -78,7 +78,7 @@ export const fetchSimulation = async ({
 }): Promise<TenderlySimulationResponse | null> => {
   try {
     const apiKey = import.meta.env.VITE_TENDERLY_API_KEY
-    
+
     if (!apiKey) {
       console.warn('Tenderly API key not found')
       return null
@@ -104,7 +104,7 @@ export const fetchSimulation = async ({
           'X-Access-Key': apiKey,
         },
         body: JSON.stringify(requestBody),
-      }
+      },
     )
 
     if (!response.ok) {

@@ -22,7 +22,7 @@ type WalletConnectSigningFooterProps = {
     feeAsset: Asset
     formMethods: UseFormReturn<CustomTransactionData>
   }
-  onConfirm: () => void
+  onConfirm: (customTransactionData?: CustomTransactionData) => void
   onReject: () => void
   isSubmitting: boolean
 }
@@ -42,7 +42,7 @@ export const WalletConnectSigningFooter: FC<WalletConnectSigningFooterProps> = (
     if (gasSelection?.formMethods) {
       gasSelection.formMethods.handleSubmit(onConfirm)()
     } else {
-      onConfirm()
+      onConfirm(undefined)
     }
   }, [gasSelection?.formMethods, onConfirm])
 

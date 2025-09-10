@@ -204,11 +204,6 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
-      if (row.original.relatedAssetKey === row.original.assetId) {
-        // InfiniteTable handles expansion automatically
-        return
-      }
-
       vibrate('heavy')
       onRowClick?.()
       const { assetId } = row.original
@@ -216,6 +211,18 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       navigate(url)
     },
     [navigate, onRowClick],
+  )
+
+  const handlePrimaryRowClick = useCallback(
+    (row: Row<AccountRowData>) => {
+      if (row.original.relatedAssetKey === row.original.assetId) {
+        // InfiniteTable handles expansion automatically
+        return
+      }
+
+      handleRowClick(row)
+    },
+    [handleRowClick],
   )
 
   const handleAssetClick = useCallback(
@@ -275,7 +282,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
     <InfiniteTable
       columns={columns}
       data={data}
-      onRowClick={handleRowClick}
+      onRowClick={handlePrimaryRowClick}
       onRowLongPress={handleRowLongPress}
       displayHeaders={showHeaders}
       variant='clickable'

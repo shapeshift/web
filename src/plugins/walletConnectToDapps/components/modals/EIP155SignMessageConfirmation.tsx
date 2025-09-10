@@ -1,19 +1,9 @@
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  HStack,
-  Image,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Card, HStack, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { RawText, Text } from '@/components/Text'
-import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
+import { RawText } from '@/components/Text'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
 import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'

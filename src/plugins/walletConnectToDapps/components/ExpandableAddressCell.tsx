@@ -1,4 +1,4 @@
-import { Box, HStack, useColorModeValue } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { FaChevronRight } from 'react-icons/fa'
 
@@ -22,8 +22,6 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
   const [internalExpanded, setInternalExpanded] = useState(false)
   const isControlled = controlledExpanded !== undefined
   const isExpanded = isControlled ? controlledExpanded : internalExpanded
-
-  const expandedBg = useColorModeValue('gray.50', 'gray.800')
 
   const handleToggle = useCallback(() => {
     const newExpanded = !isExpanded

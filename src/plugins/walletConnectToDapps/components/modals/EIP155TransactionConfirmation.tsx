@@ -5,6 +5,7 @@ import {
   Center,
   HStack,
   Image,
+  Select,
   Tag,
   useColorModeValue,
   VStack,
@@ -12,18 +13,18 @@ import {
 import { toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { FaGasPump, FaWrench } from 'react-icons/fa'
+import { FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { fromHex, isHex } from 'viem'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
-import { RawText, Text } from '@/components/Text'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { RawText } from '@/components/Text'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { GasFeeEstimateLabel } from '@/plugins/walletConnectToDapps/components/modals/GasFeeEstimateLabel'
-import { GasInput } from '@/plugins/walletConnectToDapps/components/modals/GasInput'
 import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
@@ -47,7 +48,6 @@ import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selecto
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
-const faGasPumpIcon = <FaGasPump />
 const faWrenchIcon = <FaWrench />
 
 export const EIP155TransactionConfirmation: FC<
@@ -60,7 +60,7 @@ export const EIP155TransactionConfirmation: FC<
     selectFeeAssetByChainId(state, chainId ?? ''),
   )
 
-  const { isLoading, feeAsset, fees, feeAssetPrice } = useCallRequestEvmFees(state)
+  const { isLoading, feeAsset, fees } = useCallRequestEvmFees(state)
 
   const { showErrorToast } = useErrorToast()
   const translate = useTranslate()
@@ -83,15 +83,25 @@ export const EIP155TransactionConfirmation: FC<
     },
   })
 
-  const estimatedGasTitle = useMemo(
-    () => (
-      <HStack flex={1} justify='space-between'>
-        <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-        <GasFeeEstimateLabel fees={fees} feeAsset={feeAsset} feeAssetPrice={feeAssetPrice} />
-      </HStack>
-    ),
-    [fees, feeAsset, feeAssetPrice],
+  const [selectedSpeed, setSelectedSpeed] = useState<FeeDataKey>(FeeDataKey.Fast)
+
+  const handleSpeedChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newSpeed = e.target.value as FeeDataKey
+      setSelectedSpeed(newSpeed)
+      form.setValue('speed', newSpeed)
+    },
+    [form],
   )
+
+  const currentFee = useMemo(() => {
+    if (!fees) return null
+    return fees[selectedSpeed]
+  }, [fees, selectedSpeed])
+
+  const selectHoverStyle = useMemo(() => ({ borderColor: 'whiteAlpha.300' }), [])
+  const selectFocusStyle = useMemo(() => ({ borderColor: 'whiteAlpha.400', boxShadow: 'none' }), [])
+  const tooltipIconProps = useMemo(() => ({ boxSize: '12px', color: 'text.subtle' }), [])
 
   const value = useMemo(() => {
     if (!feeAsset) return '0'
@@ -301,7 +311,9 @@ export const EIP155TransactionConfirmation: FC<
                     Amount
                   </RawText>
                   <RawText fontSize='sm'>
-                    {'formattedAmount' in transferData ? transferData.formattedAmount : transferData.amount}
+                    {'formattedAmount' in transferData
+                      ? transferData.formattedAmount
+                      : transferData.amount}
                   </RawText>
                 </HStack>
               </>
@@ -370,11 +382,6 @@ export const EIP155TransactionConfirmation: FC<
           </VStack>
         </VStack>
       </Card>
-      <ModalCollapsableSection title={estimatedGasTitle} icon={faGasPumpIcon} defaultOpen={false}>
-        <Box pt={2}>
-          <GasInput fees={fees} />
-        </Box>
-      </ModalCollapsableSection>
       <ModalCollapsableSection
         title={translate(
           'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.title',
@@ -403,6 +410,52 @@ export const EIP155TransactionConfirmation: FC<
               address={address ?? ''}
             />
           )}
+
+          {/* Gas Selection */}
+          {fees && feeAsset && currentFee && (
+            <HStack justify='space-between' w='full' align='center'>
+              <VStack spacing={0} align='flex-start'>
+                <RawText fontSize='sm' fontWeight='bold'>
+                  {currentFee.txFee &&
+                    bnOrZero(fromBaseUnit(currentFee.txFee, feeAsset.precision)).toFixed(6)}{' '}
+                  {feeAsset.symbol} (${bnOrZero(currentFee.fiatFee).toFixed(2)})
+                </RawText>
+                <HStack spacing={1} align='center'>
+                  <HelperTooltip
+                    label={translate(
+                      'plugins.walletConnectToDapps.modal.sendTransaction.feeEstimateTooltip',
+                    )}
+                    iconProps={tooltipIconProps}
+                  />
+                  <RawText fontSize='xs' color='text.subtle'>
+                    Fee Estimate
+                  </RawText>
+                </HStack>
+              </VStack>
+              <Select
+                size='sm'
+                value={selectedSpeed}
+                onChange={handleSpeedChange}
+                maxW='140px'
+                variant='outline'
+                bg='transparent'
+                borderColor='whiteAlpha.200'
+                borderWidth='1px'
+                borderRadius='lg'
+                color='white'
+                fontSize='sm'
+                fontWeight='medium'
+                _hover={selectHoverStyle}
+                _focus={selectFocusStyle}
+                iconSize='16px'
+              >
+                <option value={FeeDataKey.Slow}>🐌 Slow ~10 mins</option>
+                <option value={FeeDataKey.Average}>🟡 Average ~3 mins</option>
+                <option value={FeeDataKey.Fast}>⚡ Fast ~24 sec</option>
+              </Select>
+            </HStack>
+          )}
+
           <HStack spacing={4}>
             <Button
               size='lg'

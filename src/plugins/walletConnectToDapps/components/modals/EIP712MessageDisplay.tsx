@@ -43,10 +43,10 @@ const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId, level
   )
 
   const paddingLeft = level > 0 ? 4 : 0 // Subtle indent for nested fields
-  
+
   // Check if value is an object (nested fields)
   const isNestedObject = typeof value === 'object' && value !== null && !Array.isArray(value)
-  
+
   if (isNestedObject) {
     return (
       <Box py={2}>

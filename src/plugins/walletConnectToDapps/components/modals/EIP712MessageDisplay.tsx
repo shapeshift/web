@@ -12,110 +12,12 @@ import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { ExpandableAddressCell } from '@/plugins/walletConnectToDapps/components/ExpandableAddressCell'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
+import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/StructuredMessage'
 import type { EIP712TypedData, EIP712Value } from '@/plugins/walletConnectToDapps/types'
+import { convertEIP712ToStructuredFields } from '@/plugins/walletConnectToDapps/utils/eip712'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type MessageFieldProps = {
-  name: string
-  value: EIP712Value
-  chainId?: string
-  level?: number // For indentation
-}
-
-const MessageField: React.FC<MessageFieldProps> = ({ name, value, chainId, level = 0 }) => {
-  const maybeAssetId = useMemo(() => {
-    if (!chainId || typeof value !== 'string' || !isAddress(value)) return null
-
-    try {
-      return toAssetId({
-        chainId,
-        assetNamespace: 'erc20',
-        assetReference: value,
-      })
-    } catch {
-      return null
-    }
-  }, [value, chainId])
-
-  const asset = useAppSelector(state =>
-    maybeAssetId ? selectAssetById(state, maybeAssetId) : null,
-  )
-
-  const paddingLeft = level > 0 ? 4 : 0 // Subtle indent for nested fields
-
-  // Check if value is an object (nested fields)
-  const isNestedObject = typeof value === 'object' && value !== null && !Array.isArray(value)
-
-  if (isNestedObject) {
-    return (
-      <Box py={2}>
-        <Box pl={paddingLeft}>
-          <RawText color='text.subtle' fontSize='sm' fontWeight='medium'>
-            {name}
-          </RawText>
-        </Box>
-        <VStack align='stretch' spacing={0}>
-          {Object.entries(value as Record<string, EIP712Value>).map(([key, nestedValue]) => (
-            <MessageField
-              key={key}
-              name={key}
-              value={nestedValue}
-              chainId={chainId}
-              level={level + 1}
-            />
-          ))}
-        </VStack>
-      </Box>
-    )
-  }
-
-  const valueString = String(value)
-  const isAddressField = typeof value === 'string' && isAddress(value)
-  const isAddressWithoutAsset = isAddressField && !asset
-
-  if (asset) {
-    return (
-      <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
-        <RawText color='text.subtle' fontSize='sm'>
-          {name}
-        </RawText>
-        <HStack spacing={2} align='center'>
-          <RawText fontSize='sm'>{asset.symbol}</RawText>
-          <Image boxSize='16px' src={asset.icon} borderRadius='full' />
-        </HStack>
-      </HStack>
-    )
-  }
-
-  if (isAddressWithoutAsset) {
-    return (
-      <Box py={2} pl={paddingLeft}>
-        <HStack justify='space-between' align='flex-start'>
-          <RawText color='text.subtle' fontSize='sm'>
-            {name}
-          </RawText>
-          <ExpandableAddressCell address={valueString} />
-        </HStack>
-      </Box>
-    )
-  }
-
-  return (
-    <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
-      <RawText color='text.subtle' fontSize='sm'>
-        {name}
-      </RawText>
-      <RawText fontSize='sm'>
-        {valueString.length > 30 ? (
-          <MiddleEllipsis value={valueString} fontSize='sm' />
-        ) : (
-          valueString
-        )}
-      </RawText>
-    </HStack>
-  )
-}
 
 type DomainSectionProps = {
   domain: TypedDataDomain
@@ -231,16 +133,10 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
 
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
         <Card bg={cardBg} borderRadius='2xl' p={4}>
-          <VStack align='stretch' spacing={1}>
-            <MessageField
-              name={translate('plugins.walletConnectToDapps.modal.signMessage.primaryType')}
-              value={primaryType}
-              chainId={chainId}
-            />
-            {Object.entries(message).map(([key, value]) => (
-              <MessageField key={key} name={key} value={value} chainId={chainId} />
-            ))}
-          </VStack>
+          <StructuredMessage
+            fields={convertEIP712ToStructuredFields(message, primaryType)}
+            chainId={chainId || ''}
+          />
         </Card>
       </ModalSection>
     </>

@@ -213,6 +213,38 @@ export type ParsedArgument = {
   components?: ParsedArgument[] // For tuple/struct types
 }
 
+// Convert ParsedArgument to StructuredField format
+export const convertToStructuredFields = (args: ParsedArgument[]): Array<{
+  key: string
+  value: any
+  type: string
+  children?: Array<{
+    key: string
+    value: any
+    type: string
+    children?: any
+  }>
+}> => {
+  return args.map(arg => {
+    const convertComponents = (components?: ParsedArgument[]) => {
+      if (!components) return undefined
+      return components.map(comp => ({
+        key: comp.name,
+        value: comp.value,
+        type: comp.type,
+        children: comp.components ? convertComponents(comp.components) : undefined,
+      }))
+    }
+
+    return {
+      key: arg.name,
+      value: arg.value,
+      type: arg.type,
+      children: convertComponents(arg.components),
+    }
+  })
+}
+
 export const parseDecodedInput = (
   simulation: TenderlySimulationResponse,
 ): ParsedArgument[] => {

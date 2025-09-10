@@ -1,0 +1,206 @@
+import { Box, Button, HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
+import { toAssetId } from '@shapeshiftoss/caip'
+import type { FC } from 'react'
+import { useMemo, useState } from 'react'
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { isAddress } from 'viem'
+
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { RawText } from '@/components/Text'
+import { ExpandableAddressCell } from '@/plugins/walletConnectToDapps/components/ExpandableAddressCell'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+export type StructuredField = {
+  key: string
+  value: any
+  type?: string // "address", "uint256", "bool", "address[]", etc.
+  children?: StructuredField[]
+  level?: number
+}
+
+type StructuredFieldProps = {
+  field: StructuredField
+  chainId: string
+}
+
+const StructuredFieldComponent: FC<StructuredFieldProps> = ({ 
+  field, 
+  chainId,
+}) => {
+  const { key, value, children } = field
+  const level = field.level ?? 0
+  const [isExpanded, setIsExpanded] = useState(false)
+  
+  const maybeAssetId = useMemo(() => {
+    if (typeof value !== 'string' || !isAddress(value)) return null
+
+    try {
+      return toAssetId({
+        chainId,
+        assetNamespace: 'erc20',
+        assetReference: value,
+      })
+    } catch {
+      return null
+    }
+  }, [value, chainId])
+
+  const asset = useAppSelector(state =>
+    maybeAssetId ? selectAssetById(state, maybeAssetId) : null,
+  )
+
+  const paddingLeft = level > 0 ? 4 : 0
+
+  // Handle nested structures (objects, tuples)
+  if (children && children.length > 0) {
+    return (
+      <Box py={2}>
+        <Button
+          variant='ghost'
+          size='sm'
+          pl={paddingLeft}
+          pr={2}
+          py={1}
+          h='auto'
+          fontWeight='normal'
+          justifyContent='space-between'
+          onClick={() => setIsExpanded(!isExpanded)}
+          _hover={{ bg: 'whiteAlpha.50' }}
+          w='full'
+        >
+          <RawText color='text.subtle' fontSize='sm' fontWeight='medium'>
+            {key}
+          </RawText>
+          <Box as={isExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
+        </Button>
+        {isExpanded && (
+          <VStack align='stretch' spacing={0}>
+            {children.map((child, index) => (
+              <StructuredFieldComponent
+                key={`${child.key}-${index}`}
+                field={{ ...child, level: level + 1 }}
+                chainId={chainId}
+              />
+            ))}
+          </VStack>
+        )}
+      </Box>
+    )
+  }
+
+  // Handle array types
+  if (Array.isArray(value)) {
+    return (
+      <Box py={2} pl={paddingLeft}>
+        <HStack justify='space-between' align='flex-start'>
+          <RawText color='text.subtle' fontSize='sm'>
+            {key}
+          </RawText>
+          <VStack align='end' spacing={1}>
+            {value.map((item, index) => {
+              const itemString = String(item)
+              if (typeof item === 'string' && isAddress(item)) {
+                return <ExpandableAddressCell key={index} address={itemString} />
+              }
+              return (
+                <RawText key={index} fontSize='sm'>
+                  {itemString.length > 20 ? (
+                    <MiddleEllipsis value={itemString} fontSize='sm' />
+                  ) : (
+                    itemString
+                  )}
+                </RawText>
+              )
+            })}
+          </VStack>
+        </HStack>
+      </Box>
+    )
+  }
+
+  const valueString = String(value)
+  const isAddressField = typeof value === 'string' && isAddress(value)
+  const isAddressWithoutAsset = isAddressField && !asset
+
+  // Handle asset addresses
+  if (asset) {
+    return (
+      <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
+        <RawText color='text.subtle' fontSize='sm'>
+          {key}
+        </RawText>
+        <HStack spacing={2} align='center'>
+          <RawText fontSize='sm'>{asset.symbol}</RawText>
+          <Image boxSize='16px' src={asset.icon} borderRadius='full' />
+        </HStack>
+      </HStack>
+    )
+  }
+
+  // Handle addresses without asset info
+  if (isAddressWithoutAsset) {
+    return (
+      <Box py={2} pl={paddingLeft}>
+        <HStack justify='space-between' align='flex-start'>
+          <RawText color='text.subtle' fontSize='sm'>
+            {key}
+          </RawText>
+          <ExpandableAddressCell address={valueString} />
+        </HStack>
+      </Box>
+    )
+  }
+
+  // Handle simple types
+  return (
+    <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
+      <RawText color='text.subtle' fontSize='sm'>
+        {key}
+      </RawText>
+      <RawText fontSize='sm'>
+        {valueString.length > 30 ? (
+          <MiddleEllipsis value={valueString} fontSize='sm' />
+        ) : (
+          valueString
+        )}
+      </RawText>
+    </HStack>
+  )
+}
+
+export type StructuredMessageProps = {
+  fields: StructuredField[]
+  chainId: string
+  isLoading?: boolean
+}
+
+export const StructuredMessage: FC<StructuredMessageProps> = ({
+  fields,
+  chainId,
+  isLoading = false,
+}) => {
+  if (isLoading) {
+    return (
+      <VStack align='stretch' spacing={2}>
+        <Skeleton height='24px' />
+        <Skeleton height='24px' />
+        <Skeleton height='24px' />
+      </VStack>
+    )
+  }
+
+  if (!fields || fields.length === 0) return null
+
+  return (
+    <VStack align='stretch' spacing={0}>
+      {fields.map((field, index) => (
+        <StructuredFieldComponent
+          key={`${field.key}-${index}`}
+          field={field}
+          chainId={chainId}
+        />
+      ))}
+    </VStack>
+  )
+}

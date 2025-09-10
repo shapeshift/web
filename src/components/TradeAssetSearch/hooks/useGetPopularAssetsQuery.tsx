@@ -41,7 +41,7 @@ export const queryFn = async () => {
 
       if (!result[relatedAssetChainId]) result[relatedAssetChainId] = []
 
-      result[relatedAssetChainId].push(asset)
+      result[relatedAssetChainId].push(relatedAsset)
     })
 
     result[chainId].push(asset)

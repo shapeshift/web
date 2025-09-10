@@ -80,10 +80,10 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
-      <VStack spacing={4} align='stretch'>
+      <VStack spacing={3} align='stretch'>
         {/* Domain fields consolidated into main layout */}
         {domain?.verifyingContract && (
-          <HStack justify='space-between' align='center' py={2}>
+          <HStack justify='space-between' align='center' py={1}>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('plugins.walletConnectToDapps.modal.signMessage.contract')}
             </RawText>
@@ -102,7 +102,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
         )}
 
         {domainFeeAsset && (
-          <HStack justify='space-between' align='center' py={2}>
+          <HStack justify='space-between' align='center' py={1}>
             <RawText color='text.subtle' fontSize='sm'>
               {translate('common.network')}
             </RawText>

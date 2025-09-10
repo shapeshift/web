@@ -120,7 +120,19 @@ export const EIP155TransactionConfirmation: FC<
     () => speedOptions.find(option => option.value === selectedSpeed) || speedOptions[2], // default to Fast
     [speedOptions, selectedSpeed],
   )
+  
   const tooltipIconProps = useMemo(() => ({ boxSize: '12px', color: 'text.subtle' }), [])
+  const chevronIcon = useMemo(() => <ChevronDownIcon />, [])
+  const menuButtonHoverStyle = useMemo(() => ({ borderColor: 'whiteAlpha.300' }), [])
+  const menuButtonActiveStyle = useMemo(() => ({ borderColor: 'whiteAlpha.400' }), [])
+  const menuListStyles = useMemo(() => ({
+    bg: 'gray.800',
+    borderColor: 'whiteAlpha.200',
+    borderRadius: 'lg',
+    py: 1
+  }), [])
+  const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
+  const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
 
   const value = useMemo(() => {
     if (!feeAsset) return '0'

@@ -59,26 +59,11 @@ export const EIP155SignMessageConfirmationModal: FC<
   return (
     <>
       <WalletConnectPeerHeader peerMetadata={peerMetadata} />
-      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
-        <Card bg={cardBg} borderRadius='2xl'>
-          <HStack align='center' p={4}>
-            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
-            <RawText fontWeight='semibold' flex={1}>
-              {peerMetadata.name}
-            </RawText>
-            <ExternalLinkButton href={peerMetadata.url} ariaLabel={peerMetadata.name} />
-          </HStack>
-          <Divider />
-          <Box p={4}>
-            <Text
-              translation='plugins.walletConnectToDapps.modal.signMessage.message'
-              fontWeight='medium'
-              mb={1}
-            />
-            <RawText fontWeight='medium' color='text.subtle'>
-              {message}
-            </RawText>
-          </Box>
+      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.message'>
+        <Card bg={cardBg} borderRadius='2xl' p={4}>
+          <RawText fontWeight='medium' color='text.subtle'>
+            {message}
+          </RawText>
         </Card>
       </ModalSection>
       <Box

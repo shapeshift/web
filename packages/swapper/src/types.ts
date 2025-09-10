@@ -400,7 +400,6 @@ export type Swap = {
   expectedBuyAmountCryptoBaseUnit: string
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
-  actualBuyAmountCryptoPrecision?: string | undefined
   txLink?: string
   metadata: SwapperSpecificMetadata
   isStreaming?: boolean

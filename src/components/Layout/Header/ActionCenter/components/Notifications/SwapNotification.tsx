@@ -12,6 +12,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectSwapActionBySwapId, selectWalletSwapsById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -28,6 +29,8 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     if (!swapId) return undefined
     return swapsById[swapId]
   }, [swapId, swapsById])
+
+  const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swapId)
 
   const action = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
 
@@ -53,7 +56,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
       ),
       buyAmountAndSymbol: (
         <Amount.Crypto
-          value={swap.actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
+          value={actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
           symbol={swap.buyAsset.symbol}
           fontSize='sm'
           fontWeight='bold'
@@ -68,7 +71,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
         </Box>
       ),
     }
-  }, [swap])
+  }, [swap, actualBuyAmountCryptoPrecision])
 
   const swapTitleTranslation = useMemo(() => {
     if (!action || !swap) return 'actionCenter.swap.processing'

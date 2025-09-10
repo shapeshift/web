@@ -16,6 +16,7 @@ import { SendIcon } from '@/components/Icons/SendIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
@@ -56,7 +57,15 @@ const qrCodeIcon = (
   </Box>
 )
 
-const netWorth = (
+const mobileNetWorth = (
+  // react-memo you're drunk, this is outside of component scope
+  // eslint-disable-next-line react-memo/require-usememo
+  <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
+    <WalletBalanceChange showErroredAccounts={false} />
+  </Flex>
+)
+
+const desktopNetWorth = (
   // react-memo you're drunk, this is outside of component scope
   // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
@@ -220,7 +229,7 @@ export const DashboardHeaderTop = memo(() => {
             pb={4}
             gap={containerGap}
           >
-            {netWorth}
+            {mobileNetWorth}
             {desktopButtons}
           </Container>
           {mobileButtons}
@@ -239,7 +248,7 @@ export const DashboardHeaderTop = memo(() => {
           justifyContent='space-between'
           gap={containerGap}
         >
-          {netWorth}
+          {desktopNetWorth}
           <Flex
             gridColumn={3}
             gap={4}

@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { baseChainId, ethChainId, fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
+import { baseChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -9,7 +9,7 @@ import {
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -28,7 +28,6 @@ import { SwapNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
-import { fromBaseUnit } from '@/lib/math'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { vibrate } from '@/lib/vibrate'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -37,7 +36,6 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
-import { selectTxByFilter } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -121,6 +119,8 @@ export const useSwapActionSubscriber = () => {
   // Sync swap status with action status
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
+      if (!swap) return
+
       const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,
       })
@@ -184,7 +184,9 @@ export const useSwapActionSubscriber = () => {
   }, [dispatch, activeSwapId, swapsById, confirmedTradeExecution])
 
   const swapStatusHandler = useCallback(
-    async (swap: Swap) => {
+    async (swap: Swap | undefined) => {
+      if (!swap) return
+
       const maybeSwapper = swappers[swap.swapperName]
 
       if (maybeSwapper === undefined)
@@ -241,42 +243,6 @@ export const useSwapActionSubscriber = () => {
         }),
       })
 
-      const tx = (() => {
-        if (!swap || !buyTxHash) return
-
-        const { buyAccountId } = swap
-
-        if (!buyAccountId) return
-
-        // Use selectTxByFilter to find tx by hash instead of leveraging serialized index
-        // This handles the special case of RUNE outbounds i.e our serialized Tx would be
-        // cosmos:thorchain-1:thorAddy*txHash*:thorAddy but the Tx in store is
-        // cosmos:thorchain-1:thorAddy*txHash*thorAddy*OUT:txHash (note memo part)
-
-        const maybeTx = selectTxByFilter(store.getState(), {
-          accountId: buyAccountId,
-          txHash: buyTxHash,
-          // For THOR chain buys (i.e RUNE, RUJI, TCY and other potential non-fee native AssetIds we add in the future)
-          // accountId and txHash won't be enough of discriminators to narrow to one Tx, since
-          // both the inbound and outbound Tx will share the same tx Hash *and* the same AccountId
-          // So we use the OUT: memo discriminator to ensure we select the outbound Tx, not the inbound
-          memo: swap?.buyAsset?.chainId === thorchainChainId ? 'OUT:' : undefined,
-        })
-        return maybeTx
-      })()
-
-      const actualBuyAmountCryptoPrecision = (() => {
-        if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
-
-        const receiveTransfer = tx.transfers.find(
-          transfer =>
-            transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
-        )
-        return receiveTransfer?.value
-          ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
-          : undefined
-      })()
-
       if (status === TxStatus.Confirmed) {
         // TEMP HACK FOR BASE
         if (swap.sellAsset.chainId === baseChainId || swap.buyAsset.chainId === baseChainId) {
@@ -290,7 +256,6 @@ export const useSwapActionSubscriber = () => {
         dispatch(
           swapSlice.actions.upsertSwap({
             ...swap,
-            actualBuyAmountCryptoPrecision,
             status: SwapStatus.Success,
             statusMessage: message,
             buyTxHash,
@@ -423,10 +388,10 @@ export const useSwapActionSubscriber = () => {
         const swap = swapsById[swapId]
 
         return {
-          queryKey: ['action', action.id, swap.id, swap.sellTxHash],
+          queryKey: ['action', action.id, swap?.id, swap?.sellTxHash],
           queryFn: () => swapStatusHandler(swap),
           refetchInterval: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
-          enabled: isConnected && swap.status === SwapStatus.Pending,
+          enabled: isConnected && swap?.status === SwapStatus.Pending,
         }
       })
       .filter((query): query is NonNullable<typeof query> => query !== undefined)

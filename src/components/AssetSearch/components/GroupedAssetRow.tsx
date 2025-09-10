@@ -174,7 +174,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               {!showPrice &&
               isConnected &&
               (!hideZeroBalanceAmounts ||
-                bnOrZero(groupedAssetBalances?.primaryAsset.cryptoAmount).gt(0)) ? (
+                bnOrZero(groupedAssetBalances?.primaryAsset.fiatAmount).gt(0)) ? (
                 <Amount.Crypto
                   color='text.secondary'
                   fontSize='sm'

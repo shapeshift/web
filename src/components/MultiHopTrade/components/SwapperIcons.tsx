@@ -5,12 +5,11 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
-import { AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { useMemo } from 'react'
 import { TbWifi } from 'react-icons/tb'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
-
-import { SlideTransitionX } from '@/components/SlideTransitionX'
 
 type SwapperIconsProps = {
   swapSource: SwapSource | undefined
@@ -23,10 +22,37 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
     swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE ||
     swapSource === MAYACHAIN_STREAM_SWAP_SOURCE
 
+  const animationTransition = useMemo(
+    () => ({ duration: 0.2, ease: [0.43, 0.13, 0.23, 0.96] as [number, number, number, number] }),
+    [],
+  )
+
+  const widthAnimate = useMemo(
+    () =>
+      isStreaming
+        ? { width: 24, transition: animationTransition }
+        : { width: 0, transition: animationTransition },
+    [animationTransition, isStreaming],
+  )
+
+  const streamingAnimate = useMemo(
+    () =>
+      isStreaming
+        ? { opacity: 1, scale: 1, transition: animationTransition }
+        : { opacity: 0, scale: 0.85, transition: animationTransition },
+    [animationTransition, isStreaming],
+  )
+
   return (
-    <AnimatePresence>
-      {isStreaming && (
-        <SlideTransitionX key={swapSource ?? swapperName}>
+    <Box as={motion.div} display='inline-flex' alignItems='center'>
+      <Box
+        as={motion.div}
+        initial={false}
+        animate={widthAnimate}
+        overflow='hidden'
+        display='inline-flex'
+      >
+        <Box as={motion.div} initial={false} animate={streamingAnimate} display='inline-flex'>
           <Center
             className='quote-icon'
             bg='background.surface.raised.base'
@@ -40,8 +66,8 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
               <TbWifi />
             </Box>
           </Center>
-        </SlideTransitionX>
-      )}
+        </Box>
+      </Box>
       <Center
         className='quote-icon'
         bg='background.surface.raised.base'
@@ -53,6 +79,6 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
       >
         {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
       </Center>
-    </AnimatePresence>
+    </Box>
   )
 }

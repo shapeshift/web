@@ -92,6 +92,7 @@ export const useAssetSearchWorker = ({
   // Update worker with new assets
   useEffect(() => {
     if (workerRef.current && primaryAssets.length && assets.length) {
+      console.log('sending assets')
       workerRef.current.postMessage({
         type: 'updateAssets',
         payload: { assets },

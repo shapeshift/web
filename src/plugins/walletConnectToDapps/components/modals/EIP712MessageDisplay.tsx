@@ -1,4 +1,4 @@
-import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Card, HStack, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import type { TypedDataDomain } from 'abitype'
@@ -8,6 +8,7 @@ import { validateTypedData } from 'viem'
 
 import { ModalSection } from './ModalSection'
 
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
@@ -99,7 +100,7 @@ const DomainSection: React.FC<DomainSectionProps> = ({ domain }) => {
             <HStack spacing={2} align='center'>
               <RawText>{domainFeeAsset.networkName}</RawText>
               <HStack w='24px' h='24px' justify='center' align='center'>
-                <Image boxSize='16px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />
+                <LazyLoadAvatar src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} size='xs' />
               </HStack>
             </HStack>
           </HStack>

@@ -38,6 +38,35 @@ type TenderlyAssetChange = {
   to_before_balance?: string
 }
 
+type TenderlyDecodedInput = {
+  soltype: {
+    name: string
+    type: string
+    storage_location?: string
+    offset?: number
+    index?: string
+    indexed?: boolean
+    simple_type?: {
+      type: string
+      nested_type?: {
+        type: string
+      }
+    }
+    components?: Array<{
+      name: string
+      type: string
+      storage_location?: string
+      offset?: number
+      index?: string
+      indexed?: boolean
+      simple_type?: {
+        type: string
+      }
+    }>
+  }
+  value: any
+}
+
 type TenderlySimulationResponse = {
   transaction: {
     hash: string
@@ -57,6 +86,9 @@ type TenderlySimulationResponse = {
     }
     transaction_info?: {
       asset_changes?: TenderlyAssetChange[]
+      call_trace?: {
+        decoded_input?: TenderlyDecodedInput[]
+      }
     }
   }
   asset_changes?: TenderlyAssetChange[]
@@ -96,6 +128,8 @@ type TenderlySimulationResponse = {
 
 const TENDERLY_ACCOUNT_SLUG = '0xgomes'
 const TENDERLY_PROJECT_SLUG = 'project'
+
+export type { TenderlyDecodedInput }
 
 export type AssetChange = {
   userAddress: string
@@ -170,6 +204,97 @@ export const parseAssetChanges = (
   })
 
   return changes
+}
+
+export type ParsedArgument = {
+  name: string
+  type: string
+  value: any
+  components?: ParsedArgument[] // For tuple/struct types
+}
+
+export const parseDecodedInput = (
+  simulation: TenderlySimulationResponse,
+): ParsedArgument[] => {
+  const decodedInput = simulation.transaction.transaction_info?.call_trace?.decoded_input
+  if (!decodedInput || decodedInput.length === 0) return []
+
+  const parseValue = (input: TenderlyDecodedInput): ParsedArgument => {
+    const { soltype, value } = input
+    
+    // Handle tuple/struct types with components
+    if (soltype.type.includes('tuple') && soltype.components) {
+      if (Array.isArray(value)) {
+        // Handle tuple[] - array of tuples
+        const tupleItems = value.map((tupleItem: any, tupleIndex: number) => {
+          if (typeof tupleItem === 'object' && tupleItem !== null) {
+            // Each tuple item is an object with key-value pairs
+            const tupleComponents = Object.entries(tupleItem).map(([key, val]) => {
+              const componentDef = soltype.components!.find(comp => comp.name === key)
+              return {
+                name: key,
+                type: componentDef?.type || 'unknown',
+                value: val,
+                components: undefined,
+              }
+            })
+            return {
+              name: `Item ${tupleIndex + 1}`,
+              type: soltype.type.replace('[]', ''),
+              value: tupleItem,
+              components: tupleComponents,
+            }
+          }
+          return null
+        }).filter(Boolean)
+        
+        return {
+          name: soltype.name,
+          type: soltype.type,
+          value,
+          components: tupleItems,
+        }
+      } else if (typeof value === 'object' && value !== null) {
+        // Handle single tuple - object with key-value pairs
+        const components = Object.entries(value).map(([key, val]) => {
+          const componentDef = soltype.components!.find(comp => comp.name === key)
+          return {
+            name: key,
+            type: componentDef?.type || 'unknown',
+            value: val,
+            components: undefined,
+          }
+        })
+        
+        return {
+          name: soltype.name,
+          type: soltype.type,
+          value,
+          components,
+        }
+      }
+    }
+
+    // Handle array types
+    if (soltype.type.includes('[]') && Array.isArray(value)) {
+      return {
+        name: soltype.name,
+        type: soltype.type,
+        value: value,
+        components: undefined,
+      }
+    }
+
+    // Handle simple types
+    return {
+      name: soltype.name,
+      type: soltype.type,
+      value,
+      components: undefined,
+    }
+  }
+
+  return decodedInput.map(parseValue)
 }
 
 export const fetchSimulation = async ({

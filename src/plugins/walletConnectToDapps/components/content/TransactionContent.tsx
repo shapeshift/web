@@ -5,16 +5,151 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { fromHex, isHex } from 'viem'
 
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { ExpandableAddressCell } from '@/plugins/walletConnectToDapps/components/ExpandableAddressCell'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import { isAddress } from 'viem'
 import type {
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,
 } from '@/plugins/walletConnectToDapps/types'
-import { fetchSimulation, parseAssetChanges, type AssetChange } from '@/plugins/walletConnectToDapps/utils/tenderly'
+import { fetchSimulation, parseAssetChanges, parseDecodedInput, type AssetChange, type ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+type ArgumentFieldProps = {
+  argument: ParsedArgument
+  chainId: string
+  level?: number // For indentation
+}
+
+const ArgumentField: FC<ArgumentFieldProps> = ({ argument, chainId, level = 0 }) => {
+  const { name, type, value, components } = argument
+  
+  const maybeAssetId = useMemo(() => {
+    if (typeof value !== 'string' || !isAddress(value)) return null
+
+    try {
+      return toAssetId({
+        chainId,
+        assetNamespace: 'erc20',
+        assetReference: value,
+      })
+    } catch {
+      return null
+    }
+  }, [value, chainId])
+
+  const asset = useAppSelector(state =>
+    maybeAssetId ? selectAssetById(state, maybeAssetId) : null,
+  )
+
+  const paddingLeft = level > 0 ? 4 : 0
+
+  // Handle tuple/struct types with components
+  if (components && components.length > 0) {
+    return (
+      <Box py={2}>
+        <Box pl={paddingLeft}>
+          <RawText color='text.subtle' fontSize='sm' fontWeight='medium'>
+            {name} <RawText as='span' color='text.subtler' fontSize='xs'>({type})</RawText>
+          </RawText>
+        </Box>
+        <VStack align='stretch' spacing={0}>
+          {components.map((component, index) => (
+            <ArgumentField
+              key={`${component.name}-${index}`}
+              argument={component}
+              chainId={chainId}
+              level={level + 1}
+            />
+          ))}
+        </VStack>
+      </Box>
+    )
+  }
+
+  // Handle array types
+  if (type.includes('[]') && Array.isArray(value)) {
+    return (
+      <Box py={2} pl={paddingLeft}>
+        <HStack justify='space-between' align='flex-start'>
+          <RawText color='text.subtle' fontSize='sm'>
+            {name} <RawText as='span' color='text.subtler' fontSize='xs'>({type})</RawText>
+          </RawText>
+          <VStack align='end' spacing={1}>
+            {value.map((item, index) => {
+              const itemString = String(item)
+              if (typeof item === 'string' && isAddress(item)) {
+                return <ExpandableAddressCell key={index} address={itemString} />
+              }
+              return (
+                <RawText key={index} fontSize='sm'>
+                  {itemString.length > 20 ? (
+                    <MiddleEllipsis value={itemString} fontSize='sm' />
+                  ) : (
+                    itemString
+                  )}
+                </RawText>
+              )
+            })}
+          </VStack>
+        </HStack>
+      </Box>
+    )
+  }
+
+  const valueString = String(value)
+  const isAddressField = typeof value === 'string' && isAddress(value)
+  const isAddressWithoutAsset = isAddressField && !asset
+
+  // Handle asset addresses
+  if (asset) {
+    return (
+      <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
+        <RawText color='text.subtle' fontSize='sm'>
+          {name} <RawText as='span' color='text.subtler' fontSize='xs'>({type})</RawText>
+        </RawText>
+        <HStack spacing={2} align='center'>
+          <RawText fontSize='sm'>{asset.symbol}</RawText>
+          <Image boxSize='16px' src={asset.icon} borderRadius='full' />
+        </HStack>
+      </HStack>
+    )
+  }
+
+  // Handle addresses without asset info
+  if (isAddressWithoutAsset) {
+    return (
+      <Box py={2} pl={paddingLeft}>
+        <HStack justify='space-between' align='flex-start'>
+          <RawText color='text.subtle' fontSize='sm'>
+            {name} <RawText as='span' color='text.subtler' fontSize='xs'>({type})</RawText>
+          </RawText>
+          <ExpandableAddressCell address={valueString} />
+        </HStack>
+      </Box>
+    )
+  }
+
+  // Handle simple types
+  return (
+    <HStack justify='space-between' align='center' py={2} pl={paddingLeft}>
+      <RawText color='text.subtle' fontSize='sm'>
+        {name} <RawText as='span' color='text.subtler' fontSize='xs'>({type})</RawText>
+      </RawText>
+      <RawText fontSize='sm'>
+        {valueString.length > 30 ? (
+          <MiddleEllipsis value={valueString} fontSize='sm' />
+        ) : (
+          valueString
+        )}
+      </RawText>
+    </HStack>
+  )
+}
 
 type TransactionContentProps = {
   transaction:
@@ -87,6 +222,12 @@ export const TransactionContent: FC<TransactionContentProps> = ({
     if (!simulationQuery.data || !transaction?.from) return []
     return parseAssetChanges(simulationQuery.data, transaction.from)
   }, [simulationQuery.data, transaction?.from])
+
+  // Parse decoded input arguments from Tenderly simulation
+  const decodedArguments = useMemo((): ParsedArgument[] => {
+    if (!simulationQuery.data) return []
+    return parseDecodedInput(simulationQuery.data)
+  }, [simulationQuery.data])
 
   const sendChanges = useMemo(() => 
     assetChanges.filter(change => change.type === 'send'), 
@@ -167,7 +308,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({
           </HStack>
 
           {/* Transaction Data Section */}
-          {transaction?.data && (simulationQuery.isLoading || functionName) && (
+          {transaction?.data && (simulationQuery.isLoading || functionName || decodedArguments.length > 0) && (
             <>
               <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={3} mt={3}>
                 <RawText fontSize='sm' fontWeight='medium' mb={3} color='text.subtle'>
@@ -175,16 +316,45 @@ export const TransactionContent: FC<TransactionContentProps> = ({
                 </RawText>
               </Box>
               
-              <HStack justify='space-between'>
-                <RawText fontSize='sm' color='text.subtle'>
-                  Method
-                </RawText>
-                <Skeleton isLoaded={!simulationQuery.isLoading}>
-                  <RawText fontSize='sm' fontFamily='mono'>
-                    {functionName || 'Loading...'}
+              {/* Method Name */}
+              {(simulationQuery.isLoading || functionName) && (
+                <HStack justify='space-between'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Method
                   </RawText>
-                </Skeleton>
-              </HStack>
+                  <Skeleton isLoaded={!simulationQuery.isLoading}>
+                    <RawText fontSize='sm' fontFamily='mono'>
+                      {functionName || 'Loading...'}
+                    </RawText>
+                  </Skeleton>
+                </HStack>
+              )}
+
+              {/* Arguments */}
+              <Skeleton isLoaded={!simulationQuery.isLoading}>
+                {simulationQuery.isLoading ? (
+                  <VStack spacing={2} align='stretch'>
+                    <HStack justify='space-between'>
+                      <RawText fontSize='sm' color='text.subtle'>
+                        Loading arguments...
+                      </RawText>
+                      <Box />
+                    </HStack>
+                  </VStack>
+                ) : (
+                  decodedArguments.length > 0 && (
+                    <VStack align='stretch' spacing={0}>
+                      {decodedArguments.map((argument, index) => (
+                        <ArgumentField
+                          key={`${argument.name}-${index}`}
+                          argument={argument}
+                          chainId={chainId}
+                        />
+                      ))}
+                    </VStack>
+                  )
+                )}
+              </Skeleton>
             </>
           )}
 

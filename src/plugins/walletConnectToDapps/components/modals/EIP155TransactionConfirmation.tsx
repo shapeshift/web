@@ -1,6 +1,16 @@
-import { Box, Button, Card, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import {
+  Box,
+  Button,
+  Card,
+  Center,
+  HStack,
+  Image,
+  Tag,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -9,18 +19,12 @@ import { useTranslate } from 'react-polyglot'
 import { fromHex, isHex } from 'viem'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { RawText, Text } from '@/components/Text'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { fromBaseUnit } from '@/lib/math'
-import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
-import { AmountCard } from '@/plugins/walletConnectToDapps/components/modals/AmountCard'
-import { ContractInteractionBreakdown } from '@/plugins/walletConnectToDapps/components/modals/ContractInteractionBreakdown'
 import { GasFeeEstimateLabel } from '@/plugins/walletConnectToDapps/components/modals/GasFeeEstimateLabel'
 import { GasInput } from '@/plugins/walletConnectToDapps/components/modals/GasInput'
 import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
-import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { WalletConnectPeerHeader } from '@/plugins/walletConnectToDapps/components/modals/WalletConnectPeerHeader'
 import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
@@ -31,9 +35,13 @@ import type {
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,
 } from '@/plugins/walletConnectToDapps/types'
-import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
 import { convertHexToNumber } from '@/plugins/walletConnectToDapps/utils'
-import { detectContractType, getFunctionName, parseApprovalData, parseTransferData } from '@/plugins/walletConnectToDapps/utils/contractDetection'
+import {
+  detectContractType,
+  getFunctionName,
+  parseApprovalData,
+  parseTransferData,
+} from '@/plugins/walletConnectToDapps/utils/contractDetection'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -45,8 +53,7 @@ const faWrenchIcon = <FaWrench />
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
-  const { address, transaction, isInteractingWithContract, method, chainId } =
-    useWalletConnectState(state)
+  const { address, transaction, isInteractingWithContract, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
   const connectedAccountFeeAsset = useAppSelector(state =>
@@ -58,14 +65,6 @@ export const EIP155TransactionConfirmation: FC<
   const { showErrorToast } = useErrorToast()
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
-  const {
-    state: { walletInfo },
-  } = useWallet()
-  const WalletIcon = walletInfo?.icon ?? FoxIcon
-  const walletIcon = useMemo(
-    () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
-    [WalletIcon],
-  )
 
   const gas = useMemo(
     () => transaction?.gasLimit ?? transaction?.gas,
@@ -119,7 +118,7 @@ export const EIP155TransactionConfirmation: FC<
   // For token approvals, the 'to' address is the token contract being approved
   const approvalTokenAsset = useAppSelector(state => {
     if (!transaction?.to || !chainId) return null
-    
+
     try {
       const assetId = toAssetId({
         chainId,
@@ -136,7 +135,7 @@ export const EIP155TransactionConfirmation: FC<
     if (!transaction?.data || !chainId) return null
     const data = parseApprovalData(transaction.data, chainId)
     if (!data) return null
-    
+
     // Try to get token info if we're approving a token
     // For ERC20 approvals, the 'to' address is the token contract
     let formattedAmount = data.amount
@@ -145,10 +144,10 @@ export const EIP155TransactionConfirmation: FC<
       const amountInPrecision = fromBaseUnit(data.amountRaw, approvalTokenAsset.precision)
       formattedAmount = `${amountInPrecision} ${approvalTokenAsset.symbol}`
     }
-    
+
     return {
       ...data,
-      formattedAmount: data.isUnlimited ? 'Unlimited' : formattedAmount
+      formattedAmount: data.isUnlimited ? 'Unlimited' : formattedAmount,
     }
   }, [transaction?.data, chainId, approvalTokenAsset])
 
@@ -157,7 +156,7 @@ export const EIP155TransactionConfirmation: FC<
     if (!transaction?.to || !chainId || !transaction?.data) return null
     const functionName = getFunctionName(transaction.data)
     if (functionName !== 'transfer' && functionName !== 'transferFrom') return null
-    
+
     try {
       const assetId = toAssetId({
         chainId,
@@ -174,12 +173,12 @@ export const EIP155TransactionConfirmation: FC<
     if (!transaction?.data) return null
     const data = parseTransferData(transaction.data)
     if (!data || !transferTokenAsset) return data
-    
+
     // Format with proper decimals
     const amountInPrecision = fromBaseUnit(data.amount, transferTokenAsset.precision)
     return {
       ...data,
-      formattedAmount: `${amountInPrecision} ${transferTokenAsset.symbol}`
+      formattedAmount: `${amountInPrecision} ${transferTokenAsset.symbol}`,
     }
   }, [transaction?.data, transferTokenAsset])
 
@@ -224,7 +223,9 @@ export const EIP155TransactionConfirmation: FC<
             {/* Action/Method */}
             {functionName && (
               <HStack justify='space-between'>
-                <RawText fontSize='sm' color='text.subtle'>Method</RawText>
+                <RawText fontSize='sm' color='text.subtle'>
+                  Method
+                </RawText>
                 <RawText fontSize='sm'>{functionName}</RawText>
               </HStack>
             )}
@@ -233,16 +234,23 @@ export const EIP155TransactionConfirmation: FC<
             {approvalData && (
               <>
                 <HStack justify='space-between'>
-                  <RawText fontSize='sm' color='text.subtle'>Approve Token</RawText>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Approve Token
+                  </RawText>
                   <HStack spacing={2}>
-                    <RawText fontSize='sm'>{approvalTokenAsset?.symbol || transaction.to.slice(0, 6) + '...' + transaction.to.slice(-4)}</RawText>
+                    <RawText fontSize='sm'>
+                      {approvalTokenAsset?.symbol ||
+                        transaction.to.slice(0, 6) + '...' + transaction.to.slice(-4)}
+                    </RawText>
                     {approvalTokenAsset && (
                       <Image boxSize='16px' src={approvalTokenAsset.icon} borderRadius='full' />
                     )}
                   </HStack>
                 </HStack>
                 <HStack justify='space-between'>
-                  <RawText fontSize='sm' color='text.subtle'>Amount</RawText>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Amount
+                  </RawText>
                   <HStack spacing={2}>
                     <RawText fontSize='sm' color={approvalData.isUnlimited ? 'red.400' : undefined}>
                       {approvalData.formattedAmount}
@@ -253,7 +261,9 @@ export const EIP155TransactionConfirmation: FC<
                   </HStack>
                 </HStack>
                 <HStack justify='space-between'>
-                  <RawText fontSize='sm' color='text.subtle'>Spender</RawText>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Spender
+                  </RawText>
                   <RawText fontSize='sm' fontFamily='mono'>
                     {approvalData.spender.slice(0, 6)}...{approvalData.spender.slice(-4)}
                   </RawText>
@@ -265,23 +275,34 @@ export const EIP155TransactionConfirmation: FC<
             {transferData && (
               <>
                 <HStack justify='space-between'>
-                  <RawText fontSize='sm' color='text.subtle'>Send Token</RawText>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Send Token
+                  </RawText>
                   <HStack spacing={2}>
-                    <RawText fontSize='sm'>{transferTokenAsset?.symbol || transaction.to.slice(0, 6) + '...' + transaction.to.slice(-4)}</RawText>
+                    <RawText fontSize='sm'>
+                      {transferTokenAsset?.symbol ||
+                        transaction.to.slice(0, 6) + '...' + transaction.to.slice(-4)}
+                    </RawText>
                     {transferTokenAsset && (
                       <Image boxSize='16px' src={transferTokenAsset.icon} borderRadius='full' />
                     )}
                   </HStack>
                 </HStack>
                 <HStack justify='space-between'>
-                  <RawText fontSize='sm' color='text.subtle'>Send To</RawText>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Send To
+                  </RawText>
                   <RawText fontSize='sm' fontFamily='mono'>
                     {transferData.to.slice(0, 6)}...{transferData.to.slice(-4)}
                   </RawText>
                 </HStack>
                 <HStack justify='space-between'>
-                  <RawText fontSize='sm' color='text.subtle'>Amount</RawText>
-                  <RawText fontSize='sm'>{transferData.formattedAmount || transferData.amount}</RawText>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    Amount
+                  </RawText>
+                  <RawText fontSize='sm'>
+                    {'formattedAmount' in transferData ? transferData.formattedAmount : transferData.amount}
+                  </RawText>
                 </HStack>
               </>
             )}
@@ -292,10 +313,18 @@ export const EIP155TransactionConfirmation: FC<
                 {/* Chain/Network */}
                 {connectedAccountFeeAsset && (
                   <HStack justify='space-between'>
-                    <RawText fontSize='sm' color='text.subtle'>Chain</RawText>
+                    <RawText fontSize='sm' color='text.subtle'>
+                      Chain
+                    </RawText>
                     <HStack spacing={2}>
-                      <RawText fontSize='sm'>{connectedAccountFeeAsset.networkName || connectedAccountFeeAsset.name}</RawText>
-                      <Image boxSize='16px' src={connectedAccountFeeAsset.networkIcon || connectedAccountFeeAsset.icon} borderRadius='full' />
+                      <RawText fontSize='sm'>
+                        {connectedAccountFeeAsset.networkName || connectedAccountFeeAsset.name}
+                      </RawText>
+                      <Image
+                        boxSize='16px'
+                        src={connectedAccountFeeAsset.networkIcon || connectedAccountFeeAsset.icon}
+                        borderRadius='full'
+                      />
                     </HStack>
                   </HStack>
                 )}
@@ -303,9 +332,13 @@ export const EIP155TransactionConfirmation: FC<
                 {/* Send amount for regular transfers or contract interactions */}
                 {(value !== '0' || !isInteractingWithContract) && feeAsset && (
                   <HStack justify='space-between'>
-                    <RawText fontSize='sm' color='text.subtle'>Send</RawText>
+                    <RawText fontSize='sm' color='text.subtle'>
+                      Send
+                    </RawText>
                     <HStack spacing={2}>
-                      <RawText fontSize='sm'>{value} {feeAsset.symbol}</RawText>
+                      <RawText fontSize='sm'>
+                        {value} {feeAsset.symbol}
+                      </RawText>
                       <Image boxSize='16px' src={feeAsset.icon} borderRadius='full' />
                     </HStack>
                   </HStack>
@@ -324,7 +357,9 @@ export const EIP155TransactionConfirmation: FC<
                 {/* Method for unrecognized contract interactions */}
                 {isInteractingWithContract && !functionName && transaction?.data && (
                   <HStack justify='space-between'>
-                    <RawText fontSize='sm' color='text.subtle'>Method</RawText>
+                    <RawText fontSize='sm' color='text.subtle'>
+                      Method
+                    </RawText>
                     <RawText fontSize='sm' fontFamily='mono'>
                       {transaction.data.slice(0, 10)}
                     </RawText>

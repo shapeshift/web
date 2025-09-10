@@ -1,4 +1,13 @@
-import { Box, Button, Card, Divider, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  HStack,
+  Image,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

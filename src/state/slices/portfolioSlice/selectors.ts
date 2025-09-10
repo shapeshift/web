@@ -925,10 +925,12 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
       }, bnOrZero(0))
       .toFixed(2)
 
-    const totalCryptoBalance = allRelatedAssetIds.reduce((sum, assetId) => {
-      const row = accountRows.find(row => row.assetId === assetId)
-      return sum.plus(row?.cryptoAmount ?? '0')
-    }, bnOrZero(0))
+    const totalCryptoBalance = allRelatedAssetIds
+      .reduce((sum, assetId) => {
+        const row = accountRows.find(row => row.assetId === assetId)
+        return sum.plus(row?.cryptoAmount ?? '0')
+      }, bnOrZero(0))
+      .toFixed()
 
     return {
       primaryAsset: {

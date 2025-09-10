@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -5,7 +6,10 @@ import {
   Center,
   HStack,
   Image,
-  Select,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Tag,
   useColorModeValue,
   VStack,
@@ -86,12 +90,25 @@ export const EIP155TransactionConfirmation: FC<
   const [selectedSpeed, setSelectedSpeed] = useState<FeeDataKey>(FeeDataKey.Fast)
 
   const handleSpeedChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newSpeed = e.target.value as FeeDataKey
+    (newSpeed: FeeDataKey) => {
       setSelectedSpeed(newSpeed)
       form.setValue('speed', newSpeed)
     },
     [form],
+  )
+
+  const speedOptions = useMemo(
+    () => [
+      { value: FeeDataKey.Slow, label: '🐌 Slow ~10 mins', emoji: '🐌', text: 'Slow ~10 mins' },
+      {
+        value: FeeDataKey.Average,
+        label: '🟡 Average ~3 mins',
+        emoji: '🟡',
+        text: 'Average ~3 mins',
+      },
+      { value: FeeDataKey.Fast, label: '⚡ Fast ~24 sec', emoji: '⚡', text: 'Fast ~24 sec' },
+    ],
+    [],
   )
 
   const currentFee = useMemo(() => {
@@ -99,8 +116,10 @@ export const EIP155TransactionConfirmation: FC<
     return fees[selectedSpeed]
   }, [fees, selectedSpeed])
 
-  const selectHoverStyle = useMemo(() => ({ borderColor: 'whiteAlpha.300' }), [])
-  const selectFocusStyle = useMemo(() => ({ borderColor: 'whiteAlpha.400', boxShadow: 'none' }), [])
+  const currentSpeedOption = useMemo(
+    () => speedOptions.find(option => option.value === selectedSpeed) || speedOptions[2], // default to Fast
+    [speedOptions, selectedSpeed],
+  )
   const tooltipIconProps = useMemo(() => ({ boxSize: '12px', color: 'text.subtle' }), [])
 
   const value = useMemo(() => {
@@ -432,27 +451,50 @@ export const EIP155TransactionConfirmation: FC<
                   </RawText>
                 </HStack>
               </VStack>
-              <Select
-                size='sm'
-                value={selectedSpeed}
-                onChange={handleSpeedChange}
-                maxW='140px'
-                variant='outline'
-                bg='transparent'
-                borderColor='whiteAlpha.200'
-                borderWidth='1px'
-                borderRadius='lg'
-                color='white'
-                fontSize='sm'
-                fontWeight='medium'
-                _hover={selectHoverStyle}
-                _focus={selectFocusStyle}
-                iconSize='16px'
-              >
-                <option value={FeeDataKey.Slow}>🐌 Slow ~10 mins</option>
-                <option value={FeeDataKey.Average}>🟡 Average ~3 mins</option>
-                <option value={FeeDataKey.Fast}>⚡ Fast ~24 sec</option>
-              </Select>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  size='sm'
+                  maxW='140px'
+                  variant='outline'
+                  bg='transparent'
+                  borderColor='whiteAlpha.200'
+                  borderWidth='1px'
+                  borderRadius='lg'
+                  color='white'
+                  fontSize='sm'
+                  fontWeight='medium'
+                  _hover={{ borderColor: 'whiteAlpha.300' }}
+                  _active={{ borderColor: 'whiteAlpha.400' }}
+                  px={3}
+                >
+                  <HStack spacing={1}>
+                    <Box>{currentSpeedOption.emoji}</Box>
+                    <Box>{currentSpeedOption.text}</Box>
+                  </HStack>
+                </MenuButton>
+                <MenuList bg='gray.800' borderColor='whiteAlpha.200' borderRadius='lg' py={1}>
+                  {speedOptions.map(option => (
+                    <MenuItem
+                      key={option.value}
+                      onClick={() => handleSpeedChange(option.value)}
+                      bg='transparent'
+                      color='white'
+                      fontSize='sm'
+                      _hover={{ bg: 'whiteAlpha.100' }}
+                      _focus={{ bg: 'whiteAlpha.100' }}
+                      px={3}
+                      py={2}
+                    >
+                      <HStack spacing={2}>
+                        <Box>{option.emoji}</Box>
+                        <Box>{option.text}</Box>
+                      </HStack>
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
             </HStack>
           )}
 

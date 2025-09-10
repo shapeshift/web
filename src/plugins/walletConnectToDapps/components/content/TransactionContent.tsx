@@ -8,6 +8,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
@@ -36,20 +37,11 @@ type TransactionContentProps = {
   transaction:
     | EthSendTransactionCallRequest['params'][0]
     | EthSignTransactionCallRequest['params'][0]
-  chainId: string
+  chainId: ChainId
   isInteractingWithContract: boolean
-  feeAsset?: {
-    symbol: string
-    precision: number
-    icon: string
-  }
 }
 
-export const TransactionContent: FC<TransactionContentProps> = ({
-  transaction,
-  chainId,
-  feeAsset: _feeAsset,
-}) => {
+export const TransactionContent: FC<TransactionContentProps> = ({ transaction, chainId }) => {
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const [isTransactionDataExpanded, setIsTransactionDataExpanded] = useState(true)
 

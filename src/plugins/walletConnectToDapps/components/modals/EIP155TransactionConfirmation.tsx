@@ -78,15 +78,6 @@ export const EIP155TransactionConfirmation: FC<
           transaction={transaction}
           chainId={chainId ?? ''}
           isInteractingWithContract={isInteractingWithContract}
-          feeAsset={
-            feeAsset
-              ? {
-                  symbol: feeAsset.symbol,
-                  precision: feeAsset.precision,
-                  icon: feeAsset.icon ?? '',
-                }
-              : undefined
-          }
         />
       </WalletConnectSigningModal>
     </FormProvider>

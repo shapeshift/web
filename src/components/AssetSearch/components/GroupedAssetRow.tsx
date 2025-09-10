@@ -3,9 +3,9 @@ import {
   Box,
   Button,
   Collapse,
-  Text as CText,
   Flex,
   Icon,
+  Text as CText,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'

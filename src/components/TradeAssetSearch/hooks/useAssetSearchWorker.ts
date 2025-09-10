@@ -92,16 +92,16 @@ export const useAssetSearchWorker = ({
   // Update worker with new assets
   useEffect(() => {
     if (workerRef.current && primaryAssets.length && assets.length) {
-      // workerRef.current.postMessage({
-      //   type: 'updateAssets',
-      //   payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
-      // })
-      // workerRef.current.postMessage({
-      //   type: 'updatePrimaryAssets',
-      //   payload: {
-      //     assets: primaryAssets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])),
-      //   },
-      // })
+      workerRef.current.postMessage({
+        type: 'updateAssets',
+        payload: { assets },
+      })
+      workerRef.current.postMessage({
+        type: 'updatePrimaryAssets',
+        payload: {
+          assets: primaryAssets,
+        },
+      })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
       setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))

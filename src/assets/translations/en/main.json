@@ -215,7 +215,8 @@
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
     "approval": "Approval",
-    "permit2Approval": "Permit2 Approval"
+    "permit2Approval": "Permit2 Approval",
+    "network": "Network"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -548,6 +549,7 @@
     "netWorth": "Net Worth",
     "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
     "walletBalance": "Wallet Balance",
+    "walletBalanceChange24Hr": "24-hour change",
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
@@ -734,7 +736,6 @@
     "confirmed": "Confirmed",
     "pending": "Pending",
     "failed": "Failed",
-    "network": "Network",
     "blockHeight": "Block Height",
     "to": "To",
     "from": "From",
@@ -2304,7 +2305,8 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
-    "thisMonth": "This Month"
+    "thisMonth": "This Month",
+    "transactionDetails": "Transaction Details"
   },
   "plugins": {
     "foxPage": {
@@ -2404,7 +2406,9 @@
           "chainId": "Chain ID",
           "authInfo": "Auth info",
           "body": "Body",
-          "comingSoon": "Coming soon"
+          "comingSoon": "Coming soon",
+          "contract": "Contract",
+          "primaryType": "Primary Type"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",

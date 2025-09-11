@@ -20,9 +20,9 @@ type GasSelectionMenuProps = {
 }
 
 const SPEED_OPTIONS = [
-  { value: FeeDataKey.Slow, emoji: '🐌', text: 'Slow ~10 mins' },
-  { value: FeeDataKey.Average, emoji: '🟡', text: 'Average ~3 mins' },
-  { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast ~24 sec' },
+  { value: FeeDataKey.Slow, emoji: '🐌', text: 'Slow' },
+  { value: FeeDataKey.Average, emoji: '🟡', text: 'Average' },
+  { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast' },
 ]
 
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }

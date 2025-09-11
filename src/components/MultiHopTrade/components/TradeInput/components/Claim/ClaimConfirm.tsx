@@ -46,7 +46,7 @@ type ClaimConfirmProps = {
 }
 
 const backIcon = <ArrowBackIcon />
-const cardFooterBgProp = { base: 'transparent', md: 'darkNeutral.800' }
+const cardFooterBgProp = { base: 'transparent', md: 'background.surface.raised.accent' }
 const assetPy = { base: 8, md: 32 }
 const slideTransitionStyle: ResolvedValues = { flex: 1, display: 'flex', flexDirection: 'column' }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }

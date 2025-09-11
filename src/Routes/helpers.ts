@@ -26,7 +26,6 @@ export type Route = {
   category?: RouteCategory
   menuRightComponent?: React.ReactNode
   relatedPaths?: string[]
-  fullWidth?: boolean
 } & (
   | {
       mobileNav: boolean

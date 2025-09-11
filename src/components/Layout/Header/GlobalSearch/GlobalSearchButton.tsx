@@ -8,24 +8,16 @@ import { GlobalSearchModal } from './GlobalSearchModal'
 import { isMobile as isMobileApp } from '@/lib/globals'
 
 const mrProp = { base: 0, md: 'auto' }
-const widthProp = { base: 'auto', lg: 'full' }
-const displayProp1 = { base: 'flex', lg: 'none' }
-const displayProp2 = { base: 'none', lg: 'flex' }
+const widthProp = { base: 'auto', md: 'full' }
+const displayProp1 = { base: 'flex', md: 'none' }
+const displayProp2 = { base: 'none', md: 'flex' }
 const sxProp1 = { svg: { width: '18px', height: '18px' } }
 
 const searchIcon = <SearchIcon />
 
-export const GlobalSearchButton = memo(() => {
+export const GlobalSeachButton = memo(() => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
-
-  const buttonHoverSx = useMemo(
-    () => ({
-      bg: 'background.surface.elevated',
-      borderColor: 'border.hover',
-    }),
-    [],
-  )
   const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
   useEventListener(document, 'keydown', event => {
@@ -49,16 +41,12 @@ export const GlobalSearchButton = memo(() => {
           width='full'
           leftIcon={searchIcon}
           onClick={onOpen}
-          size='md'
-          fontSize='sm'
+          size='lg'
+          fontSize='md'
           alignItems='center'
           color='text.subtle'
           display={displayProp2}
           sx={sxProp1}
-          bg='background.surface.base'
-          border='1px solid'
-          borderColor='border.base'
-          _hover={buttonHoverSx}
         >
           {translate('common.search')}
           {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.

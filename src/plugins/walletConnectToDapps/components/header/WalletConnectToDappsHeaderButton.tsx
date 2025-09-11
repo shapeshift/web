@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { AvatarGroup, Button, Menu, MenuButton, MenuList, useMediaQuery } from '@chakra-ui/react'
+import { AvatarGroup, Button, Menu, MenuButton, MenuList } from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
 import type { FC } from 'react'
 import { memo, useMemo } from 'react'
@@ -14,7 +14,6 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isSome } from '@/lib/utils'
 import { DappHeaderMenuSummary } from '@/plugins/walletConnectToDapps/components/header/DappHeaderMenuSummary'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
-import { breakpoints } from '@/theme/theme'
 
 const paddingProp = { base: 0, md: '20px' }
 const menuWidthProp = { base: '355px', md: 'xs' }
@@ -42,7 +41,6 @@ const WalletConnectV2ConnectedButtonText = ({
 const WalletConnectV2ConnectedButton = memo(() => {
   const { sessionsByTopic } = useWalletConnectV2()
   const translate = useTranslate()
-  const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
   const sessions = useMemo(() => Object.values(sessionsByTopic).filter(isSome), [sessionsByTopic])
   const mostRecentSession = useMemo(
     () =>
@@ -52,10 +50,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
       }, undefined),
     [sessions],
   )
-  const rightIcon = useMemo(
-    () => (isLargerThanXl ? <ChevronDownIcon /> : undefined),
-    [isLargerThanXl],
-  )
+  const rightIcon = useMemo(() => <ChevronDownIcon />, [])
   const leftIcon = useMemo(
     () => (
       <AvatarGroup max={2} size='xs'>
@@ -80,29 +75,24 @@ const WalletConnectV2ConnectedButton = memo(() => {
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
-        variant='ghost'
         leftIcon={leftIcon}
         rightIcon={rightIcon}
-        width={isLargerThanXl ? widthProp.md : widthProp.base}
+        width={widthProp}
         textAlign='left'
         flexShrink='none'
       >
-        {isLargerThanXl && (
-          <>
-            {sessions.length > 1 ? (
-              <WalletConnectV2ConnectedButtonText
-                title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
-                  count: sessions.length,
-                })}
-                subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
-              />
-            ) : (
-              <WalletConnectV2ConnectedButtonText
-                title={mostRecentSession?.peer.metadata.name ?? ''}
-                subTitle={mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, '') ?? ''}
-              />
-            )}
-          </>
+        {sessions.length > 1 ? (
+          <WalletConnectV2ConnectedButtonText
+            title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
+              count: sessions.length,
+            })}
+            subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
+          />
+        ) : (
+          <WalletConnectV2ConnectedButtonText
+            title={mostRecentSession?.peer.metadata.name ?? ''}
+            subTitle={mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, '') ?? ''}
+          />
         )}
       </MenuButton>
       <MenuList zIndex='banner' width={menuWidthProp} display='flex' flexDir='column' pb={0}>

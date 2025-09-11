@@ -22,7 +22,6 @@ import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   marketApi,
   useFindAllMarketDataQuery,
@@ -107,8 +106,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useDiscoverAccounts()
   usePortfolioFetch()
-
-  useGetFiatRampsQuery()
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {

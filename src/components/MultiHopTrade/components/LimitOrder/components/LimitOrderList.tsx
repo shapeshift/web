@@ -72,7 +72,7 @@ const tableContainerStyle = {
   minHeight: '300px',
 }
 
-const cardBgProp = { base: 'background.surface.base', md: 'darkNeutral.800' }
+const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 
 type LimitOrderListProps = {
   isLoading: boolean

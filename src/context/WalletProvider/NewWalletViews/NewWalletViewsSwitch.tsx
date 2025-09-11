@@ -337,7 +337,7 @@ export const NewWalletViewsSwitch = () => {
         onClose={onClose}
         isCentered
         trapFocus={false}
-        closeOnOverlayClick={true}
+        closeOnOverlayClick={false}
         size={!isLargerThanMd ? modalSize : undefined}
       >
         <ModalOverlay />

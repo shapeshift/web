@@ -66,7 +66,6 @@ export const TabMenu: React.FC<TabMenuProps> = ({ items }) => {
     >
       <Container
         ref={containerRef}
-        maxWidth='container.3xl'
         className='navbar-scroller'
         display='flex'
         gap={8}

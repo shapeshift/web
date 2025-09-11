@@ -36,6 +36,7 @@ import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'
 
+import { cardstyles } from '@/components/MultiHopTrade/const'
 import { Text } from '@/components/Text'
 
 const textSelectedProps = {
@@ -71,8 +72,6 @@ const tableContainerHeight = {
 const tableContainerStyle = {
   minHeight: '300px',
 }
-
-const cardBgProp = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
 
 type LimitOrderListProps = {
   isLoading: boolean
@@ -352,7 +351,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   }, [])
 
   return (
-    <Card bg={cardBgProp} {...cardProps}>
+    <Card {...cardProps} {...cardstyles}>
       {onBack && (
         <CardHeader
           px={4}

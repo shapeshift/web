@@ -62,7 +62,7 @@ export const FoxHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container maxWidth='container.3xl' pt={containerPaddingTop} pb={4}>
+        <Container pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>
               <Flex alignItems='center' justifyContent='space-between'>

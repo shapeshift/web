@@ -2,6 +2,7 @@ import type { CardFooterProps } from '@chakra-ui/react'
 import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
 import type { JSX } from 'react'
 
+import { cardstyles } from '../../const'
 import { WithBackButton } from '../WithBackButton'
 
 import { TradeSlideTransition } from '@/components/MultiHopTrade/TradeSlideTransition'
@@ -16,8 +17,6 @@ type SharedConfirmProps = {
   headerTranslation: TextPropTypes['translation']
 }
 
-const cardBgProp = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
-const cardBorderRadius = { base: '0', md: '2xl' }
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
@@ -29,16 +28,7 @@ export const SharedConfirm = ({
 }: SharedConfirmProps) => {
   return (
     <TradeSlideTransition>
-      <Card
-        flex={1}
-        borderRadius={cardBorderRadius}
-        width='full'
-        maxWidth='500px'
-        variant='dashboard'
-        borderColor='border.base'
-        bg={cardBgProp}
-        minHeight={cardMinHeight}
-      >
+      <Card flex={1} width='full' maxWidth='500px' minHeight={cardMinHeight} {...cardstyles}>
         <CardHeader px={6} pt={4} borderTop={'none'}>
           <WithBackButton onBack={onBack}>
             <Heading textAlign='center' fontSize='md'>

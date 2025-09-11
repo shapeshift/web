@@ -62,7 +62,6 @@ export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps =
       zIndex='sticky'
       pb={2}
       width='full'
-      maxWidth='container.3xl'
       marginInline='auto'
     >
       {children}

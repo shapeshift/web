@@ -8,12 +8,12 @@ export const ModalStyle = {
     },
     dialog: {
       bg: 'background.surface.overlay.base',
-      borderRadius: '3xl',
+      borderRadius: '2xl',
       borderColor: 'border.base',
       borderWidth: 1,
     },
     header: {
-      borderTopRadius: '3xl',
+      borderTopRadius: '2xl',
     },
     closeButton: {
       borderRadius: '100%',

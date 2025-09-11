@@ -68,7 +68,6 @@ export const PoolsHeader = () => {
             display='flex'
             justifyContent='space-between'
             alignItems={alignItems}
-            maxWidth='container.3xl'
             gap={2}
             flexDir={flexDirection}
             pt={8}

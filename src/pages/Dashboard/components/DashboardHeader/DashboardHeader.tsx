@@ -133,7 +133,6 @@ export const DashboardHeader = memo(() => {
       >
         <Container
           ref={containerRef}
-          maxWidth='container.4xl'
           className='navbar-scroller'
           display='flex'
           gap={8}

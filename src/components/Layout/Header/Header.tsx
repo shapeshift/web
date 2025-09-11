@@ -113,16 +113,16 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height - 16 ? 'background.surface.base' : 'transparent'}
+        bg={y > height ? 'background.surface.base' : 'transparent'}
         border='1px solid'
-        borderColor={y > height - 16 ? 'border.base' : 'transparent'}
+        borderColor={y > height ? 'border.base' : 'transparent'}
         borderRadius='2xl'
-        marginTop={4}
-        mx={4}
+        marginTop={2}
+        mx={2}
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
-        top={4}
+        top={2}
         paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' pr={4} pl={6}>
@@ -153,7 +153,6 @@ export const Header = memo(() => {
             {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
               <Suspense>
                 <WalletConnectToDappsHeaderButton />
-                <Divider orientation='vertical' height='24px' borderColor='border.bold' />
               </Suspense>
             )}
             {isConnected && !isActionCenterEnabled && <TxWindow />}

@@ -16,7 +16,7 @@ export const Main: React.FC<MainProps> = memo(
     return (
       <Page isSubpage={isSubPage} {...pageProps}>
         {headerComponent}
-        <Container maxW='container.3xl' mx='auto' {...rest}>
+        <Container mx='auto' {...rest}>
           {children}
         </Container>
       </Page>

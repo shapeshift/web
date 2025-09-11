@@ -55,7 +55,7 @@ export const MarketsHeader = () => {
         {!maybeCategory && (
           // Don't show tabs and heading when on a single category view
           <>
-            <Container maxWidth='container.3xl' pt={containerPaddingTop} pb={4}>
+            <Container pt={containerPaddingTop} pb={4}>
               <Display.Desktop>
                 <Stack>
                   <Heading>{translate('navBar.markets')}</Heading>

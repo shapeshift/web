@@ -86,7 +86,7 @@ export const LendingHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container maxWidth='container.3xl' pt={containerPaddingTop} pb={4}>
+        <Container pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>
               <Heading>{translate('lending.lending')}</Heading>

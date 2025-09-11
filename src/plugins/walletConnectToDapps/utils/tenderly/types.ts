@@ -15,17 +15,19 @@ export type TenderlyBalanceChange = {
   is_dirty: boolean
 }
 
+export type TenderlyTokenInfo = {
+  standard: string
+  type: string
+  contract_address: string
+  symbol: string
+  name: string
+  logo: string
+  decimals: number
+  dollar_value: string
+}
+
 export type TenderlyAssetChange = {
-  token_info: {
-    standard: string
-    type: string
-    contract_address: string
-    symbol: string
-    name: string
-    logo: string
-    decimals: number
-    dollar_value: string
-  }
+  token_info: TenderlyTokenInfo
   type: string
   from: string
   to?: string
@@ -34,6 +36,16 @@ export type TenderlyAssetChange = {
   dollar_value: string
   from_before_balance?: string
   to_before_balance?: string
+}
+
+export type TenderlyExposureChange = {
+  token_info: TenderlyTokenInfo
+  type: 'Approve'
+  owner: string
+  spender: string
+  amount: string
+  raw_amount: string
+  dollar_value: string
 }
 
 export type TenderlyDecodedInput = {
@@ -84,6 +96,7 @@ export type TenderlySimulationResponse = {
     }
     transaction_info?: {
       asset_changes?: TenderlyAssetChange[]
+      exposure_changes?: TenderlyExposureChange[]
       call_trace?: {
         decoded_input?: TenderlyDecodedInput[]
       }
@@ -129,7 +142,7 @@ export type AssetChange = {
   amount: string
   type: 'send' | 'receive'
   isNativeAsset: boolean
-  symbol: string
+  token_info: TenderlyTokenInfo
 }
 
 export type ParsedArgument = {

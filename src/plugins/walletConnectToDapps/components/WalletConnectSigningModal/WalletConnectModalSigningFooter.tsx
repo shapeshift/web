@@ -93,22 +93,10 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
 }) => {
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
-
-  // Try to get form context - will be null if no FormProvider exists
-  let formContext: ReturnType<typeof useFormContext<CustomTransactionData>> | null = null
-  try {
-    formContext = useFormContext<CustomTransactionData>()
-  } catch {
-    // No FormProvider available, this is expected for message signing
-    formContext = null
-  }
+  const formContext = useFormContext<CustomTransactionData>()
 
   const handleSubmit = useCallback(() => {
-    if (formContext) {
-      formContext.handleSubmit(onConfirm)()
-    } else {
-      onConfirm(undefined)
-    }
+    formContext.handleSubmit(onConfirm)()
   }, [formContext, onConfirm])
 
   return (

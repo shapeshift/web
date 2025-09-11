@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import { isAddress } from 'viem'
 
 import { ExpandableCell } from './ExpandableCell'
+
 import { RawText } from '@/components/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { selectAssetById } from '@/state/slices/selectors'

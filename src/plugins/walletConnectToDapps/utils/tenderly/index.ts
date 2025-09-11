@@ -46,7 +46,7 @@ export const parseAssetChanges = (
         type: 'send',
         isNativeAsset:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
-        symbol: change.token_info.symbol,
+        token_info: change.token_info,
       })
     }
 
@@ -60,7 +60,7 @@ export const parseAssetChanges = (
         type: 'receive',
         isNativeAsset:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
-        symbol: change.token_info.symbol,
+        token_info: change.token_info,
       })
     }
   })

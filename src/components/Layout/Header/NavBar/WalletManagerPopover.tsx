@@ -28,7 +28,13 @@ export const WalletManagerPopover: FC = memo(() => {
   const handleClose = useCallback(() => setIsOpen(false), [])
 
   return (
-    <Popover isOpen={isOpen} onOpen={handleOpen} onClose={handleClose} placement='bottom-end'>
+    <Popover
+      isLazy
+      isOpen={isOpen}
+      onOpen={handleOpen}
+      onClose={handleClose}
+      placement='bottom-end'
+    >
       <PopoverTrigger>
         <Box>
           <WalletButton
@@ -40,8 +46,8 @@ export const WalletManagerPopover: FC = memo(() => {
           />
         </Box>
       </PopoverTrigger>
-      <PopoverContent width='430px' bg={'background.surface.base'} p={0}>
-        <PopoverBody p={4} width='430px' minHeight='430px'>
+      <PopoverContent width='430px' p={0} minHeight='750px'>
+        <PopoverBody p={4} width='430px'>
           <PopoverWallet onClose={handleClose} />
         </PopoverBody>
       </PopoverContent>

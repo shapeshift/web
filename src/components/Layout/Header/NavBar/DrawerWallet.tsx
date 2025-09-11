@@ -23,7 +23,7 @@ import { PopoverWalletHeader } from './PopoverWalletHeader'
 
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
-import { TransactionActivity } from '@/components/TransactionHistory/TransactionActivity'
+import { TransactionHistoryContent } from '@/components/TransactionHistory/TransactionHistoryContent'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -142,7 +142,7 @@ export const DrawerWallet: FC<DrawerWalletProps> = memo(({ isOpen, onClose }) =>
                 <Tab>{translate('navBar.defi')}</Tab>
                 <Tab>{translate('common.activity')}</Tab>
               </TabList>
-              <TabPanels flex='1' overflow='auto' maxHeight={'35vh'} className='scroll-container'>
+              <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
                 <TabPanel p={0} pt={2}>
                   <AccountTable forceCompactView onRowClick={onClose} />
                 </TabPanel>
@@ -153,7 +153,7 @@ export const DrawerWallet: FC<DrawerWalletProps> = memo(({ isOpen, onClose }) =>
                   <DeFiEarn forceCompactView />
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  <TransactionActivity forceCompactView />
+                  <TransactionHistoryContent isCompact />
                 </TabPanel>
               </TabPanels>
             </Tabs>

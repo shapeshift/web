@@ -10,6 +10,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Tooltip,
   useColorModeValue,
   useOutsideClick,
 } from '@chakra-ui/react'
@@ -19,6 +20,7 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
+import { TbFilter } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { DatePicker } from './components/DatePicker/DatePicker'
@@ -31,6 +33,8 @@ const customRangeOption: string = 'customRange'
 const hoverProp = { bg: 'transparent' }
 const closeIcon = <CloseIcon w={3} h={3} />
 
+const filterIcon = <TbFilter />
+
 export enum FilterFormFields {
   FromDate = 'fromDate',
   ToDate = 'toDate',
@@ -42,12 +46,18 @@ type TransactionHistoryFilterProps = {
   setFilters: Function
   resetFilters: Function
   hasAppliedFilter?: boolean
+  isCompact?: boolean
 }
 
 const ioOptionsOutlineIcon = <IoOptionsOutline size='1.5em' />
 
 export const TransactionHistoryFilter = memo(
-  ({ setFilters, resetFilters, hasAppliedFilter = false }: TransactionHistoryFilterProps) => {
+  ({
+    setFilters,
+    resetFilters,
+    hasAppliedFilter = false,
+    isCompact = false,
+  }: TransactionHistoryFilterProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const popoverRef = useRef(null)
     /**
@@ -149,23 +159,33 @@ export const TransactionHistoryFilter = memo(
       <Popover closeOnBlur={false} isOpen={isOpen}>
         <>
           <PopoverTrigger>
-            <ButtonGroup isAttached variant='ghost-filled'>
-              <Button
-                colorScheme='blue'
-                variant='ghost-filled'
-                leftIcon={ioOptionsOutlineIcon}
-                onClick={handleToggle}
-              >
-                <Text translation='transactionHistory.filter' />
-              </Button>
+            {isCompact ? (
               <IconButton
-                variant='ghost-filled'
-                colorScheme='blue'
-                aria-label={translate('transactionHistory.filters.resetFilters')}
-                icon={closeIcon}
-                onClick={handleResetStopPagination}
+                aria-label={translate('transactionHistory.filter')}
+                icon={filterIcon}
+                size='md'
+                variant='ghost'
+                onClick={handleToggle}
               />
-            </ButtonGroup>
+            ) : (
+              <ButtonGroup isAttached variant='ghost-filled'>
+                <Button
+                  colorScheme='blue'
+                  variant='ghost-filled'
+                  leftIcon={ioOptionsOutlineIcon}
+                  onClick={handleToggle}
+                >
+                  <Text translation='transactionHistory.filter' />
+                </Button>
+                <IconButton
+                  variant='ghost-filled'
+                  colorScheme='blue'
+                  aria-label={translate('transactionHistory.filters.resetFilters')}
+                  icon={closeIcon}
+                  onClick={handleResetStopPagination}
+                />
+              </ButtonGroup>
+            )}
           </PopoverTrigger>
           <PopoverContent
             w='360px'

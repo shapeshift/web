@@ -1,4 +1,5 @@
 import { Box, Button, HStack, VStack } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -6,8 +7,9 @@ import { useCallback } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
-import { GasSelectionMenu } from '@/plugins/walletConnectToDapps/components/GasSelectionMenu'
-import { WalletConnectSigningWithSection } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFromSection'
+import { GasSelectionMenu } from './GasSelectionMenu'
+import { WalletConnectSigningWithSection } from './WalletConnectSigningFromSection'
+
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -16,7 +18,7 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 type WalletConnectSigningFooterProps = {
   address: string | null
-  chainId: string | null
+  chainId: ChainId | null
   gasSelection?: {
     fees: Record<FeeDataKey, { txFee?: string; fiatFee: string }>
     feeAsset: Asset
@@ -60,12 +62,10 @@ export const WalletConnectSigningFooter: FC<WalletConnectSigningFooterProps> = (
       mb={-6}
     >
       <VStack spacing={4}>
-        {/* Signing With Section */}
         {feeAsset && (
           <WalletConnectSigningWithSection feeAssetId={feeAsset.assetId} address={address ?? ''} />
         )}
 
-        {/* Gas Selection (only if provided) */}
         {gasSelection && (
           <GasSelectionMenu
             fees={gasSelection.fees}
@@ -73,8 +73,6 @@ export const WalletConnectSigningFooter: FC<WalletConnectSigningFooterProps> = (
             formMethods={gasSelection.formMethods}
           />
         )}
-
-        {/* Action Buttons */}
         <HStack spacing={4} w='full'>
           <Button
             size='lg'

@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 
-import { MessageContent } from '@/plugins/walletConnectToDapps/components/content/MessageContent'
-import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal'
+import { MessageContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/MessageContent'
+import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/WalletConnectSigningModal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   EthPersonalSignCallRequest,

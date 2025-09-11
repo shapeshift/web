@@ -67,12 +67,11 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
           })
         : null,
     enabled: Boolean(transaction?.from && transaction?.to && transaction?.data),
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 30000,
     retry: false,
   })
 
   const functionName = useMemo(() => {
-    // Only show method name if Tenderly simulation provides it
     return simulationQuery.data?.simulation?.method || null
   }, [simulationQuery.data?.simulation?.method])
 

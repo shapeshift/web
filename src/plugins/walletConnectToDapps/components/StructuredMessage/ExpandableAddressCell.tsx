@@ -1,4 +1,5 @@
 import { Box, HStack } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { FaChevronRight } from 'react-icons/fa'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -15,6 +16,17 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
 }) => {
   const [isExpanded, toggleExpanded] = useToggle(false)
 
+  const hoverStyle = useMemo(() => ({ borderColor: 'gray.500' }), [])
+  const chevronIconStyle = useMemo(() => ({ boxSize: '10px', color: 'gray.400' }), [])
+  const expandedChevronStyle = useMemo(
+    () => ({
+      boxSize: '10px',
+      transform: 'rotate(90deg)',
+      color: 'gray.400',
+    }),
+    [],
+  )
+
   if (!isExpanded) {
     return (
       <HStack
@@ -27,10 +39,10 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         py={1}
         cursor='pointer'
         onClick={toggleExpanded}
-        _hover={{ borderColor: 'gray.500' }}
+        _hover={hoverStyle}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
-        <Box as={FaChevronRight} boxSize='10px' color='gray.400' />
+        <Box as={FaChevronRight} {...chevronIconStyle} />
       </HStack>
     )
   }
@@ -47,10 +59,10 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         py={1}
         cursor='pointer'
         onClick={toggleExpanded}
-        _hover={{ borderColor: 'gray.500' }}
+        _hover={hoverStyle}
       >
         <MiddleEllipsis value={address} fontSize={fontSize} />
-        <Box as={FaChevronRight} boxSize='10px' transform='rotate(90deg)' color='gray.400' />
+        <Box as={FaChevronRight} {...expandedChevronStyle} />
       </HStack>
       <Box
         fontSize='xs'

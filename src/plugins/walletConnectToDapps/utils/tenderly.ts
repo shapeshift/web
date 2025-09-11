@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 
 type TenderlySimulationRequest = {
@@ -343,7 +344,7 @@ export const fetchSimulation = async ({
   to,
   data,
 }: {
-  chainId: string
+  chainId: ChainId
   from: string
   to: string
   data: string

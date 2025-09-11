@@ -1,5 +1,5 @@
 import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
-import type { ChainReference } from '@shapeshiftoss/caip'
+import type { ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
@@ -17,7 +17,7 @@ import { useAppSelector } from '@/state/store'
 
 type EIP712MessageDisplayProps = {
   typedData: string
-  chainId?: string
+  chainId?: ChainId
 }
 
 export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({

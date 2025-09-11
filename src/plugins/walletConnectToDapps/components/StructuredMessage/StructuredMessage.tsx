@@ -6,9 +6,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { isAddress } from 'viem'
 
+import { ExpandableAddressCell } from './ExpandableAddressCell'
+
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import { ExpandableAddressCell } from './ExpandableAddressCell'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

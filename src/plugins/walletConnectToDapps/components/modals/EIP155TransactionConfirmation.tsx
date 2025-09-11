@@ -6,8 +6,8 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
-import { TransactionContent } from '@/plugins/walletConnectToDapps/components/content/TransactionContent'
-import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal'
+import { TransactionContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/TransactionContent'
+import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/WalletConnectSigningModal'
 import { useCallRequestEvmFees } from '@/plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {

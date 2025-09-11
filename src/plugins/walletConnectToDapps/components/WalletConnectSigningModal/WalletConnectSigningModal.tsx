@@ -5,8 +5,9 @@ import type { FC, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 
+import { WalletConnectSigningFooter } from './WalletConnectSigningFooter'
+
 import { RawText } from '@/components/Text'
-import { WalletConnectSigningFooter } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningFooter'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
@@ -14,16 +15,11 @@ import type {
 } from '@/plugins/walletConnectToDapps/types'
 
 type WalletConnectSigningModalProps = {
-  // Core modal props
   onConfirm: (customTransactionData?: CustomTransactionData) => Promise<void>
   onReject: () => Promise<void>
   state: WalletConnectState
   topic: string
-
-  // Content - just children, keep it simple
   children: ReactNode
-
-  // Optional gas selection (only for transactions)
   gasSelection?: {
     fees: Record<FeeDataKey, { txFee?: string; fiatFee: string }>
     feeAsset: Asset

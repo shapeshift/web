@@ -46,7 +46,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
   }, [fees, selectedSpeed])
 
   const currentSpeedOption = useMemo(
-    () => speedOptions.find(option => option.value === selectedSpeed) || speedOptions[2], // default to Fast
+    () => speedOptions.find(option => option.value === selectedSpeed) || speedOptions[2],
     [speedOptions, selectedSpeed],
   )
 

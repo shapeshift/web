@@ -17,7 +17,6 @@ import type {
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
@@ -32,7 +31,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -124,8 +123,15 @@ export const handleSend = async ({
   sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
-  const { asset, chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
+  const state = store.getState()
+  const asset = selectAssetById(state, sendInput.assetId ?? '')
+  if (!asset) return ''
+
+  const chainId = asset.chainId
   const supportedEvmChainIds = getSupportedEvmChainIds()
+
+  const acccountMetadataFilter = { accountId: sendInput.accountId }
+  const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
@@ -141,6 +147,9 @@ export const handleSend = async ({
     .toFixed(0)
 
   const { estimatedFees, feeType, to, memo, from } = sendInput
+
+  if (!accountMetadata)
+    throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
   const { bip44Params, accountType } = accountMetadata
   if (!bip44Params) {
     throw new Error(`useFormSend: no bip44Params for accountId ${sendInput.accountId}`)
@@ -263,6 +272,8 @@ export const handleSend = async ({
 
   const txToSign = result.txToSign
 
+  const adapter = assertGetChainAdapter(chainId)
+
   const senderAddress = await adapter.getAddress({
     accountNumber: accountMetadata.bip44Params.accountNumber,
     accountType: accountMetadata.accountType,
@@ -303,48 +314,4 @@ export const handleSend = async ({
   }
 
   return broadcastTXID
-}
-
-const prepareSendAdapter = (sendInput: SendInput) => {
-  const state = store.getState()
-  const asset = selectAssetById(state, sendInput.assetId ?? '')
-  if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
-
-  const chainId = asset.chainId
-  const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, {
-    accountId: sendInput.accountId,
-  })
-  if (!accountMetadata) {
-    throw new Error(`No accountMetadata found for ${sendInput.accountId}`)
-  }
-
-  const adapter = assertGetChainAdapter(chainId)
-
-  return { asset, chainId, accountMetadata, adapter }
-}
-
-export const maybeFetchChangeAddress = async ({
-  sendInput,
-  wallet,
-}: {
-  sendInput: SendInput
-  wallet: HDWallet
-}): Promise<string | undefined> => {
-  try {
-    const { chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
-
-    // Only fetch for UTXO chains on Ledger wallets
-    if (!isUtxoChainId(chainId) || !isLedger(wallet)) return undefined
-
-    const changeAddress = await adapter.getAddress({
-      accountNumber: accountMetadata.bip44Params.accountNumber,
-      accountType: accountMetadata.accountType,
-      wallet,
-      isChange: true,
-    })
-    return changeAddress
-  } catch (error) {
-    console.error('Failed to fetch change address:', error)
-    return undefined
-  }
 }

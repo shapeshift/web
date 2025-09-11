@@ -2365,6 +2365,7 @@
         "interactContract": "Interact Contract",
         "transactionData": "Transaction Data",
         "method": "Method",
+        "signingWith": "Signing with",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",

@@ -29,6 +29,7 @@ type WalletConnectSigningWithSectionProps = {
 const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionProps> = ({
   accountId,
 }) => {
+  const translate = useTranslate()
   const userAddress = useMemo(() => fromAccountId(accountId).account, [accountId])
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const feeAssetId = useAppSelector(state => selectFeeAssetByChainId(state, chainId)?.assetId)
@@ -54,7 +55,7 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
         <Image boxSize='24px' src={networkIcon} borderRadius='full' />
         <VStack align='flex-start' spacing={0}>
           <RawText fontSize='sm' color='text.subtle'>
-            Signing with
+            {translate('plugins.walletConnectToDapps.modal.signingWith')}
           </RawText>
           <MiddleEllipsis value={userAddress} fontSize='sm' />
         </VStack>

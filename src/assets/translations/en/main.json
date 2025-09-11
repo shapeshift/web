@@ -215,7 +215,8 @@
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
     "approval": "Approval",
-    "permit2Approval": "Permit2 Approval"
+    "permit2Approval": "Permit2 Approval",
+    "network": "Network"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -704,7 +705,6 @@
     "confirmed": "Confirmed",
     "pending": "Pending",
     "failed": "Failed",
-    "network": "Network",
     "blockHeight": "Block Height",
     "to": "To",
     "from": "From",
@@ -2376,7 +2376,9 @@
           "chainId": "Chain ID",
           "authInfo": "Auth info",
           "body": "Body",
-          "comingSoon": "Coming soon"
+          "comingSoon": "Coming soon",
+          "contract": "Contract",
+          "primaryType": "Primary Type"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",

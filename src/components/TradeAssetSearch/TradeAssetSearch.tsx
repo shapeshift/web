@@ -293,6 +293,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           popularAssets={popularAssets}
           onAssetClick={handleAssetClick}
           activeChainId={activeChainId}
+          showFiatAssets={true}
         />
       )}
     </>

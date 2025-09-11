@@ -19,6 +19,26 @@ type GasSelectionMenuProps = {
   formMethods: UseFormReturn<CustomTransactionData>
 }
 
+const SPEED_OPTIONS = [
+  { value: FeeDataKey.Slow, emoji: '🐌', text: 'Slow ~10 mins' },
+  { value: FeeDataKey.Average, emoji: '🟡', text: 'Average ~3 mins' },
+  { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast ~24 sec' },
+]
+
+const tooltipIconProps = { boxSize: '12px', color: 'text.subtle' }
+const menuButtonHoverStyle = { borderColor: 'whiteAlpha.300' }
+const menuButtonActiveStyle = { borderColor: 'whiteAlpha.400' }
+const menuListStyles = {
+  bg: 'gray.800',
+  borderColor: 'whiteAlpha.200',
+  borderRadius: 'lg',
+  py: 1,
+  px: 0,
+  minW: 'auto',
+  w: 'auto',
+}
+const chevronIcon = <ChevronDownIcon />
+
 export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, formMethods }) => {
   const [selectedSpeed, setSelectedSpeed] = useState<FeeDataKey>(FeeDataKey.Fast)
   const translate = useTranslate()
@@ -31,55 +51,34 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
     [formMethods],
   )
 
-  const speedOptions = useMemo(
-    () => [
-      { value: FeeDataKey.Slow, emoji: '🐌', text: 'Slow ~10 mins' },
-      { value: FeeDataKey.Average, emoji: '🟡', text: 'Average ~3 mins' },
-      { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast ~24 sec' },
-    ],
-    [],
-  )
-
-  const currentFee = useMemo(() => {
+  const selectedFee = useMemo(() => {
     if (!fees) return null
     return fees[selectedSpeed]
   }, [fees, selectedSpeed])
 
   const currentSpeedOption = useMemo(
-    () => speedOptions.find(option => option.value === selectedSpeed) || speedOptions[2],
-    [speedOptions, selectedSpeed],
+    () => SPEED_OPTIONS.find(option => option.value === selectedSpeed) || SPEED_OPTIONS[2],
+    [selectedSpeed],
   )
-
-  const tooltipIconProps = useMemo(() => ({ boxSize: '12px', color: 'text.subtle' }), [])
-  const chevronIcon = useMemo(() => <ChevronDownIcon />, [])
-  const menuButtonHoverStyle = useMemo(() => ({ borderColor: 'whiteAlpha.300' }), [])
-  const menuButtonActiveStyle = useMemo(() => ({ borderColor: 'whiteAlpha.400' }), [])
-  const menuListStyles = useMemo(
-    () => ({
-      bg: 'gray.800',
-      borderColor: 'whiteAlpha.200',
-      borderRadius: 'lg',
-      py: 1,
-    }),
-    [],
-  )
-  const menuItemHoverStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
-  const menuItemFocusStyle = useMemo(() => ({ bg: 'whiteAlpha.100' }), [])
 
   const createMenuItemClickHandler = useCallback(
     (speed: FeeDataKey) => () => handleSpeedChange(speed),
     [handleSpeedChange],
   )
 
-  if (!currentFee) return null
+  const networkFeeCryptoPrecision = useMemo(() => {
+    if (!selectedFee?.txFee) return '0'
+    return bnOrZero(fromBaseUnit(selectedFee.txFee, feeAsset.precision)).toFixed(6)
+  }, [selectedFee?.txFee, feeAsset.precision])
+
+  if (!selectedFee) return null
 
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
         <RawText fontSize='sm' fontWeight='bold'>
-          {currentFee.txFee &&
-            bnOrZero(fromBaseUnit(currentFee.txFee, feeAsset.precision)).toFixed(6)}{' '}
-          {feeAsset.symbol} (${bnOrZero(currentFee.fiatFee).toFixed(2)})
+          {networkFeeCryptoPrecision} {feeAsset.symbol} (${bnOrZero(selectedFee.fiatFee).toFixed(2)}
+          )
         </RawText>
         <HStack spacing={1} align='center'>
           <HelperTooltip
@@ -118,17 +117,11 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
           </HStack>
         </MenuButton>
         <MenuList {...menuListStyles}>
-          {speedOptions.map(option => (
+          {SPEED_OPTIONS.map(option => (
             <MenuItem
               key={option.value}
               onClick={createMenuItemClickHandler(option.value)}
-              bg='transparent'
-              color='white'
-              fontSize='sm'
-              _hover={menuItemHoverStyle}
-              _focus={menuItemFocusStyle}
-              px={3}
-              py={2}
+              w='100%'
             >
               <HStack spacing={2}>
                 <Box>{option.emoji}</Box>

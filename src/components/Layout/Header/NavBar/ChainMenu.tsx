@@ -19,7 +19,6 @@ const buttonProps: ButtonProps = {
   iconSpacing: 2,
   px: 2,
   width: { base: 'full', md: 'auto' },
-  variant: 'ghost',
 }
 
 type ChainMenuProps = BoxProps

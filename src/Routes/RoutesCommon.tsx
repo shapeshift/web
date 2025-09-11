@@ -69,10 +69,10 @@ const Assets = makeSuspenseful(
   true,
 )
 
-const Ramp = makeSuspenseful(
+const Buy = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Ramp/Ramp').then(({ Ramp }) => ({
-      default: Ramp,
+    import('@/pages/Buy/Buy').then(({ Buy }) => ({
+      default: Buy,
     })),
   ),
   {},
@@ -182,7 +182,7 @@ export const routes: Route[] = [
   {
     path: '/trade/*',
     label: 'navBar.trade',
-    shortLabel: 'common.trade',
+    shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,
@@ -228,42 +228,19 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
-    path: '/ramp/*',
+    path: '/buy-crypto',
     label: 'navBar.buyCrypto',
     shortLabel: 'navBar.buyCryptoShort',
     icon: <FaCreditCard />,
-    main: Ramp,
+    main: Buy,
     category: RouteCategory.Featured,
     mobileNav: false,
     priority: 4,
-    routes: [
-      {
-        path: '/ramp/buy/*',
-        label: 'fiatRamps.buy',
-        main: Ramp,
-        hide: true,
-      },
-      {
-        path: '/ramp/sell/*',
-        label: 'fiatRamps.sell',
-        main: Ramp,
-        hide: true,
-      },
-      ...assetIdPaths.flatMap(assetIdPath => [
-        {
-          path: `/ramp/buy${assetIdPath}`,
-          label: 'fiatRamps.buy',
-          main: Ramp,
-          hide: true,
-        },
-        {
-          path: `/ramp/sell${assetIdPath}`,
-          label: 'fiatRamps.sell',
-          main: Ramp,
-          hide: true,
-        },
-      ]),
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      path: assetIdPath,
+      main: Buy,
+      hide: true,
+    })),
   },
   {
     path: '/explore',

@@ -4,30 +4,31 @@ import React from 'react'
 
 import { Header } from './Header/Header'
 import { MobileNavBar } from './Header/NavBar/MobileNavBar'
+import { SideNav } from './Header/SideNav'
 
-const widthProp = { base: 'full', md: 'full', '2xl': 'full' }
+const widthProp = { base: 'full', md: 'calc(100% - 93px)', '2xl': 'calc(100% - 384px)' }
 const paddingBottomProp = {
   base: 'calc(0 + env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
   md: 0,
 }
-const paddingXProp = { base: 0, md: 8, lg: 12 }
-const maxWidth = { base: 'full', '2xl': 'container.2xl' }
 
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
   return (
-    <Flex margin='0 auto' flexDir='column' minHeight='100vh'>
-      <Header />
+    <Flex margin='0 auto'>
+      <SideNav />
       <Container
         as='main'
-        maxWidth={maxWidth}
+        maxWidth='full'
         flexDir='column'
         width={widthProp}
         paddingBottom={paddingBottomProp}
         marginInline='auto'
-        px={paddingXProp}
+        paddingInlineStart='0'
+        paddingInlineEnd='0'
         flex='1 1 0%'
         {...rest}
       >
+        <Header />
         {children}
         <MobileNavBar />
       </Container>

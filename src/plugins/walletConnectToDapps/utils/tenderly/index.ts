@@ -28,8 +28,8 @@ export const parseAssetChanges = (
       return
     }
 
-    const fromAddress = getAddress(change.from ?? '')
-    const toAddress = getAddress(change.to ?? '')
+    const fromAddress = change.from ? getAddress(change.from) : undefined
+    const toAddress = change.to ? getAddress(change.to) : undefined
 
     if (!fromAddress) {
       console.warn('Missing from address in asset change:', change)
@@ -50,7 +50,7 @@ export const parseAssetChanges = (
       })
     }
 
-    if (isAddressEqual(toAddress, from)) {
+    if (toAddress && isAddressEqual(toAddress, from)) {
       changes.push({
         tokenAddress:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000'

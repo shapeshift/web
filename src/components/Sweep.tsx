@@ -7,7 +7,10 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from './Amount/Amount'
 import { AssetIcon } from './AssetIcon'
-import { handleSend } from './Modals/Send/utils'
+import {
+  buildTransactionAndGetChangeAddress,
+  signAndBroadcastTransaction,
+} from './Modals/Send/utils'
 
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -85,7 +88,8 @@ export const Sweep = ({
         fiatSymbol: '',
       }
 
-      const txId = await handleSend({ wallet, sendInput })
+      const { txToSign } = await buildTransactionAndGetChangeAddress({ sendInput, wallet })
+      const txId = await signAndBroadcastTransaction({ txToSign, sendInput, wallet })
       setTxId(txId)
     } catch (e) {
       console.error(e)

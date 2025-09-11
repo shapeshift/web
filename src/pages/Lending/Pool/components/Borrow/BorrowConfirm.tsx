@@ -34,7 +34,10 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetToAsset } from '@/components/AssetToAsset/AssetToAsset'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import type { SendInput } from '@/components/Modals/Send/Form'
-import { handleSend } from '@/components/Modals/Send/utils'
+import {
+  buildTransactionAndGetChangeAddress,
+  signAndBroadcastTransaction,
+} from '@/components/Modals/Send/utils'
 import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -291,7 +294,7 @@ export const BorrowConfirm = ({
     if (!from) throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const { estimatedFees } = estimatedFeesData
-    const maybeTxId = await (() => {
+    const maybeTxId = await (async () => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
         amountCryptoPrecision: depositAmount ?? '0',
@@ -314,7 +317,8 @@ export const BorrowConfirm = ({
 
       if (!sendInput) throw new Error('Error building send input')
 
-      return handleSend({ sendInput, wallet })
+      const { txToSign } = await buildTransactionAndGetChangeAddress({ sendInput, wallet })
+      return signAndBroadcastTransaction({ txToSign, sendInput, wallet })
     })()
 
     if (!maybeTxId) {

@@ -1433,6 +1433,7 @@
         "sendTo": "Send To",
         "customNonce": "Custom Nonce",
         "sendFrom": "Send From",
+        "changeAddress": "Change Address",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",

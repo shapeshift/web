@@ -10,8 +10,9 @@ import {
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { ChangeEvent } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -20,6 +21,7 @@ import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
+import { buildTransactionAndGetChangeAddress, signAndBroadcastTransaction } from '../utils'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
@@ -35,6 +37,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getConfig } from '@/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
@@ -58,6 +61,12 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const navigate = useNavigate()
   const translate = useTranslate()
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  // Simple state management for change address
+  const [changeAddress, setChangeAddress] = useState<string | undefined>()
   const {
     accountId,
     to,
@@ -101,10 +110,61 @@ export const Confirm = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
+  // Check if this is a UTXO chain
+  const isUtxoChain = useMemo(() => {
+    if (!asset) return false
+    return utxoChainIds.some(utxoChainId => utxoChainId === asset.chainId)
+  }, [asset])
+
   const handleClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
   // We don't want this firing -- but need it for typing
   const handleAccountChange = useCallback(() => {}, [])
+
+  // Handle confirm button click - build transaction, extract change address, then sign and broadcast
+  const handleConfirmClick = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault() // Prevent form submission
+
+      if (!wallet) {
+        return
+      }
+
+      // Get the complete form data
+      const formData = control._formValues as SendInput
+      if (!formData) return
+
+      try {
+        // Build transaction and extract change address
+        const { txToSign, changeAddress: extractedChangeAddress } =
+          await buildTransactionAndGetChangeAddress({
+            sendInput: formData,
+            wallet,
+          })
+
+        // Set change address if we got one (for UTXO chains)
+        if (extractedChangeAddress) {
+          setChangeAddress(extractedChangeAddress)
+        }
+
+        // Sign and broadcast the transaction
+        const txHash = await signAndBroadcastTransaction({
+          txToSign,
+          sendInput: formData,
+          wallet,
+        })
+
+        if (txHash) {
+          setValue(SendFormFields.TxHash, txHash)
+          // TODO: Add success handling (toast, action dispatch, etc.)
+        }
+      } catch (error) {
+        console.error('Transaction failed:', error)
+        // TODO: Add error handling
+      }
+    },
+    [wallet, control, setValue],
+  )
 
   const sendAssetTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.send.confirm.sendAsset', { asset: asset?.name ?? '' }],
@@ -194,6 +254,18 @@ export const Confirm = () => {
               </Row.Value>
             </Row>
           )}
+          {isUtxoChain && changeAddress && (
+            <Row>
+              <Row.Label>
+                <Text translation='modals.send.confirm.changeAddress' />
+              </Row.Label>
+              <Row.Value>
+                <InlineCopyButton value={changeAddress}>
+                  <MiddleEllipsis value={changeAddress} />
+                </InlineCopyButton>
+              </Row.Value>
+            </Row>
+          )}
           <FormControl mt={4}>
             <Row variant='vertical'>
               <Row.Label>
@@ -245,7 +317,7 @@ export const Confirm = () => {
           loadingText={translate('modals.send.broadcastingTransaction')}
           size='lg'
           mt={6}
-          type='submit'
+          onClick={handleConfirmClick}
           width='full'
         >
           <Text translation='common.confirm' />

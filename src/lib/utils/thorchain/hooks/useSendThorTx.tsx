@@ -13,7 +13,11 @@ import { getAddress, zeroAddress } from 'viem'
 import { fromThorBaseUnit, getThorchainMsgDepositCoin, getThorchainTransactionType } from '..'
 
 import type { SendInput } from '@/components/Modals/Send/Form'
-import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
+import {
+  buildTransactionAndGetChangeAddress,
+  estimateFees,
+  signAndBroadcastTransaction,
+} from '@/components/Modals/Send/utils'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
@@ -384,7 +388,8 @@ export const useSendThorTx = ({
             input: '',
           }
 
-          const _txId = await handleSend({ sendInput, wallet })
+          const { txToSign } = await buildTransactionAndGetChangeAddress({ sendInput, wallet })
+          const _txId = await signAndBroadcastTransaction({ txToSign, sendInput, wallet })
 
           return {
             _txId,

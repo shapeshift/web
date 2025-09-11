@@ -15,7 +15,15 @@ import type {
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
+  BTCSignTx,
+  CosmosSignTx,
+  ETHSignTx,
+  HDWallet,
+  MayachainSignTx,
+  SolanaSignTx,
+  ThorchainSignTx,
+} from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
@@ -37,6 +45,15 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { store } from '@/state/store'
+
+// Union type for all possible transaction types
+export type AnySignTx =
+  | ETHSignTx
+  | BTCSignTx
+  | CosmosSignTx
+  | ThorchainSignTx
+  | MayachainSignTx
+  | SolanaSignTx
 
 export type EstimateFeesInput = {
   amountCryptoPrecision: string
@@ -116,16 +133,16 @@ export const estimateFees = ({
   }
 }
 
-export const handleSend = async ({
+export const buildTransactionAndGetChangeAddress = async ({
   sendInput,
   wallet,
 }: {
   sendInput: SendInput
   wallet: HDWallet
-}): Promise<string> => {
+}): Promise<{ txToSign: AnySignTx; changeAddress?: string }> => {
   const state = store.getState()
   const asset = selectAssetById(state, sendInput.assetId ?? '')
-  if (!asset) return ''
+  if (!asset) throw new Error('Asset not found')
 
   const chainId = asset.chainId
   const supportedEvmChainIds = getSupportedEvmChainIds()
@@ -149,15 +166,20 @@ export const handleSend = async ({
   const { estimatedFees, feeType, to, memo, from } = sendInput
 
   if (!accountMetadata)
-    throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
+    throw new Error(
+      `buildTransactionAndGetChangeAddress: no accountMetadata for ${sendInput.accountId}`,
+    )
   const { bip44Params, accountType } = accountMetadata
   if (!bip44Params) {
-    throw new Error(`useFormSend: no bip44Params for accountId ${sendInput.accountId}`)
+    throw new Error(
+      `buildTransactionAndGetChangeAddress: no bip44Params for accountId ${sendInput.accountId}`,
+    )
   }
 
   const result = await (async () => {
     if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
-      if (!supportsETH(wallet)) throw new Error(`useFormSend: wallet does not support ethereum`)
+      if (!supportsETH(wallet))
+        throw new Error(`buildTransactionAndGetChangeAddress: wallet does not support ethereum`)
       const fees = estimatedFees[feeType] as FeeData<EvmChainId>
       const {
         chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
@@ -167,7 +189,7 @@ export const handleSend = async ({
         maxFeePerGas !== undefined &&
         maxPriorityFeePerGas !== undefined
       if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-        throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
+        throw new Error(`buildTransactionAndGetChangeAddress: missing gasPrice for non-EIP-1559 tx`)
       }
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const { accountNumber } = bip44Params
@@ -193,7 +215,7 @@ export const handleSend = async ({
 
       if (!accountType) {
         throw new Error(
-          `useFormSend: no accountType for utxo from accountId: ${sendInput.accountId}`,
+          `buildTransactionAndGetChangeAddress: no accountType for utxo from accountId: ${sendInput.accountId}`,
         )
       }
       const { accountNumber } = bip44Params
@@ -246,7 +268,8 @@ export const handleSend = async ({
     }
 
     if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Solana) {
-      if (!supportsSolana(wallet)) throw new Error(`useFormSend: wallet does not support solana`)
+      if (!supportsSolana(wallet))
+        throw new Error(`buildTransactionAndGetChangeAddress: wallet does not support solana`)
 
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
@@ -270,7 +293,53 @@ export const handleSend = async ({
     throw new Error(`${chainId} not supported`)
   })()
 
-  const txToSign = result.txToSign
+  const { txToSign } = result
+
+  // Extract change address for UTXO chains
+  let changeAddress: string | undefined
+  if (utxoChainIds.some(utxoChainId => utxoChainId === chainId)) {
+    try {
+      if (!accountType) {
+        throw new Error('No accountType available for UTXO change address')
+      }
+
+      const adapter = assertGetUtxoChainAdapter(chainId)
+      changeAddress = await adapter.getAddress({
+        wallet,
+        accountNumber: bip44Params.accountNumber,
+        accountType,
+        isChange: true,
+      })
+    } catch (error) {
+      console.warn('Failed to extract change address:', error)
+      // Don't throw - just continue without change address
+    }
+  }
+
+  return { txToSign, changeAddress }
+}
+
+export const signAndBroadcastTransaction = async ({
+  txToSign,
+  sendInput,
+  wallet,
+}: {
+  txToSign: AnySignTx
+  sendInput: SendInput
+  wallet: HDWallet
+}): Promise<string> => {
+  const state = store.getState()
+  const asset = selectAssetById(state, sendInput.assetId ?? '')
+  if (!asset) throw new Error('Asset not found')
+
+  const chainId = asset.chainId
+  const { to } = sendInput
+
+  const acccountMetadataFilter = { accountId: sendInput.accountId }
+  const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
+
+  if (!accountMetadata)
+    throw new Error(`signAndBroadcastTransaction: no accountMetadata for ${sendInput.accountId}`)
 
   const adapter = assertGetChainAdapter(chainId)
 

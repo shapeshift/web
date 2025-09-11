@@ -5,7 +5,7 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import type { SendInput } from '../../Form'
-import { handleSend } from '../../utils'
+import { buildTransactionAndGetChangeAddress, signAndBroadcastTransaction } from '../../utils'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
@@ -27,7 +27,9 @@ export const useFormSend = () => {
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
         if (!wallet) throw new Error('No wallet connected')
 
-        const broadcastTXID = await handleSend({ wallet, sendInput })
+        // Build transaction and get change address, then sign and broadcast
+        const { txToSign } = await buildTransactionAndGetChangeAddress({ sendInput, wallet })
+        const broadcastTXID = await signAndBroadcastTransaction({ txToSign, sendInput, wallet })
 
         setTimeout(() => {
           if (!toastOnBroadcast) return

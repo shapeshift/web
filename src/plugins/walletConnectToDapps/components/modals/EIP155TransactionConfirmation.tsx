@@ -70,7 +70,8 @@ export const EIP155TransactionConfirmation: FC<
         onReject={handleReject}
         state={state}
         topic={topic}
-        gasSelection={{ transaction, formMethods: form }}
+        formMethods={form}
+        transaction={transaction}
       >
         <TransactionContent
           transaction={transaction}

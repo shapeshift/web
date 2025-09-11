@@ -9,8 +9,7 @@ import { RawText } from '@/components/Text'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
-  EthSendTransactionCallRequest,
-  EthSignTransactionCallRequest,
+  TransactionParams,
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
 
@@ -20,12 +19,8 @@ type WalletConnectSigningModalProps = {
   state: WalletConnectState
   topic: string
   children: ReactNode
-  gasSelection?: {
-    transaction:
-      | EthSendTransactionCallRequest['params'][0]
-      | EthSignTransactionCallRequest['params'][0]
-    formMethods: UseFormReturn<CustomTransactionData>
-  }
+  transaction: TransactionParams
+  formMethods: UseFormReturn<CustomTransactionData>
 }
 
 export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
@@ -34,7 +29,8 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   state,
   topic,
   children,
-  gasSelection,
+  transaction,
+  formMethods,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { address, chainId } = useWalletConnectState(state)
@@ -77,7 +73,8 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
       <WalletConnectModalSigningFooter
         address={address ?? null}
         chainId={chainId ?? null}
-        gasSelection={gasSelection}
+        transaction={transaction}
+        formMethods={formMethods}
         onConfirm={handleConfirm}
         onReject={handleReject}
         isSubmitting={isSubmitting}

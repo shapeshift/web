@@ -25,10 +25,8 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 type WalletConnectSigningFooterProps = {
   address: string | null
   chainId: ChainId | null
-  gasSelection?: {
-    transaction: TransactionParams
-    formMethods: UseFormReturn<CustomTransactionData>
-  }
+  transaction: TransactionParams
+  formMethods: UseFormReturn<CustomTransactionData>
   onConfirm: (customTransactionData?: CustomTransactionData) => void
   onReject: () => void
   isSubmitting: boolean
@@ -89,7 +87,8 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
 export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps> = ({
   address,
   chainId,
-  gasSelection,
+  transaction,
+  formMethods,
   onConfirm,
   onReject,
   isSubmitting,
@@ -98,12 +97,12 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
 
   const handleSubmit = useCallback(() => {
-    if (gasSelection?.formMethods) {
-      gasSelection.formMethods.handleSubmit(onConfirm)()
+    if (formMethods) {
+      formMethods.handleSubmit(onConfirm)()
     } else {
       onConfirm(undefined)
     }
-  }, [gasSelection?.formMethods, onConfirm])
+  }, [formMethods, onConfirm])
 
   return (
     <Box
@@ -123,12 +122,8 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           <WalletConnectSigningWithSection feeAssetId={feeAsset.assetId} address={address ?? ''} />
         )}
 
-        {gasSelection && chainId && (
-          <GasSelectionMenu
-            transaction={gasSelection.transaction}
-            chainId={chainId}
-            formMethods={gasSelection.formMethods}
-          />
+        {transaction && formMethods && chainId && (
+          <GasSelectionMenu transaction={transaction} chainId={chainId} formMethods={formMethods} />
         )}
         <HStack spacing={4} w='full'>
           <Button
@@ -147,7 +142,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             type='submit'
             onClick={handleSubmit}
             isLoading={isSubmitting}
-            isDisabled={gasSelection ? !gasSelection.transaction : false}
+            isDisabled={!transaction}
             _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

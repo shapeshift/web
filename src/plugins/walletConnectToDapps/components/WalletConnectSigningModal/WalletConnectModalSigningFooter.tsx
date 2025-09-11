@@ -107,6 +107,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
       py={4}
       mx={-6}
       mb={-6}
+      mt={4}
     >
       <VStack spacing={4}>
         <WalletConnectSigningWithSection accountId={accountId} />

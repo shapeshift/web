@@ -14,9 +14,11 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useWatch } from 'react-hook-form'
+import { getAddress } from 'viem'
 
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { ExpandableCell } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/ExpandableCell'
 import type { StructuredField } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
@@ -56,7 +58,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
 
   const assetChanges = useMemo((): AssetChange[] => {
     if (!simulationQuery.data || !transaction?.from) return []
-    return parseAssetChanges(simulationQuery.data, transaction.from)
+    return parseAssetChanges(simulationQuery.data, getAddress(transaction.from))
   }, [simulationQuery.data, transaction?.from])
 
   // Parse decoded input arguments from Tenderly simulation
@@ -235,9 +237,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
           <RawText fontSize='sm' color='text.subtle'>
             Interact Contract
           </RawText>
-          <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
-            {transaction.to.slice(0, 6)}...{transaction.to.slice(-4)}
-          </RawText>
+          <ExpandableCell value={transaction.to} threshold={20} />
         </HStack>
 
         {transaction?.data &&

@@ -1,10 +1,8 @@
-import { Center } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { TransactionContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/TransactionContent'
 import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/WalletConnectSigningModal'

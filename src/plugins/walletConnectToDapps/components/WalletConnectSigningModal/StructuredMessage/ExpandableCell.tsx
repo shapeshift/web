@@ -23,12 +23,22 @@ const expandedTextSx = {
   textAlign: 'right' as const,
 }
 
-type ExpandableHexCellProps = {
+type ExpandableCellProps = {
   value: string
+  threshold?: number
 }
 
-export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({ value }) => {
+export const ExpandableCell: React.FC<ExpandableCellProps> = ({ value, threshold = 30 }) => {
   const [isExpanded, toggleExpanded] = useToggle(false)
+
+  // If value is short enough, just display it without expandable UI
+  if (value.length <= threshold) {
+    return (
+      <Box fontSize='sm' fontWeight='bold' textAlign='right'>
+        {value}
+      </Box>
+    )
+  }
 
   if (!isExpanded) {
     return (

@@ -6,9 +6,7 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { isAddress } from 'viem'
 
-import { ExpandableHexCell } from './ExpandableHexCell'
-
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { ExpandableCell } from './ExpandableCell'
 import { RawText } from '@/components/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -104,18 +102,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
           <VStack align='end' spacing={1}>
             {value.map((item, index) => {
               const itemString = String(item)
-              if (typeof item === 'string' && itemString.startsWith('0x')) {
-                return <ExpandableHexCell key={index} value={itemString} />
-              }
-              return (
-                <Box key={index} fontSize='sm' fontWeight='bold'>
-                  {itemString.length > 20 ? (
-                    <MiddleEllipsis value={itemString} fontSize='sm' />
-                  ) : (
-                    itemString
-                  )}
-                </Box>
-              )
+              return <ExpandableCell key={index} value={itemString} threshold={20} />
             })}
           </VStack>
         </HStack>
@@ -125,7 +112,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
 
   const valueString = String(value)
   const isHexField = valueString.startsWith('0x')
-  const isHexWithoutAsset = isHexField && !asset
+  const isUnknownAsset = isHexField && !asset
 
   if (asset) {
     return (
@@ -143,14 +130,15 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     )
   }
 
-  if (isHexWithoutAsset) {
+  // Just display the field as-is unless we know how to display an icon and symbol in place of raw addy
+  if (isUnknownAsset) {
     return (
       <Box py={0.5} pl={paddingLeft}>
         <HStack justify='space-between' align='flex-start'>
           <RawText color='text.subtle' fontSize='sm'>
             {key}
           </RawText>
-          <ExpandableHexCell value={valueString} />
+          <ExpandableCell value={valueString} />
         </HStack>
       </Box>
     )
@@ -161,13 +149,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
       <RawText color='text.subtle' fontSize='sm'>
         {key}
       </RawText>
-      <Box fontSize='sm' fontWeight='bold'>
-        {valueString.length > 30 ? (
-          <MiddleEllipsis value={valueString} fontSize='sm' />
-        ) : (
-          valueString
-        )}
-      </Box>
+      <ExpandableCell value={valueString} />
     </HStack>
   )
 }

@@ -89,7 +89,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
             <HelperTooltip
               label={translate('modals.status.estimatedGas')}
               iconProps={tooltipIconSx}
-            />{' '}
+            />
             <RawText fontSize='xs' color='text.subtle'>
               {translate('common.feeEstimate')}
             </RawText>
@@ -112,7 +112,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
           <HelperTooltip
             label={translate('modals.status.estimatedGas')}
             iconProps={tooltipIconSx}
-          />{' '}
+          />
           <RawText fontSize='xs' color='text.subtle'>
             {translate('common.feeEstimate')}
           </RawText>

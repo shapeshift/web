@@ -1,6 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
+import type { Address } from 'viem'
+import { getAddress, isAddressEqual } from 'viem'
 
 import type {
   AssetChange,
@@ -15,11 +17,9 @@ const TENDERLY_PROJECT_SLUG = 'project'
 
 export const parseAssetChanges = (
   simulation: TenderlySimulationResponse,
-  userAddress: string,
+  from: Address,
 ): AssetChange[] => {
   const changes: AssetChange[] = []
-  const userAddressLower = userAddress.toLowerCase()
-
   const assetChanges = simulation.transaction.transaction_info?.asset_changes || []
 
   assetChanges.forEach(change => {
@@ -28,47 +28,39 @@ export const parseAssetChanges = (
       return
     }
 
-    const fromAddress = change.from?.toLowerCase()
-    const toAddress = change.to?.toLowerCase()
+    const fromAddress = getAddress(change.from ?? '')
+    const toAddress = getAddress(change.to ?? '')
 
     if (!fromAddress) {
       console.warn('Missing from address in asset change:', change)
       return
     }
 
-    if (fromAddress === userAddressLower) {
+    if (isAddressEqual(fromAddress, from)) {
       changes.push({
-        userAddress,
         tokenAddress:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000'
             ? undefined
             : change.token_info.contract_address,
         amount: `-${change.amount}`,
-        rawAmount: `-${change.raw_amount}`,
         type: 'send',
         isNativeAsset:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
         symbol: change.token_info.symbol,
-        decimals: change.token_info.decimals,
-        dollarValue: change.dollar_value,
       })
     }
 
-    if (toAddress && toAddress === userAddressLower) {
+    if (isAddressEqual(toAddress, from)) {
       changes.push({
-        userAddress,
         tokenAddress:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000'
             ? undefined
             : change.token_info.contract_address,
         amount: change.amount,
-        rawAmount: change.raw_amount,
         type: 'receive',
         isNativeAsset:
           change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
         symbol: change.token_info.symbol,
-        decimals: change.token_info.decimals,
-        dollarValue: change.dollar_value,
       })
     }
   })

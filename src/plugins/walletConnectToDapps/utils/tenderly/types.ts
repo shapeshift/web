@@ -125,15 +125,11 @@ export type TenderlySimulationResponse = {
 }
 
 export type AssetChange = {
-  userAddress: string
   tokenAddress?: string
   amount: string
-  rawAmount: string
   type: 'send' | 'receive'
   isNativeAsset: boolean
   symbol: string
-  decimals: number
-  dollarValue?: string
 }
 
 export type ParsedArgument = {

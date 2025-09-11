@@ -1,5 +1,14 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { AvatarGroup, Button, Menu, MenuButton, MenuList, useMediaQuery } from '@chakra-ui/react'
+import {
+  AvatarGroup,
+  Button,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  useBreakpointValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { SessionTypes } from '@walletconnect/types'
 import type { FC } from 'react'
 import { memo, useMemo } from 'react'
@@ -18,7 +27,6 @@ import { breakpoints } from '@/theme/theme'
 
 const paddingProp = { base: 0, md: '20px' }
 const menuWidthProp = { base: '355px', md: 'xs' }
-const widthProp = { base: 'full', md: 'auto' }
 
 const WalletConnectV2ConnectedButtonText = ({
   title,
@@ -76,35 +84,51 @@ const WalletConnectV2ConnectedButton = memo(() => {
     [sessions],
   )
 
-  return (
-    <Menu autoSelect={false}>
+  const FullButton = useMemo(() => {
+    return (
       <MenuButton
+        textAlign='left'
+        flexShrink='none'
         as={Button}
         variant='ghost'
         leftIcon={leftIcon}
         rightIcon={rightIcon}
-        width={isLargerThanXl ? widthProp.md : widthProp.base}
-        textAlign='left'
-        flexShrink='none'
       >
-        {isLargerThanXl && (
-          <>
-            {sessions.length > 1 ? (
-              <WalletConnectV2ConnectedButtonText
-                title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
-                  count: sessions.length,
-                })}
-                subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
-              />
-            ) : (
-              <WalletConnectV2ConnectedButtonText
-                title={mostRecentSession?.peer.metadata.name ?? ''}
-                subTitle={mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, '') ?? ''}
-              />
-            )}
-          </>
-        )}
+        <>
+          {sessions.length > 1 ? (
+            <WalletConnectV2ConnectedButtonText
+              title={translate('plugins.walletConnectToDapps.header.multipleSessionsConnected', {
+                count: sessions.length,
+              })}
+              subTitle={translate('plugins.walletConnectToDapps.header.clickToManage')}
+            />
+          ) : (
+            <WalletConnectV2ConnectedButtonText
+              title={mostRecentSession?.peer.metadata.name ?? ''}
+              subTitle={mostRecentSession?.peer.metadata.url.replace(/^https?:\/\//, '') ?? ''}
+            />
+          )}
+        </>
       </MenuButton>
+    )
+  }, [leftIcon, rightIcon, sessions, mostRecentSession, translate])
+
+  const SmallButton = useMemo(() => {
+    return (
+      <MenuButton
+        as={IconButton}
+        variant='ghost'
+        icon={leftIcon}
+        aria-label={translate('plugins.walletConnectToDapps.header.connectedDapp')}
+      />
+    )
+  }, [leftIcon, translate])
+
+  const walletButton = useBreakpointValue({ base: FullButton, md: SmallButton, xl: FullButton })
+
+  return (
+    <Menu autoSelect={false}>
+      {walletButton}
       <MenuList zIndex='banner' width={menuWidthProp} display='flex' flexDir='column' pb={0}>
         <DappHeaderMenuSummary />
       </MenuList>

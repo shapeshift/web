@@ -9,7 +9,6 @@ import type { TabItem } from '@/components/TabMenu/TabMenu'
 import { TabMenu } from '@/components/TabMenu/TabMenu'
 import { Text } from '@/components/Text'
 
-const containerPadding = { base: 6, '2xl': 8 }
 const containerPaddingTop = { base: 0, md: 8 }
 
 export const MarketsHeader = () => {
@@ -56,12 +55,7 @@ export const MarketsHeader = () => {
         {!maybeCategory && (
           // Don't show tabs and heading when on a single category view
           <>
-            <Container
-              maxWidth='container.4xl'
-              px={containerPadding}
-              pt={containerPaddingTop}
-              pb={4}
-            >
+            <Container maxWidth='container.3xl' pt={containerPaddingTop} pb={4}>
               <Display.Desktop>
                 <Stack>
                   <Heading>{translate('navBar.markets')}</Heading>

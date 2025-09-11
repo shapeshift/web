@@ -17,7 +17,6 @@ export type TabItem = {
 }
 
 const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const navItemPadding = { base: 4, '2xl': 8 }
 const navCss = {
   '&::-webkit-scrollbar': {
     display: 'none',
@@ -67,11 +66,10 @@ export const TabMenu: React.FC<TabMenuProps> = ({ items }) => {
     >
       <Container
         ref={containerRef}
-        maxWidth='container.4xl'
+        maxWidth='container.3xl'
         className='navbar-scroller'
         display='flex'
         gap={8}
-        px={navItemPadding}
         overflowY='auto'
         css={navCss}
       >

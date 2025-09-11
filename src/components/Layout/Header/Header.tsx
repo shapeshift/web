@@ -1,5 +1,6 @@
 import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
-import { lazy, memo, Suspense, useCallback, useEffect, useRef } from 'react'
+import { useScroll } from 'framer-motion'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
 import { TbChartHistogram } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
@@ -70,6 +71,13 @@ export const Header = memo(() => {
     state: { isConnected, walletInfo },
   } = useWallet()
   const ref = useRef<HTMLDivElement>(null)
+  const [y, setY] = useState(0)
+  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
+  const { scrollY } = useScroll()
+
+  useEffect(() => {
+    return scrollY.onChange(() => setY(scrollY.get()))
+  }, [scrollY])
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
@@ -102,19 +110,19 @@ export const Header = memo(() => {
     <>
       <Flex
         direction='column'
-        width='98%'
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg='background.surface.base'
+        bg={y > height - 16 ? 'background.surface.base' : 'transparent'}
         border='1px solid'
-        borderColor='border.base'
-        borderRadius='lg'
-        margin='4'
+        borderColor={y > height - 16 ? 'border.base' : 'transparent'}
+        borderRadius='2xl'
+        marginTop={4}
+        mx={4}
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
-        top={0}
+        top={4}
         paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' pr={4} pl={6}>
@@ -145,12 +153,13 @@ export const Header = memo(() => {
             {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
               <Suspense>
                 <WalletConnectToDappsHeaderButton />
+                <Divider orientation='vertical' height='24px' borderColor='border.bold' />
               </Suspense>
             )}
             {isConnected && !isActionCenterEnabled && <TxWindow />}
             {isConnected && isActionCenterEnabled && <ActionCenter />}
             {hasWallet && (
-              <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
+              <Divider orientation='vertical' height='24px' borderColor='border.bold' />
             )}
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (

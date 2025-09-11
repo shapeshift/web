@@ -28,7 +28,6 @@ import { TabMenu } from '@/components/TabMenu/TabMenu'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
-const containerPadding = { base: 6, '2xl': 8 }
 const responsiveFlex = { base: 'auto', lg: 1 }
 const containerPaddingTop = { base: 0, md: 8 }
 
@@ -87,14 +86,14 @@ export const LendingHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
+        <Container maxWidth='container.3xl' pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>
               <Heading>{translate('lending.lending')}</Heading>
               <Text color='text.subtle' translation='lending.lendingBody' />
             </Stack>
           </Display.Desktop>
-          <Flex gap={4} my={6} mx={-4} flexWrap='wrap'>
+          <Flex gap={4} my={6} flexWrap='wrap'>
             <Card flex={responsiveFlex}>
               <CardBody>
                 <Skeleton isLoaded={!isLoading}>

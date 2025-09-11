@@ -12,7 +12,6 @@ import type { TabItem } from '@/components/TabMenu/TabMenu'
 import { TabMenu } from '@/components/TabMenu/TabMenu'
 import { Text } from '@/components/Text'
 
-const containerPadding = { base: 4, '2xl': 8 }
 const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const alignItems = { base: 'flex-start', md: 'center' }
 
@@ -69,9 +68,8 @@ export const PoolsHeader = () => {
             display='flex'
             justifyContent='space-between'
             alignItems={alignItems}
-            maxWidth='container.4xl'
+            maxWidth='container.3xl'
             gap={2}
-            px={containerPadding}
             flexDir={flexDirection}
             pt={8}
             pb={4}

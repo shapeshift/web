@@ -55,7 +55,7 @@ export const GlobalSearchButton = memo(() => {
           color='text.subtle'
           display={displayProp2}
           sx={sxProp1}
-          bg='background.surface.base'
+          bg='background.input.base'
           border='1px solid'
           borderColor='border.base'
           _hover={buttonHoverSx}

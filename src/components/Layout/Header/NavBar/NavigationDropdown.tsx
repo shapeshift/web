@@ -101,7 +101,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                 _hover={menuItemHoverSx}
                 icon={item.icon && <Icon as={item.icon} boxSize={4} />}
               >
-                <Text fontSize='sm'>{translate(item.label)}</Text>
+                <Text>{translate(item.label)}</Text>
               </MenuItem>
             )
           })}

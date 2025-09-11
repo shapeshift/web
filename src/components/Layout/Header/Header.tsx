@@ -1,8 +1,6 @@
 import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
-import { useScroll } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useRef } from 'react'
 import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
-import { RiRefreshLine } from 'react-icons/ri'
 import { TbChartHistogram } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -18,6 +16,7 @@ import { UserMenu } from './NavBar/UserMenu'
 import { WalletManagerPopover } from './NavBar/WalletManagerPopover'
 import { TxWindow } from './TxWindow/TxWindow'
 
+import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -45,7 +44,7 @@ const searchBoxMxSx = { base: 0, lg: 0 }
 const rightHStackSpacingSx = { base: 2, lg: 4 }
 
 const tradeSubMenuItems = [
-  { label: 'navBar.swap', path: '/trade', icon: RiRefreshLine },
+  { label: 'navBar.swap', path: '/trade', icon: SwapIcon },
   { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
   { label: 'fiatRamps.buy', path: '/ramp/buy', icon: FaCreditCard },
   { label: 'fiatRamps.sell', path: '/ramp/sell', icon: FaArrowRight },
@@ -71,13 +70,6 @@ export const Header = memo(() => {
     state: { isConnected, walletInfo },
   } = useWallet()
   const ref = useRef<HTMLDivElement>(null)
-  const [y, setY] = useState(0)
-  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
-  const { scrollY } = useScroll()
-
-  useEffect(() => {
-    return scrollY.onChange(() => setY(scrollY.get()))
-  }, [scrollY])
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
@@ -114,7 +106,7 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? 'background.surface.base' : 'gray.950'}
+        bg='background.surface.base'
         border='1px solid'
         borderColor='border.base'
         borderRadius='lg'
@@ -125,7 +117,7 @@ export const Header = memo(() => {
         top={0}
         paddingTop={paddingTopProp}
       >
-        <HStack height='4.5rem' width='full' px={4}>
+        <HStack height='4.5rem' width='full' pr={4} pl={6}>
           <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
             <ShapeShiftMenu />
             <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>

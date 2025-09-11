@@ -27,9 +27,9 @@ import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { breakpoints } from '@/theme/theme'
 
-const productItemHoverSx = { bg: 'whiteAlpha.100' }
-const footerLinkHoverSx = { color: 'white' }
-const socialIconHoverSx = { color: 'white', bg: 'whiteAlpha.100' }
+const productItemHoverSx = { bg: 'background.button.secondary.base' }
+const footerLinkHoverSx = { color: 'text.base' }
+const socialIconHoverSx = { color: 'text.base', bg: 'background.button.secondary.base' }
 
 const ProductItem = ({
   icon,
@@ -63,11 +63,11 @@ const ProductItem = ({
         >
           <Icon as={icon} boxSize={5} />
         </Box>
-        <VStack align='flex-start' spacing={1}>
-          <Text fontWeight='semibold' color='white' fontSize='sm'>
+        <VStack align='flex-start' spacing={0}>
+          <Text fontWeight='semibold' color='text.base' fontSize='sm'>
             {title}
           </Text>
-          <Text fontSize='xs' color='whiteAlpha.700'>
+          <Text fontSize='xs' color='text.subtle'>
             {subtitle}
           </Text>
         </VStack>
@@ -90,7 +90,7 @@ const FooterLink = ({
     : { as: RouterLink, to: href }
 
   return (
-    <Link {...linkProps} fontSize='sm' color='whiteAlpha.700' _hover={footerLinkHoverSx}>
+    <Link {...linkProps} fontSize='sm' color='text.subtle' _hover={footerLinkHoverSx}>
       {children}
     </Link>
   )
@@ -112,7 +112,7 @@ const SocialIcon = ({
       rel='noopener noreferrer'
       p={1}
       borderRadius='md'
-      color='whiteAlpha.600'
+      color='text.subtle'
       _hover={socialIconHoverSx}
       aria-label={label}
       display='flex'
@@ -147,37 +147,36 @@ export const ShapeShiftMenu = () => {
       <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
         <MenuButton
           as={HStack}
-          spacing={2}
+          spacing={3}
           cursor='pointer'
           flexShrink={0}
           whiteSpace='nowrap'
           alignItems='center'
+          color='text.base'
         >
           {isLargerThanXl ? (
-            <ShapeShiftLogoText height='6' width='auto' flexShrink={0} />
+            <ShapeShiftLogoText height='24px' width='auto' flexShrink={0} />
           ) : (
             <FoxIcon boxSize='5' flexShrink={0} />
           )}
-          <Icon as={ChevronDownIcon} boxSize={4} color='whiteAlpha.600' flexShrink={0} />
+          <Icon as={ChevronDownIcon} boxSize={4} flexShrink={0} />
         </MenuButton>
 
         <MenuList
-          bg='whiteAlpha.100'
           backdropFilter='blur(20px)'
           border='1px solid'
-          borderColor='whiteAlpha.200'
-          boxShadow='xl'
-          borderRadius='lg'
-          p={6}
+          borderColor='border.base'
+          borderRadius='xl'
+          p={0}
           minW='500px'
           mt={0}
           onMouseEnter={onOpen}
           onMouseLeave={onClose}
           onClickCapture={onClose}
         >
-          <VStack align='stretch' spacing={6}>
-            <Box>
-              <Text fontSize='sm' fontWeight='semibold' color='whiteAlpha.600' mb={3}>
+          <VStack align='stretch' spacing={4}>
+            <Box px={2}>
+              <Text fontSize='xs' fontWeight='semibold' color='text.subtle' px={3} pt={4} pb={2}>
                 {translate('shapeShiftMenu.products')}
               </Text>
               <Grid templateColumns='1fr 1fr' gap={2}>
@@ -214,9 +213,10 @@ export const ShapeShiftMenu = () => {
             <Flex
               justify='space-between'
               align='center'
-              pt={4}
+              px={6}
+              py={3}
               borderTop='1px solid'
-              borderColor='whiteAlpha.200'
+              borderColor='border.base'
             >
               <HStack spacing={6} align='baseline'>
                 <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>

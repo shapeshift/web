@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 
 import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
 
-const borderRadius = { base: 'md', md: 'lg' }
+const borderRadius = { base: 'md', md: 'xl' }
 const hoverProps = {
   cursor: 'pointer',
   bg: 'background.surface.hover',
@@ -51,7 +51,7 @@ export const TradeQuoteCard = ({
     <Card
       borderWidth={2}
       boxShadow='none'
-      bg={isActive ? 'background.surface.hover' : 'transparent'}
+      bg={isActive ? 'background.button.secondary.hover' : 'transparent'}
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : 'border.base'}
       _hover={isDisabled ? undefined : hoverProps}

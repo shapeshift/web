@@ -10,10 +10,7 @@ type ExpandableHexCellProps = {
   fontSize?: string
 }
 
-export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({
-  value,
-  fontSize = 'sm',
-}) => {
+export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({ value, fontSize = 'sm' }) => {
   const [isExpanded, toggleExpanded] = useToggle(false)
 
   const hoverStyle = useMemo(() => ({ borderColor: 'gray.500' }), [])

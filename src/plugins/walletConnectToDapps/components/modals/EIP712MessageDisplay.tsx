@@ -1,8 +1,8 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { useTranslate } from 'react-polyglot'
 import { validateTypedData } from 'viem'
 

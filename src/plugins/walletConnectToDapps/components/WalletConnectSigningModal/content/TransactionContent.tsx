@@ -1,3 +1,4 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -13,7 +14,6 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'

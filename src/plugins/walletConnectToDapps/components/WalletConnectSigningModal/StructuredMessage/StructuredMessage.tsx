@@ -1,9 +1,9 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { isAddress } from 'viem'
 
 import { ExpandableHexCell } from './ExpandableHexCell'
@@ -126,8 +126,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
   }
 
   const valueString = String(value)
-  const isAddressField = typeof value === 'string' && isAddress(value)
-  const isHexField = typeof value === 'string' && valueString.startsWith('0x')
+  const isHexField = valueString.startsWith('0x')
   const isHexWithoutAsset = isHexField && !asset
 
   if (asset) {

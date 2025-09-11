@@ -1,6 +1,6 @@
 import { Box, Button, HStack, Image, VStack } from '@chakra-ui/react'
-import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'

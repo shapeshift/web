@@ -189,7 +189,6 @@ export const DashboardHeader = memo(() => {
           zIndex='banner'
           bg={y > TRIGGER_BACKGROUND_HEIGHT_Y ? 'background.surface.base' : 'transparent'}
           pb={4}
-          maxWidth='100%'
         >
           <MobileUserHeader
             onSearchOpen={onSearchOpen}

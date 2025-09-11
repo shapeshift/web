@@ -239,7 +239,6 @@ export const DashboardHeaderTop = memo(() => {
           width='full'
           display='grid'
           gridTemplateColumns={profileGridTemplate}
-          maxWidth='container.4xl'
           px={containerPadding}
           pt={4}
           pb={4}

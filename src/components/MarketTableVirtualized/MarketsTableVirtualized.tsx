@@ -57,8 +57,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
       [translate],
     )
 
-    console.log('rows', rows)
-
     const columns = useMemo<Column<Asset>[]>(
       () => [
         {

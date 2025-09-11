@@ -48,10 +48,10 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       requestParams &&
       (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
     )
-      return getWalletAccountFromEthParams(connectedAccounts, requestParams)
+      return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams) return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
     else return undefined
-  }, [connectedAccounts, requestParams])
+  }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 

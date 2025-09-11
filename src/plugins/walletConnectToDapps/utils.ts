@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
   EvmChainAdapter,
@@ -118,13 +118,19 @@ export const extractAllConnectedAccounts = (
 export const getWalletAccountFromEthParams = (
   accountIds: AccountId[],
   params: EthSignParams | TransactionParams[],
+  chainId: ChainId,
 ): AccountId => {
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
-  return (
-    accountIds.find(
-      accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
-    ) || ''
+
+  const matchingAccounts = accountIds.filter(
+    accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
   )
+
+  const accountForChain = matchingAccounts.find(
+    accountId => fromAccountId(accountId).chainId === chainId,
+  )
+
+  return accountForChain ?? ''
 }
 
 export const getWalletAccountFromCosmosParams = (

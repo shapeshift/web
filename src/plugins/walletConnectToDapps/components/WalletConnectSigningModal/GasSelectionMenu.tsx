@@ -88,7 +88,6 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
 
   if (!fee?.feeAsset) return null
 
-  // Show skeleton while loading
   if (gasFeeDataQuery.isLoading || simulationQuery.isLoading) {
     return (
       <HStack justify='space-between' w='full' align='center'>
@@ -110,6 +109,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   }
 
   if (!fee) return null
+
 
   return (
     <HStack justify='space-between' w='full' align='center'>

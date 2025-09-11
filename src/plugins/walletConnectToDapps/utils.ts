@@ -61,6 +61,7 @@ export const getGasData = (
   fees: FeeDataEstimate<EvmChainId>,
 ) => {
   const { speed, customFee } = customTransactionData
+  // @ts-ignore TODO(gomes): handle custom in UI
   return speed === 'custom' &&
     bnOrZero(customFee?.baseFee).gt(0) &&
     bnOrZero(customFee?.priorityFee).gt(0)

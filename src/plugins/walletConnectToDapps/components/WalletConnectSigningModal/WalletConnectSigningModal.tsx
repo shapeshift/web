@@ -19,8 +19,8 @@ type WalletConnectSigningModalProps = {
   state: WalletConnectState
   topic: string
   children: ReactNode
-  transaction: TransactionParams
-  formMethods: UseFormReturn<CustomTransactionData>
+  transaction?: TransactionParams
+  formMethods?: UseFormReturn<CustomTransactionData>
 }
 
 export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({

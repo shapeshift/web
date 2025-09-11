@@ -25,8 +25,8 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 type WalletConnectSigningFooterProps = {
   address: string | null
   chainId: ChainId | null
-  transaction: TransactionParams
-  formMethods: UseFormReturn<CustomTransactionData>
+  transaction?: TransactionParams
+  formMethods?: UseFormReturn<CustomTransactionData>
   onConfirm: (customTransactionData?: CustomTransactionData) => void
   onReject: () => void
   isSubmitting: boolean
@@ -142,7 +142,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             type='submit'
             onClick={handleSubmit}
             isLoading={isSubmitting}
-            isDisabled={!transaction}
+            isDisabled={isSubmitting}
             _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

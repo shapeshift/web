@@ -2367,6 +2367,7 @@
         "transactionData": "Transaction Data",
         "method": "Method",
         "signingWith": "Signing with",
+        "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",

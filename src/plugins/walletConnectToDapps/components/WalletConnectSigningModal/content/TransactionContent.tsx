@@ -40,6 +40,7 @@ type TransactionContentProps = {
 export const TransactionContent: FC<TransactionContentProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
+  const sectionBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
   const [isTransactionDataExpanded, toggleIsTransactionDataExpanded] = useToggle(true)
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
@@ -94,7 +95,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
         </HStack>
 
         <>
-          <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={4} mt={2}>
+          <Box borderTop='1px solid' borderColor={sectionBorderColor} pt={4} mt={2}>
             <Button
               variant='ghost'
               size='sm'

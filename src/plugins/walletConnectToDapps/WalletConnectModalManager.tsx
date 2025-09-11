@@ -13,6 +13,7 @@ import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDap
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
+import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -193,17 +194,40 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           />
         )
       case WalletConnectModal.SignEIP155TransactionConfirmation:
-      case WalletConnectModal.SendEIP155TransactionConfirmation:
         if (!topic) return null
         return (
           <EIP155TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            state={
-              state as Required<
-                WalletConnectState<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
-              >
-            }
+            state={state as Required<WalletConnectState<EthSignTransactionCallRequest>>}
+            topic={topic}
+          />
+        )
+      case WalletConnectModal.SendEIP155TransactionConfirmation:
+        if (!topic) return null
+
+        const requestParams = state.modalData?.requestEvent?.params.request.params
+        const transaction = Array.isArray(requestParams) ? requestParams[0] : undefined
+
+        if (!transaction) return null
+
+        const isNativeSend = typeof transaction !== 'string' && transaction.data === '0x'
+
+        if (isNativeSend)
+          return (
+            <SendTransactionConfirmation
+              onConfirm={handleConfirmEIP155Request}
+              onReject={handleRejectRequestAndClose}
+              state={state as Required<WalletConnectState<EthSendTransactionCallRequest>>}
+              topic={topic}
+            />
+          )
+
+        return (
+          <EIP155TransactionConfirmation
+            onConfirm={handleConfirmEIP155Request}
+            onReject={handleRejectRequestAndClose}
+            state={state as Required<WalletConnectState<EthSignTransactionCallRequest>>}
             topic={topic}
           />
         )
@@ -259,7 +283,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         borderRadius={borderRadiusProp}
         minWidth={minWidthProp}
         maxWidth={maxWidthProp}
-        bg='rgba(16, 18, 20, 1)'
       >
         <ModalBody p={0}>
           <VStack p={6} spacing={6} alignItems='stretch'>

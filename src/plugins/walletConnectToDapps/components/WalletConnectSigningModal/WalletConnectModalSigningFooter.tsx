@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Image, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
@@ -97,6 +97,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
   const formContext = useFormContext<CustomTransactionData>()
+  const borderColor = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)')
 
   const handleSubmit = useCallback(() => {
     formContext.handleSubmit(onConfirm)()
@@ -109,7 +110,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
       borderTop='1px solid'
       borderLeft='1px solid'
       borderRight='1px solid'
-      borderColor='rgba(255, 255, 255, 0.08)'
+      borderColor={borderColor}
       px={8}
       py={4}
       mx={-6}

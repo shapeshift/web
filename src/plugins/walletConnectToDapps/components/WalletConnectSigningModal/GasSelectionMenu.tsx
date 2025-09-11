@@ -8,6 +8,7 @@ import {
   MenuItem,
   MenuList,
   Skeleton,
+  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
@@ -34,22 +35,30 @@ const SPEED_OPTIONS = [
 ]
 
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
-const menuButtonHoverSx = { borderColor: 'whiteAlpha.300' }
-const menuButtonActiveSx = { borderColor: 'whiteAlpha.400' }
-const menuListSx = {
-  bg: 'gray.800',
-  borderColor: 'whiteAlpha.200',
-  borderRadius: 'lg',
-  py: 1,
-  px: 0,
-  minW: 'auto',
-  w: 'auto',
-}
 const chevronIcon = <ChevronDownIcon />
 
 export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()
   const { setValue } = useFormContext<CustomTransactionData>()
+
+  const menuButtonBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
+  const menuButtonHoverBorderColor = useColorModeValue('gray.300', 'whiteAlpha.300')
+  const menuButtonActiveBorderColor = useColorModeValue('gray.400', 'whiteAlpha.400')
+  const menuListBg = useColorModeValue('white', 'gray.800')
+  const menuListBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
+  const buttonTextColor = useColorModeValue('gray.800', 'white')
+
+  const menuButtonHoverSx = { borderColor: menuButtonHoverBorderColor }
+  const menuButtonActiveSx = { borderColor: menuButtonActiveBorderColor }
+  const menuListSx = {
+    bg: menuListBg,
+    borderColor: menuListBorderColor,
+    borderRadius: 'lg',
+    py: 1,
+    px: 0,
+    minW: 'auto',
+    w: 'auto',
+  }
 
   const { speed } = useWatch<CustomTransactionData>()
   const selectedSpeed = speed
@@ -127,10 +136,10 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
           maxW='140px'
           variant='outline'
           bg='transparent'
-          borderColor='whiteAlpha.200'
+          borderColor={menuButtonBorderColor}
           borderWidth='1px'
           borderRadius='lg'
-          color='white'
+          color={buttonTextColor}
           fontSize='sm'
           fontWeight='medium'
           _hover={menuButtonHoverSx}

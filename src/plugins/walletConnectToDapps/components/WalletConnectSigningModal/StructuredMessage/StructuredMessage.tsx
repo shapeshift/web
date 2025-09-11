@@ -108,13 +108,13 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
                 return <ExpandableHexCell key={index} value={itemString} />
               }
               return (
-                <RawText key={index} fontSize='sm' fontWeight='bold'>
+                <Box key={index} fontSize='sm' fontWeight='bold'>
                   {itemString.length > 20 ? (
                     <MiddleEllipsis value={itemString} fontSize='sm' />
                   ) : (
                     itemString
                   )}
-                </RawText>
+                </Box>
               )
             })}
           </VStack>
@@ -161,13 +161,13 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
       <RawText color='text.subtle' fontSize='sm'>
         {key}
       </RawText>
-      <RawText fontSize='sm' fontWeight='bold'>
+      <Box fontSize='sm' fontWeight='bold'>
         {valueString.length > 30 ? (
           <MiddleEllipsis value={valueString} fontSize='sm' />
         ) : (
           valueString
         )}
-      </RawText>
+      </Box>
     </HStack>
   )
 }

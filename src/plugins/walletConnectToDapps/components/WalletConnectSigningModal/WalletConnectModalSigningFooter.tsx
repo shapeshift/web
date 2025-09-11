@@ -94,12 +94,12 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
 
-  // Try to get form context, but don't require it (for message signing)
-  let formContext
+  // Try to get form context - will be null if no FormProvider exists
+  let formContext: ReturnType<typeof useFormContext<CustomTransactionData>> | null = null
   try {
     formContext = useFormContext<CustomTransactionData>()
   } catch {
-    // No form context available, this is fine for message signing
+    // No FormProvider available, this is expected for message signing
     formContext = null
   }
 
@@ -129,9 +129,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           <WalletConnectSigningWithSection feeAssetId={feeAsset.assetId} address={address ?? ''} />
         )}
 
-        {transaction && chainId && (
-          <GasSelectionMenu transaction={transaction} chainId={chainId} />
-        )}
+        {transaction && chainId && <GasSelectionMenu transaction={transaction} chainId={chainId} />}
         <HStack spacing={4} w='full'>
           <Button
             size='lg'

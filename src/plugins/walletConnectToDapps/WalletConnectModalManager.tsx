@@ -46,7 +46,7 @@ export type WalletConnectSessionModalProps = {
 }
 
 export type WalletConnectRequestModalProps<T> = {
-  dispatch: Dispatch<WalletConnectAction>
+  dispatch?: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
   topic: string
   onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
@@ -178,7 +178,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <EIP155SignMessageConfirmationModal
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignCallRequest>>}
             topic={topic}
           />
@@ -189,7 +188,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <EIP155SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
             topic={topic}
           />
@@ -201,7 +199,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <EIP155TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
             state={
               state as Required<
                 WalletConnectState<EthSendTransactionCallRequest | EthSignTransactionCallRequest>

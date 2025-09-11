@@ -20,12 +20,12 @@ export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
   showWalletProviderName = true,
 }) => {
   const walletName = useWallet().state.walletInfo?.name ?? ''
-  const bgColor = useColorModeValue('white', 'whiteAlpha.50')
+  const bgColor = useColorModeValue('white', 'gray.850')
 
   if (!explorerAddressLink) return null
 
   return (
-    <Card bg={bgColor} py={4} pl={4} pr={2} borderRadius='2xl'>
+    <Card bg={bgColor} py={4} pl={4} pr={2} borderRadius='md'>
       <HStack spacing={0}>
         {icon && (
           <Box w={10} h={6} pr={4}>

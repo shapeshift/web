@@ -7,7 +7,14 @@ import { useMemo } from 'react'
 import type { TransactionParams } from '../types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
+import {
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const useSimulateEvmTransaction = ({
   transaction,
@@ -66,9 +73,39 @@ export const useSimulateEvmTransaction = ({
     retry: false,
   })
 
+  const fee = useMemo(() => {
+    if (!simulationQuery?.data || !gasPrice) {
+      return null
+    }
+
+    const state = store.getState()
+    const feeAsset = selectFeeAssetByChainId(state, chainId)
+    const marketData = feeAsset
+      ? selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId)
+      : null
+
+    if (!feeAsset || !marketData) {
+      return null
+    }
+
+    const txFeeCryptoBaseUnit = bnOrZero(gasPrice).times(simulationQuery.data.transaction.gas_used)
+    const txFeeCryptoPrecision = bnOrZero(
+      fromBaseUnit(txFeeCryptoBaseUnit.toFixed(), feeAsset.precision),
+    )
+    const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
+
+    return {
+      txFeeCryptoBaseUnit: txFeeCryptoBaseUnit.toFixed(),
+      txFeeCryptoPrecision: txFeeCryptoPrecision.toFixed(6),
+      fiatFee: fiatFee.toFixed(2),
+      feeAsset,
+    }
+  }, [simulationQuery?.data, gasPrice, chainId])
+
   return {
     simulationQuery,
     gasFeeDataQuery,
     gasPrice,
+    fee,
   }
 }

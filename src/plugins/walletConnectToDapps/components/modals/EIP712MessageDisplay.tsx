@@ -78,7 +78,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
       <VStack spacing={3} align='stretch'>
-        {/* Domain fields consolidated into main layout */}
         {domain?.verifyingContract && (
           <HStack justify='space-between' align='center' py={1}>
             <RawText color='text.subtle' fontSize='sm'>
@@ -112,7 +111,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
           </HStack>
         )}
 
-        {/* Message Section with separator and expandable functionality */}
         <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={4} mt={2}>
           <Button
             variant='ghost'

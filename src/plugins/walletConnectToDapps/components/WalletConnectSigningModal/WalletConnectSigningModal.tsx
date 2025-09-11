@@ -1,7 +1,6 @@
 import { Image, VStack } from '@chakra-ui/react'
 import type { FC, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
-import type { UseFormReturn } from 'react-hook-form'
 
 import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
 

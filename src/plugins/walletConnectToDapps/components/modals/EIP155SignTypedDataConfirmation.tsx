@@ -8,7 +8,7 @@ import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDa
 
 export const EIP155SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
-> = ({ onConfirm, onReject, state, topic, dispatch: _dispatch }) => {
+> = ({ onConfirm, onReject, state, topic }) => {
   const { message, chainId } = useWalletConnectState(state)
 
   if (!message) return null

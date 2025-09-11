@@ -19,15 +19,8 @@ import { useTranslate } from 'react-polyglot'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
-import {
-  selectFeeAssetByChainId,
-  selectMarketDataByAssetIdUserCurrency,
-} from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 type GasSelectionMenuProps = {
   transaction: TransactionParams
@@ -54,44 +47,18 @@ const menuListSx = {
 }
 const chevronIcon = <ChevronDownIcon />
 
-export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({
-  transaction,
-  chainId,
-}) => {
+export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()
   const { setValue } = useFormContext<CustomTransactionData>()
 
   const { speed } = useWatch<CustomTransactionData>()
   const selectedSpeed = speed
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-  const marketData = useAppSelector(state =>
-    feeAsset ? selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId) : null,
-  )
-
-  const { simulationQuery, gasFeeDataQuery, gasPrice } = useSimulateEvmTransaction({
+  const { simulationQuery, gasFeeDataQuery, fee } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed: selectedSpeed,
   })
-
-  const fee = useMemo(() => {
-    if (!simulationQuery?.data || !gasPrice || !feeAsset || !marketData) {
-      return null
-    }
-
-    const txFeeCryptoBaseUnit = bnOrZero(gasPrice).times(simulationQuery.data.transaction.gas_used)
-    const txFeeCryptoPrecision = bnOrZero(
-      fromBaseUnit(txFeeCryptoBaseUnit.toFixed(), feeAsset.precision),
-    )
-    const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
-
-    return {
-      txFeeCryptoBaseUnit: txFeeCryptoBaseUnit.toFixed(),
-      txFeeCryptoPrecision: txFeeCryptoPrecision.toFixed(6),
-      fiatFee: fiatFee.toFixed(2),
-    }
-  }, [simulationQuery?.data, gasPrice, feeAsset, marketData])
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {
@@ -110,7 +77,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({
     [handleSpeedChange],
   )
 
-  if (!feeAsset) return null
+  if (!fee?.feeAsset) return null
 
   // Show skeleton while loading
   if (gasFeeDataQuery.isLoading || simulationQuery.isLoading) {
@@ -139,7 +106,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
         <RawText fontSize='sm' fontWeight='bold'>
-          {fee.txFeeCryptoPrecision} {feeAsset.symbol} (${fee.fiatFee})
+          {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
         </RawText>
         <HStack spacing={1} align='center'>
           <HelperTooltip

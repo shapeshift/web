@@ -14,6 +14,7 @@ import { ConsentBanner } from '@/components/ConsentBanner'
 import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
+import { useLedgerAccountCheck } from '@/hooks/useLedgerAccountCheck/useLedgerAccountCheck'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { AppRoutes } from '@/Routes/Routes'
@@ -32,6 +33,7 @@ export const App = () => {
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
   useBridgeClaimNotification()
+  useLedgerAccountCheck()
 
   useEffect(() => {
     if (hasUpdated && !toast.isActive(updateId) && !isActionCenterEnabled) {

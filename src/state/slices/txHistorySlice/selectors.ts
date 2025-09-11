@@ -162,20 +162,6 @@ export const selectTxIdsByFilter = createCachedSelector(
     originMemoFilter,
     txHashFilter,
   ): TxId[] => {
-    // Ensure that we do not end up selecting all Txids in store in case no filters are passed
-    if (
-      !(
-        accountIdFilter ||
-        assetIdFilter ||
-        txStatusFilter ||
-        parserFilter ||
-        memoFilter ||
-        originMemoFilter ||
-        txHashFilter
-      )
-    )
-      return []
-
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
           return accountId === accountIdFilter

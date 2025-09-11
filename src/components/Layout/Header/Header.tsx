@@ -1,10 +1,11 @@
-import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Button, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
 import { TbChartHistogram } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -30,6 +31,8 @@ const WalletConnectToDappsHeaderButton = lazy(() =>
   ),
 )
 
+const buttonHoverSx = { bg: 'background.surface.elevated' }
+const buttonActiveSx = { bg: 'transparent' }
 const displayProp2 = { base: 'none', md: 'block' }
 const paddingTopProp = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
@@ -63,10 +66,12 @@ const earnSubMenuItems = [
 ]
 
 export const Header = memo(() => {
+  const translate = useTranslate()
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const navigate = useNavigate()
+  const location = useLocation()
   const {
     state: { isConnected, walletInfo },
   } = useWallet()
@@ -85,6 +90,14 @@ export const Header = memo(() => {
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
+
+  const handleWalletClick = useCallback(() => {
+    navigate('/wallet')
+  }, [navigate])
+
+  const isWalletActive = useMemo(() => {
+    return location.pathname.startsWith('/wallet')
+  }, [location.pathname])
 
   /**
    * FOR DEVELOPERS:
@@ -140,6 +153,20 @@ export const Header = memo(() => {
                 defaultPath='/assets'
               />
               <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <Button
+                variant='ghost'
+                fontWeight='medium'
+                onClick={handleWalletClick}
+                px={3}
+                py={2}
+                borderRadius='md'
+                _hover={buttonHoverSx}
+                _active={buttonActiveSx}
+                fontSize='md'
+                color={isWalletActive ? 'text.base' : 'text.subtle'}
+              >
+                {translate('common.wallet')}
+              </Button>
             </HStack>
           </HStack>
 

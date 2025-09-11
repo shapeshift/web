@@ -159,6 +159,8 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
         <MenuList {...menuListSx}>
           {SPEED_OPTIONS.map(option => (
             <MenuItem
+              m={0}
+              px={8}
               key={option.value}
               onClick={createMenuItemClickHandler(option.value)}
               w='100%'

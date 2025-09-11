@@ -44,6 +44,8 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
   const accountId = useMemo(() => {
+    if (!chainId) return
+
     if (
       requestParams &&
       (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))

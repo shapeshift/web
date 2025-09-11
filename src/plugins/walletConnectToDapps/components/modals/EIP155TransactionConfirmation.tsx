@@ -25,6 +25,7 @@ export const EIP155TransactionConfirmation: FC<
     defaultValues: {
       nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
       gasLimit: (() => {
+        // i.e input or actual (used) gas
         const gasValue = transaction?.gasLimit ?? transaction?.gas
         return gasValue ? convertHexToNumber(gasValue).toString() : undefined
       })(),

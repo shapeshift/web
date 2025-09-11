@@ -89,7 +89,6 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
 }) => {
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
   const formContext = useFormContext<CustomTransactionData>()
 
   const handleSubmit = useCallback(() => {
@@ -110,8 +109,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
       mb={-6}
     >
       <VStack spacing={4}>
-        {feeAsset && <WalletConnectSigningWithSection accountId={accountId} />}
-
+        <WalletConnectSigningWithSection accountId={accountId} />
         {transaction && chainId && <GasSelectionMenu transaction={transaction} chainId={chainId} />}
         <HStack spacing={4} w='full'>
           <Button

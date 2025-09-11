@@ -30,9 +30,10 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
   const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
   const assetChanges = useMemo((): AssetChange[] => {
-    if (!simulationQuery.data || !transaction?.from) return []
+    if (!simulationQuery.data) return []
+
     return parseAssetChanges(simulationQuery.data, getAddress(transaction.from))
-  }, [simulationQuery.data, transaction?.from])
+  }, [simulationQuery.data, transaction.from])
 
   const sendChanges = useMemo(
     () => assetChanges.filter(change => change.type === 'send'),
@@ -44,9 +45,11 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
     [assetChanges],
   )
 
-  const exposureChanges = useMemo((): TenderlyExposureChange[] => {
-    return simulationQuery.data?.transaction.transaction_info?.exposure_changes || []
-  }, [simulationQuery.data?.transaction.transaction_info?.exposure_changes])
+  const exposureChanges = useMemo(
+    (): TenderlyExposureChange[] =>
+      simulationQuery.data?.transaction.transaction_info?.exposure_changes || [],
+    [simulationQuery.data?.transaction.transaction_info?.exposure_changes],
+  )
 
   const allowanceSimulationRows = useMemo(() => {
     if (exposureChanges.length === 0) return []
@@ -101,7 +104,6 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
               {logo && <Image boxSize='20px' src={logo} borderRadius='full' />}
             </HStack>
           </HStack>
-
           <HStack justify='space-between' align='center' py={1}>
             <RawText fontSize='sm' color='text.subtle'>
               {translate('common.approveTo')}
@@ -168,12 +170,8 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
   }, [receiveChanges, translate])
 
   if (
-    !(
-      simulationQuery.isLoading ||
-      allowanceSimulationRows.length ||
-      sendChanges.length ||
-      receiveChanges.length
-    )
+    !simulationQuery.isLoading &&
+    !(allowanceSimulationRows.length || sendChanges.length || receiveChanges.length)
   ) {
     return null
   }

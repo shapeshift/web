@@ -93,52 +93,46 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
           <ExpandableCell value={transaction.to} threshold={20} />
         </HStack>
 
-        {transaction?.data &&
-          (simulationQuery.isLoading || functionName || structuredFields.length > 0) && (
-            <>
-              <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={4} mt={2}>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  p={0}
-                  h='auto'
-                  fontWeight='medium'
-                  justifyContent='space-between'
-                  onClick={toggleIsTransactionDataExpanded}
-                  _hover={hoverStyle}
-                  w='full'
-                  mb={3}
-                >
-                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
-                    {translate('plugins.walletConnectToDapps.modal.transactionData')}
+        <>
+          <Box borderTop='1px solid' borderColor='whiteAlpha.100' pt={4} mt={2}>
+            <Button
+              variant='ghost'
+              size='sm'
+              p={0}
+              h='auto'
+              fontWeight='medium'
+              justifyContent='space-between'
+              onClick={toggleIsTransactionDataExpanded}
+              _hover={hoverStyle}
+              w='full'
+              mb={3}
+            >
+              <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                {translate('plugins.walletConnectToDapps.modal.transactionData')}
+              </RawText>
+              {isTransactionDataExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            </Button>
+            {isTransactionDataExpanded && (
+              <VStack spacing={2} align='stretch'>
+                <HStack justify='space-between' align='center' py={1}>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('plugins.walletConnectToDapps.modal.method')}
                   </RawText>
-                  {isTransactionDataExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Button>
-
-                {isTransactionDataExpanded && (
-                  <VStack spacing={2} align='stretch'>
-                    {(simulationQuery.isLoading || functionName) && (
-                      <HStack justify='space-between' align='center' py={1}>
-                        <RawText fontSize='sm' color='text.subtle'>
-                          {translate('plugins.walletConnectToDapps.modal.method')}
-                        </RawText>
-                        <Skeleton isLoaded={Boolean(!simulationQuery.isLoading && functionName)}>
-                          <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
-                            {functionName ?? ''}
-                          </RawText>
-                        </Skeleton>
-                      </HStack>
-                    )}
-                    <StructuredMessage
-                      fields={structuredFields}
-                      chainId={chainId}
-                      isLoading={simulationQuery.isLoading}
-                    />
-                  </VStack>
-                )}
-              </Box>
-            </>
-          )}
+                  <Skeleton isLoaded={!simulationQuery.isLoading}>
+                    <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
+                      {functionName ?? ''}
+                    </RawText>
+                  </Skeleton>
+                </HStack>
+                <StructuredMessage
+                  fields={structuredFields}
+                  chainId={chainId}
+                  isLoading={simulationQuery.isLoading}
+                />
+              </VStack>
+            )}
+          </Box>
+        </>
       </VStack>
     </Card>
   )

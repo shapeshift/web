@@ -1,17 +1,25 @@
-import { Box, Button, HStack, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Image, VStack } from '@chakra-ui/react'
+import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { GasSelectionMenu } from './GasSelectionMenu'
-import { WalletConnectSigningWithSection } from './WalletConnectSigningFromSection'
 
+import { Amount } from '@/components/Amount/Amount'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { RawText } from '@/components/Text'
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
-import { selectFeeAssetByChainId } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeeAssetByChainId,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
@@ -29,7 +37,59 @@ type WalletConnectSigningFooterProps = {
   isSubmitting: boolean
 }
 
-export const WalletConnectSigningFooter: FC<WalletConnectSigningFooterProps> = ({
+type WalletConnectSigningWithSectionProps = {
+  feeAssetId: string
+  address: string
+}
+
+const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionProps> = ({
+  feeAssetId,
+  address,
+}) => {
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+
+  const { chainId } = fromAssetId(feeAssetId)
+  const accountId = toAccountId({ chainId, account: address.toLowerCase() })
+
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  )
+
+  const fiatBalance = useAppSelector(state =>
+    selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  )
+
+  const networkIcon = useMemo(() => {
+    return feeAsset?.networkIcon ?? feeAsset?.icon
+  }, [feeAsset?.networkIcon, feeAsset?.icon])
+
+  if (!feeAsset) return null
+
+  return (
+    <HStack justify='space-between' align='center' w='full'>
+      <HStack spacing={3} align='center'>
+        <Image boxSize='24px' src={networkIcon} borderRadius='full' />
+        <VStack align='flex-start' spacing={0}>
+          <RawText fontSize='sm' color='text.subtle'>
+            Signing with
+          </RawText>
+          <MiddleEllipsis value={address} fontSize='sm' />
+        </VStack>
+      </HStack>
+      <VStack align='flex-end' spacing={0}>
+        <Amount.Fiat value={fiatBalance} fontSize='lg' fontWeight='medium' />
+        <Amount.Crypto
+          value={cryptoBalance}
+          symbol={feeAsset.symbol}
+          fontSize='sm'
+          color='text.subtle'
+        />
+      </VStack>
+    </HStack>
+  )
+}
+
+export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps> = ({
   address,
   chainId,
   gasSelection,

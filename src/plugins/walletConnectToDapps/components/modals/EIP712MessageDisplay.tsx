@@ -2,7 +2,7 @@ import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@ch
 import type { ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { useTranslate } from 'react-polyglot'
 import { validateTypedData } from 'viem'
 
@@ -132,7 +132,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
             <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
               {translate('plugins.walletConnectToDapps.modal.signMessage.message')}
             </RawText>
-            <Box as={isMessageExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
+            {isMessageExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </Button>
 
           {isMessageExpanded && (

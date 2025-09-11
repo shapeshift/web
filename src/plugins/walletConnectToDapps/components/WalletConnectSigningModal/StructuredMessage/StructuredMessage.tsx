@@ -3,10 +3,10 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { isAddress } from 'viem'
 
-import { ExpandableAddressCell } from './ExpandableAddressCell'
+import { ExpandableHexCell } from './ExpandableHexCell'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
@@ -79,7 +79,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
           <RawText color='text.subtle' fontSize='sm' fontWeight='medium'>
             {key}
           </RawText>
-          <Box as={isExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
+          {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </Button>
         {isExpanded && (
           <VStack align='stretch' spacing={0}>
@@ -106,8 +106,8 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
           <VStack align='end' spacing={1}>
             {value.map((item, index) => {
               const itemString = String(item)
-              if (typeof item === 'string' && isAddress(item)) {
-                return <ExpandableAddressCell key={index} address={itemString} />
+              if (typeof item === 'string' && itemString.startsWith('0x')) {
+                return <ExpandableHexCell key={index} value={itemString} />
               }
               return (
                 <RawText key={index} fontSize='sm' fontWeight='bold'>
@@ -127,7 +127,8 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
 
   const valueString = String(value)
   const isAddressField = typeof value === 'string' && isAddress(value)
-  const isAddressWithoutAsset = isAddressField && !asset
+  const isHexField = typeof value === 'string' && valueString.startsWith('0x')
+  const isHexWithoutAsset = isHexField && !asset
 
   if (asset) {
     return (
@@ -145,14 +146,14 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     )
   }
 
-  if (isAddressWithoutAsset) {
+  if (isHexWithoutAsset) {
     return (
       <Box py={0.5} pl={paddingLeft}>
         <HStack justify='space-between' align='flex-start'>
           <RawText color='text.subtle' fontSize='sm'>
             {key}
           </RawText>
-          <ExpandableAddressCell address={valueString} />
+          <ExpandableHexCell value={valueString} />
         </HStack>
       </Box>
     )

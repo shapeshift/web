@@ -13,7 +13,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -280,7 +280,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
                   <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
                     Transaction Data
                   </RawText>
-                  <Box as={isTransactionDataExpanded ? FaChevronUp : FaChevronDown} w={3} h={3} />
+                  {isTransactionDataExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
                 </Button>
 
                 {isTransactionDataExpanded && (

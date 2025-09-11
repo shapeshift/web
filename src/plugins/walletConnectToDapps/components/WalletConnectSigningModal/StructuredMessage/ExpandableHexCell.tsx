@@ -5,13 +5,13 @@ import { FaChevronRight } from 'react-icons/fa'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 
-type ExpandableAddressCellProps = {
-  address: string
+type ExpandableHexCellProps = {
+  value: string
   fontSize?: string
 }
 
-export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
-  address,
+export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({
+  value,
   fontSize = 'sm',
 }) => {
   const [isExpanded, toggleExpanded] = useToggle(false)
@@ -41,7 +41,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         onClick={toggleExpanded}
         _hover={hoverStyle}
       >
-        <MiddleEllipsis value={address} fontSize={fontSize} />
+        <MiddleEllipsis value={value} fontSize={fontSize} />
         <Box as={FaChevronRight} {...chevronIconStyle} />
       </HStack>
     )
@@ -61,7 +61,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         onClick={toggleExpanded}
         _hover={hoverStyle}
       >
-        <MiddleEllipsis value={address} fontSize={fontSize} />
+        <MiddleEllipsis value={value} fontSize={fontSize} />
         <Box as={FaChevronRight} {...expandedChevronStyle} />
       </HStack>
       <Box
@@ -75,7 +75,7 @@ export const ExpandableAddressCell: React.FC<ExpandableAddressCellProps> = ({
         maxW='100%'
         textAlign='right'
       >
-        {address}
+        {value}
       </Box>
     </Box>
   )

@@ -5,7 +5,7 @@ import type { FC, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 
-import { WalletConnectSigningFooter } from './WalletConnectSigningFooter'
+import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
 
 import { RawText } from '@/components/Text'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
@@ -73,7 +73,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
 
       {children}
 
-      <WalletConnectSigningFooter
+      <WalletConnectModalSigningFooter
         address={address ?? null}
         chainId={chainId ?? null}
         gasSelection={gasSelection}

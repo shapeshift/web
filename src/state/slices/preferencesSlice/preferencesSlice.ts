@@ -90,6 +90,7 @@ export type FeatureFlags = {
   RfoxFoxEcosystemPage: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
+  SwapperFiatRamps: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -213,6 +214,7 @@ const initialState: Preferences = {
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
+    SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

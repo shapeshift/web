@@ -89,6 +89,7 @@ export const SharedTradeInputBody = ({
       chainIdFilterPredicate,
       selectedChainId: selectedSellAssetChainId,
       onSelectedChainIdChange: onSellAssetChainIdChange,
+      showFiatTab: true,
     })
   }, [
     assetFilterPredicate,

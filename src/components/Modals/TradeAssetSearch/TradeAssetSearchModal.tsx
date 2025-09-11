@@ -43,6 +43,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   chainIdFilterPredicate,
   selectedChainId,
   onSelectedChainIdChange,
+  showFiatTab,
 }) => {
   const translate = useTranslate()
 
@@ -68,6 +69,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         chainIdFilterPredicate={chainIdFilterPredicate}
         selectedChainId={selectedChainId}
         onSelectedChainIdChange={onSelectedChainIdChange}
+        showFiatTab={showFiatTab}
       />
     </Dialog>
   )

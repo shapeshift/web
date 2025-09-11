@@ -421,6 +421,7 @@ export const TradeInput = ({
       chainIdFilterPredicate,
       selectedChainId: selectedBuyAssetChainId,
       onSelectedChainIdChange: setSelectedBuyAssetChainId,
+      showFiatTab: true,
     })
   }, [
     assetFilterPredicate,

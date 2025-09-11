@@ -88,7 +88,7 @@ const WalletConnectV2ConnectedButton = memo(() => {
     return (
       <MenuButton
         textAlign='left'
-        flexShrink='none'
+        flexShrink={0}
         as={Button}
         variant='ghost'
         leftIcon={leftIcon}

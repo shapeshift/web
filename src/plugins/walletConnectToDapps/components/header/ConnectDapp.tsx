@@ -36,7 +36,7 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
         leftIcon={walletConnectIcon}
         onClick={handleOpen}
         justifyContent='flex-start'
-        flexShrink='none'
+        flexShrink={0}
         {...buttonProps}
         width={normalButtonWidth}
       >

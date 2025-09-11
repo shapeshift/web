@@ -70,14 +70,12 @@ export const EIP155TransactionConfirmation: FC<
         onReject={handleReject}
         state={state}
         topic={topic}
-        formMethods={form}
         transaction={transaction}
       >
         <TransactionContent
           transaction={transaction}
           chainId={chainId ?? ''}
           isInteractingWithContract={isInteractingWithContract}
-          formMethods={form}
         />
       </WalletConnectSigningModal>
     </FormProvider>

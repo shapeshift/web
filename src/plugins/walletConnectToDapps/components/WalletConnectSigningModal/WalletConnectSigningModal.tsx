@@ -20,7 +20,6 @@ type WalletConnectSigningModalProps = {
   topic: string
   children: ReactNode
   transaction?: TransactionParams
-  formMethods?: UseFormReturn<CustomTransactionData>
 }
 
 export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
@@ -30,7 +29,6 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   topic,
   children,
   transaction,
-  formMethods,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { address, chainId } = useWalletConnectState(state)
@@ -74,7 +72,6 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
         address={address ?? null}
         chainId={chainId ?? null}
         transaction={transaction}
-        formMethods={formMethods}
         onConfirm={handleConfirm}
         onReject={handleReject}
         isSubmitting={isSubmitting}

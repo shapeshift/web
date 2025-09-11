@@ -3,13 +3,14 @@ import { Box, Button, HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { isAddress } from 'viem'
 
 import { ExpandableHexCell } from './ExpandableHexCell'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -29,7 +30,7 @@ type StructuredFieldProps = {
 const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) => {
   const { key, value, children } = field
   const level = field.level ?? 0
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, toggleExpanded] = useToggle(false)
 
   const maybeAssetId = useMemo(() => {
     if (typeof value !== 'string' || !isAddress(value)) return null
@@ -51,17 +52,13 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
 
   const paddingLeft = level > 0 ? 4 : 0
 
-  const handleToggleExpanded = useCallback(() => {
-    setIsExpanded(!isExpanded)
-  }, [isExpanded])
-
   const hoverStyle = useMemo(() => ({ bg: 'whiteAlpha.50' }), [])
 
   const childrenWithLevel = useMemo(() => {
     return children?.map(child => ({ ...child, level: level + 1 })) || []
   }, [children, level])
 
-  if (children && children.length > 0) {
+  if (children?.length) {
     return (
       <Box py={1}>
         <Button
@@ -73,7 +70,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
           h='auto'
           fontWeight='normal'
           justifyContent='space-between'
-          onClick={handleToggleExpanded}
+          onClick={toggleExpanded}
           _hover={hoverStyle}
           w='full'
         >

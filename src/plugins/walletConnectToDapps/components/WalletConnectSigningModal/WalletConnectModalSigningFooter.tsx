@@ -3,7 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import type { UseFormReturn } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { GasSelectionMenu } from './GasSelectionMenu'
@@ -26,7 +26,6 @@ type WalletConnectSigningFooterProps = {
   address: string | null
   chainId: ChainId | null
   transaction?: TransactionParams
-  formMethods?: UseFormReturn<CustomTransactionData>
   onConfirm: (customTransactionData?: CustomTransactionData) => void
   onReject: () => void
   isSubmitting: boolean
@@ -88,7 +87,6 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   address,
   chainId,
   transaction,
-  formMethods,
   onConfirm,
   onReject,
   isSubmitting,
@@ -96,13 +94,22 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
 
+  // Try to get form context, but don't require it (for message signing)
+  let formContext
+  try {
+    formContext = useFormContext<CustomTransactionData>()
+  } catch {
+    // No form context available, this is fine for message signing
+    formContext = null
+  }
+
   const handleSubmit = useCallback(() => {
-    if (formMethods) {
-      formMethods.handleSubmit(onConfirm)()
+    if (formContext) {
+      formContext.handleSubmit(onConfirm)()
     } else {
       onConfirm(undefined)
     }
-  }, [formMethods, onConfirm])
+  }, [formContext, onConfirm])
 
   return (
     <Box
@@ -122,8 +129,8 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           <WalletConnectSigningWithSection feeAssetId={feeAsset.assetId} address={address ?? ''} />
         )}
 
-        {transaction && formMethods && chainId && (
-          <GasSelectionMenu transaction={transaction} chainId={chainId} formMethods={formMethods} />
+        {transaction && chainId && (
+          <GasSelectionMenu transaction={transaction} chainId={chainId} />
         )}
         <HStack spacing={4} w='full'>
           <Button

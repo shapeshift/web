@@ -34,7 +34,6 @@ type TransactionContentProps = {
   transaction: TransactionParams
   chainId: ChainId
   isInteractingWithContract: boolean
-  formMethods?: any
 }
 
 export const TransactionContent: FC<TransactionContentProps> = ({ transaction, chainId }) => {

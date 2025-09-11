@@ -14,8 +14,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import type { UseFormReturn } from 'react-hook-form'
-import { useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -33,7 +32,6 @@ import { useAppSelector } from '@/state/store'
 type GasSelectionMenuProps = {
   transaction: TransactionParams
   chainId: ChainId
-  formMethods: UseFormReturn<CustomTransactionData>
 }
 
 const SPEED_OPTIONS = [
@@ -59,9 +57,9 @@ const chevronIcon = <ChevronDownIcon />
 export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({
   transaction,
   chainId,
-  formMethods,
 }) => {
   const translate = useTranslate()
+  const { setValue } = useFormContext<CustomTransactionData>()
 
   const { speed } = useWatch<CustomTransactionData>()
   const selectedSpeed = speed
@@ -97,9 +95,9 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {
-      formMethods.setValue('speed', newSpeed)
+      setValue('speed', newSpeed)
     },
-    [formMethods],
+    [setValue],
   )
 
   const currentSpeedOption = useMemo(

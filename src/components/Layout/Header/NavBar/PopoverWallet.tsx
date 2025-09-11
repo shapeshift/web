@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { PopoverWalletHeader } from './PopoverWalletHeader'
@@ -88,6 +88,13 @@ export const PopoverWallet: FC<PopoverWalletProps> = memo(({ onClose }) => {
   const handleSwitchProvider = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
+
+  // Auto-close popover when wallet is disconnected
+  useEffect(() => {
+    if (!isConnected && onClose) {
+      onClose()
+    }
+  }, [isConnected, onClose])
 
   return (
     <Box width='100%' height='100%' display='flex' flexDirection='column'>

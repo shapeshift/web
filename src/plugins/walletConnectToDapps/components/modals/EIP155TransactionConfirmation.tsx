@@ -38,9 +38,7 @@ export const EIP155TransactionConfirmation: FC<
   })
 
   const handleFormSubmit = useCallback(
-    async (formData?: CustomTransactionData) => {
-      await handleConfirm(formData)
-    },
+    (formData?: CustomTransactionData) => handleConfirm(formData),
     [handleConfirm],
   )
 

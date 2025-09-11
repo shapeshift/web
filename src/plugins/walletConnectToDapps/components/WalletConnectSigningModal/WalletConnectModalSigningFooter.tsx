@@ -1,6 +1,6 @@
 import { Box, Button, HStack, Image, VStack } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -22,34 +22,23 @@ import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
-type WalletConnectSigningFooterProps = {
-  address: string | null
-  chainId: ChainId | null
-  transaction?: TransactionParams
-  onConfirm: (customTransactionData?: CustomTransactionData) => void
-  onReject: () => void
-  isSubmitting: boolean
-}
-
 type WalletConnectSigningWithSectionProps = {
-  feeAssetId: string
-  address: string
+  accountId: AccountId
 }
 
 const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionProps> = ({
-  feeAssetId,
-  address,
+  accountId,
 }) => {
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const userAddress = useMemo(() => fromAccountId(accountId).account, [accountId])
+  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
+  const feeAssetId = useAppSelector(state => selectFeeAssetByChainId(state, chainId)?.assetId)
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
-  const { chainId } = fromAssetId(feeAssetId)
-  const accountId = toAccountId({ chainId, account: address.toLowerCase() })
-
-  const cryptoBalance = useAppSelector(state =>
+  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: feeAssetId, accountId }),
   )
 
-  const fiatBalance = useAppSelector(state =>
+  const feeAssetBalanceUserCurrency = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),
   )
 
@@ -67,13 +56,13 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
           <RawText fontSize='sm' color='text.subtle'>
             Signing with
           </RawText>
-          <MiddleEllipsis value={address} fontSize='sm' />
+          <MiddleEllipsis value={userAddress} fontSize='sm' />
         </VStack>
       </HStack>
       <VStack align='flex-end' spacing={0}>
-        <Amount.Fiat value={fiatBalance} fontSize='lg' fontWeight='medium' />
+        <Amount.Fiat value={feeAssetBalanceUserCurrency} fontSize='lg' fontWeight='medium' />
         <Amount.Crypto
-          value={cryptoBalance}
+          value={feeAssetBalanceCryptoPrecision}
           symbol={feeAsset.symbol}
           fontSize='sm'
           color='text.subtle'
@@ -83,14 +72,22 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
   )
 }
 
+type WalletConnectSigningFooterProps = {
+  accountId: AccountId
+  transaction?: TransactionParams
+  onConfirm: (customTransactionData?: CustomTransactionData) => void
+  onReject: () => void
+  isSubmitting: boolean
+}
+
 export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps> = ({
-  address,
-  chainId,
+  accountId,
   transaction,
   onConfirm,
   onReject,
   isSubmitting,
 }) => {
+  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
   const formContext = useFormContext<CustomTransactionData>()
@@ -113,9 +110,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
       mb={-6}
     >
       <VStack spacing={4}>
-        {feeAsset && (
-          <WalletConnectSigningWithSection feeAssetId={feeAsset.assetId} address={address ?? ''} />
-        )}
+        {feeAsset && <WalletConnectSigningWithSection accountId={accountId} />}
 
         {transaction && chainId && <GasSelectionMenu transaction={transaction} chainId={chainId} />}
         <HStack spacing={4} w='full'>

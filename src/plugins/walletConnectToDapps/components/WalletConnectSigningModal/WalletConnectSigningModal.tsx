@@ -30,7 +30,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   transaction,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { address, chainId } = useWalletConnectState(state)
+  const { accountId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
   const handleConfirm = useCallback(
@@ -54,6 +54,8 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
     }
   }, [onReject])
 
+  if (!accountId) return
+
   return (
     <VStack spacing={0} align='stretch'>
       {peerMetadata && (
@@ -68,8 +70,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
       {children}
 
       <WalletConnectModalSigningFooter
-        address={address ?? null}
-        chainId={chainId ?? null}
+        accountId={accountId}
         transaction={transaction}
         onConfirm={handleConfirm}
         onReject={handleReject}

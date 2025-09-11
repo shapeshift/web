@@ -16,23 +16,35 @@ type SwapperIconsProps = {
   swapperName: SwapperName | undefined
 }
 
+const animationTransition = {
+  duration: 0.2,
+  ease: [0.43, 0.13, 0.23, 0.96] as [number, number, number, number],
+}
+const widthWillChangeStyle = { willChange: 'width' } as const
+const opacityTransformWillChangeStyle = { willChange: 'opacity, transform' } as const
+const swapperInitial = { opacity: 0, scale: 0.9 }
+const swapperAnimate = { opacity: 1, scale: 1, transition: animationTransition }
+const swapperExit = { opacity: 0, scale: 1.05, transition: animationTransition }
+const overlayStyle = {
+  position: 'absolute',
+  inset: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+} as const
+
 export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => {
   const isStreaming =
     swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
     swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE ||
     swapSource === MAYACHAIN_STREAM_SWAP_SOURCE
 
-  const animationTransition = useMemo(
-    () => ({ duration: 0.2, ease: [0.43, 0.13, 0.23, 0.96] as [number, number, number, number] }),
-    [],
-  )
-
   const widthAnimate = useMemo(
     () =>
       isStreaming
         ? { width: 24, transition: animationTransition }
         : { width: 0, transition: animationTransition },
-    [animationTransition, isStreaming],
+    [isStreaming],
   )
 
   const streamingAnimate = useMemo(
@@ -40,34 +52,7 @@ export const SwapperIcons = ({ swapSource, swapperName }: SwapperIconsProps) => 
       isStreaming
         ? { opacity: 1, scale: 1, transition: animationTransition }
         : { opacity: 0, scale: 0.85, transition: animationTransition },
-    [animationTransition, isStreaming],
-  )
-
-  const swapperInitial = useMemo(() => ({ opacity: 0, scale: 0.9 }), [])
-  const swapperAnimate = useMemo(
-    () => ({ opacity: 1, scale: 1, transition: animationTransition }),
-    [animationTransition],
-  )
-  const swapperExit = useMemo(
-    () => ({ opacity: 0, scale: 1.05, transition: animationTransition }),
-    [animationTransition],
-  )
-  const overlayStyle = useMemo(
-    () =>
-      ({
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }) as const,
-    [],
-  )
-
-  const widthWillChangeStyle = useMemo(() => ({ willChange: 'width' }) as const, [])
-  const opacityTransformWillChangeStyle = useMemo(
-    () => ({ willChange: 'opacity, transform' }) as const,
-    [],
+    [isStreaming],
   )
 
   return (

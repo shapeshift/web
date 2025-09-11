@@ -25,10 +25,10 @@ const SPEED_OPTIONS = [
   { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast ~24 sec' },
 ]
 
-const tooltipIconProps = { boxSize: '12px', color: 'text.subtle' }
-const menuButtonHoverStyle = { borderColor: 'whiteAlpha.300' }
-const menuButtonActiveStyle = { borderColor: 'whiteAlpha.400' }
-const menuListStyles = {
+const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
+const menuButtonHoverSx = { borderColor: 'whiteAlpha.300' }
+const menuButtonActiveSx = { borderColor: 'whiteAlpha.400' }
+const menuListSx = {
   bg: 'gray.800',
   borderColor: 'whiteAlpha.200',
   borderRadius: 'lg',
@@ -85,7 +85,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
             label={translate(
               'plugins.walletConnectToDapps.modal.sendTransaction.feeEstimateTooltip',
             )}
-            iconProps={tooltipIconProps}
+            iconProps={tooltipIconSx}
           />
           <RawText fontSize='xs' color='text.subtle'>
             Fee Estimate
@@ -107,8 +107,8 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
           color='white'
           fontSize='sm'
           fontWeight='medium'
-          _hover={menuButtonHoverStyle}
-          _active={menuButtonActiveStyle}
+          _hover={menuButtonHoverSx}
+          _active={menuButtonActiveSx}
           px={3}
         >
           <HStack spacing={1}>
@@ -116,7 +116,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
             <Box>{currentSpeedOption.text}</Box>
           </HStack>
         </MenuButton>
-        <MenuList {...menuListStyles}>
+        <MenuList {...menuListSx}>
           {SPEED_OPTIONS.map(option => (
             <MenuItem
               key={option.value}

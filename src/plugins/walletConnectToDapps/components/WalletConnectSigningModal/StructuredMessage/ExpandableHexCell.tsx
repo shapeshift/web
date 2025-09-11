@@ -1,28 +1,34 @@
 import { Box, HStack } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { FaChevronRight } from 'react-icons/fa'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 
-type ExpandableHexCellProps = {
-  value: string
-  fontSize?: string
+const hoverSx = { borderColor: 'gray.500' }
+const chevronIconSx = { boxSize: '10px', color: 'gray.400' }
+const expandedChevronSx = {
+  boxSize: '10px',
+  transform: 'rotate(90deg)',
+  color: 'gray.400',
+}
+const expandedTextSx = {
+  fontSize: 'xs',
+  fontFamily: 'mono',
+  wordBreak: 'break-all',
+  color: 'gray.400',
+  pl: 4,
+  py: 2,
+  mt: 1,
+  maxW: '100%',
+  textAlign: 'right',
 }
 
-export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({ value, fontSize = 'sm' }) => {
-  const [isExpanded, toggleExpanded] = useToggle(false)
+type ExpandableHexCellProps = {
+  value: string
+}
 
-  const hoverStyle = useMemo(() => ({ borderColor: 'gray.500' }), [])
-  const chevronIconStyle = useMemo(() => ({ boxSize: '10px', color: 'gray.400' }), [])
-  const expandedChevronStyle = useMemo(
-    () => ({
-      boxSize: '10px',
-      transform: 'rotate(90deg)',
-      color: 'gray.400',
-    }),
-    [],
-  )
+export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({ value }) => {
+  const [isExpanded, toggleExpanded] = useToggle(false)
 
   if (!isExpanded) {
     return (
@@ -36,10 +42,10 @@ export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({ value, fon
         py={1}
         cursor='pointer'
         onClick={toggleExpanded}
-        _hover={hoverStyle}
+        _hover={hoverSx}
       >
-        <MiddleEllipsis value={value} fontSize={fontSize} />
-        <Box as={FaChevronRight} {...chevronIconStyle} />
+        <MiddleEllipsis value={value} fontSize='sm' />
+        <Box as={FaChevronRight} {...chevronIconSx} />
       </HStack>
     )
   }
@@ -56,24 +62,12 @@ export const ExpandableHexCell: React.FC<ExpandableHexCellProps> = ({ value, fon
         py={1}
         cursor='pointer'
         onClick={toggleExpanded}
-        _hover={hoverStyle}
+        _hover={hoverSx}
       >
-        <MiddleEllipsis value={value} fontSize={fontSize} />
-        <Box as={FaChevronRight} {...expandedChevronStyle} />
+        <MiddleEllipsis value={value} fontSize='sm' />
+        <Box as={FaChevronRight} {...expandedChevronSx} />
       </HStack>
-      <Box
-        fontSize='xs'
-        fontFamily='mono'
-        wordBreak='break-all'
-        color='gray.400'
-        pl={4}
-        py={2}
-        mt={1}
-        maxW='100%'
-        textAlign='right'
-      >
-        {value}
-      </Box>
+      <Box {...expandedTextSx}>{value}</Box>
     </Box>
   )
 }

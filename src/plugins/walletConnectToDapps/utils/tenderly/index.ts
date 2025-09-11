@@ -86,7 +86,7 @@ export const convertToStructuredFields = (
     key: string
     value: any
     type: string
-    children?: any
+    children?: any[]
   }[]
 }[] => {
   return args.map(arg => {
@@ -97,7 +97,7 @@ export const convertToStructuredFields = (
           key: string
           value: any
           type: string
-          children?: any
+          children?: any[]
         }[]
       | undefined => {
       if (!components) return undefined
@@ -250,5 +250,3 @@ export const simulateTransaction = async ({
     return null
   }
 }
-
-export * from './types'

@@ -20,7 +20,7 @@ import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDa
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
-  const { transaction, isInteractingWithContract, chainId } = useWalletConnectState(state)
+  const { transaction, chainId } = useWalletConnectState(state)
   const { showErrorToast } = useErrorToast()
 
   const form = useForm<CustomTransactionData>({
@@ -45,16 +45,8 @@ export const EIP155TransactionConfirmation: FC<
     [handleConfirm],
   )
 
-  if (isInteractingWithContract === null) {
-    return (
-      <Center p={8}>
-        <CircularProgress />
-      </Center>
-    )
-  }
-
   // if the transaction is missing the dapp sent invalid params
-  if (!transaction) {
+  if (!transaction || !chainId) {
     showErrorToast({
       message: 'unable to handle tx due to invalid params',
       params: state.modalData.requestEvent?.params,
@@ -72,11 +64,7 @@ export const EIP155TransactionConfirmation: FC<
         topic={topic}
         transaction={transaction}
       >
-        <TransactionContent
-          transaction={transaction}
-          chainId={chainId ?? ''}
-          isInteractingWithContract={isInteractingWithContract}
-        />
+        <TransactionContent transaction={transaction} chainId={chainId} />
       </WalletConnectSigningModal>
     </FormProvider>
   )

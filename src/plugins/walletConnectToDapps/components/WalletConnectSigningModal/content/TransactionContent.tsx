@@ -21,19 +21,21 @@ import type { StructuredField } from '@/plugins/walletConnectToDapps/components/
 import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
-import type { AssetChange, ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   convertToStructuredFields,
   parseAssetChanges,
   parseDecodedInput,
 } from '@/plugins/walletConnectToDapps/utils/tenderly'
+import type {
+  AssetChange,
+  ParsedArgument,
+} from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type TransactionContentProps = {
   transaction: TransactionParams
   chainId: ChainId
-  isInteractingWithContract: boolean
 }
 
 export const TransactionContent: FC<TransactionContentProps> = ({ transaction, chainId }) => {

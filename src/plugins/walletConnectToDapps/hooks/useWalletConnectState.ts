@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 
-import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import {
   isEthSignParams,
   isSignRequest,
@@ -56,15 +55,6 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 
-  const { data: _isInteractingWithContract } = useIsSmartContractAddress(
-    address ?? '',
-    chainId ?? '',
-  )
-
-  // use null as loading state of sorts
-  const isInteractingWithContract =
-    _isInteractingWithContract !== undefined ? _isInteractingWithContract : null
-
   const message =
     request && (isSignRequest(request) || isSignTypedRequest(request))
       ? getSignParamsMessage(request.params, true)
@@ -72,7 +62,6 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const method: KnownSigningMethod | undefined = requestEvent?.params.request.method
 
   return {
-    isInteractingWithContract,
     address,
     transaction,
     message,

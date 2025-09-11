@@ -257,6 +257,11 @@
       "body": "The trading interface encountered an error. You can try again or refresh the page.",
       "retry": "Try Again"
     },
+    "ramp": {
+      "title": "Ramp Error",
+      "body": "The ramp interface encountered an error. You can try again or refresh the page.",
+      "retry": "Try Again"
+    },
     "suspense": {
       "title": "Loading failed",
       "body": "This content failed to load properly.",
@@ -950,7 +955,7 @@
     "viewTransaction": "View Transaction",
     "noQuotesAvailable": "No Quotes Available",
     "noQuotesAvailableDescription": "No available quotes found at this time. Try selecting another pair.",
-    "availableSwappers": "Available Swappers",
+    "availableQuotes": "Available Quotes",
     "unavailableSwappers": "Unavailable Swappers",
     "unlimited": "Unlimited",
     "streamStatus": "Stream Status",

@@ -4,13 +4,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
-import { TradingErrorBoundary } from '@/components/ErrorBoundary'
+import { RampErrorBoundary } from '@/components/ErrorBoundary/RampErrorBoundary'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { FiatRampTrade } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTrade'
 import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
-import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
@@ -21,7 +21,7 @@ const mainMarginTop = { base: 0, md: '-4.5rem' }
 const containerPaddingTop = { base: 0, md: 12 }
 const containerPaddingBottom = { base: 0, md: 12 }
 
-export const TradeTab = memo(() => {
+export const BuyTab = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
   const methods = useForm({ mode: 'onChange' })
@@ -86,17 +86,13 @@ export const TradeTab = memo(() => {
     return translate('navBar.trade')
   }, [translate])
 
-  const tradeElement = useMemo(
+  const buyElement = useMemo(
     () => (
-      <TradingErrorBoundary>
-        <MultiHopTrade
-          defaultBuyAssetId={defaultBuyAssetId}
-          defaultSellAssetId={defaultSellAssetId}
-          onChangeTab={handleChangeTab}
-        />
-      </TradingErrorBoundary>
+      <RampErrorBoundary>
+        <FiatRampTrade type='buy' onChangeTab={handleChangeTab} />
+      </RampErrorBoundary>
     ),
-    [handleChangeTab, defaultBuyAssetId, defaultSellAssetId],
+    [handleChangeTab],
   )
 
   return (
@@ -113,7 +109,7 @@ export const TradeTab = memo(() => {
       >
         <FormProvider {...methods}>
           <Routes>
-            <Route key={TradeRoutePaths.Input} path={'*'} element={tradeElement} />
+            <Route key={FiatRampRoutePaths.Buy} path={'*'} element={buyElement} />
           </Routes>
         </FormProvider>
       </Flex>

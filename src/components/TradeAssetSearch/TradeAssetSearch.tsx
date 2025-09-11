@@ -83,6 +83,7 @@ export type TradeAssetSearchProps = {
   selectedChainId?: ChainId | 'All'
   onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
   showFiatTab?: boolean
+  showAssetTab?: boolean
 }
 
 const Footer = () => <Box height='0.5rem' />
@@ -98,6 +99,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   selectedChainId = 'All',
   onSelectedChainIdChange,
   showFiatTab = false,
+  showAssetTab = true,
 }) => {
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
@@ -290,6 +292,30 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const listContent = useMemo(() => {
+    if (isSwapperFiatRampsEnabled && !showAssetTab && showFiatTab) {
+      return (
+        <>
+          <Text translation='common.fiat' />
+          {searchFiats.length > 0 ? (
+            <Virtuoso
+              className='scroll-container'
+              data={searchFiats}
+              itemContent={renferFiatItem}
+              style={style}
+              overscan={1000}
+              increaseViewportBy={INCREASE_VIEWPORT_BY}
+              components={components}
+            />
+          ) : (
+            <Center flexDir='column' gap={2} mt={4} minH='calc(50vh + 24px)'>
+              <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
+              <Text color='text.subtle' translation='common.noResultsFound' />
+            </Center>
+          )}
+        </>
+      )
+    }
+
     if (isSwapperFiatRampsEnabled && showFiatTab) {
       return (
         <Tabs variant='unstyled' display='flex' flexDirection='column' height='100%' isLazy>
@@ -399,6 +425,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     searchFiats,
     searchString,
     showFiatTab,
+    showAssetTab,
   ])
 
   return (

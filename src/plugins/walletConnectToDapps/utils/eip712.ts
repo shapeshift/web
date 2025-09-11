@@ -1,4 +1,4 @@
-import type { StructuredField } from '@/plugins/walletConnectToDapps/components/StructuredMessage/StructuredMessage'
+import type { StructuredField } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import type { EIP712Value } from '@/plugins/walletConnectToDapps/types'
 
 // Convert EIP712 message data to StructuredField format

@@ -17,8 +17,8 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { StructuredField } from '@/plugins/walletConnectToDapps/components/StructuredMessage/StructuredMessage'
-import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/StructuredMessage/StructuredMessage'
+import type { StructuredField } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
+import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import type {
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,

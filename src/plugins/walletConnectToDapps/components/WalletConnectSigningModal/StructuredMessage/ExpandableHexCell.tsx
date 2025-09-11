@@ -14,13 +14,13 @@ const expandedChevronSx = {
 const expandedTextSx = {
   fontSize: 'xs',
   fontFamily: 'mono',
-  wordBreak: 'break-all',
+  wordBreak: 'break-all' as const,
   color: 'gray.400',
   pl: 4,
   py: 2,
   mt: 1,
   maxW: '100%',
-  textAlign: 'right',
+  textAlign: 'right' as const,
 }
 
 type ExpandableHexCellProps = {

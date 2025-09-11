@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
+import axios from 'axios'
 
 type TenderlySimulationRequest = {
   network_id: string
@@ -39,7 +40,7 @@ type TenderlyAssetChange = {
   to_before_balance?: string
 }
 
-type TenderlyDecodedInput = {
+export type TenderlyDecodedInput = {
   soltype: {
     name: string
     type: string
@@ -129,8 +130,6 @@ type TenderlySimulationResponse = {
 
 const TENDERLY_ACCOUNT_SLUG = '0xgomes'
 const TENDERLY_PROJECT_SLUG = 'project'
-
-export type { TenderlyDecodedInput }
 
 export type AssetChange = {
   userAddress: string
@@ -338,16 +337,18 @@ export const parseDecodedInput = (simulation: TenderlySimulationResponse): Parse
   return decodedInput.map(parseValue)
 }
 
-export const fetchSimulation = async ({
+export const simulateTransaction = async ({
   chainId,
   from,
   to,
-  data,
+  data: inputData,
+  value,
 }: {
   chainId: ChainId
   from: string
   to: string
   data: string
+  value?: string
 }): Promise<TenderlySimulationResponse | null> => {
   try {
     const apiKey = import.meta.env.VITE_TENDERLY_API_KEY
@@ -357,7 +358,6 @@ export const fetchSimulation = async ({
       return null
     }
 
-    // Convert chainId to networkId (extract the network reference and cast to number)
     const { chainReference } = fromChainId(chainId)
     const networkId = chainReference
 
@@ -365,27 +365,22 @@ export const fetchSimulation = async ({
       network_id: networkId,
       from,
       to,
-      input: data,
+      input: inputData,
+      value,
     }
 
-    const response = await fetch(
+    const { data } = await axios.post<TenderlySimulationResponse>(
       `https://api.tenderly.co/api/v1/account/${TENDERLY_ACCOUNT_SLUG}/project/${TENDERLY_PROJECT_SLUG}/simulate`,
+      requestBody,
       {
-        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Access-Key': apiKey,
         },
-        body: JSON.stringify(requestBody),
       },
     )
 
-    if (!response.ok) {
-      throw new Error(`Tenderly API error: ${response.status} ${response.statusText}`)
-    }
-
-    const result = await response.json()
-    return result as TenderlySimulationResponse
+    return data
   } catch (error) {
     console.error('Failed to simulate transaction with Tenderly:', error)
     return null

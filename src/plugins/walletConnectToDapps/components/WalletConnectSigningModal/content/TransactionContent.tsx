@@ -26,9 +26,9 @@ import type {
 import type { AssetChange, ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   convertToStructuredFields,
-  fetchSimulation,
   parseAssetChanges,
   parseDecodedInput,
+  simulateTransaction,
 } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -59,11 +59,12 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
     ],
     queryFn: () =>
       transaction?.from && transaction?.to && transaction?.data
-        ? fetchSimulation({
+        ? simulateTransaction({
             chainId,
             from: transaction.from,
             to: transaction.to,
             data: transaction.data,
+            value: transaction.value,
           })
         : null,
     enabled: Boolean(transaction?.from && transaction?.to && transaction?.data),

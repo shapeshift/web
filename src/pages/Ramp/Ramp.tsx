@@ -9,12 +9,12 @@ import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-do
 import { PageContainer } from '../Buy/components/PageContainer'
 import { TopAssets } from '../Buy/TopAssets'
 
-import AuroraBg from '@/assets/aurorabg.jpg'
 import FoxPane from '@/assets/fox-cta-pane.png'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
+import { cardstyles } from '@/components/MultiHopTrade/const'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -29,13 +29,8 @@ type MatchParams = {
 }
 
 const layoutMainStyle = { paddingInlineStart: 0, paddingInlineEnd: 0 }
-const pageContainerPt = { base: 8, md: '7.5rem' }
 const pageContainerPb = { base: 0, md: '7.5rem' }
 const flexDirXlRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', xl: 'row' }
-const alignItemsXlFlexStart = {
-  base: 'center',
-  xl: 'flex-start',
-}
 const textAlignXlLeft: ResponsiveValue<Property.TextAlign> = { base: 'center', xl: 'left' }
 const headingFontSize = { base: '4xl', xl: '6xl' }
 const cardMxOffsetBase = { base: -4, md: 0 }
@@ -102,42 +97,34 @@ const RampContent: React.FC = () => {
   return (
     <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
       <SEO title={translate('navBar.buyCrypto')} description={translate(bodyKey)} />
-      <Box
-        bgImg={AuroraBg}
-        backgroundSize='cover'
-        backgroundPosition='top center'
-        pt='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
-      >
-        <PageContainer pt={pageContainerPt} pb={pageContainerPb}>
+      <Box pt='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'>
+        <PageContainer pt={12} pb={pageContainerPb}>
           <Flex
-            flexDir={flexDirXlRow}
+            flexDir='column'
             alignItems='center'
-            justifyContent='space-between'
+            justifyContent='center'
             width='full'
+            mx='auto'
+            maxWidth='container.md'
+            textAlign='center'
             gap={6}
           >
-            <Flex
-              flexDir='column'
-              flex={1}
-              gap={4}
-              alignItems={alignItemsXlFlexStart}
-              textAlign={textAlignXlLeft}
-            >
+            <Flex flexDir='column' flex={1} gap={4} alignItems='center' textAlign='center'>
               <Text
                 as='h2'
                 fontSize={headingFontSize}
                 lineHeight='1em'
                 letterSpacing='-0.05em'
-                color='whiteAlpha.900'
+                color='text.base'
                 translation={titleKey}
                 components={titleTransaltionsComponents}
               />
 
-              <Text fontSize='lg' translation={bodyKey} color='whiteAlpha.900' />
+              <Text fontSize='lg' translation={bodyKey} color='text.base' />
               <Text fontSize='sm' color='text.subtle' translation='rampPage.disclaimer' />
             </Flex>
-            <Box flexBasis='400px'>
-              <Card bg='background.surface.base' mx={cardMxOffsetBase}>
+            <Box flexBasis='400px' textAlign='left'>
+              <Card mx={cardMxOffsetBase} {...cardstyles}>
                 <FiatForm assetId={selectedAssetId} fiatRampAction={action} />
               </Card>
             </Box>
@@ -146,7 +133,7 @@ const RampContent: React.FC = () => {
         {!isConnected && (
           <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
             <PageContainer display='flex' py={0} flexDir={flexDirXlRow} textAlign={textAlignXlLeft}>
-              <Stack spacing={4} py='6rem' flex={1} alignItems={alignItemsXlFlexStart}>
+              <Stack spacing={4} py='6rem' flex={1} alignItems='flex-start'>
                 <Text
                   fontSize='2xl'
                   fontWeight='bold'

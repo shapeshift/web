@@ -2,7 +2,6 @@ import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
-import { RiRefreshLine } from 'react-icons/ri'
 import { TbChartHistogram } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -18,6 +17,7 @@ import { UserMenu } from './NavBar/UserMenu'
 import { WalletManagerPopover } from './NavBar/WalletManagerPopover'
 import { TxWindow } from './TxWindow/TxWindow'
 
+import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -45,7 +45,7 @@ const searchBoxMxSx = { base: 0, lg: 0 }
 const rightHStackSpacingSx = { base: 2, lg: 4 }
 
 const tradeSubMenuItems = [
-  { label: 'navBar.swap', path: '/trade', icon: RiRefreshLine },
+  { label: 'navBar.swap', path: '/trade', icon: SwapIcon },
   { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
   { label: 'fiatRamps.buy', path: '/ramp/buy', icon: FaCreditCard },
   { label: 'fiatRamps.sell', path: '/ramp/sell', icon: FaArrowRight },
@@ -110,22 +110,22 @@ export const Header = memo(() => {
     <>
       <Flex
         direction='column'
-        width='98%'
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? 'background.surface.base' : 'gray.950'}
+        bg={y > height ? 'background.surface.base' : 'transparent'}
         border='1px solid'
-        borderColor='border.base'
-        borderRadius='lg'
-        margin='4'
+        borderColor={y > height ? 'border.base' : 'transparent'}
+        borderRadius='2xl'
+        marginTop={2}
+        mx={2}
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
-        top={0}
+        top={2}
         paddingTop={paddingTopProp}
       >
-        <HStack height='4.5rem' width='full' px={4}>
+        <HStack height='4.5rem' width='full' pr={4} pl={6}>
           <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
             <ShapeShiftMenu />
             <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>
@@ -158,7 +158,7 @@ export const Header = memo(() => {
             {isConnected && !isActionCenterEnabled && <TxWindow />}
             {isConnected && isActionCenterEnabled && <ActionCenter />}
             {hasWallet && (
-              <Divider orientation='vertical' height='24px' borderColor='whiteAlpha.300' />
+              <Divider orientation='vertical' height='24px' borderColor='border.bold' />
             )}
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (

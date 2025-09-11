@@ -9,8 +9,6 @@ import { MarketsHeader } from './MarketsHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 
-const containerPaddingX = { base: 4, xl: 0 }
-
 const ASSETS_LIMIT = 8
 
 export const Recommended: React.FC = () => {
@@ -39,9 +37,7 @@ export const Recommended: React.FC = () => {
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.markets')} />
-      <Box py={4} px={containerPaddingX}>
-        {body}
-      </Box>
+      <Box py={4}>{body}</Box>
     </Main>
   )
 }

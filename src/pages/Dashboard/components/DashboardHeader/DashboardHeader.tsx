@@ -133,7 +133,6 @@ export const DashboardHeader = memo(() => {
       >
         <Container
           ref={containerRef}
-          maxWidth='container.4xl'
           className='navbar-scroller'
           display='flex'
           gap={8}
@@ -190,7 +189,6 @@ export const DashboardHeader = memo(() => {
           zIndex='banner'
           bg={y > TRIGGER_BACKGROUND_HEIGHT_Y ? 'background.surface.base' : 'transparent'}
           pb={4}
-          maxWidth='100%'
         >
           <MobileUserHeader
             onSearchOpen={onSearchOpen}

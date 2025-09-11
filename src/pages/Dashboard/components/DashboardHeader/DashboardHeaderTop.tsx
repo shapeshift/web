@@ -223,7 +223,6 @@ export const DashboardHeaderTop = memo(() => {
             width='100%'
             display='grid'
             gridTemplateColumns={profileGridTemplate}
-            maxWidth='container.4xl'
             px={containerPadding}
             pt={4}
             pb={4}
@@ -240,7 +239,6 @@ export const DashboardHeaderTop = memo(() => {
           width='full'
           display='grid'
           gridTemplateColumns={profileGridTemplate}
-          maxWidth='container.4xl'
           px={containerPadding}
           pt={4}
           pb={4}

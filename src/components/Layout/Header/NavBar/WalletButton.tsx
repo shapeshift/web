@@ -101,6 +101,7 @@ export const WalletButton: FC<WalletButtonProps> = ({
       onClick={handleMenuClick}
       size='md'
       fontSize='sm'
+      color='text.base'
       variant='ghost'
       bg='transparent'
       {...otherProps}

@@ -2,6 +2,7 @@ import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent, JSX } from 'react'
 
+import { cardstyles } from '../../const'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedWidth } from '../TradeInput/hooks/useSharedWidth'
 
@@ -38,7 +39,6 @@ const cardMinHeight = {
   base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
   md: 'initial',
 }
-const cardBgProp = { base: 'background.surface.base', md: 'darkNeutral.800' }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   bodyContent,
@@ -76,10 +76,10 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               ref={tradeInputRef}
               as='form'
               onSubmit={onSubmit}
-              bg={cardBgProp}
               borderRadius={cardBorderRadius}
               minHeight={cardMinHeight}
               height={!hasUserEnteredAmount && isSmallerThanMd ? cardMinHeight.base : 'initial'}
+              {...cardstyles}
             >
               <SharedTradeInputHeader
                 initialTab={tradeInputTab}

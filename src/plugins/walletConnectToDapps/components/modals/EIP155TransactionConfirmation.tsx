@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
+import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { TransactionContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/TransactionContent'
 import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/WalletConnectSigningModal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
@@ -64,6 +65,7 @@ export const EIP155TransactionConfirmation: FC<
         transaction={transaction}
       >
         <TransactionContent transaction={transaction} chainId={chainId} />
+        <TransactionAdvancedParameters />
       </WalletConnectSigningModal>
     </FormProvider>
   )

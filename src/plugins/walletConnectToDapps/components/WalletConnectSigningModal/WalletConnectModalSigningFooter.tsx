@@ -53,20 +53,26 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
     <HStack justify='space-between' align='center' w='full'>
       <HStack spacing={3} align='center'>
         <Image boxSize='24px' src={networkIcon} borderRadius='full' />
-        <VStack align='flex-start' spacing={0}>
-          <RawText fontSize='sm' color='text.subtle'>
+        <VStack align='flex-start' spacing={0} justify='center'>
+          <RawText fontSize='sm' color='text.subtle' lineHeight='1.2'>
             {translate('plugins.walletConnectToDapps.modal.signingWith')}
           </RawText>
-          <MiddleEllipsis value={userAddress} fontSize='sm' />
+          <MiddleEllipsis value={userAddress} fontSize='sm' fontWeight='medium' lineHeight='1.2' />
         </VStack>
       </HStack>
-      <VStack align='flex-end' spacing={0}>
-        <Amount.Fiat value={feeAssetBalanceUserCurrency} fontSize='lg' fontWeight='medium' />
+      <VStack align='flex-end' spacing={0} justify='center'>
+        <Amount.Fiat
+          value={feeAssetBalanceUserCurrency}
+          fontSize='lg'
+          fontWeight='medium'
+          lineHeight='1.2'
+        />
         <Amount.Crypto
           value={feeAssetBalanceCryptoPrecision}
           symbol={feeAsset.symbol}
           fontSize='sm'
           color='text.subtle'
+          lineHeight='1.2'
         />
       </VStack>
     </HStack>

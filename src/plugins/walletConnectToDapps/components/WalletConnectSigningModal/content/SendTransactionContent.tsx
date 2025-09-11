@@ -35,11 +35,8 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
 
   const sendAmount = useMemo(() => {
     if (!transaction.value || !feeAsset) return '0'
-    try {
-      return fromBaseUnit(transaction.value, feeAsset.precision)
-    } catch {
-      return '0'
-    }
+
+    return fromBaseUnit(transaction.value, feeAsset.precision)
   }, [transaction.value, feeAsset])
 
   const isZeroValue = sendAmount === '0'

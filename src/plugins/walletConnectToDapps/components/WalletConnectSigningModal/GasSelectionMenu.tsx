@@ -48,8 +48,14 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   const menuListBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
   const buttonTextColor = useColorModeValue('gray.800', 'white')
 
-  const menuButtonHoverSx = { borderColor: menuButtonHoverBorderColor }
-  const menuButtonActiveSx = { borderColor: menuButtonActiveBorderColor }
+  const menuButtonHoverSx = useMemo(
+    () => ({ borderColor: menuButtonHoverBorderColor }),
+    [menuButtonHoverBorderColor],
+  )
+  const menuButtonActiveSx = useMemo(
+    () => ({ borderColor: menuButtonActiveBorderColor }),
+    [menuButtonActiveBorderColor],
+  )
   const menuListSx = {
     bg: menuListBg,
     borderColor: menuListBorderColor,
@@ -109,7 +115,6 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   }
 
   if (!fee) return null
-
 
   return (
     <HStack justify='space-between' w='full' align='center'>

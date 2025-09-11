@@ -83,7 +83,7 @@ export const Buy = () => {
   )
 
   const ctaTitleTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['rampPage.ctaTitle', { chainCount }],
+    () => ['buyPage.ctaTitle', { chainCount }],
     [chainCount],
   )
 
@@ -96,7 +96,7 @@ export const Buy = () => {
 
   return (
     <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
-      <SEO title={translate('navBar.buyCrypto')} description={translate('rampPage.buyBody')} />
+      <SEO title={translate('navBar.buyCrypto')} description={translate('buyPage.body')} />
       <Box
         bgImg={AuroraBg}
         backgroundSize='cover'
@@ -124,12 +124,12 @@ export const Buy = () => {
                 lineHeight='1em'
                 letterSpacing='-0.05em'
                 color='whiteAlpha.900'
-                translation='rampPage.buyTitle'
+                translation='buyPage.title'
                 components={titleTransaltionsComponents}
               />
 
-              <Text fontSize='lg' translation='rampPage.buyBody' color='whiteAlpha.900' />
-              <Text fontSize='sm' color='text.subtle' translation='rampPage.disclaimer' />
+              <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
+              <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
               <Card bg='background.surface.base' mx={cardMxOffsetBase}>

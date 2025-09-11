@@ -216,7 +216,8 @@
     "viewOnExplorer": "View on explorer",
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
-    "network": "Network"
+    "network": "Network",
+    "feeEstimate": "Fee Estimate"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",

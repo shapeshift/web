@@ -1,8 +1,6 @@
 import { Box, Button, HStack, Image, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
@@ -13,7 +11,7 @@ import { GasSelectionMenu } from './GasSelectionMenu'
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
+import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -28,8 +26,7 @@ type WalletConnectSigningFooterProps = {
   address: string | null
   chainId: ChainId | null
   gasSelection?: {
-    fees: Record<FeeDataKey, { txFee?: string; fiatFee: string }>
-    feeAsset: Asset
+    transaction: TransactionParams
     formMethods: UseFormReturn<CustomTransactionData>
   }
   onConfirm: (customTransactionData?: CustomTransactionData) => void
@@ -126,10 +123,10 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           <WalletConnectSigningWithSection feeAssetId={feeAsset.assetId} address={address ?? ''} />
         )}
 
-        {gasSelection && (
+        {gasSelection && chainId && (
           <GasSelectionMenu
-            fees={gasSelection.fees}
-            feeAsset={gasSelection.feeAsset}
+            transaction={gasSelection.transaction}
+            chainId={chainId}
             formMethods={gasSelection.formMethods}
           />
         )}
@@ -150,7 +147,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             type='submit'
             onClick={handleSubmit}
             isLoading={isSubmitting}
-            isDisabled={gasSelection ? !gasSelection.fees : false}
+            isDisabled={gasSelection ? !gasSelection.transaction : false}
             _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

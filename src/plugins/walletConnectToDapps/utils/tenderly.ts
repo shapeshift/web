@@ -343,12 +343,14 @@ export const simulateTransaction = async ({
   to,
   data: inputData,
   value,
+  gasPrice,
 }: {
   chainId: ChainId
   from: string
   to: string
   data: string
   value?: string
+  gasPrice?: string
 }): Promise<TenderlySimulationResponse | null> => {
   try {
     const apiKey = import.meta.env.VITE_TENDERLY_API_KEY
@@ -367,6 +369,7 @@ export const simulateTransaction = async ({
       to,
       input: inputData,
       value,
+      gas_price: gasPrice,
     }
 
     const { data } = await axios.post<TenderlySimulationResponse>(

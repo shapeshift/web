@@ -20,7 +20,7 @@ export const EIP155SignTypedDataConfirmation: FC<
       state={state}
       topic={topic}
     >
-      <EIP712MessageDisplay typedData={message} chainId={chainId} />
+      <EIP712MessageDisplay message={message} chainId={chainId} />
     </WalletConnectSigningModal>
   )
 }

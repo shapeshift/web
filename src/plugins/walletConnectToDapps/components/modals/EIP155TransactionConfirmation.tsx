@@ -8,7 +8,6 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { TransactionContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/TransactionContent'
 import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/WalletConnectSigningModal'
-import { useCallRequestEvmFees } from '@/plugins/walletConnectToDapps/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
@@ -22,7 +21,6 @@ export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
   const { transaction, isInteractingWithContract, chainId } = useWalletConnectState(state)
-  const { feeAsset, fees } = useCallRequestEvmFees(state)
   const { showErrorToast } = useErrorToast()
 
   const form = useForm<CustomTransactionData>({
@@ -72,12 +70,13 @@ export const EIP155TransactionConfirmation: FC<
         onReject={handleReject}
         state={state}
         topic={topic}
-        gasSelection={fees && feeAsset ? { fees, feeAsset, formMethods: form } : undefined}
+        gasSelection={{ transaction, formMethods: form }}
       >
         <TransactionContent
           transaction={transaction}
           chainId={chainId ?? ''}
           isInteractingWithContract={isInteractingWithContract}
+          formMethods={form}
         />
       </WalletConnectSigningModal>
     </FormProvider>

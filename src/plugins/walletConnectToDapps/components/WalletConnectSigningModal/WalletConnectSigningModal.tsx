@@ -1,6 +1,4 @@
 import { Image, VStack } from '@chakra-ui/react'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
 import type { FC, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
@@ -11,6 +9,8 @@ import { RawText } from '@/components/Text'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
+  EthSendTransactionCallRequest,
+  EthSignTransactionCallRequest,
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
 
@@ -21,8 +21,9 @@ type WalletConnectSigningModalProps = {
   topic: string
   children: ReactNode
   gasSelection?: {
-    fees: Record<FeeDataKey, { txFee?: string; fiatFee: string }>
-    feeAsset: Asset
+    transaction:
+      | EthSendTransactionCallRequest['params'][0]
+      | EthSignTransactionCallRequest['params'][0]
     formMethods: UseFormReturn<CustomTransactionData>
   }
 }

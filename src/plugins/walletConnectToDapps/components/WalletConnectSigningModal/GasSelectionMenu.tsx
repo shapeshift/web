@@ -1,21 +1,38 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack, Menu, MenuButton, MenuItem, MenuList, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Skeleton,
+  VStack,
+} from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
+import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
+import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
+import {
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type GasSelectionMenuProps = {
-  fees: Record<FeeDataKey, { txFee?: string; fiatFee: string }>
-  feeAsset: Asset
+  transaction: TransactionParams
+  chainId: ChainId
   formMethods: UseFormReturn<CustomTransactionData>
 }
 
@@ -39,25 +56,54 @@ const menuListSx = {
 }
 const chevronIcon = <ChevronDownIcon />
 
-export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, formMethods }) => {
-  const [selectedSpeed, setSelectedSpeed] = useState<FeeDataKey>(FeeDataKey.Fast)
+export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({
+  transaction,
+  chainId,
+  formMethods,
+}) => {
   const translate = useTranslate()
+
+  const { speed } = useWatch<CustomTransactionData>()
+  const selectedSpeed = speed
+
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const marketData = useAppSelector(state =>
+    feeAsset ? selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId) : null,
+  )
+
+  const { simulationQuery, gasFeeDataQuery, gasPrice } = useSimulateEvmTransaction({
+    transaction,
+    chainId,
+    speed: selectedSpeed,
+  })
+
+  const fee = useMemo(() => {
+    if (!simulationQuery?.data || !gasPrice || !feeAsset || !marketData) {
+      return null
+    }
+
+    const txFeeCryptoBaseUnit = bnOrZero(gasPrice).times(simulationQuery.data.transaction.gas_used)
+    const txFeeCryptoPrecision = bnOrZero(
+      fromBaseUnit(txFeeCryptoBaseUnit.toFixed(), feeAsset.precision),
+    )
+    const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
+
+    return {
+      txFeeCryptoBaseUnit: txFeeCryptoBaseUnit.toFixed(),
+      txFeeCryptoPrecision: txFeeCryptoPrecision.toFixed(6),
+      fiatFee: fiatFee.toFixed(2),
+    }
+  }, [simulationQuery?.data, gasPrice, feeAsset, marketData])
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {
-      setSelectedSpeed(newSpeed)
       formMethods.setValue('speed', newSpeed)
     },
     [formMethods],
   )
 
-  const selectedFee = useMemo(() => {
-    if (!fees) return null
-    return fees[selectedSpeed]
-  }, [fees, selectedSpeed])
-
   const currentSpeedOption = useMemo(
-    () => SPEED_OPTIONS.find(option => option.value === selectedSpeed) || SPEED_OPTIONS[2],
+    () => SPEED_OPTIONS.find(option => option.value === selectedSpeed),
     [selectedSpeed],
   )
 
@@ -66,29 +112,44 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
     [handleSpeedChange],
   )
 
-  const networkFeeCryptoPrecision = useMemo(() => {
-    if (!selectedFee?.txFee) return '0'
-    return bnOrZero(fromBaseUnit(selectedFee.txFee, feeAsset.precision)).toFixed(6)
-  }, [selectedFee?.txFee, feeAsset.precision])
+  if (!feeAsset) return null
 
-  if (!selectedFee) return null
+  // Show skeleton while loading
+  if (gasFeeDataQuery.isLoading || simulationQuery.isLoading) {
+    return (
+      <HStack justify='space-between' w='full' align='center'>
+        <VStack spacing={0} align='flex-start'>
+          <Skeleton height='20px' width='120px' />
+          <HStack spacing={1} align='center'>
+            <HelperTooltip
+              label={translate('modals.status.estimatedGas')}
+              iconProps={tooltipIconSx}
+            />{' '}
+            <RawText fontSize='xs' color='text.subtle'>
+              {translate('common.feeEstimate')}
+            </RawText>
+          </HStack>
+        </VStack>
+        <Skeleton height='32px' width='100px' />
+      </HStack>
+    )
+  }
+
+  if (!fee) return null
 
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
         <RawText fontSize='sm' fontWeight='bold'>
-          {networkFeeCryptoPrecision} {feeAsset.symbol} (${bnOrZero(selectedFee.fiatFee).toFixed(2)}
-          )
+          {fee.txFeeCryptoPrecision} {feeAsset.symbol} (${fee.fiatFee})
         </RawText>
         <HStack spacing={1} align='center'>
           <HelperTooltip
-            label={translate(
-              'plugins.walletConnectToDapps.modal.sendTransaction.feeEstimateTooltip',
-            )}
+            label={translate('modals.status.estimatedGas')}
             iconProps={tooltipIconSx}
-          />
+          />{' '}
           <RawText fontSize='xs' color='text.subtle'>
-            Fee Estimate
+            {translate('common.feeEstimate')}
           </RawText>
         </HStack>
       </VStack>
@@ -112,8 +173,8 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ fees, feeAsset, fo
           px={3}
         >
           <HStack spacing={1}>
-            <Box>{currentSpeedOption.emoji}</Box>
-            <Box>{currentSpeedOption.text}</Box>
+            <Box>{currentSpeedOption?.emoji}</Box>
+            <Box>{currentSpeedOption?.text}</Box>
           </HStack>
         </MenuButton>
         <MenuList {...menuListSx}>

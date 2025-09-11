@@ -11,34 +11,30 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
+import { useWatch } from 'react-hook-form'
 
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { StructuredField } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
-import type {
-  EthSendTransactionCallRequest,
-  EthSignTransactionCallRequest,
-} from '@/plugins/walletConnectToDapps/types'
+import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
+import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import type { AssetChange, ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   convertToStructuredFields,
   parseAssetChanges,
   parseDecodedInput,
-  simulateTransaction,
 } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type TransactionContentProps = {
-  transaction:
-    | EthSendTransactionCallRequest['params'][0]
-    | EthSignTransactionCallRequest['params'][0]
+  transaction: TransactionParams
   chainId: ChainId
   isInteractingWithContract: boolean
+  formMethods?: any
 }
 
 export const TransactionContent: FC<TransactionContentProps> = ({ transaction, chainId }) => {
@@ -49,28 +45,9 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
     selectFeeAssetByChainId(state, chainId ?? ''),
   )
 
-  const simulationQuery = useQuery({
-    queryKey: [
-      'tenderly-simulation',
-      chainId,
-      transaction?.from,
-      transaction?.to,
-      transaction?.data,
-    ],
-    queryFn: () =>
-      transaction?.from && transaction?.to && transaction?.data
-        ? simulateTransaction({
-            chainId,
-            from: transaction.from,
-            to: transaction.to,
-            data: transaction.data,
-            value: transaction.value,
-          })
-        : null,
-    enabled: Boolean(transaction?.from && transaction?.to && transaction?.data),
-    staleTime: 30000,
-    retry: false,
-  })
+  const { speed } = useWatch<CustomTransactionData>()
+
+  const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
   const functionName = useMemo(() => {
     return simulationQuery.data?.simulation?.method || null

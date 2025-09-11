@@ -16,27 +16,24 @@ import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type EIP712MessageDisplayProps = {
-  typedData: string
+  message: string
   chainId?: ChainId
 }
 
-export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
-  typedData,
-  chainId,
-}) => {
+export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ message, chainId }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const [isMessageExpanded, setIsMessageExpanded] = useState(true)
 
   const parsedData = useMemo((): EIP712TypedData | null => {
     try {
-      const parsed = JSON.parse(typedData)
+      const parsed = JSON.parse(message)
       validateTypedData(parsed)
       return parsed as EIP712TypedData
     } catch {
       return null
     }
-  }, [typedData])
+  }, [message])
 
   const domainChainId = useMemo(() => {
     if (!parsedData?.domain?.chainId) return
@@ -70,13 +67,13 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
     return (
       <Card bg={cardBg} borderRadius='2xl' p={4}>
         <RawText fontFamily='monospace' fontSize='sm' wordBreak='break-all'>
-          {typedData}
+          {message}
         </RawText>
       </Card>
     )
   }
 
-  const { primaryType, domain, message } = parsedData
+  const { primaryType, domain, message: parsedMessage } = parsedData
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
@@ -137,7 +134,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({
 
           {isMessageExpanded && (
             <StructuredMessage
-              fields={convertEIP712ToStructuredFields(message, primaryType)}
+              fields={convertEIP712ToStructuredFields(parsedMessage, primaryType)}
               chainId={chainId || ''}
             />
           )}

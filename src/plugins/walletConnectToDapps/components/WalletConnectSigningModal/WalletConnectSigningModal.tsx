@@ -1,6 +1,7 @@
 import { Image, VStack } from '@chakra-ui/react'
 import type { FC, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
+import type { UseFormReturn } from 'react-hook-form'
 
 import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
 
@@ -19,6 +20,7 @@ type WalletConnectSigningModalProps = {
   topic: string
   children: ReactNode
   transaction?: TransactionParams
+  formContext?: UseFormReturn<CustomTransactionData>
 }
 
 export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
@@ -28,6 +30,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   topic,
   children,
   transaction,
+  formContext,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { accountId } = useWalletConnectState(state)
@@ -75,6 +78,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
         onConfirm={handleConfirm}
         onReject={handleReject}
         isSubmitting={isSubmitting}
+        formContext={formContext}
       />
     </VStack>
   )

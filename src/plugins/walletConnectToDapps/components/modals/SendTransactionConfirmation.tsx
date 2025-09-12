@@ -57,6 +57,7 @@ export const SendTransactionConfirmation: FC<
         state={state}
         topic={topic}
         transaction={transaction}
+        formContext={form}
       >
         <SendTransactionContent transaction={transaction} chainId={chainId} />
         <TransactionAdvancedParameters />

@@ -27,7 +27,7 @@ export const useSimulateEvmTransaction = ({
 }) => {
   const gasFeeDataQuery = useQuery({
     queryKey: ['getEvmGasFeeData', chainId],
-    queryFn: Boolean(chainId)
+    queryFn: Boolean(chainId && transaction)
       ? async () => {
           const chainAdapter = getChainAdapterManager().get(chainId) as EvmChainAdapter
           if (!chainAdapter) return null

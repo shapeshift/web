@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { GasSelectionMenu } from './GasSelectionMenu'
@@ -86,6 +86,7 @@ type WalletConnectSigningFooterProps = {
   onConfirm: (customTransactionData?: CustomTransactionData) => Promise<void> | void
   onReject: () => void
   isSubmitting: boolean
+  formContext?: UseFormReturn<CustomTransactionData>
 }
 
 export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps> = ({
@@ -94,13 +95,13 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   onConfirm,
   onReject,
   isSubmitting,
+  formContext,
 }) => {
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
-  const formContext = useFormContext<CustomTransactionData>()
   const borderColor = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)')
 
-  const { speed } = useWatch<CustomTransactionData>()
+  const speed = formContext?.watch('speed')
 
   const { simulationQuery } = useSimulateEvmTransaction({
     transaction,

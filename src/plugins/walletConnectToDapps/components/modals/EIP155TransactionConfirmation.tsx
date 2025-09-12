@@ -56,6 +56,7 @@ export const EIP155TransactionConfirmation: FC<
         state={state}
         topic={topic}
         transaction={transaction}
+        formContext={form}
       >
         <TransactionContent transaction={transaction} chainId={chainId} />
         <TransactionAdvancedParameters />

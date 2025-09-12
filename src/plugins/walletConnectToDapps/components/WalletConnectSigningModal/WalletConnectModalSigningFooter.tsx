@@ -82,7 +82,7 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
 type WalletConnectSigningFooterProps = {
   accountId: AccountId
   transaction?: TransactionParams
-  onConfirm: (customTransactionData?: CustomTransactionData) => void
+  onConfirm: (customTransactionData?: CustomTransactionData) => Promise<void> | void
   onReject: () => void
   isSubmitting: boolean
 }

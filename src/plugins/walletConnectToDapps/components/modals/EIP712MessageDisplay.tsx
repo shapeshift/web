@@ -62,7 +62,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
 
   const { primaryType, domain, message: parsedMessage } = parsedData
 
-  if (!domainChainId) return
+  if (!domainChainId) return null
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>

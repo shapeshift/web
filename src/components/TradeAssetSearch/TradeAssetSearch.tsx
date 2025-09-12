@@ -76,6 +76,7 @@ const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
+  onFiatClick?: (fiat: FiatTypeEnumWithoutCryptos) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
@@ -92,6 +93,7 @@ const components = { TopItemList, Footer }
 
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
+  onFiatClick,
   formProps,
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
@@ -279,9 +281,12 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     })
   }, [searchString])
 
-  const handleFiatClick = useCallback((fiat: FiatTypeEnumWithoutCryptos) => {
-    console.log('fiat', fiat)
-  }, [])
+  const handleFiatClick = useCallback(
+    (fiat: FiatTypeEnumWithoutCryptos) => {
+      onFiatClick?.(fiat)
+    },
+    [onFiatClick],
+  )
 
   const renferFiatItem = useCallback(
     (index: number) => {
@@ -294,8 +299,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const listContent = useMemo(() => {
     if (isSwapperFiatRampsEnabled && !showAssetTab && showFiatTab) {
       return (
-        <>
-          <Text translation='common.fiat' />
+        <Box p={4}>
+          <Text translation='common.fiat' mb={2} />
           {searchFiats.length > 0 ? (
             <Virtuoso
               className='scroll-container'
@@ -312,7 +317,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
               <Text color='text.subtle' translation='common.noResultsFound' />
             </Center>
           )}
-        </>
+        </Box>
       )
     }
 
@@ -455,19 +460,23 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             </InputLeftElement>
             <Input {...inputProps} />
           </InputGroup>
-          <AllChainMenu
-            activeChainId={activeChainId}
-            chainIds={chainIds}
-            isActiveChainIdSupported={true}
-            isDisabled={false}
-            onMenuOptionClick={handleSelectedChainIdChange}
-            buttonProps={buttonProps}
-            disableTooltip
-          />
+          {showAssetTab && (
+            <AllChainMenu
+              activeChainId={activeChainId}
+              chainIds={chainIds}
+              isActiveChainIdSupported={true}
+              isDisabled={false}
+              onMenuOptionClick={handleSelectedChainIdChange}
+              buttonProps={buttonProps}
+              disableTooltip
+            />
+          )}
         </Flex>
-        <Flex flexWrap='wrap' gap={2}>
-          {quickAccessAssetButtons}
-        </Flex>
+        {showAssetTab && (
+          <Flex flexWrap='wrap' gap={2}>
+            {quickAccessAssetButtons}
+          </Flex>
+        )}
       </Stack>
       {listContent}
     </>

@@ -30,9 +30,9 @@ import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
-import { BuyTab } from '@/pages/Trade/tabs/BuyTab'
 import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -378,17 +378,16 @@ export const routes: Route[] = [
     path: '/ramp/*',
     label: '',
     hideDesktop: true,
-    main: BuyTab,
+    main: RampTab,
     routes: [
       {
         path: FiatRampRoutePaths.Buy,
-        main: BuyTab,
+        main: RampTab,
         hide: true,
       },
       {
         path: FiatRampRoutePaths.Sell,
-        // @TODO: do sell tab
-        main: BuyTab,
+        main: RampTab,
         hide: true,
       },
     ],

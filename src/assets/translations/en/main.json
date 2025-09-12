@@ -1612,6 +1612,26 @@
         "IDR": "Indonesian Rupiah"
       }
     },
+    "ramp": {
+      "payWith": "Pay With",
+      "youGet": "You Get",
+      "sellAmount": "Sell Amount",
+      "receiveAmount": "Receive Amount",
+      "buyAsset": "Buy Asset",
+      "sellAsset": "Sell Asset",
+      "receiveAsset": "Receive Asset",
+      "previewOrder": "Preview Order",
+      "processingTime": "Processing Time: 1-3 business days",
+      "buyInfo": "Buy crypto with fiat currency",
+      "sellInfo": "Sell crypto for fiat currency",
+      "availableQuotes": "Available Quotes",
+      "bestRate": "Best Rate",
+      "fastest": "Fastest",
+      "rate": "Rate",
+      "amount": "Amount",
+      "paymentMethods": "Payment Methods",
+      "selectFiat": "Select Fiat Currency"
+    },
     "mobileWelcome": {
       "success": {
         "header": "Your wallet has been imported!",

@@ -38,17 +38,6 @@ type Message =
       cmd: 'listWallets' | 'getWalletCount'
     }
   | {
-      cmd: 'hashPassword'
-      email: string
-      password: string
-    }
-  | {
-      cmd: 'decryptWallet'
-      email: string
-      password: string
-      encryptedWallet: string
-    }
-  | {
       cmd: 'showDeveloperModal'
       key: string
     }
@@ -196,24 +185,6 @@ export const deleteWallet = (key: string): Promise<boolean> => {
  */
 export const reloadWebview = (): Promise<boolean> => {
   return postMessage<boolean>({ cmd: 'reloadWebview' })
-}
-
-/**
- * Get a password hash for logging into legacy ShapeShift
- */
-export const hashPassword = (email: string, password: string): Promise<string | null> => {
-  return postMessage<string | null>({ cmd: 'hashPassword', email, password })
-}
-
-/**
- * Decrypt a legacy ShapeShift wallet
- */
-export const decryptWallet = (
-  email: string,
-  password: string,
-  encryptedWallet: string,
-): Promise<string | null> => {
-  return postMessage<string | null>({ cmd: 'decryptWallet', email, password, encryptedWallet })
 }
 
 /**

@@ -12,8 +12,15 @@ import type {
   TenderlySimulationResponse,
 } from './types'
 
-const TENDERLY_ACCOUNT_SLUG = '0xgomes'
-const TENDERLY_PROJECT_SLUG = 'project'
+import { getConfig } from '@/config'
+
+const config = getConfig()
+const TENDERLY_ACCOUNT_SLUG = config.VITE_TENDERLY_ACCOUNT_SLUG
+const TENDERLY_PROJECT_SLUG = config.VITE_TENDERLY_PROJECT_SLUG
+
+if (!TENDERLY_ACCOUNT_SLUG || !TENDERLY_PROJECT_SLUG) {
+  throw new Error('Missing Tenderly account/project env vars')
+}
 
 export const parseAssetChanges = (
   simulation: TenderlySimulationResponse,

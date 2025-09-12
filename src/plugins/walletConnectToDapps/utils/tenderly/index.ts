@@ -37,7 +37,7 @@ export const parseAssetChanges = (
     }
 
     const fromAddress = change.from && isAddress(change.from) ? getAddress(change.from) : undefined
-    const toAddress = change.to && isAddress(change.from) ? getAddress(change.to) : undefined
+    const toAddress = change.to && isAddress(change.to) ? getAddress(change.to) : undefined
 
     if (!fromAddress) {
       console.warn('Missing from address in asset change:', change)

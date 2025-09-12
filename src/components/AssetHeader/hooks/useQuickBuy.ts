@@ -21,6 +21,7 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
+import { selectCurrentSwap } from '@/state/slices/swapSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectConfirmedQuote,
@@ -30,7 +31,6 @@ import {
   selectLastHop,
   selectSortedTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/selectors'
-import { selectCurrentSwap } from '@/state/slices/swapSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -122,7 +122,6 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
       : undefined,
   )
 
-  // Also watch current swap status for completion (more reliable than execution metadata)
   const currentSwap = useAppSelector(selectCurrentSwap)
 
   const isNativeAsset = useMemo(() => {
@@ -272,9 +271,12 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     // Check for failure first
     if (swapState === TransactionExecutionState.Failed || swapStatus === SwapStatus.Failed) {
       setErrorState('quickBuy.error.failed', quickBuyState.amount ?? 0)
-    } 
+    }
     // Check for success - prefer swap status as it's more reliable
-    else if (swapStatus === SwapStatus.Success || swapState === TransactionExecutionState.Complete) {
+    else if (
+      swapStatus === SwapStatus.Success ||
+      swapState === TransactionExecutionState.Complete
+    ) {
       setSuccessState(quickBuyState.amount ?? 0)
     }
   }, [

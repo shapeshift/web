@@ -7,10 +7,10 @@ import { Fragment, useCallback, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 
 import { Amount } from '@/components/Amount/Amount'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { CopyButton } from '@/plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalCollapsableSection } from '@/plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { useGetAbi } from '@/plugins/walletConnectToDapps/hooks/useGetAbi'
@@ -22,10 +22,9 @@ type ContractInteractionBreakdownProps = {
 }
 
 const EncodedText = ({ value }: { value: string }) => (
-  <Flex alignItems='center'>
+  <InlineCopyButton value={value}>
     <RawText pr={2}>{new TextEncoder().encode(value).length} bytes</RawText>
-    <CopyButton value={value} />
-  </Flex>
+  </InlineCopyButton>
 )
 
 const faCodeIcon = <FaCode />
@@ -57,10 +56,11 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
         case 'address':
           return (
             <HStack>
-              <Box flex={1} fontFamily='monospace' fontSize='md'>
-                <MiddleEllipsis color={addressColor} value={inputValue} />
-              </Box>
-              <CopyButton value={inputValue} />
+              <InlineCopyButton value={inputValue}>
+                <Box flex={1} fontFamily='monospace' fontSize='md'>
+                  <MiddleEllipsis color={addressColor} value={inputValue} />
+                </Box>
+              </InlineCopyButton>
               {feeAsset && (
                 <ExternalLinkButton
                   href={`${feeAsset.explorerAddressLink}${inputValue}`}

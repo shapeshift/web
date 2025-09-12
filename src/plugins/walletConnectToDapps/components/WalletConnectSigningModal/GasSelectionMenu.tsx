@@ -44,7 +44,6 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   const menuButtonBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
   const menuButtonHoverBorderColor = useColorModeValue('gray.300', 'whiteAlpha.300')
   const menuButtonActiveBorderColor = useColorModeValue('gray.400', 'whiteAlpha.400')
-  const menuListBg = useColorModeValue('white', 'gray.800')
   const menuListBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
   const buttonTextColor = useColorModeValue('gray.800', 'white')
 
@@ -57,10 +56,9 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     [menuButtonActiveBorderColor],
   )
   const menuListSx = {
-    bg: menuListBg,
     borderColor: menuListBorderColor,
     borderRadius: 'lg',
-    py: 1,
+    py: 0,
     px: 0,
     minW: 'auto',
     w: 'auto',
@@ -172,10 +170,11 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
           {SPEED_OPTIONS.map(option => (
             <MenuItem
               m={0}
-              px={8}
+              px={4}
               key={option.value}
               onClick={createMenuItemClickHandler(option.value)}
               w='100%'
+              borderRadius='0'
             >
               <HStack spacing={2}>
                 <Box>{option.emoji}</Box>

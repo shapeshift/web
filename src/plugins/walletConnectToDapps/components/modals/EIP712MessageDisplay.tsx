@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Button, Card, HStack, Image, VStack } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { validateTypedData } from 'viem'
@@ -20,7 +20,6 @@ type EIP712MessageDisplayProps = {
 
 export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ message }) => {
   const translate = useTranslate()
-  const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const [isMessageExpanded, setIsMessageExpanded] = useState(true)
 
   const parsedData = useMemo((): EIP712TypedData | null => {
@@ -52,7 +51,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
 
   if (!parsedData) {
     return (
-      <Card bg={cardBg} borderRadius='2xl' p={4}>
+      <Card borderRadius='2xl' p={4}>
         <RawText fontFamily='monospace' fontSize='sm' wordBreak='break-all'>
           {message}
         </RawText>
@@ -65,7 +64,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
   if (!domainChainId) return null
 
   return (
-    <Card bg={cardBg} borderRadius='2xl' p={4}>
+    <Card borderRadius='2xl' p={4}>
       <VStack spacing={3} align='stretch'>
         {domain?.verifyingContract && (
           <HStack justify='space-between' align='center' py={1}>

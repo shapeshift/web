@@ -39,7 +39,6 @@ type TransactionContentProps = {
 
 export const TransactionContent: FC<TransactionContentProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()
-  const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const sectionBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
   const [isTransactionDataExpanded, toggleIsTransactionDataExpanded] = useToggle(true)
 
@@ -65,7 +64,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
   const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
 
   return (
-    <Card bg={cardBg} borderRadius='2xl' p={4}>
+    <Card borderRadius='2xl' p={4}>
       <VStack spacing={3} align='stretch'>
         {feeAsset && (
           <HStack justify='space-between' align='center' py={1}>

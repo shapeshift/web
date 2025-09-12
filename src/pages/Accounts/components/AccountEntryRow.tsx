@@ -3,7 +3,7 @@ import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -24,6 +24,7 @@ type AccountEntryRowProps = {
   assetId: AssetId
   showNetworkIcon?: boolean
   maximumFractionDigits?: number
+  onClose?: () => void
 } & ButtonProps
 
 const fontSizeProps = { base: 'sm', md: 'md' }
@@ -36,6 +37,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   assetId,
   showNetworkIcon,
   maximumFractionDigits,
+  onClose,
   ...buttonProps
 }) => {
   const navigate = useNavigate()
@@ -79,10 +81,10 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
     [assetIdOrIconSrcProps],
   )
 
-  const onClick = useCallback(
-    () => navigate(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
-    [navigate, filter],
-  )
+  const onClick = useCallback(() => {
+    navigate(`/assets/${assetId}`)
+    onClose?.()
+  }, [navigate, assetId, onClose])
 
   return (
     <ListItem>

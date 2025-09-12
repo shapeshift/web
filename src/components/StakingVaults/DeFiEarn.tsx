@@ -46,31 +46,29 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      {!forceCompactView && (
-        <Flex
-          justifyContent='space-between'
-          alignItems='center'
-          gap={4}
-          flexWrap='wrap'
-          flexDir={flexDir}
-          px={flexPaddingX}
-          {...rest}
-        >
-          {header && header}
-          <Flex alignItems='center' gap={4}>
-            <ChainDropdown
-              chainIds={chainIds}
-              chainId={selectedChainId}
-              onClick={setSelectedChainId}
-              showAll
-              includeBalance
-            />
-            <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
-              <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
-            </Flex>
+      <Flex
+        justifyContent='space-between'
+        alignItems='center'
+        gap={4}
+        flexWrap='wrap'
+        flexDir={flexDir}
+        px={flexPaddingX}
+        {...rest}
+      >
+        {header && header}
+        <Flex alignItems='center' gap={4}>
+          <ChainDropdown
+            chainIds={chainIds}
+            chainId={selectedChainId}
+            onClick={setSelectedChainId}
+            showAll
+            includeBalance
+          />
+          <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
+            <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
           </Flex>
         </Flex>
-      )}
+      </Flex>
       <Box px={tablePx}>
         <PositionTable
           chainId={selectedChainId}

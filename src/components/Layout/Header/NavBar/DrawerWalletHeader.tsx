@@ -29,7 +29,7 @@ import { useAppSelector } from '@/state/store'
 const settingsIcon = <SettingsIcon />
 const dotsIcon = <Icon as={TbDots} />
 
-type PopoverHeaderProps = {
+type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
   isConnected: boolean
   connectedType: InitialState['connectedType']
@@ -37,7 +37,7 @@ type PopoverHeaderProps = {
   onSwitchProvider: () => void
 }
 
-export const PopoverWalletHeader: FC<PopoverHeaderProps> = memo(
+export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
   ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider }) => {
     const translate = useTranslate()
     const settings = useModal('settings')

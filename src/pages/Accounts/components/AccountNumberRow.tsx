@@ -43,12 +43,15 @@ type AccountNumberRowProps = {
   accountNumber: number
   accountIds: AccountId[]
   chainId: ChainId
+  isSimpleMenu?: boolean
+  onClose?: () => void
 } & ButtonProps
 
 type UtxoAccountEntriesProps = {
   accountIds: AccountId[]
   chainId: ChainId
   isVisible: boolean
+  onClose?: () => void
 }
 
 const mdOutlineMoreVertIcon = <MdOutlineMoreVert />
@@ -62,6 +65,7 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({
   accountIds,
   chainId,
   isVisible,
+  onClose,
 }) => {
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const assetId = feeAsset?.assetId
@@ -75,11 +79,12 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({
               key={`${assetId}-${accountId}`}
               accountId={accountId}
               assetId={assetId}
+              onClose={onClose}
             />
           ))}
         </>
       ) : null,
-    [accountIds, assetId, isVisible],
+    [accountIds, assetId, isVisible, onClose],
   )
 
   if (!isVisible) return null
@@ -90,10 +95,12 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({
 type AccountBasedChainEntriesProps = {
   accountId: AccountId
   isVisible: boolean
+  onClose?: () => void
 }
 const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
   accountId,
   isVisible,
+  onClose,
 }) => {
   const accountAssetBalancesSortedUserCurrency = useSelector(
     selectPortfolioAccountsUserCurrencyBalances,
@@ -106,11 +113,16 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({
     () => (
       <>
         {assetIds.map(assetId => (
-          <AccountEntryRow key={assetId} accountId={accountId} assetId={assetId} />
+          <AccountEntryRow
+            key={assetId}
+            accountId={accountId}
+            assetId={assetId}
+            onClose={onClose}
+          />
         ))}
       </>
     ),
-    [accountId, assetIds],
+    [accountId, assetIds, onClose],
   )
 
   if (!isVisible) return null
@@ -123,6 +135,8 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   accountIds,
   accountNumber,
   chainId,
+  isSimpleMenu = false,
+  onClose,
   ...buttonProps
 }) => {
   const { isOpen, onToggle } = useDisclosure()
@@ -154,11 +168,16 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const accountEntries = useMemo(
     () =>
       isUtxoAccount ? (
-        <UtxoAccountEntries chainId={chainId} accountIds={accountIds} isVisible={isOpen} />
+        <UtxoAccountEntries
+          chainId={chainId}
+          accountIds={accountIds}
+          isVisible={isOpen}
+          onClose={onClose}
+        />
       ) : (
-        <AccountBasedChainEntries accountId={accountIds[0]} isVisible={isOpen} />
+        <AccountBasedChainEntries accountId={accountIds[0]} isVisible={isOpen} onClose={onClose} />
       ),
-    [accountIds, chainId, isUtxoAccount, isOpen],
+    [accountIds, chainId, isUtxoAccount, isOpen, onClose],
   )
 
   const title = useMemo(() => {
@@ -200,34 +219,46 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
           </Stack>
         </Button>
         {buttonProps.onClick && (
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              size='sm'
-              variant='ghost'
-              aria-label={translate('accounts.expandAccount')}
-              icon={mdOutlineMoreVertIcon}
-            />
-            <MenuList>
-              <MenuGroup
-                title={translate('accounts.accountNumber', { accountNumber })}
-                color='text.subtle'
-              >
-                <MenuItem
-                  icon={riWindow2LineIcon}
-                  onClick={buttonProps.onClick && buttonProps.onClick}
-                >
-                  {translate('accounts.viewAccount')}
-                </MenuItem>
-                <MenuItem onClick={onToggle} icon={isOpen ? arrowUpIcon : arrowDownIcon}>
-                  {translate(isOpen ? 'accounts.hideAssets' : 'accounts.showAssets')}
-                </MenuItem>
-                <MenuItem onClick={handleCopyClick} icon={isCopied ? checkIcon : copyIcon}>
-                  {translate(isCopied ? 'common.copied' : 'common.copy')}
-                </MenuItem>
-              </MenuGroup>
-            </MenuList>
-          </Menu>
+          <>
+            {isSimpleMenu ? (
+              <IconButton
+                size='sm'
+                variant='ghost'
+                aria-label={translate(isCopied ? 'common.copied' : 'common.copy')}
+                icon={isCopied ? checkIcon : copyIcon}
+                onClick={handleCopyClick}
+              />
+            ) : (
+              <Menu>
+                <MenuButton
+                  as={IconButton}
+                  size='sm'
+                  variant='ghost'
+                  aria-label={translate('accounts.expandAccount')}
+                  icon={mdOutlineMoreVertIcon}
+                />
+                <MenuList>
+                  <MenuGroup
+                    title={translate('accounts.accountNumber', { accountNumber })}
+                    color='text.subtle'
+                  >
+                    <MenuItem
+                      icon={riWindow2LineIcon}
+                      onClick={buttonProps.onClick && buttonProps.onClick}
+                    >
+                      {translate('accounts.viewAccount')}
+                    </MenuItem>
+                    <MenuItem onClick={onToggle} icon={isOpen ? arrowUpIcon : arrowDownIcon}>
+                      {translate(isOpen ? 'accounts.hideAssets' : 'accounts.showAssets')}
+                    </MenuItem>
+                    <MenuItem onClick={handleCopyClick} icon={isCopied ? checkIcon : copyIcon}>
+                      {translate(isCopied ? 'common.copied' : 'common.copy')}
+                    </MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Menu>
+            )}
+          </>
         )}
       </Flex>
       <NestedList as={Collapse} in={isOpen} pr={0}>

@@ -1,7 +1,8 @@
 import { Box } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback } from 'react'
 
+import { useDrawerWalletContext } from './DrawerWalletContext'
 import { WalletButton } from './WalletButton'
 
 import { DrawerWallet } from '@/components/Layout/Header/NavBar/DrawerWallet'
@@ -14,18 +15,20 @@ export const WalletManagerPopover: FC = memo(() => {
     dispatch,
   } = useWallet()
 
+  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawerWalletContext()
+
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
-  const [isOpen, setIsOpen] = useState(false)
-
   const handleOpen = useCallback(() => {
     if (!isConnected) return
-    setIsOpen(!isOpen)
-  }, [isConnected, isOpen])
-
-  const handleClose = useCallback(() => setIsOpen(false), [])
+    if (isDrawerOpen) {
+      closeDrawer()
+    } else {
+      openDrawer()
+    }
+  }, [isConnected, isDrawerOpen, openDrawer, closeDrawer])
 
   return (
     <>
@@ -39,7 +42,7 @@ export const WalletManagerPopover: FC = memo(() => {
           data-test='navigation-wallet-dropdown-button'
         />
       </Box>
-      <DrawerWallet isOpen={isOpen} onClose={handleClose} />
+      <DrawerWallet />
     </>
   )
 })

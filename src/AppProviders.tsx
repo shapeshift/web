@@ -12,7 +12,6 @@ import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { ActionCenterProvider } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { DrawerWalletProvider } from '@/components/Layout/Header/NavBar/DrawerWalletContext'
 import { AppProvider } from '@/context/AppProvider/AppContext'
 import { BrowserRouterProvider } from '@/context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from '@/context/I18nProvider/I18nProvider'
@@ -70,18 +69,16 @@ export function AppProviders({ children }: ProvidersProps) {
                           <KeepKeyProvider>
                             <WalletConnectV2Provider>
                               <ActionCenterProvider>
-                                <DrawerWalletProvider>
-                                  <ModalProvider>
-                                    <ErrorBoundary
-                                      FallbackComponent={ErrorPage}
-                                      onError={handleError}
-                                    >
-                                      <AppProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
-                                      </AppProvider>
-                                    </ErrorBoundary>
-                                  </ModalProvider>
-                                </DrawerWalletProvider>
+                                <ModalProvider>
+                                  <ErrorBoundary
+                                    FallbackComponent={ErrorPage}
+                                    onError={handleError}
+                                  >
+                                    <AppProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </AppProvider>
+                                  </ErrorBoundary>
+                                </ModalProvider>
                               </ActionCenterProvider>
                             </WalletConnectV2Provider>
                           </KeepKeyProvider>

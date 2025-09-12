@@ -20,7 +20,6 @@ import { lazy, memo, useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 
-import { useDrawerWalletContext } from './DrawerWalletContext'
 import { DrawerWalletHeader } from './DrawerWalletHeader'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
@@ -106,10 +105,9 @@ export const DrawerWallet: FC = memo(() => {
   const translate = useTranslate()
   const send = useModal('send')
   const receive = useModal('receive')
+  const { isOpen, close: onClose } = useModal('walletDrawer')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set([0])) // First tab is preloaded
-
-  const { isDrawerOpen, closeDrawer } = useDrawerWalletContext()
 
   const {
     state: { isConnected, walletInfo, connectedType },
@@ -136,16 +134,16 @@ export const DrawerWallet: FC = memo(() => {
 
   const handleSwitchProvider = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    closeDrawer()
-  }, [dispatch, closeDrawer])
+    onClose()
+  }, [dispatch, onClose])
 
   const handleDisconnect = useCallback(() => {
     disconnect()
-    closeDrawer()
-  }, [disconnect, closeDrawer])
+    onClose()
+  }, [disconnect, onClose])
 
   return (
-    <Drawer isOpen={isDrawerOpen} placement='right' onClose={closeDrawer} size='sm'>
+    <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
       <DrawerOverlay />
       <DrawerContent width='512px' maxWidth='512px'>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
@@ -195,18 +193,14 @@ export const DrawerWallet: FC = memo(() => {
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
                 <TabPanel p={0} pt={2}>
-                  {loadedTabs.has(0) && <AccountTable forceCompactView onRowClick={closeDrawer} />}
+                  {loadedTabs.has(0) && <AccountTable forceCompactView onRowClick={onClose} />}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  {loadedTabs.has(1) && <AccountsListContent onClose={closeDrawer} isSimpleMenu />}
+                  {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
                   {loadedTabs.has(2) && (
-                    <WatchlistTable
-                      forceCompactView
-                      onRowClick={closeDrawer}
-                      onExploreMore={closeDrawer}
-                    />
+                    <WatchlistTable forceCompactView onRowClick={onClose} onExploreMore={onClose} />
                   )}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>

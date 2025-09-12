@@ -213,6 +213,14 @@ const RatingModal = makeSuspenseful(
   ),
 )
 
+const WalletDrawer = makeSuspenseful(
+  lazy(() =>
+    import('@/components/Layout/Header/NavBar/DrawerWallet').then(({ DrawerWallet }) => ({
+      default: DrawerWallet,
+    })),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -239,6 +247,7 @@ export const MODALS: Modals = {
   mobileWalletDialog: MobileWalletDialogModal,
   assetActionsDrawer: AssetActionsDrawer,
   rating: RatingModal,
+  walletDrawer: WalletDrawer,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

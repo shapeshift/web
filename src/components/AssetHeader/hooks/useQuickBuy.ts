@@ -8,6 +8,8 @@ import { useCurrentHopIndex } from '../../MultiHopTrade/components/TradeConfirm/
 import { useMixpanel } from '../../MultiHopTrade/components/TradeConfirm/hooks/useMixpanel'
 import { useGetTradeRates } from '../../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
@@ -146,7 +148,9 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     }
   }, [])
 
-  const trackMixpanelEvent = useMixpanel()
+  const [eventData, setEventData] = useState<ReturnType<typeof getMixpanelEventData>>(undefined)
+  const trackMixpanelEvent = useMixpanel(eventData)
+  const mixpanel = useMemo(() => getMixPanel(), [])
 
   const setErrorState = useCallback(
     (messageKey: string, amount: number) => {
@@ -240,15 +244,19 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     dispatch(tradeQuoteSlice.actions.initializeQuickBuyTrade(bestNoErrorQuote.quote))
     hasInitializedTradeRef.current = true
 
-    // Track preview event now that we have quote data
-    trackMixpanelEvent(MixPanelEvent.QuickBuyPreview)
+    const currentEventData = getMixpanelEventData()
+    setEventData(currentEventData)
+
+    if (currentEventData && mixpanel) {
+      mixpanel.track(MixPanelEvent.QuickBuyPreview, currentEventData)
+    }
   }, [
     dispatch,
     quickBuyState.status,
     quickBuyState.amount,
     sortedTradeQuotes,
     setErrorState,
-    trackMixpanelEvent,
+    mixpanel,
   ])
 
   useEffect(() => {

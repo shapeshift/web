@@ -22,6 +22,7 @@ import { useMixpanel } from './useMixpanel'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
@@ -61,7 +62,8 @@ export const useTradeExecution = (
   const { showErrorToast } = useErrorToast()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
-  const trackMixpanelEvent = useMixpanel()
+  const eventData = useMemo(() => getMixpanelEventData(), [])
+  const trackMixpanelEvent = useMixpanel(eventData)
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
   const hopSellAccountIdFilter = useMemo(() => {

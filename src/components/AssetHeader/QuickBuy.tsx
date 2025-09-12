@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { TbPencil } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
@@ -25,6 +25,7 @@ import { useQuickBuy } from './hooks/useQuickBuy'
 import { QuickBuyTradeButton } from './QuickBuyTradeButton'
 
 import { Amount } from '@/components/Amount/Amount'
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
@@ -69,7 +70,8 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
     cancelPurchase()
   }, [cancelPurchase])
 
-  const trackMixpanelEvent = useMixpanel()
+  const eventData = useMemo(() => getMixpanelEventData(), [])
+  const trackMixpanelEvent = useMixpanel(eventData)
 
   const handleConfirmPurchase = useCallback((): void => {
     trackMixpanelEvent(MixPanelEvent.QuickBuyConfirm)

@@ -1,4 +1,4 @@
-import { Button, IconButton, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
@@ -134,16 +134,13 @@ export const DownloadButton = ({
 
   if (isCompact) {
     return (
-      <Tooltip label={translate('transactionHistory.downloadCSV')} placement='bottom'>
-        <IconButton
-          aria-label={translate('transactionHistory.downloadCSV')}
-          icon={downloadIcon}
-          size='md'
-          variant='ghost'
-          isLoading={isLoading}
-          onClick={generateCSV}
-        />
-      </Tooltip>
+      <IconButton
+        aria-label={translate('transactionHistory.downloadCSV')}
+        icon={downloadIcon}
+        size='md'
+        isLoading={isLoading}
+        onClick={generateCSV}
+      />
     )
   }
 

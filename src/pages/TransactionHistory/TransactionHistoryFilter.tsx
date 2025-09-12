@@ -10,7 +10,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Tooltip,
   useColorModeValue,
   useOutsideClick,
 } from '@chakra-ui/react'
@@ -164,7 +163,6 @@ export const TransactionHistoryFilter = memo(
                 aria-label={translate('transactionHistory.filter')}
                 icon={filterIcon}
                 size='md'
-                variant='ghost'
                 onClick={handleToggle}
               />
             ) : (

@@ -19,7 +19,9 @@ import type { FC } from 'react'
 import { memo, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { PopoverWalletHeader } from './PopoverWalletHeader'
+import { AccountsList } from './AccountsList'
+import { useDrawerWalletContext } from './DrawerWalletContext'
+import { DrawerWalletHeader } from './DrawerWalletHeader'
 
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
@@ -61,16 +63,13 @@ const ActionButton: FC<ActionButtonProps> = memo(({ icon, label, onClick, isDisa
 const sendIcon = <SendIcon boxSize='6' color='blue.500' />
 const receiveIcon = <ArrowDownIcon boxSize={6} color='green.500' />
 
-type DrawerWalletProps = {
-  isOpen: boolean
-  onClose: () => void
-}
-
-export const DrawerWallet: FC<DrawerWalletProps> = memo(({ isOpen, onClose }) => {
+export const DrawerWallet: FC = memo(() => {
   const translate = useTranslate()
   const send = useModal('send')
   const receive = useModal('receive')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
+
+  const { isDrawerOpen, closeDrawer } = useDrawerWalletContext()
 
   const {
     state: { isConnected, walletInfo, connectedType },
@@ -92,14 +91,15 @@ export const DrawerWallet: FC<DrawerWalletProps> = memo(({ isOpen, onClose }) =>
 
   const handleSwitchProvider = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [dispatch])
+    closeDrawer()
+  }, [dispatch, closeDrawer])
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
+    <Drawer isOpen={isDrawerOpen} placement='right' onClose={closeDrawer} size='sm'>
       <DrawerOverlay />
-      <DrawerContent width='430px' maxWidth='430px'>
+      <DrawerContent width='512px' maxWidth='512px'>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
-          <PopoverWalletHeader
+          <DrawerWalletHeader
             walletInfo={walletInfo}
             isConnected={isConnected}
             connectedType={connectedType}
@@ -138,16 +138,20 @@ export const DrawerWallet: FC<DrawerWalletProps> = memo(({ isOpen, onClose }) =>
             >
               <TabList bg='transparent' borderWidth={0} pt={2} pb={4} px={0} gap={2} flexShrink={0}>
                 <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
+                <Tab>{translate('accounts.accounts')}</Tab>
                 <Tab>{translate('watchlist.title')}</Tab>
                 <Tab>{translate('navBar.defi')}</Tab>
                 <Tab>{translate('common.activity')}</Tab>
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
                 <TabPanel p={0} pt={2}>
-                  <AccountTable forceCompactView onRowClick={onClose} />
+                  <AccountTable forceCompactView onRowClick={closeDrawer} />
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  <WatchlistTable forceCompactView onRowClick={onClose} hideExploreMore />
+                  <AccountsList onClose={closeDrawer} isSimpleMenu />
+                </TabPanel>
+                <TabPanel p={0} pt={2}>
+                  <WatchlistTable forceCompactView onRowClick={closeDrawer} hideExploreMore />
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
                   <DeFiEarn forceCompactView />

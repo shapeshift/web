@@ -49,7 +49,11 @@ export const TransactionHistoryContent = memo(
       <Stack mx={stackMargin}>
         <Flex width='full' justifyContent='space-between' p={headingPadding}>
           <Flex>
-            <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
+            <TransactionHistorySearch
+              ref={inputRef}
+              isCompact={isCompact}
+              handleInputChange={handleInputChange}
+            />
             <TransactionHistoryFilter
               resetFilters={handleReset}
               setFilters={setFilters}

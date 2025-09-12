@@ -1,5 +1,5 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
 import type {
   EvmChainAdapter,
   FeeDataEstimate,
@@ -9,7 +9,7 @@ import type {
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type { Hex } from 'viem'
-import { hexToString, isAddress, isHex, toHex } from 'viem'
+import { hexToString, isAddress, isHex, toHex, validateTypedData } from 'viem'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
@@ -141,4 +141,19 @@ export const getWalletAddressFromEthSignParams = (
   const addresses = accountIds.map(accountId => fromAccountId(accountId).account)
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''
+}
+export const getChainIdFromDomain = (message: string): ChainId | undefined => {
+  try {
+    const parsed = JSON.parse(message)
+    validateTypedData(parsed)
+
+    if (!parsed?.domain?.chainId) return undefined
+
+    return toChainId({
+      chainNamespace: CHAIN_NAMESPACE.Evm,
+      chainReference: String(parsed.domain.chainId) as ChainReference,
+    })
+  } catch {
+    return undefined
+  }
 }

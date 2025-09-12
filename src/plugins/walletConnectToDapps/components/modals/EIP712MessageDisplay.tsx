@@ -1,7 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
-import type { ChainId, ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { validateTypedData } from 'viem'
@@ -11,16 +9,16 @@ import { RawText } from '@/components/Text'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import type { EIP712TypedData } from '@/plugins/walletConnectToDapps/types'
+import { getChainIdFromDomain } from '@/plugins/walletConnectToDapps/utils'
 import { convertEIP712ToStructuredFields } from '@/plugins/walletConnectToDapps/utils/eip712'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type EIP712MessageDisplayProps = {
   message: string
-  chainId?: ChainId
 }
 
-export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ message, chainId }) => {
+export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ message }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const [isMessageExpanded, setIsMessageExpanded] = useState(true)
@@ -35,18 +33,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
     }
   }, [message])
 
-  const domainChainId = useMemo(() => {
-    if (!parsedData?.domain?.chainId) return
-
-    try {
-      return toChainId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: String(parsedData.domain.chainId) as ChainReference,
-      })
-    } catch {
-      return
-    }
-  }, [parsedData?.domain?.chainId])
+  const domainChainId = useMemo(() => getChainIdFromDomain(message), [message])
 
   const domainFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, domainChainId ?? ''),
@@ -74,6 +61,8 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
   }
 
   const { primaryType, domain, message: parsedMessage } = parsedData
+
+  if (!domainChainId) return
 
   return (
     <Card bg={cardBg} borderRadius='2xl' p={4}>
@@ -133,7 +122,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
           {isMessageExpanded && (
             <StructuredMessage
               fields={convertEIP712ToStructuredFields(parsedMessage, primaryType)}
-              chainId={chainId || ''}
+              chainId={domainChainId}
             />
           )}
         </Box>

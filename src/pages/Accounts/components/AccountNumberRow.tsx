@@ -244,7 +244,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
                   >
                     <MenuItem
                       icon={riWindow2LineIcon}
-                      onClick={buttonProps.onClick && buttonProps.onClick}
+                      onClick={buttonProps.onClick ? buttonProps.onClick : undefined}
                     >
                       {translate('accounts.viewAccount')}
                     </MenuItem>

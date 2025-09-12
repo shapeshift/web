@@ -5,7 +5,7 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { getAddress, maxUint256 } from 'viem'
+import { getAddress, isAddress, maxUint256 } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RawText } from '@/components/Text'
@@ -35,6 +35,7 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
 
   const assetChanges = useMemo((): AssetChange[] => {
     if (!simulationQuery.data) return []
+    if (!isAddress(transaction.from)) return []
 
     return parseAssetChanges(simulationQuery.data, getAddress(transaction.from))
   }, [simulationQuery.data, transaction.from])

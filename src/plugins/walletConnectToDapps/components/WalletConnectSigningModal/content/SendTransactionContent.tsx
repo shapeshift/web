@@ -42,13 +42,13 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
     return feeAsset?.networkIcon ?? feeAsset?.icon
   }, [feeAsset?.networkIcon, feeAsset?.icon])
 
-  const sendAmount = useMemo(() => {
+  const sendAmountCryptoPrecision = useMemo(() => {
     if (!transaction.value || !feeAsset) return '0'
 
     return fromBaseUnit(transaction.value, feeAsset.precision)
   }, [transaction.value, feeAsset])
 
-  const isZeroValue = sendAmount === '0'
+  const isZeroValue = sendAmountCryptoPrecision === '0'
 
   const handleCopyAddress = useCallback(async () => {
     try {
@@ -90,7 +90,7 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
               </RawText>
             ) : (
               <RawText fontSize='md' fontWeight='bold' color='red.500'>
-                -{sendAmount} {feeAsset.symbol}
+                -{sendAmountCryptoPrecision} {feeAsset.symbol}
               </RawText>
             )}
             {feeAsset.icon && <Image boxSize='20px' src={feeAsset.icon} borderRadius='full' />}

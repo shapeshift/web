@@ -12,9 +12,9 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -67,6 +67,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   }
 
   const { speed } = useWatch<CustomTransactionData>()
+  const { gasLimit } = useWatch<CustomTransactionData>()
   const selectedSpeed = speed
 
   const { simulationQuery, gasFeeDataQuery, fee } = useSimulateEvmTransaction({
@@ -74,6 +75,17 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     chainId,
     speed: selectedSpeed,
   })
+
+  // Ensure no failures by trusting too low gas limit e.g wc demo dApp enforces 21000 gas limit for ETH.ARB sends, but actual gas may be e.g 23322
+  useEffect(() => {
+    const maybeGasUsed = simulationQuery.data?.transaction?.gas_used
+    if (!maybeGasUsed) return
+
+    // Only update gasLimit if simulation shows we need MORE gas than currently set
+    if (bnOrZero(maybeGasUsed).lte(gasLimit ?? 0)) return
+
+    setValue('gasLimit', maybeGasUsed.toString())
+  }, [simulationQuery.data?.transaction?.gas_used, setValue, gasLimit])
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {

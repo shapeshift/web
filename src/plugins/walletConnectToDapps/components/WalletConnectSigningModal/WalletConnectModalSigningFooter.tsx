@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { GasSelectionMenu } from './GasSelectionMenu'
@@ -11,6 +11,7 @@ import { GasSelectionMenu } from './GasSelectionMenu'
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import {
   selectAssetById,
@@ -99,6 +100,16 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const formContext = useFormContext<CustomTransactionData>()
   const borderColor = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)')
 
+  const { speed } = useWatch<CustomTransactionData>()
+
+  const { simulationQuery } = useSimulateEvmTransaction({
+    transaction,
+    chainId,
+    speed,
+  })
+
+  const isSimulationLoading = simulationQuery.isLoading
+
   const handleSubmit = useCallback(() => {
     if (!formContext?.handleSubmit) return onConfirm()
 
@@ -127,7 +138,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             size='lg'
             flex={1}
             onClick={onReject}
-            isDisabled={isSubmitting}
+            isDisabled={isSubmitting || isSimulationLoading}
             _disabled={disabledProp}
           >
             {translate('common.cancel')}
@@ -138,8 +149,8 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             colorScheme='blue'
             type='submit'
             onClick={handleSubmit}
-            isLoading={isSubmitting}
-            isDisabled={isSubmitting}
+            isLoading={isSubmitting || isSimulationLoading}
+            isDisabled={isSubmitting || isSimulationLoading}
             _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

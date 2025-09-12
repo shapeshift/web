@@ -8,6 +8,8 @@ import { Route, Routes } from 'react-router-dom'
 
 import { FiatRampRoutePaths } from './types'
 
+import OnRamperLogo from '@/assets/onramper-logo.svg'
+import { AssetIcon } from '@/components/AssetIcon'
 import { FiatRampTradeBody } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeBody'
 import { FiatRampTradeFooter } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeFooter'
 import { RampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/RampQuotes'
@@ -120,7 +122,12 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
     ],
   )
 
+  const rampIcon = useMemo(() => {
+    return <AssetIcon src={OnRamperLogo} />
+  }, [])
+
   const footerContent = useMemo(() => {
+    // @TODO: wire up that when quote selection is done
     const baseProps = {
       affiliateBps: '0',
       affiliateFeeAfterDiscountUserCurrency: '0',
@@ -133,14 +140,15 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
         !hasUserEnteredAmount || (!sellAsset && !sellFiat) || (!buyAsset && !buyFiat),
       rampName: undefined,
       networkFeeFiatUserCurrency: '0',
-      quoteStatusTranslation: 'ramp.previewOrder',
-      noExpand: false,
+      quoteStatusTranslation: 'trade.previewTrade',
+      // @TODO: we might want to expand to show more info at some point
+      noExpand: true,
     }
 
     if (type === 'buy') {
       if (!buyAsset) return null
 
-      return <FiatRampTradeFooter {...baseProps} type='buy' buyAsset={buyAsset} />
+      return <FiatRampTradeFooter {...baseProps} type='buy' buyAsset={buyAsset} icon={rampIcon} />
     }
 
     if (!sellAsset) return null
@@ -151,9 +159,10 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
         type='sell'
         sellAsset={sellAsset}
         sellAccountId={undefined}
+        icon={rampIcon}
       />
     )
-  }, [type, sellAsset, buyAsset, sellFiat, buyFiat, hasUserEnteredAmount])
+  }, [type, sellAsset, buyAsset, sellFiat, buyFiat, hasUserEnteredAmount, rampIcon])
 
   const tradeInputElement = useMemo(
     () => (

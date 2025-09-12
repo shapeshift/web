@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react'
 // import { ReceiveSummary } from './components/ReceiveSummary'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
+import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -31,6 +32,7 @@ type FiatRampTradeFooterProps = {
   invertRate?: boolean
   quoteStatusTranslation: string
   noExpand?: boolean
+  icon: React.ReactNode
 } & (
   | {
       type: 'buy'
@@ -52,24 +54,24 @@ const footerBgProp = {
 }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
-export const FiatRampTradeFooter = (props: FiatRampTradeFooterProps) => {
-  const {
-    affiliateBps,
-    children,
-    hasUserEnteredAmount,
-    isError,
-    isLoading: isParentLoading,
-    rate,
-    shouldDisablePreviewButton: parentShouldDisablePreviewButton,
-    networkFeeFiatUserCurrency,
-    marketRate,
-    rampName,
-    invertRate,
-    noExpand,
-    quoteStatusTranslation,
-  } = props
-
-  // Extract type-specific props based on discriminated union
+export const FiatRampTradeFooter = ({
+  affiliateBps,
+  children,
+  hasUserEnteredAmount,
+  isError,
+  isLoading: isParentLoading,
+  rate,
+  shouldDisablePreviewButton: parentShouldDisablePreviewButton,
+  networkFeeFiatUserCurrency,
+  marketRate,
+  rampName,
+  invertRate,
+  noExpand,
+  quoteStatusTranslation,
+  type,
+  icon,
+  ...props
+}: FiatRampTradeFooterProps) => {
   const buyAsset = 'buyAsset' in props ? props.buyAsset : undefined
   const sellAsset = 'sellAsset' in props ? props.sellAsset : undefined
   const sellAccountId = 'sellAccountId' in props ? props.sellAccountId : undefined
@@ -80,8 +82,8 @@ export const FiatRampTradeFooter = (props: FiatRampTradeFooterProps) => {
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const isLoading = useMemo(() => {
-    return isParentLoading || !buyAssetFeeAsset
-  }, [buyAssetFeeAsset, isParentLoading])
+    return isParentLoading || (!buyAssetFeeAsset && type === 'buy')
+  }, [buyAssetFeeAsset, isParentLoading, type])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -98,7 +100,6 @@ export const FiatRampTradeFooter = (props: FiatRampTradeFooterProps) => {
     return <Text translation={quoteStatusTranslation} />
   }, [quoteStatusTranslation])
 
-  // Calculate the delta percentage between the limit price and market price
   const deltaPercentage = useMemo(() => {
     if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null
 
@@ -113,6 +114,35 @@ export const FiatRampTradeFooter = (props: FiatRampTradeFooterProps) => {
     vibrate('heavy')
   }, [])
 
+  // @TODO: wire up all those handlers when we have the proper state management for it
+  const handleCancel = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
+  const handleEdit = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
+  const handleError = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
+  const handleIsValidatingChange = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
+  const handleIsValidChange = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
+  const handleReset = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
+  const handleSubmit = useCallback(() => {
+    vibrate('heavy')
+  }, [])
+
   return (
     <CardFooter
       flexDir='column'
@@ -124,28 +154,25 @@ export const FiatRampTradeFooter = (props: FiatRampTradeFooterProps) => {
     >
       <Flex
         borderTopWidth={1}
-        borderColor={hasUserEnteredAmount ? 'border.subtle' : 'transparent'}
+        borderColor={'border.subtle'}
         flexDir='column'
         gap={4}
         width='full'
+        px={2}
       >
-        {hasUserEnteredAmount && buyAsset && sellAsset && (
-          <RateGasRow
-            affiliateBps={affiliateBps}
-            buyAssetId={buyAsset.assetId}
-            sellAssetId={sellAsset.assetId}
-            rate={rate}
-            deltaPercentage={deltaPercentage?.toString()}
-            isLoading={isLoading && !rate}
-            networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
-            swapperName={rampName}
-            swapSource={rampName}
-            invertRate={invertRate}
-            noExpand={noExpand}
-          >
-            {/* <ReceiveSummary isLoading={isLoading}>{children}</ReceiveSummary> */}
-          </RateGasRow>
-        )}
+        <RateGasRow
+          affiliateBps={affiliateBps}
+          // @TODO: Add proper selected fiat
+          buyAssetSymbol={type === 'buy' && buyAsset ? buyAsset.symbol : 'USD'}
+          sellAssetSymbol={type === 'buy' && sellAsset ? sellAsset.symbol : 'USD'}
+          rate={rate}
+          deltaPercentage={deltaPercentage?.toString()}
+          isLoading={isLoading && !rate}
+          networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
+          invertRate={invertRate}
+          icon={icon}
+          noExpand={noExpand}
+        />
       </Flex>
       <Flex
         borderTopWidth={1}
@@ -158,10 +185,26 @@ export const FiatRampTradeFooter = (props: FiatRampTradeFooterProps) => {
         borderBottomRadius='xl'
         width='full'
       >
+        {type === 'buy' && buyAsset && (
+          <SharedRecipientAddress
+            buyAsset={buyAsset}
+            isWalletReceiveAddressLoading={false}
+            // @TODO: wire up with receive address when we have proper state management
+            walletReceiveAddress={'0x0000000000000000000000000000000000000000'}
+            manualReceiveAddress={undefined}
+            onCancel={handleCancel}
+            onEdit={handleEdit}
+            onError={handleError}
+            onIsValidatingChange={handleIsValidatingChange}
+            onIsValidChange={handleIsValidChange}
+            onReset={handleReset}
+            onSubmit={handleSubmit}
+          />
+        )}
         {children}
 
         <ButtonWalletPredicate
-          isLoading={isLoading || (isDiscoveringAccounts && !sellAccountId)}
+          isLoading={isLoading || isDiscoveringAccounts}
           loadingText={isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}

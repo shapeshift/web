@@ -1,10 +1,10 @@
 import type { FlexProps } from '@chakra-ui/react'
 import {
-	CircularProgress,
-	CircularProgressLabel,
-	Divider,
-	Flex,
-	IconButton,
+  CircularProgress,
+  CircularProgressLabel,
+  Divider,
+  Flex,
+  IconButton,
 } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { LuArrowUpDown } from 'react-icons/lu'

@@ -1,20 +1,30 @@
-import { Badge, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
-type PaymentMethod = 'Card' | 'Bank Transfer' | 'Apple Pay' | 'Google Pay' | 'SEPA'
+import { FiatRampQuoteCard } from './FiatRampQuoteCard'
 
-type RampQuote = {
+import banxaLogo from '@/assets/banxa.png'
+import CoinbaseLogo from '@/assets/coinbase-logo.svg'
+import MtPelerinLogo from '@/assets/mtpelerin.png'
+import OnRamperLogo from '@/assets/onramper-logo.svg'
+
+export type PaymentMethod = 'Card' | 'Bank Transfer' | 'Apple Pay' | 'Google Pay' | 'SEPA'
+
+export type RampQuote = {
   id: string
   provider: string
-  providerLogo: string
+  providerLogo?: string
   rate: string
   amount: string
-  fiatAmount: string
-  paymentMethods: PaymentMethod[]
   isBestRate?: boolean
   isFastest?: boolean
   processingTime: string
+  fees?: string
+  isCreditCard?: boolean
+  isBankTransfer?: boolean
+  isApplePay?: boolean
+  isGooglePay?: boolean
+  isSepa?: boolean
 }
 
 type RampQuotesProps = {
@@ -28,55 +38,65 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
   isLoading = false,
   onBack,
 }) => {
-  const translate = useTranslate()
-
   // Mock quotes data for demonstration
   const mockQuotes: RampQuote[] = useMemo(
     () => [
       {
         id: '1',
-        provider: 'Provider A',
-        providerLogo: '🔵',
+        provider: 'Banxa',
+        providerLogo: banxaLogo,
         rate: '0.127895',
         amount: '0.127895 ETH',
-        fiatAmount: '≈ $100',
-        paymentMethods: ['Card', 'Bank Transfer', 'Apple Pay', 'Google Pay'],
+        isCreditCard: true,
+        isBankTransfer: true,
+        isApplePay: true,
+        isGooglePay: true,
+        isSepa: true,
         isBestRate: true,
         processingTime: '1-3 days',
+        fees: '2.5%',
       },
       {
         id: '2',
-        provider: 'Provider B',
-        providerLogo: '🔴',
+        provider: 'MtPelerin',
+        providerLogo: MtPelerinLogo,
         rate: '0.127660',
         amount: '0.127660 ETH',
-        fiatAmount: '≈ $99.99',
-        paymentMethods: ['Card', 'SEPA'],
+        isCreditCard: true,
+        isSepa: true,
         isFastest: true,
         processingTime: '1-2 days',
+        fees: '3.0%',
+      },
+      {
+        id: '3',
+        provider: 'OnRamper',
+        providerLogo: OnRamperLogo,
+        rate: '0.127660',
+        amount: '0.127660 ETH',
+        isCreditCard: true,
+        isSepa: true,
+        isFastest: true,
+        processingTime: '1-2 days',
+        fees: '3.0%',
+      },
+      {
+        id: '4',
+        provider: 'Coinbase',
+        providerLogo: CoinbaseLogo,
+        rate: '0.127660',
+        amount: '0.127660 ETH',
+        isCreditCard: true,
+        isSepa: true,
+        isFastest: true,
+        processingTime: '1-2 days',
+        fees: '3.0%',
       },
     ],
     [],
   )
 
   const displayQuotes = quotes.length > 0 ? quotes : mockQuotes
-
-  const getPaymentMethodColor = (method: PaymentMethod): string => {
-    switch (method) {
-      case 'Card':
-        return 'blue'
-      case 'Bank Transfer':
-        return 'green'
-      case 'Apple Pay':
-        return 'gray'
-      case 'Google Pay':
-        return 'purple'
-      case 'SEPA':
-        return 'orange'
-      default:
-        return 'gray'
-    }
-  }
 
   if (isLoading) {
     return (
@@ -90,82 +110,16 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
 
   return (
     <VStack spacing={4} p={4} align='stretch'>
-      {displayQuotes.map(quote => (
-        <Box
+      {displayQuotes.map((quote, index) => (
+        <FiatRampQuoteCard
           key={quote.id}
-          p={4}
-          border='1px solid'
-          borderColor='border.base'
-          borderRadius='lg'
-          bg='background.surface.raised.base'
-        >
-          <VStack spacing={3} align='stretch'>
-            {/* Header with provider and badges */}
-            <Flex justifyContent='space-between' alignItems='center'>
-              <HStack spacing={2}>
-                <Text fontSize='lg'>{quote.providerLogo}</Text>
-                <Text fontWeight='medium'>{quote.provider}</Text>
-              </HStack>
-              <HStack spacing={2}>
-                {quote.isBestRate && (
-                  <Badge colorScheme='green' variant='subtle'>
-                    {translate('ramp.bestRate')}
-                  </Badge>
-                )}
-                {quote.isFastest && (
-                  <Badge colorScheme='blue' variant='subtle'>
-                    {translate('ramp.fastest')}
-                  </Badge>
-                )}
-              </HStack>
-            </Flex>
-
-            {/* Rate and amount */}
-            <Flex justifyContent='space-between' alignItems='center'>
-              <VStack spacing={1} align='start'>
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('ramp.rate')}
-                </Text>
-                <Text fontWeight='bold'>{quote.amount}</Text>
-              </VStack>
-              <VStack spacing={1} align='end'>
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('ramp.amount')}
-                </Text>
-                <Text fontWeight='bold'>{quote.fiatAmount}</Text>
-              </VStack>
-            </Flex>
-
-            {/* Payment methods */}
-            <VStack spacing={2} align='stretch'>
-              <Text fontSize='sm' color='text.subtle'>
-                {translate('ramp.paymentMethods')}
-              </Text>
-              <HStack spacing={2} wrap='wrap'>
-                {quote.paymentMethods.map(method => (
-                  <Badge
-                    key={method}
-                    colorScheme={getPaymentMethodColor(method)}
-                    variant='outline'
-                    fontSize='xs'
-                  >
-                    {method}
-                  </Badge>
-                ))}
-              </HStack>
-            </VStack>
-
-            {/* Processing time */}
-            <Flex justifyContent='space-between' alignItems='center'>
-              <Text fontSize='sm' color='text.subtle'>
-                {translate('ramp.processingTime')}
-              </Text>
-              <Text fontSize='sm' fontWeight='medium'>
-                {quote.processingTime}
-              </Text>
-            </Flex>
-          </VStack>
-        </Box>
+          isActive={index === 0}
+          isBestRate={quote.isBestRate}
+          isFastest={quote.isFastest}
+          quote={quote}
+          isLoading={isLoading}
+          onBack={onBack}
+        />
       ))}
     </VStack>
   )

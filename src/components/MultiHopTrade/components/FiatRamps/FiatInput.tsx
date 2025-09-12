@@ -1,14 +1,16 @@
+import type { InputProps } from '@chakra-ui/react'
 import { Box, Flex, Input, Text } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+import NumberFormat from 'react-number-format'
 
 import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 type FiatInputProps = {
   selectedFiat?: FiatTypeEnumWithoutCryptos
   amount: string
   placeholder?: string
   label: string
-  isLoading?: boolean
   onAmountChange?: (amount: string) => void
   labelPostFix?: React.ReactNode
   isReadOnly?: boolean
@@ -29,18 +31,40 @@ const hoverInputStyle = {
   border: 'none',
 }
 
+const AmountInput = (props: InputProps) => {
+  return (
+    <Input
+      size='lg'
+      fontSize='65px'
+      lineHeight='65px'
+      fontWeight='bold'
+      textAlign='center'
+      border='none'
+      borderRadius='lg'
+      _focus={focusInputStyle}
+      _hover={hoverInputStyle}
+      bg='transparent'
+      variant='unstyled'
+      color={props.value ? 'text.base' : 'text.subtle'}
+      {...props}
+    />
+  )
+}
+
 export const FiatInput: React.FC<FiatInputProps> = ({
   selectedFiat,
   amount,
-  placeholder = '0.00',
+  placeholder,
   label,
-  isLoading = false,
   onAmountChange,
   labelPostFix,
   isReadOnly = false,
   quickAmounts = ['$100', '$300', '$1,000'],
   onQuickAmountClick,
 }) => {
+  const {
+    number: { localeParts },
+  } = useLocaleFormatter()
   const handleAmountChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onAmountChange) {
@@ -51,11 +75,15 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   )
 
   const handleQuickAmountClick = useCallback(
-    () => (quickAmount: string) => {
-      onQuickAmountClick?.(quickAmount)
+    (quickAmount: string) => () => {
+      onQuickAmountClick?.(quickAmount.replace('$', '').replace(',', ''))
     },
     [onQuickAmountClick],
   )
+
+  const formattedPlaceholder = useMemo(() => {
+    return placeholder ?? `${localeParts.prefix}0.00${localeParts.postfix}`
+  }, [placeholder, localeParts.prefix, localeParts.postfix])
 
   return (
     <Box px={6}>
@@ -68,24 +96,18 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
       <Flex gap={2} alignItems='stretch'>
         <Box flex='1'>
-          <Input
+          <NumberFormat
+            customInput={AmountInput}
+            isNumericString={true}
+            disabled={isReadOnly}
+            suffix={localeParts.postfix}
+            prefix={localeParts.prefix}
+            decimalSeparator={localeParts.decimal}
+            inputMode='decimal'
+            thousandSeparator={localeParts.group}
+            placeholder={formattedPlaceholder}
             value={amount}
             onChange={handleAmountChange}
-            placeholder={placeholder}
-            size='lg'
-            fontSize='65px'
-            lineHeight='65px'
-            fontWeight='bold'
-            textAlign='center'
-            border='none'
-            borderRadius='lg'
-            _focus={focusInputStyle}
-            _hover={hoverInputStyle}
-            isDisabled={isLoading}
-            isReadOnly={isReadOnly}
-            bg='transparent'
-            variant='unstyled'
-            color={amount ? 'text.base' : 'text.subtle'}
           />
         </Box>
       </Flex>
@@ -95,7 +117,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
           {quickAmounts.map(quickAmount => (
             <Box
               key={quickAmount}
-              onClick={handleQuickAmountClick}
+              onClick={handleQuickAmountClick(quickAmount)}
               cursor='pointer'
               px={2}
               py={1}

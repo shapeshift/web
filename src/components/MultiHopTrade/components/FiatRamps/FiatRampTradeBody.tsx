@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { Stack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -109,8 +109,8 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
       title: type === 'buy' ? 'modals.ramp.payWith' : 'modals.ramp.sellAsset',
       assetFilterPredicate: sellAssetFilterPredicate,
       chainIdFilterPredicate,
-      showFiatTab: type === 'buy', // Show fiat tab for buy
-      showAssetTab: type === 'sell', // Show asset tab for sell
+      showFiatTab: type === 'buy',
+      showAssetTab: type === 'sell',
     })
   }, [sellAssetSearch, onSellAssetChange, type, sellAssetFilterPredicate, chainIdFilterPredicate])
 
@@ -122,8 +122,8 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
       title: type === 'buy' ? 'modals.ramp.buyAsset' : 'modals.ramp.receiveAsset',
       assetFilterPredicate: buyAssetFilterPredicate,
       chainIdFilterPredicate,
-      showFiatTab: type === 'sell', // Show fiat tab for sell
-      showAssetTab: type === 'buy', // Show asset tab for buy
+      showFiatTab: type === 'sell',
+      showAssetTab: type === 'buy',
     })
   }, [buyAssetSearch, onBuyAssetChange, type, buyAssetFilterPredicate, chainIdFilterPredicate])
 
@@ -200,8 +200,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
 
   const handleQuickAmountClick = useCallback(
     (amount: string) => {
-      const numericAmount = amount.replace('$', '').replace(',', '')
-      handleSellAmountChange(numericAmount)
+      handleSellAmountChange(amount)
     },
     [handleSellAmountChange],
   )
@@ -248,8 +247,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   }
 
   return (
-    <Stack spacing={4} p={4}>
-      {/* Crypto Asset Input */}
+    <Stack spacing={4}>
       <TradeAssetInput
         accountId={undefined}
         assetId={sellAsset.assetId}
@@ -269,14 +267,16 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
 
       <FormDivider isDisabled={true} isLoading={isLoading} mt={0} />
 
-      <FiatInput
-        selectedFiat={selectedFiat}
-        amount={buyAmount}
-        labelPostFix={fiatSelect}
-        label='Receive Amount'
-        isReadOnly={true}
-        placeholder='0.00'
-      />
+      <Box mb={6}>
+        <FiatInput
+          selectedFiat={selectedFiat}
+          amount={buyAmount}
+          labelPostFix={fiatSelect}
+          label='Receive Amount'
+          isReadOnly={true}
+          placeholder='0.00'
+        />
+      </Box>
     </Stack>
   )
 }

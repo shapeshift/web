@@ -145,7 +145,7 @@ export const DrawerWallet: FC = memo(() => {
   return (
     <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
       <DrawerOverlay />
-      <DrawerContent width='512px' maxWidth='512px'>
+      <DrawerContent width='full' maxWidth='512px'>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
           <DrawerWalletHeader
             walletInfo={walletInfo}
@@ -192,21 +192,21 @@ export const DrawerWallet: FC = memo(() => {
                 <Tab>{translate('common.activity')}</Tab>
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
-                <TabPanel p={0} pt={2}>
+                <TabPanel p={0} pt={2} pr={2}>
                   {loadedTabs.has(0) && <AccountTable forceCompactView onRowClick={onClose} />}
                 </TabPanel>
-                <TabPanel p={0} pt={2}>
+                <TabPanel p={0} pt={2} pr={2}>
                   {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
                 </TabPanel>
-                <TabPanel p={0} pt={2}>
+                <TabPanel p={0} pt={2} pr={2}>
                   {loadedTabs.has(2) && (
                     <WatchlistTable forceCompactView onRowClick={onClose} onExploreMore={onClose} />
                   )}
                 </TabPanel>
-                <TabPanel p={0} pt={2}>
+                <TabPanel p={0} pt={2} pr={2}>
                   {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
                 </TabPanel>
-                <TabPanel p={0} pt={2}>
+                <TabPanel p={0} pt={2} pr={2}>
                   {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
                 </TabPanel>
               </TabPanels>

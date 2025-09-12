@@ -100,6 +100,8 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const borderColor = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)')
 
   const handleSubmit = useCallback(() => {
+    if (!formContext?.handleSubmit) return onConfirm()
+
     formContext.handleSubmit(onConfirm)()
   }, [formContext, onConfirm])
 

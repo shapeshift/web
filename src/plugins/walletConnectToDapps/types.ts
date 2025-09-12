@@ -111,10 +111,6 @@ export type CustomTransactionData = {
   gas?: string
   gasLimit?: string
   speed: FeeDataKey
-  customFee?: {
-    baseFee: string
-    priorityFee: string
-  }
 }
 
 export type TransactionParams = {
@@ -246,10 +242,6 @@ export type ConfirmData = {
   nonce?: string
   gasLimit?: string
   speed: FeeDataKey
-  customFee?: {
-    baseFee: string
-    priorityFee: string
-  }
 }
 
 export type SessionProposalRef = {

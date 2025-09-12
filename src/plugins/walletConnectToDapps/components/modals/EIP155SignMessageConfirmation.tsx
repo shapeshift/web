@@ -22,10 +22,6 @@ export const EIP155SignMessageConfirmationModal: FC<
   const form = useForm<CustomTransactionData>({
     defaultValues: {
       speed: FeeDataKey.Fast,
-      customFee: {
-        baseFee: '0',
-        priorityFee: '0',
-      },
     },
   })
 

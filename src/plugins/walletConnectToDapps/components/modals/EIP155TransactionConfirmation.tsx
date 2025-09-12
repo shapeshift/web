@@ -30,10 +30,6 @@ export const EIP155TransactionConfirmation: FC<
         return gasValue ? convertHexToNumber(gasValue).toString() : undefined
       })(),
       speed: FeeDataKey.Fast,
-      customFee: {
-        baseFee: '0',
-        priorityFee: '0',
-      },
     },
   })
 

@@ -60,24 +60,9 @@ export const getGasData = (
   customTransactionData: ConfirmData | CustomTransactionData,
   fees: FeeDataEstimate<EvmChainId>,
 ) => {
-  const { speed, customFee } = customTransactionData
+  const { speed } = customTransactionData
 
-  return bnOrZero(customFee?.baseFee).gt(0) && bnOrZero(customFee?.priorityFee).gt(0)
-    ? {
-        maxPriorityFeePerGas: convertNumberToHex(
-          bnOrZero(customFee?.priorityFee)
-            .times(1e9)
-            .toString(), // to wei
-        ),
-        maxFeePerGas: convertNumberToHex(
-          bnOrZero(customFee?.baseFee)
-            .times(1e9)
-            .toString(), // to wei
-        ),
-      }
-    : {
-        gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
-      }
+  return { gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice) }
 }
 
 /**

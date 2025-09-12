@@ -6,6 +6,7 @@ import type { MixPanelEvent } from '@/lib/mixpanel/types'
 
 export const useMixpanel = (eventData: ReturnType<typeof getMixpanelEventData>) => {
   const mixpanel = useMemo(() => getMixPanel(), [])
+  const eventData = useMemo(() => getMixpanelEventData(), [])
   const trackMixpanelEvent = useCallback(
     (event: MixPanelEvent) => {
       // mixpanel is undefined when the feature is disabled

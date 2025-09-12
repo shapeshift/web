@@ -1,4 +1,12 @@
-import { Card, HStack, IconButton, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Card,
+  HStack,
+  IconButton,
+  Image,
+  useColorModeValue,
+  useToast,
+  VStack,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -24,6 +32,7 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
   chainId,
 }) => {
   const translate = useTranslate()
+  const toast = useToast()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const tagBg = useColorModeValue('gray.100', 'whiteAlpha.200')
 
@@ -41,9 +50,25 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
 
   const isZeroValue = sendAmount === '0'
 
-  const handleCopyAddress = useCallback(() => {
-    navigator.clipboard.writeText(transaction.to)
-  }, [transaction.to])
+  const handleCopyAddress = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(transaction.to)
+      toast({
+        title: translate('common.copied'),
+        status: 'success',
+        duration: 2500,
+        isClosable: true,
+      })
+    } catch (e) {
+      toast({
+        title: translate('common.copyFailed'),
+        description: translate('common.copyFailedDescription'),
+        status: 'error',
+        duration: 2500,
+        isClosable: true,
+      })
+    }
+  }, [transaction.to, toast, translate])
 
   if (!feeAsset) return null
 

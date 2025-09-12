@@ -268,12 +268,9 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     const swapState = hopExecutionMetadata?.swap.state
     const swapStatus = currentSwap?.status
 
-    // Check for failure first
     if (swapState === TransactionExecutionState.Failed || swapStatus === SwapStatus.Failed) {
       setErrorState('quickBuy.error.failed', quickBuyState.amount ?? 0)
-    }
-    // Check for success - prefer swap status as it's more reliable
-    else if (
+    } else if (
       swapStatus === SwapStatus.Success ||
       swapState === TransactionExecutionState.Complete
     ) {

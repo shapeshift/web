@@ -54,7 +54,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
     }
   }, [onReject])
 
-  if (!accountId) return
+  if (!accountId) return null
 
   return (
     <VStack spacing={0} align='stretch'>

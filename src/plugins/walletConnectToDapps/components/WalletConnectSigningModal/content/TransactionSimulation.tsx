@@ -1,13 +1,15 @@
 import { HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { getAddress } from 'viem'
+import { getAddress, maxUint256 } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RawText } from '@/components/Text'
+import { makeAmountOrDefault } from '@/components/TransactionHistoryRows/utils'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ExpandableCell } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/ExpandableCell'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
@@ -17,6 +19,8 @@ import type {
   AssetChange,
   TenderlyExposureChange,
 } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 type TransactionSimulationProps = {
   transaction: TransactionParams
@@ -64,11 +68,34 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
       const symbol = change.token_info.symbol.toUpperCase()
       const logo = change.token_info.logo
 
-      // Check if amount is very large (unlimited approval)
-      const amount = bnOrZero(change.amount)
+      const assetId = toAssetId({
+        chainId,
+        assetNamespace: ASSET_NAMESPACE.erc20,
+        assetReference: change.token_info.contract_address,
+      })
 
-      // Poor man's unlimited check
-      const isUnlimited = amount.gt('1e18')
+      const asset = selectAssetById(store.getState(), assetId)
+      const approvedAssetMarketData = selectMarketDataByAssetIdUserCurrency(
+        store.getState(),
+        assetId,
+      )
+
+      const amount = bnOrZero(change.amount)
+      const isUnlimited = (() => {
+        if (asset && approvedAssetMarketData) {
+          const amountResult = makeAmountOrDefault(
+            change.amount,
+            approvedAssetMarketData,
+            asset,
+            'erc20',
+          )
+          return amountResult === 'transactionRow.parser.erc20.infinite'
+        }
+
+        // Poor man's fallback in case of no asset/market-data in store
+        // not as reliable as max supply checks above but that does somehow work too
+        return amount.gte(maxUint256.toString()) || amount.gt('1e18')
+      })()
 
       return (
         <VStack key={`approval-${index}`} spacing={2} align='stretch'>
@@ -113,7 +140,7 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
         </VStack>
       )
     })
-  }, [exposureChanges, sendChanges.length, receiveChanges.length, translate])
+  }, [exposureChanges, sendChanges.length, receiveChanges.length, chainId, translate])
 
   const sendChangeRow = useMemo(() => {
     return sendChanges.map((change, index) => {

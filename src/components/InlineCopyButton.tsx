@@ -1,8 +1,8 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Box, Flex, IconButton, Tooltip } from '@chakra-ui/react'
+import { Flex, IconButton, Tooltip } from '@chakra-ui/react'
 import type { MouseEvent, PropsWithChildren } from 'react'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
@@ -23,12 +23,7 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   flexProps,
 }) => {
   const translate = useTranslate()
-  const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
-  const [isTooltipOpen, setIsTooltipOpen] = useState(false)
-
-  const handleMouseEnter = useCallback(() => setIsTooltipOpen(true), [])
-  const handleMouseLeave = useCallback(() => setIsTooltipOpen(false), [])
-  const handleClick = useCallback(() => setIsTooltipOpen(true), [])
+  const { isCopied, isCopying, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
 
   const handleCopyClick = useCallback(
     (e: MouseEvent) => {
@@ -58,17 +53,8 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
     <Flex gap={2} alignItems='center' {...flexProps}>
       {children}
       {translate ? (
-        <Tooltip
-          isOpen={isTooltipOpen}
-          label={translate(isCopied ? 'common.copied' : 'common.copy')}
-        >
-          <Box
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={handleClick}
-          >
-            <IconButton {...buttonProps} />
-          </Box>
+        <Tooltip isOpen={isCopying} label={translate('common.copied')}>
+          <IconButton {...buttonProps} />
         </Tooltip>
       ) : (
         <IconButton {...buttonProps} />

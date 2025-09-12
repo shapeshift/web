@@ -55,7 +55,7 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
       <HStack spacing={3} align='center'>
         <Image boxSize='24px' src={networkIcon} borderRadius='full' />
         <VStack align='flex-start' spacing={0} justify='center'>
-          <RawText fontSize='sm' color='text.subtle' lineHeight='1.2'>
+          <RawText fontSize='sm' color='text.subtle' lineHeight='1.2' mb={1}>
             {translate('plugins.walletConnectToDapps.modal.signingWith')}
           </RawText>
           <MiddleEllipsis value={userAddress} fontSize='sm' fontWeight='medium' lineHeight='1.2' />

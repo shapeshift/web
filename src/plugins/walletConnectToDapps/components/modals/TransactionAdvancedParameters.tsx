@@ -27,12 +27,11 @@ export const TransactionAdvancedParameters = () => {
   const handleToggle = useCallback(() => setIsExpanded(!isExpanded), [isExpanded])
 
   const formContext = useFormContext<ConfirmData>()
-  const bgColor = useColorModeValue('white', 'whiteAlpha.50')
   if (!formContext) return null
   const { register } = formContext
 
   return (
-    <Card bg={bgColor} p={4} borderRadius='2xl' mt={4}>
+    <Card p={4} borderRadius='2xl' mt={4}>
       <VStack alignItems='stretch'>
         <Button
           variant='ghost'
@@ -69,6 +68,7 @@ export const TransactionAdvancedParameters = () => {
                 <Text
                   color='text.subtle'
                   fontWeight='medium'
+                  fontSize='sm'
                   translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.title'
                 />
                 <HelperTooltip
@@ -92,6 +92,7 @@ export const TransactionAdvancedParameters = () => {
                 <Text
                   color='text.subtle'
                   fontWeight='medium'
+                  fontSize='sm'
                   translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.title'
                 />
                 <HelperTooltip

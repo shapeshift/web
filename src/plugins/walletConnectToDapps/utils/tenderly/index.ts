@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import type { Address } from 'viem'
-import { getAddress, isAddressEqual } from 'viem'
+import { getAddress, isAddress, isAddressEqual } from 'viem'
 
 import type {
   AssetChange,
@@ -36,8 +36,8 @@ export const parseAssetChanges = (
       return
     }
 
-    const fromAddress = change.from ? getAddress(change.from) : undefined
-    const toAddress = change.to ? getAddress(change.to) : undefined
+    const fromAddress = change.from && isAddress(change.from) ? getAddress(change.from) : undefined
+    const toAddress = change.to && isAddress(change.from) ? getAddress(change.to) : undefined
 
     if (!fromAddress) {
       console.warn('Missing from address in asset change:', change)

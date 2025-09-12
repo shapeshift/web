@@ -19,13 +19,13 @@ const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue' }
 type WatchlistTableProps = {
   forceCompactView?: boolean
   onRowClick?: () => void
-  hideExploreMore?: boolean
+  onExploreMore?: () => void
 }
 
 export const WatchlistTable = ({
   forceCompactView = false,
-  hideExploreMore = false,
   onRowClick,
+  onExploreMore,
 }: WatchlistTableProps) => {
   const watchedAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
@@ -37,7 +37,8 @@ export const WatchlistTable = ({
 
   const handleButtonClick = useCallback(() => {
     navigate('/assets')
-  }, [navigate])
+    onExploreMore?.()
+  }, [navigate, onExploreMore])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
@@ -59,17 +60,16 @@ export const WatchlistTable = ({
         ctaText='watchlist.empty.cta'
         ctaHref='/assets'
         buttonProps={emptyButtonProps}
+        onCtaClick={onExploreMore}
       />
     )
   }
   return (
     <>
       <MarketsTable rows={rows} onRowClick={handleRowClick} forceCompactView={forceCompactView} />
-      {!hideExploreMore && (
-        <Button mx={6} onClick={handleButtonClick}>
-          {translate('watchlist.empty.cta')}
-        </Button>
-      )}
+      <Button mx={6} onClick={handleButtonClick}>
+        {translate('watchlist.empty.cta')}
+      </Button>
     </>
   )
 }

@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 
@@ -9,13 +8,13 @@ import { DrawerWallet } from '@/components/Layout/Header/NavBar/DrawerWallet'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-export const WalletManagerPopover: FC = memo(() => {
+export const WalletManagerDrawer: FC = memo(() => {
   const {
     state: { isConnected, walletInfo, isLocked, isLoadingLocalWallet },
     dispatch,
   } = useWallet()
 
-  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawerWalletContext()
+  const { openDrawer } = useDrawerWalletContext()
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -23,25 +22,19 @@ export const WalletManagerPopover: FC = memo(() => {
 
   const handleOpen = useCallback(() => {
     if (!isConnected) return
-    if (isDrawerOpen) {
-      closeDrawer()
-    } else {
-      openDrawer()
-    }
-  }, [isConnected, isDrawerOpen, openDrawer, closeDrawer])
+    openDrawer()
+  }, [isConnected, openDrawer])
 
   return (
     <>
-      <Box>
-        <WalletButton
-          onConnect={handleConnect}
-          walletInfo={walletInfo}
-          isConnected={isConnected && !isLocked}
-          isLoadingLocalWallet={isLoadingLocalWallet}
-          onClick={isConnected && !isLocked ? handleOpen : handleConnect}
-          data-test='navigation-wallet-dropdown-button'
-        />
-      </Box>
+      <WalletButton
+        onConnect={handleConnect}
+        walletInfo={walletInfo}
+        isConnected={isConnected && !isLocked}
+        isLoadingLocalWallet={isLoadingLocalWallet}
+        onClick={isConnected && !isLocked ? handleOpen : handleConnect}
+        data-test='navigation-wallet-dropdown-button'
+      />
       <DrawerWallet />
     </>
   )

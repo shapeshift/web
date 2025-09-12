@@ -16,22 +16,61 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { memo, useCallback, useState } from 'react'
+import { lazy, memo, useCallback, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 
-import { AccountsList } from './AccountsList'
 import { useDrawerWalletContext } from './DrawerWalletContext'
 import { DrawerWalletHeader } from './DrawerWalletHeader'
 
+import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
-import { DeFiEarn } from '@/components/StakingVaults/DeFiEarn'
-import { TransactionHistoryContent } from '@/components/TransactionHistory/TransactionHistoryContent'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { AccountTable } from '@/pages/Dashboard/components/AccountList/AccountTable'
-import { WatchlistTable } from '@/pages/Home/WatchlistTable'
+import { makeSuspenseful } from '@/utils/makeSuspenseful'
+
+// Lazy-loaded tab components for better performance
+const tabSpinnerStyle = { height: '200px' }
+
+const AccountTable = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Dashboard/components/AccountList/AccountTable').then(({ AccountTable }) => ({
+      default: AccountTable,
+    })),
+  ),
+  tabSpinnerStyle,
+)
+
+const WatchlistTable = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Home/WatchlistTable').then(({ WatchlistTable }) => ({
+      default: WatchlistTable,
+    })),
+  ),
+  tabSpinnerStyle,
+)
+
+const DeFiEarn = makeSuspenseful(
+  lazy(() =>
+    import('@/components/StakingVaults/DeFiEarn').then(({ DeFiEarn }) => ({
+      default: DeFiEarn,
+    })),
+  ),
+  tabSpinnerStyle,
+)
+
+const TransactionHistoryContent = makeSuspenseful(
+  lazy(() =>
+    import('@/components/TransactionHistory/TransactionHistoryContent').then(
+      ({ TransactionHistoryContent }) => ({
+        default: TransactionHistoryContent,
+      }),
+    ),
+  ),
+  tabSpinnerStyle,
+)
 
 type ActionButtonProps = {
   icon: React.ReactNode
@@ -68,6 +107,7 @@ export const DrawerWallet: FC = memo(() => {
   const send = useModal('send')
   const receive = useModal('receive')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [loadedTabs, setLoadedTabs] = useState(new Set([0])) // First tab is preloaded
 
   const { isDrawerOpen, closeDrawer } = useDrawerWalletContext()
 
@@ -86,13 +126,23 @@ export const DrawerWallet: FC = memo(() => {
   }, [receive])
 
   const handleTabChange = useCallback((index: number) => {
-    setActiveTabIndex(index)
+    // Force immediate UI update for tab selection
+    flushSync(() => {
+      setActiveTabIndex(index)
+    })
+    // Then mark tab as loaded to trigger lazy loading
+    setLoadedTabs(prev => new Set([...prev, index]))
   }, [])
 
   const handleSwitchProvider = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     closeDrawer()
   }, [dispatch, closeDrawer])
+
+  const handleDisconnect = useCallback(() => {
+    disconnect()
+    closeDrawer()
+  }, [disconnect, closeDrawer])
 
   return (
     <Drawer isOpen={isDrawerOpen} placement='right' onClose={closeDrawer} size='sm'>
@@ -103,7 +153,7 @@ export const DrawerWallet: FC = memo(() => {
             walletInfo={walletInfo}
             isConnected={isConnected}
             connectedType={connectedType}
-            onDisconnect={disconnect}
+            onDisconnect={handleDisconnect}
             onSwitchProvider={handleSwitchProvider}
           />
           <Box pt={6} pb={8}>
@@ -145,19 +195,25 @@ export const DrawerWallet: FC = memo(() => {
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
                 <TabPanel p={0} pt={2}>
-                  <AccountTable forceCompactView onRowClick={closeDrawer} />
+                  {loadedTabs.has(0) && <AccountTable forceCompactView onRowClick={closeDrawer} />}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  <AccountsList onClose={closeDrawer} isSimpleMenu />
+                  {loadedTabs.has(1) && <AccountsListContent onClose={closeDrawer} isSimpleMenu />}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  <WatchlistTable forceCompactView onRowClick={closeDrawer} hideExploreMore />
+                  {loadedTabs.has(2) && (
+                    <WatchlistTable
+                      forceCompactView
+                      onRowClick={closeDrawer}
+                      onExploreMore={closeDrawer}
+                    />
+                  )}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  <DeFiEarn forceCompactView />
+                  {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
                 </TabPanel>
                 <TabPanel p={0} pt={2}>
-                  <TransactionHistoryContent isCompact />
+                  {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
                 </TabPanel>
               </TabPanels>
             </Tabs>

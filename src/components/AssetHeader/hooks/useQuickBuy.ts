@@ -113,29 +113,14 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
   const hopExecutionMetadataFilter = useMemo(() => {
     if (!confirmedQuote?.id) return undefined
-    const filter = { tradeId: confirmedQuote.id, hopIndex: currentHopIndex }
-    console.log('🎯 Created hop execution metadata filter:', filter)
-    return filter
+    return { tradeId: confirmedQuote.id, hopIndex: currentHopIndex }
   }, [confirmedQuote?.id, currentHopIndex])
 
-  const hopExecutionMetadata = useAppSelector(state => {
-    const result = hopExecutionMetadataFilter
+  const hopExecutionMetadata = useAppSelector(state =>
+    hopExecutionMetadataFilter
       ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
-      : undefined
-    
-    // Log when this changes
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/assets/')) {
-      console.log('🔄 hopExecutionMetadata selector result:', {
-        hopExecutionMetadataFilter,
-        result,
-        tradeExecution: state.tradeQuoteSlice?.tradeExecution,
-        tradeExecutionForThisId: hopExecutionMetadataFilter?.tradeId ? 
-          state.tradeQuoteSlice?.tradeExecution?.[hopExecutionMetadataFilter.tradeId] : 'no trade ID'
-      })
-    }
-    
-    return result
-  })
+      : undefined,
+  )
 
   // Also watch current swap status for completion (more reliable than execution metadata)
   const currentSwap = useAppSelector(selectCurrentSwap)
@@ -182,14 +167,12 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
   const setSuccessState = useCallback(
     (amount: number) => {
-      console.log('🎉 QUICK BUY SUCCESS! Setting success state for amount:', amount)
       trackMixpanelEvent(MixPanelEvent.QuickBuySuccess)
       setQuickBuyState({ status: 'success', amount })
       resetTrade()
 
       clearSuccessTimer()
       successTimerRef.current = setTimeout(() => {
-        console.log('⏰ Success timeout expired, resetting to idle')
         setQuickBuyState(currentState =>
           currentState.status === 'success' ? DEFAULT_STATE : currentState,
         )
@@ -262,20 +245,14 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
       return
     }
 
-    console.log('🚀 Initializing Quick Buy trade with quote:', bestNoErrorQuote.quote)
     dispatch(tradeQuoteSlice.actions.initializeQuickBuyTrade(bestNoErrorQuote.quote))
     hasInitializedTradeRef.current = true
 
-    console.log('📊 Capturing mixpanel event data for Quick Buy preview')
     const currentEventData = getMixpanelEventData()
     setEventData(currentEventData)
-    console.log('📈 Quick Buy preview event data:', currentEventData)
 
     if (currentEventData && mixpanel) {
-      console.log('📤 Tracking QuickBuyPreview event')
       mixpanel.track(MixPanelEvent.QuickBuyPreview, currentEventData)
-    } else {
-      console.log('⚠️ Could not track QuickBuyPreview - missing data or mixpanel:', { currentEventData: !!currentEventData, mixpanel: !!mixpanel })
     }
   }, [
     dispatch,
@@ -287,54 +264,22 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   ])
 
   useEffect(() => {
-    console.log('🔍 QuickBuy execution effect triggered:', {
-      quickBuyState: quickBuyState,
-      hopExecutionMetadata: hopExecutionMetadata,
-      confirmedQuote: confirmedQuote,
-      hopExecutionMetadataFilter: hopExecutionMetadataFilter,
-      currentSwap: currentSwap,
-    })
-    
-    if (quickBuyState.status !== 'executing') {
-      console.log('⏸️ Not executing, skipping checks')
-      return
-    }
+    if (quickBuyState.status !== 'executing') return
 
     const swapState = hopExecutionMetadata?.swap.state
     const swapStatus = currentSwap?.status
-    
-    console.log('🔄 Swap state check:', {
-      swapState,
-      swapStatus,
-      hopExecutionMetadata,
-      swap: hopExecutionMetadata?.swap,
-      currentSwap,
-      SwapStatus: {
-        Pending: SwapStatus.Pending,
-        Success: SwapStatus.Success,
-        Failed: SwapStatus.Failed,
-      },
-      TransactionExecutionState: {
-        Failed: TransactionExecutionState.Failed,
-        Complete: TransactionExecutionState.Complete,
-      }
-    })
 
     // Check for failure first
     if (swapState === TransactionExecutionState.Failed || swapStatus === SwapStatus.Failed) {
-      console.log('❌ Setting error state via', swapState === TransactionExecutionState.Failed ? 'swapState' : 'swapStatus')
       setErrorState('quickBuy.error.failed', quickBuyState.amount ?? 0)
     } 
     // Check for success - prefer swap status as it's more reliable
     else if (swapStatus === SwapStatus.Success || swapState === TransactionExecutionState.Complete) {
-      console.log('✅ Setting success state via', swapStatus === SwapStatus.Success ? 'swapStatus' : 'swapState')
       setSuccessState(quickBuyState.amount ?? 0)
-    } else {
-      console.log('⏳ Swap not yet complete:', { swapState, swapStatus })
     }
   }, [
     hopExecutionMetadata?.swap,
-    currentSwap?.status, // Add currentSwap status as dependency
+    currentSwap?.status,
     quickBuyState.status,
     quickBuyState.amount,
     setErrorState,

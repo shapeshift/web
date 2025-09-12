@@ -74,10 +74,8 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
   const trackMixpanelEvent = useMixpanel(eventData)
 
   const handleConfirmPurchase = useCallback((): void => {
-    console.log('🔘 Quick Buy confirm button clicked')
     trackMixpanelEvent(MixPanelEvent.QuickBuyConfirm)
     confirmPurchase()
-    console.log('✅ Quick Buy confirmPurchase() called')
   }, [confirmPurchase, trackMixpanelEvent])
 
   if (isNativeAsset) {

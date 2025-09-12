@@ -157,7 +157,7 @@ export const ShapeShiftMenu = () => {
           {isLargerThanXl ? (
             <ShapeShiftLogoText height='24px' width='auto' flexShrink={0} />
           ) : (
-            <FoxIcon boxSize='5' flexShrink={0} />
+            <FoxIcon height='24px' width='auto' flexShrink={0} />
           )}
           <Icon as={ChevronDownIcon} boxSize={4} flexShrink={0} />
         </MenuButton>

@@ -42,10 +42,11 @@ const paddingTopProp = {
 const leftHStackSpacingSx = { base: 4, lg: 8 }
 const navHStackSpacingSx = { base: 3, lg: 6 }
 const navHStackDisplaySx = { base: 'none', md: 'flex' }
-const searchBoxFlexSx = { base: 'none', lg: '1' }
-const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
-const searchBoxMxSx = { base: 0, lg: 0 }
 const rightHStackSpacingSx = { base: 2, lg: 4 }
+
+// Search box responsive styles
+const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
+const searchBoxMinWSx = { base: 'auto', xl: '300px' }
 
 const tradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: SwapIcon },
@@ -79,6 +80,25 @@ export const Header = memo(() => {
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
+
+  // Responsive display based on viewport width
+  const searchBoxDisplay = useMemo(
+    () => ({
+      base: 'none',
+      '2xl': 'flex',
+      // Hide at smaller breakpoints where it would get cramped
+      xl: 'none',
+    }),
+    [],
+  )
+
+  const iconButtonDisplay = useMemo(
+    () => ({
+      base: 'flex',
+      '2xl': 'none',
+    }),
+    [],
+  )
 
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
@@ -139,6 +159,7 @@ export const Header = memo(() => {
         paddingTop={paddingTopProp}
       >
         <HStack height='4.5rem' width='full' pr={4} pl={6}>
+          {/* Left section - equal width to right */}
           <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
             <ShapeShiftMenu />
             <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>
@@ -170,10 +191,16 @@ export const Header = memo(() => {
             </HStack>
           </HStack>
 
-          <Box flex={searchBoxFlexSx} maxW={searchBoxMaxWSx} mx={searchBoxMxSx}>
+          {/* Middle section - search box */}
+          <Box maxW={searchBoxMaxWSx} minW={searchBoxMinWSx} mx={4} display={searchBoxDisplay}>
             <GlobalSearchButton />
           </Box>
+
+          {/* Right section - equal width to left */}
           <HStack spacing={rightHStackSpacingSx} flex='1' justifyContent='flex-end' minW={0}>
+            <Box display={iconButtonDisplay}>
+              <GlobalSearchButton isIconButton />
+            </Box>
             {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
               <DegradedStateBanner />
             )}

@@ -1,15 +1,12 @@
-import type { ResponsiveValue } from '@chakra-ui/react'
-import { Box, Button, Card, Flex, Stack } from '@chakra-ui/react'
+import { Box, Card, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Property } from 'csstype'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 
 import { PageContainer } from '../Buy/components/PageContainer'
 import { TopAssets } from '../Buy/TopAssets'
 
-import FoxPane from '@/assets/fox-cta-pane.png'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
@@ -17,11 +14,7 @@ import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
 import { cardstyles } from '@/components/MultiHopTrade/const'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
-import { WalletActions } from '@/context/WalletProvider/actions'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
-import { selectFiatRampChainCount } from '@/state/apis/fiatRamps/selectors'
-import { useAppSelector } from '@/state/store'
 
 type MatchParams = {
   chainId?: string
@@ -30,11 +23,8 @@ type MatchParams = {
 
 const layoutMainStyle = { paddingInlineStart: 0, paddingInlineEnd: 0 }
 const pageContainerPb = { base: 0, md: '7.5rem' }
-const flexDirXlRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', xl: 'row' }
-const textAlignXlLeft: ResponsiveValue<Property.TextAlign> = { base: 'center', xl: 'left' }
 const headingFontSize = { base: '4xl', xl: '6xl' }
 const cardMxOffsetBase = { base: -4, md: 0 }
-const displayXlBlock = { base: 'none', xl: 'block' }
 const pageProps = { pt: 0 }
 
 const RampContent: React.FC = () => {
@@ -48,19 +38,9 @@ const RampContent: React.FC = () => {
   const titleKey = isSellRoute ? 'rampPage.sellTitle' : 'rampPage.buyTitle'
   const bodyKey = isSellRoute ? 'rampPage.sellBody' : 'rampPage.buyBody'
 
-  const {
-    dispatch,
-    state: { isConnected },
-  } = useWallet()
   const translate = useTranslate()
 
-  const chainCount = useAppSelector(selectFiatRampChainCount)
-
   const action = location.pathname.includes('/sell') ? FiatRampAction.Sell : FiatRampAction.Buy
-
-  const handleConnect = useCallback(() => {
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [dispatch])
 
   useEffect(() => {
     // Auto select asset when passed in via params
@@ -78,18 +58,6 @@ const RampContent: React.FC = () => {
           backgroundClip='text'
         />
       ),
-    }),
-    [],
-  )
-
-  const ctaTitleTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['rampPage.ctaTitle', { chainCount }],
-    [chainCount],
-  )
-
-  const ctaTranslationComponents: TextPropTypes['components'] = useMemo(
-    () => ({
-      span: <RawText as='span' color='white' />,
     }),
     [],
   )
@@ -130,42 +98,6 @@ const RampContent: React.FC = () => {
             </Box>
           </Flex>
         </PageContainer>
-        {!isConnected && (
-          <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
-            <PageContainer display='flex' py={0} flexDir={flexDirXlRow} textAlign={textAlignXlLeft}>
-              <Stack spacing={4} py='6rem' flex={1} alignItems='flex-start'>
-                <Text
-                  fontSize='2xl'
-                  fontWeight='bold'
-                  as='h4'
-                  color='whiteAlpha.500'
-                  translation={ctaTitleTranslation}
-                  components={ctaTranslationComponents}
-                />
-                <Button
-                  size='lg'
-                  data-test='ramp-page-connect-wallet-button'
-                  variant='solid'
-                  colorScheme='blue'
-                  onClick={handleConnect}
-                >
-                  {translate('common.connectWallet')}
-                </Button>
-              </Stack>
-              <Box display={displayXlBlock} overflow='visible' width='400px'>
-                <Box
-                  backgroundImage={FoxPane}
-                  backgroundSize='cover'
-                  backgroundPosition='center'
-                  width='500px'
-                  height='500px'
-                  ml={-50}
-                  mt={-100}
-                />
-              </Box>
-            </PageContainer>
-          </Flex>
-        )}
       </Box>
       <TopAssets />
     </Main>

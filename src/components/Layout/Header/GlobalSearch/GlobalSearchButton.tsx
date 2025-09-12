@@ -7,7 +7,10 @@ import { GlobalSearchModal } from './GlobalSearchModal'
 
 import { isMobile as isMobileApp } from '@/lib/globals'
 
-const mrProp = { base: 0, md: 'auto' }
+interface GlobalSearchButtonProps {
+  isIconButton?: boolean
+}
+
 const widthProp = { base: 'auto', lg: 'full' }
 const displayProp1 = { base: 'flex', lg: 'none' }
 const displayProp2 = { base: 'none', lg: 'flex' }
@@ -15,7 +18,7 @@ const sxProp1 = { svg: { width: '18px', height: '18px' } }
 
 const searchIcon = <SearchIcon />
 
-export const GlobalSearchButton = memo(() => {
+export const GlobalSearchButton = memo(({ isIconButton = false }: GlobalSearchButtonProps) => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
 
@@ -38,36 +41,46 @@ export const GlobalSearchButton = memo(() => {
 
   return (
     <>
-      <Box maxWidth='xl' width={widthProp} mr={mrProp}>
+      {isIconButton ? (
         <IconButton
-          display={displayProp1}
           icon={searchIcon}
+          variant='ghost'
           aria-label={translate('common.search')}
           onClick={onOpen}
         />
-        <Button
-          width='full'
-          leftIcon={searchIcon}
-          onClick={onOpen}
-          size='md'
-          fontSize='sm'
-          alignItems='center'
-          color='text.subtle'
-          display={displayProp2}
-          sx={sxProp1}
-          bg='background.input.base'
-          border='1px solid'
-          borderColor='border.base'
-          _hover={buttonHoverSx}
-        >
-          {translate('common.search')}
-          {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.
-            <Box ml='auto'>
-              <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>+<Kbd>K</Kbd>
-            </Box>
-          )}
-        </Button>
-      </Box>
+      ) : (
+        <Box width={widthProp}>
+          <IconButton
+            display={displayProp1}
+            icon={searchIcon}
+            aria-label={translate('common.search')}
+            onClick={onOpen}
+          />
+          <Button
+            width='full'
+            leftIcon={searchIcon}
+            onClick={onOpen}
+            size='md'
+            fontSize='sm'
+            alignItems='center'
+            color='text.subtle'
+            display={displayProp2}
+            sx={sxProp1}
+            bg='background.input.base'
+            border='1px solid'
+            borderColor='border.base'
+            _hover={buttonHoverSx}
+          >
+            {translate('common.search')}
+            {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.
+              <Box ml='auto'>
+                <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>+<Kbd>K</Kbd>
+              </Box>
+            )}
+          </Button>
+        </Box>
+      )}
+
       {isOpen && (
         <GlobalSearchModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} onToggle={onToggle} />
       )}

@@ -27,6 +27,7 @@ type WalletButtonProps = {
   isConnected: boolean
   isLoadingLocalWallet: boolean
   onConnect: () => void
+  handleClick?: () => void
 } & Pick<InitialState, 'walletInfo'> &
   ButtonProps
 
@@ -35,6 +36,7 @@ export const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
   walletInfo,
   onConnect,
+  handleClick,
   isLoadingLocalWallet,
   ...otherProps
 }) => {
@@ -86,8 +88,9 @@ export const WalletButton: FC<WalletButtonProps> = ({
   const connectIcon = useMemo(() => <FaWallet />, [])
 
   const handleMenuClick = useCallback(() => {
+    handleClick?.()
     vibrate('heavy')
-  }, [])
+  }, [handleClick])
 
   const ButtonComp = isMenuContext ? MenuButton : Button
 

@@ -194,16 +194,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           />
         )
       case WalletConnectModal.SignEIP155TransactionConfirmation:
-        if (!topic) return null
-        return (
-          <EIP155TransactionConfirmation
-            onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectRequestAndClose}
-            state={state as Required<WalletConnectState<EthSignTransactionCallRequest>>}
-            topic={topic}
-          />
-        )
-      case WalletConnectModal.SendEIP155TransactionConfirmation:
+      case WalletConnectModal.SendEIP155TransactionConfirmation: {
         if (!topic) return null
 
         const requestParams = state.modalData?.requestEvent?.params.request.params
@@ -231,6 +222,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             topic={topic}
           />
         )
+      }
       case WalletConnectModal.SendCosmosTransactionConfirmation:
         if (!topic) return null
         return (

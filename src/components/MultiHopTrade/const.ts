@@ -18,5 +18,4 @@ export const cardstyles: CardProps = {
     md: 1,
   },
   borderRadius: '3xl',
-  backdropFilter: 'blur(150px)',
 }

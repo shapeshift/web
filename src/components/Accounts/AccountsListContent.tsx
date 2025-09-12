@@ -12,12 +12,15 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type AccountsListProps = {
-  onClose: () => void
+type AccountsListContentProps = {
+  onClose?: () => void
   isSimpleMenu?: boolean
 }
 
-export const AccountsList: React.FC<AccountsListProps> = ({ onClose, isSimpleMenu = false }) => {
+export const AccountsListContent: React.FC<AccountsListContentProps> = ({
+  onClose,
+  isSimpleMenu = false,
+}) => {
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()

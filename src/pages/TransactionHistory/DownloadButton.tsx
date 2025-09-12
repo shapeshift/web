@@ -132,19 +132,7 @@ export const DownloadButton = ({
     }
   }, [allTxs, assets, fields, translate, txIds])
 
-  if (isCompact) {
-    return (
-      <IconButton
-        aria-label={translate('transactionHistory.downloadCSV')}
-        icon={downloadIcon}
-        size='md'
-        isLoading={isLoading}
-        onClick={generateCSV}
-      />
-    )
-  }
-
-  return isLargerThanLg ? (
+  return isLargerThanLg && !isCompact ? (
     <Button
       ml={buttonMargin}
       colorScheme='blue'
@@ -154,5 +142,13 @@ export const DownloadButton = ({
     >
       <Text translation='transactionHistory.downloadCSV' />
     </Button>
-  ) : null
+  ) : (
+    <IconButton
+      aria-label={translate('transactionHistory.downloadCSV')}
+      icon={downloadIcon}
+      size='md'
+      isLoading={isLoading}
+      onClick={generateCSV}
+    />
+  )
 }

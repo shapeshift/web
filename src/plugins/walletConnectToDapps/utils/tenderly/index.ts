@@ -17,8 +17,9 @@ import { getConfig } from '@/config'
 const config = getConfig()
 const TENDERLY_ACCOUNT_SLUG = config.VITE_TENDERLY_ACCOUNT_SLUG
 const TENDERLY_PROJECT_SLUG = config.VITE_TENDERLY_PROJECT_SLUG
+const TENDERLY_API_KEY = config.VITE_TENDERLY_API_KEY
 
-if (!TENDERLY_ACCOUNT_SLUG || !TENDERLY_PROJECT_SLUG) {
+if (!TENDERLY_ACCOUNT_SLUG || !TENDERLY_PROJECT_SLUG || !TENDERLY_API_KEY) {
   throw new Error('Missing Tenderly account/project env vars')
 }
 
@@ -213,13 +214,6 @@ export const simulateTransaction = async ({
   gasPrice?: string
 }): Promise<TenderlySimulationResponse | null> => {
   try {
-    const apiKey = import.meta.env.VITE_TENDERLY_API_KEY
-
-    if (!apiKey) {
-      console.warn('Tenderly API key not found')
-      return null
-    }
-
     const { chainReference } = fromChainId(chainId)
     const networkId = chainReference
 
@@ -238,7 +232,7 @@ export const simulateTransaction = async ({
       {
         headers: {
           'Content-Type': 'application/json',
-          'X-Access-Key': apiKey,
+          'X-Access-Key': TENDERLY_API_KEY,
         },
       },
     )

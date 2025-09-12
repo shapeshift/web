@@ -16,7 +16,7 @@ import { useAppSelector } from '@/state/store'
 export type StructuredField = {
   key: string
   // i.e actually any of solc types casted to TS
-  value: any
+  value: unknown
   children?: StructuredField[]
   level?: number
 }

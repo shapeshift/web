@@ -111,7 +111,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     )
   }
 
-  const valueString = value ? String(value) : ''
+  const valueString = value !== null && value !== undefined ? String(value) : ''
   const isHexField = valueString.startsWith('0x')
   const isUnknownAsset = isHexField && !asset
 

@@ -192,8 +192,12 @@ export const DrawerWallet: FC = memo(() => {
                 <Tab>{translate('common.activity')}</Tab>
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
-                <TabPanel p={0} pt={2} pr={2}>
-                  {loadedTabs.has(0) && <AccountTable forceCompactView onRowClick={onClose} />}
+                <TabPanel p={0} pt={2} pr={2} height='100%'>
+                  {loadedTabs.has(0) && (
+                    <Box height='100%'>
+                      <AccountTable forceCompactView onRowClick={onClose} />
+                    </Box>
+                  )}
                 </TabPanel>
                 <TabPanel p={0} pt={2} pr={2}>
                   {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}

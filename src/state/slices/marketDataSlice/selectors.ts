@@ -152,5 +152,7 @@ export const selectUserCurrencyRateByAssetId = createCachedSelector(
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
-export const selectIsAnyMarketDataApiQueryPending = (state: ReduxState) =>
-  Object.values(state.marketApi.queries).some(query => query?.status === QueryStatus.pending)
+export const selectIsAnyMarketDataApiQueryPending = createSelector(
+  (state: ReduxState) => state.marketApi.queries,
+  queries => Object.values(queries).some(query => query?.status === QueryStatus.pending),
+)

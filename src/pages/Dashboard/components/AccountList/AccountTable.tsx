@@ -262,6 +262,9 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
     return rowData.map(row => assets[row.assetId]).filter(isSome)
   }, [rowData, assets])
 
+  const memoizedRenderEmptyComponent = useMemo(() => renderEmptyComponent, [renderEmptyComponent])
+  const memoizedRenderSubComponent = useMemo(() => renderSubComponent, [renderSubComponent])
+
   if (!isLargerThanMd || forceCompactView) {
     return (
       <AssetList
@@ -290,8 +293,8 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
       onRowLongPress={handleRowLongPress}
       displayHeaders={showHeaders}
       variant='clickable'
-      renderEmptyComponent={renderEmptyComponent}
-      renderSubComponent={renderSubComponent}
+      renderEmptyComponent={memoizedRenderEmptyComponent}
+      renderSubComponent={memoizedRenderSubComponent}
       hasMore={hasMore}
       loadMore={next}
     />

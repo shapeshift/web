@@ -16,7 +16,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, useCallback, useState } from 'react'
+import { lazy, memo, useCallback, useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 
@@ -107,7 +107,17 @@ export const DrawerWallet: FC = memo(() => {
   const receive = useModal('receive')
   const { isOpen, close: onClose } = useModal('walletDrawer')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
-  const [loadedTabs, setLoadedTabs] = useState(new Set([0])) // First tab is preloaded
+  const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
+
+  // Defer loading the first tab until drawer opens to improve initial opening performance
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        setLoadedTabs(prev => new Set([...prev, activeTabIndex]))
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen, activeTabIndex])
 
   const {
     state: { isConnected, walletInfo, connectedType },

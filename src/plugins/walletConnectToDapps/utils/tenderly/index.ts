@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import type { Address } from 'viem'
-import { getAddress, isAddress, isAddressEqual } from 'viem'
+import { getAddress, isAddress, isAddressEqual, zeroAddress } from 'viem'
 
 import type {
   AssetChange,
@@ -44,32 +44,23 @@ export const parseAssetChanges = (
       return
     }
 
+    const makeAssetChange = (type: 'send' | 'receive') => ({
+      tokenAddress:
+        change.token_info.contract_address === zeroAddress
+          ? undefined
+          : change.token_info.contract_address,
+      amount: type === 'send' ? `-${change.amount}` : change.amount,
+      type,
+      isNativeAsset: change.token_info.contract_address === zeroAddress,
+      token_info: change.token_info,
+    })
+
     if (isAddressEqual(fromAddress, from)) {
-      changes.push({
-        tokenAddress:
-          change.token_info.contract_address === '0x0000000000000000000000000000000000000000'
-            ? undefined
-            : change.token_info.contract_address,
-        amount: `-${change.amount}`,
-        type: 'send',
-        isNativeAsset:
-          change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
-        token_info: change.token_info,
-      })
+      changes.push(makeAssetChange('send'))
     }
 
     if (toAddress && isAddressEqual(toAddress, from)) {
-      changes.push({
-        tokenAddress:
-          change.token_info.contract_address === '0x0000000000000000000000000000000000000000'
-            ? undefined
-            : change.token_info.contract_address,
-        amount: change.amount,
-        type: 'receive',
-        isNativeAsset:
-          change.token_info.contract_address === '0x0000000000000000000000000000000000000000',
-        token_info: change.token_info,
-      })
+      changes.push(makeAssetChange('receive'))
     }
   })
 

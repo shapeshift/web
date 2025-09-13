@@ -1,18 +1,10 @@
-import {
-  Card,
-  HStack,
-  IconButton,
-  Image,
-  useColorModeValue,
-  useToast,
-  VStack,
-} from '@chakra-ui/react'
+import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
-import { FiCopy } from 'react-icons/fi'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { fromBaseUnit } from '@/lib/math'
@@ -25,14 +17,11 @@ type SendTransactionContentProps = {
   chainId: ChainId
 }
 
-const fiCopy = <FiCopy />
-
 export const SendTransactionContent: FC<SendTransactionContentProps> = ({
   transaction,
   chainId,
 }) => {
   const translate = useTranslate()
-  const toast = useToast()
   const cardBg = useColorModeValue('white', 'whiteAlpha.50')
   const tagBg = useColorModeValue('gray.100', 'whiteAlpha.200')
 
@@ -49,26 +38,6 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
   }, [transaction.value, feeAsset])
 
   const isZeroValue = sendAmountCryptoPrecision === '0'
-
-  const handleCopyAddress = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(transaction.to)
-      toast({
-        title: translate('common.copied'),
-        status: 'success',
-        duration: 2500,
-        isClosable: true,
-      })
-    } catch (e) {
-      toast({
-        title: translate('common.copyFailed'),
-        description: translate('common.copyFailedDescription'),
-        status: 'error',
-        duration: 2500,
-        isClosable: true,
-      })
-    }
-  }, [transaction.to, toast, translate])
 
   if (!feeAsset) return null
 
@@ -95,20 +64,11 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
             )}
             {feeAsset.icon && <Image boxSize='20px' src={feeAsset.icon} borderRadius='full' />}
           </HStack>
-          <HStack spacing={1} bg={tagBg} px={2} py={1} borderRadius='md' align='center'>
-            <MiddleEllipsis value={transaction.to} fontSize='xs' color='text.subtle' />
-            <IconButton
-              aria-label='Copy address'
-              icon={fiCopy}
-              size='xs'
-              variant='ghost'
-              onClick={handleCopyAddress}
-              color='text.subtle'
-              minW='auto'
-              h='auto'
-              p={0}
-            />
-          </HStack>
+          <InlineCopyButton value={transaction.to}>
+            <HStack spacing={1} bg={tagBg} px={2} py={1} borderRadius='md' align='center'>
+              <MiddleEllipsis value={transaction.to} fontSize='xs' color='text.subtle' />
+            </HStack>
+          </InlineCopyButton>
         </VStack>
       </HStack>
     </Card>

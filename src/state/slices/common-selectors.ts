@@ -164,16 +164,27 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSelector(
   selectAssets,
   byId => {
-    return Object.values(byId).reduce<RelatedAssetIdsById>((acc, asset) => {
-      if (!asset) return acc
+    const result: RelatedAssetIdsById = {}
+
+    Object.values(byId).forEach(asset => {
+      if (!asset) return
+
       if (!asset.relatedAssetKey) {
-        acc[asset.assetId] = [...(acc[asset.assetId] ?? []), asset.assetId]
-        return acc
+        // Self-reference for assets without a related key
+        if (!result[asset.assetId]) {
+          result[asset.assetId] = []
+        }
+        result[asset.assetId].push(asset.assetId)
+      } else {
+        // Group by related asset key
+        if (!result[asset.relatedAssetKey]) {
+          result[asset.relatedAssetKey] = []
+        }
+        result[asset.relatedAssetKey].push(asset.assetId)
       }
-      if (asset.relatedAssetKey)
-        acc[asset.relatedAssetKey] = [...(acc[asset.relatedAssetKey] ?? []), asset.assetId]
-      return acc
-    }, {})
+    })
+
+    return result
   },
 )
 

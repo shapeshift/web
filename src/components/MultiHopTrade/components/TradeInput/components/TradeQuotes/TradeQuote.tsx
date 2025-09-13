@@ -10,6 +10,7 @@ import type { FC, JSX } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 import { TradeQuoteBadges } from './components/TradeQuoteBadges'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
@@ -269,10 +270,15 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       userSlippagePercentageDecimal,
     ])
 
+    const swapperIcon = useMemo(
+      () => <SwapperIcon swapperName={quoteData.swapperName} size='sm' />,
+      [quoteData.swapperName],
+    )
+
     return showSwapper ? (
       <TradeQuoteCard
-        swapperName={quoteData.swapperName}
-        swapperTitle={quote?.steps[0].source ?? quoteData.swapperName}
+        icon={swapperIcon}
+        title={quote?.steps[0].source ?? quoteData.swapperName}
         headerContent={headerContent}
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}

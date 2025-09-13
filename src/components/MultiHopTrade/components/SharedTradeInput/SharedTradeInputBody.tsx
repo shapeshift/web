@@ -1,27 +1,17 @@
-import {
-  CircularProgress,
-  CircularProgressLabel,
-  Divider,
-  Flex,
-  IconButton,
-  Stack,
-  useMediaQuery,
-} from '@chakra-ui/react'
+import { Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
-import { LuArrowUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
 import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { FormDivider } from '@/components/FormDivider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
-
-const arrowUpDownIcon = <LuArrowUpDown />
 
 type SharedTradeInputBodyProps = {
   buyAsset: Asset
@@ -148,40 +138,12 @@ export const SharedTradeInputBody = ({
           onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
           onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
         />
-        <Flex alignItems='center' justifyContent='center' my={-2} className='swapper-divider'>
-          <Divider />
-          <CircularProgress
-            color='blue.500'
-            thickness='4px'
-            size='34px'
-            trackColor='transparent'
-            isIndeterminate={isLoading}
-            borderRadius='full'
-          >
-            <CircularProgressLabel
-              fontSize='md'
-              display='flex'
-              alignItems='center'
-              justifyContent='center'
-            >
-              <IconButton
-                onClick={handleSwitchAssets}
-                isRound
-                size='sm'
-                position='relative'
-                variant='outline'
-                borderColor='border.base'
-                zIndex={1}
-                aria-label={translate('lending.switchAssets')}
-                icon={arrowUpDownIcon}
-                isDisabled={isSwitchAssetsDisabled}
-                color='text.subtle'
-              />
-            </CircularProgressLabel>
-          </CircularProgress>
-
-          <Divider />
-        </Flex>
+        <FormDivider
+          isDisabled={isSwitchAssetsDisabled}
+          isLoading={isLoading}
+          mt={2}
+          onClick={handleSwitchAssets}
+        />
         {children}
       </Stack>
       {subContent && (

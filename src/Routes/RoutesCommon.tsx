@@ -16,6 +16,7 @@ import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
@@ -31,6 +32,7 @@ import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
 import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -188,7 +190,7 @@ export const routes: Route[] = [
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit', '/claim'],
+    relatedPaths: ['/trade', '/limit', '/claim', '/ramp/buy', '/ramp/sell'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -368,6 +370,24 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/ramp/*',
+    label: '',
+    hideDesktop: true,
+    main: RampTab,
+    routes: [
+      {
+        path: FiatRampRoutePaths.Buy,
+        main: RampTab,
+        hide: true,
+      },
+      {
+        path: FiatRampRoutePaths.Sell,
+        main: RampTab,
         hide: true,
       },
     ],

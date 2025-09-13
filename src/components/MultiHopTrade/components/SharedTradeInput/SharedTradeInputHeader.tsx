@@ -47,6 +47,7 @@ export const SharedTradeInputHeader = ({
 
   const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
   const enableLimitOrders = useFeatureFlag('LimitOrders')
+  const enableSwapperFiatRamps = useFeatureFlag('SwapperFiatRamps')
   const walletId = useAppSelector(selectWalletId)
 
   const handleChangeTab = useCallback(
@@ -67,6 +68,14 @@ export const SharedTradeInputHeader = ({
 
   const handleClickClaim = useCallback(() => {
     handleChangeTab(TradeInputTab.Claim)
+  }, [handleChangeTab])
+
+  const handleClickBuyFiat = useCallback(() => {
+    handleChangeTab(TradeInputTab.BuyFiat)
+  }, [handleChangeTab])
+
+  const handleClickSellFiat = useCallback(() => {
+    handleChangeTab(TradeInputTab.SellFiat)
   }, [handleChangeTab])
 
   return (
@@ -102,6 +111,28 @@ export const SharedTradeInputHeader = ({
                 cursor={selectedTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
               >
                 {translate('limitOrder.heading')}
+              </Heading>
+            )}
+            {enableSwapperFiatRamps && !isStandalone && (
+              <Heading
+                as='h5'
+                fontSize='md'
+                color={selectedTab !== TradeInputTab.BuyFiat ? 'text.subtle' : undefined}
+                onClick={handleClickBuyFiat}
+                cursor={selectedTab !== TradeInputTab.BuyFiat ? 'pointer' : undefined}
+              >
+                {translate('fiatRamps.buy')}
+              </Heading>
+            )}
+            {enableSwapperFiatRamps && !isStandalone && (
+              <Heading
+                as='h5'
+                fontSize='md'
+                color={selectedTab !== TradeInputTab.SellFiat ? 'text.subtle' : undefined}
+                onClick={handleClickSellFiat}
+                cursor={selectedTab !== TradeInputTab.SellFiat ? 'pointer' : undefined}
+              >
+                {translate('fiatRamps.sell')}
               </Heading>
             )}
             {enableBridgeClaims && walletId && !isStandalone && (

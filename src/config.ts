@@ -189,6 +189,7 @@ const validators = {
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE: bool({ default: false }),
   VITE_FEATURE_NEW_WALLET_MANAGER: bool({ default: false }),
+  VITE_FEATURE_SWAPPER_FIAT_RAMPS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -10,6 +10,7 @@ import { ReceiveSummary } from './components/ReceiveSummary'
 
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -106,6 +107,10 @@ export const SharedTradeInputFooter = ({
     vibrate('heavy')
   }, [])
 
+  const swapperIcon = useMemo(() => {
+    return <SwapperIcons swapSource={swapSource} swapperName={swapperName} />
+  }, [swapSource, swapperName])
+
   return (
     <CardFooter
       flexDir='column'
@@ -125,14 +130,13 @@ export const SharedTradeInputFooter = ({
         {hasUserEnteredAmount && (
           <RateGasRow
             affiliateBps={affiliateBps}
-            buyAssetId={buyAsset.assetId}
-            sellAssetId={sellAsset.assetId}
+            buyAssetSymbol={buyAsset.symbol}
+            sellAssetSymbol={sellAsset.symbol}
             rate={rate}
             deltaPercentage={deltaPercentage?.toString()}
             isLoading={isLoading && !rate}
             networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
-            swapperName={swapperName}
-            swapSource={swapSource}
+            icon={swapperIcon}
             invertRate={invertRate}
             noExpand={noExpand}
           >

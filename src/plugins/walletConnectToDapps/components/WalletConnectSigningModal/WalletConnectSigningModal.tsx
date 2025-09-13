@@ -1,6 +1,6 @@
 import { Image, VStack } from '@chakra-ui/react'
+import { useMutation } from '@tanstack/react-query'
 import type { FC, ReactNode } from 'react'
-import { useCallback, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 
 import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
@@ -32,30 +32,16 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   transaction,
   formContext,
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const { accountId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const handleConfirm = useCallback(
-    async (customTransactionData?: CustomTransactionData) => {
-      setIsSubmitting(true)
-      try {
-        await onConfirm(customTransactionData)
-      } finally {
-        setIsSubmitting(false)
-      }
-    },
-    [onConfirm],
-  )
+  const { mutate: handleConfirm, isPending: isConfirmPending } = useMutation({
+    mutationFn: onConfirm,
+  })
 
-  const handleReject = useCallback(async () => {
-    setIsSubmitting(true)
-    try {
-      await onReject()
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [onReject])
+  const { mutate: handleReject, isPending: isRejectPending } = useMutation({
+    mutationFn: onReject,
+  })
 
   if (!accountId) return null
 
@@ -77,7 +63,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
         transaction={transaction}
         onConfirm={handleConfirm}
         onReject={handleReject}
-        isSubmitting={isSubmitting}
+        isSubmitting={isConfirmPending || isRejectPending}
         formContext={formContext}
       />
     </VStack>

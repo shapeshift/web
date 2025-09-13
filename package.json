@@ -132,7 +132,7 @@
     "@walletconnect/core": "^2.20.2",
     "@walletconnect/utils": "^2.20.2",
     "alchemy-sdk": "^3.4.1",
-    "axios": "^1.7.4",
+    "axios": "^1.12.0",
     "axios-cache-interceptor": "^1.5.3",
     "bignumber.js": "^9.1.2",
     "bip21": "^2.0.3",

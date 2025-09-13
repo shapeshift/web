@@ -1,5 +1,5 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
-import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
+import { Button, Heading, Skeleton, Stack } from '@chakra-ui/react'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -7,22 +7,15 @@ import { useSelector } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
 
 import { Account } from './Account'
-import { ChainRow } from './components/ChainRow'
 
+import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
-import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import {
-  selectIsAnyMarketDataApiQueryPending,
-  selectIsPortfolioLoading,
-  selectWalletConnectedChainIds,
-  selectWalletConnectedChainIdsSorted,
-  selectWalletId,
-} from '@/state/slices/selectors'
+import { selectIsPortfolioLoading, selectWalletId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const addIcon = <AddIcon />
@@ -90,42 +83,12 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
 }
 
 const AccountsContent = () => {
-  const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
-  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
-  const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
-
-  // Don't use user-currency sorting until we're fully loaded - else this will keep on re-rendering forever and will
-  // both look janky (lots of reordering) and most importantly, barely usable
-  const portfolioChainIdsSortedUserCurrency = useAppSelector(state =>
-    isDiscoveringAccounts || isAnyMarketDataLoading
-      ? selectWalletConnectedChainIds(state)
-      : selectWalletConnectedChainIdsSorted(state),
-  )
-  const chainRows = useMemo(
-    () =>
-      portfolioChainIdsSortedUserCurrency.map(chainId => (
-        <ChainRow key={chainId} chainId={chainId} />
-      )),
-    [portfolioChainIdsSortedUserCurrency],
-  )
-
-  const blankRows = useMemo(() => {
-    return blanks.map(index => (
-      <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
-    ))
-  }, [blanks])
-
-  const renderRows = useMemo(() => {
-    return loading ? blankRows : chainRows
-  }, [blankRows, chainRows, loading])
 
   return (
     <>
       <AccountHeader isLoading={loading} />
-      <List ml={0} mt={0} spacing={4}>
-        {renderRows}
-      </List>
+      <AccountsListContent />
     </>
   )
 }

@@ -1,19 +1,18 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { forwardRef, useCallback } from 'react'
+import { forwardRef, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-
-const inputGroupMargin = [2, 3, 6]
 
 export const TransactionHistorySearch = forwardRef<
   HTMLInputElement,
-  { handleInputChange: Function }
->(({ handleInputChange }, ref) => {
+  { isCompact?: boolean; handleInputChange: Function }
+>(({ isCompact = false, handleInputChange }, ref) => {
   const translate = useTranslate()
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
     e => handleInputChange(e.target.value),
     [handleInputChange],
   )
+  const inputGroupMargin = useMemo(() => [2, 3, isCompact ? 1 : 6], [isCompact])
   return (
     <InputGroup mr={inputGroupMargin}>
       <InputLeftElement pointerEvents='none'>

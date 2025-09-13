@@ -5,7 +5,7 @@ import { memo } from 'react'
 
 import { Page } from './Page'
 
-const contentPaddingX = { base: 0, md: 6, xl: 8, '2xl': 12 }
+const contentPaddingX = { base: 0, xl: 4, '2xl': 8 }
 
 export type MainProps = {
   headerComponent?: ReactNode
@@ -18,7 +18,7 @@ export const Main: React.FC<MainProps> = memo(
     return (
       <Page isSubpage={isSubPage} {...pageProps}>
         {headerComponent}
-        <Container maxW='container.4xl' px={contentPaddingX} mx='auto' {...rest}>
+        <Container maxW='container.4xl' px={contentPaddingX} {...rest}>
           {children}
         </Container>
       </Page>

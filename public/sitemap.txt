@@ -4,8 +4,7 @@ https://app.shapeshift.com/#/rFOX
 https://app.shapeshift.com/#/trade
 https://app.shapeshift.com/#/limit
 https://app.shapeshift.com/#/claim
-https://app.shapeshift.com/#/ramp/buy
-https://app.shapeshift.com/#/ramp/sell
+https://app.shapeshift.com/#/buy-crypto
 https://app.shapeshift.com/#/wallet
 https://app.shapeshift.com/#/wallet/accounts
 https://app.shapeshift.com/#/wallet/earn

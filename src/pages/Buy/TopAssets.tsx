@@ -112,7 +112,7 @@ export const TopAssets: React.FC = () => {
         pt={pageContainerPaddingTop}
       >
         <Heading as='h4' px={headingPaddingX}>
-          {translate('buyPage.availableAssets')}
+          {translate('rampPage.availableAssets')}
         </Heading>
         <ReactTable
           columns={columns}

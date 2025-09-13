@@ -18,6 +18,7 @@ export const PopoverStyle = {
         [$popperBg.variable]: 'colors.background.surface.overlay.base',
         borderColor: 'gray.700',
         boxShadow: 'dark-lg',
+        backdropFilter: 'blur(150px)',
       },
     },
     header: {

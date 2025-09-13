@@ -19,6 +19,7 @@ import {
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { cardstyles } from '../../const'
 import { QuoteTimer } from '../TradeInput/components/QuoteTimer'
 import { TradeQuotes } from '../TradeInput/components/TradeQuotes/TradeQuotes'
 import { BackButton } from '../WithBackButton'
@@ -35,8 +36,6 @@ export type QuoteListProps = {
   showQuoteRefreshCountdown?: boolean
 }
 
-const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
-const cardBorderRadius = { base: '0', md: '2xl' }
 const cardHeight = {
   base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
   md: 'inherit',
@@ -61,7 +60,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
   const sortByTextColor = useColorModeValue('blackAlpha.500', 'whiteAlpha.500')
 
   return (
-    <Card {...cardProps} bg={cardBgProp} borderRadius={cardBorderRadius} height={cardHeight}>
+    <Card {...cardProps} height={cardHeight} {...cardstyles}>
       <CardHeader px={4} pt={4} display='flex' alignItems='center' justifyContent='space-between'>
         <Flex alignItems={'center'} gap={2}>
           {onBack && <BackButton ml={-2} onClick={onBack} />}

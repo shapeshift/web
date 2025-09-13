@@ -44,7 +44,7 @@ export const EasyToUse = ({ browserNavigate }: { browserNavigate: NavigateFuncti
     },
     [closeModal, browserNavigate],
   )
-  const handleBuyCryptoClick = useCallback(() => handleClick('/buy-crypto'), [handleClick])
+  const handleBuyCryptoClick = useCallback(() => handleClick('/ramp/buy'), [handleClick])
   const handleDashboardClick = useCallback(() => handleClick('/wallet'), [handleClick])
   return (
     <SlideTransition>

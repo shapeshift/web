@@ -191,6 +191,15 @@ export const theme = extendTheme({
     Button,
     Menu,
     Spinner,
+    Container: {
+      baseStyle: {
+        px: {
+          base: 0,
+          md: 8,
+        },
+        maxWidth: 'container.3xl',
+      },
+    },
     Stat,
     Input,
     Tabs,

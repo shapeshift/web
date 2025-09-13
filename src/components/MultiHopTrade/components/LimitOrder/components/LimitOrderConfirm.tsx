@@ -189,7 +189,7 @@ export const LimitOrderConfirm = () => {
           gap={2}
           px={4}
           borderTopWidth={0}
-          bg='background.surface.raised.accent'
+          bg='darkNeutral.800'
           fontSize='sm'
           borderBottomRadius={cardBorderRadius}
         >

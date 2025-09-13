@@ -7,11 +7,9 @@ type SharedConfirmFooterProps = StackProps & {
   button: JSX.Element | null
 }
 
-const footerBgProp = { base: 'background.surface.base', md: 'transparent' }
-
 export const SharedConfirmFooter = ({ detail, button, ...props }: SharedConfirmFooterProps) => {
   return (
-    <Stack width='full' py={4} bg={footerBgProp} {...props}>
+    <Stack width='full' py={4} {...props}>
       {detail}
       {button}
     </Stack>

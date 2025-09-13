@@ -189,6 +189,9 @@ const validators = {
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE: bool({ default: false }),
   VITE_FEATURE_NEW_WALLET_MANAGER: bool({ default: false }),
+  VITE_TENDERLY_ACCOUNT_SLUG: str(),
+  VITE_TENDERLY_PROJECT_SLUG: str(),
+  VITE_TENDERLY_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

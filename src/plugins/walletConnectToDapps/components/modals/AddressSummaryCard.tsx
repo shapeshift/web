@@ -1,9 +1,9 @@
 import { Box, Card, HStack, useColorModeValue } from '@chakra-ui/react'
 
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { CopyButton } from '@/plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 
 type AddressSummaryCardProps = {
@@ -27,20 +27,21 @@ export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
   return (
     <Card bg={bgColor} py={4} pl={4} pr={2} borderRadius='md'>
       <HStack spacing={0}>
-        {icon && (
-          <Box w={10} h={6} pr={4}>
-            {icon}
-          </Box>
-        )}
-        <Box flex={1}>
-          <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
-          {showWalletProviderName && (
-            <RawText color='text.subtle' fontWeight='medium' mt={1}>
-              {walletName}
-            </RawText>
+        <InlineCopyButton value={address}>
+          {icon && (
+            <Box w={10} h={6} pr={4}>
+              {icon}
+            </Box>
           )}
-        </Box>
-        <CopyButton value={address} />
+          <Box flex={1}>
+            <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
+            {showWalletProviderName && (
+              <RawText color='text.subtle' fontWeight='medium' mt={1}>
+                {walletName}
+              </RawText>
+            )}
+          </Box>
+        </InlineCopyButton>
         <ExternalLinkButton href={`${explorerAddressLink}${address}`} ariaLabel={address} />
       </HStack>
     </Card>

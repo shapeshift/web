@@ -102,7 +102,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
           </RawText>
           <VStack align='end' spacing={1}>
             {value.map((item, index) => {
-              const itemString = String(item)
+              const itemString = item !== null && item !== undefined ? String(item) : ''
               return <ExpandableCell key={index} value={itemString} threshold={20} />
             })}
           </VStack>

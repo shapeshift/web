@@ -412,7 +412,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       [appFeesAsset.assetId]: {
         amountCryptoBaseUnit: quote.fees.app.amount,
         asset: appFeesAsset,
-        requiresBalance: true,
+        requiresBalance: false,
       },
     }
   })()

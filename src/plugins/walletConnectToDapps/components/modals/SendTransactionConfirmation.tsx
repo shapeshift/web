@@ -5,18 +5,18 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { TransactionAdvancedParameters } from '@/plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
-import { TransactionContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/TransactionContent'
+import { SendTransactionContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/SendTransactionContent'
 import { WalletConnectSigningModal } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/WalletConnectSigningModal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
-  EthSignTransactionCallRequest,
+  EthSendTransactionCallRequest,
 } from '@/plugins/walletConnectToDapps/types'
 import { convertHexToNumber } from '@/plugins/walletConnectToDapps/utils'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 
-export const EIP155TransactionConfirmation: FC<
-  WalletConnectRequestModalProps<EthSignTransactionCallRequest>
+export const SendTransactionConfirmation: FC<
+  WalletConnectRequestModalProps<EthSendTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
   const { transaction, chainId } = useWalletConnectState(state)
   const { showErrorToast } = useErrorToast()
@@ -25,7 +25,6 @@ export const EIP155TransactionConfirmation: FC<
     defaultValues: {
       nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
       gasLimit: (() => {
-        // i.e input or actual (used) gas
         const gasValue = transaction?.gasLimit ?? transaction?.gas
         return gasValue ? convertHexToNumber(gasValue).toString() : undefined
       })(),
@@ -34,7 +33,9 @@ export const EIP155TransactionConfirmation: FC<
   })
 
   const handleFormSubmit = useCallback(
-    (formData?: CustomTransactionData) => handleConfirm(formData),
+    async (formData?: CustomTransactionData) => {
+      await handleConfirm(formData)
+    },
     [handleConfirm],
   )
 
@@ -58,7 +59,7 @@ export const EIP155TransactionConfirmation: FC<
         transaction={transaction}
         formContext={form}
       >
-        <TransactionContent transaction={transaction} chainId={chainId} />
+        <SendTransactionContent transaction={transaction} chainId={chainId} />
         <TransactionAdvancedParameters />
       </WalletConnectSigningModal>
     </FormProvider>

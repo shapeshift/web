@@ -94,8 +94,13 @@ export const approveEIP155Request = async ({
       const gasLimit = (() => {
         if (customTransactionData.gasLimit) return customTransactionData.gasLimit
         if (sendTransaction.gasLimit) return sendTransaction.gasLimit
-        return '90000' // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
       })()
+
+      // This shouldn't happen but it may as far as types are concerned - if we have neither of Tenderly-simulated gas limit (we should)
+      // nor Tx-enforced gas limit (not all provide it) then something is most definitely wrong, no point in trying with a super high gas limit e.g 90000
+
+      if (!gasLimit) throw new Error('approveEIP155Request: missing gasLimit')
+
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
         wallet,
         accountNumber,

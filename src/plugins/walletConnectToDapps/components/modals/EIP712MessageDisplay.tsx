@@ -18,6 +18,8 @@ type EIP712MessageDisplayProps = {
   message: string
 }
 
+const hoverSx = { bg: 'transparent' }
+
 export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ message }) => {
   const translate = useTranslate()
   const [isMessageExpanded, setIsMessageExpanded] = useState(true)
@@ -46,8 +48,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
   const handleToggleExpanded = useCallback(() => {
     setIsMessageExpanded(!isMessageExpanded)
   }, [isMessageExpanded])
-
-  const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
 
   if (!parsedData) {
     return (
@@ -108,7 +108,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
             fontWeight='medium'
             justifyContent='space-between'
             onClick={handleToggleExpanded}
-            _hover={hoverStyle}
+            _hover={hoverSx}
             w='full'
             mb={3}
           >
@@ -117,7 +117,6 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
             </RawText>
             {isMessageExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </Button>
-
           {isMessageExpanded && (
             <StructuredMessage
               fields={convertEIP712ToStructuredFields(parsedMessage, primaryType)}

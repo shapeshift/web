@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -26,17 +26,31 @@ type CategoryCardProps = {
   title: string
   maxAssets?: number
   layout?: 'vertical' | 'horizontal'
+  priority?: number // Loading priority: 0 = immediate, higher numbers = delayed
 }
 
 const emptyStyle = {}
 
 export const CategoryCard = memo(
-  ({ category, title, maxAssets = 3, layout = 'vertical' }: CategoryCardProps) => {
+  ({ category, title, maxAssets = 3, layout = 'vertical', priority = 0 }: CategoryCardProps) => {
     const navigate = useNavigate()
     const assetsById = useAppSelector(selectAssets)
     const assetTitleColor = useColorModeValue('black', 'white')
     const translate = useTranslate()
     const assetActionsDrawer = useModal('assetActionsDrawer')
+    const [shouldLoad, setShouldLoad] = useState(priority === 0)
+
+    // Implement staggered loading based on priority
+    useEffect(() => {
+      if (priority === 0) return // Already loading immediately
+
+      const delay = priority * 150 // 150ms per priority level
+      const timer = setTimeout(() => {
+        setShouldLoad(true)
+      }, delay)
+
+      return () => clearTimeout(timer)
+    }, [priority])
 
     const categoryHook =
       category === MarketsCategories.OneClickDefi
@@ -48,7 +62,7 @@ export const CategoryCard = memo(
       isLoading: isCategoryQueryDataLoading,
       isError: isCategoryQueryDataError,
     } = categoryHook({
-      enabled: category !== MarketsCategories.OneClickDefi,
+      enabled: category !== MarketsCategories.OneClickDefi && shouldLoad,
       orderBy: OrderDirection.Descending,
       sortBy: SortOptionsKeys.PriceChange,
     })
@@ -59,7 +73,7 @@ export const CategoryCard = memo(
       isError: isPortalsAssetsError,
     } = usePortalsAssetsQuery({
       chainIds: [],
-      enabled: category === MarketsCategories.OneClickDefi,
+      enabled: category === MarketsCategories.OneClickDefi && shouldLoad,
       sortBy: SortOptionsKeys.Volume,
       orderBy: OrderDirection.Descending,
       minApy: '1',
@@ -87,7 +101,7 @@ export const CategoryCard = memo(
       return category === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
     }, [oneClickDefiAssets, categoryAssets, category])
 
-    const isLoading = isCategoryQueryDataLoading || isPortalsAssetsLoading
+    const isLoading = !shouldLoad || isCategoryQueryDataLoading || isPortalsAssetsLoading
     const isError = isCategoryQueryDataError || isPortalsAssetsError
 
     const assetSearchRowData = useMemo(() => {

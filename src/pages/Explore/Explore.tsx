@@ -1,40 +1,21 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import type { CardProps } from '@chakra-ui/react'
-import {
-  Box,
-  Card,
-  CardBody,
-  Center,
-  Flex,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Stack,
-} from '@chakra-ui/react'
+import { Box, Flex, Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import type { ChangeEvent, FormEvent, JSX } from 'react'
-import { memo, useCallback, useMemo } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
+import { memo, Suspense, useCallback, useMemo } from 'react'
 import { IoClose } from 'react-icons/io5'
-import { RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { CategoryCard } from './components/CategoryCard'
+import { LazyCarousel } from './components/LazyCarousel'
 import { Tags } from './components/Tags'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
-import { Carousel } from '@/components/Carousel/Carousel'
-import { DefiIcon } from '@/components/Icons/DeFi'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { PoolsIcon } from '@/components/Icons/Pools'
-import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { Text } from '@/components/Text'
 import { useAssetSearchWorker } from '@/components/TradeAssetSearch/hooks/useAssetSearchWorker'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
@@ -42,53 +23,11 @@ import { MarketsCategories } from '@/pages/Markets/constants'
 import { selectAssets, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type ExploreCardProps = {
-  title: string
-  body: string
-  icon: JSX.Element
-} & CardProps
-
-const activeCard = {
-  opacity: '0.5',
-}
-
-const linkIcon = <RiArrowRightUpLine />
-
-const ExploreCard: React.FC<ExploreCardProps> = props => {
-  const { title, body, icon, ...rest } = props
-  return (
-    <Card _active={activeCard} {...rest}>
-      <CardBody display='flex' flexDir='column' alignItems='flex-start'>
-        <Center fontSize='4xl' width='auto' mb={2} opacity={'0.3'}>
-          {icon}
-        </Center>
-        <Stack>
-          <Text fontWeight='bold' translation={title} />
-          <Text color='whiteAlpha.700' translation={body} />
-        </Stack>
-        <Center fontSize='lg' width='auto' opacity={'0.3'} position='absolute' right={4} top={4}>
-          {linkIcon}
-        </Center>
-      </CardBody>
-    </Card>
-  )
-}
-
-const poolsIcon = <PoolsIcon />
-const foxIcon = <FoxIcon />
-const tcyIcon = <TCYIcon />
-const defiIcon = <DefiIcon />
-
 const pageProps = { paddingTop: 4 }
-
-const carouselOptions = {
-  loop: true,
-}
 
 export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const allAssets = useAppSelector(selectAssets)
@@ -118,22 +57,6 @@ export const Explore = memo(() => {
 
     return filteredAssets
   }, [workerSearchState.searchResults, allAssets, marketDataUsd, isSearching])
-
-  const handlePoolsClick = useCallback(() => {
-    navigate('/pools')
-  }, [navigate])
-
-  const handleFoxClick = useCallback(() => {
-    navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
-  }, [navigate, isRfoxFoxEcosystemPageEnabled])
-
-  const handleTCYClick = useCallback(() => {
-    navigate('/tcy')
-  }, [navigate])
-
-  const handleEarnClick = useCallback(() => {
-    navigate('/wallet/earn')
-  }, [navigate])
 
   const handleAssetClick = useCallback(
     (asset: Asset) => {
@@ -222,58 +145,47 @@ export const Explore = memo(() => {
           <Tags />
 
           <Flex flexDir='column' gap={6}>
-            <Carousel autoPlay showDots options={carouselOptions}>
-              <ExploreCard
-                title='navBar.foxEcosystem'
-                body='explore.foxEcosystem.body'
-                icon={foxIcon}
-                onClick={handleFoxClick}
-              />
-              <ExploreCard
-                title='explore.pools.title'
-                body='explore.pools.body'
-                icon={poolsIcon}
-                onClick={handlePoolsClick}
-              />
-              <ExploreCard
-                title='explore.tcy.title'
-                body='explore.tcy.body'
-                icon={tcyIcon}
-                onClick={handleTCYClick}
-              />
-              <ExploreCard
-                title='navBar.defi'
-                body='defi.myPositionsBody'
-                icon={defiIcon}
-                onClick={handleEarnClick}
-              />
-            </Carousel>
+            <Suspense fallback={null}>
+              <LazyCarousel delay={200} />
+            </Suspense>
           </Flex>
 
-          <CategoryCard
-            category={MarketsCategories.Trending}
-            title={translate('common.trendingTokens')}
-            maxAssets={3}
-          />
+          <Suspense fallback={null}>
+            <CategoryCard
+              category={MarketsCategories.Trending}
+              title={translate('common.trendingTokens')}
+              maxAssets={3}
+              priority={0}
+            />
+          </Suspense>
 
-          <CategoryCard
-            category={MarketsCategories.TopMovers}
-            title={translate('markets.categories.topMovers.title')}
-            layout='horizontal'
-            maxAssets={10}
-          />
+          <Suspense fallback={null}>
+            <CategoryCard
+              category={MarketsCategories.TopMovers}
+              title={translate('markets.categories.topMovers.title')}
+              layout='horizontal'
+              maxAssets={10}
+              priority={1}
+            />
+          </Suspense>
 
-          <CategoryCard
-            category={MarketsCategories.MarketCap}
-            title={translate('markets.categories.marketCap.title')}
-            maxAssets={3}
-          />
+          <Suspense fallback={null}>
+            <CategoryCard
+              category={MarketsCategories.MarketCap}
+              title={translate('markets.categories.marketCap.title')}
+              maxAssets={3}
+              priority={2}
+            />
+          </Suspense>
 
-          <CategoryCard
-            category={MarketsCategories.OneClickDefi}
-            title={translate('markets.categories.oneClickDefiAssets.title')}
-            maxAssets={3}
-          />
+          <Suspense fallback={null}>
+            <CategoryCard
+              category={MarketsCategories.OneClickDefi}
+              title={translate('markets.categories.oneClickDefiAssets.title')}
+              maxAssets={3}
+              priority={3}
+            />
+          </Suspense>
         </Box>
       </Main>
     </>

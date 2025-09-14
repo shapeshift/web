@@ -60,8 +60,11 @@ export const usePortalsAssetsQuery = ({
               tags,
             })
         : skipToken,
-    gcTime: 60 * 1000 * 5,
-    staleTime: 60 * 1000 * 5,
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: previousData => previousData,
     select: tokens => {
       if (!portalsPlatformsData) return
 

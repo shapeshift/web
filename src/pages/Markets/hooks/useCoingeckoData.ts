@@ -151,7 +151,11 @@ export const useTopMoversQuery = ({
   const topMoversQuery = useQuery({
     queryKey: ['coinGeckoTopMovers', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoTopMovers : skipToken,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: previousData => previousData,
     select: data =>
       selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
   })
@@ -174,7 +178,11 @@ export const useTrendingQuery = ({
   const trendingQuery = useQuery({
     queryKey: ['coinGeckoTrending', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoTrending : skipToken,
-    staleTime: Infinity,
+    staleTime: 3 * 60 * 1000, // 3 minutes - shorter for trending
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: previousData => previousData,
     select: data =>
       selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
   })
@@ -197,7 +205,11 @@ export const useRecentlyAddedQuery = ({
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoRecentlyAdded', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoRecentlyAdded : skipToken,
-    staleTime: Infinity,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: previousData => previousData,
     select: data =>
       selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
   })
@@ -241,14 +253,18 @@ export const useMarketsQuery = ({
 
   const order: CoinGeckoSortKey = `${prefixOrderBy}_${sort}`
 
-  const recentlyAddedQuery = useQuery({
+  const marketsQuery = useQuery({
     queryKey: ['coinGeckoMarkets', order],
     queryFn: enabled ? () => getCoingeckoMarkets(order) : skipToken,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: previousData => previousData,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })
 
-  return recentlyAddedQuery
+  return marketsQuery
 }
 
 export const CATEGORY_TO_QUERY_HOOK = {

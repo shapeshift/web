@@ -54,40 +54,45 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
 
     const selectedChainIds = useMemo(
-      () => uniq(selectedAccountIds.map(id => fromAccountId(id).chainId)),
+      () => uniq(selectedAccountIds.map(chainId => fromAccountId(chainId).chainId)),
       [selectedAccountIds],
     )
 
-    const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
-
-    const selectedAccountIds_computed = useMemo(() => {
-      if (selectedAccountNumber === null) return []
-      const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
-      if (!accountsByChain) return []
-
-      return Object.entries(accountsByChain)
-        .filter(([chainId]) => isEvmChainId(chainId))
-        .flatMap(([, accountIds]) => accountIds ?? [])
-        .filter((id): id is AccountId => Boolean(id))
-    }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
+    const uniqueEvmAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
 
     const requiredChainIds = useMemo(
       () => Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? []),
       [requiredNamespaces],
     )
 
-    // Initialize with first account number
+    // Initialize with first, lowest EVM account number found - since we automagically upsert accounts by lowest account number,
+    // that *should* be the lowest one (0th if handy) but just to be safe, we re-sort account numbers here
     useEffect(() => {
-      if (uniqueAccountNumbers.length > 0 && selectedAccountNumber === null) {
-        const firstAccountNumber = uniqueAccountNumbers[0]
+      if (uniqueEvmAccountNumbers.length > 0 && selectedAccountNumber === null) {
+        const firstAccountNumber = uniqueEvmAccountNumbers.sort((a, b) => a + b)[0]
         setSelectedAccountNumber(firstAccountNumber)
       }
-    }, [uniqueAccountNumbers, selectedAccountNumber])
+    }, [uniqueEvmAccountNumbers, selectedAccountNumber])
 
-    // Update selectedAccountIds when selectedAccountNumber changes
     useEffect(() => {
-      setSelectedAccountIds(selectedAccountIds_computed)
-    }, [selectedAccountIds_computed])
+      if (selectedAccountNumber === null) {
+        setSelectedAccountIds([])
+        return
+      }
+
+      const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
+      if (!accountsByChain) {
+        setSelectedAccountIds([])
+        return
+      }
+
+      const accountIds = Object.entries(accountsByChain)
+        .filter(([chainId]) => isEvmChainId(chainId))
+        .flatMap(([, accountIds]) => accountIds ?? [])
+        .filter((id): id is AccountId => Boolean(id))
+
+      setSelectedAccountIds(accountIds)
+    }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
     const handleAccountClick = useCallback(() => {
       navigate(SessionProposalRoutes.ChooseAccount)
@@ -108,11 +113,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         if (selectedAccountNumber !== null) {
           const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
           if (accountsByChain) {
-            // Only include EVM chains for WalletConnect
             const filteredAccountIds = chainIds
               .filter(isEvmChainId)
               .flatMap(chainId => accountsByChain[chainId] ?? [])
-              .filter((id): id is AccountId => Boolean(id))
             setSelectedAccountIds(filteredAccountIds)
           }
         }

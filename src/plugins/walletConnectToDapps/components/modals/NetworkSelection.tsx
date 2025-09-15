@@ -124,12 +124,12 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   )
 
   const handleSelectAllChains = useCallback(() => {
-    if (selectedAccountNumber !== null) {
-      const userChainIds = Object.keys(
-        accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-      ).filter(isEvmChainId)
-      onSelectedChainIdsChange(userChainIds as ChainId[])
-    }
+    if (selectedAccountNumber === null) return
+
+    const userChainIds = Object.keys(
+      accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
+    ).filter(isEvmChainId)
+    onSelectedChainIdsChange(userChainIds as ChainId[])
   }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, onSelectedChainIdsChange])
 
   const networkRows = useMemo(() => {

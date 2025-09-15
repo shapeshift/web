@@ -155,7 +155,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
                 ? Boolean(accountIdsByAccountNumberAndChainId[selectedAccountNumber]?.[chainId])
                 : false
             const isRequired = requiredChainIds.includes(chainId)
-            const isDisabled = !hasAccount && isRequired
+            const isDisabled = isRequired
 
             if (!networkIcon) return null
             if (!hasAccount && !isRequired) return null

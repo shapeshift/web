@@ -203,11 +203,8 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
       return !hasAccount ? (
         <Tooltip
           key={typedChainId}
-          label={translate('plugins.walletConnectToDapps.modal.noAccount').replace(
-            '%{chainName}',
-            chainName,
-          )}
-          placement='right'
+          label={translate('plugins.walletConnectToDapps.modal.noAccount', { chainName })}
+          placement='top'
         >
           {content}
         </Tooltip>

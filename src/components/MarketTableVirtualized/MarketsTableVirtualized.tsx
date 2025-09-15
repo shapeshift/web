@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
+import { WatchAssetButton } from '../AssetHeader/WatchAssetButton'
 import { AssetCell } from './AssetCell'
 import { ChangeCell } from './ChangeCell'
 import { PriceCell } from './PriceCell'
@@ -125,6 +126,15 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             if (row.original.isChainSpecific) return null
 
             return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
+          },
+        },
+        {
+          header: '',
+          id: 'favorite',
+          width: 50,
+          Cell: ({ row }: { row: Row<Asset> }) => {
+            if (!row.original.isChainSpecific) return null
+            return <WatchAssetButton assetId={row.original.assetId} bg='transparent' />
           },
         },
       ],

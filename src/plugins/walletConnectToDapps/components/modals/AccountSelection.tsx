@@ -55,11 +55,7 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
               cursor='pointer'
               onClick={handleAccountNumberChange(accountNumber)}
             >
-              <LazyLoadAvatar
-                borderRadius='full'
-                boxSize='40px'
-                src={makeBlockiesUrl(address)}
-              />
+              <LazyLoadAvatar borderRadius='full' boxSize='40px' src={makeBlockiesUrl(address)} />
               <VStack spacing={0} align='start' flex={1}>
                 <RawText fontSize='md' fontWeight='medium'>
                   {translate('accounts.accountNumber', { accountNumber })}

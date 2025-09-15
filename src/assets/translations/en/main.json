@@ -2373,6 +2373,7 @@
         "chooseNetwork": "Choose Network",
         "required": "Required",
         "noAccount": "You don't have an account on %{chainName} for this address",
+        "connectionRequest": "Connection Request",
         "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",

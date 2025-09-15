@@ -1,5 +1,5 @@
-import { ChevronDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
-import { Box, Button, Circle, Flex, HStack, useColorModeValue, VStack } from '@chakra-ui/react'
+import { ArrowUpDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
+import { Alert, AlertIcon, Box, Button, Circle, Flex, HStack, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -101,26 +101,19 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
     <>
       {modalBody}
 
-      <HStack
-        spacing={3}
-        align='center'
-        w='full'
-        justify='space-between'
-        py={3}
-        px={4}
-        bg='rgba(0, 181, 216, 0.1)'
+      <Alert
+        status='info'
+        variant='subtle'
         borderRadius='full'
+        bg='rgba(0, 181, 216, 0.1)'
+        color='cyan.600'
       >
-        <HStack spacing={2} align='center'>
-          <Box boxSize={6} display='flex' alignItems='center' justifyContent='center'>
-            <TbPlug size={24} color='cyan.500' />
-          </Box>
-          <RawText fontSize='sm' color='cyan.500' fontWeight='semibold'>
-            Connection Request
-          </RawText>
-        </HStack>
-        <InfoOutlineIcon boxSize={4} color='cyan.500' strokeWidth={2} />
-      </HStack>
+        <AlertIcon as={TbPlug} color='cyan.600' />
+        <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
+          {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
+        </RawText>
+        <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
+      </Alert>
 
       <Box
         bg='transparent'
@@ -154,7 +147,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
                   borderRadius='full'
                 />
                 <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
-                {hasMultipleAddresses && <ChevronDownIcon color='text.subtle' boxSize={3} />}
+                {hasMultipleAddresses && <ArrowUpDownIcon color='text.subtle' boxSize={3} />}
               </HStack>
             </VStack>
 
@@ -191,7 +184,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
                   )}
                 </Flex>
               </VStack>
-              <ChevronDownIcon color='text.subtle' boxSize={3} />
+              <ArrowUpDownIcon color='text.subtle' boxSize={3} />
             </HStack>
           </HStack>
 

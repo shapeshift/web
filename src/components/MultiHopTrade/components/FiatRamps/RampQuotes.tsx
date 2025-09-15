@@ -13,13 +13,12 @@ export type PaymentMethod = 'Card' | 'Bank Transfer' | 'Apple Pay' | 'Google Pay
 export type RampQuote = {
   id: string
   provider: string
+  // @TODO: enum when we wire up things
   providerLogo?: string
   rate: string
   amount: string
   isBestRate?: boolean
   isFastest?: boolean
-  processingTime: string
-  fees?: string
   isCreditCard?: boolean
   isBankTransfer?: boolean
   isApplePay?: boolean
@@ -53,8 +52,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
         isGooglePay: true,
         isSepa: true,
         isBestRate: true,
-        processingTime: '1-3 days',
-        fees: '2.5%',
       },
       {
         id: '2',
@@ -65,8 +62,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
         isCreditCard: true,
         isSepa: true,
         isFastest: true,
-        processingTime: '1-2 days',
-        fees: '3.0%',
       },
       {
         id: '3',
@@ -77,8 +72,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
         isCreditCard: true,
         isSepa: true,
         isFastest: true,
-        processingTime: '1-2 days',
-        fees: '3.0%',
       },
       {
         id: '4',
@@ -89,8 +82,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
         isCreditCard: true,
         isSepa: true,
         isFastest: true,
-        processingTime: '1-2 days',
-        fees: '3.0%',
       },
     ],
     [],

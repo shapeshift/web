@@ -2,7 +2,6 @@ import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex, Text } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 
-import { getStyledMenuButtonProps } from '../helpers'
 import { AssetRowLoading } from './AssetRowLoading'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -50,18 +49,4 @@ export const FiatMenuButton = ({
       </Flex>
     </Button>
   )
-}
-
-export const StyledAssetMenuButton = ({
-  isDisabled,
-  rightIcon,
-  buttonProps,
-  ...rest
-}: FiatMenuButtonProps & { rightIcon?: React.ReactElement }) => {
-  const combinedButtonProps = useMemo(
-    () => getStyledMenuButtonProps({ isDisabled, rightIcon, buttonProps }),
-    [isDisabled, rightIcon, buttonProps],
-  )
-
-  return <FiatMenuButton {...rest} buttonProps={combinedButtonProps} isDisabled={isDisabled} />
 }

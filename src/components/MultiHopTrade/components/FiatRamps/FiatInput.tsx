@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react'
 import NumberFormat from 'react-number-format'
 
 import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
+import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 type FiatInputProps = {
@@ -135,7 +136,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
         </Flex>
       )}
 
-      {selectedFiat && selectedFiat !== 'USD' && amount && (
+      {selectedFiat && selectedFiat !== FiatTypeEnum.USD && amount && (
         <Text fontSize='xs' color='text.subtle' mt={2} textAlign='right'>
           ≈ ${amount} USD
         </Text>

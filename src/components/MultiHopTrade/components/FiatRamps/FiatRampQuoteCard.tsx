@@ -25,6 +25,8 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     const handleQuoteSelection = useCallback(() => {
       // TODO: Handle quote selection for fiat ramp
       console.log('Selected fiat ramp quote:', quote)
+      // For mobile, if the user click on a quote, it should go back
+      // even thought I didn't really take care of mobile yet
       onBack && onBack()
     }, [quote, onBack])
 
@@ -54,7 +56,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
               {quote.amount}
             </Text>
             <Text fontSize='sm' color='text.subtle'>
-              ≈ $100
+              {/* @TODO: add the fiat amount using rate when wiring up */}≈ $100
             </Text>
           </VStack>
 

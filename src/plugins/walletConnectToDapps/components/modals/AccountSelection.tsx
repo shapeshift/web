@@ -1,5 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -8,9 +9,11 @@ import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { firstFourLastFour } from '@/lib/utils'
-import { selectAccountIdsByAccountNumberAndChainId, selectEvmAddressByAccountNumber } from '@/state/slices/portfolioSlice/selectors'
-import { store } from '@/state/store'
-import { useAppSelector } from '@/state/store'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectEvmAddressByAccountNumber,
+} from '@/state/slices/portfolioSlice/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 const spacerBox = <Box w={8} />
 const backIcon = <ArrowBackIcon />

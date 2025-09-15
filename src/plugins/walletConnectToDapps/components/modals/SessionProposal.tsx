@@ -33,6 +33,7 @@ import { AccountSelection } from '@/plugins/walletConnectToDapps/components/moda
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { NetworkSelection } from '@/plugins/walletConnectToDapps/components/modals/NetworkSelection'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
+import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
@@ -167,7 +168,7 @@ const buttonStyles = {
   flex: 1,
 }
 
-type SessionProposalStep = 'main' | 'choose-account' | 'choose-network'
+type SessionProposalStep = 'overview' | 'choose-account' | 'choose-network'
 
 type SessionProposalMainScreenProps = {
   modalBody: JSX.Element
@@ -428,7 +429,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
-    const [currentStep, setCurrentStep] = useState<SessionProposalStep>('main')
+    const [currentStep, setCurrentStep] = useState<SessionProposalStep>('overview')
     const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
 
     const selectedChainIds = useMemo(() => {
@@ -501,7 +502,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       setSelectedAccountNumber(accountNumber)
     }, [])
 
-    const handleBackToMain = useCallback(() => setCurrentStep('main'), [])
+    const handleBackToOverview = useCallback(() => setCurrentStep('overview'), [])
 
     const handleChainIdsChange = useCallback(
       (chainIds: ChainId[]) => {
@@ -650,9 +651,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     // Render current step
     const renderCurrentStep = () => {
       switch (currentStep) {
-        case 'main':
+        case 'overview':
           return (
-            <SessionProposalMainScreen
+            <SessionProposalOverview
               modalBody={modalBody}
               selectedAccountNumber={selectedAccountNumber}
               uniqueAccountNumbers={uniqueAccountNumbers}
@@ -675,8 +676,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
             <AccountSelection
               selectedAccountNumber={selectedAccountNumber}
               onAccountNumberChange={handleAccountNumberChange}
-              onBack={handleBackToMain}
-              onDone={handleBackToMain}
+              onBack={handleBackToOverview}
+              onDone={handleBackToOverview}
             />
           )
         case 'choose-network':
@@ -687,8 +688,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               selectedAccountNumber={selectedAccountNumber}
               requiredNamespaces={requiredNamespaces}
               onSelectedChainIdsChange={handleChainIdsChange}
-              onBack={handleBackToMain}
-              onDone={handleBackToMain}
+              onBack={handleBackToOverview}
+              onDone={handleBackToOverview}
             />
           )
         default:
@@ -698,7 +699,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     return (
       <>
-        {currentStep === 'main' && proposer.metadata && (
+        {currentStep === 'overview' && proposer.metadata && (
           <PeerMeta metadata={proposer.metadata} py={0} />
         )}
         {renderCurrentStep()}

@@ -1,7 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,26 +8,9 @@ import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { firstFourLastFour } from '@/lib/utils'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAccountIdsByAccountNumberAndChainId, selectEvmAddressByAccountNumber } from '@/state/slices/portfolioSlice/selectors'
+import { store } from '@/state/store'
 import { useAppSelector } from '@/state/store'
-
-// For a given account number, find the first EVM AccountId (they're all the same address) so we can get an address from a given account number
-const getEvmAddressForAccountNumber = (
-  accountIdsByAccountNumberAndChainId: ReturnType<typeof selectAccountIdsByAccountNumberAndChainId>,
-  accountNumber: number,
-): string | null => {
-  const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
-  if (!accountsByChain) return null
-
-  // Find first EVM account ID
-  for (const [chainId, accountIds] of Object.entries(accountsByChain)) {
-    if (isEvmChainId(chainId) && accountIds?.[0]) {
-      return fromAccountId(accountIds[0]).account
-    }
-  }
-
-  return null
-}
 
 const spacerBox = <Box w={8} />
 const backIcon = <ArrowBackIcon />
@@ -84,10 +65,7 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
       >
         <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
           {uniqueAccountNumbers.map(accountNumber => {
-            const address = getEvmAddressForAccountNumber(
-              accountIdsByAccountNumberAndChainId,
-              accountNumber,
-            )
+            const address = selectEvmAddressByAccountNumber(store.getState(), { accountNumber })
             if (!address) return null
 
             return (

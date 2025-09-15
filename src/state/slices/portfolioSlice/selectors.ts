@@ -1183,6 +1183,7 @@ export const selectIsAnyPortfolioGetAccountLoading = createSelector(
   },
 )
 
+// For a given account number, find the first EVM AccountId (they're all the same address) so we can get an address from a given account number
 export const selectEvmAddressByAccountNumber = createCachedSelector(
   selectAccountIdsByAccountNumberAndChainId,
   selectAccountNumberParamFromFilter,

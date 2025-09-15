@@ -40,13 +40,10 @@ import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfo
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-// Constants and styles
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 const hoverStyle = { opacity: 0.8 }
 const darkStyle = { bg: 'gray.700' }
 const maxVisibleChains = 4
-
-// Alert styles
 const alertStyles = {
   status: 'info' as const,
   variant: 'subtle' as const,
@@ -72,7 +69,6 @@ const infoIconStyles = {
   ml: 'auto',
 }
 
-// Layout styles
 const containerBoxStyles = {
   bg: 'transparent',
   borderTopRadius: '24px',
@@ -304,7 +300,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
               isDisabled={isLoading}
               _disabled={disabledProp}
             >
-              {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
+              {translate('common.reject')}
             </Button>
             <Button
               {...buttonStyles}
@@ -315,7 +311,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
               _disabled={disabledProp}
               isLoading={isLoading}
             >
-              {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+              {translate('common.confirm')}
             </Button>
           </HStack>
         </VStack>

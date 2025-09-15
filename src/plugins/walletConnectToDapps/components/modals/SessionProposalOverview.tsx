@@ -30,12 +30,12 @@ import {
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
-const hoverStyle = { opacity: 0.8 }
-const darkStyle = { bg: 'gray.700' }
+const disabledSx = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const hoverSx = { opacity: 0.8 }
+const darkSx = { bg: 'gray.700' }
 const maxVisibleChains = 4
 
-const alertStyles = {
+const alertSx = {
   status: 'info' as const,
   variant: 'subtle' as const,
   borderRadius: 'full',
@@ -43,24 +43,24 @@ const alertStyles = {
   color: 'cyan.600',
 }
 
-const alertIconStyles = {
+const alertIconSx = {
   color: 'cyan.600',
 }
 
-const alertTextStyles = {
+const alertTextSx = {
   fontSize: 'sm' as const,
   color: 'cyan.600',
   fontWeight: 'semibold' as const,
 }
 
-const infoIconStyles = {
+const infoIconSx = {
   boxSize: 4,
   color: 'cyan.600',
   strokeWidth: 2,
   ml: 'auto',
 }
 
-const containerBoxStyles = {
+const containerBoxSx = {
   bg: 'transparent',
   borderTopRadius: '24px',
   borderTop: '1px solid',
@@ -73,72 +73,72 @@ const containerBoxStyles = {
   mt: 4,
 }
 
-const mainHStackStyles = {
+const mainHStackSx = {
   spacing: 4,
   w: 'full' as const,
   justify: 'space-between' as const,
   align: 'start' as const,
 }
 
-const leftHStackStyles = {
+const leftHStackSx = {
   spacing: 3,
   align: 'start' as const,
   flex: 1,
 }
 
-const avatarStyles = {
+const avatarSx = {
   boxSize: '32px',
   borderRadius: 'full',
 }
 
-const textVStackStyles = {
+const textVStackSx = {
   spacing: 1,
   align: 'start' as const,
   h: '32px',
   justify: 'space-between' as const,
 }
 
-const labelTextStyles = {
+const labelTextSx = {
   fontSize: 'xs' as const,
   color: 'text.subtle',
   fontWeight: 'medium' as const,
   lineHeight: '1',
 }
 
-const selectorHStackStyles = {
+const selectorHStackSx = {
   spacing: 3,
   align: 'center' as const,
   h: '20px',
 }
 
-const networkVStackStyles = {
+const networkVStackSx = {
   spacing: 1,
   align: 'end' as const,
   h: '32px',
   justify: 'space-between' as const,
 }
 
-const networkHStackStyles = {
+const networkHStackSx = {
   spacing: 2,
   align: 'center' as const,
   h: '20px',
 }
 
-const addressTextStyles = {
+const addressTextSx = {
   fontSize: 'sm' as const,
   fontWeight: 'medium' as const,
 }
 
-const arrowIconStyles = {
+const arrowIconSx = {
   color: 'text.subtle',
   boxSize: 3,
 }
 
-const chainIconStyles = {
+const chainIconSx = {
   boxSize: 5,
 }
 
-const chainCounterStyles = {
+const chainCounterSx = {
   size: 5,
   bg: 'gray.100',
   color: 'text.base',
@@ -147,13 +147,13 @@ const chainCounterStyles = {
   ml: -1.5,
 }
 
-const buttonsHStackStyles = {
+const buttonsHStackSx = {
   spacing: 4,
   w: 'full' as const,
   mt: 4,
 }
 
-const buttonStyles = {
+const buttonSx = {
   size: 'lg' as const,
   flex: 1,
 }
@@ -197,8 +197,8 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   const visibleChains = selectedNetworks.slice(0, maxVisibleChains)
   const remainingCount = selectedNetworks.length - maxVisibleChains
 
-  const conditionalHoverStyle = useMemo(
-    () => (hasMultipleAccounts ? hoverStyle : undefined),
+  const conditionalHoverSx = useMemo(
+    () => (hasMultipleAccounts ? hoverSx : undefined),
     [hasMultipleAccounts],
   )
 
@@ -232,42 +232,42 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
           </RawText>
         </Alert>
       )}
-      <Alert {...alertStyles}>
-        <AlertIcon as={TbPlug} {...alertIconStyles} />
-        <RawText {...alertTextStyles}>
+      <Alert {...alertSx}>
+        <AlertIcon as={TbPlug} {...alertIconSx} />
+        <RawText {...alertTextSx}>
           {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
         </RawText>
-        <InfoOutlineIcon {...infoIconStyles} />
+        <InfoOutlineIcon {...infoIconSx} />
       </Alert>
-      <Box {...containerBoxStyles} borderColor={borderColor}>
+      <Box {...containerBoxSx} borderColor={borderColor}>
         <VStack spacing={4}>
-          <HStack {...mainHStackStyles}>
-            <HStack {...leftHStackStyles}>
-              <LazyLoadAvatar src={makeBlockiesUrl(selectedAddress)} {...avatarStyles} />
-              <VStack {...textVStackStyles}>
-                <RawText {...labelTextStyles}>
+          <HStack {...mainHStackSx}>
+            <HStack {...leftHStackSx}>
+              <LazyLoadAvatar src={makeBlockiesUrl(selectedAddress)} {...avatarSx} />
+              <VStack {...textVStackSx}>
+                <RawText {...labelTextSx}>
                   {translate('plugins.walletConnectToDapps.modal.connectWith')}
                 </RawText>
                 <HStack
-                  {...selectorHStackStyles}
+                  {...selectorHStackSx}
                   cursor={hasMultipleAccounts ? 'pointer' : 'default'}
                   onClick={hasMultipleAccounts ? onAccountClick : undefined}
-                  _hover={conditionalHoverStyle}
+                  _hover={conditionalHoverSx}
                 >
-                  <MiddleEllipsis value={selectedAddress} {...addressTextStyles} />
-                  {hasMultipleAccounts && <ArrowUpDownIcon {...arrowIconStyles} />}
+                  <MiddleEllipsis value={selectedAddress} {...addressTextSx} />
+                  {hasMultipleAccounts && <ArrowUpDownIcon {...arrowIconSx} />}
                 </HStack>
               </VStack>
             </HStack>
-            <VStack {...networkVStackStyles}>
-              <RawText {...labelTextStyles}>
+            <VStack {...networkVStackSx}>
+              <RawText {...labelTextSx}>
                 {translate('plugins.walletConnectToDapps.header.menu.networks')}
               </RawText>
               <HStack
-                {...networkHStackStyles}
+                {...networkHStackSx}
                 cursor='pointer'
                 onClick={onNetworkClick}
-                _hover={hoverStyle}
+                _hover={hoverSx}
               >
                 <Flex align='center'>
                   {visibleChains.map((chainId, index) => {
@@ -277,36 +277,31 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
 
                     return icon ? (
                       <Box key={chainId} ml={index === 0 ? 0 : -1.5} zIndex={index}>
-                        <LazyLoadAvatar {...chainIconStyles} src={icon} />
+                        <LazyLoadAvatar {...chainIconSx} src={icon} />
                       </Box>
                     ) : null
                   })}
                   {remainingCount > 0 && (
-                    <Circle {...chainCounterStyles} _dark={darkStyle} zIndex={visibleChains.length}>
+                    <Circle {...chainCounterSx} _dark={darkSx} zIndex={visibleChains.length}>
                       +{remainingCount}
                     </Circle>
                   )}
                 </Flex>
-                <ArrowUpDownIcon {...arrowIconStyles} />
+                <ArrowUpDownIcon {...arrowIconSx} />
               </HStack>
             </VStack>
           </HStack>
-          <HStack {...buttonsHStackStyles}>
-            <Button
-              {...buttonStyles}
-              onClick={onReject}
-              isDisabled={isLoading}
-              _disabled={disabledProp}
-            >
+          <HStack {...buttonsHStackSx}>
+            <Button {...buttonSx} onClick={onReject} isDisabled={isLoading} _disabled={disabledSx}>
               {translate('common.reject')}
             </Button>
             <Button
-              {...buttonStyles}
+              {...buttonSx}
               colorScheme='blue'
               type='submit'
               onClick={onConnectSelected}
               isDisabled={!canConnect}
-              _disabled={disabledProp}
+              _disabled={disabledSx}
               isLoading={isLoading}
             >
               {translate('common.confirm')}

@@ -200,17 +200,19 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
         </Box>
       )
 
-      return !hasAccount ? (
-        <Tooltip
-          key={typedChainId}
-          label={translate('plugins.walletConnectToDapps.modal.noAccount', { chainName })}
-          placement='top'
-        >
-          {content}
-        </Tooltip>
-      ) : (
-        content
-      )
+      if (!hasAccount) {
+        return (
+          <Tooltip
+            key={typedChainId}
+            label={translate('plugins.walletConnectToDapps.modal.noAccount', { chainName })}
+            placement='top'
+          >
+            {content}
+          </Tooltip>
+        )
+      }
+
+      return content
     })
   }, [
     availableChainIds,

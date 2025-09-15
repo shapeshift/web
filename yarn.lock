@@ -10793,7 +10793,7 @@ __metadata:
     "@walletconnect/web3-provider": ^1.8.0
     alchemy-sdk: ^3.4.1
     assert: ^2.0.0
-    axios: ^1.7.4
+    axios: ^1.12.0
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
     bignumber.js: ^9.1.2
@@ -15406,6 +15406,17 @@ __metadata:
   dependencies:
     follow-redirects: ^1.14.0
   checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.12.0":
+  version: 1.12.0
+  resolution: "axios@npm:1.12.0"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.4
+    proxy-from-env: ^1.1.0
+  checksum: f2a109efea16711907ae86acc46434d52da28e889bf1d2fc2b66844e82c9908f6d96d988ad9043b37d4146abc182e67d61abd87367152bbbc1cd73afa3c5de71
   languageName: node
   linkType: hard
 

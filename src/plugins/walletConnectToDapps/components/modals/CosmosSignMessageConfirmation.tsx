@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  HStack,
-  Image,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Card, Divider, HStack, Image, VStack } from '@chakra-ui/react'
 import type { FC, JSX } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -48,7 +39,6 @@ export const CosmosSignMessageConfirmationModal: FC<
     () => (typeof WalletIcon === 'string' ? null : <WalletIcon w='full' h='full' />),
     [WalletIcon],
   )
-  const cardBg = useColorModeValue('white', 'gray.850')
   const request = state.modalData.requestEvent?.params.request
 
   const handleConfirm = useCallback(async () => {
@@ -158,7 +148,7 @@ export const CosmosSignMessageConfirmationModal: FC<
         />
       </ModalSection>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
-        <Card bg={cardBg} borderRadius='md'>
+        <Card borderRadius='md'>
           <HStack align='center' p={4}>
             <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
             <RawText fontWeight='semibold' flex={1}>

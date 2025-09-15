@@ -2368,6 +2368,8 @@
         "method": "Method",
         "signingWith": "Signing With",
         "connectWith": "Connect With",
+        "chooseAccount": "Choose Account",
+        "chooseNetwork": "Choose Network",
         "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",

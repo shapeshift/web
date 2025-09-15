@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ChevronDownIcon, ChevronLeftIcon, InfoOutlineIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertIcon,
@@ -39,6 +39,7 @@ import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSup
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { assertIsDefined } from '@/lib/utils'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissions'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
@@ -85,7 +86,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
 }) => {
   const assetsById = useAppSelector(selectAssets)
   const chainAdapterManager = getChainAdapterManager()
-  const borderColor = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)')
+  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const chainData = useMemo(() => {
     return selectedNetworks
@@ -125,12 +126,14 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
         borderRadius='full'
       >
         <HStack spacing={2} align='center'>
-          <TbPlug size={14} color='rgb(0, 181, 216)' />
-          <RawText fontSize='sm' color='rgb(0, 181, 216)' fontWeight='normal'>
+          <Box boxSize={6} display='flex' alignItems='center' justifyContent='center'>
+            <TbPlug size={24} color='cyan.500' />
+          </Box>
+          <RawText fontSize='sm' color='cyan.500' fontWeight='semibold'>
             Connection Request
           </RawText>
         </HStack>
-        <InfoIcon boxSize={3.5} color='rgb(0, 181, 216)' />
+        <InfoOutlineIcon boxSize={4} color='cyan.500' strokeWidth={2} />
       </HStack>
 
       <Box
@@ -324,7 +327,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const { id, params } = proposal
     const { proposer, requiredNamespaces, optionalNamespaces } = params
 
-    console.log({ params })
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
@@ -343,7 +345,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const selectedNetworks = useMemo(() => {
       const networks = uniq(newSelectedAccountIds.map(id => fromAccountId(id).chainId))
-      console.log('🌐 Selected networks:', networks)
       return networks
     }, [newSelectedAccountIds])
 
@@ -352,13 +353,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         id => fromAccountId(id).chainNamespace === 'eip155',
       )
       const addresses = uniq(evmAccountIds.map(id => fromAccountId(id).account))
-      console.log('👤 Unique EVM addresses:', addresses)
-      console.log(
-        '📊 Total enabled accounts:',
-        portfolioAccountIds.length,
-        'EVM accounts:',
-        evmAccountIds.length,
-      )
       return addresses
     }, [portfolioAccountIds])
 
@@ -372,7 +366,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         if (!addressMap[address]) addressMap[address] = []
         addressMap[address].push(id)
       })
-      console.log('🗺️  EVM addresses to AccountIds mapping:', addressMap)
       return addressMap
     }, [portfolioAccountIds])
 
@@ -444,10 +437,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           const { account, chainNamespace } = fromAccountId(id)
           return chainNamespace === 'eip155' && account === firstAddress
         })
-        console.log('🚀 Auto-initializing with:', {
-          firstAddress,
-          accountIds: allAccountIdsForAddress,
-        })
         setNewSelectedAccountIds(allAccountIdsForAddress)
 
         // Initialize selected chains with all available chains + required chains
@@ -469,27 +458,22 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           return selectedChainIds.includes(chainId)
         })
         setNewSelectedAccountIds(filteredAccountIds)
-        console.log('🔗 Updated AccountIds based on selected chains:', filteredAccountIds)
       }
     }, [selectedChainIds, selectedAddress, evmAccountIdsByAddress])
 
     // Debug current step
     useEffect(() => {
-      console.log('📍 Current step:', currentStep)
     }, [currentStep])
 
     // Navigation handlers
     const handleAccountClick = useCallback(() => {
-      console.log('🔄 Navigating to choose-account')
       setCurrentStep('choose-account')
     }, [])
 
     const handleNetworkClick = useCallback(() => {
-      console.log('🔄 Navigating to choose-network')
       setCurrentStep('choose-network')
     }, [])
 
-    console.log({ requiredChainIds })
 
 
     const handleSelectAllChains = useCallback(() => {
@@ -706,7 +690,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                   onClick={() => setCurrentStep('main')}
                 />
                 <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
-                  Choose Account
+                  {translate('plugins.walletConnectToDapps.modal.chooseAccount')}
                 </RawText>
                 <Box w={8} /> {/* Spacer for centering */}
               </HStack>
@@ -715,7 +699,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               <RadioGroup
                 value={selectedAddress || ''}
                 onChange={(address) => {
-                  console.log('🏠 Account selected:', address)
                   setNewSelectedAccountIds(evmAccountIdsByAddress[address] || [])
                 }}
               >
@@ -756,7 +739,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                   onClick={() => setCurrentStep('main')}
                   isDisabled={newSelectedAccountIds.length === 0}
                 >
-                  Done
+                  {translate('common.done')}
                 </Button>
               </Box>
             </VStack>
@@ -774,7 +757,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                   onClick={() => setCurrentStep('main')}
                 />
                 <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
-                  Choose Network
+                  {translate('plugins.walletConnectToDapps.modal.chooseNetwork')}
                 </RawText>
                 <Button
                   size='sm'
@@ -798,14 +781,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                     const isRequired = requiredChainIds.includes(chain.chainId)
                     const isDisabled = !chain.hasAccount || isRequired
 
-                    console.log('🔗 Chain:', chain.name, {
-                      chainId: chain.chainId,
-                      isRequired,
-                      isDisabled,
-                      hasAccount: chain.hasAccount,
-                      requiredChainIds,
-                      selectedChainIds,
-                    })
 
                     return (
                       <Box
@@ -829,13 +804,13 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                                   borderRadius='full'
                                   fontSize='xs'
                                   fontWeight='medium'
-                                  color='rgba(229, 62, 62, 1)'
+                                  color='red.500'
                                   align='center'
                                 >
-                                  <Circle size='12px' bg='rgba(229, 62, 62, 1)' color='white'>
+                                  <Circle size='12px' bg='red.500' color='white'>
                                     <RawText fontSize='8px' fontWeight='bold'>!</RawText>
                                   </Circle>
-                                  <RawText fontSize='xs' color='rgba(229, 62, 62, 1)' fontWeight='medium'>
+                                  <RawText fontSize='xs' color='red.500' fontWeight='medium'>
                                     Required
                                   </RawText>
                                 </HStack>
@@ -888,7 +863,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                     )
                   }
                 >
-                  Done
+                  {translate('common.done')}
                 </Button>
               </Box>
             </VStack>
@@ -901,17 +876,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     return (
       <>
         {currentStep === 'main' && proposer.metadata && (
-          <VStack spacing={4} align='center' py={6}>
-            <Image borderRadius='full' boxSize='48px' src={proposer.metadata.icons?.[0]} />
-            <VStack spacing={1} align='center'>
-              <RawText fontWeight='semibold' fontSize='lg'>
-                {proposer.metadata.name}
-              </RawText>
-              <RawText color='text.subtle' fontSize='sm'>
-                {proposer.metadata.url?.replace(/^https?:\/\//, '')}
-              </RawText>
-            </VStack>
-          </VStack>
+          <PeerMeta metadata={proposer.metadata} />
         )}
         {renderCurrentStep()}
       </>

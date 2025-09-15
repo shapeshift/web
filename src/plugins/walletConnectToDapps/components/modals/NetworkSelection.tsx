@@ -129,6 +129,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     const userChainIds = Object.keys(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
     ).filter(isEvmChainId)
+
     onSelectedChainIdsChange(userChainIds as ChainId[])
   }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, onSelectedChainIdsChange])
 

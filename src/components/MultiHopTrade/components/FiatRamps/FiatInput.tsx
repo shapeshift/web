@@ -1,6 +1,7 @@
 import type { InputProps } from '@chakra-ui/react'
 import { Box, Flex, Input, Text } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
+import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 
 import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
@@ -67,9 +68,18 @@ export const FiatInput: React.FC<FiatInputProps> = ({
     number: { localeParts },
   } = useLocaleFormatter()
   const handleAmountChange = useCallback(
+    (values: NumberFormatValues) => {
+      if (onAmountChange) {
+        onAmountChange(values.value.replace('$', '').replace(',', ''))
+      }
+    },
+    [onAmountChange],
+  )
+
+  const handleOnChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onAmountChange) {
-        onAmountChange(e.target.value)
+        onAmountChange(e.target.value.replace('$', '').replace(',', ''))
       }
     },
     [onAmountChange],
@@ -101,14 +111,15 @@ export const FiatInput: React.FC<FiatInputProps> = ({
             customInput={AmountInput}
             isNumericString={true}
             disabled={isReadOnly}
-            suffix={localeParts.postfix}
             prefix={localeParts.prefix}
+            suffix={localeParts.postfix}
             decimalSeparator={localeParts.decimal}
             inputMode='decimal'
             thousandSeparator={localeParts.group}
             placeholder={formattedPlaceholder}
             value={amount}
-            onChange={handleAmountChange}
+            onValueChange={handleAmountChange}
+            onChange={handleOnChange}
           />
         </Box>
       </Flex>

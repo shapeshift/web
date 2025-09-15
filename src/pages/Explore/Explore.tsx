@@ -57,14 +57,14 @@ const linkIcon = <RiArrowRightUpLine />
 const ExploreCard: React.FC<ExploreCardProps> = props => {
   const { title, body, icon, ...rest } = props
   return (
-    <Card _active={activeCard} {...rest}>
+    <Card _active={activeCard} {...rest} m={0.5}>
       <CardBody display='flex' flexDir='column' alignItems='flex-start'>
         <Center fontSize='4xl' width='auto' mb={2} opacity={'0.3'}>
           {icon}
         </Center>
         <Stack>
           <Text fontWeight='bold' translation={title} />
-          <Text color='whiteAlpha.700' translation={body} />
+          <Text color='text.subtle' translation={body} />
         </Stack>
         <Center fontSize='lg' width='auto' opacity={'0.3'} position='absolute' right={4} top={4}>
           {linkIcon}

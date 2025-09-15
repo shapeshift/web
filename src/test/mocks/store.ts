@@ -167,7 +167,7 @@ export const mockStore: ReduxState = {
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,
     selectedLocale: 'en',
-    balanceThreshold: '0',
+    balanceThresholdUserCurrency: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,

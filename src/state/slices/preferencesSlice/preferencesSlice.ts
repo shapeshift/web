@@ -118,7 +118,7 @@ export enum QuoteDisplayOption {
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
-  balanceThreshold: string
+  balanceThresholdUserCurrency: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
   chartTimeframe: HistoryTimeframe
@@ -218,7 +218,7 @@ const initialState: Preferences = {
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},
-  balanceThreshold: '0',
+  balanceThresholdUserCurrency: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
@@ -263,7 +263,7 @@ export const preferences = createSlice({
 
     setBalanceThreshold: create.reducer(
       (state, { payload }: { payload: { threshold: string } }) => {
-        state.balanceThreshold = payload.threshold
+        state.balanceThresholdUserCurrency = payload.threshold
       },
     ),
     setCurrencyFormat: create.reducer(
@@ -357,7 +357,7 @@ export const preferences = createSlice({
     selectSpamMarkedAssetIds: state => state.spamMarkedAssets,
     selectSelectedLocale: state => state.selectedLocale,
     selectSelectedCurrency: state => state.selectedCurrency,
-    selectBalanceThreshold: state => state.balanceThreshold,
+    selectBalanceThresholdUserCurrency: state => state.balanceThresholdUserCurrency,
     selectCurrencyFormat: state => state.currencyFormat,
     selectChartTimeframe: state => state.chartTimeframe,
     selectShowWelcomeModal: state => state.showWelcomeModal,

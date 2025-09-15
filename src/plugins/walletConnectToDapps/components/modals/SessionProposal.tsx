@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, AlertTitle, Button, VStack } from '@chakra-ui/react'
+import { Alert, AlertIcon, AlertTitle, Button, Image, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -15,7 +15,6 @@ import { knownChainIds } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from '@/lib/utils'
-import { DAppInfo } from '@/plugins/walletConnectToDapps/components/DAppInfo'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissions'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
@@ -333,9 +332,19 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     return (
       <>
-        <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.dAppInfo'>
-          <DAppInfo metadata={proposer.metadata} />
-        </ModalSection>
+        {proposer.metadata && (
+          <VStack spacing={4} align='center' py={6}>
+            <Image borderRadius='full' boxSize='48px' src={proposer.metadata.icons?.[0]} />
+            <VStack spacing={1} align='center'>
+              <RawText fontWeight='semibold' fontSize='lg'>
+                {proposer.metadata.name}
+              </RawText>
+              <RawText color='text.subtle' fontSize='sm'>
+                {proposer.metadata.url?.replace(/^https?:\/\//, '')}
+              </RawText>
+            </VStack>
+          </VStack>
+        )}
         {modalBody}
         <ModalSection title={''}>
           <VStack spacing={4}>

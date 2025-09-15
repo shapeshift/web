@@ -5,9 +5,9 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
-import { mergeWith } from 'lodash'
+import { mergeWith, uniq } from 'lodash'
 import type { JSX } from 'react'
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { RawText, Text } from '@/components/Text'
@@ -20,10 +20,12 @@ import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissio
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
-import { selectAccountIdsByChainId, selectWalletAccountIds } from '@/state/slices/selectors'
+import { selectAccountIdsByChainId, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+
+type SessionProposalStep = 'main' | 'choose-account' | 'choose-network'
 
 const checkAllNamespacesHaveAccounts = (
   namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
@@ -108,7 +110,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     assertIsDefined(proposal)
 
     const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
-    const portfolioAccountIds = useAppSelector(selectWalletAccountIds)
+    const portfolioAccountIds = useAppSelector(selectWalletEnabledAccountIds)
 
     const wallet = useWallet().state.wallet
     const translate = useTranslate()
@@ -118,6 +120,50 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
+    
+    // New state management for redesigned flow
+    const [newSelectedAccountIds, setNewSelectedAccountIds] = useState<AccountId[]>([])
+    const [currentStep, setCurrentStep] = useState<SessionProposalStep>('main')
+    
+    // Derived values for display (AccountIds as source of truth)
+    const selectedAddress = useMemo(() => {
+      const address = newSelectedAccountIds.length > 0 ? fromAccountId(newSelectedAccountIds[0]).account : null
+      console.log('🏠 Selected address:', address)
+      return address
+    }, [newSelectedAccountIds])
+
+    const selectedNetworks = useMemo(() => {
+      const networks = uniq(newSelectedAccountIds.map(id => fromAccountId(id).chainId))
+      console.log('🌐 Selected networks:', networks)
+      return networks
+    }, [newSelectedAccountIds])
+
+    const uniqueEvmAddresses = useMemo(() => {
+      const evmAccountIds = portfolioAccountIds.filter(id => fromAccountId(id).chainNamespace === 'eip155')
+      const addresses = uniq(evmAccountIds.map(id => fromAccountId(id).account))
+      console.log('👤 Unique EVM addresses:', addresses)
+      console.log('📊 Total enabled accounts:', portfolioAccountIds.length, 'EVM accounts:', evmAccountIds.length)
+      return addresses
+    }, [portfolioAccountIds])
+
+    // Auto-initialize with first address + all available networks
+    useEffect(() => {
+      if (uniqueEvmAddresses.length > 0 && newSelectedAccountIds.length === 0) {
+        const firstAddress = uniqueEvmAddresses[0]
+        const allAccountIdsForAddress = portfolioAccountIds.filter(id => {
+          const { account, chainNamespace } = fromAccountId(id)
+          return chainNamespace === 'eip155' && account === firstAddress
+        })
+        console.log('🚀 Auto-initializing with:', { firstAddress, accountIds: allAccountIdsForAddress })
+        setNewSelectedAccountIds(allAccountIdsForAddress)
+      }
+    }, [uniqueEvmAddresses, portfolioAccountIds, newSelectedAccountIds.length])
+
+    // Debug current step
+    useEffect(() => {
+      console.log('📍 Current step:', currentStep)
+    }, [currentStep])
+    
     const toggleAccountId = useCallback((accountId: string) => {
       setSelectedAccountIds(previousState =>
         previousState.includes(accountId)

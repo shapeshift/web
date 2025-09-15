@@ -20,7 +20,7 @@ export const semanticTokens = {
         },
         raised: {
           base: {
-            default: 'white',
+            default: 'gray.50',
             _dark: 'darkNeutralAlpha.800',
           },
           hover: {

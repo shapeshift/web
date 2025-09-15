@@ -21,19 +21,6 @@ import { useAppSelector } from '@/state/store'
 
 const disabledSx = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
-const containerBoxSx = {
-  bg: 'transparent',
-  borderTopRadius: '24px',
-  borderTop: '1px solid',
-  borderLeft: '1px solid',
-  borderRight: '1px solid',
-  px: 8,
-  py: 4,
-  mx: -6,
-  mb: -6,
-  mt: 4,
-}
-
 type SessionProposalOverviewProps = {
   requiredNamespaces: ProposalTypes.RequiredNamespaces
   selectedAccountNumber: number | null
@@ -67,11 +54,9 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
-  const hasMultipleAccounts = uniqueAccountNumbers.length > 1
-
-  const conditionalHoverSx = useMemo(
-    () => (hasMultipleAccounts ? { opacity: 0.8 } : undefined),
-    [hasMultipleAccounts],
+  const connectWithHoverSx = useMemo(
+    () => (uniqueAccountNumbers.length > 1 ? { opacity: 0.8 } : undefined),
+    [uniqueAccountNumbers.length],
   )
 
   const networkHoverSx = useMemo(() => ({ opacity: 0.8 }), [])
@@ -119,7 +104,19 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
         </RawText>
         <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
       </Alert>
-      <Box {...containerBoxSx} borderColor={borderColor}>
+      <Box
+        bg='transparent'
+        borderTopRadius='24px'
+        borderTop='1px solid'
+        borderLeft='1px solid'
+        borderRight='1px solid'
+        px={8}
+        py={4}
+        mx={-6}
+        mb={-6}
+        mt={4}
+        borderColor={borderColor}
+      >
         <VStack spacing={4}>
           <HStack spacing={4} w='full' justify='space-between' align='start'>
             <HStack spacing={3} align='start' flex={1}>
@@ -136,12 +133,14 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
                   spacing={3}
                   align='center'
                   h='20px'
-                  cursor={hasMultipleAccounts ? 'pointer' : 'default'}
-                  onClick={hasMultipleAccounts ? onAccountClick : undefined}
-                  _hover={conditionalHoverSx}
+                  cursor={uniqueAccountNumbers.length > 1 ? 'pointer' : 'default'}
+                  onClick={uniqueAccountNumbers.length > 1 ? onAccountClick : undefined}
+                  _hover={connectWithHoverSx}
                 >
                   <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
-                  {hasMultipleAccounts && <ArrowUpDownIcon color='text.subtle' boxSize={3} />}
+                  {uniqueAccountNumbers.length > 1 && (
+                    <ArrowUpDownIcon color='text.subtle' boxSize={3} />
+                  )}
                 </HStack>
               </VStack>
             </HStack>

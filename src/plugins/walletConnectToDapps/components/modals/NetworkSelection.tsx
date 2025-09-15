@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ProposalTypes } from '@walletconnect/types'
-import { uniq } from 'lodash'
+import { partition, uniq } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -88,7 +88,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const chainAdapterManager = getChainAdapterManager()
   const translate = useTranslate()
 
-  const allEvmChainIds = useMemo(() => {
+  const availableChainIds = useMemo(() => {
     // Use all EVM chains where the user has accounts as source of truth
     const userChainIds =
       selectedAccountNumber !== null
@@ -97,20 +97,18 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
             .map(([chainId]) => chainId)
         : []
 
-    // Add any required chains from the dApp (even if user doesn't have accounts)
+    // Add any required chains from the dApp even if user doesn't have an account at the current accountNumber for it - we'll handle that state ourselves
+    // Rationale being, they should definitely be able to see the required chains when going to network selection regardless of whether or not they have an account for it
     const requiredFromNamespaces = Object.values(requiredNamespaces)
       .flatMap(namespace => namespace.chains ?? [])
       .filter(chainId => chainId.startsWith('eip155:'))
 
     const allChainIds = uniq([...userChainIds, ...requiredFromNamespaces])
 
-    return allChainIds.sort((a, b) => {
-      const aRequired = requiredChainIds.includes(a)
-      const bRequired = requiredChainIds.includes(b)
-      if (aRequired && !bRequired) return -1
-      if (!aRequired && bRequired) return 1
-      return a.localeCompare(b)
-    })
+    // Always show required first
+    const [required, rest] = partition(allChainIds, chainId => requiredChainIds.includes(chainId))
+
+    return [...required, ...rest]
   }, [
     selectedAccountNumber,
     accountIdsByAccountNumberAndChainId,
@@ -125,12 +123,99 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
 
   const handleSelectAllChains = useCallback(() => {
     if (selectedAccountNumber !== null) {
-      const availableChainIds = Object.keys(
+      const userChainIds = Object.keys(
         accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
       ).filter(chainId => chainId.startsWith('eip155:'))
-      onSelectedChainIdsChange(availableChainIds as ChainId[])
+      onSelectedChainIdsChange(userChainIds as ChainId[])
     }
   }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, onSelectedChainIdsChange])
+
+  const chainCheckboxes = useMemo(
+    () =>
+      availableChainIds.map(chainId => {
+        const feeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
+        const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
+        const chainName = chainAdapterManager.get(chainId)?.getDisplayName() ?? chainId
+        const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
+        const hasAccount =
+          selectedAccountNumber !== null
+            ? Boolean(accountIdsByAccountNumberAndChainId[selectedAccountNumber]?.[chainId])
+            : false
+        const isRequired = requiredChainIds.includes(chainId)
+        const isDisabled = isRequired
+
+        if (!networkIcon) return null
+        if (!hasAccount && !isRequired) return null
+
+        const content = (
+          <Box key={chainId} py={3} opacity={hasAccount ? 1 : 0.5}>
+            <HStack spacing={3} width='full' align='center'>
+              <LazyLoadAvatar borderRadius='full' boxSize='40px' src={networkIcon} />
+              <VStack spacing={0} align='start' flex={1}>
+                <HStack spacing={2} align='center'>
+                  <RawText fontSize='md' fontWeight='medium'>
+                    {chainName}
+                  </RawText>
+                  {isRequired && (
+                    <HStack
+                      spacing={1}
+                      px={2}
+                      py={1}
+                      bg='rgba(254, 178, 178, 0.1)'
+                      borderRadius='full'
+                      fontSize='xs'
+                      fontWeight='medium'
+                      color='red.500'
+                      align='center'
+                    >
+                      <Circle size='12px' bg='red.500' color='white'>
+                        <RawText fontSize='8px' fontWeight='bold'>
+                          !
+                        </RawText>
+                      </Circle>
+                      <RawText fontSize='xs' color='red.500' fontWeight='medium'>
+                        {translate('plugins.walletConnectToDapps.modal.required')}
+                      </RawText>
+                    </HStack>
+                  )}
+                </HStack>
+              </VStack>
+              <Checkbox
+                value={chainId}
+                isDisabled={isDisabled}
+                size='lg'
+                colorScheme={isRequired ? 'gray' : 'blue'}
+                sx={isRequired ? requiredCheckboxSx : checkboxSx}
+              />
+            </HStack>
+          </Box>
+        )
+
+        return !hasAccount ? (
+          <Tooltip
+            key={chainId}
+            label={translate('plugins.walletConnectToDapps.modal.noAccount').replace(
+              '%{chainName}',
+              chainName,
+            )}
+            placement='right'
+          >
+            {content}
+          </Tooltip>
+        ) : (
+          content
+        )
+      }),
+    [
+      availableChainIds,
+      chainAdapterManager,
+      assetsById,
+      selectedAccountNumber,
+      accountIdsByAccountNumberAndChainId,
+      requiredChainIds,
+      translate,
+    ],
+  )
 
   return (
     <VStack spacing={0} align='stretch' h='full'>
@@ -145,80 +230,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
       </HStack>
       <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
         <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
-          {allEvmChainIds.map(chainId => {
-            const feeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
-            const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
-            const chainName = chainAdapterManager.get(chainId)?.getDisplayName() ?? chainId
-            const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
-            const hasAccount =
-              selectedAccountNumber !== null
-                ? Boolean(accountIdsByAccountNumberAndChainId[selectedAccountNumber]?.[chainId])
-                : false
-            const isRequired = requiredChainIds.includes(chainId)
-            const isDisabled = isRequired
-
-            if (!networkIcon) return null
-            if (!hasAccount && !isRequired) return null
-
-            const content = (
-              <Box key={chainId} py={3} opacity={hasAccount ? 1 : 0.5}>
-                <HStack spacing={3} width='full' align='center'>
-                  <LazyLoadAvatar borderRadius='full' boxSize='40px' src={networkIcon} />
-                  <VStack spacing={0} align='start' flex={1}>
-                    <HStack spacing={2} align='center'>
-                      <RawText fontSize='md' fontWeight='medium'>
-                        {chainName}
-                      </RawText>
-                      {isRequired && (
-                        <HStack
-                          spacing={1}
-                          px={2}
-                          py={1}
-                          bg='rgba(254, 178, 178, 0.1)'
-                          borderRadius='full'
-                          fontSize='xs'
-                          fontWeight='medium'
-                          color='red.500'
-                          align='center'
-                        >
-                          <Circle size='12px' bg='red.500' color='white'>
-                            <RawText fontSize='8px' fontWeight='bold'>
-                              !
-                            </RawText>
-                          </Circle>
-                          <RawText fontSize='xs' color='red.500' fontWeight='medium'>
-                            {translate('plugins.walletConnectToDapps.modal.required')}
-                          </RawText>
-                        </HStack>
-                      )}
-                    </HStack>
-                  </VStack>
-                  <Checkbox
-                    value={chainId}
-                    isDisabled={isDisabled}
-                    size='lg'
-                    colorScheme={isRequired ? 'gray' : 'blue'}
-                    sx={isRequired ? requiredCheckboxSx : checkboxSx}
-                  />
-                </HStack>
-              </Box>
-            )
-
-            return !hasAccount ? (
-              <Tooltip
-                key={chainId}
-                label={translate('plugins.walletConnectToDapps.modal.noAccount').replace(
-                  '%{chainName}',
-                  chainName,
-                )}
-                placement='right'
-              >
-                {content}
-              </Tooltip>
-            ) : (
-              content
-            )
-          })}
+          {chainCheckboxes}
         </VStack>
       </CheckboxGroup>
       <Box p={4}>

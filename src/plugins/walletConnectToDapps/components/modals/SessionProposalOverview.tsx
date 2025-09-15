@@ -11,17 +11,22 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import type { JSX } from 'react'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ProposalTypes } from '@walletconnect/types'
 import { useMemo } from 'react'
 import { TbPlug } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectEvmAddressByAccountNumber,
+  selectUniqueEvmAccountNumbers,
+} from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -154,9 +159,8 @@ const buttonStyles = {
 }
 
 type SessionProposalOverviewProps = {
-  modalBody: JSX.Element
+  requiredNamespaces: ProposalTypes.RequiredNamespaces
   selectedAccountNumber: number | null
-  uniqueAccountNumbers: number[]
   selectedNetworks: ChainId[]
   onAccountClick: () => void
   onNetworkClick: () => void
@@ -164,13 +168,11 @@ type SessionProposalOverviewProps = {
   onReject: () => void
   isLoading: boolean
   canConnect: boolean
-  translate: (key: string) => string
 }
 
 export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = ({
-  modalBody,
+  requiredNamespaces,
   selectedAccountNumber,
-  uniqueAccountNumbers,
   selectedNetworks,
   onAccountClick,
   onNetworkClick,
@@ -178,12 +180,16 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   onReject,
   isLoading,
   canConnect,
-  translate,
 }) => {
   const assetsById = useAppSelector(selectAssets)
+  const selectedAddress = useAppSelector(state =>
+    selectEvmAddressByAccountNumber(state, { accountNumber: selectedAccountNumber ?? undefined }),
+  )
+  const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
+  const translate = useTranslate()
   const chainAdapterManager = getChainAdapterManager()
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
@@ -196,24 +202,36 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
     [hasMultipleAccounts],
   )
 
-  const selectedAddress = useMemo(() => {
-    if (selectedAccountNumber === null) return null
+  /*
+  We need to pass an account for every supported namespace. If we can't, we cannot approve the session.
+  https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#21-session-namespaces-must-not-have-accounts-empty
+   */
+  const isAllRequiredNamespacesSupported = useMemo(() => {
+    if (selectedAccountNumber === null) return false
+
     const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
-    if (!accountsByChain) return null
+    if (!accountsByChain) return false
 
-    const evmChains = Object.entries(accountsByChain).filter(([chainId]) =>
-      chainId.startsWith('eip155:'),
+    return Object.values(requiredNamespaces).every(
+      namespace =>
+        namespace.chains?.every(chainId => {
+          if (!isEvmChainId(chainId)) return false
+          return Boolean(accountsByChain[chainId]?.length)
+        }),
     )
+  }, [requiredNamespaces, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
-    const firstEvmAccountId = evmChains[0]?.[1]?.[0]
-    return firstEvmAccountId ? fromAccountId(firstEvmAccountId).account : null
-  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
-
-  if (!selectedAddress) return <>{modalBody}</>
+  if (!selectedAddress) return null
 
   return (
     <>
-      {modalBody}
+      {!isAllRequiredNamespacesSupported && (
+        <Alert status='error' mb={4}>
+          <RawText textAlign='center' color='text.subtle'>
+            {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
+          </RawText>
+        </Alert>
+      )}
       <Alert {...alertStyles}>
         <AlertIcon as={TbPlug} {...alertIconStyles} />
         <RawText {...alertTextStyles}>
@@ -242,7 +260,9 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
               </VStack>
             </HStack>
             <VStack {...networkVStackStyles}>
-              <RawText {...labelTextStyles}>Networks</RawText>
+              <RawText {...labelTextStyles}>
+                {translate('plugins.walletConnectToDapps.header.menu.networks')}
+              </RawText>
               <HStack
                 {...networkHStackStyles}
                 cursor='pointer'

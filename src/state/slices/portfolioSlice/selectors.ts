@@ -1196,7 +1196,7 @@ export const selectEvmAddressByAccountNumber = createCachedSelector(
 
     // Find first EVM account ID - all EVM accounts for same account number share the same address
     for (const [chainId, accountIds] of Object.entries(accountsByChain)) {
-      if (chainId.startsWith('eip155:') && accountIds?.[0]) {
+      if (isEvmChainId(chainId) && accountIds?.[0]) {
         return fromAccountId(accountIds[0]).account
       }
     }

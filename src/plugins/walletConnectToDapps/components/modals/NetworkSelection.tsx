@@ -11,6 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes } from '@walletconnect/types'
 import { partition, uniq } from 'lodash'
 import type { FC } from 'react'
@@ -93,7 +94,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     const userChainIds =
       selectedAccountNumber !== null
         ? Object.entries(accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {})
-            .filter(([chainId]) => chainId.startsWith('eip155:'))
+            .filter(([chainId]) => isEvmChainId(chainId))
             .map(([chainId]) => chainId)
         : []
 
@@ -101,7 +102,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     // Rationale being, they should definitely be able to see the required chains when going to network selection regardless of whether or not they have an account for it
     const requiredFromNamespaces = Object.values(requiredNamespaces)
       .flatMap(namespace => namespace.chains ?? [])
-      .filter(chainId => chainId.startsWith('eip155:'))
+      .filter(isEvmChainId)
 
     const allChainIds = uniq([...userChainIds, ...requiredFromNamespaces])
 
@@ -125,7 +126,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     if (selectedAccountNumber !== null) {
       const userChainIds = Object.keys(
         accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-      ).filter(chainId => chainId.startsWith('eip155:'))
+      ).filter(isEvmChainId)
       onSelectedChainIdsChange(userChainIds as ChainId[])
     }
   }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, onSelectedChainIdsChange])

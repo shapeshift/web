@@ -6,12 +6,14 @@ import {
   Box,
   Button,
   Checkbox,
+  CheckboxGroup,
   Circle,
   Flex,
   HStack,
   IconButton,
   Image,
   Radio,
+  RadioGroup,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -120,7 +122,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
         py={3}
         px={4}
         bg='rgba(0, 181, 216, 0.1)'
-        borderRadius='9999px'
+        borderRadius='full'
       >
         <HStack spacing={2} align='center'>
           <TbPlug size={14} color='rgb(0, 181, 216)' />
@@ -489,21 +491,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     console.log({ requiredChainIds })
 
-    const toggleChainId = useCallback(
-      (chainId: string) => {
-        const isRequired = requiredChainIds.includes(chainId)
-        if (isRequired) return // Don't allow toggling required chains
-
-        setSelectedChainIds(prev => {
-          if (prev.includes(chainId)) {
-            return prev.filter(id => id !== chainId)
-          } else {
-            return [...prev, chainId]
-          }
-        })
-      },
-      [requiredChainIds],
-    )
 
     const handleSelectAllChains = useCallback(() => {
       const allSelectableChainIds = allEvmChainData
@@ -725,29 +712,25 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               </HStack>
 
               {/* Account list */}
-              <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
-                {uniqueEvmAddresses.map((address, index) => {
-                  const accountId = evmAccountIdsByAddress[address][0]
-                  const isSelected = newSelectedAccountIds.includes(accountId)
-
-                  return (
-                    <Button
-                      key={address}
-                      variant='ghost'
-                      p={4}
-                      h='auto'
-                      justifyContent='flex-start'
-                      onClick={() => {
-                        console.log('🏠 Account selected:', accountId)
-                        setNewSelectedAccountIds(evmAccountIdsByAddress[address])
-                      }}
-                      bg='transparent'
-                      _hover={{ bg: 'gray.50' }}
-                      _dark={{ _hover: { bg: 'gray.800' } }}
-                      borderRadius='lg'
-                      mb={3}
-                    >
-                      <HStack spacing={3} width='full' align='center'>
+              <RadioGroup
+                value={selectedAddress || ''}
+                onChange={(address) => {
+                  console.log('🏠 Account selected:', address)
+                  setNewSelectedAccountIds(evmAccountIdsByAddress[address] || [])
+                }}
+              >
+                <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
+                  {uniqueEvmAddresses.map((address, index) => (
+                    <Box key={address} py={3}>
+                      <HStack 
+                        spacing={3} 
+                        width='full' 
+                        align='center'
+                        cursor='pointer'
+                        onClick={() => {
+                          setNewSelectedAccountIds(evmAccountIdsByAddress[address] || [])
+                        }}
+                      >
                         <Image borderRadius='full' boxSize='40px' src={makeBlockiesUrl(address)} />
                         <VStack spacing={0} align='start' flex={1}>
                           <RawText fontSize='md' fontWeight='medium'>
@@ -757,22 +740,15 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                             {address.slice(0, 6)}...{address.slice(-4)}
                           </RawText>
                         </VStack>
-                        <Circle
-                          size='20px'
-                          bg={isSelected ? 'blue.500' : 'transparent'}
-                          border='2px solid'
-                          borderColor={isSelected ? 'blue.500' : 'gray.300'}
-                        >
-                          {isSelected && <Circle size='8px' bg='white' />}
-                        </Circle>
+                        <Radio value={address} />
                       </HStack>
-                    </Button>
-                  )
-                })}
-              </VStack>
+                    </Box>
+                  ))}
+                </VStack>
+              </RadioGroup>
 
               {/* Done button */}
-              <Box p={6} borderTop='1px solid' borderColor='whiteAlpha.100'>
+              <Box p={6}>
                 <Button
                   size='lg'
                   width='full'
@@ -813,81 +789,88 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               </HStack>
 
               {/* Network list */}
-              <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
-                {allEvmChainData.map(chain => {
-                  const isSelected = selectedChainIds.includes(chain.chainId)
-                  const isRequired = requiredChainIds.includes(chain.chainId)
-                  const canToggle = chain.hasAccount && !isRequired
+              <CheckboxGroup
+                value={selectedChainIds}
+                onChange={(values) => setSelectedChainIds(values as string[])}
+              >
+                <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
+                  {allEvmChainData.map(chain => {
+                    const isRequired = requiredChainIds.includes(chain.chainId)
+                    const isDisabled = !chain.hasAccount || isRequired
 
-                  console.log('🔗 Chain:', chain.name, {
-                    chainId: chain.chainId,
-                    isSelected,
-                    isRequired,
-                    canToggle,
-                    hasAccount: chain.hasAccount,
-                    requiredChainIds,
-                    selectedChainIds,
-                  })
+                    console.log('🔗 Chain:', chain.name, {
+                      chainId: chain.chainId,
+                      isRequired,
+                      isDisabled,
+                      hasAccount: chain.hasAccount,
+                      requiredChainIds,
+                      selectedChainIds,
+                    })
 
-                  return (
-                    <Box
-                      key={chain.chainId}
-                      py={3}
-                      cursor={canToggle ? 'pointer' : 'default'}
-                      onClick={canToggle ? () => toggleChainId(chain.chainId) : undefined}
-                      opacity={chain.hasAccount ? 1 : 0.5}
-                    >
-                      <HStack spacing={3} width='full' align='center'>
-                        <Image borderRadius='full' boxSize='40px' src={chain.icon} />
-                        <VStack spacing={0} align='start' flex={1}>
-                          <HStack spacing={2} align='center'>
-                            <RawText fontSize='md' fontWeight='medium'>
-                              {chain.name}
-                            </RawText>
-                            {isRequired && (
-                              <HStack
-                                spacing={1}
-                                px={2}
-                                py={1}
-                                bg='rgba(254, 178, 178, 0.1)'
-                                borderRadius='9999px'
-                                fontSize='xs'
-                                fontWeight='medium'
-                                color='rgba(229, 62, 62, 1)'
-                                align='center'
-                              >
-                                <Circle size='12px' bg='rgba(229, 62, 62, 1)' color='white'>
-                                  <RawText fontSize='8px' fontWeight='bold'>!</RawText>
-                                </Circle>
-                                <RawText fontSize='xs' color='rgba(229, 62, 62, 1)' fontWeight='medium'>
-                                  Required
-                                </RawText>
-                              </HStack>
-                            )}
-                          </HStack>
-                        </VStack>
-                        <Box
-                          w='24px'
-                          h='24px'
-                          borderRadius='full'
-                          bg={isSelected ? (isRequired ? 'gray.400' : 'blue.500') : 'transparent'}
-                          border={isSelected ? 'none' : '2px solid'}
-                          borderColor='gray.300'
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='center'
-                        >
-                          {isSelected && (
-                            <Box color='white' fontSize='14px' fontWeight='bold'>
-                              ✓
-                            </Box>
-                          )}
-                        </Box>
-                      </HStack>
-                    </Box>
-                  )
-                })}
-              </VStack>
+                    return (
+                      <Box
+                        key={chain.chainId}
+                        py={3}
+                        opacity={chain.hasAccount ? 1 : 0.5}
+                      >
+                        <HStack spacing={3} width='full' align='center'>
+                          <Image borderRadius='full' boxSize='40px' src={chain.icon} />
+                          <VStack spacing={0} align='start' flex={1}>
+                            <HStack spacing={2} align='center'>
+                              <RawText fontSize='md' fontWeight='medium'>
+                                {chain.name}
+                              </RawText>
+                              {isRequired && (
+                                <HStack
+                                  spacing={1}
+                                  px={2}
+                                  py={1}
+                                  bg='rgba(254, 178, 178, 0.1)'
+                                  borderRadius='full'
+                                  fontSize='xs'
+                                  fontWeight='medium'
+                                  color='rgba(229, 62, 62, 1)'
+                                  align='center'
+                                >
+                                  <Circle size='12px' bg='rgba(229, 62, 62, 1)' color='white'>
+                                    <RawText fontSize='8px' fontWeight='bold'>!</RawText>
+                                  </Circle>
+                                  <RawText fontSize='xs' color='rgba(229, 62, 62, 1)' fontWeight='medium'>
+                                    Required
+                                  </RawText>
+                                </HStack>
+                              )}
+                            </HStack>
+                          </VStack>
+                          <Checkbox
+                            value={chain.chainId}
+                            isDisabled={isDisabled}
+                            size='lg'
+                            colorScheme={isRequired ? 'gray' : 'blue'}
+                            sx={{
+                              '& .chakra-checkbox__control': {
+                                borderRadius: 'full',
+                                width: '24px',
+                                height: '24px',
+                                borderWidth: '2px',
+                                borderColor: 'gray.300',
+                                _checked: {
+                                  bg: isRequired ? 'gray.400' : 'blue.500',
+                                  borderColor: isRequired ? 'gray.400' : 'blue.500',
+                                },
+                              },
+                              '& .chakra-checkbox__control[data-checked]': {
+                                bg: isRequired ? 'gray.400' : 'blue.500',
+                                borderColor: isRequired ? 'gray.400' : 'blue.500',
+                              },
+                            }}
+                          />
+                        </HStack>
+                      </Box>
+                    )
+                  })}
+                </VStack>
+              </CheckboxGroup>
 
               {/* Done button */}
               <Box p={6}>

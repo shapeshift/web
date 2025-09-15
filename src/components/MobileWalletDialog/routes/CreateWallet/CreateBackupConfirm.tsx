@@ -62,7 +62,7 @@ export const CreateBackupConfirm = () => {
   }
 
   const hasChosenWords = useMemo(() => {
-    return selections.length >= TEST_COUNT_REQUIRED
+    return selections.filter(Boolean).length === TEST_COUNT_REQUIRED
   }, [selections])
 
   const handleSubmit = useCallback(() => {

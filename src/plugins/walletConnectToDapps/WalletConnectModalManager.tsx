@@ -1,21 +1,10 @@
-import {
-  HStack,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  VStack,
-} from '@chakra-ui/react'
+import { Modal, ModalBody, ModalContent, ModalOverlay, VStack } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
 
-import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
-import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -24,6 +13,7 @@ import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDap
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
+import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -57,10 +47,10 @@ export type WalletConnectSessionModalProps = {
 }
 
 export type WalletConnectRequestModalProps<T> = {
-  dispatch: Dispatch<WalletConnectAction>
+  dispatch?: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
   topic: string
-  onConfirm(): Promise<void>
+  onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
   onReject(): Promise<void>
 }
 
@@ -189,7 +179,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <EIP155SignMessageConfirmationModal
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignCallRequest>>}
             topic={topic}
           />
@@ -200,27 +189,40 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <EIP155SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
             topic={topic}
           />
         )
       case WalletConnectModal.SignEIP155TransactionConfirmation:
-      case WalletConnectModal.SendEIP155TransactionConfirmation:
+      case WalletConnectModal.SendEIP155TransactionConfirmation: {
         if (!topic) return null
+
+        const requestParams = state.modalData?.requestEvent?.params.request.params
+        const transaction = Array.isArray(requestParams) ? requestParams[0] : undefined
+
+        if (!transaction) return null
+
+        const isNativeSend = typeof transaction !== 'string' && transaction.data === '0x'
+
+        if (isNativeSend)
+          return (
+            <SendTransactionConfirmation
+              onConfirm={handleConfirmEIP155Request}
+              onReject={handleRejectRequestAndClose}
+              state={state as Required<WalletConnectState<EthSendTransactionCallRequest>>}
+              topic={topic}
+            />
+          )
+
         return (
           <EIP155TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
-            state={
-              state as Required<
-                WalletConnectState<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
-              >
-            }
+            state={state as Required<WalletConnectState<EthSignTransactionCallRequest>>}
             topic={topic}
           />
         )
+      }
       case WalletConnectModal.SendCosmosTransactionConfirmation:
         if (!topic) return null
         return (
@@ -274,13 +276,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         minWidth={minWidthProp}
         maxWidth={maxWidthProp}
       >
-        <ModalHeader py={2}>
-          <HStack alignItems='center' spacing={2}>
-            <WalletConnectIcon />
-            <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-            <ModalCloseButton position='static' />
-          </HStack>
-        </ModalHeader>
         <ModalBody p={0}>
           <VStack p={6} spacing={6} alignItems='stretch'>
             {modalContent}

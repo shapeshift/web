@@ -31,6 +31,9 @@
     "claimable": "Claimable",
     "comingSoon": "Coming Soon ...",
     "approve": "Approve",
+    "approveToken": "Approve Token", 
+    "approveAmount": "Approve Amount",
+    "approveTo": "Approve To",
     "reset": "Reset",
     "confirm": "Confirm",
     "seeDetails": "See details",
@@ -216,7 +219,8 @@
     "viewOnExplorer": "View on explorer",
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
-    "network": "Network"
+    "network": "Network",
+    "feeEstimate": "Fee Estimate"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -1406,7 +1410,8 @@
         "total": "Total",
         "amount": "Amount",
         "transactionFee": "Transaction Fee",
-        "fees": "Fees %{feeType}"
+        "fees": "Fees %{feeType}",
+        "pendingConfirmation": "Pending confirmation"
       },
       "sendForm": {
         "optionalAssetMemo": "Optional %{assetSymbol} Memo",
@@ -2358,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Connect All Accounts",
+        "interactContract": "Interact Contract",
+        "transactionData": "Transaction Data",
+        "method": "Method",
+        "signingWith": "Signing With",
+        "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",

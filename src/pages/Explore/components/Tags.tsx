@@ -24,7 +24,6 @@ export const Tags = () => {
 
   const { tag: tagParam } = useParams<{ tag?: string }>()
 
-  const buttonTextColor = useColorModeValue('white', 'white')
   const activeBgColor = useColorModeValue('black', 'white')
   const activeTextColor = useColorModeValue('white', 'black')
   const navigate = useNavigate()
@@ -99,7 +98,7 @@ export const Tags = () => {
             px={4}
             py={2}
             bg={tagParam === tag ? activeBgColor : 'background.surface.raised.base'}
-            color={tagParam === tag ? activeTextColor : buttonTextColor}
+            color={tagParam === tag ? activeTextColor : 'text.base'}
             _hover={activeStyle}
             _active={activeStyle}
             _focus={activeStyle}

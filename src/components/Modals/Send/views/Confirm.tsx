@@ -1,18 +1,25 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
+  HStack,
+  Icon,
   Input,
+  Link,
+  Skeleton,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { ChangeEvent } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { TbArrowsSplit2 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,6 +30,7 @@ import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -34,8 +42,11 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { getConfig } from '@/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -67,6 +78,7 @@ export const Confirm = () => {
     fiatAmount,
     memo,
     vanityAddress,
+    changeAddress,
   } = useWatch({
     control,
   }) as Partial<SendInput>
@@ -74,9 +86,25 @@ export const Confirm = () => {
   const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const {
+    state: { wallet },
+  } = useWallet()
+
   const showMemoRow = useMemo(
     () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
     [assetId],
+  )
+
+  const shouldShowChangeAddress = useMemo(
+    () =>
+      Boolean(
+        assetId &&
+          fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.Utxo &&
+          wallet &&
+          isLedger(wallet),
+      ),
+    [assetId, wallet],
   )
 
   const amountWithFees = useMemo(() => {
@@ -98,8 +126,6 @@ export const Confirm = () => {
     },
     [setValue],
   )
-
-  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const handleClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
 
@@ -168,6 +194,38 @@ export const Confirm = () => {
               </InlineCopyButton>
             </Row.Value>
           </Row>
+          {shouldShowChangeAddress && (
+            <Row>
+              <Row.Label>
+                <HelperTooltip label={translate('trade.changeAddressExplainer')}>
+                  <HStack spacing={2}>
+                    <Icon as={TbArrowsSplit2} />
+                    <Text translation='trade.changeAddress' />
+                  </HStack>
+                </HelperTooltip>
+              </Row.Label>
+              <Row.Value>
+                {changeAddress ? (
+                  <HStack>
+                    <TooltipWithTouch label={changeAddress}>
+                      <RawText>{middleEllipsis(changeAddress)}</RawText>
+                    </TooltipWithTouch>
+                    <Link
+                      href={`${asset?.explorerAddressLink}${changeAddress}`}
+                      isExternal
+                      aria-label={translate('common.viewOnExplorer')}
+                    >
+                      <Icon as={ExternalLinkIcon} />
+                    </Link>
+                  </HStack>
+                ) : isSubmitting ? (
+                  <Skeleton height='20px' width='150px' />
+                ) : (
+                  <Text color='text.subtle' translation='modals.send.confirm.pendingConfirmation' />
+                )}
+              </Row.Value>
+            </Row>
+          )}
           {allowCustomSendNonce && (
             <Row>
               <Row.Label>

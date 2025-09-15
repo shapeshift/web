@@ -20,7 +20,7 @@ export const DotButton: React.FC<DotButtonProps> = ({ selected, onClick }) => {
       height='10px'
       minWidth='auto'
       _active={activeStyle}
-      bg={selected ? 'blue.500' : 'background.surface.raised.base'}
+      bg={selected ? 'blue.500' : 'border.base'}
       isActive={selected}
       onClick={onClick}
       isRound

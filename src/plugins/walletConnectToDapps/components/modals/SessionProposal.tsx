@@ -19,7 +19,7 @@ import { DAppInfo } from '@/plugins/walletConnectToDapps/components/DAppInfo'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissions'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
-import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
+import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import { selectAccountIdsByChainId, selectWalletAccountIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -51,9 +51,20 @@ const _createApprovalNamespaces = (
         const { chainNamespace } = fromAccountId(accountId)
         return chainNamespace === key
       })
+
+      // That condition seems useless at runtime since we *currently* only handle eip155
+      // but technically, we *do* support Cosmos SDK
+      const methods =
+        key === 'eip155'
+          ? Object.values(EIP155_SigningMethod).filter(
+              // Not required, and will currently will fail in wc land
+              method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
+            )
+          : proposalNamespace.methods
+
       namespaces[key] = {
         accounts: selectedAccountsForKey,
-        methods: proposalNamespace.methods,
+        methods,
         events: proposalNamespace.events,
       }
       return namespaces

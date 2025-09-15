@@ -1,8 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -10,8 +9,8 @@ import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { firstFourLastFour } from '@/lib/utils'
 import {
-  selectAccountIdsByAccountNumberAndChainId,
   selectEvmAddressByAccountNumber,
+  selectUniqueEvmAccountNumbers,
 } from '@/state/slices/portfolioSlice/selectors'
 import { store, useAppSelector } from '@/state/store'
 
@@ -31,21 +30,9 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
   onBack,
   onDone,
 }) => {
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdsByAccountNumberAndChainId,
-  )
   const translate = useTranslate()
 
-  const uniqueAccountNumbers = useMemo(() => {
-    const accountNumbers = Object.keys(accountIdsByAccountNumberAndChainId)
-      .map(Number)
-      .filter(accountNumber => {
-        const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
-        return Object.keys(accountsByChain ?? {}).some(chainId => isEvmChainId(chainId))
-      })
-
-    return accountNumbers
-  }, [accountIdsByAccountNumberAndChainId])
+  const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
 
   // We must pass account number as a string to <RadioGroup /> but we know it's a number, so safe to cast back
   const handleAccountNumberChange = useCallback(

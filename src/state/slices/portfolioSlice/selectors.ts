@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   AccountMetadata,
   AccountMetadataById,
@@ -1203,3 +1204,15 @@ export const selectEvmAddressByAccountNumber = createCachedSelector(
     return null
   },
 )((_s: ReduxState, filter) => filter?.accountNumber ?? 'accountNumber')
+
+// Get unique account numbers that have EVM chains
+export const selectUniqueEvmAccountNumbers = createSelector(
+  selectAccountIdsByAccountNumberAndChainId,
+  accountIdsByAccountNumberAndChainId =>
+    Object.keys(accountIdsByAccountNumberAndChainId)
+      .map(Number)
+      .filter(accountNumber =>
+        Object.keys(accountIdsByAccountNumberAndChainId[accountNumber] ?? {}).some(isEvmChainId),
+      )
+      .sort((a, b) => a - b),
+)

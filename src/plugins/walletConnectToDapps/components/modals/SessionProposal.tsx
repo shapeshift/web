@@ -19,94 +19,14 @@ import { NetworkSelection } from '@/plugins/walletConnectToDapps/components/moda
 import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
-import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
+import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
+import { createApprovalNamespaces } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAccountIdsByAccountNumberAndChainId, selectUniqueEvmAccountNumbers } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SessionProposalStep = 'overview' | 'choose-account' | 'choose-network'
 
-const _createApprovalNamespaces = (
-  proposalNamespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
-  selectedAccounts: string[],
-): SessionTypes.Namespaces => {
-  return Object.entries(proposalNamespaces).reduce(
-    (namespaces: SessionTypes.Namespaces, [key, proposalNamespace]) => {
-      const selectedAccountsForKey = selectedAccounts.filter(accountId => {
-        const { chainNamespace } = fromAccountId(accountId)
-        return chainNamespace === key
-      })
-
-      // That condition seems useless at runtime since we *currently* only handle eip155
-      // but technically, we *do* support Cosmos SDK
-      const methods =
-        key === 'eip155'
-          ? Object.values(EIP155_SigningMethod).filter(
-              // Not required, and will currently will fail in wc land
-              method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
-            )
-          : proposalNamespace.methods
-
-      namespaces[key] = {
-        accounts: selectedAccountsForKey,
-        methods,
-        events: proposalNamespace.events,
-      }
-      return namespaces
-    },
-    {},
-  )
-}
-
-const createApprovalNamespaces = (
-  requiredNamespaces: ProposalTypes.RequiredNamespaces,
-  optionalNamespaces: ProposalTypes.OptionalNamespaces,
-  selectedAccounts: string[],
-  selectedChainIds: ChainId[],
-): SessionTypes.Namespaces => {
-  const approvedNamespaces: SessionTypes.Namespaces = {}
-
-  // Handle required namespaces first
-  const requiredApproval = _createApprovalNamespaces(requiredNamespaces, selectedAccounts)
-  Object.assign(approvedNamespaces, requiredApproval)
-
-  // Get chain IDs that are already covered by required namespaces
-  const requiredChainIds = Object.values(requiredNamespaces)
-    .flatMap(namespace => namespace.chains ?? [])
-    .filter(chainId => chainId.startsWith('eip155:'))
-
-  // For optional namespaces, only include chains that user selected but are not required
-  const additionalChainIds = selectedChainIds.filter(
-    chainId => chainId.startsWith('eip155:') && !requiredChainIds.includes(chainId),
-  )
-
-  if (additionalChainIds.length > 0) {
-    // Create optional namespace for additional EVM chains user selected
-    const optionalEvmNamespace = optionalNamespaces?.eip155
-    if (optionalEvmNamespace) {
-      const eip155AccountIds = selectedAccounts.filter(
-        accountId =>
-          fromAccountId(accountId).chainNamespace === 'eip155' &&
-          additionalChainIds.includes(fromAccountId(accountId).chainId),
-      )
-
-      if (eip155AccountIds.length > 0) {
-        approvedNamespaces.eip155 = {
-          ...(approvedNamespaces.eip155 || {}),
-          accounts: uniq([...(approvedNamespaces.eip155?.accounts || []), ...eip155AccountIds]),
-          methods:
-            optionalEvmNamespace.methods ||
-            Object.values(EIP155_SigningMethod).filter(
-              method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
-            ),
-          events: optionalEvmNamespace.events || [],
-        }
-      }
-    }
-  }
-
-  return approvedNamespaces
-}
 
 const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModalProps>(
   (
@@ -137,48 +57,29 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const [currentStep, setCurrentStep] = useState<SessionProposalStep>('overview')
     const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
 
-    const selectedChainIds = useMemo(() => {
-      return uniq(selectedAccountIds.map(id => fromAccountId(id).chainId))
-    }, [selectedAccountIds])
+    const selectedChainIds = useMemo(
+      () => uniq(selectedAccountIds.map(id => fromAccountId(id).chainId)),
+      [selectedAccountIds],
+    )
 
-    const selectedNetworks = useMemo(() => {
-      return selectedChainIds
-    }, [selectedChainIds])
 
-    const uniqueAccountNumbers = useMemo(() => {
-      // Get unique account numbers that have EVM chains
-      const accountNumbers = Object.keys(accountIdsByAccountNumberAndChainId)
-        .map(Number)
-        .filter(accountNumber => {
-          const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
-          // Only include account numbers that have at least one EVM chain
-          return (
-            accountsByChain &&
-            Object.keys(accountsByChain).some(chainId => chainId.startsWith('eip155:'))
-          )
-        })
-      return accountNumbers.sort((a, b) => a - b)
-    }, [accountIdsByAccountNumberAndChainId])
+    const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
 
-    // Get EVM account IDs for selected account number
     const selectedAccountIds_computed = useMemo(() => {
       if (selectedAccountNumber === null) return []
       const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
       if (!accountsByChain) return []
 
-      // Only include EVM chains for WalletConnect
-      const evmAccountIds = Object.entries(accountsByChain)
+      return Object.entries(accountsByChain)
         .filter(([chainId]) => chainId.startsWith('eip155:'))
         .flatMap(([, accountIds]) => accountIds ?? [])
         .filter((id): id is AccountId => Boolean(id))
-
-      return evmAccountIds
     }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
-    // Get required chains from the proposal
-    const requiredChainIds = useMemo(() => {
-      return Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? [])
-    }, [requiredNamespaces])
+    const requiredChainIds = useMemo(
+      () => Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? []),
+      [requiredNamespaces],
+    )
 
     // Initialize with first account number
     useEffect(() => {
@@ -362,7 +263,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               modalBody={modalBody}
               selectedAccountNumber={selectedAccountNumber}
               uniqueAccountNumbers={uniqueAccountNumbers}
-              selectedNetworks={selectedNetworks}
+              selectedNetworks={selectedChainIds}
               onAccountClick={handleAccountClick}
               onNetworkClick={handleNetworkClick}
               onConnectSelected={handleConnectSelected}

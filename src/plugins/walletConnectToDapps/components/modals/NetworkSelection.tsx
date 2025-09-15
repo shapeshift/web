@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { ProposalTypes } from '@walletconnect/types'
 import { uniq } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -65,8 +66,7 @@ type NetworkSelectionProps = {
   selectedChainIds: ChainId[]
   requiredChainIds: ChainId[]
   selectedAddress: string | null
-  requiredNamespaces: Record<string, { chains?: ChainId[] }>
-  optionalNamespaces: Record<string, { chains?: ChainId[] }>
+  requiredNamespaces: ProposalTypes.RequiredNamespaces
   onSelectedChainIdsChange: (chainIds: ChainId[]) => void
   onBack: () => void
   onDone: () => void
@@ -77,7 +77,6 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   requiredChainIds,
   selectedAddress,
   requiredNamespaces,
-  optionalNamespaces,
   onSelectedChainIdsChange,
   onBack,
   onDone,
@@ -88,20 +87,25 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const translate = useTranslate()
 
   const allEvmChainIds = useMemo(() => {
-    const proposalChainIds = [
-      ...Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? []),
-      ...Object.values(optionalNamespaces).flatMap(namespace => namespace.chains ?? []),
-    ].filter(chainId => chainId.startsWith('eip155:'))
-
+    // Use all EVM chains where the user has accounts as source of truth
     const userChainIds = selectedAddress
-      ? uniq(
-          (accountIdsByChainId[selectedAddress] ?? []).map(
-            accountId => fromAccountId(accountId).chainId,
-          ),
-        )
+      ? Object.entries(accountIdsByChainId)
+          .filter(
+            ([chainId, accountIds]) =>
+              chainId.startsWith('eip155:') &&
+              (accountIds ?? []).some(
+                accountId => fromAccountId(accountId).account === selectedAddress,
+              ),
+          )
+          .map(([chainId]) => chainId)
       : []
 
-    const allChainIds = uniq([...proposalChainIds, ...userChainIds])
+    // Add any required chains from the dApp (even if user doesn't have accounts)
+    const requiredFromNamespaces = Object.values(requiredNamespaces)
+      .flatMap(namespace => namespace.chains ?? [])
+      .filter(chainId => chainId.startsWith('eip155:'))
+
+    const allChainIds = uniq([...userChainIds, ...requiredFromNamespaces])
 
     return allChainIds.sort((a, b) => {
       const aRequired = requiredChainIds.includes(a)
@@ -110,13 +114,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
       if (!aRequired && bRequired) return 1
       return a.localeCompare(b)
     })
-  }, [
-    selectedAddress,
-    accountIdsByChainId,
-    requiredNamespaces,
-    optionalNamespaces,
-    requiredChainIds,
-  ])
+  }, [selectedAddress, accountIdsByChainId, requiredNamespaces, requiredChainIds])
 
   const handleChainIdsChange = useCallback(
     (values: (string | number)[]) => onSelectedChainIdsChange(values as ChainId[]),

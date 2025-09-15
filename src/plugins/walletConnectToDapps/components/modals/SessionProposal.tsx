@@ -15,7 +15,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
-import { mergeWith, uniq } from 'lodash'
+import { uniq } from 'lodash'
 import type { JSX } from 'react'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { TbPlug } from 'react-icons/tb'
@@ -353,23 +353,11 @@ const _createApprovalNamespaces = (
 
 const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
-  optionalNamespaces: ProposalTypes.OptionalNamespaces,
   selectedAccounts: string[],
 ): SessionTypes.Namespaces => {
-  // tell lodash to concat array but merge everything else
-  const concatArrays = (objValue: unknown, srcValue: unknown) => {
-    if (Array.isArray(objValue) && Array.isArray(srcValue)) {
-      return Array.from(new Set([...objValue, ...srcValue]))
-    }
-  }
-
-  // do a deep merge of the optional and required namespace approval objects
-  // but with a concat for the arrays so values stored on the same index aren't overwritten
-  return mergeWith(
-    _createApprovalNamespaces(requiredNamespaces, selectedAccounts),
-    _createApprovalNamespaces(optionalNamespaces, selectedAccounts),
-    concatArrays,
-  )
+  // We only handle required namespaces, ignoring optional ones
+  // Our EVM chain selection is the source of truth
+  return _createApprovalNamespaces(requiredNamespaces, selectedAccounts)
 }
 
 const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModalProps>(
@@ -393,7 +381,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const translate = useTranslate()
 
     const { id, params } = proposal
-    const { proposer, requiredNamespaces, optionalNamespaces } = params
+    const { proposer, requiredNamespaces } = params
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
@@ -529,7 +517,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
         const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
           requiredNamespaces,
-          optionalNamespaces,
           _selectedAccountIds,
         )
 
@@ -542,7 +529,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
         handleClose()
       },
-      [dispatch, handleClose, proposal, web3wallet, optionalNamespaces, requiredNamespaces],
+      [dispatch, handleClose, proposal, web3wallet, requiredNamespaces],
     )
 
     const handleConnectSelected = useCallback(
@@ -620,7 +607,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               requiredChainIds={requiredChainIds}
               selectedAddress={selectedAddress}
               requiredNamespaces={requiredNamespaces}
-              optionalNamespaces={optionalNamespaces}
               onSelectedChainIdsChange={handleChainIdsChange}
               onBack={handleBackToMain}
               onDone={handleBackToMain}

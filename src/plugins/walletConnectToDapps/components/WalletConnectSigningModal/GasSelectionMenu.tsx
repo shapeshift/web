@@ -1,4 +1,4 @@
-import { ArrowUpDownIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -35,7 +35,7 @@ const SPEED_OPTIONS = [
 ]
 
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
-const chevronIcon = <ArrowUpDownIcon />
+const chevronIcon = <ChevronDownIcon />
 
 export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()

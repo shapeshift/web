@@ -44,6 +44,7 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   isLoading,
   canConnect,
 }) => {
+  const translate = useTranslate()
   const selectedAddress = useAppSelector(state =>
     selectEvmAddressByAccountNumber(state, { accountNumber: selectedAccountNumber ?? undefined }),
   )
@@ -51,7 +52,6 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
-  const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const connectWithHoverSx = useMemo(

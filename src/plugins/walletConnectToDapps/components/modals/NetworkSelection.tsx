@@ -82,11 +82,11 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   onBack,
   onDone,
 }) => {
+  const translate = useTranslate()
   const assetsById = useAppSelector(selectAssets)
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
-  const translate = useTranslate()
 
   const availableChainIds = useMemo(() => {
     // Use all EVM chains available for the selected account number as a source of truth

@@ -69,7 +69,7 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
           </Box>
         )
       }),
-    [uniqueAccountNumbers, handleAccountNumberChange, translate],
+    [uniqueAccountNumbers, translate, handleAccountNumberChange],
   )
 
   return (

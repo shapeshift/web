@@ -1205,7 +1205,7 @@ export const selectEvmAddressByAccountNumber = createCachedSelector(
   },
 )((_s: ReduxState, filter) => filter?.accountNumber ?? 'accountNumber')
 
-// Get unique account numbers that have EVM chains
+// Get unique account numbers that have at least one EVM account
 export const selectUniqueEvmAccountNumbers = createSelector(
   selectAccountIdsByAccountNumberAndChainId,
   accountIdsByAccountNumberAndChainId =>

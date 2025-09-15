@@ -8,6 +8,8 @@ import { uniq } from 'lodash'
 import type { JSX } from 'react'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -17,16 +19,19 @@ import { AccountSelection } from '@/plugins/walletConnectToDapps/components/moda
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { NetworkSelection } from '@/plugins/walletConnectToDapps/components/modals/NetworkSelection'
 import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
+import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import { createApprovalNamespaces } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
-import { selectAccountIdsByAccountNumberAndChainId, selectUniqueEvmAccountNumbers } from '@/state/slices/portfolioSlice/selectors'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectUniqueEvmAccountNumbers,
+} from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
-type SessionProposalStep = 'overview' | 'choose-account' | 'choose-network'
-
+export const entries = Object.values(SessionProposalRoutes)
 
 const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModalProps>(
   (
@@ -54,14 +59,14 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
-    const [currentStep, setCurrentStep] = useState<SessionProposalStep>('overview')
+    const location = useLocation()
+    const navigate = useNavigate()
     const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
 
     const selectedChainIds = useMemo(
       () => uniq(selectedAccountIds.map(id => fromAccountId(id).chainId)),
       [selectedAccountIds],
     )
-
 
     const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
 
@@ -94,21 +99,19 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       setSelectedAccountIds(selectedAccountIds_computed)
     }, [selectedAccountIds_computed])
 
-    useEffect(() => {}, [currentStep])
-
     const handleAccountClick = useCallback(() => {
-      setCurrentStep('choose-account')
-    }, [])
+      navigate(SessionProposalRoutes.ChooseAccount)
+    }, [navigate])
 
     const handleNetworkClick = useCallback(() => {
-      setCurrentStep('choose-network')
-    }, [])
+      navigate(SessionProposalRoutes.ChooseNetwork)
+    }, [navigate])
 
     const handleAccountNumberChange = useCallback((accountNumber: number) => {
       setSelectedAccountNumber(accountNumber)
     }, [])
 
-    const handleBackToOverview = useCallback(() => setCurrentStep('overview'), [])
+    const handleBack = useCallback(() => navigate(-1), [navigate])
 
     const handleChainIdsChange = useCallback(
       (chainIds: ChainId[]) => {
@@ -254,61 +257,88 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       )
     }, [allNamespacesSupported, translate])
 
-    // Render current step
-    const renderCurrentStep = () => {
-      switch (currentStep) {
-        case 'overview':
-          return (
-            <SessionProposalOverview
-              modalBody={modalBody}
-              selectedAccountNumber={selectedAccountNumber}
-              uniqueAccountNumbers={uniqueAccountNumbers}
-              selectedNetworks={selectedChainIds}
-              onAccountClick={handleAccountClick}
-              onNetworkClick={handleNetworkClick}
-              onConnectSelected={handleConnectSelected}
-              onReject={handleRejectAndClose}
-              isLoading={isLoading}
-              canConnect={
-                selectedAccountIds.length > 0 &&
-                allNamespacesSupported &&
-                requiredChainIds.every(chainId => selectedChainIds.includes(chainId))
-              }
-              translate={translate}
-            />
-          )
-        case 'choose-account':
-          return (
-            <AccountSelection
-              selectedAccountNumber={selectedAccountNumber}
-              onAccountNumberChange={handleAccountNumberChange}
-              onBack={handleBackToOverview}
-              onDone={handleBackToOverview}
-            />
-          )
-        case 'choose-network':
-          return (
-            <NetworkSelection
-              selectedChainIds={selectedChainIds}
-              requiredChainIds={requiredChainIds}
-              selectedAccountNumber={selectedAccountNumber}
-              requiredNamespaces={requiredNamespaces}
-              onSelectedChainIdsChange={handleChainIdsChange}
-              onBack={handleBackToOverview}
-              onDone={handleBackToOverview}
-            />
-          )
-        default:
-          return null
-      }
-    }
+    const overview = useMemo(
+      () => (
+        <SessionProposalOverview
+          modalBody={modalBody}
+          selectedAccountNumber={selectedAccountNumber}
+          uniqueAccountNumbers={uniqueAccountNumbers}
+          selectedNetworks={selectedChainIds}
+          onAccountClick={handleAccountClick}
+          onNetworkClick={handleNetworkClick}
+          onConnectSelected={handleConnectSelected}
+          onReject={handleRejectAndClose}
+          isLoading={isLoading}
+          canConnect={
+            selectedAccountIds.length > 0 &&
+            allNamespacesSupported &&
+            requiredChainIds.every(chainId => selectedChainIds.includes(chainId))
+          }
+          translate={translate}
+        />
+      ),
+      [
+        modalBody,
+        selectedAccountNumber,
+        uniqueAccountNumbers,
+        selectedChainIds,
+        handleAccountClick,
+        handleNetworkClick,
+        handleConnectSelected,
+        handleRejectAndClose,
+        isLoading,
+        selectedAccountIds.length,
+        allNamespacesSupported,
+        requiredChainIds,
+        translate,
+      ],
+    )
+
+    const accountSelection = useMemo(
+      () => (
+        <AccountSelection
+          selectedAccountNumber={selectedAccountNumber}
+          onAccountNumberChange={handleAccountNumberChange}
+          onBack={handleBack}
+          onDone={handleBack}
+        />
+      ),
+      [selectedAccountNumber, handleAccountNumberChange, handleBack],
+    )
+
+    const networkSelection = useMemo(
+      () => (
+        <NetworkSelection
+          selectedChainIds={selectedChainIds}
+          requiredChainIds={requiredChainIds}
+          selectedAccountNumber={selectedAccountNumber}
+          requiredNamespaces={requiredNamespaces}
+          onSelectedChainIdsChange={handleChainIdsChange}
+          onBack={handleBack}
+          onDone={handleBack}
+        />
+      ),
+      [
+        selectedChainIds,
+        requiredChainIds,
+        selectedAccountNumber,
+        requiredNamespaces,
+        handleChainIdsChange,
+        handleBack,
+      ],
+    )
 
     return (
       <>
-        {currentStep === 'overview' && proposer.metadata && (
+        {location.pathname === SessionProposalRoutes.Overview && proposer.metadata && (
           <PeerMeta metadata={proposer.metadata} py={0} />
         )}
-        {renderCurrentStep()}
+        <Switch location={location.pathname}>
+          <Route path={SessionProposalRoutes.Overview}>{overview}</Route>
+          <Route path={SessionProposalRoutes.ChooseAccount}>{accountSelection}</Route>
+          <Route path={SessionProposalRoutes.ChooseNetwork}>{networkSelection}</Route>
+          <Route path='/'>{overview}</Route>
+        </Switch>
       </>
     )
   },

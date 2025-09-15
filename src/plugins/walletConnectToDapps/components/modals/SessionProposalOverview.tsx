@@ -214,7 +214,6 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   return (
     <>
       {modalBody}
-
       <Alert {...alertStyles}>
         <AlertIcon as={TbPlug} {...alertIconStyles} />
         <RawText {...alertTextStyles}>
@@ -242,7 +241,6 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
                 </HStack>
               </VStack>
             </HStack>
-
             <VStack {...networkVStackStyles}>
               <RawText {...labelTextStyles}>Networks</RawText>
               <HStack

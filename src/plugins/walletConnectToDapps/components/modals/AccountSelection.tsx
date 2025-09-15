@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -40,6 +40,42 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
     [onAccountNumberChange],
   )
 
+  const accountRows = useMemo(
+    () =>
+      uniqueAccountNumbers.map(accountNumber => {
+        const address = selectEvmAddressByAccountNumber(store.getState(), { accountNumber })
+        if (!address) return null
+
+        return (
+          <Box key={accountNumber} py={3}>
+            <HStack
+              spacing={3}
+              width='full'
+              align='center'
+              cursor='pointer'
+              onClick={handleAccountNumberChange(accountNumber)}
+            >
+              <LazyLoadAvatar
+                borderRadius='full'
+                boxSize='40px'
+                src={makeBlockiesUrl(address)}
+              />
+              <VStack spacing={0} align='start' flex={1}>
+                <RawText fontSize='md' fontWeight='medium'>
+                  {translate('accounts.accountNumber', { accountNumber })}
+                </RawText>
+                <RawText fontSize='sm' color='gray.500'>
+                  {firstFourLastFour(address)}
+                </RawText>
+              </VStack>
+              <Radio value={accountNumber.toString()} />
+            </HStack>
+          </Box>
+        )
+      }),
+    [uniqueAccountNumbers, handleAccountNumberChange, translate],
+  )
+
   return (
     <VStack spacing={0} align='stretch' h='full'>
       <HStack spacing={3} p={4} align='center'>
@@ -50,41 +86,11 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
         {spacerBox}
       </HStack>
       <RadioGroup
-        value={selectedAccountNumber?.toString() || ''}
+        value={selectedAccountNumber?.toString() ?? ''}
         onChange={handleAccountNumberChange}
       >
         <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
-          {uniqueAccountNumbers.map(accountNumber => {
-            const address = selectEvmAddressByAccountNumber(store.getState(), { accountNumber })
-            if (!address) return null
-
-            return (
-              <Box key={accountNumber} py={3}>
-                <HStack
-                  spacing={3}
-                  width='full'
-                  align='center'
-                  cursor='pointer'
-                  onClick={handleAccountNumberChange(accountNumber)}
-                >
-                  <LazyLoadAvatar
-                    borderRadius='full'
-                    boxSize='40px'
-                    src={makeBlockiesUrl(address)}
-                  />
-                  <VStack spacing={0} align='start' flex={1}>
-                    <RawText fontSize='md' fontWeight='medium'>
-                      {translate('accounts.accountNumber', { accountNumber })}
-                    </RawText>
-                    <RawText fontSize='sm' color='gray.500'>
-                      {firstFourLastFour(address)}
-                    </RawText>
-                  </VStack>
-                  <Radio value={accountNumber.toString()} />
-                </HStack>
-              </Box>
-            )
-          })}
+          {accountRows}
         </VStack>
       </RadioGroup>
       <Box p={4}>

@@ -139,7 +139,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
         const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
           requiredNamespaces,
-          optionalNamespaces || {},
+          optionalNamespaces ?? {},
           _selectedAccountIds,
           selectedChainIds,
         )

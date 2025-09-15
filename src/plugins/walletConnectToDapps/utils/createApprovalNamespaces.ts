@@ -64,14 +64,14 @@ export const createApprovalNamespaces = (
 
     if (eip155AccountIds.length > 0) {
       approvedNamespaces.eip155 = {
-        ...(approvedNamespaces.eip155 || {}),
-        accounts: uniq([...(approvedNamespaces.eip155?.accounts || []), ...eip155AccountIds]),
+        ...(approvedNamespaces.eip155 ?? {}),
+        accounts: uniq([...(approvedNamespaces.eip155?.accounts ?? []), ...eip155AccountIds]),
         methods:
-          optionalNamespaces.eip155.methods ||
+          optionalNamespaces.eip155.methods ??
           Object.values(EIP155_SigningMethod).filter(
             method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
           ),
-        events: optionalNamespaces.eip155.events || [],
+        events: optionalNamespaces.eip155.events ?? [],
       }
     }
   }

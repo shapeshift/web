@@ -5,7 +5,6 @@ import type { FC } from 'react'
 import { RawText } from '@/components/Text'
 
 type PeerMetaProps = {
-  // Override the icons type, as it's incorrect - "icons" can indeed be undefined in the wild.
   metadata: Omit<SignClientTypes.Metadata, 'icons'> & { icons: string[] | undefined }
 }
 

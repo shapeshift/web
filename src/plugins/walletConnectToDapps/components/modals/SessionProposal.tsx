@@ -114,7 +114,6 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
     <>
       {modalBody}
 
-      {/* Connection Request Section */}
       <HStack
         spacing={3}
         align='center'
@@ -151,7 +150,6 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
       >
         <VStack spacing={4}>
           <HStack spacing={4} w='full' justify='space-between' align='center'>
-            {/* Left: Address with identicon */}
             <VStack spacing={1} align='start' flex={1}>
               <RawText fontSize='xs' color='text.subtle' fontWeight='medium'>
                 {translate('plugins.walletConnectToDapps.modal.connectWith')}
@@ -169,7 +167,6 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
               </HStack>
             </VStack>
 
-            {/* Right: Networks */}
             <HStack
               spacing={2}
               align='center'
@@ -365,61 +362,35 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       return addressMap
     }, [portfolioAccountIds])
 
-    const assetsById = useAppSelector(selectAssets)
+    const _assetsById = useAppSelector(selectAssets)
 
     // Get required chains from the proposal
     const requiredChainIds = useMemo(() => {
       return Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? [])
     }, [requiredNamespaces])
 
-    // Get all EVM chains including those user doesn't have accounts for
-    const allEvmChainData = useMemo(() => {
-      const chainAdapterManager = getChainAdapterManager()
-
-      // Get all required and optional EVM chains from the proposal
+    const allEvmChainIds = useMemo(() => {
       const proposalChainIds = [
         ...Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? []),
         ...Object.values(optionalNamespaces).flatMap(namespace => namespace.chains ?? []),
       ].filter(chainId => chainId.startsWith('eip155:'))
 
-      // Also include chains user has accounts for
       const userChainIds = selectedAddress
         ? uniq((evmAccountIdsByAddress[selectedAddress] || []).map(id => fromAccountId(id).chainId))
         : []
 
       const allChainIds = uniq([...proposalChainIds, ...userChainIds])
 
-      const chainData = allChainIds
-        .map(chainId => {
-          const feeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
-          const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
-          const hasAccount = selectedAddress
-            ? (evmAccountIdsByAddress[selectedAddress] || []).some(
-                id => fromAccountId(id).chainId === chainId,
-              )
-            : false
-
-          return {
-            chainId,
-            icon: feeAsset?.networkIcon ?? feeAsset?.icon,
-            name: chainAdapterManager.get(chainId)?.getDisplayName() ?? chainId,
-            hasAccount,
-          }
-        })
-        .filter(chain => chain.icon && chain.hasAccount)
-
-      // Sort: required first, then optional
-      return chainData.sort((a, b) => {
-        const aRequired = requiredChainIds.includes(a.chainId)
-        const bRequired = requiredChainIds.includes(b.chainId)
+      return allChainIds.sort((a, b) => {
+        const aRequired = requiredChainIds.includes(a)
+        const bRequired = requiredChainIds.includes(b)
         if (aRequired && !bRequired) return -1
         if (!aRequired && bRequired) return 1
-        return a.name.localeCompare(b.name)
+        return a.localeCompare(b)
       })
     }, [
       selectedAddress,
       evmAccountIdsByAddress,
-      assetsById,
       requiredNamespaces,
       optionalNamespaces,
       requiredChainIds,
@@ -452,9 +423,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       },
       [evmAccountIdsByAddress],
     )
-    
+
     const handleBackToMain = useCallback(() => setCurrentStep('main'), [])
-    
+
     const handleChainIdsChange = useCallback(
       (chainIds: string[]) => {
         if (selectedAddress) {
@@ -681,9 +652,10 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         case 'choose-network':
           return (
             <NetworkSelection
-              allEvmChainData={allEvmChainData}
+              allEvmChainIds={allEvmChainIds}
               selectedChainIds={selectedChainIds}
               requiredChainIds={requiredChainIds}
+              selectedAddress={selectedAddress}
               onChainIdsChange={handleChainIdsChange}
               onBack={handleBackToMain}
               onDone={handleBackToMain}

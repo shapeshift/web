@@ -8,24 +8,23 @@ import {
   HStack,
   IconButton,
   Image,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 
 import { RawText } from '@/components/Text'
-
-type EvmChainData = {
-  chainId: string
-  icon: string | undefined
-  name: string
-  hasAccount: boolean
-}
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { selectAccountIdsByChainId, selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type NetworkSelectionProps = {
-  allEvmChainData: EvmChainData[]
+  allEvmChainIds: string[]
   selectedChainIds: string[]
   requiredChainIds: string[]
+  selectedAddress: string | null
   onChainIdsChange: (chainIds: string[]) => void
   onBack: () => void
   onDone: () => void
@@ -33,14 +32,18 @@ type NetworkSelectionProps = {
 }
 
 export const NetworkSelection: FC<NetworkSelectionProps> = ({
-  allEvmChainData,
+  allEvmChainIds,
   selectedChainIds,
   requiredChainIds,
+  selectedAddress,
   onChainIdsChange,
   onBack,
   onDone,
   translate,
 }) => {
+  const assetsById = useAppSelector(selectAssets)
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const chainAdapterManager = getChainAdapterManager()
   const handleChainIdsChange = useCallback(
     (values: (string | number)[]) => onChainIdsChange(values as string[]),
     [onChainIdsChange],
@@ -90,7 +93,6 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
 
   return (
     <VStack spacing={0} align='stretch' h='full'>
-      {/* Header with back arrow */}
       <HStack spacing={3} p={4} align='center'>
         <IconButton aria-label='Back' icon={backIcon} size='sm' variant='ghost' onClick={onBack} />
         <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
@@ -99,21 +101,34 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
         {spacerBox}
       </HStack>
 
-      {/* Network list */}
       <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
         <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
-          {allEvmChainData.map(chain => {
-            const isRequired = requiredChainIds.includes(chain.chainId)
-            const isDisabled = !chain.hasAccount || isRequired
+          {allEvmChainIds.map(chainId => {
+            const feeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
+            const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
+            const chainName = chainAdapterManager.get(chainId)?.getDisplayName() ?? chainId
+            const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
 
-            return (
-              <Box key={chain.chainId} py={3} opacity={chain.hasAccount ? 1 : 0.5}>
+            const hasAccount = selectedAddress
+              ? (accountIdsByChainId[chainId] || []).some(
+                  accountId => fromAccountId(accountId).account === selectedAddress,
+                )
+              : false
+
+            const isRequired = requiredChainIds.includes(chainId)
+            const isDisabled = !hasAccount && isRequired
+
+            if (!networkIcon) return null
+            if (!hasAccount && !isRequired) return null
+
+            const content = (
+              <Box key={chainId} py={3} opacity={hasAccount ? 1 : 0.5}>
                 <HStack spacing={3} width='full' align='center'>
-                  <Image borderRadius='full' boxSize='40px' src={chain.icon} />
+                  <Image borderRadius='full' boxSize='40px' src={networkIcon} />
                   <VStack spacing={0} align='start' flex={1}>
                     <HStack spacing={2} align='center'>
                       <RawText fontSize='md' fontWeight='medium'>
-                        {chain.name}
+                        {chainName}
                       </RawText>
                       {isRequired && (
                         <HStack
@@ -140,7 +155,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
                     </HStack>
                   </VStack>
                   <Checkbox
-                    value={chain.chainId}
+                    value={chainId}
                     isDisabled={isDisabled}
                     size='lg'
                     colorScheme={isRequired ? 'gray' : 'blue'}
@@ -149,11 +164,22 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
                 </HStack>
               </Box>
             )
+
+            return !hasAccount ? (
+              <Tooltip
+                key={chainId}
+                label={translate('plugins.walletConnectToDapps.modal.noAccount', { chainName })}
+                placement='right'
+              >
+                {content}
+              </Tooltip>
+            ) : (
+              content
+            )
           })}
         </VStack>
       </CheckboxGroup>
 
-      {/* Done button */}
       <Box p={4}>
         <Button size='lg' colorScheme='blue' w='full' onClick={onDone}>
           {translate('common.done')}

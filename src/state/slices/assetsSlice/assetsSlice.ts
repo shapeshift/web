@@ -50,6 +50,11 @@ export const assets = createSlice({
   reducers: create => ({
     clear: create.reducer(() => initialState),
     upsertAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {
+      // Ignore empty upserts - don't create new references for no reason
+      if (action.payload.ids.length === 0 && Object.keys(action.payload.byId).length === 0) {
+        return
+      }
+
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))

@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
@@ -9,17 +9,18 @@ import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
 export const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
   optionalNamespaces: ProposalTypes.OptionalNamespaces,
-  selectedAccounts: string[],
+  selectedAccountIds: AccountId[],
   selectedChainIds: ChainId[],
 ): SessionTypes.Namespaces => {
   const approvedNamespaces: SessionTypes.Namespaces = {}
 
-  // Helper to create namespace entry
   const createNamespaceEntry = (
     key: string,
     proposalNamespace: ProposalTypes.RequiredNamespace,
     accounts: string[],
   ) => {
+    // That condition seems useless at runtime since we *currently* only handle eip155
+    // but technically, we *do* support Cosmos SDK
     const methods =
       key === 'eip155'
         ? Object.values(EIP155_SigningMethod).filter(
@@ -36,7 +37,7 @@ export const createApprovalNamespaces = (
 
   // Handle required namespaces first
   Object.entries(requiredNamespaces).forEach(([key, proposalNamespace]) => {
-    const selectedAccountsForKey = selectedAccounts.filter(accountId => {
+    const selectedAccountsForKey = selectedAccountIds.filter(accountId => {
       const { chainNamespace } = fromAccountId(accountId)
       return chainNamespace === key
     })
@@ -56,7 +57,7 @@ export const createApprovalNamespaces = (
   )
 
   if (additionalChainIds.length > 0 && optionalNamespaces?.eip155) {
-    const eip155AccountIds = selectedAccounts.filter(
+    const eip155AccountIds = selectedAccountIds.filter(
       accountId =>
         fromAccountId(accountId).chainNamespace === 'eip155' &&
         additionalChainIds.includes(fromAccountId(accountId).chainId),

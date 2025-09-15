@@ -1,4 +1,5 @@
-import { Alert, AlertIcon, AlertTitle, Button, Image, VStack } from '@chakra-ui/react'
+import { ChevronDownIcon, ChevronLeftIcon } from '@chakra-ui/icons'
+import { Alert, AlertIcon, AlertTitle, Box, Button, Circle, Flex, HStack, IconButton, Image, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -10,22 +11,201 @@ import type { JSX } from 'react'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { knownChainIds } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from '@/lib/utils'
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissions'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
-import { selectAccountIdsByChainId, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
+import { selectAccountIdsByChainId, selectWalletEnabledAccountIds, selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 type SessionProposalStep = 'main' | 'choose-account' | 'choose-network'
+
+type ConnectWithFooterProps = {
+  selectedAddress: string | null
+  uniqueEvmAddresses: string[]
+  selectedNetworks: string[]
+  onAccountClick: () => void
+  onNetworkClick: () => void
+}
+
+const ConnectWithFooter: React.FC<ConnectWithFooterProps> = ({
+  selectedAddress,
+  uniqueEvmAddresses,
+  selectedNetworks,
+  onAccountClick,
+  onNetworkClick,
+}) => {
+  const translate = useTranslate()
+  const assetsById = useAppSelector(selectAssets)
+  const chainAdapterManager = getChainAdapterManager()
+
+  const chainData = useMemo(() => {
+    return selectedNetworks.map(chainId => {
+      const feeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
+      const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
+      
+      return {
+        chainId,
+        icon: feeAsset?.networkIcon ?? feeAsset?.icon,
+        name: chainAdapterManager.get(chainId)?.getDisplayName() ?? chainId,
+      }
+    }).filter(chain => chain.icon)
+  }, [selectedNetworks, assetsById, chainAdapterManager])
+
+  if (!selectedAddress) return null
+
+  const hasMultipleAddresses = uniqueEvmAddresses.length > 1
+  const maxVisibleChains = 4
+  const visibleChains = chainData.slice(0, maxVisibleChains)
+  const remainingCount = chainData.length - maxVisibleChains
+
+  return (
+    <VStack spacing={4} p={4} borderTop='1px solid' borderColor='whiteAlpha.100'>
+      <HStack spacing={4} w='full' justify='space-between' align='center'>
+        {/* Left: Address with identicon */}
+        <VStack spacing={1} align='start' flex={1}>
+          <RawText fontSize='xs' color='text.subtle' fontWeight='medium'>
+            {translate('plugins.walletConnectToDapps.modal.connectWith')}
+          </RawText>
+          <HStack 
+            spacing={3} 
+            align='center'
+            cursor={hasMultipleAddresses ? 'pointer' : 'default'}
+            onClick={hasMultipleAddresses ? onAccountClick : undefined}
+            _hover={hasMultipleAddresses ? { opacity: 0.8 } : undefined}
+          >
+            <Image 
+              src={makeBlockiesUrl(selectedAddress)} 
+              boxSize='32px' 
+              borderRadius='full' 
+            />
+            <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
+            {hasMultipleAddresses && (
+              <ChevronDownIcon color='text.subtle' boxSize={3} />
+            )}
+          </HStack>
+        </VStack>
+
+        {/* Right: Networks */}
+        <HStack 
+          spacing={2} 
+          align='center'
+          cursor='pointer'
+          onClick={onNetworkClick}
+          _hover={{ opacity: 0.8 }}
+        >
+          <VStack spacing={1} align='center'>
+            <RawText fontSize='xs' color='text.subtle' fontWeight='medium'>
+              Networks
+            </RawText>
+            <Flex align='center'>
+              {visibleChains.map((chain, index) => (
+                <Box key={chain.chainId} ml={index === 0 ? 0 : -1.5} zIndex={index}>
+                  <LazyLoadAvatar boxSize={5} src={chain.icon} />
+                </Box>
+              ))}
+              {remainingCount > 0 && (
+                <Circle
+                  size={5}
+                  bg='gray.100'
+                  _dark={{ bg: 'gray.700' }}
+                  color='text.base'
+                  fontSize='2xs'
+                  fontWeight='medium'
+                  ml={-1.5}
+                  zIndex={visibleChains.length}
+                >
+                  +{remainingCount}
+                </Circle>
+              )}
+            </Flex>
+          </VStack>
+          <ChevronDownIcon color='text.subtle' boxSize={3} />
+        </HStack>
+      </HStack>
+    </VStack>
+  )
+}
+
+type SessionProposalMainScreenProps = {
+  modalBody: JSX.Element
+  selectedAddress: string | null
+  uniqueEvmAddresses: string[]
+  selectedNetworks: string[]
+  onAccountClick: () => void
+  onNetworkClick: () => void
+  onConnectAll: () => void
+  onConnectSelected: () => void
+  onReject: () => void
+  isLoading: boolean
+  canConnect: boolean
+  translate: (key: string) => string
+}
+
+const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
+  modalBody,
+  selectedAddress,
+  uniqueEvmAddresses,
+  selectedNetworks,
+  onAccountClick,
+  onNetworkClick,
+  onConnectAll,
+  onConnectSelected,
+  onReject,
+  isLoading,
+  canConnect,
+  translate,
+}) => {
+  return (
+    <>
+      {modalBody}
+      <ConnectWithFooter
+        selectedAddress={selectedAddress}
+        uniqueEvmAddresses={uniqueEvmAddresses}
+        selectedNetworks={selectedNetworks}
+        onAccountClick={onAccountClick}
+        onNetworkClick={onNetworkClick}
+      />
+      <ModalSection title={''}>
+        <VStack spacing={4}>
+          <Button
+            size='lg'
+            width='full'
+            colorScheme='blue'
+            type='submit'
+            onClick={onConnectSelected}
+            isDisabled={!canConnect}
+            _disabled={disabledProp}
+            isLoading={isLoading}
+          >
+            {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+          </Button>
+          <Button
+            size='lg'
+            width='full'
+            onClick={onReject}
+            isDisabled={isLoading}
+            _disabled={disabledProp}
+          >
+            {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
+          </Button>
+        </VStack>
+      </ModalSection>
+    </>
+  )
+}
 
 const checkAllNamespacesHaveAccounts = (
   namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
@@ -146,6 +326,18 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       return addresses
     }, [portfolioAccountIds])
 
+    const evmAccountIdsByAddress = useMemo(() => {
+      const evmAccountIds = portfolioAccountIds.filter(id => fromAccountId(id).chainNamespace === 'eip155')
+      const addressMap: Record<string, AccountId[]> = {}
+      evmAccountIds.forEach(id => {
+        const address = fromAccountId(id).account
+        if (!addressMap[address]) addressMap[address] = []
+        addressMap[address].push(id)
+      })
+      console.log('🗺️  EVM addresses to AccountIds mapping:', addressMap)
+      return addressMap
+    }, [portfolioAccountIds])
+
     // Auto-initialize with first address + all available networks
     useEffect(() => {
       if (uniqueEvmAddresses.length > 0 && newSelectedAccountIds.length === 0) {
@@ -163,6 +355,17 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     useEffect(() => {
       console.log('📍 Current step:', currentStep)
     }, [currentStep])
+
+    // Navigation handlers
+    const handleAccountClick = useCallback(() => {
+      console.log('🔄 Navigating to choose-account')
+      setCurrentStep('choose-account')
+    }, [])
+
+    const handleNetworkClick = useCallback(() => {
+      console.log('🔄 Navigating to choose-network')
+      setCurrentStep('choose-network')
+    }, [])
     
     const toggleAccountId = useCallback((accountId: string) => {
       setSelectedAccountIds(previousState =>
@@ -376,6 +579,103 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       isLoading,
     ])
 
+    // Render current step
+    const renderCurrentStep = () => {
+      switch (currentStep) {
+        case 'main':
+          return (
+            <SessionProposalMainScreen
+              modalBody={modalBody}
+              selectedAddress={selectedAddress}
+              uniqueEvmAddresses={uniqueEvmAddresses}
+              selectedNetworks={selectedNetworks}
+              onAccountClick={handleAccountClick}
+              onNetworkClick={handleNetworkClick}
+              onConnectAll={handleConnectAll}
+              onConnectSelected={handleConnectSelectedAccountIds}
+              onReject={handleRejectAndClose}
+              isLoading={isLoading}
+              canConnect={selectedAccountIds.length > 0 && allNamespacesSupported && allNamespacesHaveAccounts}
+              translate={translate}
+            />
+          )
+        case 'choose-account':
+          return (
+            <VStack spacing={0} align='stretch'>
+              <VStack spacing={4} p={6}>
+                <RawText fontWeight='semibold' fontSize='lg' textAlign='center'>
+                  Choose Account
+                </RawText>
+                <VStack spacing={3} align='stretch'>
+                  {uniqueEvmAddresses.map((address) => {
+                    const accountId = evmAccountIdsByAddress[address][0] 
+                    const isSelected = newSelectedAccountIds.includes(accountId)
+                    
+                    return (
+                      <Button
+                        key={address}
+                        variant='ghost'
+                        p={4}
+                        h='auto'
+                        justifyContent='flex-start'
+                        onClick={() => {
+                          console.log('🏠 Account selected:', accountId)
+                          setNewSelectedAccountIds(evmAccountIdsByAddress[address])
+                          setCurrentStep('main')
+                        }}
+                        bg={isSelected ? 'gray.100' : 'transparent'}
+                        _hover={{ bg: 'gray.50' }}
+                        _dark={{
+                          bg: isSelected ? 'gray.700' : 'transparent',
+                          _hover: { bg: 'gray.800' }
+                        }}
+                      >
+                        <HStack spacing={3} width='full'>
+                          <Circle size='12px' bg={isSelected ? 'blue.500' : 'gray.300'} />
+                          <Image
+                            borderRadius='full'
+                            boxSize='32px'
+                            src={makeBlockiesUrl(address)}
+                          />
+                          <VStack spacing={0} align='start' flex={1}>
+                            <RawText fontSize='sm' fontWeight='medium'>
+                              {address.slice(0, 6)}...{address.slice(-4)}
+                            </RawText>
+                            <RawText fontSize='xs' color='gray.500'>
+                              EVM Address
+                            </RawText>
+                          </VStack>
+                        </HStack>
+                      </Button>
+                    )
+                  })}
+                </VStack>
+              </VStack>
+              
+              <ModalSection title=''>
+                <Button
+                  size='lg'
+                  width='full'
+                  variant='outline'
+                  onClick={() => setCurrentStep('main')}
+                >
+                  Back
+                </Button>
+              </ModalSection>
+            </VStack>
+          )
+        case 'choose-network':
+          return (
+            <VStack spacing={4} p={6}>
+              <RawText>Choose Network Screen - Coming in Phase 4!</RawText>
+              <Button onClick={() => setCurrentStep('main')}>Back to Main</Button>
+            </VStack>
+          )
+        default:
+          return null
+      }
+    }
+
     return (
       <>
         {proposer.metadata && (
@@ -391,36 +691,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
             </VStack>
           </VStack>
         )}
-        {modalBody}
-        <ModalSection title={''}>
-          <VStack spacing={4}>
-            <Button
-              size='lg'
-              width='full'
-              colorScheme='blue'
-              type='submit'
-              onClick={handleConnectSelectedAccountIds}
-              isDisabled={
-                selectedAccountIds.length === 0 ||
-                !allNamespacesSupported ||
-                !allNamespacesHaveAccounts
-              }
-              _disabled={disabledProp}
-              isLoading={isLoading}
-            >
-              {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
-            </Button>
-            <Button
-              size='lg'
-              width='full'
-              onClick={handleRejectAndClose}
-              isDisabled={isLoading}
-              _disabled={disabledProp}
-            >
-              {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
-            </Button>
-          </VStack>
-        </ModalSection>
+        {renderCurrentStep()}
       </>
     )
   },

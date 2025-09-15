@@ -2371,6 +2371,7 @@
         "connectWith": "Connect With",
         "chooseAccount": "Choose Account",
         "chooseNetwork": "Choose Network",
+        "required": "Required",
         "noAccount": "You don't have an account on %{chainName} for this address",
         "sendingTo": "Sending To",
         "signMessage": {

@@ -1,15 +1,6 @@
 import { ChevronDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Circle,
-  Flex,
-  HStack,
-  Image,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import { Box, Button, Circle, Flex, HStack, useColorModeValue, VStack } from '@chakra-ui/react'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
@@ -50,7 +41,7 @@ type SessionProposalMainScreenProps = {
   modalBody: JSX.Element
   selectedAddress: string | null
   uniqueEvmAddresses: string[]
-  selectedNetworks: string[]
+  selectedNetworks: ChainId[]
   onAccountClick: () => void
   onNetworkClick: () => void
   onConnectSelected: () => void
@@ -157,7 +148,11 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
                 onClick={hasMultipleAddresses ? onAccountClick : undefined}
                 _hover={conditionalHoverStyle}
               >
-                <Image src={makeBlockiesUrl(selectedAddress)} boxSize='32px' borderRadius='full' />
+                <LazyLoadAvatar
+                  src={makeBlockiesUrl(selectedAddress)}
+                  boxSize='32px'
+                  borderRadius='full'
+                />
                 <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
                 {hasMultipleAddresses && <ChevronDownIcon color='text.subtle' boxSize={3} />}
               </HStack>
@@ -348,33 +343,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       return Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? [])
     }, [requiredNamespaces])
 
-    const allEvmChainIds = useMemo(() => {
-      const proposalChainIds = [
-        ...Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? []),
-        ...Object.values(optionalNamespaces).flatMap(namespace => namespace.chains ?? []),
-      ].filter(chainId => chainId.startsWith('eip155:'))
-
-      const userChainIds = selectedAddress
-        ? uniq((evmAccountIdsByAddress[selectedAddress] || []).map(id => fromAccountId(id).chainId))
-        : []
-
-      const allChainIds = uniq([...proposalChainIds, ...userChainIds])
-
-      return allChainIds.sort((a, b) => {
-        const aRequired = requiredChainIds.includes(a)
-        const bRequired = requiredChainIds.includes(b)
-        if (aRequired && !bRequired) return -1
-        if (!aRequired && bRequired) return 1
-        return a.localeCompare(b)
-      })
-    }, [
-      selectedAddress,
-      evmAccountIdsByAddress,
-      requiredNamespaces,
-      optionalNamespaces,
-      requiredChainIds,
-    ])
-
     useEffect(() => {
       if (uniqueEvmAddresses.length > 0 && selectedAccountIds.length === 0) {
         const firstAddress = uniqueEvmAddresses[0]
@@ -398,7 +366,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const handleAddressChange = useCallback(
       (address: string) => {
-        setSelectedAccountIds(evmAccountIdsByAddress[address] || [])
+        setSelectedAccountIds(evmAccountIdsByAddress[address] ?? [])
       },
       [evmAccountIdsByAddress],
     )
@@ -406,9 +374,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const handleBackToMain = useCallback(() => setCurrentStep('main'), [])
 
     const handleChainIdsChange = useCallback(
-      (chainIds: string[]) => {
+      (chainIds: ChainId[]) => {
         if (selectedAddress) {
-          const addressAccountIds = evmAccountIdsByAddress[selectedAddress] || []
+          const addressAccountIds = evmAccountIdsByAddress[selectedAddress] ?? []
           const filteredAccountIds = addressAccountIds.filter(id => {
             const chainId = fromAccountId(id).chainId
             return chainIds.includes(chainId)
@@ -418,13 +386,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       },
       [selectedAddress, evmAccountIdsByAddress],
     )
-
-    const handleSelectAllChains = useCallback(() => {
-      if (selectedAddress) {
-        const addressAccountIds = evmAccountIdsByAddress[selectedAddress] || []
-        setSelectedAccountIds(addressAccountIds)
-      }
-    }, [selectedAddress, evmAccountIdsByAddress])
 
     const checkAllNamespacesSupported = useCallback(
       (
@@ -551,26 +512,23 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         case 'choose-account':
           return (
             <AccountSelection
-              uniqueEvmAddresses={uniqueEvmAddresses}
               selectedAddress={selectedAddress}
               onAddressChange={handleAddressChange}
               onBack={handleBackToMain}
               onDone={handleBackToMain}
-              translate={translate}
             />
           )
         case 'choose-network':
           return (
             <NetworkSelection
-              allEvmChainIds={allEvmChainIds}
               selectedChainIds={selectedChainIds}
               requiredChainIds={requiredChainIds}
               selectedAddress={selectedAddress}
-              onChainIdsChange={handleChainIdsChange}
-              onSelectAllChains={handleSelectAllChains}
+              requiredNamespaces={requiredNamespaces}
+              optionalNamespaces={optionalNamespaces}
+              onSelectedChainIdsChange={handleChainIdsChange}
               onBack={handleBackToMain}
               onDone={handleBackToMain}
-              translate={translate}
             />
           )
         default:
@@ -580,7 +538,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     return (
       <>
-        {currentStep === 'main' && proposer.metadata && <PeerMeta metadata={proposer.metadata} />}
+        {currentStep === 'main' && proposer.metadata && (
+          <PeerMeta metadata={proposer.metadata} py={0} />
+        )}
         {renderCurrentStep()}
       </>
     )

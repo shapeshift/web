@@ -48,9 +48,7 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   return (
     <VStack spacing={0} align='stretch'>
       {peerMetadata && <PeerMeta metadata={peerMetadata} />}
-
       {children}
-
       <WalletConnectModalSigningFooter
         accountId={accountId}
         transaction={transaction}

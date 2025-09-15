@@ -1,34 +1,48 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack, IconButton, Image, Radio, RadioGroup, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { uniq } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
+import { selectWalletEnabledAccountIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+const spacerBox = <Box w={8} />
+const backIcon = <ArrowBackIcon />
 
 type AccountSelectionProps = {
-  uniqueEvmAddresses: string[]
   selectedAddress: string | null
   onAddressChange: (address: string) => void
   onBack: () => void
   onDone: () => void
-  translate: (key: string) => string
 }
 
 export const AccountSelection: FC<AccountSelectionProps> = ({
-  uniqueEvmAddresses,
   selectedAddress,
   onAddressChange,
   onBack,
   onDone,
-  translate,
 }) => {
+  const portfolioAccountIds = useAppSelector(selectWalletEnabledAccountIds)
+  const translate = useTranslate()
+
+  const uniqueEvmAddresses = useMemo(() => {
+    const evmAccountIds = portfolioAccountIds.filter(
+      id => fromAccountId(id).chainNamespace === 'eip155',
+    )
+    const addresses = uniq(evmAccountIds.map(id => fromAccountId(id).account))
+    return addresses
+  }, [portfolioAccountIds])
+
   const handleAddressChange = useCallback(
     (address: string) => onAddressChange(address),
     [onAddressChange],
   )
-  const spacerBox = useMemo(() => <Box w={8} />, [])
-  const backIcon = useMemo(() => <ArrowBackIcon />, [])
   const handleClickAddress = useCallback(
     (address: string) => () => onAddressChange(address),
     [onAddressChange],
@@ -43,7 +57,6 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
         </RawText>
         {spacerBox}
       </HStack>
-
       <RadioGroup value={selectedAddress || ''} onChange={handleAddressChange}>
         <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
           {uniqueEvmAddresses.map((address, index) => (
@@ -55,7 +68,7 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
                 cursor='pointer'
                 onClick={handleClickAddress(address)}
               >
-                <Image borderRadius='full' boxSize='40px' src={makeBlockiesUrl(address)} />
+                <LazyLoadAvatar borderRadius='full' boxSize='40px' src={makeBlockiesUrl(address)} />
                 <VStack spacing={0} align='start' flex={1}>
                   <RawText fontSize='md' fontWeight='medium'>
                     Account #{index}
@@ -70,7 +83,6 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
           ))}
         </VStack>
       </RadioGroup>
-
       <Box p={4}>
         <Button
           size='lg'

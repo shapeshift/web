@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex, Text, Tooltip } from '@chakra-ui/react'
+import { Button, Flex, Text, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -30,6 +30,7 @@ import {
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const focus = {
   shadow: 'outline-inset',
@@ -65,6 +66,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 })
+    const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
     const {
       state: { isConnected, wallet },
     } = useWallet()
@@ -249,6 +251,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
                   </Text>
                   {isAssetToken && (
                     <Tooltip
+                      isDisabled={!isLargerThanMd}
                       label={isCopied ? translate('common.copied') : translate('common.copy')}
                     >
                       <Text

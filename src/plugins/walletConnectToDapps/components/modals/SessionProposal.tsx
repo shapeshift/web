@@ -1,5 +1,6 @@
-import { ArrowBackIcon, ChevronDownIcon, ChevronLeftIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon } from '@chakra-ui/icons'
 import { Alert, AlertIcon, AlertTitle, Box, Button, Circle, Flex, HStack, IconButton, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { TbPlug } from 'react-icons/tb'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -89,6 +90,27 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
   return (
     <>
       {modalBody}
+      
+      {/* Connection Request Section */}
+      <HStack 
+        spacing={3} 
+        align='center' 
+        w='full' 
+        justify='space-between'
+        py={3}
+        px={4}
+        bg='rgba(0, 181, 216, 0.1)'
+        borderRadius='9999px'
+      >
+        <HStack spacing={2} align='center'>
+          <TbPlug size={14} color='rgb(0, 181, 216)' />
+          <RawText fontSize='sm' color='rgb(0, 181, 216)' fontWeight='normal'>
+            Connection Request
+          </RawText>
+        </HStack>
+        <InfoIcon boxSize={3.5} color='rgb(0, 181, 216)' />
+      </HStack>
+
       <Box
         bg='transparent'
         borderTopRadius='24px'
@@ -554,9 +576,24 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           )
         case 'choose-account':
           return (
-            <VStack spacing={0} align='stretch'>
+            <VStack spacing={0} align='stretch' h='full'>
+              {/* Header with back arrow */}
+              <HStack spacing={3} p={4} align='center'>
+                <IconButton
+                  aria-label='Back'
+                  icon={<ArrowBackIcon />}
+                  size='sm'
+                  variant='ghost'
+                  onClick={() => setCurrentStep('main')}
+                />
+                <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
+                  Choose Account
+                </RawText>
+                <Box w={8} /> {/* Spacer for centering */}
+              </HStack>
+
               {/* Account list */}
-              <VStack spacing={0} align='stretch' p={6}>
+              <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
                 {uniqueEvmAddresses.map((address, index) => {
                   const accountId = evmAccountIdsByAddress[address][0] 
                   const isSelected = newSelectedAccountIds.includes(accountId)
@@ -634,7 +671,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     return (
       <>
-        {proposer.metadata && (
+        {currentStep === 'main' && proposer.metadata && (
           <VStack spacing={4} align='center' py={6}>
             <Image borderRadius='full' boxSize='48px' src={proposer.metadata.icons?.[0]} />
             <VStack spacing={1} align='center'>

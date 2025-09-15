@@ -1,19 +1,11 @@
-import { ArrowBackIcon, ChevronDownIcon, ChevronLeftIcon, InfoOutlineIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
   Box,
   Button,
-  Checkbox,
-  CheckboxGroup,
   Circle,
   Flex,
   HStack,
-  IconButton,
   Image,
-  Radio,
-  RadioGroup,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -31,16 +23,17 @@ import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
-import { RawText, Text } from '@/components/Text'
+import { RawText } from '@/components/Text'
 import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { assertIsDefined } from '@/lib/utils'
+import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
+import { NetworkSelection } from '@/plugins/walletConnectToDapps/components/modals/NetworkSelection'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
-import { Permissions } from '@/plugins/walletConnectToDapps/components/Permissions'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
@@ -77,7 +70,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
   selectedNetworks,
   onAccountClick,
   onNetworkClick,
-  onConnectAll,
+  _onConnectAll,
   onConnectSelected,
   onReject,
   isLoading,
@@ -161,7 +154,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
                 align='center'
                 cursor={hasMultipleAddresses ? 'pointer' : 'default'}
                 onClick={hasMultipleAddresses ? onAccountClick : undefined}
-                _hover={hasMultipleAddresses ? { opacity: 0.8 } : undefined}
+                _hover={conditionalHoverStyle}
               >
                 <Image src={makeBlockiesUrl(selectedAddress)} boxSize='32px' borderRadius='full' />
                 <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
@@ -175,7 +168,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
               align='center'
               cursor='pointer'
               onClick={onNetworkClick}
-              _hover={{ opacity: 0.8 }}
+              _hover={hoverStyle}
             >
               <VStack spacing={1} align='center'>
                 <RawText fontSize='xs' color='text.subtle' fontWeight='medium'>
@@ -327,7 +320,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const { id, params } = proposal
     const { proposer, requiredNamespaces, optionalNamespaces } = params
 
-
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
 
@@ -447,7 +439,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         const allSelectedChains = uniq([...chainIds, ...requiredChains])
         setSelectedChainIds(allSelectedChains)
       }
-    }, [uniqueEvmAddresses, portfolioAccountIds, newSelectedAccountIds.length])
+    }, [uniqueEvmAddresses, portfolioAccountIds, newSelectedAccountIds.length, requiredNamespaces])
 
     // Update newSelectedAccountIds when selectedChainIds changes
     useEffect(() => {
@@ -462,8 +454,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     }, [selectedChainIds, selectedAddress, evmAccountIdsByAddress])
 
     // Debug current step
-    useEffect(() => {
-    }, [currentStep])
+    useEffect(() => {}, [currentStep])
 
     // Navigation handlers
     const handleAccountClick = useCallback(() => {
@@ -474,14 +465,16 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       setCurrentStep('choose-network')
     }, [])
 
+    // Memoized callbacks for props
+    const handleConnectSelected = useCallback(() => handleConnectAccountIds(newSelectedAccountIds), [handleConnectAccountIds, newSelectedAccountIds])
+    const handleAddressChange = useCallback((address: string) => {
+      setNewSelectedAccountIds(evmAccountIdsByAddress[address] || [])
+    }, [evmAccountIdsByAddress])
+    const handleBackToMain = useCallback(() => setCurrentStep('main'), [])
+    const handleChainIdsChange = useCallback((chainIds: string[]) => setSelectedChainIds(chainIds), [])
 
-
-    const handleSelectAllChains = useCallback(() => {
-      const allSelectableChainIds = allEvmChainData
-        .filter(chain => chain.hasAccount)
-        .map(chain => chain.chainId)
-      setSelectedChainIds(allSelectableChainIds)
-    }, [allEvmChainData])
+    const hoverStyle = useMemo(() => ({ opacity: 0.8 }), [])
+    const conditionalHoverStyle = useMemo(() => hasMultipleAddresses ? { opacity: 0.8 } : undefined, [hasMultipleAddresses])
 
     const toggleAccountId = useCallback((accountId: string) => {
       setSelectedAccountIds(previousState =>
@@ -523,7 +516,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
   All namespaces require at least one account in the response payload
   https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#24-session-namespaces-must-contain-at-least-one-account-in-requested-chains
    */
-    const allNamespacesHaveAccounts = useMemo(() => {
+    const _allNamespacesHaveAccounts = useMemo(() => {
       const allRequiredNamespacesHaveAccounts = checkAllNamespacesHaveAccounts(
         requiredNamespaces,
         selectedAccountIds,
@@ -587,7 +580,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       [dispatch, handleClose, proposal, web3wallet, optionalNamespaces, requiredNamespaces],
     )
 
-    const handleConnectSelectedAccountIds = useCallback(
+    const _handleConnectSelectedAccountIds = useCallback(
       () => handleConnectAccountIds(selectedAccountIds),
       [handleConnectAccountIds, selectedAccountIds],
     )
@@ -670,7 +663,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               onAccountClick={handleAccountClick}
               onNetworkClick={handleNetworkClick}
               onConnectAll={handleConnectAll}
-              onConnectSelected={() => handleConnectAccountIds(newSelectedAccountIds)}
+              onConnectSelected={handleConnectSelected}
               onReject={handleRejectAndClose}
               isLoading={isLoading}
               canConnect={newSelectedAccountIds.length > 0 && allNamespacesSupported}
@@ -679,194 +672,27 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           )
         case 'choose-account':
           return (
-            <VStack spacing={0} align='stretch' h='full'>
-              {/* Header with back arrow */}
-              <HStack spacing={3} p={4} align='center'>
-                <IconButton
-                  aria-label='Back'
-                  icon={<ArrowBackIcon />}
-                  size='sm'
-                  variant='ghost'
-                  onClick={() => setCurrentStep('main')}
-                />
-                <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
-                  {translate('plugins.walletConnectToDapps.modal.chooseAccount')}
-                </RawText>
-                <Box w={8} /> {/* Spacer for centering */}
-              </HStack>
-
-              {/* Account list */}
-              <RadioGroup
-                value={selectedAddress || ''}
-                onChange={(address) => {
-                  setNewSelectedAccountIds(evmAccountIdsByAddress[address] || [])
-                }}
-              >
-                <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
-                  {uniqueEvmAddresses.map((address, index) => (
-                    <Box key={address} py={3}>
-                      <HStack 
-                        spacing={3} 
-                        width='full' 
-                        align='center'
-                        cursor='pointer'
-                        onClick={() => {
-                          setNewSelectedAccountIds(evmAccountIdsByAddress[address] || [])
-                        }}
-                      >
-                        <Image borderRadius='full' boxSize='40px' src={makeBlockiesUrl(address)} />
-                        <VStack spacing={0} align='start' flex={1}>
-                          <RawText fontSize='md' fontWeight='medium'>
-                            Account #{index}
-                          </RawText>
-                          <RawText fontSize='sm' color='gray.500'>
-                            {address.slice(0, 6)}...{address.slice(-4)}
-                          </RawText>
-                        </VStack>
-                        <Radio value={address} />
-                      </HStack>
-                    </Box>
-                  ))}
-                </VStack>
-              </RadioGroup>
-
-              {/* Done button */}
-              <Box p={6}>
-                <Button
-                  size='lg'
-                  width='full'
-                  colorScheme='blue'
-                  onClick={() => setCurrentStep('main')}
-                  isDisabled={newSelectedAccountIds.length === 0}
-                >
-                  {translate('common.done')}
-                </Button>
-              </Box>
-            </VStack>
+            <AccountSelection
+              uniqueEvmAddresses={uniqueEvmAddresses}
+              selectedAddress={selectedAddress}
+              onAddressChange={handleAddressChange}
+              onBack={handleBackToMain}
+              onDone={handleBackToMain}
+              translate={translate}
+            />
           )
         case 'choose-network':
           return (
-            <VStack spacing={0} align='stretch' h='full'>
-              {/* Header with back arrow and Select All */}
-              <HStack spacing={3} p={4} align='center'>
-                <IconButton
-                  aria-label='Back'
-                  icon={<ArrowBackIcon />}
-                  size='sm'
-                  variant='ghost'
-                  onClick={() => setCurrentStep('main')}
-                />
-                <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
-                  {translate('plugins.walletConnectToDapps.modal.chooseNetwork')}
-                </RawText>
-                <Button
-                  size='sm'
-                  variant='ghost'
-                  colorScheme='blue'
-                  onClick={handleSelectAllChains}
-                  fontSize='sm'
-                  fontWeight='medium'
-                >
-                  Select All
-                </Button>
-              </HStack>
-
-              {/* Network list */}
-              <CheckboxGroup
-                value={selectedChainIds}
-                onChange={(values) => setSelectedChainIds(values as string[])}
-              >
-                <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
-                  {allEvmChainData.map(chain => {
-                    const isRequired = requiredChainIds.includes(chain.chainId)
-                    const isDisabled = !chain.hasAccount || isRequired
-
-
-                    return (
-                      <Box
-                        key={chain.chainId}
-                        py={3}
-                        opacity={chain.hasAccount ? 1 : 0.5}
-                      >
-                        <HStack spacing={3} width='full' align='center'>
-                          <Image borderRadius='full' boxSize='40px' src={chain.icon} />
-                          <VStack spacing={0} align='start' flex={1}>
-                            <HStack spacing={2} align='center'>
-                              <RawText fontSize='md' fontWeight='medium'>
-                                {chain.name}
-                              </RawText>
-                              {isRequired && (
-                                <HStack
-                                  spacing={1}
-                                  px={2}
-                                  py={1}
-                                  bg='rgba(254, 178, 178, 0.1)'
-                                  borderRadius='full'
-                                  fontSize='xs'
-                                  fontWeight='medium'
-                                  color='red.500'
-                                  align='center'
-                                >
-                                  <Circle size='12px' bg='red.500' color='white'>
-                                    <RawText fontSize='8px' fontWeight='bold'>!</RawText>
-                                  </Circle>
-                                  <RawText fontSize='xs' color='red.500' fontWeight='medium'>
-                                    Required
-                                  </RawText>
-                                </HStack>
-                              )}
-                            </HStack>
-                          </VStack>
-                          <Checkbox
-                            value={chain.chainId}
-                            isDisabled={isDisabled}
-                            size='lg'
-                            colorScheme={isRequired ? 'gray' : 'blue'}
-                            sx={{
-                              '& .chakra-checkbox__control': {
-                                borderRadius: 'full',
-                                width: '24px',
-                                height: '24px',
-                                borderWidth: '2px',
-                                borderColor: 'gray.300',
-                                _checked: {
-                                  bg: isRequired ? 'gray.400' : 'blue.500',
-                                  borderColor: isRequired ? 'gray.400' : 'blue.500',
-                                },
-                              },
-                              '& .chakra-checkbox__control[data-checked]': {
-                                bg: isRequired ? 'gray.400' : 'blue.500',
-                                borderColor: isRequired ? 'gray.400' : 'blue.500',
-                              },
-                            }}
-                          />
-                        </HStack>
-                      </Box>
-                    )
-                  })}
-                </VStack>
-              </CheckboxGroup>
-
-              {/* Done button */}
-              <Box p={6}>
-                <Button
-                  size='lg'
-                  width='full'
-                  colorScheme='blue'
-                  onClick={() => setCurrentStep('main')}
-                  isDisabled={
-                    selectedChainIds.length === 0 ||
-                    !requiredChainIds.every(
-                      chainId =>
-                        selectedChainIds.includes(chainId) &&
-                        allEvmChainData.find(chain => chain.chainId === chainId)?.hasAccount,
-                    )
-                  }
-                >
-                  {translate('common.done')}
-                </Button>
-              </Box>
-            </VStack>
+            <NetworkSelection
+              allEvmChainData={allEvmChainData}
+              selectedChainIds={selectedChainIds}
+              requiredChainIds={requiredChainIds}
+              onChainIdsChange={handleChainIdsChange}
+              onBack={handleBackToMain}
+              onDone={handleBackToMain}
+              canProceed={selectedChainIds.length > 0}
+              translate={translate}
+            />
           )
         default:
           return null
@@ -875,9 +701,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     return (
       <>
-        {currentStep === 'main' && proposer.metadata && (
-          <PeerMeta metadata={proposer.metadata} />
-        )}
+        {currentStep === 'main' && proposer.metadata && <PeerMeta metadata={proposer.metadata} />}
         {renderCurrentStep()}
       </>
     )

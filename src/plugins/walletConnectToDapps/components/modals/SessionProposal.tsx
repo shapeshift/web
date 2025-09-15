@@ -12,7 +12,6 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { mergeWith, uniq } from 'lodash'
@@ -24,7 +23,6 @@ import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -55,7 +53,6 @@ type SessionProposalMainScreenProps = {
   selectedNetworks: string[]
   onAccountClick: () => void
   onNetworkClick: () => void
-  _onConnectAll: () => void
   onConnectSelected: () => void
   onReject: () => void
   isLoading: boolean
@@ -70,7 +67,6 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
   selectedNetworks,
   onAccountClick,
   onNetworkClick,
-  _onConnectAll,
   onConnectSelected,
   onReject,
   isLoading,
@@ -233,21 +229,6 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
   )
 }
 
-const checkAllNamespacesHaveAccounts = (
-  namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
-  selectedAccountIds: AccountId[],
-): boolean => {
-  return Object.values(namespaces).every(
-    namespace =>
-      namespace.chains?.every(requiredChainId =>
-        selectedAccountIds.some(accountId => {
-          const { chainId: accountChainId } = fromAccountId(accountId)
-          return requiredChainId === accountChainId
-        }),
-      ),
-  )
-}
-
 const _createApprovalNamespaces = (
   proposalNamespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
   selectedAccounts: string[],
@@ -362,8 +343,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       return addressMap
     }, [portfolioAccountIds])
 
-    const _assetsById = useAppSelector(selectAssets)
-
     // Get required chains from the proposal
     const requiredChainIds = useMemo(() => {
       return Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? [])
@@ -440,13 +419,12 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       [selectedAddress, evmAccountIdsByAddress],
     )
 
-    const toggleAccountId = useCallback((accountId: string) => {
-      setSelectedAccountIds(previousState =>
-        previousState.includes(accountId)
-          ? previousState.filter(existingAccountId => existingAccountId !== accountId)
-          : [...previousState, accountId],
-      )
-    }, [])
+    const handleSelectAllChains = useCallback(() => {
+      if (selectedAddress) {
+        const addressAccountIds = evmAccountIdsByAddress[selectedAddress] || []
+        setSelectedAccountIds(addressAccountIds)
+      }
+    }, [selectedAddress, evmAccountIdsByAddress])
 
     const checkAllNamespacesSupported = useCallback(
       (
@@ -480,39 +458,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
   All namespaces require at least one account in the response payload
   https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#24-session-namespaces-must-contain-at-least-one-account-in-requested-chains
    */
-    const __allNamespacesHaveAccounts = useMemo(() => {
-      const allRequiredNamespacesHaveAccounts = checkAllNamespacesHaveAccounts(
-        requiredNamespaces,
-        selectedAccountIds,
-      )
-      return allRequiredNamespacesHaveAccounts
-    }, [requiredNamespaces, selectedAccountIds])
-
-    const supportedOptionalNamespacesWithAccounts = useMemo(() => {
-      return Object.fromEntries(
-        Object.entries(optionalNamespaces)
-          .map(([key, namespace]): [string, ProposalTypes.BaseRequiredNamespace] => {
-            namespace.chains = namespace.chains?.filter(chainId => {
-              const chainAccountIds = accountIdsByChainId[chainId] ?? []
-              const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
-              const isSupported =
-                knownChainIds.includes(chainId as KnownChainIds) &&
-                walletSupportsChain({
-                  chainId,
-                  wallet,
-                  isSnapInstalled: false,
-                  checkConnectedAccountIds: chainAccountIds,
-                })
-              return !isRequired && isSupported
-            })
-
-            return [key, namespace]
-          })
-          .filter(([_key, namespace]) => {
-            return namespace.chains && namespace.chains.length > 0
-          }),
-      )
-    }, [accountIdsByChainId, optionalNamespaces, requiredNamespaces, wallet])
 
     const handleConnectAccountIds = useCallback(
       async (_selectedAccountIds: AccountId[]) => {
@@ -549,38 +494,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       [handleConnectAccountIds, selectedAccountIds],
     )
 
-    const handleConnectAll = useCallback(() => {
-      const requiredNamespacesChainIds = Object.values(requiredNamespaces).flatMap(
-        namespace => namespace.chains ?? [],
-      )
-      const optionalNamespacesChainIds = Object.values(
-        supportedOptionalNamespacesWithAccounts,
-      ).flatMap(namespace => namespace.chains ?? [])
-
-      const namespacesChainIds = [...requiredNamespacesChainIds, ...optionalNamespacesChainIds]
-
-      const filteredAccountIds = portfolioAccountIds.filter(accountId => {
-        const chainId = fromAccountId(accountId).chainId
-        return namespacesChainIds.includes(chainId)
-      })
-
-      filteredAccountIds.forEach(accountId => {
-        if (!selectedAccountIds.includes(accountId)) {
-          // For correctness' sake only - it doesn't really matter if we toggle this state field, as we'll then
-          // call handleApproveAccountIds with all AccountIds directly and users won't see the selection
-          toggleAccountId(accountId)
-        }
-      })
-      handleConnectAccountIds(filteredAccountIds)
-    }, [
-      handleConnectAccountIds,
-      selectedAccountIds,
-      toggleAccountId,
-      requiredNamespaces,
-      supportedOptionalNamespacesWithAccounts,
-      portfolioAccountIds,
-    ])
-
     const handleReject = useCallback(async () => {
       setIsLoading(true)
 
@@ -602,9 +515,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const modalBody: JSX.Element = useMemo(() => {
       return allNamespacesSupported ? (
-        <VStack spacing={0}>
-          {/* Empty body - all content is now in the ConnectWithFooter */}
-        </VStack>
+        <VStack spacing={0}></VStack>
       ) : (
         <ModalSection title=''>
           <RawText textAlign='center' color='text.subtle'>
@@ -626,7 +537,6 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               selectedNetworks={selectedNetworks}
               onAccountClick={handleAccountClick}
               onNetworkClick={handleNetworkClick}
-              _onConnectAll={handleConnectAll}
               onConnectSelected={handleConnectSelected}
               onReject={handleRejectAndClose}
               isLoading={isLoading}
@@ -657,6 +567,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               requiredChainIds={requiredChainIds}
               selectedAddress={selectedAddress}
               onChainIdsChange={handleChainIdsChange}
+              onSelectAllChains={handleSelectAllChains}
               onBack={handleBackToMain}
               onDone={handleBackToMain}
               translate={translate}

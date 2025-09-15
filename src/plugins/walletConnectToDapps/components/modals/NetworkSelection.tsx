@@ -26,6 +26,7 @@ type NetworkSelectionProps = {
   requiredChainIds: string[]
   selectedAddress: string | null
   onChainIdsChange: (chainIds: string[]) => void
+  onSelectAllChains: () => void
   onBack: () => void
   onDone: () => void
   translate: (key: string) => string
@@ -37,6 +38,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   requiredChainIds,
   selectedAddress,
   onChainIdsChange,
+  onSelectAllChains,
   onBack,
   onDone,
   translate,
@@ -48,7 +50,6 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     (values: (string | number)[]) => onChainIdsChange(values as string[]),
     [onChainIdsChange],
   )
-  const spacerBox = useMemo(() => <Box w={8} />, [])
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
   const checkboxSx = useMemo(
     () => ({
@@ -98,7 +99,9 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
         <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
           {translate('plugins.walletConnectToDapps.modal.chooseNetwork')}
         </RawText>
-        {spacerBox}
+        <Button size='sm' variant='link' colorScheme='blue' onClick={onSelectAllChains}>
+          {translate('common.selectAll')}
+        </Button>
       </HStack>
 
       <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
@@ -168,7 +171,10 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
             return !hasAccount ? (
               <Tooltip
                 key={chainId}
-                label={translate('plugins.walletConnectToDapps.modal.noAccount', { chainName })}
+                label={translate('plugins.walletConnectToDapps.modal.noAccount').replace(
+                  '%{chainName}',
+                  chainName,
+                )}
                 placement='right'
               >
                 {content}

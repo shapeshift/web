@@ -29,7 +29,6 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
   )
   const spacerBox = useMemo(() => <Box w={8} />, [])
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
-  const _hoverStyles = useMemo(() => ({ bg: 'whiteAlpha.50' }), [])
   const handleClickAddress = useCallback(
     (address: string) => () => onAddressChange(address),
     [onAddressChange],

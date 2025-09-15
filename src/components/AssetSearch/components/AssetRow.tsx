@@ -1,6 +1,8 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, Text, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { isToken } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,10 +15,11 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { defaultLongPressConfig } from '@/constants/longPress'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
-import { middleEllipsis } from '@/lib/utils'
+import { chainIdToChainDisplayName, middleEllipsis } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
@@ -27,6 +30,7 @@ import {
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const focus = {
   shadow: 'outline-inset',
@@ -37,8 +41,15 @@ export type AssetRowData = {
   index: number
   data: AssetData
   showPrice?: boolean
+  showChainName?: boolean
   onImportClick?: (asset: Asset) => void
   showRelatedAssets?: boolean
+}
+
+const contractAddressHoverProps = {
+  cursor: 'pointer',
+  color: 'text.base',
+  opacity: 1,
 }
 
 export type AssetRowProps = AssetRowData & ButtonProps
@@ -50,15 +61,15 @@ export const AssetRow: FC<AssetRowProps> = memo(
     showPrice = false,
     onImportClick,
     showRelatedAssets = false,
+    showChainName = false,
     ...props
   }) => {
     const translate = useTranslate()
-    const assetNameColor = useColorModeValue('black', 'white')
-    const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
+    const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 })
+    const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
     const {
       state: { isConnected, wallet },
     } = useWallet()
-    const textColor = useColorModeValue('black', 'white')
 
     const assetId = asset?.assetId
     const relatedAssetIdsFilter = useMemo(
@@ -85,6 +96,21 @@ export const AssetRow: FC<AssetRowProps> = memo(
       useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
 
     const knownAsset = useAppSelector(s => selectAssetById(s, assetId))
+
+    const { assetReference: contractAddress } = fromAssetId(assetId)
+
+    const isAssetToken = isToken(assetId)
+
+    const chainName = chainIdToChainDisplayName(asset.chainId) ?? ''
+
+    const handleCopyContractAddress = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        copyToClipboard(contractAddress)
+      },
+      [copyToClipboard, contractAddress],
+    )
 
     const handleOnClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -134,10 +160,9 @@ export const AssetRow: FC<AssetRowProps> = memo(
         return (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
             <Amount.Fiat
-              fontWeight='semibold'
-              color={textColor}
-              lineHeight='shorter'
-              height='20px'
+              fontWeight='medium'
+              color='text.base'
+              lineHeight={1}
               value={marketData?.price}
             />
             <PriceChangeTag changePercent24Hr={changePercent24Hr} />
@@ -157,22 +182,13 @@ export const AssetRow: FC<AssetRowProps> = memo(
               color='var(--chakra-colors-chakra-body-text)'
               value={userCurrencyBalance}
             />
-            <Amount.Crypto
-              fontSize='sm'
-              fontWeight='normal'
-              value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
-              symbol={asset.symbol}
-            />
           </Flex>
         )
 
       return null
     }, [
       marketData?.price,
-      textColor,
       userCurrencyBalance,
-      cryptoHumanBalance,
-      asset.symbol,
       handleImportClick,
       hideAssetBalance,
       isConnected,
@@ -208,29 +224,57 @@ export const AssetRow: FC<AssetRowProps> = memo(
         {...props}
         {...longPressHandlers(asset)}
       >
-        <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
-          <AssetIcon assetId={asset.assetId} size='sm' flexShrink={0} />
-          <Box textAlign='left' flex={1} minWidth={0}>
+        <Flex gap={3} alignItems='center' flex={1} minWidth={0}>
+          <AssetIcon assetId={asset.assetId} size='md' flexShrink={0} />
+          <Flex gap={1} flexDir='column' textAlign='left' flex={1} minWidth={0}>
             <Text
-              color={assetNameColor}
+              color='text.base'
               lineHeight={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
             >
-              {asset.name}
+              {showChainName ? `${chainName} (${asset.symbol})` : asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
-              <Text fontWeight='normal' fontSize='sm' color={color}>
-                {asset.symbol}
-              </Text>
+              {bnOrZero(cryptoHumanBalance).gt(0) ? (
+                <Amount.Crypto
+                  fontSize='sm'
+                  fontWeight='medium'
+                  value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+                  symbol={asset.symbol}
+                />
+              ) : (
+                <>
+                  <Text fontWeight='medium' fontSize='sm' color='text.subtle'>
+                    {asset.symbol}
+                  </Text>
+                  {isAssetToken && (
+                    <Tooltip
+                      isDisabled={!isLargerThanMd}
+                      label={isCopied ? translate('common.copied') : translate('common.copy')}
+                    >
+                      <Text
+                        fontWeight='medium'
+                        fontSize='sm'
+                        color='text.subtle'
+                        opacity={0.75}
+                        onClick={handleCopyContractAddress}
+                        _hover={contractAddressHoverProps}
+                      >
+                        {middleEllipsis(contractAddress)}
+                      </Text>
+                    </Tooltip>
+                  )}
+                </>
+              )}
               {asset.id && (
-                <Text fontWeight='normal' fontSize='sm' color={color}>
+                <Text fontWeight='medium' fontSize='sm' color='text.subtle'>
                   {middleEllipsis(asset.id)}
                 </Text>
               )}
             </Flex>
-          </Box>
+          </Flex>
         </Flex>
         {rightContent}
       </Button>

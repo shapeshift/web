@@ -802,6 +802,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
   selectMarketDataUserCurrency,
   selectRelatedAssetIdsByAssetIdInclusive,
   preferences.selectors.selectBalanceThresholdUserCurrency,
+  selectPortfolioTotalUserCurrencyBalance,
   (
     portfolioAccountRows,
     accountBalancesById,
@@ -809,6 +810,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
     marketData,
     relatedAssetIdsByAssetId,
     balanceThresholdUserCurrency,
+    totalPortfolioUserCurrencyBalance,
   ): AccountRowData[] => {
     const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
 
@@ -836,6 +838,11 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
 
         if (userCurrencyAmount.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
 
+        const allocation = userCurrencyAmount
+          .div(bnOrZero(totalPortfolioUserCurrencyBalance))
+          .times(100)
+          .toNumber()
+
         const primaryAccountRow: AccountRowData = {
           assetId: primaryAssetId,
           name: primaryAsset?.name ?? '',
@@ -843,8 +850,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
           symbol: primaryAsset?.symbol ?? '',
           fiatAmount: userCurrencyAmount.toFixed(2),
           cryptoAmount: totalCryptoBalance.toFixed(),
-          // @TODO: We probably don't need this anymore as we will remove balance chart
-          allocation: 0,
+          allocation,
           price,
           priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
           relatedAssetKey: primaryAsset?.relatedAssetKey,

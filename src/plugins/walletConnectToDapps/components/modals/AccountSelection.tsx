@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { uniq } from 'lodash'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,43 +9,64 @@ import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { selectWalletEnabledAccountIds } from '@/state/slices/selectors'
+import { firstFourLastFour } from '@/lib/utils'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
+
+// For a given account number, find the first EVM AccountId (they're all the same address) so we can get an address from a given account number
+const getEvmAddressForAccountNumber = (
+  accountIdsByAccountNumberAndChainId: ReturnType<typeof selectAccountIdsByAccountNumberAndChainId>,
+  accountNumber: number,
+): string | null => {
+  const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
+  if (!accountsByChain) return null
+
+  // Find first EVM account ID
+  for (const [chainId, accountIds] of Object.entries(accountsByChain)) {
+    if (isEvmChainId(chainId) && accountIds?.[0]) {
+      return fromAccountId(accountIds[0]).account
+    }
+  }
+
+  return null
+}
 
 const spacerBox = <Box w={8} />
 const backIcon = <ArrowBackIcon />
 
 type AccountSelectionProps = {
-  selectedAddress: string | null
-  onAddressChange: (address: string) => void
+  selectedAccountNumber: number | null
+  onAccountNumberChange: (accountNumber: number) => void
   onBack: () => void
   onDone: () => void
 }
 
 export const AccountSelection: FC<AccountSelectionProps> = ({
-  selectedAddress,
-  onAddressChange,
+  selectedAccountNumber,
+  onAccountNumberChange,
   onBack,
   onDone,
 }) => {
-  const portfolioAccountIds = useAppSelector(selectWalletEnabledAccountIds)
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
   const translate = useTranslate()
 
-  const uniqueEvmAddresses = useMemo(() => {
-    const evmAccountIds = portfolioAccountIds.filter(
-      id => fromAccountId(id).chainNamespace === 'eip155',
-    )
-    const addresses = uniq(evmAccountIds.map(id => fromAccountId(id).account))
-    return addresses
-  }, [portfolioAccountIds])
+  const uniqueAccountNumbers = useMemo(() => {
+    const accountNumbers = Object.keys(accountIdsByAccountNumberAndChainId)
+      .map(Number)
+      .filter(accountNumber => {
+        const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
+        return Object.keys(accountsByChain ?? {}).some(chainId => isEvmChainId(chainId))
+      })
 
-  const handleAddressChange = useCallback(
-    (address: string) => onAddressChange(address),
-    [onAddressChange],
-  )
-  const handleClickAddress = useCallback(
-    (address: string) => () => onAddressChange(address),
-    [onAddressChange],
+    return accountNumbers
+  }, [accountIdsByAccountNumberAndChainId])
+
+  // We must pass account number as a string to <RadioGroup /> but we know it's a number, so safe to cast back
+  const handleAccountNumberChange = useCallback(
+    (accountNumber: string | number) => () => onAccountNumberChange(Number(accountNumber)),
+    [onAccountNumberChange],
   )
 
   return (
@@ -57,30 +78,45 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
         </RawText>
         {spacerBox}
       </HStack>
-      <RadioGroup value={selectedAddress || ''} onChange={handleAddressChange}>
+      <RadioGroup
+        value={selectedAccountNumber?.toString() || ''}
+        onChange={handleAccountNumberChange}
+      >
         <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
-          {uniqueEvmAddresses.map((address, index) => (
-            <Box key={address} py={3}>
-              <HStack
-                spacing={3}
-                width='full'
-                align='center'
-                cursor='pointer'
-                onClick={handleClickAddress(address)}
-              >
-                <LazyLoadAvatar borderRadius='full' boxSize='40px' src={makeBlockiesUrl(address)} />
-                <VStack spacing={0} align='start' flex={1}>
-                  <RawText fontSize='md' fontWeight='medium'>
-                    Account #{index}
-                  </RawText>
-                  <RawText fontSize='sm' color='gray.500'>
-                    {address.slice(0, 6)}...{address.slice(-4)}
-                  </RawText>
-                </VStack>
-                <Radio value={address} />
-              </HStack>
-            </Box>
-          ))}
+          {uniqueAccountNumbers.map(accountNumber => {
+            const address = getEvmAddressForAccountNumber(
+              accountIdsByAccountNumberAndChainId,
+              accountNumber,
+            )
+            if (!address) return null
+
+            return (
+              <Box key={accountNumber} py={3}>
+                <HStack
+                  spacing={3}
+                  width='full'
+                  align='center'
+                  cursor='pointer'
+                  onClick={handleAccountNumberChange(accountNumber)}
+                >
+                  <LazyLoadAvatar
+                    borderRadius='full'
+                    boxSize='40px'
+                    src={makeBlockiesUrl(address)}
+                  />
+                  <VStack spacing={0} align='start' flex={1}>
+                    <RawText fontSize='md' fontWeight='medium'>
+                      {translate('accounts.accountNumber', { accountNumber })}
+                    </RawText>
+                    <RawText fontSize='sm' color='gray.500'>
+                      {firstFourLastFour(address)}
+                    </RawText>
+                  </VStack>
+                  <Radio value={accountNumber.toString()} />
+                </HStack>
+              </Box>
+            )
+          })}
         </VStack>
       </RadioGroup>
       <Box p={4}>
@@ -89,7 +125,7 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
           colorScheme='blue'
           w='full'
           onClick={onDone}
-          isDisabled={!selectedAddress}
+          isDisabled={selectedAccountNumber === null}
         >
           {translate('common.done')}
         </Button>

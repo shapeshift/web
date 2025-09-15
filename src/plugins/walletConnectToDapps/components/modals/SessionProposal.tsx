@@ -36,11 +36,8 @@ import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod, WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
-import {
-  selectAccountIdsByChainId,
-  selectAssets,
-  selectWalletEnabledAccountIds,
-} from '@/state/slices/selectors'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 // Constants and styles
@@ -178,8 +175,8 @@ type SessionProposalStep = 'main' | 'choose-account' | 'choose-network'
 
 type SessionProposalMainScreenProps = {
   modalBody: JSX.Element
-  selectedAddress: string | null
-  uniqueEvmAddresses: string[]
+  selectedAccountNumber: number | null
+  uniqueAccountNumbers: number[]
   selectedNetworks: ChainId[]
   onAccountClick: () => void
   onNetworkClick: () => void
@@ -192,8 +189,8 @@ type SessionProposalMainScreenProps = {
 
 const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
   modalBody,
-  selectedAddress,
-  uniqueEvmAddresses,
+  selectedAccountNumber,
+  uniqueAccountNumbers,
   selectedNetworks,
   onAccountClick,
   onNetworkClick,
@@ -204,17 +201,35 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
   translate,
 }) => {
   const assetsById = useAppSelector(selectAssets)
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
   const chainAdapterManager = getChainAdapterManager()
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
-  const hasMultipleAddresses = uniqueEvmAddresses.length > 1
+  const hasMultipleAccounts = uniqueAccountNumbers.length > 1
   const visibleChains = selectedNetworks.slice(0, maxVisibleChains)
   const remainingCount = selectedNetworks.length - maxVisibleChains
 
   const conditionalHoverStyle = useMemo(
-    () => (hasMultipleAddresses ? hoverStyle : undefined),
-    [hasMultipleAddresses],
+    () => (hasMultipleAccounts ? hoverStyle : undefined),
+    [hasMultipleAccounts],
   )
+
+  // Get address from account number for display (EVM only)
+  const selectedAddress = useMemo(() => {
+    if (selectedAccountNumber === null) return null
+    const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
+    if (!accountsByChain) return null
+
+    // Only get EVM account for display
+    const evmChains = Object.entries(accountsByChain).filter(([chainId]) =>
+      chainId.startsWith('eip155:'),
+    )
+
+    const firstEvmAccountId = evmChains[0]?.[1]?.[0]
+    return firstEvmAccountId ? fromAccountId(firstEvmAccountId).account : null
+  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
   if (!selectedAddress) return <>{modalBody}</>
 
@@ -229,37 +244,31 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
         </RawText>
         <InfoOutlineIcon {...infoIconStyles} />
       </Alert>
-      <Box {...containerBoxStyles} borderColor={borderColor}
-      >
+      <Box {...containerBoxStyles} borderColor={borderColor}>
         <VStack spacing={4}>
           <HStack {...mainHStackStyles}>
             {/* Left: Connect With */}
             <HStack {...leftHStackStyles}>
-              <LazyLoadAvatar
-                src={makeBlockiesUrl(selectedAddress)}
-                {...avatarStyles}
-              />
+              <LazyLoadAvatar src={makeBlockiesUrl(selectedAddress)} {...avatarStyles} />
               <VStack {...textVStackStyles}>
                 <RawText {...labelTextStyles}>
                   {translate('plugins.walletConnectToDapps.modal.connectWith')}
                 </RawText>
                 <HStack
                   {...selectorHStackStyles}
-                  cursor={hasMultipleAddresses ? 'pointer' : 'default'}
-                  onClick={hasMultipleAddresses ? onAccountClick : undefined}
+                  cursor={hasMultipleAccounts ? 'pointer' : 'default'}
+                  onClick={hasMultipleAccounts ? onAccountClick : undefined}
                   _hover={conditionalHoverStyle}
                 >
                   <MiddleEllipsis value={selectedAddress} {...addressTextStyles} />
-                  {hasMultipleAddresses && <ArrowUpDownIcon {...arrowIconStyles} />}
+                  {hasMultipleAccounts && <ArrowUpDownIcon {...arrowIconStyles} />}
                 </HStack>
               </VStack>
             </HStack>
 
             {/* Right: Networks */}
             <VStack {...networkVStackStyles}>
-              <RawText {...labelTextStyles}>
-                Networks
-              </RawText>
+              <RawText {...labelTextStyles}>Networks</RawText>
               <HStack
                 {...networkHStackStyles}
                 cursor='pointer'
@@ -271,7 +280,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
                     const feeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
                     const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
                     const icon = feeAsset?.networkIcon ?? feeAsset?.icon
-                    
+
                     return icon ? (
                       <Box key={chainId} ml={index === 0 ? 0 : -1.5} zIndex={index}>
                         <LazyLoadAvatar {...chainIconStyles} src={icon} />
@@ -279,11 +288,7 @@ const SessionProposalMainScreen: React.FC<SessionProposalMainScreenProps> = ({
                     ) : null
                   })}
                   {remainingCount > 0 && (
-                    <Circle
-                      {...chainCounterStyles}
-                      _dark={darkStyle}
-                      zIndex={visibleChains.length}
-                    >
+                    <Circle {...chainCounterStyles} _dark={darkStyle} zIndex={visibleChains.length}>
                       +{remainingCount}
                     </Circle>
                   )}
@@ -353,11 +358,52 @@ const _createApprovalNamespaces = (
 
 const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
+  optionalNamespaces: ProposalTypes.OptionalNamespaces,
   selectedAccounts: string[],
+  selectedChainIds: ChainId[],
 ): SessionTypes.Namespaces => {
-  // We only handle required namespaces, ignoring optional ones
-  // Our EVM chain selection is the source of truth
-  return _createApprovalNamespaces(requiredNamespaces, selectedAccounts)
+  const approvedNamespaces: SessionTypes.Namespaces = {}
+
+  // Handle required namespaces first
+  const requiredApproval = _createApprovalNamespaces(requiredNamespaces, selectedAccounts)
+  Object.assign(approvedNamespaces, requiredApproval)
+
+  // Get chain IDs that are already covered by required namespaces
+  const requiredChainIds = Object.values(requiredNamespaces)
+    .flatMap(namespace => namespace.chains ?? [])
+    .filter(chainId => chainId.startsWith('eip155:'))
+
+  // For optional namespaces, only include chains that user selected but are not required
+  const additionalChainIds = selectedChainIds.filter(
+    chainId => chainId.startsWith('eip155:') && !requiredChainIds.includes(chainId),
+  )
+
+  if (additionalChainIds.length > 0) {
+    // Create optional namespace for additional EVM chains user selected
+    const optionalEvmNamespace = optionalNamespaces?.eip155
+    if (optionalEvmNamespace) {
+      const eip155AccountIds = selectedAccounts.filter(
+        accountId =>
+          fromAccountId(accountId).chainNamespace === 'eip155' &&
+          additionalChainIds.includes(fromAccountId(accountId).chainId),
+      )
+
+      if (eip155AccountIds.length > 0) {
+        approvedNamespaces.eip155 = {
+          ...(approvedNamespaces.eip155 || {}),
+          accounts: uniq([...(approvedNamespaces.eip155?.accounts || []), ...eip155AccountIds]),
+          methods:
+            optionalEvmNamespace.methods ||
+            Object.values(EIP155_SigningMethod).filter(
+              method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
+            ),
+          events: optionalEvmNamespace.events || [],
+        }
+      }
+    }
+  }
+
+  return approvedNamespaces
 }
 
 const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModalProps>(
@@ -374,23 +420,20 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
   ) => {
     assertIsDefined(proposal)
 
-    const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
-    const portfolioAccountIds = useAppSelector(selectWalletEnabledAccountIds)
+    const accountIdsByAccountNumberAndChainId = useAppSelector(
+      selectAccountIdsByAccountNumberAndChainId,
+    )
 
     const wallet = useWallet().state.wallet
     const translate = useTranslate()
 
     const { id, params } = proposal
-    const { proposer, requiredNamespaces } = params
+    const { proposer, requiredNamespaces, optionalNamespaces } = params
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
     const [currentStep, setCurrentStep] = useState<SessionProposalStep>('main')
-    const selectedAddress = useMemo(() => {
-      const address =
-        selectedAccountIds.length > 0 ? fromAccountId(selectedAccountIds[0]).account : null
-      return address
-    }, [selectedAccountIds])
+    const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
 
     const selectedChainIds = useMemo(() => {
       return uniq(selectedAccountIds.map(id => fromAccountId(id).chainId))
@@ -400,42 +443,53 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       return selectedChainIds
     }, [selectedChainIds])
 
-    const uniqueEvmAddresses = useMemo(() => {
-      const evmAccountIds = portfolioAccountIds.filter(
-        id => fromAccountId(id).chainNamespace === 'eip155',
-      )
-      const addresses = uniq(evmAccountIds.map(id => fromAccountId(id).account))
-      return addresses
-    }, [portfolioAccountIds])
+    const uniqueAccountNumbers = useMemo(() => {
+      // Get unique account numbers that have EVM chains
+      const accountNumbers = Object.keys(accountIdsByAccountNumberAndChainId)
+        .map(Number)
+        .filter(accountNumber => {
+          const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
+          // Only include account numbers that have at least one EVM chain
+          return (
+            accountsByChain &&
+            Object.keys(accountsByChain).some(chainId => chainId.startsWith('eip155:'))
+          )
+        })
+      return accountNumbers.sort((a, b) => a - b)
+    }, [accountIdsByAccountNumberAndChainId])
 
-    const evmAccountIdsByAddress = useMemo(() => {
-      const evmAccountIds = portfolioAccountIds.filter(
-        id => fromAccountId(id).chainNamespace === 'eip155',
-      )
-      const addressMap: Record<string, AccountId[]> = {}
-      evmAccountIds.forEach(id => {
-        const address = fromAccountId(id).account
-        if (!addressMap[address]) addressMap[address] = []
-        addressMap[address].push(id)
-      })
-      return addressMap
-    }, [portfolioAccountIds])
+    // Get EVM account IDs for selected account number
+    const selectedAccountIds_computed = useMemo(() => {
+      if (selectedAccountNumber === null) return []
+      const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
+      if (!accountsByChain) return []
+
+      // Only include EVM chains for WalletConnect
+      const evmAccountIds = Object.entries(accountsByChain)
+        .filter(([chainId]) => chainId.startsWith('eip155:'))
+        .flatMap(([, accountIds]) => accountIds ?? [])
+        .filter((id): id is AccountId => Boolean(id))
+
+      return evmAccountIds
+    }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
     // Get required chains from the proposal
     const requiredChainIds = useMemo(() => {
       return Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? [])
     }, [requiredNamespaces])
 
+    // Initialize with first account number
     useEffect(() => {
-      if (uniqueEvmAddresses.length > 0 && selectedAccountIds.length === 0) {
-        const firstAddress = uniqueEvmAddresses[0]
-        const allAccountIdsForAddress = portfolioAccountIds.filter(id => {
-          const { account, chainNamespace } = fromAccountId(id)
-          return chainNamespace === 'eip155' && account === firstAddress
-        })
-        setSelectedAccountIds(allAccountIdsForAddress)
+      if (uniqueAccountNumbers.length > 0 && selectedAccountNumber === null) {
+        const firstAccountNumber = uniqueAccountNumbers[0]
+        setSelectedAccountNumber(firstAccountNumber)
       }
-    }, [uniqueEvmAddresses, portfolioAccountIds, selectedAccountIds.length])
+    }, [uniqueAccountNumbers, selectedAccountNumber])
+
+    // Update selectedAccountIds when selectedAccountNumber changes
+    useEffect(() => {
+      setSelectedAccountIds(selectedAccountIds_computed)
+    }, [selectedAccountIds_computed])
 
     useEffect(() => {}, [currentStep])
 
@@ -447,27 +501,27 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       setCurrentStep('choose-network')
     }, [])
 
-    const handleAddressChange = useCallback(
-      (address: string) => {
-        setSelectedAccountIds(evmAccountIdsByAddress[address] ?? [])
-      },
-      [evmAccountIdsByAddress],
-    )
+    const handleAccountNumberChange = useCallback((accountNumber: number) => {
+      setSelectedAccountNumber(accountNumber)
+    }, [])
 
     const handleBackToMain = useCallback(() => setCurrentStep('main'), [])
 
     const handleChainIdsChange = useCallback(
       (chainIds: ChainId[]) => {
-        if (selectedAddress) {
-          const addressAccountIds = evmAccountIdsByAddress[selectedAddress] ?? []
-          const filteredAccountIds = addressAccountIds.filter(id => {
-            const chainId = fromAccountId(id).chainId
-            return chainIds.includes(chainId)
-          })
-          setSelectedAccountIds(filteredAccountIds)
+        if (selectedAccountNumber !== null) {
+          const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
+          if (accountsByChain) {
+            // Only include EVM chains for WalletConnect
+            const filteredAccountIds = chainIds
+              .filter(chainId => chainId.startsWith('eip155:'))
+              .flatMap(chainId => accountsByChain[chainId] ?? [])
+              .filter((id): id is AccountId => Boolean(id))
+            setSelectedAccountIds(filteredAccountIds)
+          }
         }
       },
-      [selectedAddress, evmAccountIdsByAddress],
+      [selectedAccountNumber, accountIdsByAccountNumberAndChainId],
     )
 
     const checkAllNamespacesSupported = useCallback(
@@ -478,15 +532,34 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         Object.values(namespaces).every(
           namespace =>
             namespace.chains?.every(chainId => {
+              // Only check EVM chains for WalletConnect
+              if (!chainId.startsWith('eip155:')) return false
+
+              // Check if any account number has this chain
+              const hasChainInAnyAccount = Object.values(accountIdsByAccountNumberAndChainId).some(
+                accountsByChain => {
+                  if (!accountsByChain) return false
+                  const chainAccounts = accountsByChain[chainId]
+                  return chainAccounts ? chainAccounts.length > 0 : false
+                },
+              )
+              if (!hasChainInAnyAccount) return false
+
               return walletSupportsChain({
                 chainId,
                 wallet,
                 isSnapInstalled: false,
-                checkConnectedAccountIds: accountIdsByChainId[chainId] ?? [],
+                checkConnectedAccountIds: Object.values(
+                  accountIdsByAccountNumberAndChainId,
+                ).flatMap(accountsByChain =>
+                  accountsByChain && chainId in accountsByChain
+                    ? accountsByChain[chainId] ?? []
+                    : [],
+                ),
               })
             }),
         ),
-      [accountIdsByChainId],
+      [accountIdsByAccountNumberAndChainId],
     )
 
     /*
@@ -517,7 +590,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
         const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
           requiredNamespaces,
+          optionalNamespaces || {},
           _selectedAccountIds,
+          selectedChainIds,
         )
 
         setIsLoading(true)
@@ -529,7 +604,15 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
         handleClose()
       },
-      [dispatch, handleClose, proposal, web3wallet, requiredNamespaces],
+      [
+        dispatch,
+        handleClose,
+        proposal,
+        web3wallet,
+        requiredNamespaces,
+        optionalNamespaces,
+        selectedChainIds,
+      ],
     )
 
     const handleConnectSelected = useCallback(
@@ -575,8 +658,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           return (
             <SessionProposalMainScreen
               modalBody={modalBody}
-              selectedAddress={selectedAddress}
-              uniqueEvmAddresses={uniqueEvmAddresses}
+              selectedAccountNumber={selectedAccountNumber}
+              uniqueAccountNumbers={uniqueAccountNumbers}
               selectedNetworks={selectedNetworks}
               onAccountClick={handleAccountClick}
               onNetworkClick={handleNetworkClick}
@@ -594,8 +677,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         case 'choose-account':
           return (
             <AccountSelection
-              selectedAddress={selectedAddress}
-              onAddressChange={handleAddressChange}
+              selectedAccountNumber={selectedAccountNumber}
+              onAccountNumberChange={handleAccountNumberChange}
               onBack={handleBackToMain}
               onDone={handleBackToMain}
             />
@@ -605,7 +688,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
             <NetworkSelection
               selectedChainIds={selectedChainIds}
               requiredChainIds={requiredChainIds}
-              selectedAddress={selectedAddress}
+              selectedAccountNumber={selectedAccountNumber}
               requiredNamespaces={requiredNamespaces}
               onSelectedChainIdsChange={handleChainIdsChange}
               onBack={handleBackToMain}

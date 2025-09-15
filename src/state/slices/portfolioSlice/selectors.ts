@@ -1182,3 +1182,23 @@ export const selectIsAnyPortfolioGetAccountLoading = createSelector(
     return Object.values(isPortfolioGetAccountLoadingByAccountId).some(isLoading => isLoading)
   },
 )
+
+export const selectEvmAddressByAccountNumber = createCachedSelector(
+  selectAccountIdsByAccountNumberAndChainId,
+  selectAccountNumberParamFromFilter,
+  (accountIdsByAccountNumberAndChainId, accountNumber): string | null => {
+    if (accountNumber === undefined) return null
+
+    const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
+    if (!accountsByChain) return null
+
+    // Find first EVM account ID - all EVM accounts for same account number share the same address
+    for (const [chainId, accountIds] of Object.entries(accountsByChain)) {
+      if (chainId.startsWith('eip155:') && accountIds?.[0]) {
+        return fromAccountId(accountIds[0]).account
+      }
+    }
+
+    return null
+  },
+)((_s: ReduxState, filter) => filter?.accountNumber ?? 'accountNumber')

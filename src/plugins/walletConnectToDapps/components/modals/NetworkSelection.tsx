@@ -11,7 +11,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { ProposalTypes } from '@walletconnect/types'
 import { uniq } from 'lodash'
 import type { FC } from 'react'
@@ -21,7 +20,8 @@ import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { RawText } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { selectAccountIdsByChainId, selectAssets } from '@/state/slices/selectors'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const backIcon = <ArrowBackIcon />
@@ -65,7 +65,7 @@ const requiredCheckboxSx = {
 type NetworkSelectionProps = {
   selectedChainIds: ChainId[]
   requiredChainIds: ChainId[]
-  selectedAddress: string | null
+  selectedAccountNumber: number | null
   requiredNamespaces: ProposalTypes.RequiredNamespaces
   onSelectedChainIdsChange: (chainIds: ChainId[]) => void
   onBack: () => void
@@ -75,30 +75,27 @@ type NetworkSelectionProps = {
 export const NetworkSelection: FC<NetworkSelectionProps> = ({
   selectedChainIds,
   requiredChainIds,
-  selectedAddress,
+  selectedAccountNumber,
   requiredNamespaces,
   onSelectedChainIdsChange,
   onBack,
   onDone,
 }) => {
   const assetsById = useAppSelector(selectAssets)
-  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
   const chainAdapterManager = getChainAdapterManager()
   const translate = useTranslate()
 
   const allEvmChainIds = useMemo(() => {
     // Use all EVM chains where the user has accounts as source of truth
-    const userChainIds = selectedAddress
-      ? Object.entries(accountIdsByChainId)
-          .filter(
-            ([chainId, accountIds]) =>
-              chainId.startsWith('eip155:') &&
-              (accountIds ?? []).some(
-                accountId => fromAccountId(accountId).account === selectedAddress,
-              ),
-          )
-          .map(([chainId]) => chainId)
-      : []
+    const userChainIds =
+      selectedAccountNumber !== null
+        ? Object.entries(accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {})
+            .filter(([chainId]) => chainId.startsWith('eip155:'))
+            .map(([chainId]) => chainId)
+        : []
 
     // Add any required chains from the dApp (even if user doesn't have accounts)
     const requiredFromNamespaces = Object.values(requiredNamespaces)
@@ -114,7 +111,12 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
       if (!aRequired && bRequired) return 1
       return a.localeCompare(b)
     })
-  }, [selectedAddress, accountIdsByChainId, requiredNamespaces, requiredChainIds])
+  }, [
+    selectedAccountNumber,
+    accountIdsByAccountNumberAndChainId,
+    requiredNamespaces,
+    requiredChainIds,
+  ])
 
   const handleChainIdsChange = useCallback(
     (values: (string | number)[]) => onSelectedChainIdsChange(values as ChainId[]),
@@ -122,19 +124,13 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   )
 
   const handleSelectAllChains = useCallback(() => {
-    if (selectedAddress) {
-      const addressAccountIds = Object.entries(accountIdsByChainId).flatMap(
-        ([_chainId, accountIds]) =>
-          (accountIds ?? []).filter(
-            accountId => fromAccountId(accountId).account === selectedAddress,
-          ),
-      )
-      const availableChainIds = uniq(
-        addressAccountIds.map(accountId => fromAccountId(accountId).chainId),
-      )
-      onSelectedChainIdsChange(availableChainIds)
+    if (selectedAccountNumber !== null) {
+      const availableChainIds = Object.keys(
+        accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
+      ).filter(chainId => chainId.startsWith('eip155:'))
+      onSelectedChainIdsChange(availableChainIds as ChainId[])
     }
-  }, [selectedAddress, accountIdsByChainId, onSelectedChainIdsChange])
+  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, onSelectedChainIdsChange])
 
   return (
     <VStack spacing={0} align='stretch' h='full'>
@@ -154,11 +150,10 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
             const feeAsset = feeAssetId ? assetsById[feeAssetId] : undefined
             const chainName = chainAdapterManager.get(chainId)?.getDisplayName() ?? chainId
             const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
-            const hasAccount = selectedAddress
-              ? (accountIdsByChainId[chainId] ?? []).some(
-                  accountId => fromAccountId(accountId).account === selectedAddress,
-                )
-              : false
+            const hasAccount =
+              selectedAccountNumber !== null
+                ? Boolean(accountIdsByAccountNumberAndChainId[selectedAccountNumber]?.[chainId])
+                : false
             const isRequired = requiredChainIds.includes(chainId)
             const isDisabled = !hasAccount && isRequired
 

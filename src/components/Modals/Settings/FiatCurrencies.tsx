@@ -2,7 +2,7 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -36,34 +36,46 @@ export const FiatCurrencies = ({ isDrawer = false }: FiatCurrenciesProps) => {
     navigate(-1)
   }, [navigate])
 
+  const currencyButtons = useMemo(
+    () =>
+      allFiatCurrencies.map(currency => {
+        const active = currency === selectedCurrency
+        const buttonProps = active
+          ? {
+              isDisabled: true,
+              _disabled: { opacity: 1 },
+            }
+          : {
+              pl: 8,
+              variant: 'ghost',
+              onClick: () => dispatch(setSelectedCurrency({ currency })),
+            }
+        return (
+          <Button
+            width='full'
+            justifyContent='flexStart'
+            key={currency}
+            mb={isDrawer ? 0 : 2}
+            {...buttonProps}
+          >
+            <Flex alignItems='center' textAlign='left'>
+              {active && <Icon as={FaCheck} color='blue.500' />}
+              <Flex ml={4}>
+                <RawText>{currency}</RawText>
+                <RawText mx={2}>-</RawText>
+                <Text translation={`modals.settings.currencies.${currency}`} />
+              </Flex>
+            </Flex>
+          </Button>
+        )
+      }),
+    [allFiatCurrencies, selectedCurrency, dispatch, setSelectedCurrency, isDrawer],
+  )
+
   if (isDrawer) {
     return (
       <Stack width='full' p={0} spacing={2}>
-        {allFiatCurrencies.map(currency => {
-          const active = currency === selectedCurrency
-          const buttonProps = active
-            ? {
-                isDisabled: true,
-                _disabled: { opacity: 1 },
-              }
-            : {
-                pl: 8,
-                variant: 'ghost',
-                onClick: () => dispatch(setSelectedCurrency({ currency })),
-              }
-          return (
-            <Button width='full' justifyContent='flexStart' key={currency} {...buttonProps}>
-              <Flex alignItems='center' textAlign='left'>
-                {active && <Icon as={FaCheck} color='blue.500' />}
-                <Flex ml={4}>
-                  <RawText>{currency}</RawText>
-                  <RawText mx={2}>-</RawText>
-                  <Text translation={`modals.settings.currencies.${currency}`} />
-                </Flex>
-              </Flex>
-            </Button>
-          )
-        })}
+        {currencyButtons}
       </Stack>
     )
   }
@@ -92,37 +104,7 @@ export const FiatCurrencies = ({ isDrawer = false }: FiatCurrenciesProps) => {
           overflowY='auto'
           overflowX='hidden'
         >
-          {allFiatCurrencies.map(currency => {
-            const active = currency === selectedCurrency
-            const buttonProps = active
-              ? {
-                  isDisabled: true,
-                  _disabled: { opacity: 1 },
-                }
-              : {
-                  pl: 8,
-                  variant: 'ghost',
-                  onClick: () => dispatch(setSelectedCurrency({ currency })),
-                }
-            return (
-              <Button
-                width='full'
-                justifyContent='flexStart'
-                key={currency}
-                mb={2}
-                {...buttonProps}
-              >
-                <Flex alignItems='center' textAlign='left'>
-                  {active && <Icon as={FaCheck} color='blue.500' />}
-                  <Flex ml={4}>
-                    <RawText>{currency}</RawText>
-                    <RawText mx={2}>-</RawText>
-                    <Text translation={`modals.settings.currencies.${currency}`} />
-                  </Flex>
-                </Flex>
-              </Button>
-            )
-          })}
+          {currencyButtons}
         </ModalBody>
       </>
     </SlideTransition>

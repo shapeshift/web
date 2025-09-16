@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -30,31 +30,50 @@ export const Languages = ({ isDrawer = false }: LanguagesProps) => {
     navigate(-1)
   }, [navigate])
 
+  const selectedLocaleButton = useMemo(
+    () => (
+      <Button
+        disabled={true}
+        width='full'
+        justifyContent='flexStart'
+        mb={isDrawer ? 0 : 2}
+        _disabled={disabledProps}
+      >
+        <Flex alignItems='center' textAlign='left'>
+          <Icon as={FaCheck} color='blue.500' />
+          <RawText ml={4}>{getLocaleLabel(selectedLocale)}</RawText>
+        </Flex>
+      </Button>
+    ),
+    [selectedLocale, isDrawer],
+  )
+
+  const otherLocaleButtons = useMemo(
+    () =>
+      otherLocales.map(locale => (
+        <Button
+          width='full'
+          justifyContent='flexStart'
+          pl={isDrawer ? 8 : 12}
+          key={locale.key}
+          variant='ghost'
+          data-test={`locale-${locale.key}-button`}
+          // eslint-disable-next-line react-memo/require-usememo
+          onClick={() => {
+            dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
+          }}
+        >
+          <RawText>{locale.label}</RawText>
+        </Button>
+      )),
+    [otherLocales, dispatch, isDrawer],
+  )
+
   if (isDrawer) {
     return (
       <Stack width='full' p={0} spacing={2}>
-        <Button disabled={true} width='full' justifyContent='flexStart' _disabled={disabledProps}>
-          <Flex alignItems='center' textAlign='left'>
-            <Icon as={FaCheck} color='blue.500' />
-            <RawText ml={4}>{getLocaleLabel(selectedLocale)}</RawText>
-          </Flex>
-        </Button>
-        {otherLocales.map(locale => (
-          <Button
-            width='full'
-            justifyContent='flexStart'
-            pl={8}
-            key={locale.key}
-            variant='ghost'
-            data-test={`locale-${locale.key}-button`}
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => {
-              dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
-            }}
-          >
-            <RawText>{locale.label}</RawText>
-          </Button>
-        ))}
+        {selectedLocaleButton}
+        {otherLocaleButtons}
       </Stack>
     )
   }
@@ -76,34 +95,8 @@ export const Languages = ({ isDrawer = false }: LanguagesProps) => {
       <ModalHeader textAlign='center'>{translate('modals.settings.language')}</ModalHeader>
       <>
         <ModalBody alignItems='center' justifyContent='center' textAlign='center'>
-          <Button
-            disabled={true}
-            width='full'
-            justifyContent='flexStart'
-            mb={2}
-            _disabled={disabledProps}
-          >
-            <Flex alignItems='center' textAlign='left'>
-              <Icon as={FaCheck} color='blue.500' />
-              <RawText ml={4}>{getLocaleLabel(selectedLocale)}</RawText>
-            </Flex>
-          </Button>
-          {otherLocales.map(locale => (
-            <Button
-              width='full'
-              justifyContent='flexStart'
-              pl={12}
-              key={locale.key}
-              variant='ghost'
-              data-test={`locale-${locale.key}-button`}
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => {
-                dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
-              }}
-            >
-              <RawText>{locale.label}</RawText>
-            </Button>
-          ))}
+          {selectedLocaleButton}
+          {otherLocaleButtons}
         </ModalBody>
       </>
     </SlideTransition>

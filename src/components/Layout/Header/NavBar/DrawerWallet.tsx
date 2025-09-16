@@ -23,21 +23,13 @@ import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router'
-import { Route, Switch } from 'wouter'
 
+import { DrawerSettings } from './DrawerSettings'
 import { DrawerWalletHeader } from './DrawerWalletHeader'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
-import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
-import { ClearCache } from '@/components/Modals/Settings/ClearCache'
-import { CurrencyFormat } from '@/components/Modals/Settings/CurrencyFormat'
-import { FiatCurrencies } from '@/components/Modals/Settings/FiatCurrencies'
-import { Languages } from '@/components/Modals/Settings/Languages'
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
-import { SettingsContent } from '@/components/Modals/Settings/SettingsContent'
-import { Text as TranslatedText } from '@/components/Text'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -130,55 +122,6 @@ const AccountTableSkeleton: FC = memo(() => (
   </Stack>
 ))
 
-type DrawerSettingsViewProps = {
-  onBack: () => void
-}
-
-const DrawerSettingsView: FC<DrawerSettingsViewProps> = ({ onBack }) => {
-  const location = useLocation()
-  const navigate = useNavigate()
-
-  const handleBackClick = useCallback(() => {
-    if (location.pathname === SettingsRoutes.Index) {
-      onBack()
-    } else {
-      navigate(-1)
-    }
-  }, [location.pathname, navigate, onBack])
-
-  return (
-    <Box display='flex' flexDirection='column' height='100%'>
-      <DialogHeader>
-        <DialogHeader.Left>
-          <DialogBackButton onClick={handleBackClick} />
-        </DialogHeader.Left>
-        <DialogHeader.Middle>
-          <TranslatedText translation='modals.settings.settings' fontWeight='medium' />
-        </DialogHeader.Middle>
-      </DialogHeader>
-      <Box flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
-        <Switch location={location.pathname}>
-          <Route path={SettingsRoutes.Index}>
-            <SettingsContent />
-          </Route>
-          <Route path={SettingsRoutes.Languages}>
-            <Languages isDrawer />
-          </Route>
-          <Route path={SettingsRoutes.FiatCurrencies}>
-            <FiatCurrencies isDrawer />
-          </Route>
-          <Route path={SettingsRoutes.CurrencyFormat}>
-            <CurrencyFormat isDrawer />
-          </Route>
-          <Route path={SettingsRoutes.ClearCache}>
-            <ClearCache isDrawer />
-          </Route>
-        </Switch>
-      </Box>
-    </Box>
-  )
-}
-
 const DrawerWalletInner: FC = memo(() => {
   const translate = useTranslate()
   const send = useModal('send')
@@ -186,26 +129,21 @@ const DrawerWalletInner: FC = memo(() => {
   const { isOpen, close: onClose } = useModal('walletDrawer')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>())
-  const [isSettingsView, setIsSettingsView] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
   const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])
-
-  // Check if we're in settings routes
-  useEffect(() => {
-    setIsSettingsView(location.pathname.startsWith('/settings'))
-  }, [location.pathname])
+  const isSettingsRoute = location.pathname.startsWith('/settings')
 
   // Defer loading the first tab until drawer opens to improve initial opening performance
   useEffect(() => {
-    if (isOpen && !isSettingsView) {
+    if (isOpen && !isSettingsRoute) {
       const timer = setTimeout(() => {
         setLoadedTabs(prev => new Set([...prev, activeTabIndex]))
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [isOpen, activeTabIndex, isSettingsView])
+  }, [isOpen, activeTabIndex, isSettingsRoute])
 
   const {
     state: { isConnected, walletInfo, connectedType },
@@ -248,13 +186,13 @@ const DrawerWalletInner: FC = memo(() => {
     navigate('/')
   }, [navigate])
 
-  if (isSettingsView) {
+  if (isSettingsRoute) {
     return (
       <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
         <DrawerOverlay />
         <DrawerContent width='full' maxWidth='512px'>
           <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
-            <DrawerSettingsView onBack={handleBackToMain} />
+            <DrawerSettings onBack={handleBackToMain} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

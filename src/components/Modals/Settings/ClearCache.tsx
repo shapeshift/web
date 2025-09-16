@@ -10,7 +10,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -98,21 +98,30 @@ export const ClearCache = ({ isDrawer = false }: ClearCacheProps) => {
     )
   }, [dispatch, requestedAccountIds, isLazyTxHistoryEnabled])
 
-  if (isDrawer) {
-    return (
-      <Stack width='full' p={0} spacing={2}>
+  const clearButtons = useMemo(
+    () => (
+      <>
         <ClearCacheButton
           label={translate('modals.settings.clearCache')}
           tooltipText={translate('modals.settings.clearCacheTooltip')}
           onClick={handleClearCacheClick}
-          isDrawer
+          isDrawer={isDrawer}
         />
         <ClearCacheButton
           label={translate('modals.settings.clearTxHistory')}
           tooltipText={translate('modals.settings.clearTxHistoryTooltip')}
           onClick={handleClearTxHistory}
-          isDrawer
+          isDrawer={isDrawer}
         />
+      </>
+    ),
+    [translate, handleClearCacheClick, handleClearTxHistory, isDrawer],
+  )
+
+  if (isDrawer) {
+    return (
+      <Stack width='full' p={0} spacing={2}>
+        {clearButtons}
       </Stack>
     )
   }
@@ -141,16 +150,7 @@ export const ClearCache = ({ isDrawer = false }: ClearCacheProps) => {
           overflowY='auto'
           overflowX='hidden'
         >
-          <ClearCacheButton
-            label={translate('modals.settings.clearCache')}
-            tooltipText={translate('modals.settings.clearCacheTooltip')}
-            onClick={handleClearCacheClick}
-          />
-          <ClearCacheButton
-            label={translate('modals.settings.clearTxHistory')}
-            tooltipText={translate('modals.settings.clearTxHistoryTooltip')}
-            onClick={handleClearTxHistory}
-          />
+          {clearButtons}
         </ModalBody>
       </>
     </SlideTransition>

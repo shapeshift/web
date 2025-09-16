@@ -36,7 +36,7 @@ export const SettingsList: FC = () => {
       </ModalHeader>
       <ModalCloseButton />
       <ModalBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
-        <SettingsContent onHeaderClick={handleHeaderClick} />
+        <SettingsContent />
       </ModalBody>
     </SlideTransition>
   )

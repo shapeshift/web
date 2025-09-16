@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -17,6 +17,12 @@ type DrawerSettingsProps = {
   onBack: () => void
 }
 
+const settingsContentElement = <SettingsContent />
+const languagesElement = <Languages isDrawer />
+const fiatCurrenciesElement = <FiatCurrencies isDrawer />
+const currencyFormatElement = <CurrencyFormat isDrawer />
+const clearCacheElement = <ClearCache isDrawer />
+
 export const DrawerSettings: FC<DrawerSettingsProps> = ({ onBack }) => {
   const location = useLocation()
   const navigate = useNavigate()
@@ -28,12 +34,6 @@ export const DrawerSettings: FC<DrawerSettingsProps> = ({ onBack }) => {
       navigate(-1)
     }
   }, [location.pathname, navigate, onBack])
-
-  const settingsContentElement = useMemo(() => <SettingsContent />, [])
-  const languagesElement = useMemo(() => <Languages isDrawer />, [])
-  const fiatCurrenciesElement = useMemo(() => <FiatCurrencies isDrawer />, [])
-  const currencyFormatElement = useMemo(() => <CurrencyFormat isDrawer />, [])
-  const clearCacheElement = useMemo(() => <ClearCache isDrawer />, [])
 
   return (
     <Box display='flex' flexDirection='column' height='100%'>

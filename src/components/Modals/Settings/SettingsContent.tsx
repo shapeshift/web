@@ -9,7 +9,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback } from 'react'
 import { FaBroom, FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
@@ -39,20 +39,19 @@ const faBroomIcon = <Icon as={FaBroom} color='text.subtle' />
 const ioLockClosedIcon = <Icon as={IoLockClosed} color='text.subtle' />
 const ioDocumentTextIcon = <Icon as={IoDocumentTextOutline} color='text.subtle' />
 const faTrashIcon = <FaTrash />
+const themeColorIcon = <Icon as={MoonIcon} color='text.subtle' />
 
 type SettingsContentProps = {
   onClose?: () => void
-  onHeaderClick?: () => void
 }
 
-export const SettingsContent: FC<SettingsContentProps> = ({ onClose, onHeaderClick }) => {
+export const SettingsContent: FC<SettingsContentProps> = ({ onClose }) => {
   const navigate = useNavigate()
   const { navigate: browserNavigate } = useBrowserRouter()
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const settings = useModal('settings')
   const { toggleColorMode } = useColorMode()
-  const [clickCount, setClickCount] = useState<number>(0)
   const isDarkMode = useColorModeValue(false, true)
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
@@ -61,26 +60,7 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose, onHeaderCli
 
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
 
-  // Note: handleHeaderClick is used implicitly through onHeaderClick prop pattern
-  const handleHeaderClick = useCallback(() => {
-    if (onHeaderClick) {
-      onHeaderClick()
-      return
-    }
-
-    if (clickCount === 4) {
-      setClickCount(0)
-      settings.close()
-      browserNavigate('/flags')
-    } else {
-      setClickCount(clickCount + 1)
-    }
-  }, [clickCount, setClickCount, settings, browserNavigate, onHeaderClick])
-
-  // Suppress unused variable warning - this is part of the extraction pattern
-  void handleHeaderClick
-
-  const closeModalAndNavigateTo = useCallback(
+  const closeAndNavigateTo = useCallback(
     (linkHref: string) => {
       if (onClose) {
         onClose()
@@ -113,8 +93,6 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose, onHeaderCli
 
   const handleClearCacheClick = useCallback(() => navigate(SettingsRoutes.ClearCache), [navigate])
 
-  const themeColorIcon = useMemo(() => <Icon as={MoonIcon} color='text.subtle' />, [])
-
   const handleCurrencyClick = useCallback(() => {
     navigate(SettingsRoutes.FiatCurrencies)
   }, [navigate])
@@ -129,13 +107,13 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose, onHeaderCli
   }, [navigate])
 
   const handleTosClick = useCallback(
-    () => closeModalAndNavigateTo('/legal/terms-of-service'),
-    [closeModalAndNavigateTo],
+    () => closeAndNavigateTo('/legal/terms-of-service'),
+    [closeAndNavigateTo],
   )
 
   const handlePrivacyPolicyClick = useCallback(
-    () => closeModalAndNavigateTo('/legal/privacy-policy'),
-    [closeModalAndNavigateTo],
+    () => closeAndNavigateTo('/legal/privacy-policy'),
+    [closeAndNavigateTo],
   )
 
   return (

@@ -7,6 +7,7 @@ import {
   IconButton,
   ModalBody,
   ModalHeader,
+  Stack,
   Tooltip,
 } from '@chakra-ui/react'
 import { useCallback } from 'react'
@@ -30,13 +31,22 @@ const ClearCacheButton = ({
   label,
   tooltipText,
   onClick,
+  isDrawer = false,
 }: {
   label: string
   tooltipText: string
   onClick: () => void
+  isDrawer?: boolean
 }) => {
   return (
-    <Button mb={2} width='full' justifyContent='flexStart' pl={8} variant='ghost' onClick={onClick}>
+    <Button
+      mb={isDrawer ? 0 : 2}
+      width='full'
+      justifyContent='flexStart'
+      pl={8}
+      variant='ghost'
+      onClick={onClick}
+    >
       <Flex alignItems='center' textAlign='left'>
         <Flex ml={4}>
           <RawText>{label}</RawText>
@@ -51,7 +61,11 @@ const ClearCacheButton = ({
   )
 }
 
-export const ClearCache = () => {
+type ClearCacheProps = {
+  isDrawer?: boolean
+}
+
+export const ClearCache = ({ isDrawer = false }: ClearCacheProps) => {
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
@@ -83,6 +97,25 @@ export const ClearCache = () => {
       dispatch(txHistoryApi.endpoints.getAllTxHistory.initiate(requestedAccountId)),
     )
   }, [dispatch, requestedAccountIds, isLazyTxHistoryEnabled])
+
+  if (isDrawer) {
+    return (
+      <Stack width='full' p={0} spacing={2}>
+        <ClearCacheButton
+          label={translate('modals.settings.clearCache')}
+          tooltipText={translate('modals.settings.clearCacheTooltip')}
+          onClick={handleClearCacheClick}
+          isDrawer
+        />
+        <ClearCacheButton
+          label={translate('modals.settings.clearTxHistory')}
+          tooltipText={translate('modals.settings.clearTxHistoryTooltip')}
+          onClick={handleClearTxHistory}
+          isDrawer
+        />
+      </Stack>
+    )
+  }
 
   return (
     <SlideTransition>

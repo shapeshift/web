@@ -1,5 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -15,7 +15,11 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const arrowBackIcon = <ArrowBackIcon />
 const disabledProps = { opacity: 1 }
 
-export const Languages = () => {
+type LanguagesProps = {
+  isDrawer?: boolean
+}
+
+export const Languages = ({ isDrawer = false }: LanguagesProps) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
@@ -25,6 +29,35 @@ export const Languages = () => {
   const handleGoBack = useCallback(() => {
     navigate(-1)
   }, [navigate])
+
+  if (isDrawer) {
+    return (
+      <Stack width='full' p={0} spacing={2}>
+        <Button disabled={true} width='full' justifyContent='flexStart' _disabled={disabledProps}>
+          <Flex alignItems='center' textAlign='left'>
+            <Icon as={FaCheck} color='blue.500' />
+            <RawText ml={4}>{getLocaleLabel(selectedLocale)}</RawText>
+          </Flex>
+        </Button>
+        {otherLocales.map(locale => (
+          <Button
+            width='full'
+            justifyContent='flexStart'
+            pl={8}
+            key={locale.key}
+            variant='ghost'
+            data-test={`locale-${locale.key}-button`}
+            // eslint-disable-next-line react-memo/require-usememo
+            onClick={() => {
+              dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
+            }}
+          >
+            <RawText>{locale.label}</RawText>
+          </Button>
+        ))}
+      </Stack>
+    )
+  }
 
   return (
     <SlideTransition>
@@ -63,7 +96,6 @@ export const Languages = () => {
               key={locale.key}
               variant='ghost'
               data-test={`locale-${locale.key}-button`}
-              // we need to pass an arg here, so we need an anonymous function wrapper
               // eslint-disable-next-line react-memo/require-usememo
               onClick={() => {
                 dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))

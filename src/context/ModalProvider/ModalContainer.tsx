@@ -215,11 +215,9 @@ const RatingModal = makeSuspenseful(
 
 const WalletDrawer = makeSuspenseful(
   lazy(() =>
-    import('@/components/Layout/Header/NavBar/DrawerWalletWithRouting').then(
-      ({ DrawerWalletWithRouting }) => ({
-        default: DrawerWalletWithRouting,
-      }),
-    ),
+    import('@/components/Layout/Header/NavBar/DrawerWallet').then(({ DrawerWallet }) => ({
+      default: DrawerWallet,
+    })),
   ),
 )
 

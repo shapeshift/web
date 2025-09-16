@@ -103,6 +103,7 @@ const ActionButton: FC<ActionButtonProps> = memo(({ icon, label, onClick, isDisa
 
 const sendIcon = <SendIcon boxSize='6' color='blue.500' />
 const receiveIcon = <ArrowDownIcon boxSize={6} color='green.500' />
+const initialEntries = ['/', ...Object.values(SettingsRoutes)]
 
 const AccountTableSkeleton: FC = memo(() => (
   <Stack spacing={2}>
@@ -238,14 +239,27 @@ const DrawerWalletInner: FC = memo(() => {
                       flexDirection='column'
                       height='100%'
                     >
-                      <TabList bg='transparent' borderWidth={0} pt={2} pb={4} px={0} gap={2} flexShrink={0}>
+                      <TabList
+                        bg='transparent'
+                        borderWidth={0}
+                        pt={2}
+                        pb={4}
+                        px={0}
+                        gap={2}
+                        flexShrink={0}
+                      >
                         <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
                         <Tab>{translate('accounts.accounts')}</Tab>
                         <Tab>{translate('watchlist.title')}</Tab>
                         <Tab>{translate('navBar.defi')}</Tab>
                         <Tab>{translate('common.activity')}</Tab>
                       </TabList>
-                      <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
+                      <TabPanels
+                        flex='1'
+                        overflow='auto'
+                        maxHeight={'100%'}
+                        className='scroll-container'
+                      >
                         <TabPanel p={0} pt={2} pr={2} height='100%'>
                           {loadedTabs.has(0) ? (
                             <Suspense fallback={accountTableSkeletonFallback}>
@@ -258,7 +272,9 @@ const DrawerWalletInner: FC = memo(() => {
                           )}
                         </TabPanel>
                         <TabPanel p={0} pt={2} pr={2}>
-                          {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
+                          {loadedTabs.has(1) && (
+                            <AccountsListContent onClose={onClose} isSimpleMenu />
+                          )}
                         </TabPanel>
                         <TabPanel p={0} pt={2} pr={2}>
                           {loadedTabs.has(2) && (
@@ -290,8 +306,6 @@ const DrawerWalletInner: FC = memo(() => {
 })
 
 export const DrawerWallet: FC = memo(() => {
-  const initialEntries = useMemo(() => ['/', ...Object.values(SettingsRoutes)], [])
-
   return (
     <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
       <DrawerWalletInner />

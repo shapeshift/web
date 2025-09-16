@@ -16,7 +16,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, useCallback, useState } from 'react'
+import { lazy, memo, useCallback, useContext, useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 
@@ -25,6 +25,7 @@ import { DrawerWalletHeader } from './DrawerWalletHeader'
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
+import { ModalContext } from '@/context/ModalProvider/ModalContainer'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -108,12 +109,28 @@ export const DrawerWallet: FC = memo(() => {
   const { isOpen, close: onClose } = useModal('walletDrawer')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set([0])) // First tab is preloaded
+  const modalContext = useContext(ModalContext)
 
   const {
-    state: { isConnected, walletInfo, connectedType },
+    state: { isConnected, walletInfo, connectedType, modal: walletModalOpen },
     dispatch,
     disconnect,
   } = useWallet()
+
+  useEffect(() => {
+    if (!modalContext) return
+    const hasOpenModal = Object.entries(modalContext.state).some(
+      ([key, modal]) => key !== 'walletDrawer' && modal.isOpen,
+    )
+    if (hasOpenModal && isOpen) {
+      // Give the lazy modals some time to open
+      setTimeout(onClose, 250)
+    }
+
+    if (walletModalOpen && isOpen) {
+      onClose()
+    }
+  }, [modalContext, walletModalOpen, isOpen, onClose])
 
   const handleSendClick = useCallback(() => {
     send.open({})
@@ -134,8 +151,7 @@ export const DrawerWallet: FC = memo(() => {
 
   const handleSwitchProvider = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    onClose()
-  }, [dispatch, onClose])
+  }, [dispatch])
 
   const handleDisconnect = useCallback(() => {
     disconnect()

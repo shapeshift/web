@@ -794,9 +794,31 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   },
 )
 
+// Intermediate memoized selector to precompute total balances by asset
+const selectTotalBalancesByAssetId = createDeepEqualOutputSelector(
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAssets,
+  (accountBalancesById, assets): Record<AssetId, string> => {
+    const totalsByAssetId: Record<AssetId, string> = {}
+
+    // Flatten all account balances into a single pass
+    Object.values(accountBalancesById).forEach(accountBalances => {
+      Object.entries(accountBalances).forEach(([assetId, balance]) => {
+        if (balance && assets[assetId]) {
+          const currentTotal = totalsByAssetId[assetId] || '0'
+          totalsByAssetId[assetId] = bnOrZero(currentTotal).plus(bnOrZero(balance)).toFixed()
+        }
+      })
+    })
+
+    return totalsByAssetId
+  },
+)
+
+// Optimized selector that uses precomputed balances
 export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioAccountRows,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectTotalBalancesByAssetId,
   selectAssets,
   selectMarketDataUserCurrency,
   selectRelatedAssetIdsByAssetIdInclusive,
@@ -804,7 +826,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
   selectPortfolioTotalUserCurrencyBalance,
   (
     portfolioAccountRows,
-    accountBalancesById,
+    totalBalancesByAssetId,
     assets,
     marketData,
     relatedAssetIdsByAssetId,
@@ -820,16 +842,16 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
 
         let totalCryptoBalance = bnOrZero(0)
 
-        Object.values(accountBalancesById).forEach(accountBalances => {
-          allRelatedAssetIds.forEach(relatedAssetId => {
-            const relatedAsset = assets[relatedAssetId]
-            const balance = accountBalances[relatedAssetId]
-            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset?.precision ?? 0)
+        allRelatedAssetIds.forEach(relatedAssetId => {
+          const relatedAsset = assets[relatedAssetId]
+          const balance = totalBalancesByAssetId[relatedAssetId]
 
+          if (balance && relatedAsset) {
+            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset.precision ?? 0)
             if (cryptoBalance) {
               totalCryptoBalance = totalCryptoBalance.plus(bnOrZero(cryptoBalance))
             }
-          })
+          }
         })
 
         const price = marketData[primaryAssetId]?.price ?? '0'

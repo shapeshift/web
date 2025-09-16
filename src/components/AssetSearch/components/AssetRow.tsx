@@ -278,7 +278,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           </Flex>
         </Flex>
         {rightContent}
-        <WatchAssetButton assetId={asset.assetId} />
+        <WatchAssetButton assetId={asset.assetId} bg='transparent' />
       </Button>
     )
   },

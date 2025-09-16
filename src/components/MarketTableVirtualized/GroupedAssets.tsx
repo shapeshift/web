@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux'
 import type { Row } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
+import { WatchAssetButton } from '../AssetHeader/WatchAssetButton'
+
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
@@ -55,6 +57,9 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ asset, onRowClick, onRowLo
     >
       <Flex align='center' gap={3} width='100%'>
         <AssetCell assetId={asset.assetId} />
+        <Flex flexBasis='72px' justifyContent='flex-start' flexShrink={0} pl={4}>
+          <WatchAssetButton assetId={asset.assetId} bg='transparent' ml='none' />
+        </Flex>
       </Flex>
     </Flex>
   )

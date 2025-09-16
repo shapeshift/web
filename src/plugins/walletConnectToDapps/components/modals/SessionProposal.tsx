@@ -70,11 +70,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       return accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? null
     }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
-    // Initialize with first, lowest EVM account number found - since we automagically upsert accounts by lowest account number,
-    // that *should* be the lowest one (0th if handy) but just to be safe, we re-sort account numbers here
     useEffect(() => {
       if (uniqueEvmAccountNumbers.length > 0 && selectedAccountNumber === null) {
-        const firstAccountNumber = uniqueEvmAccountNumbers.sort((a, b) => a - b)[0]
+        const firstAccountNumber = uniqueEvmAccountNumbers[0]
         setSelectedAccountNumber(firstAccountNumber)
       }
     }, [uniqueEvmAccountNumbers, selectedAccountNumber])

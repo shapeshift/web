@@ -58,7 +58,7 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ asset, onRowClick, onRowLo
       <Flex align='center' gap={3} width='100%'>
         <AssetCell assetId={asset.assetId} />
         <Flex flexBasis='72px' justifyContent='flex-start' flexShrink={0} pl={4}>
-          <WatchAssetButton assetId={asset.assetId} bg='transparent' ml='none' />
+          <WatchAssetButton assetId={asset.assetId} bg='transparent' ml={0} />
         </Flex>
       </Flex>
     </Flex>

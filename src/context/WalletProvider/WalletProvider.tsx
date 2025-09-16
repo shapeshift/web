@@ -160,7 +160,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
           deviceId,
           meta: {
             label: meta?.label ?? '',
-            address: (wallet as MetaMaskMultiChainHDWallet).ethAddress ?? '',
+            address: wallet ? (wallet as MetaMaskMultiChainHDWallet).ethAddress ?? '' : '',
           },
         },
       }
@@ -520,11 +520,45 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               disconnect()
             }
             break
-          // We don't want to pairDevice() for ledger here - this will run on app load and won't work, as WebUSB `requestPermission` must be
-          // called from a user gesture. Instead, we'll pair the device when the user clicks the "Pair Device` button in Ledger `<Connect />`
-          // case KeyManager.Ledger:
-          // const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
-          // return ledgerWallet
+          case KeyManager.Ledger:
+            try {
+              // Get the adapter again in each switch case to narrow down the adapter type
+              const ledgerAdapter = await getAdapter(localWalletType)
+
+              if (ledgerAdapter) {
+                currentAdapters[localWalletType] = ledgerAdapter
+                dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+                // Fixes issue with wallet `type` being null when the wallet is loaded from state
+                dispatch({
+                  type: WalletActions.SET_CONNECTOR_TYPE,
+                  payload: { modalType: localWalletType, isMipdProvider: false },
+                })
+              }
+
+              // Don't call pairDevice() here as it requires user gesture for WebUSB permission
+              // Instead, restore the wallet state in read-only mode
+              const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
+              
+              dispatch({
+                type: WalletActions.SET_WALLET,
+                payload: {
+                  wallet: null, // No physical wallet connection yet
+                  name,
+                  icon,
+                  deviceId: localWalletDeviceId,
+                  connectedType: KeyManager.Ledger,
+                },
+              })
+              dispatch({
+                type: WalletActions.SET_IS_CONNECTED,
+                payload: true,
+              })
+            } catch (e) {
+              console.error(e)
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
           case KeyManager.KeepKey:
             try {
               const localKeepKeyWallet = await (async () => {

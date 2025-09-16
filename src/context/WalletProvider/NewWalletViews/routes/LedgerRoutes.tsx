@@ -12,6 +12,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isSome } from '@/lib/utils'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -165,8 +166,8 @@ export const LedgerRoutes = () => {
   )
 
   const secondaryContent = useMemo(() => {
-    const buttons = [secondaryButton, readOnlyButton].filter(Boolean)
-    return buttons.length > 0 ? <>{buttons}</> : null
+    const buttons = [secondaryButton, readOnlyButton].filter(isSome)
+    return buttons.length ? buttons : null
   }, [secondaryButton, readOnlyButton])
 
   const ledgerPairElement = useMemo(

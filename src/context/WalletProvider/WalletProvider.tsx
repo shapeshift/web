@@ -529,17 +529,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           case KeyManager.Ledger: {
             const featureFlags = preferences.selectors.selectFeatureFlags(store.getState())
             const isLedgerReadOnlyEnabled = featureFlags.LedgerReadOnly
-            console.log(
-              '🔍 WalletProvider Ledger case - flag value:',
-              isLedgerReadOnlyEnabled,
-              'type:',
-              typeof isLedgerReadOnlyEnabled,
-            )
 
             // This flag ensures we restore Ledger as connected in terms of state, i.e
             // wether or not it is *physically* connected
             if (isLedgerReadOnlyEnabled) {
-              console.log('✅ WalletProvider - Restoring Ledger in read-only mode')
               try {
                 // Get the adapter again in each switch case to narrow down the adapter type
                 const ledgerAdapter = await getAdapter(localWalletType)
@@ -588,10 +581,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             } else {
-              console.log('❌ WalletProvider - Flag OFF, NOT restoring Ledger (original behavior)')
               disconnect()
             }
-            // If flag is OFF, disconnect to match original behavior
             break
           }
           case KeyManager.KeepKey:

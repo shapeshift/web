@@ -5,6 +5,8 @@ import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import type { MaybeDrawerProps } from './SettingsCommon'
+
 import { locales } from '@/assets/translations/constants'
 import { getLocaleLabel } from '@/assets/translations/utils'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -15,11 +17,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const arrowBackIcon = <ArrowBackIcon />
 const disabledProps = { opacity: 1 }
 
-type LanguagesProps = {
-  isDrawer?: boolean
-}
-
-export const Languages = ({ isDrawer = false }: LanguagesProps) => {
+export const Languages = ({ isDrawer = false }: MaybeDrawerProps) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)

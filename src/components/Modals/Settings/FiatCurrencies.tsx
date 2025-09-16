@@ -7,6 +7,8 @@ import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import type { MaybeDrawerProps } from './SettingsCommon'
+
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
@@ -16,11 +18,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
 
-type FiatCurrenciesProps = {
-  isDrawer?: boolean
-}
-
-export const FiatCurrencies = ({ isDrawer = false }: FiatCurrenciesProps) => {
+export const FiatCurrencies = ({ isDrawer = false }: MaybeDrawerProps) => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const translate = useTranslate()

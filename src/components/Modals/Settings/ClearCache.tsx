@@ -15,6 +15,8 @@ import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import type { MaybeDrawerProps } from './SettingsCommon'
+
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { reloadWebview } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
@@ -36,8 +38,7 @@ const ClearCacheButton = ({
   label: string
   tooltipText: string
   onClick: () => void
-  isDrawer?: boolean
-}) => {
+} & MaybeDrawerProps) => {
   return (
     <Button
       mb={isDrawer ? 0 : 2}
@@ -61,11 +62,7 @@ const ClearCacheButton = ({
   )
 }
 
-type ClearCacheProps = {
-  isDrawer?: boolean
-}
-
-export const ClearCache = ({ isDrawer = false }: ClearCacheProps) => {
+export const ClearCache = ({ isDrawer = false }: MaybeDrawerProps) => {
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)

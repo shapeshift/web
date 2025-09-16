@@ -6,6 +6,7 @@ import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import type { MaybeDrawerProps } from './SettingsCommon'
 import { currencyFormatsRepresenter } from './SettingsCommon'
 
 import { SlideTransition } from '@/components/SlideTransition'
@@ -15,11 +16,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
 
-type CurrencyFormatProps = {
-  isDrawer?: boolean
-}
-
-export const CurrencyFormat = ({ isDrawer = false }: CurrencyFormatProps) => {
+export const CurrencyFormat = ({ isDrawer = false }: MaybeDrawerProps) => {
   const dispatch = useAppDispatch()
   const currentCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)

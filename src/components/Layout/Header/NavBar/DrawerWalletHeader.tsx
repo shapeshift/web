@@ -57,7 +57,11 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     )
 
     const handleSettingsClick = useCallback(() => {
-      onSettingsClick?.() ?? settings.open({})
+      if (onSettingsClick) {
+        onSettingsClick()
+      } else {
+        settings.open({})
+      }
     }, [settings, onSettingsClick])
 
     const repeatIcon = useMemo(() => <RepeatIcon />, [])

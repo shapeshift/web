@@ -37,7 +37,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 // Lazy-loaded tab components for better performance
-const tabSpinnerSx = { height: '200px' }
+const tabSpinnerStyle = { height: '200px' }
 
 const AccountTable = lazy(() =>
   import('@/pages/Dashboard/components/AccountList/AccountTable').then(({ AccountTable }) => ({
@@ -51,7 +51,7 @@ const WatchlistTable = makeSuspenseful(
       default: WatchlistTable,
     })),
   ),
-  tabSpinnerSx,
+  tabSpinnerStyle,
 )
 
 const DeFiEarn = makeSuspenseful(
@@ -60,7 +60,7 @@ const DeFiEarn = makeSuspenseful(
       default: DeFiEarn,
     })),
   ),
-  tabSpinnerSx,
+  tabSpinnerStyle,
 )
 
 const TransactionHistoryContent = makeSuspenseful(
@@ -71,7 +71,7 @@ const TransactionHistoryContent = makeSuspenseful(
       }),
     ),
   ),
-  tabSpinnerSx,
+  tabSpinnerStyle,
 )
 
 type ActionButtonProps = {

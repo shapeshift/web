@@ -5,10 +5,8 @@ import { bn } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCurrentHopIndex } from '../../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
-import { useMixpanel } from '../../MultiHopTrade/components/TradeConfirm/hooks/useMixpanel'
 import { useGetTradeRates } from '../../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -146,20 +144,16 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     }
   }, [])
 
-  const trackMixpanelEvent = useMixpanel()
-
   const setErrorState = useCallback(
     (messageKey: string, amount: number) => {
-      trackMixpanelEvent(MixPanelEvent.QuickBuyFailed)
       setQuickBuyState({ status: 'error', amount, messageKey })
       resetTrade()
     },
-    [resetTrade, trackMixpanelEvent],
+    [resetTrade],
   )
 
   const setSuccessState = useCallback(
     (amount: number) => {
-      trackMixpanelEvent(MixPanelEvent.QuickBuySuccess)
       setQuickBuyState({ status: 'success', amount })
       resetTrade()
 
@@ -170,7 +164,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
         )
       }, SUCCESS_TIMEOUT_MS)
     },
-    [resetTrade, clearSuccessTimer, trackMixpanelEvent],
+    [resetTrade, clearSuccessTimer],
   )
 
   const startPurchase = useCallback(
@@ -239,17 +233,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
     dispatch(tradeQuoteSlice.actions.initializeQuickBuyTrade(bestNoErrorQuote.quote))
     hasInitializedTradeRef.current = true
-
-    // Track preview event now that we have quote data
-    trackMixpanelEvent(MixPanelEvent.QuickBuyPreview)
-  }, [
-    dispatch,
-    quickBuyState.status,
-    quickBuyState.amount,
-    sortedTradeQuotes,
-    setErrorState,
-    trackMixpanelEvent,
-  ])
+  }, [dispatch, quickBuyState.status, quickBuyState.amount, sortedTradeQuotes, setErrorState])
 
   useEffect(() => {
     if (quickBuyState.status !== 'executing') return

@@ -97,7 +97,7 @@ export const NativeTestPhrase = () => {
   })
 
   const hasChosenWords = useMemo(() => {
-    return testState?.selectedWords.length === TEST_COUNT_REQUIRED
+    return testState?.selectedWords.filter(Boolean).length === TEST_COUNT_REQUIRED
   }, [testState])
 
   const handleSubmit = useCallback(() => {

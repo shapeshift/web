@@ -110,11 +110,7 @@ export type CustomTransactionData = {
   nonce?: string
   gas?: string
   gasLimit?: string
-  speed: WalletConnectFeeDataKey
-  customFee?: {
-    baseFee: string
-    priorityFee: string
-  }
+  speed: FeeDataKey
 }
 
 export type TransactionParams = {
@@ -242,16 +238,10 @@ export type RequestParams =
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
 
-export type WalletConnectFeeDataKey = FeeDataKey | 'custom'
-
 export type ConfirmData = {
   nonce?: string
   gasLimit?: string
-  speed: WalletConnectFeeDataKey
-  customFee?: {
-    baseFee: string
-    priorityFee: string
-  }
+  speed: FeeDataKey
 }
 
 export type SessionProposalRef = {

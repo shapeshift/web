@@ -1,4 +1,10 @@
-import { ChevronRightIcon, CloseIcon, RepeatIcon, SettingsIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import {
+  ChevronRightIcon,
+  CloseIcon,
+  RepeatIcon,
+  SettingsIcon,
+  WarningTwoIcon,
+} from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'

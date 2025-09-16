@@ -15,7 +15,9 @@ import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { TbDots } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
+import { DrawerWalletRoutes } from './DrawerWalletSettings/DrawerSettingsRoutes'
 import { WalletImage } from './WalletImage'
 
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
@@ -35,12 +37,14 @@ type DrawerHeaderProps = {
   connectedType: InitialState['connectedType']
   onDisconnect: () => void
   onSwitchProvider: () => void
+  onClose?: () => void
 }
 
 export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
-  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider }) => {
+  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider, onClose }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
+    const navigate = useNavigate()
 
     const maybeRdns = useAppSelector(selectWalletRdns)
     const mipdProviders = useMipdProviders()
@@ -55,8 +59,19 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     )
 
     const handleSettingsClick = useCallback(() => {
-      settings.open({})
-    }, [settings])
+      // If we're in a drawer context (have onClose prop), use drawer routing
+      if (onClose) {
+        try {
+          navigate(DrawerWalletRoutes.Settings)
+        } catch {
+          // If navigate fails (not in router context), fallback to modal
+          settings.open({})
+        }
+      } else {
+        // Otherwise, use the modal
+        settings.open({})
+      }
+    }, [settings, navigate, onClose])
 
     const repeatIcon = useMemo(() => <RepeatIcon />, [])
     const closeIcon = useMemo(() => <CloseIcon />, [])

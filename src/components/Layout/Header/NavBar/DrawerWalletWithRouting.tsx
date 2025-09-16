@@ -22,10 +22,15 @@ import type { FC } from 'react'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
+import { MemoryRouter, useLocation, useNavigate } from 'react-router'
+import { Route, Switch } from 'wouter'
 
 import { DrawerWalletHeader } from './DrawerWalletHeader'
+import { DrawerWalletRoutes } from './DrawerWalletSettings/DrawerSettingsRoutes'
+import { DrawerWalletSettings } from './DrawerWalletSettings/DrawerWalletSettings'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
+import { AnimatedSwitch } from '@/components/AnimatedSwitch'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -119,11 +124,10 @@ const AccountTableSkeleton: FC = memo(() => (
   </Stack>
 ))
 
-export const DrawerWallet: FC = memo(() => {
+const DrawerWalletMain: FC<{ onClose: () => void }> = memo(({ onClose }) => {
   const translate = useTranslate()
   const send = useModal('send')
   const receive = useModal('receive')
-  const { isOpen, close: onClose } = useModal('walletDrawer')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
 
@@ -131,13 +135,11 @@ export const DrawerWallet: FC = memo(() => {
 
   // Defer loading the first tab until drawer opens to improve initial opening performance
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        setLoadedTabs(prev => new Set([...prev, activeTabIndex]))
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen, activeTabIndex])
+    const timer = setTimeout(() => {
+      setLoadedTabs(prev => new Set([...prev, activeTabIndex]))
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [activeTabIndex])
 
   const {
     state: { isConnected, walletInfo, connectedType },
@@ -173,84 +175,125 @@ export const DrawerWallet: FC = memo(() => {
   }, [disconnect, onClose])
 
   return (
+    <>
+      <DrawerWalletHeader
+        walletInfo={walletInfo}
+        isConnected={isConnected}
+        connectedType={connectedType}
+        onDisconnect={handleDisconnect}
+        onSwitchProvider={handleSwitchProvider}
+        onClose={onClose}
+      />
+      <Box pt={6} pb={8}>
+        <WalletBalanceChange showErroredAccounts={false} />
+      </Box>
+
+      <Flex width='100%' pb={4} gap={2}>
+        <ActionButton
+          icon={sendIcon}
+          label={translate('common.send')}
+          onClick={handleSendClick}
+          isDisabled={!isConnected}
+        />
+        <ActionButton
+          icon={receiveIcon}
+          label={translate('common.receive')}
+          onClick={handleReceiveClick}
+          isDisabled={!isConnected}
+        />
+      </Flex>
+
+      <Box flex='1' overflow='hidden' display='flex' flexDirection='column'>
+        <Tabs
+          index={activeTabIndex}
+          onChange={handleTabChange}
+          variant='soft-rounded'
+          size='sm'
+          isLazy
+          display='flex'
+          flexDirection='column'
+          height='100%'
+        >
+          <TabList bg='transparent' borderWidth={0} pt={2} pb={4} px={0} gap={2} flexShrink={0}>
+            <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
+            <Tab>{translate('accounts.accounts')}</Tab>
+            <Tab>{translate('watchlist.title')}</Tab>
+            <Tab>{translate('navBar.defi')}</Tab>
+            <Tab>{translate('common.activity')}</Tab>
+          </TabList>
+          <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
+            <TabPanel p={0} pt={2} pr={2} height='100%'>
+              {loadedTabs.has(0) ? (
+                <Suspense fallback={accountTableSkeletonFallback}>
+                  <Box height='100%'>
+                    <AccountTable forceCompactView onRowClick={onClose} />
+                  </Box>
+                </Suspense>
+              ) : (
+                accountTableSkeletonFallback
+              )}
+            </TabPanel>
+            <TabPanel p={0} pt={2} pr={2}>
+              {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
+            </TabPanel>
+            <TabPanel p={0} pt={2} pr={2}>
+              {loadedTabs.has(2) && (
+                <WatchlistTable forceCompactView onRowClick={onClose} onExploreMore={onClose} />
+              )}
+            </TabPanel>
+            <TabPanel p={0} pt={2} pr={2}>
+              {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
+            </TabPanel>
+            <TabPanel p={0} pt={2} pr={2}>
+              {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Box>
+    </>
+  )
+})
+
+const DrawerWalletRoutesComponent: FC<{ onClose: () => void }> = memo(({ onClose }) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleBackToMain = useCallback(() => {
+    navigate(DrawerWalletRoutes.Main)
+  }, [navigate])
+
+  const renderMain = useCallback(() => {
+    return <DrawerWalletMain onClose={onClose} />
+  }, [onClose])
+
+  const renderSettings = useCallback(() => {
+    return <DrawerWalletSettings onBack={handleBackToMain} onClose={onClose} />
+  }, [handleBackToMain, onClose])
+
+  return (
+    <AnimatedSwitch>
+      <Switch location={location.pathname}>
+        <Route path={DrawerWalletRoutes.Main}>{renderMain()}</Route>
+        <Route path={DrawerWalletRoutes.Settings}>{renderSettings()}</Route>
+        <Route path='/'>{renderMain()}</Route>
+      </Switch>
+    </AnimatedSwitch>
+  )
+})
+
+const drawerWalletEntries = [DrawerWalletRoutes.Main, DrawerWalletRoutes.Settings]
+
+export const DrawerWalletWithRouting: FC = memo(() => {
+  const { isOpen, close: onClose } = useModal('walletDrawer')
+
+  return (
     <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
       <DrawerOverlay />
       <DrawerContent width='full' maxWidth='512px'>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
-          <DrawerWalletHeader
-            walletInfo={walletInfo}
-            isConnected={isConnected}
-            connectedType={connectedType}
-            onDisconnect={handleDisconnect}
-            onSwitchProvider={handleSwitchProvider}
-            onClose={onClose}
-          />
-          <Box pt={6} pb={8}>
-            <WalletBalanceChange showErroredAccounts={false} />
-          </Box>
-
-          <Flex width='100%' pb={4} gap={2}>
-            <ActionButton
-              icon={sendIcon}
-              label={translate('common.send')}
-              onClick={handleSendClick}
-              isDisabled={!isConnected}
-            />
-            <ActionButton
-              icon={receiveIcon}
-              label={translate('common.receive')}
-              onClick={handleReceiveClick}
-              isDisabled={!isConnected}
-            />
-          </Flex>
-
-          <Box flex='1' overflow='hidden' display='flex' flexDirection='column'>
-            <Tabs
-              index={activeTabIndex}
-              onChange={handleTabChange}
-              variant='soft-rounded'
-              size='sm'
-              isLazy
-              display='flex'
-              flexDirection='column'
-              height='100%'
-            >
-              <TabList bg='transparent' borderWidth={0} pt={2} pb={4} px={0} gap={2} flexShrink={0}>
-                <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
-                <Tab>{translate('accounts.accounts')}</Tab>
-                <Tab>{translate('watchlist.title')}</Tab>
-                <Tab>{translate('navBar.defi')}</Tab>
-                <Tab>{translate('common.activity')}</Tab>
-              </TabList>
-              <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
-                <TabPanel p={0} pt={2} pr={2} height='100%'>
-                  {loadedTabs.has(0) ? (
-                    <Suspense fallback={accountTableSkeletonFallback}>
-                      <Box height='100%'>
-                        <AccountTable forceCompactView onRowClick={onClose} />
-                      </Box>
-                    </Suspense>
-                  ) : (
-                    accountTableSkeletonFallback
-                  )}
-                </TabPanel>
-                <TabPanel p={0} pt={2} pr={2}>
-                  {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
-                </TabPanel>
-                <TabPanel p={0} pt={2} pr={2}>
-                  {loadedTabs.has(2) && (
-                    <WatchlistTable forceCompactView onRowClick={onClose} onExploreMore={onClose} />
-                  )}
-                </TabPanel>
-                <TabPanel p={0} pt={2} pr={2}>
-                  {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
-                </TabPanel>
-                <TabPanel p={0} pt={2} pr={2}>
-                  {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Box>
+          <MemoryRouter initialEntries={drawerWalletEntries} initialIndex={0}>
+            <DrawerWalletRoutesComponent onClose={onClose} />
+          </MemoryRouter>
         </DrawerBody>
       </DrawerContent>
     </Drawer>

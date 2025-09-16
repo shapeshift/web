@@ -27,6 +27,7 @@ export const DrawerSettings: FC<DrawerSettingsProps> = ({ onBack, onClose }) => 
   const location = useLocation()
   const navigate = useNavigate()
 
+  // Ensure that we back out of memory routing back to main route when on main settings route and clicking back
   const handleBackClick = useCallback(() => {
     if (location.pathname === SettingsRoutes.Index) {
       onBack()

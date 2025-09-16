@@ -14,6 +14,10 @@ export const createApprovalNamespaces = (
 ): SessionTypes.Namespaces => {
   const approvedNamespaces: SessionTypes.Namespaces = {}
 
+  const DEFAULT_EIP155_METHODS = Object.values(EIP155_SigningMethod).filter(
+    method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
+  )
+
   const createNamespaceEntry = (
     key: string,
     proposalNamespace: ProposalTypes.RequiredNamespace,
@@ -21,12 +25,7 @@ export const createApprovalNamespaces = (
   ) => {
     // That condition seems useless at runtime since we *currently* only handle eip155
     // but technically, we *do* support Cosmos SDK
-    const methods =
-      key === 'eip155'
-        ? Object.values(EIP155_SigningMethod).filter(
-            method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
-          )
-        : proposalNamespace.methods
+    const methods = key === 'eip155' ? DEFAULT_EIP155_METHODS : proposalNamespace.methods
 
     return {
       accounts,
@@ -56,7 +55,7 @@ export const createApprovalNamespaces = (
     chainId => isEvmChainId(chainId) && !requiredChainIds.includes(chainId),
   )
 
-  if (additionalChainIds.length > 0 && optionalNamespaces?.eip155) {
+  if (additionalChainIds.length > 0) {
     const eip155AccountIds = selectedAccountIds.filter(
       accountId =>
         fromAccountId(accountId).chainNamespace === 'eip155' &&
@@ -64,15 +63,17 @@ export const createApprovalNamespaces = (
     )
 
     if (eip155AccountIds.length > 0) {
+      const existing = approvedNamespaces.eip155
       approvedNamespaces.eip155 = {
-        ...(approvedNamespaces.eip155 ?? {}),
-        accounts: uniq([...(approvedNamespaces.eip155?.accounts ?? []), ...eip155AccountIds]),
-        methods:
-          optionalNamespaces.eip155.methods ??
-          Object.values(EIP155_SigningMethod).filter(
-            method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
-          ),
-        events: optionalNamespaces.eip155.events ?? [],
+        ...(existing ?? {}),
+        accounts: uniq([...(existing?.accounts ?? []), ...eip155AccountIds]),
+        methods: uniq([
+          ...(existing?.methods ?? DEFAULT_EIP155_METHODS),
+          ...(optionalNamespaces?.eip155?.methods && optionalNamespaces.eip155.methods.length > 0
+            ? optionalNamespaces.eip155.methods
+            : DEFAULT_EIP155_METHODS),
+        ]),
+        events: uniq([...(existing?.events ?? []), ...(optionalNamespaces?.eip155?.events ?? [])]),
       }
     }
   }

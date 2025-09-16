@@ -794,20 +794,44 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   },
 )
 
+// Intermediate memoized selector to precompute total balances by asset
+const selectTotalBalancesByAssetId = createDeepEqualOutputSelector(
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAssets,
+  (accountBalancesById, assets): Record<AssetId, string> => {
+    const totalsByAssetId: Record<AssetId, string> = {}
+
+    // Flatten all account balances into a single pass
+    Object.values(accountBalancesById).forEach(accountBalances => {
+      Object.entries(accountBalances).forEach(([assetId, balance]) => {
+        if (balance && assets[assetId]) {
+          const currentTotal = totalsByAssetId[assetId] || '0'
+          totalsByAssetId[assetId] = bnOrZero(currentTotal).plus(bnOrZero(balance)).toFixed()
+        }
+      })
+    })
+
+    return totalsByAssetId
+  },
+)
+
+// Optimized selector that uses precomputed balances
 export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioAccountRows,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectTotalBalancesByAssetId,
   selectAssets,
   selectMarketDataUserCurrency,
   selectRelatedAssetIdsByAssetIdInclusive,
   preferences.selectors.selectBalanceThresholdUserCurrency,
+  selectPortfolioTotalUserCurrencyBalance,
   (
     portfolioAccountRows,
-    accountBalancesById,
+    totalBalancesByAssetId,
     assets,
     marketData,
     relatedAssetIdsByAssetId,
     balanceThresholdUserCurrency,
+    totalPortfolioUserCurrencyBalance,
   ): AccountRowData[] => {
     const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
 
@@ -818,22 +842,27 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
 
         let totalCryptoBalance = bnOrZero(0)
 
-        Object.values(accountBalancesById).forEach(accountBalances => {
-          allRelatedAssetIds.forEach(relatedAssetId => {
-            const relatedAsset = assets[relatedAssetId]
-            const balance = accountBalances[relatedAssetId]
-            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset?.precision ?? 0)
+        allRelatedAssetIds.forEach(relatedAssetId => {
+          const relatedAsset = assets[relatedAssetId]
+          const balance = totalBalancesByAssetId[relatedAssetId]
 
+          if (balance && relatedAsset) {
+            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset.precision ?? 0)
             if (cryptoBalance) {
               totalCryptoBalance = totalCryptoBalance.plus(bnOrZero(cryptoBalance))
             }
-          })
+          }
         })
 
         const price = marketData[primaryAssetId]?.price ?? '0'
         const userCurrencyAmount = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
 
         if (userCurrencyAmount.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+
+        const allocation = userCurrencyAmount
+          .div(bnOrZero(totalPortfolioUserCurrencyBalance))
+          .times(100)
+          .toNumber()
 
         const primaryAccountRow: AccountRowData = {
           assetId: primaryAssetId,
@@ -842,8 +871,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
           symbol: primaryAsset?.symbol ?? '',
           fiatAmount: userCurrencyAmount.toFixed(2),
           cryptoAmount: totalCryptoBalance.toFixed(),
-          // @TODO: We probably don't need this anymore as we will remove balance chart
-          allocation: 0,
+          allocation,
           price,
           priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
           relatedAssetKey: primaryAsset?.relatedAssetKey,

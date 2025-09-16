@@ -34,10 +34,10 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
       <Button
         variant='ghost'
         leftIcon={walletConnectIcon}
-        onClick={handleOpen}
         justifyContent='flex-start'
         flexShrink={0}
         {...buttonProps}
+        onClick={handleOpen}
         width={normalButtonWidth}
       >
         <Box overflow='hidden' textOverflow='ellipsis'>
@@ -53,14 +53,14 @@ export const WalletConnectButtons = (buttonProps?: ButtonProps) => {
     return (
       <IconButton
         variant='ghost'
+        icon={walletConnectIcon}
+        {...buttonProps}
         aria-label={
           hasSessions
             ? translate('plugins.walletConnectToDapps.header.connectAnotherDapp')
             : translate('plugins.walletConnectToDapps.header.connectDapp')
         }
-        icon={walletConnectIcon}
         onClick={handleOpen}
-        {...buttonProps}
       />
     )
   }, [hasSessions, translate, handleOpen, buttonProps])

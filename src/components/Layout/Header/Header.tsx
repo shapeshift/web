@@ -15,7 +15,7 @@ import { MobileNavBar } from './NavBar/MobileNavBar'
 import { NavigationDropdown } from './NavBar/NavigationDropdown'
 import { ShapeShiftMenu } from './NavBar/ShapeShiftMenu'
 import { UserMenu } from './NavBar/UserMenu'
-import { WalletManagerPopover } from './NavBar/WalletManagerPopover'
+import { WalletManagerDrawer } from './NavBar/WalletManagerDrawer'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
@@ -217,7 +217,7 @@ export const Header = memo(() => {
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (
               <Box display={displayProp2}>
-                {isNewWalletManagerEnabled ? <WalletManagerPopover /> : <UserMenu />}
+                {isNewWalletManagerEnabled ? <WalletManagerDrawer /> : <UserMenu />}
               </Box>
             )}
           </HStack>

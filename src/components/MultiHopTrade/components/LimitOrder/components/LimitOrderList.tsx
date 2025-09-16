@@ -351,7 +351,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   }, [])
 
   return (
-    <Card {...cardProps} {...cardstyles}>
+    <Card {...cardstyles} {...cardProps}>
       {onBack && (
         <CardHeader
           px={4}

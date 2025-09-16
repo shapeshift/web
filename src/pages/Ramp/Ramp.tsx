@@ -105,14 +105,14 @@ const RampContent: React.FC = () => {
 }
 
 const rampContentElement = <RampContent />
-const navigateElement = <Navigate to='/ramp/buy' replace />
+const navigateElement = <Navigate to='buy' replace />
 
 export const Ramp: React.FC = () => {
   return (
     <Routes>
-      <Route path='/buy/*' element={rampContentElement} />
-      <Route path='/sell/*' element={rampContentElement} />
-      <Route path='/' element={navigateElement} />
+      <Route path='buy/*' element={rampContentElement} />
+      <Route path='sell/*' element={rampContentElement} />
+      <Route index element={navigateElement} />
     </Routes>
   )
 }

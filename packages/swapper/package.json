@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "17.6.4",
+  "version": "17.6.5",
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",

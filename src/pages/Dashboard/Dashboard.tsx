@@ -14,7 +14,11 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 
@@ -118,13 +122,16 @@ export const Dashboard = memo(() => {
     dispatch: walletDispatch,
     state: { isLoadingLocalWallet, isConnected },
   } = useWallet()
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
 
   useEffect(() => {
     if (isLoadingLocalWallet) return
     if (isConnected) return
+    if (isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger) return
 
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [isLoadingLocalWallet, isConnected, walletDispatch])
+  }, [isLoadingLocalWallet, isConnected, isLedgerReadOnlyEnabled, walletType, walletDispatch])
 
   const mobileHome = useMemo(() => <MobileHome />, [])
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])

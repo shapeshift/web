@@ -1826,6 +1826,7 @@
       "active": "Active",
       "notActive": "Not Active",
       "addSnap": "Add Snap",
+      "installError": "An error occurred installing the Multichain Snap on MetaMask",
       "uninstall": {
         "title": "You have removed Multichain support from MetaMask!",
         "subtitle": "Re-add the Multichain Snap on MetaMask to send, receive, track, trade, and earn with the following chains:"

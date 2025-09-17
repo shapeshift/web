@@ -202,25 +202,13 @@ export const DashboardHeaderTop = memo(() => {
         justifyContent={'center'}
         display={desktopButtonGroupDisplay}
       >
-        <Button
-          isDisabled={!isConnected}
-          onClick={handleQrCodeClick}
-          leftIcon={qrCodeIcon}
-        >
+        <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
           {translate('modals.send.qrCode')}
         </Button>
-        <Button
-          isDisabled={!isConnected}
-          onClick={handleSendClick}
-          leftIcon={arrowUpIcon}
-        >
+        <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={arrowUpIcon}>
           {translate('common.send')}
         </Button>
-        <Button
-          isDisabled={!isConnected}
-          onClick={handleReceiveClick}
-          leftIcon={arrowDownIcon}
-        >
+        <Button isDisabled={!isConnected} onClick={handleReceiveClick} leftIcon={arrowDownIcon}>
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>

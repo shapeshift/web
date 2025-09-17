@@ -10,10 +10,8 @@ export const useLedgerDisconnectionHandler = () => {
   const { dispatch, state } = useWallet()
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
-  // Track USB device connections
   const { isDisconnected: isUSBDisconnected } = useWebUSB(isLedgerReadOnlyEnabled)
 
-  // Handle Ledger disconnection
   useEffect(() => {
     if (!isLedgerReadOnlyEnabled) return
 
@@ -22,12 +20,13 @@ export const useLedgerDisconnectionHandler = () => {
     const isWalletConnected = state.isConnected
     const hasWallet = !!state.wallet
 
-    // Only disconnect wallet if:
-    // 1. Current wallet is Ledger
-    // 2. Wallet is currently connected
-    // 3. We have a wallet instance
-    // 4. USB device was disconnected
-    if (isCurrentWalletLedger && isWalletConnected && hasWallet && isUSBDisconnected) {
+    if (
+      isCurrentWalletLedger &&
+      isWalletConnected &&
+      hasWallet &&
+      isUSBDisconnected &&
+      state.walletInfo
+    ) {
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
         payload: false,
@@ -40,7 +39,7 @@ export const useLedgerDisconnectionHandler = () => {
           name: state.walletInfo?.name,
           icon: state.walletInfo?.icon,
           deviceId: state.walletInfo?.deviceId,
-          connectedType: state.connectedType,
+          connectedType: KeyManager.Ledger,
         },
       })
     }
@@ -51,5 +50,9 @@ export const useLedgerDisconnectionHandler = () => {
     state.wallet,
     dispatch,
     isLedgerReadOnlyEnabled,
+    state.walletInfo?.name,
+    state.walletInfo?.icon,
+    state.walletInfo?.deviceId,
+    state.walletInfo,
   ])
 }

@@ -6,7 +6,7 @@ import type { Asset, MarketData } from '@shapeshiftoss/types'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -15,7 +15,9 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -91,7 +93,8 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   forceCompactView,
 }) => {
   const location = useLocation()
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
+  const walletDrawer = useModal('walletDrawer')
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
@@ -137,6 +140,9 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
       if (provider === DefiProvider.rFOX) {
+        if (walletDrawer.isOpen) {
+          walletDrawer.close()
+        }
         return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
       }
 
@@ -153,6 +159,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
         assets,
       )
+
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
 
       navigate(
         {
@@ -174,7 +184,15 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       )
     },
-    [isConnected, assets, navigate, location, isRfoxFoxEcosystemPageEnabled, dispatch],
+    [
+      isConnected,
+      assets,
+      navigate,
+      location,
+      isRfoxFoxEcosystemPageEnabled,
+      dispatch,
+      walletDrawer,
+    ],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

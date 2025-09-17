@@ -1,5 +1,14 @@
 import { ArrowUpDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
-import { Alert, AlertIcon, Box, Button, HStack, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  HStack,
+  Tooltip,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes } from '@walletconnect/types'
@@ -102,7 +111,12 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
         <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
           {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
         </RawText>
-        <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
+        <Tooltip
+          label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
+          placement='top'
+        >
+          <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
+        </Tooltip>
       </Alert>
       <Box
         bg='transparent'

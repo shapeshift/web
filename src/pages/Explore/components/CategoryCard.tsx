@@ -241,11 +241,7 @@ export const CategoryCard = memo(
           </Button>
         </Flex>
 
-        <Box
-          py={layout === 'horizontal' ? 0 : 2}
-          bg={layout === 'horizontal' ? 'transparent' : 'background.surface.raised.base'}
-          borderRadius='10'
-        >
+        <Box py={layout === 'horizontal' ? 0 : 2} borderRadius='10'>
           {content}
         </Box>
       </Flex>

@@ -162,7 +162,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     return portfolioAssetIdsDelta
   }, [
-    findAllQueryData,
+    findAllQueryData.status,
+    findAllQueryData.currentData,
     isConnected,
     isLoadingLocalWallet,
     modal,

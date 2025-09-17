@@ -12,6 +12,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isSome } from '@/lib/utils'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -35,6 +36,7 @@ export const LedgerRoutes = () => {
   const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
@@ -124,6 +126,10 @@ export const LedgerRoutes = () => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
+  const handleConnectReadOnly = useCallback(() => {
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+  }, [walletDispatch])
+
   const secondaryButton = useMemo(
     () =>
       !isLoading && isPreviousLedgerDeviceDetected ? (
@@ -140,6 +146,29 @@ export const LedgerRoutes = () => {
       ) : null,
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
+
+  const readOnlyButton = useMemo(
+    () =>
+      !isLoading && isLedgerReadOnlyEnabled ? (
+        <Button
+          onClick={handleConnectReadOnly}
+          maxW='200px'
+          width='100%'
+          variant='outline'
+          colorScheme='gray'
+          isDisabled={isLoading}
+          mt={2}
+        >
+          <Text translation='walletProvider.ledger.readOnly.button' />
+        </Button>
+      ) : null,
+    [handleConnectReadOnly, isLoading, isLedgerReadOnlyEnabled],
+  )
+
+  const secondaryContent = useMemo(() => {
+    const buttons = [secondaryButton, readOnlyButton].filter(isSome)
+    return buttons.length ? buttons : null
+  }, [secondaryButton, readOnlyButton])
 
   const ledgerPairElement = useMemo(
     () => (
@@ -159,7 +188,7 @@ export const LedgerRoutes = () => {
         isLoading={isLoading}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
-        secondaryContent={secondaryButton}
+        secondaryContent={secondaryContent}
       />
     ),
     [
@@ -168,7 +197,7 @@ export const LedgerRoutes = () => {
       handlePair,
       isLoading,
       isPreviousLedgerDeviceDetected,
-      secondaryButton,
+      secondaryContent,
     ],
   )
 

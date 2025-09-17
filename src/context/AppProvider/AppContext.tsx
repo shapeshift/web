@@ -16,6 +16,7 @@ import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useActionCenterSubscribers } from '@/hooks/useActionCenterSubscribers/useActionCenterSubscribers'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useLedgerDisconnectionHandler } from '@/hooks/useLedgerDisconnectionHandler'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
@@ -69,6 +70,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useTransactionsSubscriber()
   useActionCenterSubscribers()
   useSnapStatusHandler()
+  useLedgerDisconnectionHandler()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

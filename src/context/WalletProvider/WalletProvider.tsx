@@ -34,7 +34,11 @@ import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHa
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
+import { sleep } from '@/lib/poll/poll'
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
+
+// Global lock to prevent concurrent Ledger USB operations
+let ledgerConnectionInProgress = false
 import {
   selectWalletDeviceId,
   selectWalletRdns,
@@ -552,21 +556,21 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
                 // Try to create a wallet instance without pairing to preserve existing wallet state
-                let wallet = null
-                try {
-                  // Attempt to create an unpaired wallet instance using the adapter
-                  wallet = (await ledgerAdapter?.pairDevice?.()?.catch(() => null)) || null
-                  console.log('Ledger read-only wallet:', wallet)
-                } catch (error) {
-                  // If pairDevice fails (no device connected), continue with null wallet
-                  console.log('Ledger read-only wallet creation failed:', error)
-                  wallet = null
-                }
+                const wallet = ledgerConnectionInProgress
+                  ? null
+                  : await (async () => {
+                      ledgerConnectionInProgress = true
+                      try {
+                        return await ledgerAdapter?.pairDevice?.()?.catch(() => null) || null
+                      } finally {
+                        ledgerConnectionInProgress = false
+                      }
+                    })()
 
                 dispatch({
                   type: WalletActions.SET_WALLET,
                   payload: {
-                    wallet, // Keep existing wallet object if available, null if not
+                    wallet,
                     name,
                     icon,
                     deviceId: localWalletDeviceId,

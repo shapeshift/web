@@ -35,9 +35,6 @@ import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
-
-// Global lock to prevent concurrent Ledger USB operations
-let ledgerConnectionInProgress = false
 import {
   selectWalletDeviceId,
   selectWalletRdns,
@@ -47,6 +44,9 @@ import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portf
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
+
+// Global lock to prevent concurrent Ledger USB operations
+let ledgerConnectionInProgress = false
 
 export type WalletInfo = {
   name: string
@@ -560,7 +560,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   : await (async () => {
                       ledgerConnectionInProgress = true
                       try {
-                        return await ledgerAdapter?.pairDevice?.()?.catch(() => null) || null
+                        return (await ledgerAdapter?.pairDevice?.()?.catch(() => null)) || null
                       } finally {
                         ledgerConnectionInProgress = false
                       }

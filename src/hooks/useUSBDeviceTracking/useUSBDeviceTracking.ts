@@ -16,7 +16,7 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
           vendorId: event.device.vendorId,
           productId: event.device.productId,
           productName: event.device.productName,
-          manufacturerName: event.device.manufacturerName
+          manufacturerName: event.device.manufacturerName,
         })
         setDeviceState('connected')
       }
@@ -28,7 +28,7 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
           vendorId: event.device.vendorId,
           productId: event.device.productId,
           productName: event.device.productName,
-          manufacturerName: event.device.manufacturerName
+          manufacturerName: event.device.manufacturerName,
         })
         setDeviceState('disconnected')
       }
@@ -44,7 +44,7 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
         const devices = await navigator.usb.getDevices()
         const ledgerDevices = devices.filter(device => device.vendorId === LEDGER_VENDOR_ID)
         const hasLedger = ledgerDevices.length > 0
-        
+
         console.log('USB: Initial device check', {
           totalDevices: devices.length,
           ledgerDevicesCount: ledgerDevices.length,
@@ -53,10 +53,10 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
             vendorId: d.vendorId,
             productId: d.productId,
             productName: d.productName,
-            manufacturerName: d.manufacturerName
-          }))
+            manufacturerName: d.manufacturerName,
+          })),
         })
-        
+
         setDeviceState(hasLedger ? 'connected' : 'disconnected')
       } catch (error) {
         // getDevices() may fail if no permissions granted

@@ -185,7 +185,15 @@ export const DashboardHeaderTop = memo(() => {
         />
       </Flex>
     ),
-    [handleTradeClick, handleBuyClick, handleSendClick, handleReceiveClick, isConnected, isLedgerReadOnly, translate],
+    [
+      handleTradeClick,
+      handleBuyClick,
+      handleSendClick,
+      handleReceiveClick,
+      isConnected,
+      isLedgerReadOnly,
+      translate,
+    ],
   )
 
   const desktopButtons = useMemo(
@@ -197,13 +205,25 @@ export const DashboardHeaderTop = memo(() => {
         justifyContent={'center'}
         display={desktopButtonGroupDisplay}
       >
-        <Button isDisabled={!isConnected && !isLedgerReadOnly} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
+        <Button
+          isDisabled={!isConnected && !isLedgerReadOnly}
+          onClick={handleQrCodeClick}
+          leftIcon={qrCodeIcon}
+        >
           {translate('modals.send.qrCode')}
         </Button>
-        <Button isDisabled={!isConnected && !isLedgerReadOnly} onClick={handleSendClick} leftIcon={arrowUpIcon}>
+        <Button
+          isDisabled={!isConnected && !isLedgerReadOnly}
+          onClick={handleSendClick}
+          leftIcon={arrowUpIcon}
+        >
           {translate('common.send')}
         </Button>
-        <Button isDisabled={!isConnected && !isLedgerReadOnly} onClick={handleReceiveClick} leftIcon={arrowDownIcon}>
+        <Button
+          isDisabled={!isConnected && !isLedgerReadOnly}
+          onClick={handleReceiveClick}
+          leftIcon={arrowDownIcon}
+        >
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>

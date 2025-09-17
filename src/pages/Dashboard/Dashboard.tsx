@@ -17,10 +17,10 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { useAppSelector } from '@/state/store'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const mainPadding = { base: 0, md: 4 }
 const pageProps = { paddingTop: 0, pb: 0 }

@@ -13,17 +13,8 @@ export const LedgerFailureBody = ({ icon, onConnectReadOnly }: LedgerFailureBody
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
       {icon}
       <Text fontSize='xl' translation='walletProvider.ledger.failure.header' />
-      <Text 
-        color='gray.500' 
-        translation='walletProvider.ledger.failure.body' 
-        textAlign='center' 
-      />
-      <Button
-        maxW='200px'
-        width='100%'
-        colorScheme='blue'
-        onClick={onConnectReadOnly}
-      >
+      <Text color='gray.500' translation='walletProvider.ledger.failure.body' textAlign='center' />
+      <Button maxW='200px' width='100%' colorScheme='blue' onClick={onConnectReadOnly}>
         <Text translation='walletProvider.ledger.readOnly.button' />
       </Button>
     </Flex>

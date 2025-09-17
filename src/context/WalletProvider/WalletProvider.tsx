@@ -551,10 +551,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 // Instead, restore the wallet state in read-only mode
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
+                // Try to create a wallet instance without pairing to preserve existing wallet state
+                let wallet = null
+                try {
+                  // Attempt to create an unpaired wallet instance using the adapter
+                  wallet = (await ledgerAdapter?.pairDevice?.()?.catch(() => null)) || null
+                  console.log('Ledger read-only wallet:', wallet)
+                } catch (error) {
+                  // If pairDevice fails (no device connected), continue with null wallet
+                  console.log('Ledger read-only wallet creation failed:', error)
+                  wallet = null
+                }
+
                 dispatch({
                   type: WalletActions.SET_WALLET,
                   payload: {
-                    wallet: null, // No physical wallet connection yet
+                    wallet, // Keep existing wallet object if available, null if not
                     name,
                     icon,
                     deviceId: localWalletDeviceId,
@@ -563,7 +575,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: true,
+                  // This is the app refresh case - always assume the device is physically disconnected
+                  // Yes, we `pairDevice()` above to automagically try and recover WebUSB conn, but user may want to choose read-only
+                  // option despite having Ledger physically connected. The only reliable way to connect is the imperative one with "Pair Device"
+                  payload: false,
                 })
 
                 // Show the Ledger modal and navigate to connect screen

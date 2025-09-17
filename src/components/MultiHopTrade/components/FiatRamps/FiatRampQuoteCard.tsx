@@ -9,6 +9,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import type { RampQuote } from '@/components/Modals/FiatRamps/config'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectBuyFiatAsset,
@@ -49,6 +50,16 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     const buyFiat = useAppSelector(selectBuyFiatAsset)
     const sellFiat = useAppSelector(selectSellFiatAsset)
 
+    const buyAssetMarketData = useAppSelector(state =>
+      selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
+    )
+
+    const buyAmountUserCurrency = useMemo(() => {
+      return bnOrZero(quote.amount)
+        .times(buyAssetMarketData?.price ?? 0)
+        .toString()
+    }, [quote.amount, buyAssetMarketData])
+
     const handleQuoteSelection = useCallback(() => {
       dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(quote))
 
@@ -59,22 +70,26 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
       return <AssetIcon src={quote.providerLogo} />
     }, [quote.providerLogo])
 
-    console.log({
-      quote,
-    })
-
     const fiatAmountDisplay = useMemo(() => {
       if (!fiatCurrency || !fiatAmount || !quote.rate) return null
+
+      if (direction === 'buy') {
+        return `${buyAmountUserCurrency} ${sellFiat}`
+      }
 
       const cryptoAmount = quote.amount
       let calculatedFiatAmount = bnOrZero(cryptoAmount).times(quote.rate).toFixed(2)
 
-      if (direction === 'buy') {
-        return `${calculatedFiatAmount} ${sellFiat}`
-      }
-
       return calculatedFiatAmount
-    }, [fiatCurrency, fiatAmount, quote.rate, quote.amount, direction, sellFiat])
+    }, [
+      fiatCurrency,
+      fiatAmount,
+      quote.rate,
+      quote.amount,
+      direction,
+      sellFiat,
+      buyAmountUserCurrency,
+    ])
 
     const headerContent = useMemo(() => {
       return (

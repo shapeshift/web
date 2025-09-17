@@ -53,20 +53,20 @@ export const selectSelectedFiatRampQuote = createSelector(
 
 // Calculate buy amount based on selected quote rate and direction
 export const selectCalculatedBuyAmount = createSelector(
-  [selectBaseSlice, selectSelectedFiatRampQuote],
-  (tradeRampInput, selectedQuote) => {
+  [selectSelectedFiatRampQuote, selectInputSellAmountCryptoPrecision, selectSellFiatAmount],
+  (selectedQuote, sellAmountCryptoPrecision, sellFiatAmount) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
     const rate = bnOrZero(selectedQuote.rate)
-    const sellAmount = bnOrZero(tradeRampInput.sellAmountCryptoPrecision)
-    const sellFiatAmount = bnOrZero(tradeRampInput.sellFiatAmount)
+    const sellAmount = bnOrZero(sellAmountCryptoPrecision)
+    const sellFiatAmountBN = bnOrZero(sellFiatAmount)
 
     // For buy direction: buy amount = fiat amount / rate
     // For sell direction: buy amount = crypto amount * rate
     // We need to determine direction based on which amount is being used
-    if (sellFiatAmount.gt(0)) {
+    if (sellFiatAmountBN.gt(0)) {
       // User is inputting fiat amount (buy direction)
-      return sellFiatAmount.div(rate).toString()
+      return sellFiatAmountBN.div(rate).toString()
     } else if (sellAmount.gt(0)) {
       // User is inputting crypto amount (sell direction)
       return sellAmount.times(rate).toString()

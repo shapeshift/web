@@ -29,8 +29,21 @@ export const getSupportedOnramperCurrencies = async () => {
 }
 
 const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
-  const allPaymentMethods = quotes.flatMap(quote => quote.availablePaymentMethods || [])
-  const supportedMethods = allPaymentMethods.map(method => method.paymentTypeId?.toLowerCase())
+  const allPaymentMethods = quotes.flatMap(quote => {
+    if (quote.availablePaymentMethods) {
+      return [
+        ...quote.availablePaymentMethods.map(method => method.paymentTypeId),
+        quote.paymentMethod,
+      ]
+    }
+
+    if (quote.paymentMethod) {
+      return [quote.paymentMethod]
+    }
+
+    return []
+  })
+  const supportedMethods = allPaymentMethods.map(method => method?.toLowerCase())
 
   return {
     isCreditCard: supportedMethods.some(

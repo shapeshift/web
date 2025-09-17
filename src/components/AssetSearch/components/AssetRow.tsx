@@ -11,6 +11,7 @@ import { useLongPress } from 'use-long-press'
 import type { AssetData } from './AssetList'
 
 import { Amount } from '@/components/Amount/Amount'
+import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
@@ -277,6 +278,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           </Flex>
         </Flex>
         {rightContent}
+        <WatchAssetButton assetId={asset.assetId} bg='transparent' />
       </Button>
     )
   },

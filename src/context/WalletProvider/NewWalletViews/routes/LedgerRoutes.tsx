@@ -12,6 +12,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useUSBDeviceTracking } from '@/hooks/useUSBDeviceTracking'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
@@ -40,6 +41,9 @@ export const LedgerRoutes = () => {
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  
+  // Track USB device connection state
+  const { deviceState, isConnected: isUSBConnected, isDisconnected: isUSBDisconnected } = useUSBDeviceTracking(isLedgerReadOnlyEnabled)
 
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
@@ -143,15 +147,17 @@ export const LedgerRoutes = () => {
         if (wallet) {
           setConnectionState('success')
         } else {
-          setConnectionState('failed')
+          // Only set to failed if USB device is actually disconnected
+          // This prevents false failures when device is connected but pairing fails
+          setConnectionState(isUSBDisconnected ? 'failed' : 'idle')
         }
       } catch (error) {
-        setConnectionState('failed')
+        setConnectionState(isUSBDisconnected ? 'failed' : 'idle')
       }
     } else {
       setConnectionState('failed')
     }
-  }, [isLedgerReadOnlyEnabled, connectionState, getAdapter])
+  }, [isLedgerReadOnlyEnabled, connectionState, getAdapter, isUSBDisconnected])
 
   // Auto-connect when modal opens
   useEffect(() => {
@@ -159,6 +165,34 @@ export const LedgerRoutes = () => {
       handleAutoConnect()
     }
   }, [modalType, isLedgerReadOnlyEnabled, handleAutoConnect])
+
+  // Handle USB device state changes
+  useEffect(() => {
+    if (!isLedgerReadOnlyEnabled) return
+
+    console.log('LedgerRoutes: USB state change', {
+      usbState: deviceState,
+      isUSBConnected,
+      isUSBDisconnected,
+      connectionState
+    })
+
+    // If device disconnects while we're in success state, transition to failed
+    if (isUSBDisconnected && connectionState === 'success') {
+      console.log('LedgerRoutes: Device disconnected, transitioning to failed state')
+      setConnectionState('failed')
+    }
+    
+    // If device reconnects while we're in failed state, reset to idle to trigger auto-connect
+    if (isUSBConnected && connectionState === 'failed') {
+      console.log('LedgerRoutes: Device reconnected, attempting auto-connect')
+      setConnectionState('idle')
+      // Trigger auto-connect after a short delay to allow state to settle
+      setTimeout(() => {
+        handleAutoConnect()
+      }, 500)
+    }
+  }, [isUSBConnected, isUSBDisconnected, connectionState, deviceState, isLedgerReadOnlyEnabled, handleAutoConnect])
 
   // Handle read-only connection
   const handleConnectReadOnly = useCallback(() => {
@@ -184,8 +218,13 @@ export const LedgerRoutes = () => {
 
   // Determine which element to show based on flag and connection state
   const ledgerElement = useMemo(() => {
-    // If flag is enabled and connection failed, show failure screen
-    if (isLedgerReadOnlyEnabled && connectionState === 'failed') {
+    // If flag is enabled and either connection failed OR USB device is disconnected, show failure screen
+    if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
+      console.log('LedgerRoutes: Rendering failure screen', {
+        connectionState,
+        isUSBDisconnected,
+        deviceState
+      })
       return (
         <LedgerFailureBody
           icon={icon}
@@ -195,6 +234,11 @@ export const LedgerRoutes = () => {
     }
 
     // Otherwise show normal pairing screen
+    console.log('LedgerRoutes: Rendering normal pairing screen', {
+      connectionState,
+      deviceState,
+      isLedgerReadOnlyEnabled
+    })
     return (
       <PairBody
         icon={icon}
@@ -218,6 +262,7 @@ export const LedgerRoutes = () => {
   }, [
     isLedgerReadOnlyEnabled,
     connectionState,
+    isUSBDisconnected,
     handleConnectReadOnly,
     deviceCountError,
     error,

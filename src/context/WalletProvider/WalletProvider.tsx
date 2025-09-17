@@ -34,7 +34,6 @@ import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHa
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
-import { sleep } from '@/lib/poll/poll'
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 
 // Global lock to prevent concurrent Ledger USB operations

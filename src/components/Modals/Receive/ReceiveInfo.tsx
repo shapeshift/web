@@ -40,8 +40,10 @@ import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAd
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { firstFourLastFour } from '@/lib/utils'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -77,18 +79,20 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
+  const walletType = useAppSelector(selectWalletType)
+
   useEffect(() => {
     ;(async () => {
       if (!accountMetadata) return
-      if (!wallet) return
       setIsAddressLoading(true)
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
-        deviceId: await wallet.getDeviceID(),
+        // @ts-expect-error - TODO(gomes): fixme, do we have this without a `wallet` instance defined?
+        deviceId: await wallet?.getDeviceID(),
         accountMetadata,
         pubKey:
-          isLedger(wallet) && selectedAccountId
+          walletType === KeyManager.Ledger && selectedAccountId
             ? fromAccountId(selectedAccountId as AccountId).account
             : undefined,
       })
@@ -106,6 +110,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     accountMetadata,
     selectedAccountId,
     navigate,
+    walletType,
   ])
 
   useEffect(() => {
@@ -177,7 +182,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      {wallet && chainAdapter ? (
+      {chainAdapter && (
         <>
           <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
             <Box>
@@ -265,7 +270,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                   translation='modals.receive.copy'
                 />
               </Flex>
-              {!(wallet.getVendor() === 'Native') && (
+              {!(wallet?.getVendor() === 'Native') && (
                 <Flex direction='column' align='center' gap={2}>
                   <IconButton
                     icon={verifyIcon}
@@ -316,10 +321,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
             </HStack>
           </DialogFooter>
         </>
-      ) : (
-        <DialogBody alignItems='center' justifyContent='center'>
-          <Text translation='modals.receive.unsupportedAsset' />
-        </DialogBody>
       )}
     </>
   )

@@ -46,7 +46,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
       acc[rewardDistribution.txId || rewardDistribution.stakingContract] = rewardDistribution
       return acc
     }, {})
-  }, [lifetimeRewardDistributionsQuery])
+  }, [lifetimeRewardDistributionsQuery.data])
 
   useEffect(() => {
     const now = Date.now()

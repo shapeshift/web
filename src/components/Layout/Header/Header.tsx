@@ -163,17 +163,6 @@ export const Header = memo(() => {
           <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
             <ShapeShiftMenu />
             <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>
-              <NavigationDropdown
-                label='common.trade'
-                items={tradeSubMenuItems}
-                defaultPath='/trade'
-              />
-              <NavigationDropdown
-                label='navBar.explore'
-                items={exploreSubMenuItems}
-                defaultPath='/assets'
-              />
-              <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
               <Button
                 variant='ghost'
                 fontWeight='medium'
@@ -188,6 +177,17 @@ export const Header = memo(() => {
               >
                 {translate('common.wallet')}
               </Button>
+              <NavigationDropdown
+                label='common.trade'
+                items={tradeSubMenuItems}
+                defaultPath='/trade'
+              />
+              <NavigationDropdown
+                label='navBar.explore'
+                items={exploreSubMenuItems}
+                defaultPath='/assets'
+              />
+              <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
             </HStack>
           </HStack>
 

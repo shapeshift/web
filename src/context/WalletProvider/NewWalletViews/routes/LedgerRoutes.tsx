@@ -174,22 +174,13 @@ export const LedgerRoutes = () => {
   useEffect(() => {
     if (!isLedgerReadOnlyEnabled) return
 
-    console.log('LedgerRoutes: USB state change', {
-      usbState: deviceState,
-      isUSBConnected,
-      isUSBDisconnected,
-      connectionState,
-    })
-
     // If device disconnects while we're in success state, transition to failed
     if (isUSBDisconnected && connectionState === 'success') {
-      console.log('LedgerRoutes: Device disconnected, transitioning to failed state')
       setConnectionState('failed')
     }
 
     // If device reconnects while we're in failed state, reset to idle to trigger auto-connect
     if (isUSBConnected && connectionState === 'failed') {
-      console.log('LedgerRoutes: Device reconnected, attempting auto-connect')
       setConnectionState('idle')
       // Trigger auto-connect after a short delay to allow state to settle
       setTimeout(() => {
@@ -231,20 +222,10 @@ export const LedgerRoutes = () => {
   const ledgerElement = useMemo(() => {
     // If flag is enabled and either connection failed OR USB device is disconnected, show failure screen
     if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
-      console.log('LedgerRoutes: Rendering failure screen', {
-        connectionState,
-        isUSBDisconnected,
-        deviceState,
-      })
       return <LedgerFailureBody icon={icon} onConnectReadOnly={handleConnectReadOnly} />
     }
 
     // Otherwise show normal pairing screen
-    console.log('LedgerRoutes: Rendering normal pairing screen', {
-      connectionState,
-      deviceState,
-      isLedgerReadOnlyEnabled,
-    })
     return (
       <PairBody
         icon={icon}

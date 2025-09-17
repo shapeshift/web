@@ -45,8 +45,6 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
-// Global lock to prevent concurrent Ledger USB operations
-let ledgerConnectionInProgress = false
 
 export type WalletInfo = {
   name: string
@@ -554,22 +552,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 // Instead, restore the wallet state in read-only mode
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
-                // Try to create a wallet instance without pairing to preserve existing wallet state
-                const wallet = ledgerConnectionInProgress
-                  ? null
-                  : await (async () => {
-                      ledgerConnectionInProgress = true
-                      try {
-                        return (await ledgerAdapter?.pairDevice?.()?.catch(() => null)) || null
-                      } finally {
-                        ledgerConnectionInProgress = false
-                      }
-                    })()
-
                 dispatch({
                   type: WalletActions.SET_WALLET,
                   payload: {
-                    wallet,
+                    wallet: null,
                     name,
                     icon,
                     deviceId: localWalletDeviceId,
@@ -579,8 +565,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
                   // This is the app refresh case - always assume the device is physically disconnected
-                  // Yes, we `pairDevice()` above to automagically try and recover WebUSB conn, but user may want to choose read-only
-                  // option despite having Ledger physically connected. The only reliable way to connect is the imperative one with "Pair Device"
+                  // The only reliable way to connect is the imperative one with "Pair Device" button
                   payload: false,
                 })
 

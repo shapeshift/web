@@ -12,24 +12,12 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
 
     const handleConnect = (event: USBConnectionEvent) => {
       if (event.device.vendorId === LEDGER_VENDOR_ID) {
-        console.log('USB: Ledger device connected', {
-          vendorId: event.device.vendorId,
-          productId: event.device.productId,
-          productName: event.device.productName,
-          manufacturerName: event.device.manufacturerName,
-        })
         setDeviceState('connected')
       }
     }
 
     const handleDisconnect = (event: USBConnectionEvent) => {
       if (event.device.vendorId === LEDGER_VENDOR_ID) {
-        console.log('USB: Ledger device disconnected', {
-          vendorId: event.device.vendorId,
-          productId: event.device.productId,
-          productName: event.device.productName,
-          manufacturerName: event.device.manufacturerName,
-        })
         setDeviceState('disconnected')
       }
     }
@@ -45,22 +33,10 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
         const ledgerDevices = devices.filter(device => device.vendorId === LEDGER_VENDOR_ID)
         const hasLedger = ledgerDevices.length > 0
 
-        console.log('USB: Initial device check', {
-          totalDevices: devices.length,
-          ledgerDevicesCount: ledgerDevices.length,
-          hasLedger,
-          ledgerDevices: ledgerDevices.map(d => ({
-            vendorId: d.vendorId,
-            productId: d.productId,
-            productName: d.productName,
-            manufacturerName: d.manufacturerName,
-          })),
-        })
 
         setDeviceState(hasLedger ? 'connected' : 'disconnected')
       } catch (error) {
         // getDevices() may fail if no permissions granted
-        console.log('USB: Initial device check failed', error)
         setDeviceState('unknown')
       }
     }

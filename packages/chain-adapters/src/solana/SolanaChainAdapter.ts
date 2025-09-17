@@ -164,6 +164,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       if (pubKey) return pubKey
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
       const address = await wallet.solanaGetAddress({
@@ -319,6 +320,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     try {
       const { txToSign, wallet } = signTxInput
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
       const signedTx = await wallet.solanaSignTx(txToSign)
@@ -346,6 +348,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
       const tx = await wallet.solanaSendTx?.(txToSign)

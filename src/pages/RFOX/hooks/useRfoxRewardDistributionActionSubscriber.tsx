@@ -98,7 +98,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         }
       }
     })
-  }, [rewardDistributionsByTxId, dispatch, toast, isDrawerOpen, openActionCenter, actions])
+  }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
 
   useEffect(() => {
     const now = Date.now()
@@ -150,5 +150,5 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         }
       }
     })
-  }, [rewardDistributionsByTxId, dispatch, toast, isDrawerOpen, openActionCenter, actions])
+  }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
 }

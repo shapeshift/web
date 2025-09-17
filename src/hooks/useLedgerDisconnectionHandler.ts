@@ -32,6 +32,17 @@ export const useLedgerDisconnectionHandler = () => {
         type: WalletActions.SET_IS_CONNECTED,
         payload: false,
       })
+      // Also set wallet to null for consistency with app refresh case
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          wallet: null,
+          name: state.walletInfo?.name,
+          icon: state.walletInfo?.icon,
+          deviceId: state.walletInfo?.deviceId,
+          connectedType: state.connectedType,
+        },
+      })
     }
   }, [
     isUSBDisconnected,

@@ -160,7 +160,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
               icon={swapIcon}
               size='lg'
               isRound
-              aria-label={translate('navBar.tradeShort')}
+              aria-label={translate('common.trade')}
               _after={IconButtonAfter}
               onClick={handleTradeClick}
               colorScheme='blue'

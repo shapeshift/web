@@ -1,4 +1,10 @@
-import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import {
+  ChevronRightIcon,
+  CloseIcon,
+  RepeatIcon,
+  SettingsIcon,
+  WarningTwoIcon,
+} from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
@@ -16,10 +22,12 @@ import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
 import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
+import { useModal } from '@/hooks/useModal/useModal'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
 const repeatIcon = <RepeatIcon />
+const settingsIcon = <SettingsIcon />
 
 const ConnectedMenu = memo(
   ({
@@ -35,6 +43,7 @@ const ConnectedMenu = memo(
   }) => {
     const { navigateToRoute } = useMenuRoutes()
     const translate = useTranslate()
+    const settings = useModal('settings')
     const ConnectMenuComponent = useMemo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
@@ -47,6 +56,11 @@ const ConnectedMenu = memo(
           WalletConnectedRoutes.Connected,
       )
     }, [connectedWalletMenuRoutes, navigateToRoute, connectedType])
+
+    const handleSettingsClick = useCallback(() => {
+      onClose && onClose()
+      settings.open({})
+    }, [onClose, settings])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
 
@@ -84,6 +98,9 @@ const ConnectedMenu = memo(
           <MenuDivider />
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}
+          </MenuItem>
+          <MenuItem icon={settingsIcon} onClick={handleSettingsClick}>
+            {translate('common.settings')}
           </MenuItem>
           <MenuItem fontWeight='medium' icon={closeIcon} onClick={onDisconnect} color='red.500'>
             {translate('connectWallet.menu.disconnect')}

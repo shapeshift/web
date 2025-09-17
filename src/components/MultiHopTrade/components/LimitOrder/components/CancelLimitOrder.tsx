@@ -173,7 +173,7 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
           borderBottomRadius={cardBorderRadius}
         >
           <Stack spacing={4} width='full'>
-            <Card bg='background.surface.raised.accent' borderRadius='xl' p={4}>
+            <Card bg='darkNeutral.800' borderRadius='xl' p={4}>
               <Stack spacing={4}>
                 <Row px={2}>
                   <Row.Label>

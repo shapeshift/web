@@ -1,11 +1,13 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+
+import type { MaybeDrawerProps } from './SettingsCommon'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
@@ -16,7 +18,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
 
-export const FiatCurrencies = () => {
+export const FiatCurrencies = ({ isDrawer = false }: MaybeDrawerProps) => {
   const dispatch = useAppDispatch()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const translate = useTranslate()
@@ -31,6 +33,50 @@ export const FiatCurrencies = () => {
   const handleGoBack = useCallback(() => {
     navigate(-1)
   }, [navigate])
+
+  const currencyButtons = useMemo(
+    () =>
+      allFiatCurrencies.map(currency => {
+        const active = currency === selectedCurrency
+        const buttonProps = active
+          ? {
+              isDisabled: true,
+              _disabled: { opacity: 1 },
+            }
+          : {
+              pl: 8,
+              variant: 'ghost',
+              onClick: () => dispatch(setSelectedCurrency({ currency })),
+            }
+        return (
+          <Button
+            width='full'
+            justifyContent='flexStart'
+            key={currency}
+            mb={isDrawer ? 0 : 2}
+            {...buttonProps}
+          >
+            <Flex alignItems='center' textAlign='left'>
+              {active && <Icon as={FaCheck} color='blue.500' />}
+              <Flex ml={4}>
+                <RawText>{currency}</RawText>
+                <RawText mx={2}>-</RawText>
+                <Text translation={`modals.settings.currencies.${currency}`} />
+              </Flex>
+            </Flex>
+          </Button>
+        )
+      }),
+    [allFiatCurrencies, selectedCurrency, dispatch, setSelectedCurrency, isDrawer],
+  )
+
+  if (isDrawer) {
+    return (
+      <Stack width='full' p={0} spacing={2}>
+        {currencyButtons}
+      </Stack>
+    )
+  }
 
   return (
     <SlideTransition>
@@ -56,37 +102,7 @@ export const FiatCurrencies = () => {
           overflowY='auto'
           overflowX='hidden'
         >
-          {allFiatCurrencies.map(currency => {
-            const active = currency === selectedCurrency
-            const buttonProps = active
-              ? {
-                  isDisabled: true,
-                  _disabled: { opacity: 1 },
-                }
-              : {
-                  pl: 8,
-                  variant: 'ghost',
-                  onClick: () => dispatch(setSelectedCurrency({ currency })),
-                }
-            return (
-              <Button
-                width='full'
-                justifyContent='flexStart'
-                key={currency}
-                mb={2}
-                {...buttonProps}
-              >
-                <Flex alignItems='center' textAlign='left'>
-                  {active && <Icon as={FaCheck} color='blue.500' />}
-                  <Flex ml={4}>
-                    <RawText>{currency}</RawText>
-                    <RawText mx={2}>-</RawText>
-                    <Text translation={`modals.settings.currencies.${currency}`} />
-                  </Flex>
-                </Flex>
-              </Button>
-            )
-          })}
+          {currencyButtons}
         </ModalBody>
       </>
     </SlideTransition>

@@ -35,10 +35,12 @@ type DrawerHeaderProps = {
   connectedType: InitialState['connectedType']
   onDisconnect: () => void
   onSwitchProvider: () => void
+  onClose?: () => void
+  onSettingsClick?: () => void
 }
 
 export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
-  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider }) => {
+  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider, onSettingsClick }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
 
@@ -55,8 +57,10 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     )
 
     const handleSettingsClick = useCallback(() => {
+      if (onSettingsClick) return onSettingsClick()
+
       settings.open({})
-    }, [settings])
+    }, [settings, onSettingsClick])
 
     const repeatIcon = useMemo(() => <RepeatIcon />, [])
     const closeIcon = useMemo(() => <CloseIcon />, [])

@@ -12,14 +12,8 @@ export const useNotificationToast = (options: NotificationToastOptions) => {
     return isLargerThanMd ? 'bottom-right' : 'bottom'
   }, [isLargerThanMd])
 
-  const toastOptions = useMemo(
-    () =>
-      ({
-        position,
-        ...options,
-      }) as const,
-    [position, options],
-  )
-
-  return useToast(toastOptions)
+  return useToast({
+    position,
+    ...options,
+  })
 }

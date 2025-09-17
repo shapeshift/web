@@ -18,15 +18,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
   )
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-
-  const toastOptions = useMemo(
-    () => ({
-      duration: isDrawerOpen ? 5000 : null,
-    }),
-    [isDrawerOpen],
-  )
-  const toast = useNotificationToast(toastOptions)
-
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const stakingAssetAccountAddresses = useMemo(
     () => stakingAssetAccountIds.map(accountId => fromAccountId(accountId).account),
@@ -46,7 +38,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
       acc[rewardDistribution.txId || rewardDistribution.stakingContract] = rewardDistribution
       return acc
     }, {})
-  }, [lifetimeRewardDistributionsQuery.data])
+  }, [lifetimeRewardDistributionsQuery])
 
   useEffect(() => {
     const now = Date.now()
@@ -98,7 +90,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         }
       }
     })
-  }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
+  }, [rewardDistributionsByTxId, dispatch, toast, isDrawerOpen, openActionCenter, actions])
 
   useEffect(() => {
     const now = Date.now()
@@ -109,12 +101,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
       if (distribution.status === 'complete' && distribution.txId) {
         const actionId = `reward-distribution-${distribution.epoch}-${distribution.stakingContract}-${distribution.rewardAddress}`
 
-        const existingAction = actions[actionId]
-        if (!existingAction) return
-
-        if (existingAction.status === ActionStatus.Complete) {
-          return
-        }
+        if (!actions[actionId]) return
         dispatch(
           actionSlice.actions.upsertAction({
             id: actionId,
@@ -154,5 +141,5 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         }
       }
     })
-  }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
+  }, [rewardDistributionsByTxId, dispatch, toast, isDrawerOpen, openActionCenter, actions])
 }

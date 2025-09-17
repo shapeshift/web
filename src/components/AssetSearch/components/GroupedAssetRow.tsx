@@ -147,6 +147,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         onClick={handleGroupClick}
         justifyContent='space-between'
         width='100%'
+        gap={2}
         height='auto'
         minHeight='60px'
         padding={4}
@@ -236,6 +237,9 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                 </Flex>
               </Flex>
             )}
+        </Flex>
+        <Flex mx='auto'>
+          <Center boxSize={8}>{isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}</Center>
         </Flex>
       </Button>
 

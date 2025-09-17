@@ -181,146 +181,145 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      {chainAdapter && (
-        <>
-          <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
-            <Box>
-              <SkeletonText
-                noOfLines={3}
-                display='flex'
-                flexDir='column'
-                alignItems='center'
-                skeletonHeight='16px'
-                spacing='2'
-                isLoaded={!!receiveAddress}
-              >
-                <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />
-              </SkeletonText>
-            </Box>
-            <AccountDropdown
-              showLabel={false}
-              assetId={asset.assetId}
-              defaultAccountId={selectedAccountId || undefined}
-              onChange={setSelectedAccountId}
-              buttonProps={accountDropdownButtonProps}
-            />
-            <Flex justifyContent='center'>
-              {ensName && (
-                <Tag bg={bg} borderRadius='full' color='text.subtle' mt={8} pl={4} pr={4}>
-                  {ensName}
-                </Tag>
-              )}
-            </Flex>
-
-            <Card
-              variant='unstyled'
-              borderRadius='xl'
-              mb={4}
-              display='inline-block'
-              p={0}
-              mx='auto'
-              textAlign='center'
-              bg='white'
-              boxShadow='lg'
+      (
+      <>
+        <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
+          <Box>
+            <SkeletonText
+              noOfLines={3}
+              display='flex'
+              flexDir='column'
+              alignItems='center'
+              skeletonHeight='16px'
+              spacing='2'
+              isLoaded={!!receiveAddress}
             >
-              <CardBody display='inline-block' textAlign='center' p={6}>
-                <LightMode>
-                  <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
-                    <LogoQRCode text={receiveAddress} asset={asset} data-test='receive-qr-code' />
-                  </Skeleton>
-                  <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
-                    <Flex
-                      color='text.subtle'
-                      alignItems='center'
-                      justifyContent='center'
-                      fontSize='sm'
-                      onClick={handleCopyClick}
-                      _hover={receiveAddressHover}
-                      _active={receiveAddressActive}
-                      cursor='pointer'
-                    >
-                      <MiddleEllipsis
-                        value={receiveAddress ?? ''}
-                        data-test='receive-address-label'
-                      />
-                    </Flex>
-                  </Skeleton>
-                </LightMode>
-              </CardBody>
-            </Card>
-            <SupportedNetworks asset={asset} />
-          </DialogBody>
-          <DialogFooter flexDir='column' py={4}>
-            <HStack spacing={20}>
+              <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />
+            </SkeletonText>
+          </Box>
+          <AccountDropdown
+            showLabel={false}
+            assetId={asset.assetId}
+            defaultAccountId={selectedAccountId || undefined}
+            onChange={setSelectedAccountId}
+            buttonProps={accountDropdownButtonProps}
+          />
+          <Flex justifyContent='center'>
+            {ensName && (
+              <Tag bg={bg} borderRadius='full' color='text.subtle' mt={8} pl={4} pr={4}>
+                {ensName}
+              </Tag>
+            )}
+          </Flex>
+
+          <Card
+            variant='unstyled'
+            borderRadius='xl'
+            mb={4}
+            display='inline-block'
+            p={0}
+            mx='auto'
+            textAlign='center'
+            bg='white'
+            boxShadow='lg'
+          >
+            <CardBody display='inline-block' textAlign='center' p={6}>
+              <LightMode>
+                <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
+                  <LogoQRCode text={receiveAddress} asset={asset} data-test='receive-qr-code' />
+                </Skeleton>
+                <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
+                  <Flex
+                    color='text.subtle'
+                    alignItems='center'
+                    justifyContent='center'
+                    fontSize='sm'
+                    onClick={handleCopyClick}
+                    _hover={receiveAddressHover}
+                    _active={receiveAddressActive}
+                    cursor='pointer'
+                  >
+                    <MiddleEllipsis
+                      value={receiveAddress ?? ''}
+                      data-test='receive-address-label'
+                    />
+                  </Flex>
+                </Skeleton>
+              </LightMode>
+            </CardBody>
+          </Card>
+          <SupportedNetworks asset={asset} />
+        </DialogBody>
+        <DialogFooter flexDir='column' py={4}>
+          <HStack spacing={20}>
+            <Flex direction='column' align='center' gap={2}>
+              <IconButton
+                icon={copyIcon}
+                aria-label={translate('modals.receive.copy')}
+                onClick={handleCopyClick}
+                isDisabled={!receiveAddress}
+                size='lg'
+                borderRadius='full'
+                color='text.base'
+              />
+              <Text
+                fontSize='sm'
+                color='text.subtle'
+                fontWeight='medium'
+                translation='modals.receive.copy'
+              />
+            </Flex>
+            {!(wallet?.getVendor() === 'Native') && (
               <Flex direction='column' align='center' gap={2}>
                 <IconButton
-                  icon={copyIcon}
-                  aria-label={translate('modals.receive.copy')}
-                  onClick={handleCopyClick}
+                  icon={verifyIcon}
+                  aria-label={translate(
+                    `modals.receive.${
+                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                    }`,
+                  )}
+                  onClick={handleVerify}
                   isDisabled={!receiveAddress}
                   size='lg'
                   borderRadius='full'
-                  color='text.base'
+                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}
                 />
                 <Text
                   fontSize='sm'
                   color='text.subtle'
                   fontWeight='medium'
-                  translation='modals.receive.copy'
+                  translation={`modals.receive.${
+                    verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                  }`}
                 />
               </Flex>
-              {!(wallet?.getVendor() === 'Native') && (
-                <Flex direction='column' align='center' gap={2}>
-                  <IconButton
-                    icon={verifyIcon}
-                    aria-label={translate(
-                      `modals.receive.${
-                        verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                      }`,
-                    )}
-                    onClick={handleVerify}
-                    isDisabled={!receiveAddress}
-                    size='lg'
-                    borderRadius='full'
-                    color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}
-                  />
-                  <Text
-                    fontSize='sm'
-                    color='text.subtle'
-                    fontWeight='medium'
-                    translation={`modals.receive.${
-                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                    }`}
-                  />
-                </Flex>
-              )}
-              <Flex direction='column' align='center' gap={2}>
-                <IconButton
-                  as={Link}
-                  icon={externalLinkIcon}
-                  aria-label={translate('modals.receive.blockExplorer')}
-                  href={
-                    asset?.explorerAddressLink && receiveAddress
-                      ? `${asset.explorerAddressLink}${receiveAddress}`
-                      : undefined
-                  }
-                  isExternal
-                  isDisabled={!receiveAddress || !asset?.explorerAddressLink}
-                  size='lg'
-                  borderRadius='full'
-                  color='text.base'
-                />
-                <Text
-                  fontSize='sm'
-                  color='text.subtle'
-                  fontWeight='medium'
-                  translation='modals.receive.blockExplorer'
-                />
-              </Flex>
-            </HStack>
-          </DialogFooter>
-        </>
-      )}
+            )}
+            <Flex direction='column' align='center' gap={2}>
+              <IconButton
+                as={Link}
+                icon={externalLinkIcon}
+                aria-label={translate('modals.receive.blockExplorer')}
+                href={
+                  asset?.explorerAddressLink && receiveAddress
+                    ? `${asset.explorerAddressLink}${receiveAddress}`
+                    : undefined
+                }
+                isExternal
+                isDisabled={!receiveAddress || !asset?.explorerAddressLink}
+                size='lg'
+                borderRadius='full'
+                color='text.base'
+              />
+              <Text
+                fontSize='sm'
+                color='text.subtle'
+                fontWeight='medium'
+                translation='modals.receive.blockExplorer'
+              />
+            </Flex>
+          </HStack>
+        </DialogFooter>
+      </>
     </>
   )
 }

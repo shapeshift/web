@@ -111,6 +111,9 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
 
         if (!actions[actionId]) return
 
+        if (existingAction.status === ActionStatus.Complete) {
+          return
+        }
         dispatch(
           actionSlice.actions.upsertAction({
             id: actionId,

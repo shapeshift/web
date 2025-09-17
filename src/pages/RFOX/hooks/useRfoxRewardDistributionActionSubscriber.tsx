@@ -109,7 +109,8 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
       if (distribution.status === 'complete' && distribution.txId) {
         const actionId = `reward-distribution-${distribution.epoch}-${distribution.stakingContract}-${distribution.rewardAddress}`
 
-        if (!actions[actionId]) return
+        const existingAction = actions[actionId]
+        if (!existingAction) return
 
         if (existingAction.status === ActionStatus.Complete) {
           return

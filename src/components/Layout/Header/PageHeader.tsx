@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { FlexProps, IconButtonProps, ResponsiveValue, TextProps } from '@chakra-ui/react'
-import { Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
+import { Container, Flex, IconButton } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { RawText } from '@/components/Text'
 
 const arrowBack = <ArrowBackIcon />
-const paddingX = { base: 4, xl: 8 }
+
 const paddingTop = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
   md: 6,
@@ -48,7 +48,8 @@ type PageHeaderCompoundProps = {
 
 export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps = ({ children }) => {
   return (
-    <SimpleGrid
+    <Container
+      display='grid'
       gridTemplateColumns='1fr auto 1fr'
       alignItems='center'
       position={position}
@@ -61,12 +62,10 @@ export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps =
       zIndex='sticky'
       pb={2}
       width='full'
-      maxWidth='container.4xl'
-      px={paddingX}
       marginInline='auto'
     >
       {children}
-    </SimpleGrid>
+    </Container>
   )
 }
 const Left: React.FC<FlexProps> = props => (

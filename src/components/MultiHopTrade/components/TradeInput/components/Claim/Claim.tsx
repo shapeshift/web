@@ -10,10 +10,10 @@ import { ClaimStatus } from './ClaimStatus'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
+import { cardstyles } from '@/components/MultiHopTrade/const'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 
 const cardBorderRadius = { base: '0', md: '2xl' }
-const cardBgProp = { base: 'background.surface.base', md: 'background.surface.raised.accent' }
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
 
 export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
@@ -56,7 +56,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
 
   return (
     <Stack spacing={0} width='full' maxWidth='500px'>
-      <Card flex={1} borderRadius={cardBorderRadius} bg={cardBgProp} minHeight={cardMinHeight}>
+      <Card flex={1} borderRadius={cardBorderRadius} minHeight={cardMinHeight} {...cardstyles}>
         <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
         <Routes>
           <Route

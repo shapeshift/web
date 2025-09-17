@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Box, useMediaQuery } from '@chakra-ui/react'
+import { Box, Center, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { noop } from 'lodash'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
+import { WatchAssetButton } from '../AssetHeader/WatchAssetButton'
 import { AssetCell } from './AssetCell'
 import { ChangeCell } from './ChangeCell'
 import { PriceCell } from './PriceCell'
@@ -122,9 +123,14 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
           id: 'toggle',
           width: 50,
           Cell: ({ row }: { row: Row<Asset> }) => {
-            if (row.original.isChainSpecific) return null
+            if (row.original.isChainSpecific)
+              return <WatchAssetButton assetId={row.original.assetId} bg='transparent' mx='auto' />
 
-            return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
+            return (
+              <Center boxSize={8}>
+                {row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              </Center>
+            )
           },
         },
       ],

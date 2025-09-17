@@ -1,11 +1,12 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import sortBy from 'lodash/sortBy'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import type { MaybeDrawerProps } from './SettingsCommon'
 import { currencyFormatsRepresenter } from './SettingsCommon'
 
 import { SlideTransition } from '@/components/SlideTransition'
@@ -15,7 +16,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const arrowBackIcon = <ArrowBackIcon />
 
-export const CurrencyFormat = () => {
+export const CurrencyFormat = ({ isDrawer = false }: MaybeDrawerProps) => {
   const dispatch = useAppDispatch()
   const currentCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
@@ -29,6 +30,48 @@ export const CurrencyFormat = () => {
   const handleGoBack = useCallback(() => {
     navigate(-1)
   }, [navigate])
+
+  const formatButtons = useMemo(
+    () =>
+      formats.map(currencyFormat => {
+        const active = currencyFormat === currentCurrencyFormat
+        const buttonProps = active
+          ? {
+              isDisabled: true,
+              _disabled: { opacity: 1 },
+            }
+          : {
+              pl: 8,
+              variant: 'ghost',
+              onClick: () => dispatch(setCurrencyFormat({ currencyFormat })),
+            }
+        return (
+          <Button
+            mb={isDrawer ? 0 : 2}
+            width='full'
+            justifyContent='flexStart'
+            key={currencyFormat}
+            {...buttonProps}
+          >
+            <Flex alignItems='center' textAlign='left'>
+              {active && <Icon as={FaCheck} color='blue.500' />}
+              <Flex ml={4}>
+                <RawText>{currencyFormatsRepresenter(currencyFormat, selectedCurrency)}</RawText>
+              </Flex>
+            </Flex>
+          </Button>
+        )
+      }),
+    [formats, currentCurrencyFormat, dispatch, setCurrencyFormat, selectedCurrency, isDrawer],
+  )
+
+  if (isDrawer) {
+    return (
+      <Stack width='full' p={0} spacing={2}>
+        {formatButtons}
+      </Stack>
+    )
+  }
 
   return (
     <SlideTransition>
@@ -54,37 +97,7 @@ export const CurrencyFormat = () => {
           overflowY='auto'
           overflowX='hidden'
         >
-          {formats.map(currencyFormat => {
-            const active = currencyFormat === currentCurrencyFormat
-            const buttonProps = active
-              ? {
-                  isDisabled: true,
-                  _disabled: { opacity: 1 },
-                }
-              : {
-                  pl: 8,
-                  variant: 'ghost',
-                  onClick: () => dispatch(setCurrencyFormat({ currencyFormat })),
-                }
-            return (
-              <Button
-                mb={2}
-                width='full'
-                justifyContent='flexStart'
-                key={currencyFormat}
-                {...buttonProps}
-              >
-                <Flex alignItems='center' textAlign='left'>
-                  {active && <Icon as={FaCheck} color='blue.500' />}
-                  <Flex ml={4}>
-                    <RawText>
-                      {currencyFormatsRepresenter(currencyFormat, selectedCurrency)}
-                    </RawText>
-                  </Flex>
-                </Flex>
-              </Button>
-            )
-          })}
+          {formatButtons}
         </ModalBody>
       </>
     </SlideTransition>

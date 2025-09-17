@@ -262,13 +262,17 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
     return rowData.map(row => assets[row.assetId]).filter(isSome)
   }, [rowData, assets])
 
-  if (!isLargerThanMd) {
+  if (!isLargerThanMd || forceCompactView) {
     return (
       <AssetList
         assets={accountsAssets}
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
-        height='calc(100vh - var(--mobile-header-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - 54px)'
+        height={
+          forceCompactView
+            ? '100%'
+            : 'calc(100vh - var(--mobile-header-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - 54px)'
+        }
         showRelatedAssets
       />
     )

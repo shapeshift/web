@@ -3,6 +3,8 @@
     "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
+    "selectAll": "Select All",
+    "unselectAll": "Unselect All",
     "free": "Free",
     "trade": "Trade",
     "trades": "Trades",
@@ -1780,6 +1782,9 @@
       "failure": {
         "body": "Unable to connect Ledger wallet"
       },
+      "readOnly": {
+        "button": "Connect as Read Only"
+      },
       "gettingChangeAddress": "Getting change address...",
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
@@ -1824,6 +1829,7 @@
       "active": "Active",
       "notActive": "Not Active",
       "addSnap": "Add Snap",
+      "installError": "An error occurred installing the Multichain Snap on MetaMask",
       "uninstall": {
         "title": "You have removed Multichain support from MetaMask!",
         "subtitle": "Re-add the Multichain Snap on MetaMask to send, receive, track, trade, and earn with the following chains:"
@@ -2367,6 +2373,13 @@
         "transactionData": "Transaction Data",
         "method": "Method",
         "signingWith": "Signing With",
+        "connectWith": "Connect With",
+        "chooseAccount": "Choose Account",
+        "chooseNetwork": "Choose Network",
+        "required": "Required",
+        "noAccount": "You don't have an account on %{chainName} for this address",
+        "connectionRequest": "Connection Request",
+        "connectionRequestTooltip": "Connecting allows this dApp to request transaction approvals",
         "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",

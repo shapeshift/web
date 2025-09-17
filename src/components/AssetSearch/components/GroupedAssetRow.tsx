@@ -1,14 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Collapse,
-  Flex,
-  Icon,
-  Text as CText,
-  useColorModeValue,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Button, Center, Collapse, Flex, Text as CText, useDisclosure } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -71,8 +62,6 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     relatedAssetIdsFilter,
   )
 
-  const titleColor = useColorModeValue('black', 'white')
-
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
@@ -89,21 +78,25 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   )
 
   const networksIcons = useMemo(() => {
-    return relatedAssetIds.map(assetId => {
+    return relatedAssetIds.map((assetId, index) => {
       const feeAsset = selectFeeAssetByChainId(store.getState(), fromAssetId(assetId).chainId)
       return (
         <Box
           key={feeAsset?.chainId}
-          w={2}
           borderRadius='full'
           display='flex'
           alignItems='center'
           justifyContent='center'
           fontSize='xs'
+          boxSize='16px'
           color='white'
           fontWeight='bold'
+          zIndex={relatedAssetIds.length - index} // Higher z-index for earlier items
+          ml={index > 0 ? -1.5 : 0}
+          border='1px solid'
+          borderColor='background.surface.overlay.base'
         >
-          <LazyLoadAvatar src={feeAsset?.networkIcon ?? feeAsset?.icon} boxSize={4} />
+          <LazyLoadAvatar src={feeAsset?.networkIcon ?? feeAsset?.icon} boxSize='100%' />
         </Box>
       )
     })
@@ -123,6 +116,10 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           asset={relatedAsset}
           index={0}
           py={8}
+          showChainName
+          borderRadius='none'
+          // eslint-disable-next-line react-memo/require-usememo
+          _last={{ borderBottomRadius: 'lg' }}
           // eslint-disable-next-line react-memo/require-usememo
           data={{
             assets: [relatedAsset],
@@ -150,23 +147,24 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         onClick={handleGroupClick}
         justifyContent='space-between'
         width='100%'
+        gap={2}
         height='auto'
         minHeight='60px'
         padding={4}
         py={2}
-        pr={2}
         borderBottomRadius={isOpen ? 0 : 'lg'}
         bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
       >
-        <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
-          <AssetIcon assetId={asset.assetId} showNetworkIcon={false} size='sm' flexShrink={0} />
-          <Box textAlign='left' flex={1} minWidth={0}>
+        <Flex gap={3} alignItems='center' flex={1} minWidth={0}>
+          <AssetIcon assetId={asset.assetId} showNetworkIcon={false} size='md' flexShrink={0} />
+          <Flex gap={1} flexDir='column' textAlign='left' flex={1} minWidth={0}>
             <CText
               lineHeight={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
-              color={titleColor}
+              color='text.base'
+              fontWeight='medium'
             >
               {asset.name}
             </CText>
@@ -176,8 +174,10 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               (!hideZeroBalanceAmounts ||
                 bnOrZero(groupedAssetBalances?.primaryAsset.fiatAmount).gt(0)) ? (
                 <Amount.Crypto
-                  color='text.secondary'
+                  color='text.subtle'
                   fontSize='sm'
+                  fontWeight='medium'
+                  lineHeight={1}
                   value={groupedAssetBalances?.primaryAsset.cryptoAmount}
                   symbol={asset.symbol}
                 />
@@ -185,7 +185,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                 <CText
                   fontWeight='normal'
                   fontSize='sm'
-                  color={'text.subtle'}
+                  color='text.subtle'
                   textOverflow='ellipsis'
                   whiteSpace='nowrap'
                   maxWidth='150px'
@@ -195,7 +195,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                 </CText>
               )}
             </Flex>
-          </Box>
+          </Flex>
         </Flex>
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' flexShrink={0}>
           {showPrice && (
@@ -203,7 +203,6 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
                 <Amount.Fiat
                   fontWeight='semibold'
-                  color={titleColor}
                   lineHeight='shorter'
                   height='20px'
                   value={groupedAssetBalances?.primaryAsset.price}
@@ -220,14 +219,28 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               !hideZeroBalanceAmounts) && (
               <Flex gap={1} flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
                 <Amount.Fiat
-                  color='var(--chakra-colors-chakra-body-text)'
+                  fontWeight='medium'
+                  color='text.base'
+                  lineHeight={1}
                   value={groupedAssetBalances?.primaryAsset.fiatAmount.toString()}
                 />
-                <Flex>{networksIcons}</Flex>
+                <Flex>
+                  {networksIcons}
+                  <Center
+                    bg='background.button.secondary.base'
+                    borderRightRadius='full'
+                    pl={2}
+                    ml={-2}
+                  >
+                    {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                  </Center>
+                </Flex>
               </Flex>
             )}
         </Flex>
-        <Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} ml={2} />
+        <Flex mx='auto'>
+          <Center boxSize={8}>{isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}</Center>
+        </Flex>
       </Button>
 
       <Collapse in={isOpen} unmountOnExit>

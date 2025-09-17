@@ -140,11 +140,11 @@ export const semanticTokens = {
       },
       subtle: {
         default: 'gray.500',
-        _dark: 'darkNeutral.400',
+        _dark: 'darkNeutral.300',
       },
       subtlest: {
         default: 'gray.400',
-        _dark: 'darkNeutralAlpha.500',
+        _dark: 'darkNeutralAlpha.400',
       },
       info: {
         default: 'blue.500',

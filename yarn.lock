@@ -10110,6 +10110,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/hdwallet-core@npm:1.62.2":
+  version: 1.62.2
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.2"
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
+    "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@solana/web3.js": 1.95.8
+    eip-712: ^1.0.0
+    ethers: 5.7.2
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: 13d93eca60748ad24cbbcac90088ae36e62e8edc494b5feb588cfac4ed9526fac6e9bfcf10199f7c2bba7451b73783886ee1475e1ef35f1b47e5317f197fcad4
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/hdwallet-core@npm:1.62.3, @shapeshiftoss/hdwallet-core@npm:v1.62.3":
   version: 1.62.3
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.3"
@@ -10347,6 +10364,21 @@ __metadata:
     ethers: 5.7.2
     lodash: ^4.17.21
   checksum: 02eebdcf910c37ac7f20280bb853adcadfc3802aa17fb81b90987d558abd3e537eb4393391b85b03ab9a10c614561e5ae3d1bce585e8ad03dbac3deca97cf137
+  languageName: node
+  linkType: hard
+
+"@shapeshiftoss/hdwallet-vultisig@file:../hdwallet/packages/hdwallet-vultisig::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 1.62.3
+  resolution: "@shapeshiftoss/hdwallet-vultisig@file:../hdwallet/packages/hdwallet-vultisig#../hdwallet/packages/hdwallet-vultisig::hash=0b7ec1&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
+    "@shapeshiftoss/hdwallet-core": 1.62.2
+    "@solana/web3.js": 1.95.8
+    base64-js: ^1.5.1
+    bitcoinjs-message: ^2.0.0
+    ethers: 5.7.2
+    lodash: ^4.17.21
+  checksum: b75d74e18f70fd8befccf66e42022e885892eb363b13362553874b9b3b09ffe87310d2ba6adc8d7f53cd9fe455622751d5f993e667602976d8d0f893bcfe958d
   languageName: node
   linkType: hard
 
@@ -10588,6 +10620,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-native": v1.62.3
     "@shapeshiftoss/hdwallet-native-vault": v1.62.3
     "@shapeshiftoss/hdwallet-phantom": v1.62.3
+    "@shapeshiftoss/hdwallet-vultisig": "file:../hdwallet/packages/hdwallet-vultisig"
     "@shapeshiftoss/hdwallet-walletconnectv2": v1.62.3
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"

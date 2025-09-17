@@ -6,6 +6,7 @@ import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
+import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 
 import type { KeyManager } from './KeyManager'
@@ -20,6 +21,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.MetaMask]: MetaMaskAdapter
   [KeyManager.Phantom]: PhantomAdapter
   [KeyManager.Coinbase]: CoinbaseAdapter
+  [KeyManager.Vultisig]: VultisigAdapter
 }
 
 export enum NativeWalletRoutes {

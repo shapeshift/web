@@ -110,6 +110,7 @@
     "@shapeshiftoss/hdwallet-native": "v1.62.3",
     "@shapeshiftoss/hdwallet-native-vault": "v1.62.3",
     "@shapeshiftoss/hdwallet-phantom": "v1.62.3",
+    "@shapeshiftoss/hdwallet-vultisig": "file:../hdwallet/packages/hdwallet-vultisig",
     "@shapeshiftoss/hdwallet-walletconnectv2": "v1.62.3",
     "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",

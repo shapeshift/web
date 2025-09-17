@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux'
 import type { Row } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
+import { WatchAssetButton } from '../AssetHeader/WatchAssetButton'
+
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { vibrate } from '@/lib/vibrate'
@@ -20,6 +22,10 @@ type RelatedAssetRowProps = {
 
 const relatedAssetRowHoverStyles = {
   bg: 'background.surface.raised.base',
+}
+
+const lastRowStyles = {
+  borderBottomRadius: 'xl',
 }
 
 const RelatedAssetRow = memo<RelatedAssetRowProps>(({ asset, onRowClick, onRowLongPress }) => {
@@ -42,8 +48,8 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ asset, onRowClick, onRowLo
     <Flex
       justify='space-between'
       align='center'
-      p={2}
-      borderRadius='md'
+      p={4}
+      _last={lastRowStyles}
       cursor='pointer'
       onClick={handleClick}
       _hover={relatedAssetRowHoverStyles}
@@ -51,6 +57,9 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(({ asset, onRowClick, onRowLo
     >
       <Flex align='center' gap={3} width='100%'>
         <AssetCell assetId={asset.assetId} />
+        <Flex flexBasis='72px' justifyContent='flex-start' flexShrink={0} pl={4}>
+          <WatchAssetButton assetId={asset.assetId} bg='transparent' ml={0} />
+        </Flex>
       </Flex>
     </Flex>
   )
@@ -71,7 +80,7 @@ export const GroupedAssets = memo<GroupedAssetsProps>(({ row, onRowClick, onRowL
   if (groupedAssetWithBalances?.relatedAssets.length === 1) return null
 
   return (
-    <Stack spacing={2} p={4} bg='background.surface.raised.base'>
+    <Stack spacing={0} p={0} bg='background.surface.raised.base'>
       {groupedAssetWithBalances?.relatedAssets.map(asset => (
         <RelatedAssetRow
           key={asset.assetId}

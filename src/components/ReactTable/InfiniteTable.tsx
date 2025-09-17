@@ -13,7 +13,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
+import React, { Fragment, memo, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
@@ -43,6 +43,82 @@ type ReactTableProps<T extends {}> = {
 
 const tableSize = { base: 'sm', md: 'md' }
 const tableStyle = { height: 'auto', minHeight: '200px' }
+
+type TableRowContext<T extends object = any> = {
+  expandedItems: Set<string>
+  handleRowClick: (row: Row<T>) => void
+  longPressHandlers: (context: Row<T>) => any
+  onRowClick?: (row: Row<T>) => void
+  rowDataTestKey?: string | number | symbol
+  rowDataTestPrefix?: string
+  renderSubComponent?: (row: Row<T>) => ReactNode
+  visibleColumns: { length: number }
+}
+
+interface InfiniteTableRowProps {
+  children?: ReactNode
+  item: Row<any>
+  context?: TableRowContext
+  [key: string]: unknown
+}
+
+const InfiniteTableRow = memo(({ children, item, context, ...props }: InfiniteTableRowProps) => {
+  const row = item
+
+  const handleRowClickWrapper = useCallback(() => {
+    if (context) {
+      context.handleRowClick(row)
+    }
+  }, [context, row])
+
+  if (!context) return null
+
+  const {
+    expandedItems,
+    longPressHandlers,
+    onRowClick,
+    rowDataTestKey,
+    rowDataTestPrefix,
+    renderSubComponent,
+    visibleColumns,
+  } = context
+
+  const isExpanded = row ? expandedItems.has(row.id) : false
+
+  return (
+    <>
+      <Tr
+        key={`${row?.id}-main`}
+        {...props}
+        {...longPressHandlers(row)}
+        sx={longPressSx}
+        tabIndex={row?.index}
+        onClick={handleRowClickWrapper}
+        className={isExpanded ? 'expanded' : ''}
+        bg={isExpanded ? 'background.surface.raised.base' : 'transparent'}
+        borderBottomRadius={isExpanded ? 0 : 'lg'}
+        {...(row && rowDataTestKey
+          ? {
+              'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
+                .split(' ')
+                .join('-')
+                .toLowerCase()}`,
+            }
+          : {})}
+        cursor={onRowClick ? 'pointer' : undefined}
+      >
+        {children}
+      </Tr>
+      {!!renderSubComponent && isExpanded && row && (
+        <Tr key={`${row.id}-expanded`} className='expanded-details'>
+          <Td colSpan={visibleColumns.length} p={'0!important'}>
+            {renderSubComponent(row)}
+          </Td>
+        </Tr>
+      )}
+    </>
+  )
+})
 
 export const InfiniteTable = <T extends {}>({
   columns,
@@ -138,8 +214,6 @@ export const InfiniteTable = <T extends {}>({
       const row = preparedRows[index]
       if (!row) return null
 
-      const isExpanded = expandedItems.has(row.id)
-
       return (
         <Fragment key={row.id}>
           {row.cells.map(cell => (
@@ -150,8 +224,6 @@ export const InfiniteTable = <T extends {}>({
                 : undefined)}
               display={cell.column.display}
               key={cell.column.id}
-              className={isExpanded ? 'expanded' : ''}
-              borderBottomRadius={isExpanded ? 0 : undefined}
             >
               {cell.render('Cell')}
             </Td>
@@ -159,7 +231,7 @@ export const InfiniteTable = <T extends {}>({
         </Fragment>
       )
     },
-    [preparedRows, expandedItems],
+    [preparedRows],
   )
 
   const renderHeader = useCallback(() => {
@@ -210,9 +282,32 @@ export const InfiniteTable = <T extends {}>({
     return null
   }, [data.length, isLoading, renderEmptyComponent, visibleColumns.length])
 
+  const tableContext = useMemo(
+    (): TableRowContext<T> => ({
+      expandedItems,
+      handleRowClick,
+      longPressHandlers,
+      onRowClick,
+      rowDataTestKey,
+      rowDataTestPrefix,
+      renderSubComponent,
+      visibleColumns,
+    }),
+    [
+      expandedItems,
+      handleRowClick,
+      longPressHandlers,
+      onRowClick,
+      rowDataTestKey,
+      rowDataTestPrefix,
+      renderSubComponent,
+      visibleColumns,
+    ],
+  )
+
   const tableComponents = useMemo(
     () => ({
-      Table: ({ style, ...props }: any) => (
+      Table: ({ style, ...props }: TableProps & { style?: React.CSSProperties }) => (
         <Table
           ref={tableRef}
           variant={variant}
@@ -225,60 +320,11 @@ export const InfiniteTable = <T extends {}>({
       TableHead: Thead,
       TableBody: Tbody,
       TableFoot: Tfoot,
-      TableRow: ({ children, item, context, ...props }: any) => {
-        const row = item
-        const isExpanded = row ? expandedItems.has(row.id) : false
-
-        return (
-          <>
-            <Tr
-              {...props}
-              {...longPressHandlers(row)}
-              sx={longPressSx}
-              tabIndex={row?.index}
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => handleRowClick(row)}
-              className={isExpanded ? 'expanded' : ''}
-              bg={isExpanded ? 'background.surface.raised.base' : 'transparent'}
-              borderBottomRadius={isExpanded ? 0 : 'lg'}
-              {...(row && rowDataTestKey
-                ? {
-                    'data-test': `${rowDataTestPrefix}-${String(
-                      row.original?.[rowDataTestKey] ?? '',
-                    )
-                      .split(' ')
-                      .join('-')
-                      .toLowerCase()}`,
-                  }
-                : {})}
-              cursor={onRowClick ? 'pointer' : undefined}
-            >
-              {children}
-            </Tr>
-            {!!renderSubComponent && isExpanded && row && (
-              <Tr className='expanded-details'>
-                <Td colSpan={visibleColumns.length} p={'0!important'}>
-                  {renderSubComponent(row)}
-                </Td>
-              </Tr>
-            )}
-          </>
-        )
-      },
+      TableRow: InfiniteTableRow,
       TableCell: Td,
       TableHeadCell: Th,
     }),
-    [
-      variant,
-      expandedItems,
-      handleRowClick,
-      longPressHandlers,
-      onRowClick,
-      rowDataTestKey,
-      rowDataTestPrefix,
-      renderSubComponent,
-      visibleColumns.length,
-    ],
+    [variant],
   )
 
   if (isLoading) {
@@ -308,6 +354,7 @@ export const InfiniteTable = <T extends {}>({
       fixedFooterContent={renderEmpty}
       endReached={hasMore ? loadMore : undefined}
       components={tableComponents}
+      context={tableContext}
       useWindowScroll
       style={tableStyle}
       overscan={2000}

@@ -5,6 +5,7 @@ import { memo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from '@/components/AssetIcon'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { vibrate } from '@/lib/vibrate'
@@ -42,8 +43,9 @@ export const AssetCard: FC<AssetCardProps> = memo(({ asset, width = '80%' }) => 
       transition='all 0.2s'
     >
       <Flex flexDir='column' gap={3}>
-        <Flex alignItems='center' gap={3}>
+        <Flex alignItems='center' gap={3} justifyContent='space-between'>
           <AssetIcon assetId={asset.assetId} size='md' />
+          <WatchAssetButton assetId={asset.assetId} />
         </Flex>
 
         <Flex justifyContent='space-between' alignItems='center'>

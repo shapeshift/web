@@ -7,6 +7,9 @@ import {
   DrawerContent,
   DrawerOverlay,
   Flex,
+  Skeleton,
+  SkeletonCircle,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -16,7 +19,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, useCallback, useContext, useEffect, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 
@@ -34,13 +37,10 @@ import { makeSuspenseful } from '@/utils/makeSuspenseful'
 // Lazy-loaded tab components for better performance
 const tabSpinnerStyle = { height: '200px' }
 
-const AccountTable = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Dashboard/components/AccountList/AccountTable').then(({ AccountTable }) => ({
-      default: AccountTable,
-    })),
-  ),
-  tabSpinnerStyle,
+const AccountTable = lazy(() =>
+  import('@/pages/Dashboard/components/AccountList/AccountTable').then(({ AccountTable }) => ({
+    default: AccountTable,
+  })),
 )
 
 const WatchlistTable = makeSuspenseful(
@@ -102,14 +102,44 @@ const ActionButton: FC<ActionButtonProps> = memo(({ icon, label, onClick, isDisa
 const sendIcon = <SendIcon boxSize='6' color='blue.500' />
 const receiveIcon = <ArrowDownIcon boxSize={6} color='green.500' />
 
+const AccountTableSkeleton: FC = memo(() => (
+  <Stack spacing={2}>
+    {[1, 2, 3, 4, 5].map(index => (
+      <Flex key={index} alignItems='center' py={3} px={2} borderRadius='lg' gap={4}>
+        <SkeletonCircle size='10' />
+        <Stack flex={1} spacing={1}>
+          <Skeleton height='4' width='60%' />
+          <Skeleton height='3' width='40%' />
+        </Stack>
+        <Stack spacing={1} alignItems='flex-end'>
+          <Skeleton height='4' width='80px' />
+          <Skeleton height='3' width='60px' />
+        </Stack>
+      </Flex>
+    ))}
+  </Stack>
+))
+
 export const DrawerWallet: FC = memo(() => {
   const translate = useTranslate()
   const send = useModal('send')
   const receive = useModal('receive')
   const { isOpen, close: onClose } = useModal('walletDrawer')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
-  const [loadedTabs, setLoadedTabs] = useState(new Set([0])) // First tab is preloaded
+  const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
   const modalContext = useContext(ModalContext)
+
+  const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])
+
+  // Defer loading the first tab until drawer opens to improve initial opening performance
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        setLoadedTabs(prev => new Set([...prev, activeTabIndex]))
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen, activeTabIndex])
 
   const {
     state: { isConnected, walletInfo, connectedType, modal: walletModalOpen },
@@ -209,10 +239,14 @@ export const DrawerWallet: FC = memo(() => {
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
                 <TabPanel p={0} pt={2} pr={2} height='100%'>
-                  {loadedTabs.has(0) && (
-                    <Box height='100%'>
-                      <AccountTable forceCompactView onRowClick={onClose} />
-                    </Box>
+                  {loadedTabs.has(0) ? (
+                    <Suspense fallback={accountTableSkeletonFallback}>
+                      <Box height='100%'>
+                        <AccountTable forceCompactView onRowClick={onClose} />
+                      </Box>
+                    </Suspense>
+                  ) : (
+                    accountTableSkeletonFallback
                   )}
                 </TabPanel>
                 <TabPanel p={0} pt={2} pr={2}>

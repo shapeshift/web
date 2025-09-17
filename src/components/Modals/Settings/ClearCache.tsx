@@ -7,12 +7,15 @@ import {
   IconButton,
   ModalBody,
   ModalHeader,
+  Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+
+import type { MaybeDrawerProps } from './SettingsCommon'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
@@ -30,13 +33,21 @@ const ClearCacheButton = ({
   label,
   tooltipText,
   onClick,
+  isDrawer = false,
 }: {
   label: string
   tooltipText: string
   onClick: () => void
-}) => {
+} & MaybeDrawerProps) => {
   return (
-    <Button mb={2} width='full' justifyContent='flexStart' pl={8} variant='ghost' onClick={onClick}>
+    <Button
+      mb={isDrawer ? 0 : 2}
+      width='full'
+      justifyContent='flexStart'
+      pl={8}
+      variant='ghost'
+      onClick={onClick}
+    >
       <Flex alignItems='center' textAlign='left'>
         <Flex ml={4}>
           <RawText>{label}</RawText>
@@ -51,7 +62,7 @@ const ClearCacheButton = ({
   )
 }
 
-export const ClearCache = () => {
+export const ClearCache = ({ isDrawer = false }: MaybeDrawerProps) => {
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
@@ -84,6 +95,34 @@ export const ClearCache = () => {
     )
   }, [dispatch, requestedAccountIds, isLazyTxHistoryEnabled])
 
+  const clearButtons = useMemo(
+    () => (
+      <>
+        <ClearCacheButton
+          label={translate('modals.settings.clearCache')}
+          tooltipText={translate('modals.settings.clearCacheTooltip')}
+          onClick={handleClearCacheClick}
+          isDrawer={isDrawer}
+        />
+        <ClearCacheButton
+          label={translate('modals.settings.clearTxHistory')}
+          tooltipText={translate('modals.settings.clearTxHistoryTooltip')}
+          onClick={handleClearTxHistory}
+          isDrawer={isDrawer}
+        />
+      </>
+    ),
+    [translate, handleClearCacheClick, handleClearTxHistory, isDrawer],
+  )
+
+  if (isDrawer) {
+    return (
+      <Stack width='full' p={0} spacing={2}>
+        {clearButtons}
+      </Stack>
+    )
+  }
+
   return (
     <SlideTransition>
       <IconButton
@@ -108,16 +147,7 @@ export const ClearCache = () => {
           overflowY='auto'
           overflowX='hidden'
         >
-          <ClearCacheButton
-            label={translate('modals.settings.clearCache')}
-            tooltipText={translate('modals.settings.clearCacheTooltip')}
-            onClick={handleClearCacheClick}
-          />
-          <ClearCacheButton
-            label={translate('modals.settings.clearTxHistory')}
-            tooltipText={translate('modals.settings.clearTxHistoryTooltip')}
-            onClick={handleClearTxHistory}
-          />
+          {clearButtons}
         </ModalBody>
       </>
     </SlideTransition>

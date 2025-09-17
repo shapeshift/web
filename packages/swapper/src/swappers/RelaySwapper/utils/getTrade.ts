@@ -189,6 +189,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       refundTo,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
+      referrer: 'shapeshift',
       appFees: [
         {
           recipient: affiliateTreasuryAddress,

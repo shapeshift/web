@@ -1,12 +1,11 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Card, HStack, Image, VStack } from '@chakra-ui/react'
+import { Box, Button, Card, HStack, Image, Link, VStack } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { validateTypedData } from 'viem'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { StructuredMessage } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/StructuredMessage'
 import type { EIP712TypedData } from '@/plugins/walletConnectToDapps/types'
 import { getChainIdFromDomain } from '@/plugins/walletConnectToDapps/utils'
@@ -68,18 +67,20 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
       <VStack spacing={3} align='stretch'>
         {domain?.verifyingContract && (
           <HStack justify='space-between' align='center' py={1}>
-            <RawText color='text.subtle' fontSize='sm'>
+            <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
               {translate('plugins.walletConnectToDapps.modal.signMessage.contract')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText fontSize='sm' fontWeight='bold'>
-                {domain.name || <MiddleEllipsis value={domain.verifyingContract} />}
-              </RawText>
-              {contractExplorerLink && (
-                <ExternalLinkButton
-                  href={contractExplorerLink}
-                  ariaLabel='View contract on explorer'
-                />
+              {contractExplorerLink ? (
+                <Link color='text.link' href={contractExplorerLink} isExternal>
+                  <RawText fontSize='sm' fontWeight='medium'>
+                    {domain.name || <MiddleEllipsis value={domain.verifyingContract} />}
+                  </RawText>
+                </Link>
+              ) : (
+                <RawText fontSize='sm' fontWeight='medium'>
+                  {domain.name || <MiddleEllipsis value={domain.verifyingContract} />}
+                </RawText>
               )}
             </HStack>
           </HStack>
@@ -91,7 +92,7 @@ export const EIP712MessageDisplay: React.FC<EIP712MessageDisplayProps> = ({ mess
               {translate('common.network')}
             </RawText>
             <HStack spacing={2} align='center'>
-              <RawText fontSize='sm' fontWeight='bold'>
+              <RawText fontSize='sm' fontWeight='medium'>
                 {domainFeeAsset.networkName}
               </RawText>
               <Image boxSize='20px' src={domainFeeAsset.networkIcon ?? domainFeeAsset.icon} />

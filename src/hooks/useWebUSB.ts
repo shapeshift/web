@@ -4,7 +4,7 @@ const LEDGER_VENDOR_ID = 0x2c97
 
 type USBDeviceState = 'connected' | 'disconnected' | 'unknown'
 
-export const useUSBDeviceTracking = (enabled: boolean = true) => {
+export const useWebUSB = (enabled: boolean = true) => {
   const [deviceState, setDeviceState] = useState<USBDeviceState>('unknown')
 
   useEffect(() => {
@@ -32,7 +32,6 @@ export const useUSBDeviceTracking = (enabled: boolean = true) => {
         const devices = await navigator.usb.getDevices()
         const ledgerDevices = devices.filter(device => device.vendorId === LEDGER_VENDOR_ID)
         const hasLedger = ledgerDevices.length > 0
-
 
         setDeviceState(hasLedger ? 'connected' : 'disconnected')
       } catch (error) {

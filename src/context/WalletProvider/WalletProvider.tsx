@@ -45,7 +45,6 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
-
 export type WalletInfo = {
   name: string
   icon:

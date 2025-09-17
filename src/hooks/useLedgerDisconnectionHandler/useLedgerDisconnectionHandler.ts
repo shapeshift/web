@@ -3,15 +3,15 @@ import { useEffect } from 'react'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useUSBDeviceTracking } from '@/hooks/useUSBDeviceTracking'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWebUSB } from '@/hooks/useWebUSB'
 
 export const useLedgerDisconnectionHandler = () => {
   const { dispatch, state } = useWallet()
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   // Track USB device connections
-  const { isDisconnected: isUSBDisconnected } = useUSBDeviceTracking(isLedgerReadOnlyEnabled)
+  const { isDisconnected: isUSBDisconnected } = useWebUSB(isLedgerReadOnlyEnabled)
 
   // Handle Ledger disconnection
   useEffect(() => {

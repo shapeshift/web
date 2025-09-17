@@ -22,6 +22,10 @@ const relatedAssetRowHoverStyles = {
   bg: 'background.surface.raised.base',
 }
 
+const lastRowStyles = {
+  borderBottomRadius: 'xl',
+}
+
 const RelatedAssetRow = memo<RelatedAssetRowProps>(
   ({ relatedAssetRow, onRowClick, onRowLongPress }) => {
     const textColor = useColorModeValue('black', 'white')
@@ -42,8 +46,9 @@ const RelatedAssetRow = memo<RelatedAssetRowProps>(
       <Flex
         justify='space-between'
         align='center'
-        p={2}
-        borderRadius='md'
+        p={4}
+        borderRadius='none'
+        _last={lastRowStyles}
         cursor='pointer'
         onClick={handleClick}
         _hover={relatedAssetRowHoverStyles}
@@ -92,7 +97,7 @@ export const GroupedAccounts = memo<GroupedAccountsProps>(({ row, onRowClick, on
   if (groupedAssetsWithBalances?.relatedAssets.length === 1) return null
 
   return (
-    <Stack spacing={2} p={4} bg='background.surface.raised.base'>
+    <Stack spacing={0} p={0} bg='background.surface.raised.base'>
       {groupedAssetsWithBalances?.relatedAssets.map(asset => (
         <RelatedAssetRow
           key={asset.assetId}

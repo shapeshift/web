@@ -31,6 +31,9 @@
     "claimable": "Доступна",
     "comingSoon": "Незабаром ...",
     "approve": "Схвалити",
+    "approveToken": "Затвердити токен",
+    "approveAmount": "Затвердити кількість",
+    "approveTo": "Затвердити",
     "reset": "Сброс",
     "confirm": "Підтвердити",
     "seeDetails": "Переглянути деталі",
@@ -215,7 +218,9 @@
     "boost": "Буст",
     "viewOnExplorer": "Переглянути в браузері",
     "approval": "Затвердження",
-    "permit2Approval": "Permit2 Схвалення"
+    "permit2Approval": "Permit2 Схвалення",
+    "network": "Мережа",
+    "feeEstimate": "Орієнтовна комісія"
   },
   "quickBuy": {
     "title": "Швидка покупка %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Чиста вартість",
     "loadingAccounts": "Завантажено %{portfolioAccountsLoaded} акаунтів",
     "walletBalance": "Залишок у гаманці",
+    "walletBalanceChange24Hr": "24 годинна зміна",
     "earnBalance": "Заробити на балансі",
     "rewardsBalance": "Баланс винагород",
     "earnBody": "Отримуйте пасивний дохід, стейкаючи свої активи або вклавши їх у DeFi-стратегію.",
@@ -703,7 +709,6 @@
     "confirmed": "Підтверджено",
     "pending": "Розглядається",
     "failed": "Не вдалася",
-    "network": "Мережа",
     "blockHeight": "Висота блоку",
     "to": "До",
     "from": "Від",
@@ -1405,7 +1410,8 @@
         "total": "Загалом",
         "amount": "Сума",
         "transactionFee": "Комісія за транзакцію",
-        "fees": "Комісії %{feeType}"
+        "fees": "Комісії %{feeType}",
+        "pendingConfirmation": "Очікується підтвердження"
       },
       "sendForm": {
         "optionalAssetMemo": "За бажанням %{assetSymbol} Memo",
@@ -2273,7 +2279,8 @@
     "today": "Сьогодні",
     "yesterday": "Вчора",
     "thisWeek": "Цього тижня",
-    "thisMonth": "Цього місяця"
+    "thisMonth": "Цього місяця",
+    "transactionDetails": "Деталі транзакції"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Підключити всі акаунти",
+        "interactContract": "Інтерактивний контракт",
+        "transactionData": "Дані про транзакції",
+        "method": "Метод",
+        "signingWith": "Підписання з",
+        "sendingTo": "Відправлення до",
         "signMessage": {
           "signingFrom": "Підпис Від",
           "requestFrom": "Запит від",
@@ -2373,7 +2385,9 @@
           "chainId": "Chain ID",
           "authInfo": "Auth info",
           "body": "Тіло",
-          "comingSoon": "Незабаром ..."
+          "comingSoon": "Незабаром ...",
+          "contract": "Контракт",
+          "primaryType": "Первинний тип"
         },
         "sendTransaction": {
           "sendingFrom": "Надсилання від",

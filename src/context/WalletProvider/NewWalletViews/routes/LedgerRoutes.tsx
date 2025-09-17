@@ -1,8 +1,9 @@
 import { Button } from '@chakra-ui/react'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import { LedgerFailureBody } from '../components/LedgerFailureBody'
 import { PairBody } from '../components/PairBody'
 
 import { LedgerIcon } from '@/components/Icons/LedgerIcon'
@@ -12,7 +13,6 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isSome } from '@/lib/utils'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -22,6 +22,8 @@ const LEDGER_DEVICE_ID = '0001'
 const Icon = LedgerIcon
 const icon = <Icon boxSize='64px' />
 const name = 'Ledger'
+
+type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
 
 export const LedgerRoutes = () => {
   const {
@@ -34,6 +36,7 @@ export const LedgerRoutes = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
+  const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
@@ -126,6 +129,38 @@ export const LedgerRoutes = () => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
+  // Auto-attempt connection when modal opens (if flag enabled)
+  const handleAutoConnect = useCallback(async () => {
+    if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') return
+
+    setConnectionState('attempting')
+
+    const adapter = await getAdapter(KeyManager.Ledger)
+    if (adapter) {
+      try {
+        const wallet = await adapter.pairDevice().catch(() => null)
+        
+        if (wallet) {
+          setConnectionState('success')
+        } else {
+          setConnectionState('failed')
+        }
+      } catch (error) {
+        setConnectionState('failed')
+      }
+    } else {
+      setConnectionState('failed')
+    }
+  }, [isLedgerReadOnlyEnabled, connectionState, getAdapter])
+
+  // Auto-connect when modal opens
+  useEffect(() => {
+    if (modalType && isLedgerReadOnlyEnabled) {
+      handleAutoConnect()
+    }
+  }, [modalType, isLedgerReadOnlyEnabled, handleAutoConnect])
+
+  // Handle read-only connection
   const handleConnectReadOnly = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }, [walletDispatch])
@@ -147,31 +182,20 @@ export const LedgerRoutes = () => {
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
 
-  const readOnlyButton = useMemo(
-    () =>
-      !isLoading && isLedgerReadOnlyEnabled ? (
-        <Button
-          onClick={handleConnectReadOnly}
-          maxW='200px'
-          width='100%'
-          variant='outline'
-          colorScheme='gray'
-          isDisabled={isLoading}
-          mt={2}
-        >
-          <Text translation='walletProvider.ledger.readOnly.button' />
-        </Button>
-      ) : null,
-    [handleConnectReadOnly, isLoading, isLedgerReadOnlyEnabled],
-  )
+  // Determine which element to show based on flag and connection state
+  const ledgerElement = useMemo(() => {
+    // If flag is enabled and connection failed, show failure screen
+    if (isLedgerReadOnlyEnabled && connectionState === 'failed') {
+      return (
+        <LedgerFailureBody
+          icon={icon}
+          onConnectReadOnly={handleConnectReadOnly}
+        />
+      )
+    }
 
-  const secondaryContent = useMemo(() => {
-    const buttons = [secondaryButton, readOnlyButton].filter(isSome)
-    return buttons.length ? buttons : null
-  }, [secondaryButton, readOnlyButton])
-
-  const ledgerPairElement = useMemo(
-    () => (
+    // Otherwise show normal pairing screen
+    return (
       <PairBody
         icon={icon}
         headerTranslation='walletProvider.ledger.connect.header'
@@ -185,27 +209,29 @@ export const LedgerRoutes = () => {
             ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
             : 'walletProvider.ledger.connect.pairNewDeviceButton'
         }
-        isLoading={isLoading}
+        isLoading={isLoading || (isLedgerReadOnlyEnabled && connectionState === 'attempting')}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
-        secondaryContent={secondaryContent}
+        secondaryContent={secondaryButton}
       />
-    ),
-    [
-      deviceCountError,
-      error,
-      handlePair,
-      isLoading,
-      isPreviousLedgerDeviceDetected,
-      secondaryContent,
-    ],
-  )
+    )
+  }, [
+    isLedgerReadOnlyEnabled,
+    connectionState,
+    handleConnectReadOnly,
+    deviceCountError,
+    error,
+    handlePair,
+    isLoading,
+    isPreviousLedgerDeviceDetected,
+    secondaryButton,
+  ])
 
   if (!modalType) return null
 
   return (
     <Routes>
-      <Route path='/ledger/connect' element={ledgerPairElement} />
+      <Route path='/ledger/connect' element={ledgerElement} />
     </Routes>
   )
 }

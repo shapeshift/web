@@ -230,17 +230,18 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     )
 
     const networkSelection = useMemo(
-      () => (
-        <NetworkSelection
-          selectedChainIds={selectedChainIds}
-          requiredChainIds={requiredChainIds}
-          selectedAccountNumber={selectedAccountNumber}
-          requiredNamespaces={requiredNamespaces}
-          onSelectedChainIdsChange={handleChainIdsChange}
-          onBack={handleBack}
-          onDone={handleBack}
-        />
-      ),
+      () =>
+        selectedAccountNumber === null ? null : (
+          <NetworkSelection
+            selectedChainIds={selectedChainIds}
+            requiredChainIds={requiredChainIds}
+            selectedAccountNumber={selectedAccountNumber}
+            requiredNamespaces={requiredNamespaces}
+            onSelectedChainIdsChange={handleChainIdsChange}
+            onBack={handleBack}
+            onDone={handleBack}
+          />
+        ),
       [
         selectedChainIds,
         requiredChainIds,

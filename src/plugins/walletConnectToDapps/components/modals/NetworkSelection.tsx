@@ -66,7 +66,7 @@ const requiredCheckboxSx = {
 type NetworkSelectionProps = {
   selectedChainIds: ChainId[]
   requiredChainIds: ChainId[]
-  selectedAccountNumber: number | null
+  selectedAccountNumber: number
   requiredNamespaces: ProposalTypes.RequiredNamespaces
   onSelectedChainIdsChange: (chainIds: ChainId[]) => void
   onBack: () => void
@@ -92,12 +92,11 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     // Use all EVM chains available for the selected account number as a source of truth
     // Do *not* honor wc optional namespaces, the app is the source of truth, and the app may or may not handle additional one at their discretion
     // This is to keep things simple for users and not display less chains than they have accounts for, for a given account number
-    const accountNumberChainIds =
-      selectedAccountNumber !== null
-        ? Object.entries(accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {})
-            .filter(([chainId]) => isEvmChainId(chainId))
-            .map(([chainId]) => chainId)
-        : []
+    const accountNumberChainIds = Object.entries(
+      accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
+    )
+      .filter(([chainId]) => isEvmChainId(chainId))
+      .map(([chainId]) => chainId)
 
     // Add any required chains from the dApp even if user doesn't have account/s at the current accountNumber for it/them - we'll handle that state ourselves
     // Rationale being, they should definitely be able to see the required chains when going to network selection regardless of whether or not they have an account for it
@@ -123,15 +122,39 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     [onSelectedChainIdsChange],
   )
 
-  const handleSelectAllChains = useCallback(() => {
-    if (selectedAccountNumber === null) return
-
+  const optionalChainIds = useMemo(() => {
     const userChainIds = Object.keys(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
     ).filter(isEvmChainId)
 
-    onSelectedChainIdsChange(userChainIds as ChainId[])
-  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, onSelectedChainIdsChange])
+    return userChainIds.filter(chainId => !requiredChainIds.includes(chainId as ChainId))
+  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, requiredChainIds])
+
+  const isAllOptionalChainsSelected = useMemo(() => {
+    if (optionalChainIds.length === 0) return false
+    return optionalChainIds.every(chainId => selectedChainIds.includes(chainId as ChainId))
+  }, [optionalChainIds, selectedChainIds])
+
+  const handleToggleAllChains = useCallback(() => {
+    if (isAllOptionalChainsSelected) {
+      const newSelectedChains = selectedChainIds.filter(chainId =>
+        requiredChainIds.includes(chainId),
+      )
+      onSelectedChainIdsChange(newSelectedChains)
+    } else {
+      const userChainIds = Object.keys(
+        accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
+      ).filter(isEvmChainId)
+      onSelectedChainIdsChange(userChainIds as ChainId[])
+    }
+  }, [
+    selectedAccountNumber,
+    isAllOptionalChainsSelected,
+    selectedChainIds,
+    requiredChainIds,
+    accountIdsByAccountNumberAndChainId,
+    onSelectedChainIdsChange,
+  ])
 
   const networkRows = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
@@ -147,10 +170,9 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
       if (!chainName) return null
 
       const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
-      const hasAccount =
-        selectedAccountNumber !== null
-          ? Boolean(accountIdsByAccountNumberAndChainId[selectedAccountNumber]?.[typedChainId])
-          : false
+      const hasAccount = Boolean(
+        accountIdsByAccountNumberAndChainId[selectedAccountNumber]?.[typedChainId],
+      )
       const isRequired = requiredChainIds.includes(typedChainId)
       const isDisabled = isRequired
 
@@ -231,8 +253,10 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
         <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
           {translate('plugins.walletConnectToDapps.modal.chooseNetwork')}
         </RawText>
-        <Button size='sm' variant='link' colorScheme='blue' onClick={handleSelectAllChains}>
-          {translate('common.selectAll')}
+        <Button size='sm' variant='link' colorScheme='blue' onClick={handleToggleAllChains}>
+          {isAllOptionalChainsSelected
+            ? translate('common.unselectAll')
+            : translate('common.selectAll')}
         </Button>
       </HStack>
       <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>

@@ -17,10 +17,13 @@ import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeade
 import { SEO } from '@/components/Layout/Seo'
 import { ScrollDisplay } from '@/components/ScrollDisplay'
 import { RawText } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { middleEllipsis } from '@/lib/utils'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -62,6 +65,14 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   } = useWallet()
 
   const walletSupportsChain = useWalletSupportsChain(chainId, wallet)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+
+  // TODO(gomes): for dev only, this is incorrect and may display those even if chain is not added for dis/connected Ledger
+  // We should accommodate that new flow in checkWalletHasRuntimeSupport i.e handle `null` wallet there
+  // Also, clicking send/receive there atm opens the wallet connect modal vs. send/receive, should also be fixed
+  const shouldShowActions = walletSupportsChain || isLedgerReadOnly
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance =
@@ -126,7 +137,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       </PageHeader.Middle>
       <PageHeader.Right>
         <Display.Desktop>
-          {walletSupportsChain ? (
+          {shouldShowActions ? (
             <Flex display={displayMdFlex}>
               <AssetActions
                 assetId={assetId}

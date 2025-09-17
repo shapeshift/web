@@ -3,12 +3,12 @@ import type { ReactNode } from 'react'
 
 import { Text } from '@/components/Text'
 
-type LedgerFailureBodyProps = {
+type LedgerReadOnlyBodyProps = {
   icon: ReactNode
   onConnectReadOnly: () => void
 }
 
-export const LedgerFailureBody = ({ icon, onConnectReadOnly }: LedgerFailureBodyProps) => {
+export const LedgerReadOnlyBody = ({ icon, onConnectReadOnly }: LedgerReadOnlyBodyProps) => {
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
       {icon}

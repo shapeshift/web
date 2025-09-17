@@ -3,7 +3,7 @@ import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import { LedgerFailureBody } from '../components/LedgerFailureBody'
+import { LedgerReadOnlyBody } from '../components/LedgerReadOnlyBody'
 import { PairBody } from '../components/PairBody'
 
 import { LedgerIcon } from '@/components/Icons/LedgerIcon'
@@ -220,9 +220,9 @@ export const LedgerRoutes = () => {
 
   // Determine which element to show based on flag and connection state
   const ledgerElement = useMemo(() => {
-    // If flag is enabled and either connection failed OR USB device is disconnected, show failure screen
+    // If flag is enabled and either connection failed OR USB device is disconnected, show read-only screen
     if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
-      return <LedgerFailureBody icon={icon} onConnectReadOnly={handleConnectReadOnly} />
+      return <LedgerReadOnlyBody icon={icon} onConnectReadOnly={handleConnectReadOnly} />
     }
 
     // Otherwise show normal pairing screen

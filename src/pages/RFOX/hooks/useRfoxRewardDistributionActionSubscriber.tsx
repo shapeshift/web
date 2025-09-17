@@ -18,7 +18,15 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
   )
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
+
+  const toastOptions = useMemo(
+    () => ({
+      duration: isDrawerOpen ? 5000 : null,
+    }),
+    [isDrawerOpen],
+  )
+  const toast = useNotificationToast(toastOptions)
+
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const stakingAssetAccountAddresses = useMemo(
     () => stakingAssetAccountIds.map(accountId => fromAccountId(accountId).account),

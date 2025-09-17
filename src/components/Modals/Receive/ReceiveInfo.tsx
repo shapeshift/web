@@ -61,6 +61,7 @@ const externalLinkIcon = <TbExternalLink />
 
 export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
+  const { isConnected } = state
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
   const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string | null>('')
@@ -181,7 +182,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      (
       <>
         <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
           <Box>
@@ -279,7 +279,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                     }`,
                   )}
                   onClick={handleVerify}
-                  isDisabled={!receiveAddress}
+                  isDisabled={!receiveAddress || !isConnected}
                   size='lg'
                   borderRadius='full'
                   color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}

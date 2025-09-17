@@ -1,5 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
-import React, { createContext, useCallback, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { breakpoints } from '@/theme/theme'
@@ -24,11 +24,16 @@ export const ActionCenterProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [isLargerThanMd, navigate])
   const closeDrawer = useCallback(() => setIsDrawerOpen(false), [])
 
-  return (
-    <ActionCenterContext.Provider value={{ isDrawerOpen, openActionCenter, closeDrawer }}>
-      {children}
-    </ActionCenterContext.Provider>
+  const value = useMemo(
+    () => ({
+      isDrawerOpen,
+      openActionCenter,
+      closeDrawer,
+    }),
+    [isDrawerOpen, openActionCenter, closeDrawer],
   )
+
+  return <ActionCenterContext.Provider value={value}>{children}</ActionCenterContext.Provider>
 }
 
 export const useActionCenterContext = () => {

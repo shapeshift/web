@@ -2,12 +2,12 @@ import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
 import { getFiatFlagUrl } from '@/constants/fiatLogos'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
 
 type FiatRowProps = {
-  fiat: FiatTypeEnumWithoutCryptos
-  onClick?: (fiat: FiatTypeEnumWithoutCryptos) => void
+  fiat: CommonFiatCurrencies
+  onClick?: (fiat: CommonFiatCurrencies) => void
 }
 
 export const FiatRow = ({ fiat, onClick }: FiatRowProps) => {

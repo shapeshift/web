@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Box, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { TradeAssetInput } from '../TradeAssetInput'
 import { FiatInput } from './FiatInput'
@@ -9,9 +9,15 @@ import { FiatInput } from './FiatInput'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { FiatMenuButton } from '@/components/AssetSelection/components/FiatMenuButton'
 import { FormDivider } from '@/components/FormDivider'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
 import { useModal } from '@/hooks/useModal/useModal'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import {
+  selectBuyFiatAsset,
+  selectSellFiatAsset,
+} from '@/state/slices/tradeRampInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 type FiatRampTradeBodyProps = {
@@ -19,13 +25,14 @@ type FiatRampTradeBodyProps = {
   onSellAssetChange: (asset: Asset | null) => void
   onBuyAssetChange: (asset: Asset | null) => void
   onSellAmountChange: (amount: string) => void
-  onBuyAmountChange: (amount: string) => void
-  onSellFiatChange?: (fiat: FiatTypeEnumWithoutCryptos | null) => void
-  onBuyFiatChange?: (fiat: FiatTypeEnumWithoutCryptos | null) => void
+  onSellFiatChange?: (fiat: CommonFiatCurrencies | null) => void
+  onBuyFiatChange?: (fiat: CommonFiatCurrencies | null) => void
+  onSellFiatAmountChange?: (amount: string) => void
   buyAsset: Asset | null
   sellAsset: Asset | null
   sellAmount: string
   buyAmount: string
+  sellFiatAmount?: string
   isLoading?: boolean
 }
 
@@ -54,16 +61,37 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   onSellAmountChange,
   onSellFiatChange,
   onBuyFiatChange,
+  onSellFiatAmountChange,
   sellAmount,
   buyAmount,
-  isLoading,
+  sellFiatAmount = '0',
+  isLoading = false,
 }) => {
-  const [selectedFiat, setSelectedFiat] = useState<FiatTypeEnumWithoutCryptos>(FiatTypeEnum.USD)
-
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const buyAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
+  )
+  const sellAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, sellAsset?.assetId ?? ''),
+  )
+
+  const sellFiat = useAppSelector(selectSellFiatAsset)
+  const buyFiat = useAppSelector(selectBuyFiatAsset)
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')
   const buyAssetSearch = useModal('buyTradeAssetSearch')
+
+  const buyAmountUserCurrency = useMemo(() => {
+    return bnOrZero(buyAmount)
+      .times(buyAssetMarketData?.price ?? 0)
+      .toString()
+  }, [buyAmount, buyAssetMarketData])
+
+  const sellAmountUserCurrency = useMemo(() => {
+    return bnOrZero(sellAmount)
+      .times(sellAssetMarketData?.price ?? 0)
+      .toString()
+  }, [sellAmount, sellAssetMarketData])
 
   const chainIdFilterPredicate = useCallback(() => true, [])
 
@@ -77,13 +105,12 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
 
   const handleFiatClick = useCallback(() => {
     sellAssetSearch.open({
-      onFiatClick: (fiat: FiatTypeEnumWithoutCryptos) => {
+      onFiatClick: (fiat: CommonFiatCurrencies) => {
         if (type === 'buy') {
           onSellFiatChange?.(fiat)
+        } else {
+          onBuyFiatChange?.(fiat)
         }
-
-        onBuyFiatChange?.(fiat)
-        setSelectedFiat(fiat)
       },
       onAssetClick: () => {},
       title: type === 'buy' ? 'modals.ramp.payWith' : 'modals.ramp.sellAsset',
@@ -189,20 +216,25 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   ])
 
   const fiatSelect = useMemo(() => {
+    const currentFiat = type === 'buy' ? sellFiat : buyFiat
     return (
       <FiatMenuButton
-        fiat={selectedFiat}
+        fiat={currentFiat}
         onFiatClick={handleFiatClick}
         buttonProps={fiatInputButtonProps}
       />
     )
-  }, [selectedFiat, handleFiatClick])
+  }, [type, sellFiat, buyFiat, handleFiatClick])
 
   const handleQuickAmountClick = useCallback(
     (amount: string) => {
-      handleSellAmountChange(amount)
+      if (type === 'buy') {
+        onSellFiatAmountChange?.(amount)
+      } else {
+        handleSellAmountChange(amount)
+      }
     },
-    [handleSellAmountChange],
+    [type, onSellFiatAmountChange, handleSellAmountChange],
   )
 
   const handleAccountIdChange = useCallback(() => {
@@ -215,11 +247,11 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
     return (
       <Stack spacing={4}>
         <FiatInput
-          selectedFiat={selectedFiat}
-          amount={sellAmount}
+          selectedFiat={sellFiat}
+          amount={sellFiatAmount}
           label='Pay With'
           labelPostFix={fiatSelect}
-          onAmountChange={handleSellAmountChange}
+          onAmountChange={onSellFiatAmountChange}
           quickAmounts={fiatQuickAmounts}
           onQuickAmountClick={handleQuickAmountClick}
         />
@@ -232,7 +264,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
           assetSymbol={buyAsset.symbol}
           assetIcon={buyAsset.icon}
           cryptoAmount={buyAmount}
-          fiatAmount={buyAmount}
+          fiatAmount={buyAmountUserCurrency}
           percentOptions={percentOptions}
           labelPostFix={buyTradeAssetSelect}
           formControlProps={formControlProps}
@@ -254,7 +286,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
         assetSymbol={sellAsset.symbol}
         assetIcon={sellAsset.icon}
         cryptoAmount={sellAmount}
-        fiatAmount={sellAmount}
+        fiatAmount={sellAmountUserCurrency}
         percentOptions={percentOptions}
         labelPostFix={sellTradeAssetSelect}
         onChange={handleSellAmountChange}
@@ -269,12 +301,13 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
 
       <Box mb={6}>
         <FiatInput
-          selectedFiat={selectedFiat}
+          selectedFiat={buyFiat}
           amount={buyAmount}
           labelPostFix={fiatSelect}
           label='Receive Amount'
           isReadOnly={true}
           placeholder='0.00'
+          showPrefix={false}
         />
       </Box>
     </Stack>

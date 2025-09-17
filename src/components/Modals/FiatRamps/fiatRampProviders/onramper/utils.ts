@@ -3,11 +3,13 @@ import { adapters, ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftos
 import axios from 'axios'
 import { isAddress, zeroAddress } from 'viem'
 
-import type { CommonFiatCurrencies } from '../../config'
+import type { GetQuotesProps, RampQuote } from '../../config'
 import { getChainIdFromOnramperNetwork } from './constants'
 import type { Crypto, OnramperBuyQuoteResponse, OnRamperGatewaysResponse } from './types'
 
+import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // https://docs.onramper.com/reference/get_supported
 export const getSupportedOnramperCurrencies = async () => {
@@ -26,31 +28,85 @@ export const getSupportedOnramperCurrencies = async () => {
   }
 }
 
+const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
+  const allPaymentMethods = quotes.flatMap(quote => quote.availablePaymentMethods || [])
+  const supportedMethods = allPaymentMethods.map(method => method.paymentTypeId?.toLowerCase())
+
+  return {
+    isCreditCard: supportedMethods.some(
+      method => method?.includes('card') || method?.includes('credit') || method?.includes('debit'),
+    ),
+    isBankTransfer: supportedMethods.some(
+      method =>
+        method?.includes('bank') || method?.includes('transfer') || method?.includes('wire'),
+    ),
+    isApplePay: supportedMethods.some(method => method?.includes('apple')),
+    isGooglePay: supportedMethods.some(method => method?.includes('google')),
+    isSepa: supportedMethods.some(method => method?.includes('sepa')),
+  }
+}
+
+const convertOnramperQuotesToSingleRampQuote = (
+  onramperQuotes: OnramperBuyQuoteResponse,
+  amount: string,
+  direction: 'buy' | 'sell',
+): RampQuote | null => {
+  if (!onramperQuotes || onramperQuotes.length === 0) {
+    return null
+  }
+
+  // Find the best quote (highest rate for buy, lowest rate for sell)
+  const bestQuote = onramperQuotes.reduce((best, current) => {
+    if (!current.rate || !best.rate) return best
+    return direction === 'buy'
+      ? current.rate > best.rate
+        ? current
+        : best
+      : current.rate < best.rate
+      ? current
+      : best
+  })
+
+  const paymentMethodSupport = aggregatePaymentMethodSupport(onramperQuotes)
+
+  return {
+    id: `onramper-aggregated-${bestQuote.quoteId || 'quote'}`,
+    provider: 'OnRamper',
+    providerLogo: OnRamperLogo,
+    rate: bestQuote.rate?.toString() || '0',
+    amount: direction === 'buy' ? bnOrZero(bestQuote.payout).toFixed() : amount,
+    isBestRate: true, // This is the best rate from OnRamper
+    isFastest: false, // OnRamper doesn't provide speed information
+    ...paymentMethodSupport,
+  }
+}
+
 // https://docs.onramper.com/reference/get_quotes-fiat-crypto
-export const getOnramperBuyQuote = async ({
+export const getOnramperQuote = async ({
   fiat,
   crypto,
-  fiatAmount,
-}: {
-  fiat: CommonFiatCurrencies
-  crypto: string
-  fiatAmount: number
-}) => {
+  amount,
+  direction,
+}: GetQuotesProps): Promise<RampQuote | null> => {
   try {
     const baseUrl = getConfig().VITE_ONRAMPER_API_URL
     const apiKey = getConfig().VITE_ONRAMPER_API_KEY
 
-    const url = `${baseUrl}quotes/${fiat.toLowerCase()}/${crypto.toLowerCase()}?amount=${fiatAmount}`
+    const url =
+      direction === 'buy'
+        ? `${baseUrl}quotes/${fiat.toLowerCase()}/${crypto.toLowerCase()}?amount=${amount}`
+        : `${baseUrl}quotes/${crypto.toLowerCase()}/${fiat.toLowerCase()}?amount=${amount}&type=sell`
 
-    return (
-      await axios.get<OnramperBuyQuoteResponse>(url, {
-        headers: {
-          Authorization: apiKey,
-        },
-      })
-    ).data
+    const response = await axios.get<OnramperBuyQuoteResponse>(url, {
+      headers: {
+        Authorization: apiKey,
+      },
+    })
+
+    return convertOnramperQuotesToSingleRampQuote(response.data, amount, direction)
   } catch (e) {
-    console.error(e)
+    console.error('Error fetching OnRamper quotes:', e)
+    return null
   }
 }
 

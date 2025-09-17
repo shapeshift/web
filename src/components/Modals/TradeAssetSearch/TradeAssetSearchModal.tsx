@@ -11,9 +11,9 @@ import {
   DialogHeaderMiddle,
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
+import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
 import type { TradeAssetSearchProps } from '@/components/TradeAssetSearch/TradeAssetSearch'
 import { TradeAssetSearch } from '@/components/TradeAssetSearch/TradeAssetSearch'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
 import { useModal } from '@/hooks/useModal/useModal'
 
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
@@ -59,7 +59,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   )
 
   const handleFiatClick = useCallback(
-    (fiat: FiatTypeEnumWithoutCryptos) => {
+    (fiat: CommonFiatCurrencies) => {
       onFiatClick?.(fiat)
       close()
     },

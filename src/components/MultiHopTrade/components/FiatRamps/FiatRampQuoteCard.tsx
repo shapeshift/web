@@ -6,10 +6,18 @@ import { TradeQuoteBadges } from '../TradeInput/components/TradeQuotes/component
 import { TradeQuoteCard } from '../TradeInput/components/TradeQuotes/components/TradeQuoteCard'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import type { RampQuote } from '@/components/Modals/FiatRamps/config'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
-import type { RampQuote } from '@/components/MultiHopTrade/components/FiatRamps/RampQuotes'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
+import {
+  selectBuyFiatAsset,
+  selectInputBuyAsset,
+  selectInputSellAsset,
+  selectSellFiatAsset,
+} from '@/state/slices/tradeRampInputSlice/selectors'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type FiatRampQuoteProps = {
   isActive: boolean
@@ -18,21 +26,55 @@ type FiatRampQuoteProps = {
   quote: RampQuote
   isLoading: boolean
   onBack?: () => void
+  fiatCurrency?: string
+  fiatAmount?: string
+  direction?: 'buy' | 'sell'
 }
 
 export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
-  ({ isActive, isBestRate, isFastest, quote, isLoading, onBack }) => {
+  ({
+    isActive,
+    isBestRate,
+    isFastest,
+    quote,
+    isLoading,
+    onBack,
+    fiatCurrency,
+    fiatAmount,
+    direction,
+  }) => {
+    const dispatch = useAppDispatch()
+    const sellAsset = useAppSelector(selectInputSellAsset)
+    const buyAsset = useAppSelector(selectInputBuyAsset)
+    const buyFiat = useAppSelector(selectBuyFiatAsset)
+    const sellFiat = useAppSelector(selectSellFiatAsset)
+
     const handleQuoteSelection = useCallback(() => {
-      // TODO: Handle quote selection for fiat ramp
-      console.log('Selected fiat ramp quote:', quote)
-      // For mobile, if the user click on a quote, it should go back
-      // even thought I didn't really take care of mobile yet
+      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(quote))
+
       onBack && onBack()
-    }, [quote, onBack])
+    }, [quote, onBack, dispatch])
 
     const providerIcon = useMemo(() => {
       return <AssetIcon src={quote.providerLogo} />
     }, [quote.providerLogo])
+
+    console.log({
+      quote,
+    })
+
+    const fiatAmountDisplay = useMemo(() => {
+      if (!fiatCurrency || !fiatAmount || !quote.rate) return null
+
+      const cryptoAmount = quote.amount
+      let calculatedFiatAmount = bnOrZero(cryptoAmount).times(quote.rate).toFixed(2)
+
+      if (direction === 'buy') {
+        return `${calculatedFiatAmount} ${sellFiat}`
+      }
+
+      return calculatedFiatAmount
+    }, [fiatCurrency, fiatAmount, quote.rate, quote.amount, direction, sellFiat])
 
     const headerContent = useMemo(() => {
       return (
@@ -48,16 +90,37 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
       )
     }, [isBestRate, isFastest])
 
+    const amounts = useMemo(() => {
+      if (direction === 'buy') {
+        return (
+          <>
+            <Text fontSize='lg' fontWeight='bold' color='text.base'>
+              {quote.amount} {buyAsset.symbol}
+            </Text>
+            <Text fontSize='sm' color='text.subtle'>
+              {fiatAmountDisplay ? `≈ ${fiatAmountDisplay}` : '≈ $0'}
+            </Text>
+          </>
+        )
+      }
+
+      return (
+        <>
+          <Text fontSize='lg' fontWeight='bold' color='text.base'>
+            {fiatAmountDisplay} {buyFiat}
+          </Text>
+          <Text fontSize='sm' color='text.subtle'>
+            {quote.amount} {sellAsset.symbol}
+          </Text>
+        </>
+      )
+    }, [quote, buyAsset, sellAsset, direction, fiatAmountDisplay, buyFiat])
+
     const bodyContent = useMemo(() => {
       return (
         <Box p={4} pt={0}>
           <VStack spacing={1} align='start' mb={4}>
-            <Text fontSize='lg' fontWeight='bold' color='text.base'>
-              {quote.amount}
-            </Text>
-            <Text fontSize='sm' color='text.subtle'>
-              {/* @TODO: add the fiat amount using rate when wiring up */}≈ $100
-            </Text>
+            {amounts}
           </VStack>
 
           <HStack spacing={2} wrap='wrap'>
@@ -72,7 +135,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
           </HStack>
         </Box>
       )
-    }, [quote])
+    }, [quote, amounts])
 
     const isDisabled = isLoading
     const isActionable = bnOrZero(quote.rate).gt(0)

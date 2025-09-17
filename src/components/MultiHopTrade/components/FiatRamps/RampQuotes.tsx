@@ -1,99 +1,75 @@
-import { Box, VStack } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { Skeleton, VStack } from '@chakra-ui/react'
+import { useEffect, useMemo } from 'react'
 
 import { FiatRampQuoteCard } from './FiatRampQuoteCard'
 
-import banxaLogo from '@/assets/banxa.png'
-import CoinbaseLogo from '@/assets/coinbase-logo.svg'
-import MtPelerinLogo from '@/assets/mtpelerin.png'
-import OnRamperLogo from '@/assets/onramper-logo.svg'
+import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
+import { isSome } from '@/lib/utils'
+import {
+  selectBuyFiatAsset,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
+  selectSelectedFiatRampQuote,
+  selectSellFiatAmount,
+  selectSellFiatAsset,
+} from '@/state/slices/tradeRampInputSlice/selectors'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type PaymentMethod = 'Card' | 'Bank Transfer' | 'Apple Pay' | 'Google Pay' | 'SEPA'
 
-export type RampQuote = {
-  id: string
-  provider: string
-  // @TODO: enum when we wire up things
-  providerLogo?: string
-  rate: string
-  amount: string
-  isBestRate?: boolean
-  isFastest?: boolean
-  isCreditCard?: boolean
-  isBankTransfer?: boolean
-  isApplePay?: boolean
-  isGooglePay?: boolean
-  isSepa?: boolean
-}
-
 type RampQuotesProps = {
-  quotes?: RampQuote[]
   isLoading?: boolean
   onBack?: () => void
+  direction: 'buy' | 'sell'
 }
 
-export const RampQuotes: React.FC<RampQuotesProps> = ({
-  quotes = [],
-  isLoading = false,
-  onBack,
-}) => {
-  // Mock quotes data for demonstration
-  const mockQuotes: RampQuote[] = useMemo(
-    () => [
-      {
-        id: '1',
-        provider: 'Banxa',
-        providerLogo: banxaLogo,
-        rate: '0.127895',
-        amount: '0.127895 ETH',
-        isCreditCard: true,
-        isBankTransfer: true,
-        isApplePay: true,
-        isGooglePay: true,
-        isSepa: true,
-        isBestRate: true,
-      },
-      {
-        id: '2',
-        provider: 'MtPelerin',
-        providerLogo: MtPelerinLogo,
-        rate: '0.127660',
-        amount: '0.127660 ETH',
-        isCreditCard: true,
-        isSepa: true,
-        isFastest: true,
-      },
-      {
-        id: '3',
-        provider: 'OnRamper',
-        providerLogo: OnRamperLogo,
-        rate: '0.127660',
-        amount: '0.127660 ETH',
-        isCreditCard: true,
-        isSepa: true,
-        isFastest: true,
-      },
-      {
-        id: '4',
-        provider: 'Coinbase',
-        providerLogo: CoinbaseLogo,
-        rate: '0.127660',
-        amount: '0.127660 ETH',
-        isCreditCard: true,
-        isSepa: true,
-        isFastest: true,
-      },
-    ],
-    [],
-  )
+export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBack, direction }) => {
+  const dispatch = useAppDispatch()
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellFiat = useAppSelector(selectSellFiatAsset)
+  const buyFiat = useAppSelector(selectBuyFiatAsset)
+  const sellFiatAmount = useAppSelector(selectSellFiatAmount)
+  const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
 
-  const displayQuotes = quotes.length > 0 ? quotes : mockQuotes
+  const quoteAmount = useMemo(() => {
+    return direction === 'buy' ? sellFiatAmount : sellAmount
+  }, [direction, sellAmount, sellFiatAmount])
 
-  if (isLoading) {
+  const quotesQueries = useGetRampQuotes({
+    fiat: direction === 'buy' ? sellFiat : buyFiat,
+    assetId: direction === 'buy' ? buyAsset.assetId : sellAsset.assetId,
+    amount: quoteAmount,
+    direction,
+  })
+
+  const displayQuotes = useMemo(() => {
+    const quotes = quotesQueries.map(query => query.data).filter(isSome)
+
+    if (!quotes || quotes.length === 0) return []
+
+    return quotes
+  }, [quotesQueries])
+
+  // Auto-select the first quote when quotes are available and no quote is selected
+  useEffect(() => {
+    if (displayQuotes.length > 0 && !selectedQuote) {
+      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(displayQuotes[0]))
+    }
+  }, [displayQuotes, selectedQuote, dispatch])
+
+  const isQueryLoading = useMemo(() => {
+    return quotesQueries.some(query => query.isLoading) || isLoading
+  }, [quotesQueries, isLoading])
+
+  if (isQueryLoading) {
     return (
       <VStack spacing={4} p={4}>
         {[1, 2].map(i => (
-          <Box key={i} w='full' h='120px' bg='gray.100' borderRadius='md' />
+          <Skeleton key={i} w='full' h='120px' borderRadius='md' />
         ))}
       </VStack>
     )
@@ -101,15 +77,18 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({
 
   return (
     <VStack spacing={4} p={4} align='stretch'>
-      {displayQuotes.map((quote, index) => (
+      {displayQuotes.map(quote => (
         <FiatRampQuoteCard
           key={quote.id}
-          isActive={index === 0}
+          isActive={selectedQuote?.id === quote.id}
           isBestRate={quote.isBestRate}
           isFastest={quote.isFastest}
           quote={quote}
           isLoading={isLoading}
           onBack={onBack}
+          fiatCurrency={sellFiat}
+          fiatAmount={sellFiatAmount}
+          direction={direction}
         />
       ))}
     </VStack>

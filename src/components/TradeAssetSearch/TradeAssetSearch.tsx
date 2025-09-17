@@ -36,11 +36,11 @@ import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 import { INCREASE_VIEWPORT_BY } from '@/components/AssetSearch/components/AssetList'
 import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from '@/components/ChainMenu'
+import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
+import { fiatCurrencies } from '@/components/Modals/FiatRamps/config'
 import { Text } from '@/components/Text'
 import { FiatRow } from '@/components/TradeAssetSearch/components/FiatRow'
 import { knownChainIds } from '@/constants/chains'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
-import { FIATS } from '@/constants/fiats'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -76,7 +76,7 @@ const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
-  onFiatClick?: (fiat: FiatTypeEnumWithoutCryptos) => void
+  onFiatClick?: (fiat: CommonFiatCurrencies) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
@@ -276,13 +276,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const searchFiats = useMemo(() => {
-    return matchSorter(FIATS, searchString, {
+    return matchSorter(fiatCurrencies, searchString, {
       threshold: matchSorter.rankings.CONTAINS,
     })
   }, [searchString])
 
   const handleFiatClick = useCallback(
-    (fiat: FiatTypeEnumWithoutCryptos) => {
+    (fiat: CommonFiatCurrencies) => {
       onFiatClick?.(fiat)
     },
     [onFiatClick],

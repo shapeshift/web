@@ -4,17 +4,19 @@ import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
+import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
+import commonFiatCurrencyList from '@/components/Modals/FiatRamps/FiatCurrencyList.json'
 import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 type FiatInputProps = {
-  selectedFiat?: FiatTypeEnumWithoutCryptos
+  selectedFiat?: CommonFiatCurrencies
   amount: string
   placeholder?: string
   label: string
   onAmountChange?: (amount: string) => void
   labelPostFix?: React.ReactNode
+  showPrefix?: boolean
   isReadOnly?: boolean
   quickAmounts?: string[]
   onQuickAmountClick?: (amount: string) => void
@@ -60,6 +62,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   label,
   onAmountChange,
   labelPostFix,
+  showPrefix = true,
   isReadOnly = false,
   quickAmounts = ['$100', '$300', '$1,000'],
   onQuickAmountClick,
@@ -67,34 +70,49 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   const {
     number: { localeParts },
   } = useLocaleFormatter()
+
+  const fiatSymbol = useMemo(() => {
+    if (!showPrefix) return ''
+    if (!selectedFiat) return localeParts.prefix
+    const fiatInfo = commonFiatCurrencyList[selectedFiat as keyof typeof commonFiatCurrencyList]
+    return fiatInfo?.symbol || selectedFiat
+  }, [selectedFiat, localeParts.prefix, showPrefix])
+
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
       if (onAmountChange) {
-        onAmountChange(values.value.replace('$', '').replace(',', ''))
+        const cleanValue = values.value.replace(fiatSymbol, '').replace(/,/g, '')
+        onAmountChange(cleanValue)
       }
     },
-    [onAmountChange],
+    [onAmountChange, fiatSymbol],
   )
 
   const handleOnChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (onAmountChange) {
-        onAmountChange(e.target.value.replace('$', '').replace(',', ''))
+        const cleanValue = e.target.value.replace(fiatSymbol, '').replace(/,/g, '')
+        onAmountChange(cleanValue)
       }
     },
-    [onAmountChange],
+    [onAmountChange, fiatSymbol],
   )
 
   const handleQuickAmountClick = useCallback(
     (quickAmount: string) => () => {
-      onQuickAmountClick?.(quickAmount.replace('$', '').replace(',', ''))
+      const cleanAmount = quickAmount.replace(fiatSymbol, '').replace(/,/g, '')
+      onQuickAmountClick?.(cleanAmount)
     },
-    [onQuickAmountClick],
+    [onQuickAmountClick, fiatSymbol],
   )
 
   const formattedPlaceholder = useMemo(() => {
-    return placeholder ?? `${localeParts.prefix}0.00${localeParts.postfix}`
-  }, [placeholder, localeParts.prefix, localeParts.postfix])
+    return placeholder ?? `${fiatSymbol}0.00`
+  }, [placeholder, fiatSymbol])
+
+  const formattedQuickAmounts = useMemo(() => {
+    return quickAmounts.map(amount => `${fiatSymbol}${amount.replace('$', '')}`)
+  }, [quickAmounts, fiatSymbol])
 
   return (
     <Box px={6}>
@@ -111,7 +129,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
             customInput={AmountInput}
             isNumericString={true}
             disabled={isReadOnly}
-            prefix={localeParts.prefix}
+            prefix={fiatSymbol}
             suffix={localeParts.postfix}
             decimalSeparator={localeParts.decimal}
             inputMode='decimal'
@@ -120,13 +138,14 @@ export const FiatInput: React.FC<FiatInputProps> = ({
             value={amount}
             onValueChange={handleAmountChange}
             onChange={handleOnChange}
+            decimalScale={2}
           />
         </Box>
       </Flex>
 
       {!isReadOnly && quickAmounts.length > 0 && (
         <Flex gap={4} mt={4} justifyContent='center'>
-          {quickAmounts.map(quickAmount => (
+          {formattedQuickAmounts.map(quickAmount => (
             <Box
               key={quickAmount}
               onClick={handleQuickAmountClick(quickAmount)}

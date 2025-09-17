@@ -1,6 +1,7 @@
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import type { ReduxState } from '@/state/reducer'
 import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
@@ -302,6 +303,25 @@ export const mockStore: ReduxState = {
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
+  },
+  tradeRampInput: {
+    buyAsset: defaultAsset,
+    sellAsset: defaultAsset,
+    sellAccountId: undefined,
+    buyAccountId: undefined,
+    sellAmountCryptoPrecision: '0',
+    isInputtingFiatSellAmount: false,
+    manualReceiveAddress: undefined,
+    isManualReceiveAddressValidating: false,
+    isManualReceiveAddressEditing: false,
+    isManualReceiveAddressValid: undefined,
+    selectedBuyAssetChainId: 'All',
+    selectedSellAssetChainId: 'All',
+    buyFiatAsset: FiatTypeEnum.USD,
+    sellFiatAsset: FiatTypeEnum.USD,
+    sellFiatAmount: '0',
+    slippagePreferencePercentage: undefined,
+    selectedFiatRampQuote: null,
   },
   tradeQuote: {
     activeQuoteMeta: undefined,

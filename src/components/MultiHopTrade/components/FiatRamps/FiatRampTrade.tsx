@@ -1,8 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Route, Routes } from 'react-router-dom'
 
@@ -10,16 +9,27 @@ import { FiatRampRoutePaths } from './types'
 
 import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { AssetIcon } from '@/components/AssetIcon'
+import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
 import { FiatRampTradeBody } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeBody'
 import { FiatRampTradeFooter } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeFooter'
 import { RampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/RampQuotes'
+import type { QuotesComponentProps } from '@/components/MultiHopTrade/components/QuoteList/QuoteList'
 import { SharedTradeInput } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedTradeInput'
 import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
-import { selectAssets } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import {
+  selectBuyFiatAsset,
+  selectCalculatedBuyAmount,
+  selectHasUserEnteredAmount,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
+  selectSellFiatAmount,
+  selectSellFiatAsset,
+} from '@/state/slices/tradeRampInputSlice/selectors'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type FiatRampTradeProps = {
   defaultBuyAssetId?: AssetId
@@ -47,45 +57,86 @@ type RampRoutesProps = {
 
 const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
-  const assets = useAppSelector(selectAssets)
+  const dispatch = useAppDispatch()
 
-  const [sellAsset, setSellAsset] = useState<Asset | null>(assets[btcAssetId] ?? null)
-  const [buyAsset, setBuyAsset] = useState<Asset | null>(assets[btcAssetId] ?? null)
-  const [sellFiat, setSellFiat] = useState<FiatTypeEnumWithoutCryptos | null>(null)
-  const [buyFiat, setBuyFiat] = useState<FiatTypeEnumWithoutCryptos | null>(null)
-  const [sellAmount, setSellAmount] = useState('0')
-  const [buyAmount, setBuyAmount] = useState('0')
-  const [hasUserEnteredAmount, setHasUserEnteredAmount] = useState(false)
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  const sellFiat = useAppSelector(selectSellFiatAsset)
+  const buyFiat = useAppSelector(selectBuyFiatAsset)
+  const sellFiatAmount = useAppSelector(selectSellFiatAmount)
+  const calculatedBuyAmount = useAppSelector(selectCalculatedBuyAmount)
 
-  const SideComponent = useCallback((props: CollapsibleQuoteListProps) => {
-    return <CollapsibleQuoteList QuotesComponent={RampQuotes} {...props} />
-  }, [])
+  const RampQuotesComponent = useCallback(
+    (props: QuotesComponentProps) => {
+      return <RampQuotes direction={type} {...props} />
+    },
+    [type],
+  )
 
-  const handleSellAssetChange = useCallback((asset: Asset | null) => {
-    setSellAsset(asset)
-  }, [])
+  const SideComponent = useCallback(
+    (props: CollapsibleQuoteListProps) => {
+      return <CollapsibleQuoteList QuotesComponent={RampQuotesComponent} {...props} />
+    },
+    [RampQuotesComponent],
+  )
 
-  const handleBuyAssetChange = useCallback((asset: Asset | null) => {
-    setBuyAsset(asset)
-  }, [])
+  const handleSellAssetChange = useCallback(
+    (asset: Asset | null) => {
+      if (asset) {
+        dispatch(tradeRampInput.actions.setSellAsset(asset))
+      }
+    },
+    [dispatch],
+  )
 
-  const handleSellFiatChange = useCallback((fiat: FiatTypeEnumWithoutCryptos | null) => {
-    setSellFiat(fiat)
-  }, [])
+  const handleBuyAssetChange = useCallback(
+    (asset: Asset | null) => {
+      if (asset) {
+        dispatch(tradeRampInput.actions.setBuyAsset(asset))
+      }
+    },
+    [dispatch],
+  )
 
-  const handleBuyFiatChange = useCallback((fiat: FiatTypeEnumWithoutCryptos | null) => {
-    setBuyFiat(fiat)
-  }, [])
+  const handleSellFiatChange = useCallback(
+    (fiat: CommonFiatCurrencies | null) => {
+      if (fiat) {
+        dispatch(tradeRampInput.actions.setSellFiatAsset(fiat))
+      }
+    },
+    [dispatch],
+  )
 
-  const handleSellAmountChange = useCallback((amount: string) => {
-    setSellAmount(amount)
-    setHasUserEnteredAmount(amount.length > 0)
-  }, [])
+  const handleBuyFiatChange = useCallback(
+    (fiat: CommonFiatCurrencies | null) => {
+      if (fiat) {
+        dispatch(tradeRampInput.actions.setBuyFiatAsset(fiat))
+      }
+    },
+    [dispatch],
+  )
 
-  const handleBuyAmountChange = useCallback((amount: string) => {
-    setBuyAmount(amount)
-    setHasUserEnteredAmount(amount.length > 0)
-  }, [])
+  const handleSellAmountChange = useCallback(
+    (amount: string) => {
+      dispatch(tradeRampInput.actions.setSellAmountCryptoPrecision(amount))
+    },
+    [dispatch],
+  )
+
+  const handleSellFiatAmountChange = useCallback(
+    (amount: string) => {
+      dispatch(tradeRampInput.actions.setSellFiatAmount(amount))
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    return () => {
+      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
+    }
+  }, [dispatch])
 
   const handleSubmit = useCallback(() => {
     console.log('submit')
@@ -98,13 +149,14 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
         onSellAssetChange={handleSellAssetChange}
         onBuyAssetChange={handleBuyAssetChange}
         onSellAmountChange={handleSellAmountChange}
-        onBuyAmountChange={handleBuyAmountChange}
         onSellFiatChange={handleSellFiatChange}
         onBuyFiatChange={handleBuyFiatChange}
+        onSellFiatAmountChange={handleSellFiatAmountChange}
         buyAsset={buyAsset}
         sellAsset={sellAsset}
         sellAmount={sellAmount}
-        buyAmount={buyAmount}
+        buyAmount={calculatedBuyAmount}
+        sellFiatAmount={sellFiatAmount}
       />
     ),
     [
@@ -112,13 +164,14 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
       handleSellAssetChange,
       handleBuyAssetChange,
       handleSellAmountChange,
-      handleBuyAmountChange,
       handleSellFiatChange,
       handleBuyFiatChange,
+      handleSellFiatAmountChange,
       buyAsset,
       sellAsset,
       sellAmount,
-      buyAmount,
+      sellFiatAmount,
+      calculatedBuyAmount,
     ],
   )
 

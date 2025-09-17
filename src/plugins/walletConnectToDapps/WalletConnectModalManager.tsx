@@ -4,6 +4,7 @@ import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
@@ -15,6 +16,7 @@ import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
+import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
@@ -32,6 +34,8 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
+
+const sessionProposalInitialEntries = [SessionProposalRoutes.Overview]
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 
@@ -166,12 +170,14 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         return (
-          <SessionProposalModal
-            onClose={handleClose}
-            dispatch={dispatch}
-            state={state}
-            ref={sessionProposalRef}
-          />
+          <MemoryRouter initialEntries={sessionProposalInitialEntries}>
+            <SessionProposalModal
+              onClose={handleClose}
+              dispatch={dispatch}
+              state={state}
+              ref={sessionProposalRef}
+            />
+          </MemoryRouter>
         )
       case WalletConnectModal.SignEIP155MessageConfirmation:
         if (!topic) return null

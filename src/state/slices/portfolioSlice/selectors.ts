@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   AccountMetadata,
   AccountMetadataById,
@@ -1209,4 +1210,37 @@ export const selectIsAnyPortfolioGetAccountLoading = createSelector(
   (isPortfolioGetAccountLoadingByAccountId): boolean => {
     return Object.values(isPortfolioGetAccountLoadingByAccountId).some(isLoading => isLoading)
   },
+)
+
+// For a given account number, find the first EVM AccountId (they're all the same address) so we can get an address from a given account number
+export const selectEvmAddressByAccountNumber = createCachedSelector(
+  selectAccountIdsByAccountNumberAndChainId,
+  selectAccountNumberParamFromFilter,
+  (accountIdsByAccountNumberAndChainId, accountNumber): string | null => {
+    if (accountNumber === undefined) return null
+
+    const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
+    if (!accountsByChain) return null
+
+    // Find first EVM account ID - all EVM accounts for same account number share the same address
+    for (const [chainId, accountIds] of Object.entries(accountsByChain)) {
+      if (isEvmChainId(chainId) && accountIds?.[0]) {
+        return fromAccountId(accountIds[0]).account
+      }
+    }
+
+    return null
+  },
+)((_s: ReduxState, filter) => filter?.accountNumber ?? 'accountNumber')
+
+// Get unique account numbers that have at least one EVM account
+export const selectUniqueEvmAccountNumbers = createSelector(
+  selectAccountIdsByAccountNumberAndChainId,
+  accountIdsByAccountNumberAndChainId =>
+    Object.keys(accountIdsByAccountNumberAndChainId)
+      .map(Number)
+      .filter(accountNumber =>
+        Object.keys(accountIdsByAccountNumberAndChainId[accountNumber] ?? {}).some(isEvmChainId),
+      )
+      .sort((a, b) => a - b),
 )

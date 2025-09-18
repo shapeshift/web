@@ -30,7 +30,8 @@ export const useLedgerConnectionState = () => {
 
   useEffect(() => {
     // Only enable USB monitoring for users who have previously connected a Ledger
-    // This ensures first-time users get develop behavior exactly
+    // This ensures no shenanigans re: new Ledger USB detection logic for the very initial state of
+    // no USB perms granted, first time connecting a Ledger to app
     if (!isLedgerReadOnlyEnabled || !navigator.usb || !isPreviousLedgerDeviceDetected) return
 
     const handleConnect = (event: USBConnectionEvent) => {
@@ -67,16 +68,16 @@ export const useLedgerConnectionState = () => {
   }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected])
 
   const handleAutoConnect = useCallback(async () => {
-    console.log('[useLedgerConnectionState] handleAutoConnect called:', { 
-      isLedgerReadOnlyEnabled, 
-      connectionState, 
-      deviceState 
+    console.log('[useLedgerConnectionState] handleAutoConnect called:', {
+      isLedgerReadOnlyEnabled,
+      connectionState,
+      deviceState,
     })
-    
+
     if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') {
-      console.log('[useLedgerConnectionState] handleAutoConnect early return:', { 
-        isLedgerReadOnlyEnabled, 
-        connectionState 
+      console.log('[useLedgerConnectionState] handleAutoConnect early return:', {
+        isLedgerReadOnlyEnabled,
+        connectionState,
       })
       return
     }

@@ -21,6 +21,7 @@ export const LedgerMenu: React.FC<LedgerMenuProps> = ({ onClose }) => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   const handleChainsClick = useCallback(() => {
     const ledgerRoutes = SUPPORTED_WALLETS[KeyManager.Ledger].routes
@@ -47,7 +48,7 @@ export const LedgerMenu: React.FC<LedgerMenuProps> = ({ onClose }) => {
   return (
     <>
       <ManageAccountsMenuItem onClose={onClose} />
-      {!isConnected && (
+      {!isConnected && isLedgerReadOnlyEnabled && (
         <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
           {translate('connectWallet.menu.reconnectWallet')}
         </MenuItem>

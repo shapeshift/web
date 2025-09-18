@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -142,11 +142,22 @@ export const useLedgerConnectionState = () => {
     })
   }, [state, deviceState, dispatch, isLedgerReadOnlyEnabled])
 
-  return {
-    deviceState,
-    connectionState,
-    ...createDeviceStateHelpers(deviceState),
-    ...createConnectionStateHelpers(connectionState),
-    handleAutoConnect,
-  }
+  const deviceHelpers = useMemo(() => createDeviceStateHelpers(deviceState), [deviceState])
+  const connectionHelpers = useMemo(
+    () => createConnectionStateHelpers(connectionState),
+    [connectionState],
+  )
+
+  const value = useMemo(
+    () => ({
+      deviceState,
+      connectionState,
+      ...deviceHelpers,
+      ...connectionHelpers,
+      handleAutoConnect,
+    }),
+    [deviceState, connectionState, deviceHelpers, connectionHelpers, handleAutoConnect],
+  )
+
+  return value
 }

@@ -135,9 +135,9 @@ export const LedgerRoutes = () => {
   }, [handleClearPortfolio, handlePair])
 
   useEffect(() => {
-    if (modalType && isLedgerReadOnlyEnabled) {
-      handleAutoConnect()
-    }
+    if (!modalType || !isLedgerReadOnlyEnabled) return
+
+    handleAutoConnect()
   }, [modalType, isLedgerReadOnlyEnabled, handleAutoConnect])
 
   const secondaryButton = useMemo(
@@ -157,10 +157,11 @@ export const LedgerRoutes = () => {
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
 
-  const ledgerElement = useMemo(() => {
+  const ledgerPairElement = useMemo(() => {
     if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
       return <LedgerReadOnlyBody />
     }
+
     return (
       <PairBody
         icon={icon}
@@ -198,7 +199,7 @@ export const LedgerRoutes = () => {
 
   return (
     <Routes>
-      <Route path='/ledger/connect' element={ledgerElement} />
+      <Route path='/ledger/connect' element={ledgerPairElement} />
     </Routes>
   )
 }

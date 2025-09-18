@@ -3,13 +3,14 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { StakingTable } from './StakingTable'
 
 import { Text } from '@/components/Text'
 import { FoxEthProvider, useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
@@ -29,7 +30,7 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps) => {
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
   const location = useLocation()
   const {
     state: { isConnected },

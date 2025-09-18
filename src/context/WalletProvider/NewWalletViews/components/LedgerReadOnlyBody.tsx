@@ -6,12 +6,12 @@ import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { LEDGER_DEVICE_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const LEDGER_DEVICE_ID = '0001'
 const { name, icon: IconComponent } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
 export const LedgerReadOnlyBody = () => {

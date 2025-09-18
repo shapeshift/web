@@ -10,7 +10,6 @@ import { LedgerIcon } from '@/components/Icons/LedgerIcon'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { LEDGER_DEVICE_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
@@ -19,7 +18,8 @@ import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolio
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-// Icon and name const *not* imported from config, as this will throw if we try and import too early from there
+// Icon, name and device ID const *not* imported from config, as this will throw if we try and import too early from there
+const LEDGER_DEVICE_ID = '0001'
 const Icon = LedgerIcon
 const icon = <Icon boxSize='64px' />
 const name = 'Ledger'

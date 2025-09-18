@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { LEDGER_DEVICE_ID, LEDGER_VENDOR_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
@@ -13,6 +12,8 @@ type LedgerDeviceState = 'connected' | 'disconnected' | 'unknown'
 type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
 
 const AUTO_CONNECT_DELAY = 500
+const LEDGER_VENDOR_ID = 0x2c97
+const LEDGER_DEVICE_ID = '0001'
 
 const isLedgerDevice = (device: USBDevice) => device.vendorId === LEDGER_VENDOR_ID
 

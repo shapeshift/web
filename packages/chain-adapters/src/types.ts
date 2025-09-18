@@ -267,6 +267,7 @@ export interface TxHistoryInput {
 }
 
 export type GetAddressInputBase = {
+  wallet: HDWallet | null
   accountNumber: number
   isChange?: boolean
   addressIndex?: number
@@ -274,20 +275,12 @@ export type GetAddressInputBase = {
    * Request that the address be shown to the user by the device, if supported
    */
   showOnDevice?: boolean
-} & (
-  | {
-      /**
-       * An optional public key to be passed, which will bypass the HD wallet derivation
-       * and instead use unchained to "derive" the address from the public key
-       */
-      pubKey: string
-      wallet?: never
-    }
-  | {
-      wallet: HDWallet
-      pubKey?: never
-    }
-)
+  /**
+   * An optional public key to be passed, which will bypass the HD wallet derivation
+   * and instead use unchained to "derive" the address from the public key
+   */
+  pubKey?: string
+}
 
 export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput
 

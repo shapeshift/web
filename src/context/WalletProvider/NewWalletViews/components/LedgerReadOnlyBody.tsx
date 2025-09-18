@@ -9,10 +9,11 @@ import { LEDGER_DEVICE_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
+const { name, icon: IconComponent } = SUPPORTED_WALLETS[KeyManager.Ledger]
+
 export const LedgerReadOnlyBody = () => {
   const { dispatch } = useWallet()
   const localWallet = useLocalWallet()
-  const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
   // Restores Ledger in state, with `isconnected` set to false
   // and *without* wallet (we can't keep it between refreshes, as wallet object doesn't serialize)
@@ -22,7 +23,7 @@ export const LedgerReadOnlyBody = () => {
       payload: {
         wallet: null,
         name,
-        icon,
+        icon: IconComponent,
         deviceId: LEDGER_DEVICE_ID,
         connectedType: KeyManager.Ledger,
       },
@@ -38,9 +39,7 @@ export const LedgerReadOnlyBody = () => {
       type: WalletActions.SET_WALLET_MODAL,
       payload: false,
     })
-  }, [dispatch, name, icon, localWallet])
-
-  const IconComponent = icon
+  }, [dispatch, localWallet])
   return (
     <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
       <IconComponent boxSize='64px' />

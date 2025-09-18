@@ -19,7 +19,6 @@ import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolio
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-// Icon and name const *not* imported from config, as this will throw if we try and import too early from there
 const Icon = LedgerIcon
 const icon = <Icon boxSize='64px' />
 const name = 'Ledger'
@@ -39,7 +38,6 @@ export const LedgerRoutes = () => {
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
-  // Track Ledger device connection state
   const {
     connectionState,
     isDisconnected: isUSBDisconnected,
@@ -72,13 +70,8 @@ export const LedgerRoutes = () => {
     const adapter = await getAdapter(KeyManager.Ledger)
     if (adapter) {
       try {
-        // Pair the device, which gets approval from the browser to communicate with the Ledger USB device
         const wallet = await adapter.pairDevice()
-
-        // Check the number of connected devices
         const numDevices = await handleCheckNumDevices()
-
-        // Ensure exactly one device is connected
         switch (true) {
           case numDevices < 1:
             setDeviceCountError('walletProvider.ledger.errors.noDeviceConnected')
@@ -135,7 +128,8 @@ export const LedgerRoutes = () => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
-  // Auto-connect when modal opens
+  // Attempt auto-"connection" (*not* pairing!) on modal open
+  // so we can display one or the other of re/connect, or read-only screens
   useEffect(() => {
     if (modalType && isLedgerReadOnlyEnabled) {
       handleAutoConnect()
@@ -159,14 +153,10 @@ export const LedgerRoutes = () => {
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
 
-  // Determine which element to show based on flag and connection state
   const ledgerElement = useMemo(() => {
-    // If flag is enabled and either connection failed OR USB device is disconnected, show read-only screen
     if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
       return <LedgerReadOnlyBody />
     }
-
-    // Otherwise show normal pairing screen
     return (
       <PairBody
         icon={icon}

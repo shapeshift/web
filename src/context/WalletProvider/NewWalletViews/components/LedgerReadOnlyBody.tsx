@@ -34,11 +34,6 @@ export const LedgerReadOnlyBody = () => {
     })
     // Set local wallet to persist Ledger as selected wallet
     localWallet.setLocalWallet({ type: KeyManager.Ledger, deviceId: LEDGER_DEVICE_ID })
-    // Clear modalType to prevent issues with subsequent wallet connections
-    dispatch({
-      type: WalletActions.SET_CONNECTOR_TYPE,
-      payload: { modalType: null, isMipdProvider: false },
-    })
     // Close the modal
     dispatch({
       type: WalletActions.SET_WALLET_MODAL,

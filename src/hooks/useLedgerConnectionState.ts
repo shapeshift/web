@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { LEDGER_VENDOR_ID } from '@/context/WalletProvider/Ledger/constants'
+import { LEDGER_DEVICE_ID, LEDGER_VENDOR_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -12,6 +13,8 @@ type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
 const AUTO_CONNECT_DELAY = 500
 
 const isLedgerDevice = (device: USBDevice) => device.vendorId === LEDGER_VENDOR_ID
+
+const { name: LEDGER_NAME, icon: LEDGER_ICON } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
 export const useLedgerConnectionState = () => {
   const [deviceState, setDeviceState] = useState<LedgerDeviceState>('unknown')
@@ -122,25 +125,31 @@ export const useLedgerConnectionState = () => {
       type: WalletActions.SET_WALLET,
       payload: {
         wallet: null,
-        name: state.walletInfo?.name,
-        icon: state.walletInfo?.icon,
-        deviceId: state.walletInfo?.deviceId,
+        name: LEDGER_NAME,
+        icon: LEDGER_ICON,
+        deviceId: LEDGER_DEVICE_ID,
         connectedType: KeyManager.Ledger,
       },
     })
   }, [state, deviceState, dispatch, isLedgerReadOnlyEnabled])
 
-  const deviceHelpers = useMemo(() => ({
-    isConnected: deviceState === 'connected',
-    isDisconnected: deviceState === 'disconnected',
-    isUnknown: deviceState === 'unknown',
-  }), [deviceState])
+  const deviceHelpers = useMemo(
+    () => ({
+      isConnected: deviceState === 'connected',
+      isDisconnected: deviceState === 'disconnected',
+      isUnknown: deviceState === 'unknown',
+    }),
+    [deviceState],
+  )
 
-  const connectionHelpers = useMemo(() => ({
-    isConnectionAttempting: connectionState === 'attempting',
-    isConnectionSuccess: connectionState === 'success',
-    isConnectionFailed: connectionState === 'failed',
-  }), [connectionState])
+  const connectionHelpers = useMemo(
+    () => ({
+      isConnectionAttempting: connectionState === 'attempting',
+      isConnectionSuccess: connectionState === 'success',
+      isConnectionFailed: connectionState === 'failed',
+    }),
+    [connectionState],
+  )
 
   const value = useMemo(
     () => ({

@@ -1,5 +1,6 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, Tooltip } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -8,12 +9,18 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LEDGER_DEVICE_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const { name, icon: IconComponent } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
 export const LedgerReadOnlyBody = () => {
   const { dispatch } = useWallet()
   const localWallet = useLocalWallet()
+  const translate = useTranslate()
+  const isPreviousLedgerDeviceDetected = useAppSelector(state =>
+    selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
+  )
 
   // Restores Ledger in state, with `isconnected` set to false
   // and *without* wallet (we can't keep it between refreshes, as wallet object doesn't serialize)
@@ -45,9 +52,24 @@ export const LedgerReadOnlyBody = () => {
       <IconComponent boxSize='64px' />
       <Text fontSize='xl' translation='walletProvider.ledger.failure.header' />
       <Text color='gray.500' translation='walletProvider.ledger.failure.body' textAlign='center' />
-      <Button maxW='200px' width='100%' colorScheme='blue' onClick={handleConnectReadOnly}>
-        <Text translation='walletProvider.ledger.readOnly.button' />
-      </Button>
+      <Tooltip
+        label={
+          !isPreviousLedgerDeviceDetected
+            ? translate('walletProvider.ledger.readOnly.tooltipNoDevice')
+            : ''
+        }
+        isDisabled={isPreviousLedgerDeviceDetected}
+      >
+        <Button
+          maxW='200px'
+          width='100%'
+          colorScheme='blue'
+          onClick={handleConnectReadOnly}
+          isDisabled={!isPreviousLedgerDeviceDetected}
+        >
+          <Text translation='walletProvider.ledger.readOnly.button' />
+        </Button>
+      </Tooltip>
     </Flex>
   )
 }

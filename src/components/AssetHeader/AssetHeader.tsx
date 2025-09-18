@@ -61,7 +61,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
     state: { wallet },
   } = useWallet()
 
-  const shouldShowActions = useWalletSupportsChain(chainId, wallet)
+  const canDisplayAssetActions = useWalletSupportsChain(chainId, wallet)
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance =
@@ -126,7 +126,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       </PageHeader.Middle>
       <PageHeader.Right>
         <Display.Desktop>
-          {shouldShowActions ? (
+          {canDisplayAssetActions ? (
             <Flex display={displayMdFlex}>
               <AssetActions
                 assetId={assetId}

@@ -134,8 +134,6 @@ export const LedgerRoutes = () => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
-  // Attempt auto-"connection" (*not* pairing!) on modal open
-  // so we can display one or the other of re/connect, or read-only screens
   useEffect(() => {
     if (modalType && isLedgerReadOnlyEnabled) {
       handleAutoConnect()

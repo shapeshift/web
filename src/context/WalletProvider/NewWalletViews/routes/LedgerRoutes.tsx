@@ -24,8 +24,6 @@ const Icon = LedgerIcon
 const icon = <Icon boxSize='64px' />
 const name = 'Ledger'
 
-type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
-
 export const LedgerRoutes = () => {
   const {
     state: { modalType },
@@ -37,7 +35,6 @@ export const LedgerRoutes = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
-  const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
@@ -45,8 +42,11 @@ export const LedgerRoutes = () => {
   // Track Ledger device connection state
   const {
     deviceState,
+    connectionState,
     isConnected: isUSBConnected,
     isDisconnected: isUSBDisconnected,
+    isConnectionAttempting,
+    handleAutoConnect,
   } = useLedgerConnectionState()
 
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
@@ -137,64 +137,12 @@ export const LedgerRoutes = () => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
-  // Auto-attempt connection when modal opens (if flag enabled)
-  const handleAutoConnect = useCallback(async () => {
-    if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') return
-
-    setConnectionState('attempting')
-
-    const adapter = await getAdapter(KeyManager.Ledger)
-    if (adapter) {
-      try {
-        const wallet = await adapter.pairDevice().catch(() => null)
-
-        if (wallet) {
-          setConnectionState('success')
-        } else {
-          // Only set to failed if USB device is actually disconnected
-          // This prevents false failures when device is connected but pairing fails
-          setConnectionState(isUSBDisconnected ? 'failed' : 'idle')
-        }
-      } catch (error) {
-        setConnectionState(isUSBDisconnected ? 'failed' : 'idle')
-      }
-    } else {
-      setConnectionState('failed')
-    }
-  }, [isLedgerReadOnlyEnabled, connectionState, getAdapter, isUSBDisconnected])
-
   // Auto-connect when modal opens
   useEffect(() => {
     if (modalType && isLedgerReadOnlyEnabled) {
       handleAutoConnect()
     }
   }, [modalType, isLedgerReadOnlyEnabled, handleAutoConnect])
-
-  // Handle USB device state changes
-  useEffect(() => {
-    if (!isLedgerReadOnlyEnabled) return
-
-    // If device disconnects while we're in success state, transition to failed
-    if (isUSBDisconnected && connectionState === 'success') {
-      setConnectionState('failed')
-    }
-
-    // If device reconnects while we're in failed state, reset to idle to trigger auto-connect
-    if (isUSBConnected && connectionState === 'failed') {
-      setConnectionState('idle')
-      // Trigger auto-connect after a short delay to allow state to settle
-      setTimeout(() => {
-        handleAutoConnect()
-      }, 500)
-    }
-  }, [
-    isUSBConnected,
-    isUSBDisconnected,
-    connectionState,
-    deviceState,
-    isLedgerReadOnlyEnabled,
-    handleAutoConnect,
-  ])
 
   const secondaryButton = useMemo(
     () =>
@@ -235,7 +183,7 @@ export const LedgerRoutes = () => {
             ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
             : 'walletProvider.ledger.connect.pairNewDeviceButton'
         }
-        isLoading={isLoading || (isLedgerReadOnlyEnabled && connectionState === 'attempting')}
+        isLoading={isLoading || (isLedgerReadOnlyEnabled && isConnectionAttempting)}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
         secondaryContent={secondaryButton}

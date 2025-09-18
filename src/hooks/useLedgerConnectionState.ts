@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -8,10 +8,12 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 const LEDGER_VENDOR_ID = 0x2c97
 
 type LedgerDeviceState = 'connected' | 'disconnected' | 'unknown'
+type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
 
 export const useLedgerConnectionState = () => {
   const [deviceState, setDeviceState] = useState<LedgerDeviceState>('unknown')
-  const { dispatch, state } = useWallet()
+  const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
+  const { dispatch, state, getAdapter } = useWallet()
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   // USB device monitoring effect
@@ -57,6 +59,51 @@ export const useLedgerConnectionState = () => {
     }
   }, [isLedgerReadOnlyEnabled])
 
+  // Auto-attempt connection when modal opens (if flag enabled)
+  const handleAutoConnect = useCallback(async () => {
+    if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') return
+
+    setConnectionState('attempting')
+
+    const adapter = await getAdapter(KeyManager.Ledger)
+    if (adapter) {
+      try {
+        const wallet = await adapter.pairDevice().catch(() => null)
+
+        if (wallet) {
+          setConnectionState('success')
+        } else {
+          // Only set to failed if USB device is actually disconnected
+          // This prevents false failures when device is connected but pairing fails
+          setConnectionState(deviceState === 'disconnected' ? 'failed' : 'idle')
+        }
+      } catch (error) {
+        setConnectionState(deviceState === 'disconnected' ? 'failed' : 'idle')
+      }
+    } else {
+      setConnectionState('failed')
+    }
+  }, [isLedgerReadOnlyEnabled, connectionState, getAdapter, deviceState])
+
+  // Handle USB device state changes and auto-connection
+  useEffect(() => {
+    if (!isLedgerReadOnlyEnabled) return
+
+    // If device disconnects while we're in success state, transition to failed
+    if (deviceState === 'disconnected' && connectionState === 'success') {
+      setConnectionState('failed')
+    }
+
+    // If device reconnects while we're in failed state, reset to idle to trigger auto-connect
+    if (deviceState === 'connected' && connectionState === 'failed') {
+      setConnectionState('idle')
+      // Trigger auto-connect after a short delay to allow state to settle
+      setTimeout(() => {
+        handleAutoConnect()
+      }, 500)
+    }
+  }, [deviceState, connectionState, isLedgerReadOnlyEnabled, handleAutoConnect])
+
   // Wallet disconnection handling effect
   useEffect(() => {
     if (!isLedgerReadOnlyEnabled) return
@@ -90,23 +137,17 @@ export const useLedgerConnectionState = () => {
         },
       })
     }
-  }, [
-    deviceState,
-    state.connectedType,
-    state.isConnected,
-    state.wallet,
-    dispatch,
-    isLedgerReadOnlyEnabled,
-    state.walletInfo?.name,
-    state.walletInfo?.icon,
-    state.walletInfo?.deviceId,
-    state.walletInfo,
-  ])
+  }, [deviceState, state.walletInfo, dispatch, isLedgerReadOnlyEnabled])
 
   return {
     deviceState,
+    connectionState,
     isConnected: deviceState === 'connected',
     isDisconnected: deviceState === 'disconnected',
     isUnknown: deviceState === 'unknown',
+    isConnectionAttempting: connectionState === 'attempting',
+    isConnectionSuccess: connectionState === 'success',
+    isConnectionFailed: connectionState === 'failed',
+    handleAutoConnect,
   }
 }

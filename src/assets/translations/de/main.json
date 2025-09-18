@@ -31,6 +31,9 @@
     "claimable": "Beanspruchbar",
     "comingSoon": "Demnächst ...",
     "approve": "Genehmigen",
+    "approveToken": "Token Genehmigen",
+    "approveAmount": "Betrag Genehmigen",
+    "approveTo": "Genehmigen Für",
     "reset": "Zurücksetzen",
     "confirm": "Bestätigen",
     "seeDetails": "Siehe Details",
@@ -215,7 +218,9 @@
     "boost": "Boost",
     "viewOnExplorer": "Im Explorer anzeigen",
     "approval": "Genehmigung",
-    "permit2Approval": "Permit2 Genehmigung"
+    "permit2Approval": "Permit2 Genehmigung",
+    "network": "Netzwerk",
+    "feeEstimate": "Voraussichtliche Gebühren"
   },
   "quickBuy": {
     "title": "Schnellkauf %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Nettovermögen",
     "loadingAccounts": "Geladene %{portfolioAccountsLoaded} Konten",
     "walletBalance": "Wallet Kontostand",
+    "walletBalanceChange24Hr": "24 Stunden Veränderung",
     "earnBalance": "Guthaben Kontostand",
     "rewardsBalance": "Belohnungssaldo",
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
@@ -703,7 +709,6 @@
     "confirmed": "Bestätigt",
     "pending": "Ausstehend",
     "failed": "Gescheitert",
-    "network": "Netzwerk",
     "blockHeight": "Blockhöhe",
     "to": "Zu",
     "from": "Von",
@@ -1405,7 +1410,8 @@
         "total": "Gesamt",
         "amount": "Betrag",
         "transactionFee": "Transaktionsgebühr",
-        "fees": "Gebühren %{feeType}"
+        "fees": "Gebühren %{feeType}",
+        "pendingConfirmation": "Ausstehende Bestätigung"
       },
       "sendForm": {
         "optionalAssetMemo": "Optionales %{assetSymbol} Memo",
@@ -2273,7 +2279,8 @@
     "today": "Heute",
     "yesterday": "Gestern",
     "thisWeek": "Diese Woche",
-    "thisMonth": "Diesen Monat"
+    "thisMonth": "Diesen Monat",
+    "transactionDetails": "Transaktionsdetails"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "Wallet verbinden",
         "ethereum": "Ethereum",
         "connectAll": "Alle Konten verbinden",
+        "interactContract": "Vertragsinteraktion",
+        "transactionData": "Transaktionsdaten",
+        "method": "Methode",
+        "signingWith": "Unterschreiben mit",
+        "sendingTo": "Senden an",
         "signMessage": {
           "signingFrom": "Signieren von",
           "requestFrom": "Anfrage von",
@@ -2373,7 +2385,9 @@
           "chainId": "Ketten-ID",
           "authInfo": "Auth info",
           "body": "Inhalt",
-          "comingSoon": "Demnächst"
+          "comingSoon": "Demnächst",
+          "contract": "Vertrag",
+          "primaryType": "Primärtyp"
         },
         "sendTransaction": {
           "sendingFrom": "Senden von",

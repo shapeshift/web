@@ -16,8 +16,9 @@ export const LedgerReadOnlyBody = () => {
   const localWallet = useLocalWallet()
   const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
 
+  // Restores Ledger in state, with `isconnected` set to false
+  // and *without* wallet (we can't keep it between refreshes, as wallet object doesn't serialize)
   const handleConnectReadOnly = useCallback(() => {
-    // Set up wallet state in read-only mode (same logic as refresh case)
     dispatch({
       type: WalletActions.SET_WALLET,
       payload: {
@@ -32,9 +33,9 @@ export const LedgerReadOnlyBody = () => {
       type: WalletActions.SET_IS_CONNECTED,
       payload: false,
     })
-    // Set local wallet to persist Ledger as selected wallet
+
     localWallet.setLocalWallet({ type: KeyManager.Ledger, deviceId: LEDGER_DEVICE_ID })
-    // Close the modal
+
     dispatch({
       type: WalletActions.SET_WALLET_MODAL,
       payload: false,

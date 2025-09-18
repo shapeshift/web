@@ -25,6 +25,12 @@ export const getReceiveAddress = async ({
   if (!(wallet || pubKey)) return
 
   const { accountNumber } = bip44Params
+
+  // We absolutely need one OR the other - either pubKey to bypass wallet derivation, 
+  // or wallet for actual derivation
+
+  if (!wallet && !pubKey) return
+
   const address = await chainAdapter.getAddress({
     wallet,
     accountNumber,

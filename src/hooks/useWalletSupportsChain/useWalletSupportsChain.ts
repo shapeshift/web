@@ -40,7 +40,9 @@ import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useMemo } from 'react'
 
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
@@ -50,13 +52,18 @@ type CheckWalletHasRuntimeSupportArgs = {
   isSnapInstalled: boolean | null
   chainId: ChainId
   wallet: HDWallet | null
+  connectedType?: KeyManager
 }
 
 const checkWalletHasRuntimeSupport = ({
   chainId,
   wallet,
   isSnapInstalled,
+  connectedType,
 }: CheckWalletHasRuntimeSupportArgs) => {
+  // Handle Ledger read-only mode
+  if (!wallet && connectedType === KeyManager.Ledger) return true
+
   if (!wallet) return false
 
   // Non-EVM ChainIds are only supported with the MM multichain snap installed
@@ -82,6 +89,7 @@ type WalletSupportsChainArgs = {
   // The connected account ids to check against. If set to false, the currently connected account
   // ids will not be checked (used for initial boot)
   checkConnectedAccountIds: AccountId[] | false
+  connectedType?: KeyManager
 }
 
 // use outside react
@@ -90,14 +98,26 @@ export const walletSupportsChain = ({
   wallet,
   isSnapInstalled,
   checkConnectedAccountIds,
+  connectedType,
 }: WalletSupportsChainArgs): boolean => {
   // If the user has no connected chain account ids, the user can't use it to interact with the chain
   if (checkConnectedAccountIds !== false && !checkConnectedAccountIds.length) return false
 
+  // Handle Ledger read-only mode
+  if (!wallet && connectedType === KeyManager.Ledger) {
+    // For Ledger read-only, if we have account IDs for this chain, it means this Ledger supports it
+    return checkConnectedAccountIds !== false && checkConnectedAccountIds.length > 0
+  }
+
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
-  const hasRuntimeSupport = checkWalletHasRuntimeSupport({ wallet, isSnapInstalled, chainId })
+  const hasRuntimeSupport = checkWalletHasRuntimeSupport({
+    wallet,
+    isSnapInstalled,
+    chainId,
+    connectedType,
+  })
 
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
@@ -153,6 +173,8 @@ export const useWalletSupportsChain = (
   // However we might be in a state where the wallet adapter is MetaMaskMultiChainHDWallet, but the actual underlying wallet
   // doesn't have multichain capabilities since snaps isn't installed/the connected wallet isn't *actual* MM
   const { isSnapInstalled } = useIsSnapInstalled()
+  const { state } = useWallet()
+  const connectedType = state.connectedType
 
   const chainAccountIdsFilter = useMemo(() => ({ chainId }), [chainId])
   const chainAccountIds = useAppSelector(state =>
@@ -165,8 +187,9 @@ export const useWalletSupportsChain = (
       chainId,
       wallet,
       checkConnectedAccountIds: chainAccountIds,
+      connectedType,
     })
-  }, [chainAccountIds, chainId, isSnapInstalled, wallet])
+  }, [chainAccountIds, chainId, isSnapInstalled, wallet, connectedType])
 
   return result
 }
@@ -176,14 +199,17 @@ export const useWalletSupportsChainAtRuntime = (
   wallet: HDWallet | null,
 ): boolean | null => {
   const { isSnapInstalled } = useIsSnapInstalled()
+  const { state } = useWallet()
+  const connectedType = state.connectedType
 
   const result = useMemo(() => {
     return checkWalletHasRuntimeSupport({
       isSnapInstalled,
       chainId,
       wallet,
+      connectedType,
     })
-  }, [chainId, isSnapInstalled, wallet])
+  }, [chainId, isSnapInstalled, wallet, connectedType])
 
   return result
 }

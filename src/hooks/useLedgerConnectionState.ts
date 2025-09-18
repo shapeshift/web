@@ -68,48 +68,32 @@ export const useLedgerConnectionState = () => {
   }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected])
 
   const handleAutoConnect = useCallback(async () => {
-    console.log('[useLedgerConnectionState] handleAutoConnect called:', {
-      isLedgerReadOnlyEnabled,
-      connectionState,
-      deviceState,
-    })
-
     if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') {
-      console.log('[useLedgerConnectionState] handleAutoConnect early return:', {
-        isLedgerReadOnlyEnabled,
-        connectionState,
-      })
       return
     }
 
-    console.log('[useLedgerConnectionState] Starting auto-connect attempt')
     setConnectionState('attempting')
 
     const adapter = await getAdapter(KeyManager.Ledger)
     if (!adapter) {
-      console.log('[useLedgerConnectionState] No adapter found, setting to failed')
       setConnectionState('failed')
       return
     }
 
     try {
-      console.log('[useLedgerConnectionState] Attempting to pair device')
       const wallet = await adapter.pairDevice().catch(() => null)
 
       if (wallet) {
-        console.log('[useLedgerConnectionState] Auto-connect successful')
         setConnectionState('success')
         return
       }
-
-      const newState = deviceState === 'disconnected' ? 'failed' : 'idle'
-      console.log('[useLedgerConnectionState] Auto-connect failed, setting to:', newState)
-      setConnectionState(newState)
     } catch {
-      const newState = deviceState === 'disconnected' ? 'failed' : 'idle'
-      console.log('[useLedgerConnectionState] Auto-connect error, setting to:', newState)
-      setConnectionState(newState)
+      // Intentionally empty catch block - error is handled below
     }
+
+    // If we reach here, pairing failed - set state based on device connectivity
+    const failedConnectionState = deviceState === 'disconnected' ? 'failed' : 'idle'
+    setConnectionState(failedConnectionState)
   }, [isLedgerReadOnlyEnabled, connectionState, getAdapter, deviceState])
 
   useEffect(() => {

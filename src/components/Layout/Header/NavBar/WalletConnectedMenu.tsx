@@ -86,6 +86,7 @@ const ConnectedMenu = memo(
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isLedger = walletType === KeyManager.Ledger
+    const showLedgerDisconnectedState = !isConnected && isLedger && isLedgerReadOnlyEnabled
 
     return (
       <>
@@ -107,7 +108,7 @@ const ConnectedMenu = memo(
                   <RawText>{walletInfo?.name}</RawText>
                   {connectedWalletMenuRoutes && <ChevronRightIcon />}
                 </Flex>
-                {!isConnected && isLedger && isLedgerReadOnlyEnabled && (
+                {showLedgerDisconnectedState && (
                   <Text
                     translation={'connectWallet.menu.walletNotConnected'}
                     fontSize='xs'
@@ -137,7 +138,7 @@ const ConnectedMenu = memo(
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}
           </MenuItem>
-          {!isConnected && isLedger && isLedgerReadOnlyEnabled && (
+          {showLedgerDisconnectedState && (
             <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
               {translate('connectWallet.menu.reconnectWallet')}
             </MenuItem>

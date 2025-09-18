@@ -2,10 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { LEDGER_VENDOR_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-
-const LEDGER_VENDOR_ID = 0x2c97
 
 type LedgerDeviceState = 'connected' | 'disconnected' | 'unknown'
 type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
@@ -137,7 +136,15 @@ export const useLedgerConnectionState = () => {
         },
       })
     }
-  }, [deviceState, state.walletInfo, dispatch, isLedgerReadOnlyEnabled])
+  }, [
+    deviceState,
+    state.walletInfo,
+    dispatch,
+    isLedgerReadOnlyEnabled,
+    state.connectedType,
+    state.isConnected,
+    state.wallet,
+  ])
 
   return {
     deviceState,

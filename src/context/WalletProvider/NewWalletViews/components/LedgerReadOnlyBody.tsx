@@ -5,11 +5,9 @@ import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { LEDGER_DEVICE_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-
-// Use the same device ID as defined in LedgerRoutes
-const LEDGER_DEVICE_ID = '0001'
 
 export const LedgerReadOnlyBody = () => {
   const { dispatch } = useWallet()

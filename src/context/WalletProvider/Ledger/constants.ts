@@ -15,6 +15,7 @@ import { uniq } from 'lodash'
 import { getSupportedEvmChainIds } from '@/lib/utils/evm'
 
 export const LEDGER_DEVICE_ID = '0001'
+export const LEDGER_VENDOR_ID = 0x2c97
 
 /*
   The top-level fee assets supported by Ledger, which can be mapped to a specific Ledger app.

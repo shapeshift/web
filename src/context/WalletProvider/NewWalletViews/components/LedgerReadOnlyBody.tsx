@@ -53,11 +53,7 @@ export const LedgerReadOnlyBody = () => {
       <Text fontSize='xl' translation='walletProvider.ledger.failure.header' />
       <Text color='gray.500' translation='walletProvider.ledger.failure.body' textAlign='center' />
       <Tooltip
-        label={
-          !isPreviousLedgerDeviceDetected
-            ? translate('walletProvider.ledger.readOnly.tooltipNoDevice')
-            : ''
-        }
+        label={translate('walletProvider.ledger.readOnly.tooltipNoDevice')}
         isDisabled={isPreviousLedgerDeviceDetected}
       >
         <Button

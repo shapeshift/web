@@ -136,17 +136,25 @@ export const LedgerRoutes = () => {
 
   useEffect(() => {
     if (!modalType || !isLedgerReadOnlyEnabled) return
-    
+
+    // NOTE: auto-connect here only refers to attempting a usb conn for the purpose of maybe going to the fallback read-only screen,
+    // not actually pairing the device.
     // Only auto-connect for users who:
     // 1. Have connected a Ledger before (portfolio data exists)
-    // 2. AND have device physically connected (not disconnected)
+    // 2. AND have a Ledger physically connected (for the sake of simplicity, we assume USB perms granted, if not, welcome to bugs hell)
     // This ensures first-time users get develop behavior exactly
     const shouldAttemptAutoConnect = isPreviousLedgerDeviceDetected && !isUSBDisconnected
-    
+
     if (!shouldAttemptAutoConnect) return
 
     handleAutoConnect()
-  }, [modalType, isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected, isUSBDisconnected, handleAutoConnect])
+  }, [
+    modalType,
+    isLedgerReadOnlyEnabled,
+    isPreviousLedgerDeviceDetected,
+    isUSBDisconnected,
+    handleAutoConnect,
+  ])
 
   const secondaryButton = useMemo(
     () =>
@@ -166,10 +174,14 @@ export const LedgerRoutes = () => {
   )
 
   const ledgerPairElement = useMemo(() => {
-    // Only show loading for explicit user actions (handlePair), not auto-connect attempts
+    // Only show loading for explicit user actions, not auto-connect attempts
     const combinedLoading = isLoading
 
-    if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected) && isPreviousLedgerDeviceDetected) {
+    if (
+      isLedgerReadOnlyEnabled &&
+      (connectionState === 'failed' || isUSBDisconnected) &&
+      isPreviousLedgerDeviceDetected
+    ) {
       return <LedgerReadOnlyBody />
     }
     return (
@@ -202,7 +214,6 @@ export const LedgerRoutes = () => {
     isLoading,
     isPreviousLedgerDeviceDetected,
     secondaryButton,
-    isConnectionAttempting,
   ])
 
   if (!modalType) return null

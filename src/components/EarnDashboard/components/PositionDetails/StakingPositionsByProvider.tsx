@@ -201,13 +201,14 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       )
     },
     [
+      forceCompactView,
       isConnected,
       assets,
+      walletDrawer,
       navigate,
       location,
       isRfoxFoxEcosystemPageEnabled,
       dispatch,
-      walletDrawer,
     ],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(

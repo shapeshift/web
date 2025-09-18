@@ -57,8 +57,13 @@ export const DialogHeaderMiddle: React.FC<React.PropsWithChildren<{}>> = ({ chil
   </Flex>
 )
 
-export const DialogHeaderRight: React.FC<React.PropsWithChildren<{}>> = ({ children }) => (
-  <Flex gridColumn={3}>{children}</Flex>
+export const DialogHeaderRight: React.FC<React.PropsWithChildren<FlexProps>> = ({
+  children,
+  ...props
+}) => (
+  <Flex gridColumn={3} {...props}>
+    {children}
+  </Flex>
 )
 DialogHeader.Left = DialogHeaderLeft
 DialogHeader.Middle = DialogHeaderMiddle

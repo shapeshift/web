@@ -31,6 +31,9 @@
     "claimable": "Reclamable",
     "comingSoon": "Muy pronto ...",
     "approve": "Aprobar",
+    "approveToken": "Aprobar Token",
+    "approveAmount": "Aprobar Monto",
+    "approveTo": "Aprobar a",
     "reset": "Reiniciar",
     "confirm": "Confirmar",
     "seeDetails": "Ver detalles",
@@ -215,7 +218,9 @@
     "boost": "Aumentar",
     "viewOnExplorer": "Ver en el explorador",
     "approval": "Aprobación",
-    "permit2Approval": "Permiso para Aprobar"
+    "permit2Approval": "Permiso para Aprobar",
+    "network": "Red",
+    "feeEstimate": "Tarifa Estimada"
   },
   "quickBuy": {
     "title": "Compra Rápida %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Valor neto",
     "loadingAccounts": "%{portfolioAccountsLoaded} Cargadas",
     "walletBalance": "Saldo de la Billetera",
+    "walletBalanceChange24Hr": "Cambio de 24 horas",
     "earnBalance": "Balance ganado",
     "rewardsBalance": "Balance Recompensas",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
@@ -703,7 +709,6 @@
     "confirmed": "Confirmado",
     "pending": "Pendiente",
     "failed": "Fallido",
-    "network": "Red",
     "blockHeight": "Altura del Bloque",
     "to": "A",
     "from": "De",
@@ -1405,7 +1410,8 @@
         "total": "Total",
         "amount": "Cantidad",
         "transactionFee": "Tarifa de transacción",
-        "fees": "Tarifa %{feeType}"
+        "fees": "Tarifa %{feeType}",
+        "pendingConfirmation": "Pendiente de confirmación"
       },
       "sendForm": {
         "optionalAssetMemo": "Nota %{assetSymbol} opcional",
@@ -2273,7 +2279,8 @@
     "today": "Hoy",
     "yesterday": "Ayer",
     "thisWeek": "Esta Semana",
-    "thisMonth": "Este Mes"
+    "thisMonth": "Este Mes",
+    "transactionDetails": "Detalles de Transacción"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Conectar Todas las Cuentas",
+        "interactContract": "Interactuar Contrato",
+        "transactionData": "Datos de Transacción",
+        "method": "Método",
+        "signingWith": "Firmando con",
+        "sendingTo": "Enviando a",
         "signMessage": {
           "signingFrom": "Firmando desde",
           "requestFrom": "Solicitud de",
@@ -2373,7 +2385,9 @@
           "chainId": "ID Cadena",
           "authInfo": "Info Aut",
           "body": "Cuerpo",
-          "comingSoon": "Muy pronto"
+          "comingSoon": "Muy pronto",
+          "contract": "Contrato",
+          "primaryType": "Tipo Primario"
         },
         "sendTransaction": {
           "sendingFrom": "Enviar desde",

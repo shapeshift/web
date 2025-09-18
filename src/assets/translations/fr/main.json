@@ -31,6 +31,9 @@
     "claimable": "Réclamable",
     "comingSoon": "Bientôt disponible...",
     "approve": "Autoriser",
+    "approveToken": "Autoriser le jeton",
+    "approveAmount": "Autoriser le montant",
+    "approveTo": "Autoriser à",
     "reset": "Réinitialiser",
     "confirm": "Confirmer",
     "seeDetails": "Voir les détails",
@@ -215,7 +218,9 @@
     "boost": "Boost",
     "viewOnExplorer": "Voir dans l'explorateur",
     "approval": "Autorisation",
-    "permit2Approval": "Autorisation Permit2"
+    "permit2Approval": "Autorisation Permit2",
+    "network": "Réseau",
+    "feeEstimate": "Estimation des frais"
   },
   "quickBuy": {
     "title": "Achat rapide de %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Patrimoine net",
     "loadingAccounts": "%{portfolioAccountsLoaded} comptes chargés",
     "walletBalance": "Solde du porte-monnaie",
+    "walletBalanceChange24Hr": "Évolution sur 24 heures",
     "earnBalance": "Solde dans Gagner",
     "rewardsBalance": "Solde des récompenses",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
@@ -703,7 +709,6 @@
     "confirmed": "Confirmé",
     "pending": "En attente",
     "failed": "Échoué",
-    "network": "Réseau",
     "blockHeight": "Hauteur du bloc",
     "to": "Pour",
     "from": "De",
@@ -1405,7 +1410,8 @@
         "total": "Total",
         "amount": "Montant",
         "transactionFee": "Frais de transaction",
-        "fees": "Frais %{feeType}"
+        "fees": "Frais %{feeType}",
+        "pendingConfirmation": "En attente de confirmation"
       },
       "sendForm": {
         "optionalAssetMemo": "Mémo %{assetSymbol} facultatif",
@@ -2273,7 +2279,8 @@
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "thisWeek": "Cette semaine",
-    "thisMonth": "Ce mois-ci"
+    "thisMonth": "Ce mois-ci",
+    "transactionDetails": "Détails de transaction"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Connecter tous les comptes",
+        "interactContract": "Interaction avec un contrat",
+        "transactionData": "Données de transaction",
+        "method": "Méthode",
+        "signingWith": "Signature avec",
+        "sendingTo": "Envoi à",
         "signMessage": {
           "signingFrom": "Signature depuis",
           "requestFrom": "Requête depuis",
@@ -2373,7 +2385,9 @@
           "chainId": "ID de chaîne",
           "authInfo": "Info auth",
           "body": "Corps",
-          "comingSoon": "Bientôt disponible"
+          "comingSoon": "Bientôt disponible",
+          "contract": "Contrat",
+          "primaryType": "Type principal"
         },
         "sendTransaction": {
           "sendingFrom": "Envoi depuis",

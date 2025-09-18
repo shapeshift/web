@@ -31,6 +31,9 @@
     "claimable": "Заклеймить",
     "comingSoon": "Скоро будет ...",
     "approve": "Подтвердить",
+    "approveToken": "Утвердить токен",
+    "approveAmount": "Утвердить сумму",
+    "approveTo": "Утвердить",
     "reset": "Сброс",
     "confirm": "Подтвердить",
     "seeDetails": "Посмотреть детали",
@@ -215,7 +218,9 @@
     "boost": "Буст",
     "viewOnExplorer": "Просмотр в проводнике",
     "approval": "Утверждение",
-    "permit2Approval": "Permit2 Одобрение"
+    "permit2Approval": "Permit2 Одобрение",
+    "network": "Сеть",
+    "feeEstimate": "Ориентировочная комиссия"
   },
   "quickBuy": {
     "title": "Быстрая покупка %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Чистая стоимость",
     "loadingAccounts": "Загруженные аккаунты %{portfolioAccountsLoaded}",
     "walletBalance": "Баланс кошелька",
+    "walletBalanceChange24Hr": "24-часовое изменение",
     "earnBalance": "Баланс заработка",
     "rewardsBalance": "Баланс вознаграждений",
     "earnBody": "Получайте пассивный доход вкладывая свои активы в стейкинг или DeFi стратегию.",
@@ -703,7 +709,6 @@
     "confirmed": "Подтвержден",
     "pending": "В обработке",
     "failed": "Не удалось",
-    "network": "Сеть",
     "blockHeight": "Количество блоков",
     "to": "Куда",
     "from": "Откуда",
@@ -1405,7 +1410,8 @@
         "total": "Всего",
         "amount": "Сумма",
         "transactionFee": "Комиссия за транзакцию",
-        "fees": "Комиссия %{feeType}"
+        "fees": "Комиссия %{feeType}",
+        "pendingConfirmation": "Ожидается подтверждение"
       },
       "sendForm": {
         "optionalAssetMemo": "Необязательный %{assetSymbol} Memo",
@@ -2273,7 +2279,8 @@
     "today": "Сегодня",
     "yesterday": "Вчера",
     "thisWeek": "На этой неделе",
-    "thisMonth": "В этом месяце"
+    "thisMonth": "В этом месяце",
+    "transactionDetails": "Детали транзакции"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Подключите все аккаунты",
+        "interactContract": "Контракт на взаимодействие",
+        "transactionData": "Данные о транзакциях",
+        "method": "Метод",
+        "signingWith": "Подписание с",
+        "sendingTo": "Отправка",
         "signMessage": {
           "signingFrom": "Подписание от",
           "requestFrom": "Заявка от",
@@ -2373,7 +2385,9 @@
           "chainId": "Chain ID",
           "authInfo": "Auth info",
           "body": "Тело",
-          "comingSoon": "Скоро будет"
+          "comingSoon": "Скоро будет",
+          "contract": "Контракт",
+          "primaryType": "Основной тип"
         },
         "sendTransaction": {
           "sendingFrom": "Отправка из",

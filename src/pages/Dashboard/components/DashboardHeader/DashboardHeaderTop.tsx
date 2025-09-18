@@ -167,7 +167,7 @@ export const DashboardHeaderTop = memo(() => {
       >
         <MobileActionButton
           icon={swapIcon}
-          label={translate('navBar.tradeShort')}
+          label={translate('common.trade')}
           onClick={handleTradeClick}
         />
         <MobileActionButton
@@ -212,7 +212,7 @@ export const DashboardHeaderTop = memo(() => {
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>
-          {translate('navBar.tradeShort')}
+          {translate('common.trade')}
         </Button>
       </Flex>
     ),
@@ -234,7 +234,6 @@ export const DashboardHeaderTop = memo(() => {
             width='100%'
             display='grid'
             gridTemplateColumns={profileGridTemplate}
-            maxWidth='container.4xl'
             px={containerPadding}
             pt={4}
             pb={4}
@@ -251,8 +250,6 @@ export const DashboardHeaderTop = memo(() => {
           width='full'
           display='grid'
           gridTemplateColumns={profileGridTemplate}
-          maxWidth='container.4xl'
-          px={containerPadding}
           pt={4}
           pb={4}
           alignItems='flex-start'

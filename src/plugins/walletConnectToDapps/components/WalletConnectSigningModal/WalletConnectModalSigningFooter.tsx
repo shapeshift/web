@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Button, HStack, Image, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
+import { WalletConnectFooter } from '../WalletConnectFooter'
 import { GasSelectionMenu } from './GasSelectionMenu'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -52,8 +53,8 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
 
   return (
     <HStack justify='space-between' align='center' w='full'>
-      <HStack spacing={3} align='center'>
-        <Image boxSize='24px' src={networkIcon} borderRadius='full' />
+      <HStack spacing={2} align='center'>
+        <Image boxSize='32px' src={networkIcon} borderRadius='full' />
         <VStack align='flex-start' spacing={0} justify='center'>
           <RawText fontSize='sm' color='text.subtle' lineHeight='1.2' mb={1}>
             {translate('plugins.walletConnectToDapps.modal.signingWith')}
@@ -64,7 +65,7 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
       <VStack align='flex-end' spacing={0} justify='center'>
         <Amount.Fiat
           value={feeAssetBalanceUserCurrency}
-          fontSize='lg'
+          fontSize='md'
           fontWeight='medium'
           lineHeight='1.2'
         />
@@ -99,7 +100,6 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
 }) => {
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
-  const borderColor = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)')
 
   const speed = formContext?.watch('speed')
 
@@ -118,22 +118,14 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   }, [formContext, onConfirm])
 
   return (
-    <Box
-      bg='transparent'
-      borderTopRadius='24px'
-      borderTop='1px solid'
-      borderLeft='1px solid'
-      borderRight='1px solid'
-      borderColor={borderColor}
-      px={8}
-      py={4}
-      mx={-6}
-      mb={-6}
-      mt={4}
-    >
-      <VStack spacing={4}>
-        <WalletConnectSigningWithSection accountId={accountId} />
-        {transaction && chainId && <GasSelectionMenu transaction={transaction} chainId={chainId} />}
+    <WalletConnectFooter>
+      <VStack spacing={4} width='full'>
+        <VStack px={2} spacing={4} width='full'>
+          <WalletConnectSigningWithSection accountId={accountId} />
+          {transaction && chainId && (
+            <GasSelectionMenu transaction={transaction} chainId={chainId} />
+          )}
+        </VStack>
         <HStack spacing={4} w='full'>
           <Button
             size='lg'
@@ -158,6 +150,6 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           </Button>
         </HStack>
       </VStack>
-    </Box>
+    </WalletConnectFooter>
   )
 }

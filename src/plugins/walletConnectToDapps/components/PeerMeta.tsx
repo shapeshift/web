@@ -16,8 +16,8 @@ export const PeerMeta: FC<PeerMetaProps> = ({ metadata, py = 6, ...spaceProps })
 
   return (
     <VStack spacing={4} align='center' py={py} {...spaceProps}>
-      {icon && <LazyLoadAvatar borderRadius='full' boxSize='48px' src={icon} />}
-      <VStack spacing={1} align='center'>
+      {icon && <LazyLoadAvatar borderRadius='xl' boxSize='48px' src={icon} />}
+      <VStack spacing={0} align='center'>
         <RawText fontWeight='semibold' fontSize='lg' textAlign='center'>
           {name}
         </RawText>

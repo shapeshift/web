@@ -1,10 +1,17 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack, IconButton, Radio, RadioGroup, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Radio, RadioGroup, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+} from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { firstFourLastFour } from '@/lib/utils'
@@ -13,9 +20,6 @@ import {
   selectUniqueEvmAccountNumbers,
 } from '@/state/slices/portfolioSlice/selectors'
 import { store, useAppSelector } from '@/state/store'
-
-const spacerBox = <Box w={8} />
-const backIcon = <ArrowBackIcon />
 
 type AccountSelectionProps = {
   selectedAccountNumber: number | null
@@ -74,21 +78,24 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
 
   return (
     <VStack spacing={0} align='stretch' h='full'>
-      <HStack spacing={3} p={4} align='center'>
-        <IconButton aria-label='Back' icon={backIcon} size='sm' variant='ghost' onClick={onBack} />
-        <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
-          {translate('plugins.walletConnectToDapps.modal.chooseAccount')}
-        </RawText>
-        {spacerBox}
-      </HStack>
-      <RadioGroup
-        value={selectedAccountNumber?.toString() ?? ''}
-        onChange={handleAccountNumberChange}
-      >
-        <VStack spacing={0} align='stretch' px={2} pb={4} flex={1}>
-          {accountRows}
-        </VStack>
-      </RadioGroup>
+      <DialogHeader>
+        <DialogHeaderLeft>
+          <DialogBackButton onClick={onBack} />
+        </DialogHeaderLeft>
+        <DialogHeaderMiddle>
+          <DialogTitle>{translate('plugins.walletConnectToDapps.modal.chooseAccount')}</DialogTitle>
+        </DialogHeaderMiddle>
+      </DialogHeader>
+      <DialogBody>
+        <RadioGroup
+          value={selectedAccountNumber?.toString() ?? ''}
+          onChange={handleAccountNumberChange}
+        >
+          <VStack spacing={0} align='stretch' pb={4} flex={1}>
+            {accountRows}
+          </VStack>
+        </RadioGroup>
+      </DialogBody>
       <Box p={4}>
         <Button
           size='lg'

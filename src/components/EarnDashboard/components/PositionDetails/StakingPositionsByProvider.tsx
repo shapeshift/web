@@ -139,19 +139,21 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-      if (walletDrawer.isOpen) {
-        walletDrawer.close()
-      }
+      if (forceCompactView) {
+        if (walletDrawer.isOpen) {
+          walletDrawer.close()
+        }
 
-      switch (provider) {
-        case DefiProvider.EthFoxStaking:
-        case DefiProvider.rFOX:
-          return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
-        case DefiProvider.CosmosSdk:
-        case DefiProvider.ThorchainSavers:
-          return navigate(`/assets/${assetId}`)
-        default:
-          break
+        switch (provider) {
+          case DefiProvider.EthFoxStaking:
+          case DefiProvider.rFOX:
+            return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+          case DefiProvider.CosmosSdk:
+          case DefiProvider.ThorchainSavers:
+            return navigate(`/assets/${assetId}`)
+          default:
+            break
+        }
       }
 
       if (!isConnected) {

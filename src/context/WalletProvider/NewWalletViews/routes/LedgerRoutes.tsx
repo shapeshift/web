@@ -42,7 +42,6 @@ export const LedgerRoutes = () => {
   const {
     connectionState,
     isDisconnected: isUSBDisconnected,
-    isConnectionAttempting,
     handleAutoConnect,
   } = useLedgerConnectionState()
 

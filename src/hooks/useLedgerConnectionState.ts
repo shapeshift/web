@@ -157,7 +157,6 @@ export const useLedgerConnectionState = () => {
 
   const connectionHelpers = useMemo(
     () => ({
-      isConnectionAttempting: connectionState === 'attempting',
       isConnectionSuccess: connectionState === 'success',
       isConnectionFailed: connectionState === 'failed',
     }),

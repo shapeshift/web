@@ -196,11 +196,6 @@ export const LedgerRoutes = () => {
     handleAutoConnect,
   ])
 
-  // Handle read-only connection
-  const handleConnectReadOnly = useCallback(() => {
-    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-  }, [walletDispatch])
-
   const secondaryButton = useMemo(
     () =>
       !isLoading && isPreviousLedgerDeviceDetected ? (
@@ -222,7 +217,7 @@ export const LedgerRoutes = () => {
   const ledgerElement = useMemo(() => {
     // If flag is enabled and either connection failed OR USB device is disconnected, show read-only screen
     if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
-      return <LedgerReadOnlyBody icon={icon} onConnectReadOnly={handleConnectReadOnly} />
+      return <LedgerReadOnlyBody />
     }
 
     // Otherwise show normal pairing screen
@@ -250,7 +245,6 @@ export const LedgerRoutes = () => {
     isLedgerReadOnlyEnabled,
     connectionState,
     isUSBDisconnected,
-    handleConnectReadOnly,
     deviceCountError,
     error,
     handlePair,

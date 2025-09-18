@@ -25,6 +25,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
@@ -53,6 +54,7 @@ const ConnectedMenu = memo(
     const settings = useModal('settings')
     const { dispatch } = useWallet()
     const walletType = useAppSelector(selectWalletType)
+    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
     const ConnectMenuComponent = useMemo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
@@ -73,7 +75,6 @@ const ConnectedMenu = memo(
 
     const handleReconnectWallet = useCallback(() => {
       if (walletType === KeyManager.Ledger) {
-        // Navigate to Ledger connection route
         dispatch({
           type: WalletActions.SET_INITIAL_ROUTE,
           payload: '/ledger/connect',
@@ -106,7 +107,7 @@ const ConnectedMenu = memo(
                   <RawText>{walletInfo?.name}</RawText>
                   {connectedWalletMenuRoutes && <ChevronRightIcon />}
                 </Flex>
-                {!isConnected && isLedger && (
+                {!isConnected && isLedger && isLedgerReadOnlyEnabled && (
                   <Text
                     translation={'connectWallet.menu.walletNotConnected'}
                     fontSize='xs'
@@ -136,7 +137,7 @@ const ConnectedMenu = memo(
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}
           </MenuItem>
-          {!isConnected && isLedger && (
+          {!isConnected && isLedger && isLedgerReadOnlyEnabled && (
             <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
               {translate('connectWallet.menu.reconnectWallet')}
             </MenuItem>

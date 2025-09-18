@@ -19,6 +19,7 @@ import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolio
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+// Icon and name const *not* imported from config, as this will throw if we try and import too early from there
 const Icon = LedgerIcon
 const icon = <Icon boxSize='64px' />
 const name = 'Ledger'
@@ -70,8 +71,13 @@ export const LedgerRoutes = () => {
     const adapter = await getAdapter(KeyManager.Ledger)
     if (adapter) {
       try {
+        // Pair the device, which gets approval from the browser to communicate with the Ledger USB device
         const wallet = await adapter.pairDevice()
+
+        // Check the number of connected devices
         const numDevices = await handleCheckNumDevices()
+
+        // Ensure exactly one device is connected
         switch (true) {
           case numDevices < 1:
             setDeviceCountError('walletProvider.ledger.errors.noDeviceConnected')

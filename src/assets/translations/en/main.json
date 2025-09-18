@@ -1817,8 +1817,7 @@
         "body": "We were not able to detect your ledger, but you can connect in read only mode."
       },
       "readOnly": {
-        "button": "Connect as Read Only",
-        "tooltipNoDevice": "Connect a Ledger device first to enable read-only mode"
+        "button": "Connect as Read Only"
       },
       "gettingChangeAddress": "Getting change address...",
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",

@@ -194,7 +194,7 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
 }
 
 export const getSupportedEvmChainIds = () => {
-  return getSupportedChainIdsByChainNamespace()[CHAIN_NAMESPACE.Evm] ?? []
+  return getSupportedChainIdsByChainNamespace()[CHAIN_NAMESPACE.Evm]
 }
 
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>

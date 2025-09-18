@@ -88,8 +88,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
-        // @ts-expect-error - TODO(gomes): fixme, do we have this without a `wallet` instance defined?
-        deviceId: await wallet?.getDeviceID(),
         accountMetadata,
         pubKey:
           walletType === KeyManager.Ledger && selectedAccountId

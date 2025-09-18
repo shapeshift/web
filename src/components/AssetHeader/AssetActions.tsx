@@ -80,16 +80,17 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  
+
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const walletType = useAppSelector(selectWalletType)
   const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  
-  const isConnected = useMemo(
+
+  // Either wallet is physically connected, or it's a Ledger in read-only mode
+  const canDisplayAssetActions = useMemo(
     () => _isConnected || isLedgerReadOnly,
     [_isConnected, isLedgerReadOnly],
   )
-  
+
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
@@ -104,18 +105,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   )
   const handleSendClick = useCallback(() => {
     vibrate('heavy')
-    if (!isConnected) return handleWalletModalOpen()
+    if (!canDisplayAssetActions) return handleWalletModalOpen()
     mixpanel?.track(MixPanelEvent.SendClick)
     send.open({ assetId, accountId })
-  }, [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send])
+  }, [accountId, assetId, handleWalletModalOpen, canDisplayAssetActions, mixpanel, send])
   const handleReceiveClick = useCallback(() => {
     vibrate('heavy')
-    if (isConnected) {
+    if (canDisplayAssetActions) {
       return receive.open({ asset, accountId })
     }
 
     handleWalletModalOpen()
-  }, [accountId, asset, handleWalletModalOpen, isConnected, receive])
+  }, [accountId, asset, handleWalletModalOpen, canDisplayAssetActions, receive])
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {
@@ -188,7 +189,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
                 aria-label={translate('navBar.buyCryptoShort')}
                 _after={IconButtonAfter}
                 onClick={handleBuySellClick}
-                isDisabled={!isConnected}
+                isDisabled={!canDisplayAssetActions}
                 colorScheme='blue'
               />
             </Flex>

@@ -47,7 +47,7 @@ export const LedgerRoutes = () => {
     deviceState,
     isConnected: isUSBConnected,
     isDisconnected: isUSBDisconnected,
-  } = useWebUSB(isLedgerReadOnlyEnabled)
+  } = useWebUSB()
 
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),

@@ -10,7 +10,7 @@ export const useLedgerDisconnectionHandler = () => {
   const { dispatch, state } = useWallet()
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
-  const { isDisconnected: isUSBDisconnected } = useWebUSB(isLedgerReadOnlyEnabled)
+  const { isDisconnected: isUSBDisconnected } = useWebUSB()
 
   useEffect(() => {
     if (!isLedgerReadOnlyEnabled) return

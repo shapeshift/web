@@ -144,12 +144,9 @@ export const VerifyAddresses = () => {
   const fetchAddresses = useCallback(async () => {
     if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
 
-    const deviceId = await wallet.getDeviceID()
-
     const fetchedSellAddress = await getReceiveAddress({
       asset: sellAsset,
       wallet,
-      deviceId,
       accountMetadata: sellAccountMetadata,
       pubKey: fromAccountId(sellAssetAccountId).account,
     })
@@ -162,7 +159,6 @@ export const VerifyAddresses = () => {
       return getReceiveAddress({
         asset: buyAsset,
         wallet,
-        deviceId,
         accountMetadata: buyAccountMetadata,
         pubKey: fromAccountId(buyAssetAccountId).account,
       })

@@ -52,7 +52,7 @@ type CheckWalletHasRuntimeSupportArgs = {
   isSnapInstalled: boolean | null
   chainId: ChainId
   wallet: HDWallet | null
-  connectedType?: KeyManager
+  connectedType?: KeyManager | null
 }
 
 const checkWalletHasRuntimeSupport = ({
@@ -89,7 +89,7 @@ type WalletSupportsChainArgs = {
   // The connected account ids to check against. If set to false, the currently connected account
   // ids will not be checked (used for initial boot)
   checkConnectedAccountIds: AccountId[] | false
-  connectedType?: KeyManager
+  connectedType?: KeyManager | null
 }
 
 // use outside react

@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+
 const LEDGER_VENDOR_ID = 0x2c97
 
 type USBDeviceState = 'connected' | 'disconnected' | 'unknown'
 
-export const useWebUSB = (enabled: boolean = true) => {
+export const useWebUSB = () => {
   const [deviceState, setDeviceState] = useState<USBDeviceState>('unknown')
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   useEffect(() => {
-    if (!enabled || !navigator.usb) return
+    if (!isLedgerReadOnlyEnabled || !navigator.usb) return
 
     const handleConnect = (event: USBConnectionEvent) => {
       if (event.device.vendorId === LEDGER_VENDOR_ID) {
@@ -47,7 +50,7 @@ export const useWebUSB = (enabled: boolean = true) => {
       navigator.usb.removeEventListener('connect', handleConnect)
       navigator.usb.removeEventListener('disconnect', handleDisconnect)
     }
-  }, [enabled])
+  }, [isLedgerReadOnlyEnabled])
 
   return {
     deviceState,

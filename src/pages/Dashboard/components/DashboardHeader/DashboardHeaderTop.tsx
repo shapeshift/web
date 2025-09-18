@@ -117,7 +117,8 @@ export const DashboardHeaderTop = memo(() => {
   const walletType = useAppSelector(selectWalletType)
   const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
 
-  const isConnected = useMemo(
+  // Either wallet is physically connected, or it's a Ledger in read-only mode
+  const canDisplayWalletActions = useMemo(
     () => _isConnected || isLedgerReadOnly,
     [_isConnected, isLedgerReadOnly],
   )
@@ -174,23 +175,30 @@ export const DashboardHeaderTop = memo(() => {
           icon={buyIcon}
           label={translate('fiatRamps.buy')}
           onClick={handleBuyClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
         <MobileActionButton
           icon={sendIcon}
           label={translate('common.send')}
           onClick={handleSendClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
         <MobileActionButton
           icon={receiveIcon}
           label={translate('common.receive')}
           onClick={handleReceiveClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
       </Flex>
     ),
-    [handleTradeClick, handleBuyClick, handleSendClick, handleReceiveClick, isConnected, translate],
+    [
+      handleTradeClick,
+      handleBuyClick,
+      handleSendClick,
+      handleReceiveClick,
+      canDisplayWalletActions,
+      translate,
+    ],
   )
 
   const desktopButtons = useMemo(
@@ -202,13 +210,25 @@ export const DashboardHeaderTop = memo(() => {
         justifyContent={'center'}
         display={desktopButtonGroupDisplay}
       >
-        <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleQrCodeClick}
+          leftIcon={qrCodeIcon}
+        >
           {translate('modals.send.qrCode')}
         </Button>
-        <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={arrowUpIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleSendClick}
+          leftIcon={arrowUpIcon}
+        >
           {translate('common.send')}
         </Button>
-        <Button isDisabled={!isConnected} onClick={handleReceiveClick} leftIcon={arrowDownIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleReceiveClick}
+          leftIcon={arrowDownIcon}
+        >
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>
@@ -221,7 +241,7 @@ export const DashboardHeaderTop = memo(() => {
       handleSendClick,
       handleReceiveClick,
       handleTradeClick,
-      isConnected,
+      canDisplayWalletActions,
       translate,
     ],
   )

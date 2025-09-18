@@ -6,6 +6,8 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LEDGER_DEVICE_ID, LEDGER_VENDOR_ID } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type LedgerDeviceState = 'connected' | 'disconnected' | 'unknown'
 type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
@@ -22,9 +24,14 @@ export const useLedgerConnectionState = () => {
 
   const { dispatch, state, getAdapter } = useWallet()
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isPreviousLedgerDeviceDetected = useAppSelector(state =>
+    selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
+  )
 
   useEffect(() => {
-    if (!isLedgerReadOnlyEnabled || !navigator.usb) return
+    // Only enable USB monitoring for users who have previously connected a Ledger
+    // This ensures first-time users get develop behavior exactly
+    if (!isLedgerReadOnlyEnabled || !navigator.usb || !isPreviousLedgerDeviceDetected) return
 
     const handleConnect = (event: USBConnectionEvent) => {
       if (isLedgerDevice(event.device)) {
@@ -57,30 +64,50 @@ export const useLedgerConnectionState = () => {
       navigator.usb.removeEventListener('connect', handleConnect)
       navigator.usb.removeEventListener('disconnect', handleDisconnect)
     }
-  }, [isLedgerReadOnlyEnabled])
+  }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected])
 
   const handleAutoConnect = useCallback(async () => {
-    if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') return
+    console.log('[useLedgerConnectionState] handleAutoConnect called:', { 
+      isLedgerReadOnlyEnabled, 
+      connectionState, 
+      deviceState 
+    })
+    
+    if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') {
+      console.log('[useLedgerConnectionState] handleAutoConnect early return:', { 
+        isLedgerReadOnlyEnabled, 
+        connectionState 
+      })
+      return
+    }
 
+    console.log('[useLedgerConnectionState] Starting auto-connect attempt')
     setConnectionState('attempting')
 
     const adapter = await getAdapter(KeyManager.Ledger)
     if (!adapter) {
+      console.log('[useLedgerConnectionState] No adapter found, setting to failed')
       setConnectionState('failed')
       return
     }
 
     try {
+      console.log('[useLedgerConnectionState] Attempting to pair device')
       const wallet = await adapter.pairDevice().catch(() => null)
 
       if (wallet) {
+        console.log('[useLedgerConnectionState] Auto-connect successful')
         setConnectionState('success')
         return
       }
 
-      setConnectionState(deviceState === 'disconnected' ? 'failed' : 'idle')
+      const newState = deviceState === 'disconnected' ? 'failed' : 'idle'
+      console.log('[useLedgerConnectionState] Auto-connect failed, setting to:', newState)
+      setConnectionState(newState)
     } catch {
-      setConnectionState(deviceState === 'disconnected' ? 'failed' : 'idle')
+      const newState = deviceState === 'disconnected' ? 'failed' : 'idle'
+      console.log('[useLedgerConnectionState] Auto-connect error, setting to:', newState)
+      setConnectionState(newState)
     }
   }, [isLedgerReadOnlyEnabled, connectionState, getAdapter, deviceState])
 

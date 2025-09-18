@@ -19,6 +19,7 @@ const { name: LEDGER_NAME, icon: LEDGER_ICON } = SUPPORTED_WALLETS[KeyManager.Le
 export const useLedgerConnectionState = () => {
   const [deviceState, setDeviceState] = useState<LedgerDeviceState>('unknown')
   const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
+
   const { dispatch, state, getAdapter } = useWallet()
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
@@ -45,7 +46,7 @@ export const useLedgerConnectionState = () => {
         const devices = await navigator.usb.getDevices()
         const hasLedger = devices.some(isLedgerDevice)
         setDeviceState(hasLedger ? 'connected' : 'disconnected')
-      } catch {
+      } catch (error) {
         setDeviceState('unknown')
       }
     }

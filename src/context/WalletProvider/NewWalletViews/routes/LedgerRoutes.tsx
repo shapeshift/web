@@ -158,10 +158,11 @@ export const LedgerRoutes = () => {
   )
 
   const ledgerPairElement = useMemo(() => {
-    if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected)) {
+    const combinedLoading = isLoading || (isLedgerReadOnlyEnabled && isConnectionAttempting)
+
+    if (isLedgerReadOnlyEnabled && (connectionState === 'failed' || isUSBDisconnected) && isPreviousLedgerDeviceDetected) {
       return <LedgerReadOnlyBody />
     }
-
     return (
       <PairBody
         icon={icon}
@@ -176,7 +177,7 @@ export const LedgerRoutes = () => {
             ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
             : 'walletProvider.ledger.connect.pairNewDeviceButton'
         }
-        isLoading={isLoading || (isLedgerReadOnlyEnabled && isConnectionAttempting)}
+        isLoading={combinedLoading}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
         secondaryContent={secondaryButton}

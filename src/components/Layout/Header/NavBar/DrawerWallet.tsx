@@ -280,7 +280,7 @@ const DrawerWalletInner: FC = memo(() => {
                           {loadedTabs.has(0) ? (
                             <Suspense fallback={accountTableSkeletonFallback}>
                               <Box height='100%'>
-                                <AccountTable forceCompactView onRowClick={onClose} />
+                                <AccountTable forceCompactView />
                               </Box>
                             </Suspense>
                           ) : (
@@ -293,13 +293,7 @@ const DrawerWalletInner: FC = memo(() => {
                           )}
                         </TabPanel>
                         <TabPanel p={0} pt={2} pr={2}>
-                          {loadedTabs.has(2) && (
-                            <WatchlistTable
-                              forceCompactView
-                              onRowClick={onClose}
-                              onExploreMore={onClose}
-                            />
-                          )}
+                          {loadedTabs.has(2) && <WatchlistTable forceCompactView />}
                         </TabPanel>
                         <TabPanel p={0} pt={2} pr={2}>
                           {loadedTabs.has(3) && <DeFiEarn forceCompactView />}

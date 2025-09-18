@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { AccountNumberRow } from './AccountNumberRow'
 
@@ -19,7 +18,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
-import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectIsAnyMarketDataApiQueryPending,
@@ -43,7 +41,6 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, isSimpleMenu = fals
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
   const { isOpen, onToggle } = useDisclosure()
-  const navigate = useNavigate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
@@ -67,15 +64,9 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, isSimpleMenu = fals
         chainId={chainId}
         isSimpleMenu={isSimpleMenu}
         onClose={onClose}
-        onClick={
-          // accountIds is strictly length 1 per accountNumber for account-based chains
-          !isUtxoAccountId(accountIds[0])
-            ? () => navigate(`/wallet/accounts/${accountIds[0]}`)
-            : undefined
-        }
       />
     ))
-  }, [accountIdsByAccountNumber, chainId, navigate, isOpen, isSimpleMenu, onClose])
+  }, [accountIdsByAccountNumber, chainId, isOpen, isSimpleMenu, onClose])
 
   return asset ? (
     <ListItem

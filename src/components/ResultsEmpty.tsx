@@ -5,10 +5,10 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX, PropsWithChildren } from 'react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { Text } from '@/components/Text'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export type ResultsEmptyProps = {
   icon?: JSX.Element
@@ -36,7 +36,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProps> = ({
 }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
   const translate = useTranslate()
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
 
   const handleCtaClick = useCallback(() => {
     if (ctaHref) {

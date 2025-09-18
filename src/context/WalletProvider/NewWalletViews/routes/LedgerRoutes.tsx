@@ -12,8 +12,8 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useWebUSB } from '@/hooks/useWebUSB'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -42,12 +42,12 @@ export const LedgerRoutes = () => {
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
-  // Track USB device connection state
+  // Track Ledger device connection state
   const {
     deviceState,
     isConnected: isUSBConnected,
     isDisconnected: isUSBDisconnected,
-  } = useWebUSB()
+  } = useLedgerConnectionState()
 
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),

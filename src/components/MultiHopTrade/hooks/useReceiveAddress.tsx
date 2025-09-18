@@ -64,7 +64,10 @@ export const useReceiveAddress = ({
     queryKey: [
       'receiveAddress',
       buyAsset?.assetId,
-      // IMPORTANT: Required to invalidate query cache when changing wallet
+      // IMPORTANT: Required to invalidate query cache when changing wallet - different ledgers can
+      // have the same deviceId.
+      // Note, we don't use `deviceId` here as it's not guaranteed to be present (e.g disconnected Ledger),
+      // and sell/buy AccountIds are enough of discriminators
       sellAccountId,
       buyAccountId,
     ],

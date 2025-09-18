@@ -1,14 +1,5 @@
 import { ArrowUpDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  HStack,
-  Tooltip,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
+import { Alert, AlertIcon, Button, HStack, Tooltip, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes } from '@walletconnect/types'
@@ -16,9 +7,12 @@ import { useMemo } from 'react'
 import { TbPlug } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { WalletConnectFooter } from '../WalletConnectFooter'
+
 import { ChainIcons } from '@/components/ChainIcons'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import {
@@ -61,7 +55,6 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
-  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const connectWithHoverSx = useMemo(
     () => (uniqueAccountNumbers.length > 1 ? { opacity: 0.8 } : undefined),
@@ -93,45 +86,35 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
 
   return (
     <>
-      {!isAllRequiredNamespacesSupported && (
-        <Alert status='error' mb={4}>
-          <RawText textAlign='center' color='text.subtle'>
-            {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
-          </RawText>
-        </Alert>
-      )}
-      <Alert
-        status='info'
-        variant='subtle'
-        borderRadius='full'
-        bg='rgba(0, 181, 216, 0.1)'
-        color='cyan.600'
-      >
-        <AlertIcon as={TbPlug} color='cyan.600' />
-        <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
-          {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
-        </RawText>
-        <Tooltip
-          label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
-          placement='top'
+      <DialogBody pb={6}>
+        {!isAllRequiredNamespacesSupported && (
+          <Alert status='error' mb={4}>
+            <RawText textAlign='center' color='text.subtle'>
+              {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
+            </RawText>
+          </Alert>
+        )}
+        <Alert
+          status='info'
+          variant='subtle'
+          borderRadius='full'
+          bg='rgba(0, 181, 216, 0.1)'
+          color='cyan.600'
         >
-          <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
-        </Tooltip>
-      </Alert>
-      <Box
-        bg='transparent'
-        borderTopRadius='24px'
-        borderTop='1px solid'
-        borderLeft='1px solid'
-        borderRight='1px solid'
-        px={8}
-        py={4}
-        mx={-6}
-        mb={-6}
-        mt={4}
-        borderColor={borderColor}
-      >
-        <VStack spacing={4}>
+          <AlertIcon as={TbPlug} boxSize={6} color='cyan.600' />
+          <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
+            {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
+          </RawText>
+          <Tooltip
+            label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
+            placement='top'
+          >
+            <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
+          </Tooltip>
+        </Alert>
+      </DialogBody>
+      <WalletConnectFooter>
+        <VStack spacing={4} width='full'>
           <HStack spacing={4} w='full' justify='space-between' align='start'>
             <HStack spacing={3} align='start' flex={1}>
               <LazyLoadAvatar
@@ -199,7 +182,7 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
             </Button>
           </HStack>
         </VStack>
-      </Box>
+      </WalletConnectFooter>
     </>
   )
 }

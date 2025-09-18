@@ -255,7 +255,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     return (
       <>
         {location.pathname === SessionProposalRoutes.Overview && proposer.metadata && (
-          <PeerMeta metadata={proposer.metadata} py={0} />
+          <PeerMeta metadata={proposer.metadata} />
         )}
         <Switch location={location.pathname}>
           <Route path={SessionProposalRoutes.Overview}>{overview}</Route>

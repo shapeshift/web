@@ -1,4 +1,3 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -6,7 +5,6 @@ import {
   CheckboxGroup,
   Circle,
   HStack,
-  IconButton,
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
@@ -19,15 +17,24 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+  DialogHeaderRight,
+} from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const backIcon = <ArrowBackIcon />
-
 const checkboxSx = {
+  '& .chakra-checkbox__label': {
+    marginLeft: 0,
+  },
   '& .chakra-checkbox__control': {
     borderRadius: 'full',
     width: '24px',
@@ -46,6 +53,9 @@ const checkboxSx = {
 }
 
 const requiredCheckboxSx = {
+  '& .chakra-checkbox__label': {
+    marginLeft: 0,
+  },
   '& .chakra-checkbox__control': {
     borderRadius: 'full',
     width: '24px',
@@ -180,7 +190,21 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
       if (!hasAccount && !isRequired) return null
 
       const content = (
-        <Box key={typedChainId} py={3} opacity={hasAccount ? 1 : 0.5}>
+        <Checkbox
+          key={typedChainId}
+          value={typedChainId}
+          isDisabled={isDisabled}
+          size='lg'
+          colorScheme={isRequired ? 'gray' : 'blue'}
+          sx={isRequired ? requiredCheckboxSx : checkboxSx}
+          py={3}
+          px={2}
+          opacity={hasAccount ? 1 : 0.5}
+          flexDirection='row-reverse'
+          justifyContent='space-between'
+          width='full'
+          cursor={isDisabled ? 'not-allowed' : 'pointer'}
+        >
           <HStack spacing={3} width='full' align='center'>
             <LazyLoadAvatar borderRadius='full' boxSize='40px' src={networkIcon} />
             <VStack spacing={0} align='start' flex={1}>
@@ -212,15 +236,8 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
                 )}
               </HStack>
             </VStack>
-            <Checkbox
-              value={typedChainId}
-              isDisabled={isDisabled}
-              size='lg'
-              colorScheme={isRequired ? 'gray' : 'blue'}
-              sx={isRequired ? requiredCheckboxSx : checkboxSx}
-            />
           </HStack>
-        </Box>
+        </Checkbox>
       )
 
       if (!hasAccount) {
@@ -248,17 +265,27 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
 
   return (
     <VStack spacing={0} align='stretch' h='full'>
-      <HStack spacing={3} p={4} align='center'>
-        <IconButton aria-label='Back' icon={backIcon} size='sm' variant='ghost' onClick={onBack} />
-        <RawText fontWeight='semibold' fontSize='xl' flex={1} textAlign='center'>
-          {translate('plugins.walletConnectToDapps.modal.chooseNetwork')}
-        </RawText>
-        <Button size='sm' variant='link' colorScheme='blue' onClick={handleToggleAllChains}>
-          {isAllOptionalChainsSelected
-            ? translate('common.unselectAll')
-            : translate('common.selectAll')}
-        </Button>
-      </HStack>
+      <DialogHeader>
+        <DialogHeaderLeft>
+          <DialogBackButton onClick={onBack} />
+        </DialogHeaderLeft>
+        <DialogHeaderMiddle>
+          <DialogTitle>{translate('plugins.walletConnectToDapps.modal.chooseNetwork')}</DialogTitle>
+        </DialogHeaderMiddle>
+        <DialogHeaderRight justifyContent='flex-end'>
+          <Button
+            flexShrink={0}
+            size='sm'
+            variant='link'
+            colorScheme='blue'
+            onClick={handleToggleAllChains}
+          >
+            {isAllOptionalChainsSelected
+              ? translate('common.unselectAll')
+              : translate('common.selectAll')}
+          </Button>
+        </DialogHeaderRight>
+      </DialogHeader>
       <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
         <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
           {networkRows}

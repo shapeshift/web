@@ -5,6 +5,7 @@ import type { UseFormReturn } from 'react-hook-form'
 
 import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -46,9 +47,11 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   if (!accountId) return null
 
   return (
-    <VStack spacing={0} align='stretch'>
+    <VStack spacing={0} align='stretch' flex={1} minHeight={0}>
       {peerMetadata && <PeerMeta metadata={peerMetadata} />}
-      {children}
+      <DialogBody flex={1} overflow='auto' minHeight={0} pb={6}>
+        {children}
+      </DialogBody>
       <WalletConnectModalSigningFooter
         accountId={accountId}
         transaction={transaction}

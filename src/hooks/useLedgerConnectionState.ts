@@ -13,18 +13,6 @@ const AUTO_CONNECT_DELAY = 500
 
 const isLedgerDevice = (device: USBDevice) => device.vendorId === LEDGER_VENDOR_ID
 
-const createDeviceStateHelpers = (deviceState: LedgerDeviceState) => ({
-  isConnected: deviceState === 'connected',
-  isDisconnected: deviceState === 'disconnected',
-  isUnknown: deviceState === 'unknown',
-})
-
-const createConnectionStateHelpers = (connectionState: ConnectionState) => ({
-  isConnectionAttempting: connectionState === 'attempting',
-  isConnectionSuccess: connectionState === 'success',
-  isConnectionFailed: connectionState === 'failed',
-})
-
 export const useLedgerConnectionState = () => {
   const [deviceState, setDeviceState] = useState<LedgerDeviceState>('unknown')
   const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
@@ -142,11 +130,17 @@ export const useLedgerConnectionState = () => {
     })
   }, [state, deviceState, dispatch, isLedgerReadOnlyEnabled])
 
-  const deviceHelpers = useMemo(() => createDeviceStateHelpers(deviceState), [deviceState])
-  const connectionHelpers = useMemo(
-    () => createConnectionStateHelpers(connectionState),
-    [connectionState],
-  )
+  const deviceHelpers = useMemo(() => ({
+    isConnected: deviceState === 'connected',
+    isDisconnected: deviceState === 'disconnected',
+    isUnknown: deviceState === 'unknown',
+  }), [deviceState])
+
+  const connectionHelpers = useMemo(() => ({
+    isConnectionAttempting: connectionState === 'attempting',
+    isConnectionSuccess: connectionState === 'success',
+    isConnectionFailed: connectionState === 'failed',
+  }), [connectionState])
 
   const value = useMemo(
     () => ({

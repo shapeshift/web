@@ -75,7 +75,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const {
-    state: { isConnected: _isConnected },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -87,8 +87,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
   // Either wallet is physically connected, or it's a Ledger in read-only mode
   const canDisplayAssetActions = useMemo(
-    () => _isConnected || isLedgerReadOnly,
-    [_isConnected, isLedgerReadOnly],
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
   )
 
   const filter = useMemo(() => ({ assetId }), [assetId])

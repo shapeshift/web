@@ -108,7 +108,7 @@ export const DashboardHeaderTop = memo(() => {
   const mixpanel = getMixPanel()
   const translate = useTranslate()
   const {
-    state: { isConnected: _isConnected },
+    state: { isConnected },
   } = useWallet()
   const assetId = useRouteAssetId()
   const accountId = useRouteAccountId()
@@ -119,8 +119,8 @@ export const DashboardHeaderTop = memo(() => {
 
   // Either wallet is physically connected, or it's a Ledger in read-only mode
   const canDisplayWalletActions = useMemo(
-    () => _isConnected || isLedgerReadOnly,
-    [_isConnected, isLedgerReadOnly],
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
   )
 
   const navigate = useNavigate()

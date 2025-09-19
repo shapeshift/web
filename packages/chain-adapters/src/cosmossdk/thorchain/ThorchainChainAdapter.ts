@@ -1,10 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  ASSET_REFERENCE,
-  mayachainChainId,
-  thorchainAssetId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet, ThorchainSignTx, ThorchainWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { RootBip44Params, ThorMayaChainId } from '@shapeshiftoss/types'

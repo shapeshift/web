@@ -128,7 +128,7 @@ const ConnectedMenu = memo(
                     mt={1}
                   />
                 )}
-                {isLocked && !isLedger && (
+                {isLocked && (
                   <Text
                     translation={'connectWallet.menu.locked'}
                     fontSize='sm'

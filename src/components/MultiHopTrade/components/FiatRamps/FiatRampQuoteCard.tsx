@@ -1,12 +1,13 @@
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, VStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 
 import { TradeQuoteBadges } from '../TradeInput/components/TradeQuotes/components/TradeQuoteBadges'
 import { TradeQuoteCard } from '../TradeInput/components/TradeQuotes/components/TradeQuoteCard'
 
+import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import type { RampQuote } from '@/components/Modals/FiatRamps/config'
+import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/config'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -15,7 +16,6 @@ import {
   selectBuyFiatAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
-  selectSellFiatAsset,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -27,31 +27,23 @@ type FiatRampQuoteProps = {
   quote: RampQuote
   isLoading: boolean
   onBack?: () => void
-  fiatCurrency?: string
+  fiatCurrency?: FiatCurrencyItem
   fiatAmount?: string
   direction?: 'buy' | 'sell'
 }
 
 export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
-  ({
-    isActive,
-    isBestRate,
-    isFastest,
-    quote,
-    isLoading,
-    onBack,
-    fiatCurrency,
-    fiatAmount,
-    direction,
-  }) => {
+  ({ isActive, isBestRate, isFastest, quote, isLoading, onBack, fiatCurrency, direction }) => {
     const dispatch = useAppDispatch()
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const buyFiat = useAppSelector(selectBuyFiatAsset)
-    const sellFiat = useAppSelector(selectSellFiatAsset)
 
     const buyAssetMarketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
+    )
+    const sellAssetMarketData = useAppSelector(state =>
+      selectMarketDataByAssetIdUserCurrency(state, sellAsset?.assetId ?? ''),
     )
 
     const buyAmountUserCurrency = useMemo(() => {
@@ -59,6 +51,12 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
         .times(buyAssetMarketData?.price ?? 0)
         .toString()
     }, [quote.amount, buyAssetMarketData])
+
+    const buyAmountCryptoPrecision = useMemo(() => {
+      return bnOrZero(quote.amount)
+        .div(sellAssetMarketData?.price ?? 0)
+        .toString()
+    }, [quote.amount, sellAssetMarketData])
 
     const handleQuoteSelection = useCallback(() => {
       dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(quote))
@@ -71,25 +69,14 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     }, [quote.providerLogo])
 
     const fiatAmountDisplay = useMemo(() => {
-      if (!fiatCurrency || !fiatAmount || !quote.rate) return null
+      if (!fiatCurrency || !quote.rate) return '0'
 
       if (direction === 'buy') {
-        return `${buyAmountUserCurrency} ${sellFiat}`
+        return buyAmountUserCurrency
       }
 
-      const cryptoAmount = quote.amount
-      let calculatedFiatAmount = bnOrZero(cryptoAmount).times(quote.rate).toFixed(2)
-
-      return calculatedFiatAmount
-    }, [
-      fiatCurrency,
-      fiatAmount,
-      quote.rate,
-      quote.amount,
-      direction,
-      sellFiat,
-      buyAmountUserCurrency,
-    ])
+      return quote.amount
+    }, [fiatCurrency, quote.rate, quote.amount, direction, buyAmountUserCurrency])
 
     const headerContent = useMemo(() => {
       return (
@@ -109,27 +96,49 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
       if (direction === 'buy') {
         return (
           <>
-            <Text fontSize='lg' fontWeight='bold' color='text.base'>
-              {quote.amount} {buyAsset.symbol}
-            </Text>
-            <Text fontSize='sm' color='text.subtle'>
-              {fiatAmountDisplay ? `≈ ${fiatAmountDisplay}` : '≈ $0'}
-            </Text>
+            <Amount.Crypto
+              value={quote.amount}
+              symbol={buyAsset.symbol}
+              fontSize='lg'
+              fontWeight='bold'
+              color='text.base'
+              maximumFractionDigits={8}
+              omitDecimalTrailingZeros={true}
+            />
+            <Amount.Fiat value={fiatAmountDisplay} fontSize='sm' color='text.subtle' prefix='≈' />
           </>
         )
       }
 
       return (
         <>
-          <Text fontSize='lg' fontWeight='bold' color='text.base'>
-            {fiatAmountDisplay} {buyFiat}
-          </Text>
-          <Text fontSize='sm' color='text.subtle'>
-            {quote.amount} {sellAsset.symbol}
-          </Text>
+          <Amount.Fiat
+            value={fiatAmountDisplay}
+            fiatType={buyFiat?.code}
+            fontSize='lg'
+            fontWeight='bold'
+            color='text.base'
+          />
+          <Amount.Crypto
+            value={buyAmountCryptoPrecision}
+            symbol={sellAsset.symbol}
+            fontSize='sm'
+            color='text.subtle'
+            fontWeight='bold'
+            maximumFractionDigits={8}
+            omitDecimalTrailingZeros={true}
+          />
         </>
       )
-    }, [quote, buyAsset, sellAsset, direction, fiatAmountDisplay, buyFiat])
+    }, [
+      buyAsset,
+      sellAsset,
+      buyFiat,
+      direction,
+      fiatAmountDisplay,
+      quote.amount,
+      buyAmountCryptoPrecision,
+    ])
 
     const bodyContent = useMemo(() => {
       return (

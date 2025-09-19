@@ -1,3 +1,4 @@
+import { fiatCurrencyObjectsByCode } from '@/components/Modals/FiatRamps/config'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
@@ -317,8 +318,8 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressValid: undefined,
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
-    buyFiatAsset: FiatTypeEnum.USD,
-    sellFiatAsset: FiatTypeEnum.USD,
+    buyFiatAsset: fiatCurrencyObjectsByCode[FiatTypeEnum.USD],
+    sellFiatAsset: fiatCurrencyObjectsByCode[FiatTypeEnum.USD],
     sellFiatAmount: '0',
     slippagePreferencePercentage: undefined,
     selectedFiatRampQuote: null,

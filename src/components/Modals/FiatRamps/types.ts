@@ -8,6 +8,8 @@ export type CreateUrlProps = {
   assetId: AssetId | string
   address: string
   fiatCurrency: string
+  fiatAmount?: string
+  cryptoAmount?: string
   options: {
     language: string
     mode: ColorMode

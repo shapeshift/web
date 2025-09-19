@@ -36,8 +36,8 @@ import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 import { INCREASE_VIEWPORT_BY } from '@/components/AssetSearch/components/AssetList'
 import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from '@/components/ChainMenu'
-import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
-import { fiatCurrencies } from '@/components/Modals/FiatRamps/config'
+import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
+import { fiatCurrencyObjects } from '@/components/Modals/FiatRamps/config'
 import { Text } from '@/components/Text'
 import { FiatRow } from '@/components/TradeAssetSearch/components/FiatRow'
 import { knownChainIds } from '@/constants/chains'
@@ -76,7 +76,7 @@ const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
-  onFiatClick?: (fiat: CommonFiatCurrencies) => void
+  onFiatClick?: (fiat: FiatCurrencyItem) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
@@ -276,13 +276,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const searchFiats = useMemo(() => {
-    return matchSorter(fiatCurrencies, searchString, {
+    return matchSorter(fiatCurrencyObjects, searchString, {
+      keys: ['code', 'name', 'symbol', 'name_plural'],
       threshold: matchSorter.rankings.CONTAINS,
-    })
+    }) as FiatCurrencyItem[]
   }, [searchString])
 
   const handleFiatClick = useCallback(
-    (fiat: CommonFiatCurrencies) => {
+    (fiat: FiatCurrencyItem) => {
       onFiatClick?.(fiat)
     },
     [onFiatClick],
@@ -291,7 +292,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const renferFiatItem = useCallback(
     (index: number) => {
       const fiat = searchFiats[index]
-      return <FiatRow key={fiat} fiat={fiat} onClick={handleFiatClick} />
+      return <FiatRow key={fiat.code} fiat={fiat} onClick={handleFiatClick} />
     },
     [handleFiatClick, searchFiats],
   )

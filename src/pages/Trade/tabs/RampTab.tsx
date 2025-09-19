@@ -7,6 +7,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { RampErrorBoundary } from '@/components/ErrorBoundary/RampErrorBoundary'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampTrade } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTrade'
 import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
@@ -27,7 +28,9 @@ export const RampTab = () => {
   const location = useLocation()
 
   const type = useMemo(() => {
-    return location.pathname.includes(FiatRampRoutePaths.Buy) ? 'buy' : 'sell'
+    return location.pathname.includes(FiatRampRoutePaths.Buy)
+      ? FiatRampAction.Buy
+      : FiatRampAction.Sell
   }, [location.pathname])
 
   const handleChangeTab = useCallback(

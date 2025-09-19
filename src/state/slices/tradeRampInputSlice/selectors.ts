@@ -22,7 +22,6 @@ export const {
   selectInputSellAmountUserCurrency,
   selectSellAssetBalanceCryptoBaseUnit,
   selectIsInputtingFiatSellAmount,
-  selectHasUserEnteredAmount,
   selectInputSellAmountCryptoPrecision,
   selectSelectedSellAssetChainId,
   selectSelectedBuyAssetChainId,
@@ -51,27 +50,33 @@ export const selectSelectedFiatRampQuote = createSelector(
   tradeRampInput => tradeRampInput.selectedFiatRampQuote,
 )
 
-// Calculate buy amount based on selected quote rate and direction
-export const selectCalculatedBuyAmount = createSelector(
-  [selectSelectedFiatRampQuote, selectInputSellAmountCryptoPrecision, selectSellFiatAmount],
-  (selectedQuote, sellAmountCryptoPrecision, sellFiatAmount) => {
+export const selectFiatBuyAmount = createSelector(
+  [selectSelectedFiatRampQuote, selectInputSellAmountCryptoPrecision],
+  (selectedQuote, sellAmountCryptoPrecision) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
     const rate = bnOrZero(selectedQuote.rate)
     const sellAmount = bnOrZero(sellAmountCryptoPrecision)
+
+    return sellAmount.times(rate).toString()
+  },
+)
+
+export const selectCryptoBuyAmount = createSelector(
+  [selectSelectedFiatRampQuote, selectSellFiatAmount],
+  (selectedQuote, sellFiatAmount) => {
+    if (!selectedQuote || !selectedQuote.rate) return '0'
+
+    const rate = bnOrZero(selectedQuote.rate)
     const sellFiatAmountBN = bnOrZero(sellFiatAmount)
 
-    // For buy direction: buy amount = fiat amount / rate
-    // For sell direction: buy amount = crypto amount * rate
-    // We need to determine direction based on which amount is being used
-    if (sellFiatAmountBN.gt(0)) {
-      // User is inputting fiat amount (buy direction)
-      return sellFiatAmountBN.div(rate).toString()
-    } else if (sellAmount.gt(0)) {
-      // User is inputting crypto amount (sell direction)
-      return sellAmount.times(rate).toString()
-    }
-
-    return '0'
+    return sellFiatAmountBN.div(rate).toString()
   },
+)
+
+export const selectHasUserEnteredAmount = createSelector(
+  selectInputSellAmountCryptoPrecision,
+  selectSellFiatAmount,
+  (sellAmountCryptoPrecision, sellFiatAmount) =>
+    bnOrZero(sellAmountCryptoPrecision).gt(0) || bnOrZero(sellFiatAmount).gt(0),
 )

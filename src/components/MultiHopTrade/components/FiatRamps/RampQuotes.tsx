@@ -1,9 +1,13 @@
-import { Skeleton, VStack } from '@chakra-ui/react'
+import { Flex, Skeleton, VStack } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 
 import { FiatRampQuoteCard } from './FiatRampQuoteCard'
 
+import { PathIcon } from '@/components/Icons/PathIcon'
+import { fiatCurrencyObjectsByCode } from '@/components/Modals/FiatRamps/config'
 import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
+import { Text } from '@/components/Text'
+import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
 import { isSome } from '@/lib/utils'
 import {
   selectBuyFiatAsset,
@@ -30,8 +34,12 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const sellFiat = useAppSelector(selectSellFiatAsset)
-  const buyFiat = useAppSelector(selectBuyFiatAsset)
+  const maybeSellFiat = useAppSelector(selectSellFiatAsset)
+  const maybeBuyFiat = useAppSelector(selectBuyFiatAsset)
+
+  const sellFiat = maybeSellFiat ?? fiatCurrencyObjectsByCode[FiatTypeEnum.USD]
+  const buyFiat = maybeBuyFiat ?? fiatCurrencyObjectsByCode[FiatTypeEnum.USD]
+
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
   const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
 
@@ -77,6 +85,22 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
 
   return (
     <VStack spacing={4} p={4} align='stretch'>
+      {!displayQuotes.length ? (
+        <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
+          <Flex
+            maxWidth='300px'
+            textAlign='center'
+            flexDirection='column'
+            justifyContent='center'
+            alignItems='center'
+          >
+            <PathIcon color='subtle' boxSize={10} fill='none' />
+            <Text translation='trade.noQuotesAvailable' mt={2} />
+            <Text translation='trade.noQuotesAvailableDescription' color='text.subtle' />
+          </Flex>
+        </Flex>
+      ) : null}
+
       {displayQuotes.map(quote => (
         <FiatRampQuoteCard
           key={quote.id}
@@ -87,7 +111,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
           isLoading={isLoading}
           onBack={onBack}
           fiatCurrency={sellFiat}
-          fiatAmount={sellFiatAmount}
           direction={direction}
         />
       ))}

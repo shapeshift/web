@@ -5,11 +5,15 @@ import { isAddress, zeroAddress } from 'viem'
 
 import type { GetQuotesProps, RampQuote } from '../../config'
 import { getChainIdFromOnramperNetwork } from './constants'
-import type { Crypto, OnramperBuyQuoteResponse, OnRamperGatewaysResponse } from './types'
+import type {
+  Crypto,
+  OnramperBuyQuote,
+  OnramperBuyQuoteResponse,
+  OnRamperGatewaysResponse,
+} from './types'
 
 import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { getConfig } from '@/config'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // https://docs.onramper.com/reference/get_supported
 export const getSupportedOnramperCurrencies = async () => {
@@ -61,24 +65,20 @@ const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
 
 const convertOnramperQuotesToSingleRampQuote = (
   onramperQuotes: OnramperBuyQuoteResponse,
-  amount: string,
-  direction: 'buy' | 'sell',
 ): RampQuote | null => {
   if (!onramperQuotes || onramperQuotes.length === 0) {
     return null
   }
 
-  // Find the best quote (highest rate for buy, lowest rate for sell)
-  const bestQuote = onramperQuotes.reduce((best, current) => {
-    if (!current.rate || !best.rate) return best
-    return direction === 'buy'
-      ? current.rate > best.rate
-        ? current
-        : best
-      : current.rate < best.rate
-      ? current
-      : best
-  })
+  const bestQuote = onramperQuotes.reduce<OnramperBuyQuote | null>((best, current) => {
+    if (current.errors) return best
+    if (!best) return current
+    if (!current.payout) return best
+
+    return current.payout && best.payout && current.payout > best.payout ? current : best
+  }, null)
+
+  if (!bestQuote) return null
 
   const paymentMethodSupport = aggregatePaymentMethodSupport(onramperQuotes)
 
@@ -87,7 +87,9 @@ const convertOnramperQuotesToSingleRampQuote = (
     provider: 'OnRamper',
     providerLogo: OnRamperLogo,
     rate: bestQuote.rate?.toString() || '0',
-    amount: direction === 'buy' ? bnOrZero(bestQuote.payout).toFixed() : amount,
+    fiatFee: bestQuote.transactionFee?.toString() || '0',
+    networkFee: bestQuote.networkFee?.toString() || '0',
+    amount: bestQuote.payout?.toString() || '0',
     isBestRate: true, // This is the best rate from OnRamper
     isFastest: false, // OnRamper doesn't provide speed information
     ...paymentMethodSupport,
@@ -107,8 +109,8 @@ export const getOnramperQuote = async ({
 
     const url =
       direction === 'buy'
-        ? `${baseUrl}quotes/${fiat.toLowerCase()}/${crypto.toLowerCase()}?amount=${amount}`
-        : `${baseUrl}quotes/${crypto.toLowerCase()}/${fiat.toLowerCase()}?amount=${amount}&type=sell`
+        ? `${baseUrl}quotes/${fiat.code.toLowerCase()}/${crypto.toLowerCase()}?amount=${amount}`
+        : `${baseUrl}quotes/${crypto.toLowerCase()}/${fiat.code.toLowerCase()}?amount=${amount}&type=sell`
 
     const response = await axios.get<OnramperBuyQuoteResponse>(url, {
       headers: {
@@ -116,7 +118,7 @@ export const getOnramperQuote = async ({
       },
     })
 
-    return convertOnramperQuotesToSingleRampQuote(response.data, amount, direction)
+    return convertOnramperQuotesToSingleRampQuote(response.data)
   } catch (e) {
     console.error('Error fetching OnRamper quotes:', e)
     return null

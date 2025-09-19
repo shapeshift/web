@@ -38,9 +38,11 @@ export type FiatCurrencyItem = {
 
 export type RampQuote = {
   id: string
-  provider: string
+  provider: FiatRamp
   // @TODO: enum when we wire up things
   providerLogo?: string
+  fiatFee?: string
+  networkFee?: string
   rate: string
   amount: string
   isBestRate?: boolean
@@ -56,8 +58,23 @@ export type CommonFiatCurrencies = keyof typeof commonFiatCurrencyList
 
 export const fiatCurrencies = Object.keys(commonFiatCurrencyList) as CommonFiatCurrencies[]
 
+export const fiatCurrencyObjects = Object.entries(commonFiatCurrencyList).map(
+  ([code, currency]) => ({
+    ...currency,
+    code,
+  }),
+) as FiatCurrencyItem[]
+
+export const fiatCurrencyObjectsByCode = fiatCurrencyObjects.reduce(
+  (acc, fiat) => {
+    acc[fiat.code] = fiat
+    return acc
+  },
+  {} as Record<string, FiatCurrencyItem>,
+)
+
 export type GetQuotesProps = {
-  fiat: CommonFiatCurrencies
+  fiat: FiatCurrencyItem
   crypto: string
   amount: string
   direction: 'buy' | 'sell'

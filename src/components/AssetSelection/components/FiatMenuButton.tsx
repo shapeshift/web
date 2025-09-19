@@ -5,12 +5,12 @@ import { useCallback, useMemo } from 'react'
 import { AssetRowLoading } from './AssetRowLoading'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
-import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
+import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
 import { getFiatFlagUrl } from '@/constants/fiatLogos'
 
 export type FiatMenuButtonProps = {
-  fiat: CommonFiatCurrencies
-  onFiatClick?: (fiat: CommonFiatCurrencies) => void
+  fiat: FiatCurrencyItem
+  onFiatClick?: (fiat: FiatCurrencyItem) => void
   isDisabled?: boolean
   buttonProps?: ButtonProps
   isLoading?: boolean
@@ -45,7 +45,7 @@ export const FiatMenuButton = ({
       <Flex alignItems='center' gap={2} width='100%' overflow='visible' mx={1}>
         {icon}
         <Text as='span' textOverflow='ellipsis' overflow='hidden'>
-          {fiat}
+          {fiat.code}
         </Text>
       </Flex>
     </Button>

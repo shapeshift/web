@@ -1,16 +1,14 @@
 import type { InputProps } from '@chakra-ui/react'
-import { Box, Flex, Input, Text } from '@chakra-ui/react'
+import { Box, Flex, Input, Skeleton, Text } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 
-import type { CommonFiatCurrencies } from '@/components/Modals/FiatRamps/config'
-import commonFiatCurrencyList from '@/components/Modals/FiatRamps/FiatCurrencyList.json'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
 type FiatInputProps = {
-  selectedFiat?: CommonFiatCurrencies
+  selectedFiat?: FiatCurrencyItem
   amount: string
   placeholder?: string
   label: string
@@ -20,6 +18,7 @@ type FiatInputProps = {
   isReadOnly?: boolean
   quickAmounts?: string[]
   onQuickAmountClick?: (amount: string) => void
+  isLoading?: boolean
 }
 
 const percentHover = {
@@ -66,6 +65,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   isReadOnly = false,
   quickAmounts = ['$100', '$300', '$1,000'],
   onQuickAmountClick,
+  isLoading = false,
 }) => {
   const {
     number: { localeParts },
@@ -74,8 +74,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   const fiatSymbol = useMemo(() => {
     if (!showPrefix) return ''
     if (!selectedFiat) return localeParts.prefix
-    const fiatInfo = commonFiatCurrencyList[selectedFiat as keyof typeof commonFiatCurrencyList]
-    return fiatInfo?.symbol || selectedFiat
+    return selectedFiat.symbol
   }, [selectedFiat, localeParts.prefix, showPrefix])
 
   const handleAmountChange = useCallback(
@@ -125,21 +124,25 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
       <Flex gap={2} alignItems='stretch'>
         <Box flex='1'>
-          <NumberFormat
-            customInput={AmountInput}
-            isNumericString={true}
-            disabled={isReadOnly}
-            prefix={fiatSymbol}
-            suffix={localeParts.postfix}
-            decimalSeparator={localeParts.decimal}
-            inputMode='decimal'
-            thousandSeparator={localeParts.group}
-            placeholder={formattedPlaceholder}
-            value={amount}
-            onValueChange={handleAmountChange}
-            onChange={handleOnChange}
-            decimalScale={2}
-          />
+          {isLoading ? (
+            <Skeleton height='65px' width='100%' />
+          ) : (
+            <NumberFormat
+              customInput={AmountInput}
+              isNumericString={true}
+              disabled={isReadOnly}
+              prefix={fiatSymbol}
+              suffix={localeParts.postfix}
+              decimalSeparator={localeParts.decimal}
+              inputMode='decimal'
+              thousandSeparator={localeParts.group}
+              placeholder={formattedPlaceholder}
+              value={amount}
+              onValueChange={handleAmountChange}
+              onChange={handleOnChange}
+              decimalScale={2}
+            />
+          )}
         </Box>
       </Flex>
 
@@ -164,12 +167,6 @@ export const FiatInput: React.FC<FiatInputProps> = ({
             </Box>
           ))}
         </Flex>
-      )}
-
-      {selectedFiat && selectedFiat !== FiatTypeEnum.USD && amount && (
-        <Text fontSize='xs' color='text.subtle' mt={2} textAlign='right'>
-          ≈ ${amount} USD
-        </Text>
       )}
     </Box>
   )

@@ -7,14 +7,13 @@ import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type { BaseReducers } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 
-import type { CommonFiatCurrencies, RampQuote } from '@/components/Modals/FiatRamps/config'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/config'
 import { localAssetData } from '@/lib/asset-service'
 import type { TradeInputState } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 
 export type TradeRampInputState = {
-  buyFiatAsset: CommonFiatCurrencies
-  sellFiatAsset: CommonFiatCurrencies
+  buyFiatAsset: FiatCurrencyItem | undefined
+  sellFiatAsset: FiatCurrencyItem | undefined
   slippagePreferencePercentage: string | undefined
   buyAsset: Asset
   sellAsset: Asset
@@ -35,8 +34,8 @@ export type TradeRampInputState = {
 const initialState: TradeRampInputState = {
   buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
-  buyFiatAsset: FiatTypeEnum.USD,
-  sellFiatAsset: FiatTypeEnum.USD,
+  buyFiatAsset: undefined,
+  sellFiatAsset: undefined,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',
@@ -62,16 +61,19 @@ export const tradeRampInput = createTradeInputBaseSlice({
     ) => {
       state.sellAssetUtxoChangeAddress = action.payload
     },
-    setBuyFiatAsset: (state: TradeRampInputState, action: PayloadAction<CommonFiatCurrencies>) => {
+    setBuyFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
       state.buyFiatAsset = action.payload
     },
-    setSellFiatAsset: (state: TradeRampInputState, action: PayloadAction<CommonFiatCurrencies>) => {
+    setSellFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
       state.sellFiatAsset = action.payload
     },
     setSellFiatAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
       state.sellFiatAmount = action.payload
     },
-    setSelectedFiatRampQuote: (state: TradeRampInputState, action: PayloadAction<RampQuote | null>) => {
+    setSelectedFiatRampQuote: (
+      state: TradeRampInputState,
+      action: PayloadAction<RampQuote | null>,
+    ) => {
       state.selectedFiatRampQuote = action.payload
     },
   }),

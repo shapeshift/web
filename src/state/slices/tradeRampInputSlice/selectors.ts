@@ -30,14 +30,14 @@ export const {
 
 const { selectBaseSlice } = privateSelectors
 
-export const selectBuyFiatAsset = createSelector(
+export const selectBuyFiatCurrency = createSelector(
   selectBaseSlice,
-  tradeRampInput => tradeRampInput.buyFiatAsset,
+  tradeRampInput => tradeRampInput.buyFiatCurrency,
 )
 
-export const selectSellFiatAsset = createSelector(
+export const selectSellFiatCurrency = createSelector(
   selectBaseSlice,
-  tradeRampInput => tradeRampInput.sellFiatAsset,
+  tradeRampInput => tradeRampInput.sellFiatCurrency,
 )
 
 export const selectSellFiatAmount = createSelector(

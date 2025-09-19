@@ -23,7 +23,7 @@ import { SharedTradeInput } from '@/components/MultiHopTrade/components/SharedTr
 import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -34,7 +34,7 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import {
   selectBuyAccountId,
-  selectBuyFiatAsset,
+  selectBuyFiatCurrency,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
@@ -42,7 +42,7 @@ import {
   selectManualReceiveAddress,
   selectSelectedFiatRampQuote,
   selectSellFiatAmount,
-  selectSellFiatAsset,
+  selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -50,16 +50,16 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 export type FiatRampTradeProps = {
   defaultBuyAssetId?: AssetId
   defaultSellAssetId?: AssetId
-  type: FiatRampAction
+  direction: FiatRampAction
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
-export const FiatRampTrade = memo(({ onChangeTab, type }: FiatRampTradeProps) => {
+export const FiatRampTrade = memo(({ onChangeTab, direction }: FiatRampTradeProps) => {
   const methods = useForm({ mode: 'onChange' })
 
   return (
     <FormProvider {...methods}>
-      <RampRoutes onChangeTab={onChangeTab} type={type} />
+      <RampRoutes onChangeTab={onChangeTab} direction={direction} />
     </FormProvider>
   )
 })
@@ -68,25 +68,27 @@ type RampRoutesProps = {
   isCompact?: boolean
   isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
-  type: FiatRampAction
+  direction: FiatRampAction
 }
 
-const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
+const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const dispatch = useAppDispatch()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const maybeSellFiat = useAppSelector(selectSellFiatAsset)
-  const maybeBuyFiat = useAppSelector(selectBuyFiatAsset)
+  const maybeSellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const maybeBuyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
   const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
 
-  const sellFiat = maybeSellFiat ?? fiatCurrencyObjectsByCode[FiatTypeEnum.USD]
-  const buyFiat = maybeBuyFiat ?? fiatCurrencyObjectsByCode[FiatTypeEnum.USD]
+  const sellFiatCurrency =
+    maybeSellFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
+  const buyFiatCurrency =
+    maybeBuyFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
 
   const assets = useAppSelector(selectAssets)
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
@@ -102,19 +104,19 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
   }, [buyAccountId])
 
   useEffect(() => {
-    if (!maybeSellFiat) {
+    if (!maybeSellFiatCurrency) {
       dispatch(tradeRampInput.actions.setSellFiatAsset(selectedCurrency))
     }
-    if (!maybeBuyFiat) {
+    if (!maybeBuyFiatCurrency) {
       dispatch(tradeRampInput.actions.setBuyFiatAsset(selectedCurrency))
     }
-  }, [maybeSellFiat, maybeBuyFiat, dispatch, selectedCurrency])
+  }, [maybeSellFiatCurrency, maybeBuyFiatCurrency, dispatch, selectedCurrency])
 
   const RampQuotesComponent = useCallback(
     (props: QuotesComponentProps) => {
-      return <RampQuotes direction={type} {...props} />
+      return <RampQuotes direction={direction} {...props} />
     },
-    [type],
+    [direction],
   )
 
   const SideComponent = useCallback(
@@ -181,10 +183,10 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
   )
 
   const quotesQueries = useGetRampQuotes({
-    fiat: type === FiatRampAction.Buy ? sellFiat : buyFiat,
-    assetId: type === FiatRampAction.Buy ? buyAsset.assetId : sellAsset.assetId,
-    amount: type === FiatRampAction.Buy ? sellFiatAmount : sellAmount,
-    direction: type,
+    fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency,
+    assetId: direction === FiatRampAction.Buy ? buyAsset.assetId : sellAsset.assetId,
+    amount: direction === FiatRampAction.Buy ? sellFiatAmount : sellAmountCryptoPrecision,
+    direction,
   })
 
   const isFetchingQuotes = useMemo(() => {
@@ -192,7 +194,7 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
   }, [quotesQueries])
 
   const debouncedSellAmount = useDebounce(
-    type === FiatRampAction.Buy ? sellFiatAmount : sellAmount,
+    direction === FiatRampAction.Buy ? sellFiatAmount : sellAmountCryptoPrecision,
     1000,
   )
 
@@ -204,28 +206,30 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
     dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
     dispatch(tradeRampInput.actions.setSellAmountCryptoPrecision('0'))
     dispatch(tradeRampInput.actions.setSellFiatAmount('0'))
-  }, [type, dispatch])
+  }, [direction, dispatch])
 
   const handleSubmit = useCallback(async () => {
     if (!selectedQuote?.provider) return
 
     const ramp = supportedFiatRamps[selectedQuote.provider]
     const mpData = {
-      action: type,
+      action: direction,
       assetId: getMaybeCompositeAssetSymbol(
-        type === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
+        direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
         assets,
       ),
       ramp: ramp.id,
     }
     getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
     const url = await ramp.onSubmit({
-      action: type,
-      assetId: type === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
+      action: direction,
+      assetId:
+        direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
       address: manualReceiveAddress ?? walletReceiveAddress ?? '',
-      fiatCurrency: type === FiatRampAction.Buy ? sellFiat.code : buyFiat.code,
-      fiatAmount: type === FiatRampAction.Buy ? sellFiatAmount : undefined,
-      cryptoAmount: type === FiatRampAction.Sell ? sellAmount : undefined,
+      fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
+      fiatAmount: direction === FiatRampAction.Buy ? sellFiatAmount : undefined,
+      amountCryptoPrecision:
+        direction === FiatRampAction.Sell ? sellAmountCryptoPrecision : undefined,
       options: {
         language: selectedLocale,
         mode: colorMode,
@@ -236,24 +240,24 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
   }, [
     assets,
     buyAsset?.assetId,
-    buyFiat,
+    buyFiatCurrency,
     colorMode,
     popup,
     selectedLocale,
     sellAsset?.assetId,
-    sellFiat,
-    type,
+    sellFiatCurrency,
+    direction,
     manualReceiveAddress,
     walletReceiveAddress,
     selectedQuote?.provider,
-    sellAmount,
+    sellAmountCryptoPrecision,
     sellFiatAmount,
   ])
 
   const bodyContent = useMemo(
     () => (
       <FiatRampTradeBody
-        type={type}
+        direction={direction}
         onSellAssetChange={handleSellAssetChange}
         onBuyAssetChange={handleBuyAssetChange}
         onSellAmountChange={handleSellAmountChange}
@@ -262,14 +266,14 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
         onSellFiatAmountChange={handleSellFiatAmountChange}
         buyAsset={buyAsset}
         sellAsset={sellAsset}
-        sellAmount={sellAmount}
+        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         buyAmount={selectedQuote?.amount ?? '0'}
         sellFiatAmount={sellFiatAmount}
         isLoading={isFetchingQuotes}
       />
     ),
     [
-      type,
+      direction,
       handleSellAssetChange,
       handleBuyAssetChange,
       handleSellAmountChange,
@@ -278,7 +282,7 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
       handleSellFiatAmountChange,
       buyAsset,
       sellAsset,
-      sellAmount,
+      sellAmountCryptoPrecision,
       sellFiatAmount,
       selectedQuote?.amount,
       isFetchingQuotes,
@@ -293,14 +297,14 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
     if (!selectedQuote?.rate) return '1'
 
     // For buy operations, invert the rate to show "1 BTC = $X" instead of "1 USD = X BTC"
-    if (type === FiatRampAction.Buy) {
+    if (direction === FiatRampAction.Buy) {
       const rate = bnOrZero(selectedQuote.rate)
       if (rate.isZero()) return '1'
       return bnOrZero(1).div(rate).toString()
     }
 
     return selectedQuote.rate
-  }, [selectedQuote?.rate, type])
+  }, [selectedQuote?.rate, direction])
 
   const footerContent = useMemo(() => {
     const baseProps = {
@@ -311,7 +315,9 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
       isLoading: isFetchingQuotes,
       rate: rateValue,
       shouldDisablePreviewButton:
-        !hasUserEnteredAmount || (!sellAsset && !sellFiat) || (!buyAsset && !buyFiat),
+        !hasUserEnteredAmount ||
+        (!sellAsset && !sellFiatCurrency) ||
+        (!buyAsset && !buyFiatCurrency),
       rampName: undefined,
       networkFeeFiatUserCurrency: selectedQuote?.networkFee ?? '0',
       quoteStatusTranslation: 'trade.previewTrade',
@@ -319,13 +325,13 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
       invertRate: false,
     }
 
-    if (type === FiatRampAction.Buy) {
+    if (direction === FiatRampAction.Buy) {
       if (!buyAsset) return null
 
       return (
         <FiatRampTradeFooter
           {...baseProps}
-          type={FiatRampAction.Buy}
+          direction={FiatRampAction.Buy}
           buyAsset={buyAsset}
           icon={rampIcon}
         />
@@ -337,18 +343,18 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
     return (
       <FiatRampTradeFooter
         {...baseProps}
-        type={FiatRampAction.Sell}
+        direction={FiatRampAction.Sell}
         sellAsset={sellAsset}
         sellAccountId={undefined}
         icon={rampIcon}
       />
     )
   }, [
-    type,
+    direction,
     sellAsset,
     buyAsset,
-    sellFiat,
-    buyFiat,
+    sellFiatCurrency,
+    buyFiatCurrency,
     hasUserEnteredAmount,
     rampIcon,
     isFetchingQuotes,
@@ -367,11 +373,13 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
         isLoading={isFetchingQuotes}
         SideComponent={SideComponent}
         shouldOpenSideComponent={Boolean(
-          type === 'buy'
+          direction === FiatRampAction.Buy
             ? sellFiatAmount && sellFiatAmount !== '0'
-            : sellAmount && sellAmount !== '0',
+            : sellAmountCryptoPrecision && sellAmountCryptoPrecision !== '0',
         )}
-        tradeInputTab={type === FiatRampAction.Buy ? TradeInputTab.BuyFiat : TradeInputTab.SellFiat}
+        tradeInputTab={
+          direction === FiatRampAction.Buy ? TradeInputTab.BuyFiat : TradeInputTab.SellFiat
+        }
         tradeInputRef={tradeInputRef}
         onSubmit={handleSubmit}
       />
@@ -381,9 +389,9 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
       bodyContent,
       footerContent,
       SideComponent,
-      type,
+      direction,
       handleSubmit,
-      sellAmount,
+      sellAmountCryptoPrecision,
       sellFiatAmount,
       isFetchingQuotes,
     ],

@@ -12,8 +12,8 @@ import { localAssetData } from '@/lib/asset-service'
 import type { TradeInputState } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 
 export type TradeRampInputState = {
-  buyFiatAsset: FiatCurrencyItem | undefined
-  sellFiatAsset: FiatCurrencyItem | undefined
+  buyFiatCurrency: FiatCurrencyItem | undefined
+  sellFiatCurrency: FiatCurrencyItem | undefined
   slippagePreferencePercentage: string | undefined
   buyAsset: Asset
   sellAsset: Asset
@@ -34,8 +34,8 @@ export type TradeRampInputState = {
 const initialState: TradeRampInputState = {
   buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
-  buyFiatAsset: undefined,
-  sellFiatAsset: undefined,
+  buyFiatCurrency: undefined,
+  sellFiatCurrency: undefined,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',
@@ -62,10 +62,10 @@ export const tradeRampInput = createTradeInputBaseSlice({
       state.sellAssetUtxoChangeAddress = action.payload
     },
     setBuyFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
-      state.buyFiatAsset = action.payload
+      state.buyFiatCurrency = action.payload
     },
     setSellFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
-      state.sellFiatAsset = action.payload
+      state.sellFiatCurrency = action.payload
     },
     setSellFiatAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
       state.sellFiatAmount = action.payload
@@ -78,8 +78,8 @@ export const tradeRampInput = createTradeInputBaseSlice({
     },
   }),
   selectors: {
-    selectBuyFiatAsset: state => state.buyFiatAsset,
-    selectSellFiatAsset: state => state.sellFiatAsset,
+    selectBuyFiatCurrency: state => state.buyFiatCurrency,
+    selectSellFiatCurrency: state => state.sellFiatCurrency,
     selectSellFiatAmount: state => state.sellFiatAmount,
     selectSelectedFiatRampQuote: state => state.selectedFiatRampQuote,
   },

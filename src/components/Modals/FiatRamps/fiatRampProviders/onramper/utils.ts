@@ -33,20 +33,15 @@ export const getSupportedOnramperCurrencies = async () => {
 }
 
 const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
-  const allPaymentMethods = quotes.flatMap(quote => {
+  const allPaymentMethods = quotes.reduce<string[]>((acc, quote) => {
     if (quote.availablePaymentMethods) {
-      return [
-        ...quote.availablePaymentMethods.map(method => method.paymentTypeId),
-        quote.paymentMethod,
-      ]
+      acc.push(...quote.availablePaymentMethods.map(method => method.paymentTypeId))
     }
-
     if (quote.paymentMethod) {
-      return [quote.paymentMethod]
+      acc.push(quote.paymentMethod)
     }
-
-    return []
-  })
+    return acc
+  }, [])
   const supportedMethods = allPaymentMethods.filter(Boolean).map(method => method.toLowerCase())
 
   return {
@@ -88,15 +83,15 @@ const convertOnramperQuotesToSingleRampQuote = (
     fiatFee: bestQuote.transactionFee?.toString() ?? '0',
     networkFee: bestQuote.networkFee?.toString() ?? '0',
     amount: bestQuote.payout?.toString() ?? '0',
-    isBestRate: true, // This is the best rate from OnRamper
-    isFastest: false, // OnRamper doesn't provide speed information
+    // @TODO: when adding another provider, we need to add a way to compare rates
+    isBestRate: true,
     ...paymentMethodSupport,
   }
 }
 
 // https://docs.onramper.com/reference/get_quotes-fiat-crypto
 export const getOnramperQuote = async ({
-  fiat,
+  fiatCurrency,
   crypto,
   amount,
   direction,
@@ -107,8 +102,8 @@ export const getOnramperQuote = async ({
 
     const url =
       direction === 'buy'
-        ? `${baseUrl}quotes/${fiat.code.toLowerCase()}/${crypto.toLowerCase()}?amount=${amount}`
-        : `${baseUrl}quotes/${crypto.toLowerCase()}/${fiat.code.toLowerCase()}?amount=${amount}&type=sell`
+        ? `${baseUrl}quotes/${fiatCurrency.code.toLowerCase()}/${crypto.toLowerCase()}?amount=${amount}`
+        : `${baseUrl}quotes/${crypto.toLowerCase()}/${fiatCurrency.code.toLowerCase()}?amount=${amount}&type=sell`
 
     const response = await axios.get<OnramperBuyQuoteResponse>(url, {
       headers: {

@@ -8,19 +8,25 @@ import {
   findOnramperTokenIdByAssetId,
   getSupportedOnramperCurrencies,
 } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
+import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch } from '@/state/store'
 
 type UseGetRampQuotesProps = {
-  fiat: FiatCurrencyItem
+  fiatCurrency: FiatCurrencyItem
   assetId: AssetId
   amount: string
-  direction: 'buy' | 'sell'
+  direction: FiatRampAction
 }
 
-export const useGetRampQuotes = ({ fiat, assetId, amount, direction }: UseGetRampQuotesProps) => {
+export const useGetRampQuotes = ({
+  fiatCurrency,
+  assetId,
+  amount,
+  direction,
+}: UseGetRampQuotesProps) => {
   const { data: ramps } = useGetFiatRampsQuery()
   const dispatch = useAppDispatch()
 
@@ -36,8 +42,8 @@ export const useGetRampQuotes = ({ fiat, assetId, amount, direction }: UseGetRam
   const queryKey = useMemo(() => {
     dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
 
-    return ['rampQuote', fiat, assetId, debouncedAmount, direction, onramperCurrencies]
-  }, [fiat, assetId, debouncedAmount, direction, onramperCurrencies, dispatch])
+    return ['rampQuote', fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies]
+  }, [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies, dispatch])
 
   const supportedRamps = useMemo(() => {
     if (!ramps?.byAssetId[assetId]?.[direction]) return []
@@ -57,7 +63,7 @@ export const useGetRampQuotes = ({ fiat, assetId, amount, direction }: UseGetRam
               if (!crypto) throw new Error('Asset not found')
 
               return fiatRamp.getQuotes?.({
-                fiat,
+                fiatCurrency,
                 crypto,
                 amount,
                 direction,
@@ -66,7 +72,7 @@ export const useGetRampQuotes = ({ fiat, assetId, amount, direction }: UseGetRam
               if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
 
               return fiatRamp.getQuotes?.({
-                fiat,
+                fiatCurrency,
                 crypto: assetId,
                 amount,
                 direction,

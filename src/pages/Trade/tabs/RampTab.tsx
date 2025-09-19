@@ -66,7 +66,7 @@ export const RampTab = () => {
   const buyElement = useMemo(
     () => (
       <RampErrorBoundary>
-        <FiatRampTrade type={type} onChangeTab={handleChangeTab} />
+        <FiatRampTrade direction={type} onChangeTab={handleChangeTab} />
       </RampErrorBoundary>
     ),
     [handleChangeTab, type],

@@ -56,7 +56,7 @@ const generateSignature = async (data: string): Promise<string> => {
 export const createOnRamperUrl = async ({
   action,
   assetId,
-  cryptoAmount,
+  amountCryptoPrecision,
   address,
   fiatCurrency,
   fiatAmount,
@@ -100,8 +100,8 @@ export const createOnRamperUrl = async ({
     params.set('sell_defaultFiat', fiatCurrency)
     params.set('sell_onlyCryptos', onRamperSymbols.join(','))
 
-    if (cryptoAmount) {
-      params.set('sell_defaultAmount', cryptoAmount)
+    if (amountCryptoPrecision) {
+      params.set('sell_defaultAmount', amountCryptoPrecision)
     }
   } else {
     params.set('mode', 'buy')

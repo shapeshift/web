@@ -2,7 +2,7 @@ import { fiatCurrencyObjectsByCode } from '@/components/Modals/FiatRamps/config'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import type { ReduxState } from '@/state/reducer'
 import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
@@ -319,8 +319,8 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressValid: undefined,
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
-    buyFiatAsset: fiatCurrencyObjectsByCode[FiatTypeEnum.USD],
-    sellFiatAsset: fiatCurrencyObjectsByCode[FiatTypeEnum.USD],
+    buyFiatAsset: fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD],
+    sellFiatAsset: fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD],
     sellFiatAmount: '0',
     slippagePreferencePercentage: undefined,
     selectedFiatRampQuote: null,

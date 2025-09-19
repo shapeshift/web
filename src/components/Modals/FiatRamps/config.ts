@@ -39,14 +39,12 @@ export type FiatCurrencyItem = {
 export type RampQuote = {
   id: string
   provider: FiatRamp
-  // @TODO: enum when we wire up things
   providerLogo?: string
   fiatFee?: string
   networkFee?: string
   rate: string
   amount: string
   isBestRate?: boolean
-  isFastest?: boolean
   isCreditCard?: boolean
   isBankTransfer?: boolean
   isApplePay?: boolean
@@ -74,7 +72,7 @@ export const fiatCurrencyObjectsByCode = fiatCurrencyObjects.reduce(
 )
 
 export type GetQuotesProps = {
-  fiat: FiatCurrencyItem
+  fiatCurrency: FiatCurrencyItem
   crypto: string
   amount: string
   direction: 'buy' | 'sell'

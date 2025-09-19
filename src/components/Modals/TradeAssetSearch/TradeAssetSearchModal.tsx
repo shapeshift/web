@@ -36,7 +36,7 @@ type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onAssetClick,
-  onFiatClick,
+  onSelectFiatCurrency,
   close,
   isOpen,
   allowWalletUnsupportedAssets,
@@ -58,12 +58,12 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
     [close, onAssetClick],
   )
 
-  const handleFiatClick = useCallback(
+  const handleSelectFiat = useCallback(
     (fiat: FiatCurrencyItem) => {
-      onFiatClick?.(fiat)
+      onSelectFiatCurrency?.(fiat)
       close()
     },
-    [onFiatClick, close],
+    [onSelectFiatCurrency, close],
   )
 
   return (
@@ -76,7 +76,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       </DialogHeader>
       <TradeAssetSearch
         onAssetClick={handleAssetClick}
-        onFiatClick={handleFiatClick}
+        onSelectFiatCurrency={handleSelectFiat}
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}

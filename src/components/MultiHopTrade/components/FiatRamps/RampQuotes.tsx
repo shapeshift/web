@@ -5,18 +5,19 @@ import { FiatRampQuoteCard } from './FiatRampQuoteCard'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
 import { fiatCurrencyObjectsByCode } from '@/components/Modals/FiatRamps/config'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
 import { Text } from '@/components/Text'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { isSome } from '@/lib/utils'
 import {
-  selectBuyFiatAsset,
+  selectBuyFiatCurrency,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectSelectedFiatRampQuote,
   selectSellFiatAmount,
-  selectSellFiatAsset,
+  selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -26,7 +27,7 @@ export type PaymentMethod = 'Card' | 'Bank Transfer' | 'Apple Pay' | 'Google Pay
 type RampQuotesProps = {
   isLoading?: boolean
   onBack?: () => void
-  direction: 'buy' | 'sell'
+  direction: FiatRampAction
 }
 
 export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBack, direction }) => {
@@ -34,22 +35,24 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const maybeSellFiat = useAppSelector(selectSellFiatAsset)
-  const maybeBuyFiat = useAppSelector(selectBuyFiatAsset)
+  const maybeSellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const maybeBuyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
-  const sellFiat = maybeSellFiat ?? fiatCurrencyObjectsByCode[FiatTypeEnum.USD]
-  const buyFiat = maybeBuyFiat ?? fiatCurrencyObjectsByCode[FiatTypeEnum.USD]
+  const sellFiatCurrency =
+    maybeSellFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
+  const buyFiatCurrency =
+    maybeBuyFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
 
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
   const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
 
   const quoteAmount = useMemo(() => {
-    return direction === 'buy' ? sellFiatAmount : sellAmount
+    return direction === FiatRampAction.Buy ? sellFiatAmount : sellAmount
   }, [direction, sellAmount, sellFiatAmount])
 
   const quotesQueries = useGetRampQuotes({
-    fiat: direction === 'buy' ? sellFiat : buyFiat,
-    assetId: direction === 'buy' ? buyAsset.assetId : sellAsset.assetId,
+    fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency,
+    assetId: direction === FiatRampAction.Buy ? buyAsset.assetId : sellAsset.assetId,
     amount: quoteAmount,
     direction,
   })
@@ -106,11 +109,10 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
           key={quote.id}
           isActive={selectedQuote?.id === quote.id}
           isBestRate={quote.isBestRate}
-          isFastest={quote.isFastest}
           quote={quote}
           isLoading={isLoading}
           onBack={onBack}
-          fiatCurrency={sellFiat}
+          fiatCurrency={sellFiatCurrency}
           direction={direction}
         />
       ))}

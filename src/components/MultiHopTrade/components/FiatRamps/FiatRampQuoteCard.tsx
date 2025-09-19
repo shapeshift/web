@@ -8,12 +8,13 @@ import { TradeQuoteCard } from '../TradeInput/components/TradeQuotes/components/
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/config'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectBuyFiatAsset,
+  selectBuyFiatCurrency,
   selectInputBuyAsset,
   selectInputSellAsset,
 } from '@/state/slices/tradeRampInputSlice/selectors'
@@ -23,21 +24,20 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 type FiatRampQuoteProps = {
   isActive: boolean
   isBestRate?: boolean
-  isFastest?: boolean
   quote: RampQuote
   isLoading: boolean
   onBack?: () => void
   fiatCurrency?: FiatCurrencyItem
   fiatAmount?: string
-  direction?: 'buy' | 'sell'
+  direction?: FiatRampAction
 }
 
 export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
-  ({ isActive, isBestRate, isFastest, quote, isLoading, onBack, fiatCurrency, direction }) => {
+  ({ isActive, isBestRate, quote, isLoading, onBack, fiatCurrency, direction }) => {
     const dispatch = useAppDispatch()
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
-    const buyFiat = useAppSelector(selectBuyFiatAsset)
+    const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
     const buyAssetMarketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
@@ -71,7 +71,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     const fiatAmountDisplay = useMemo(() => {
       if (!fiatCurrency || !quote.rate) return '0'
 
-      if (direction === 'buy') {
+      if (direction === FiatRampAction.Buy) {
         return buyAmountUserCurrency
       }
 
@@ -84,16 +84,15 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
           <Box ml='auto'>
             <TradeQuoteBadges
               isBestRate={isBestRate}
-              isFastest={isFastest}
               quoteDisplayOption={QuoteDisplayOption.Basic}
             />
           </Box>
         </Flex>
       )
-    }, [isBestRate, isFastest])
+    }, [isBestRate])
 
     const amounts = useMemo(() => {
-      if (direction === 'buy') {
+      if (direction === FiatRampAction.Buy) {
         return (
           <>
             <Amount.Crypto
@@ -114,7 +113,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
         <>
           <Amount.Fiat
             value={fiatAmountDisplay}
-            fiatType={buyFiat?.code}
+            fiatType={buyFiatCurrency?.code}
             fontSize='lg'
             fontWeight='bold'
             color='text.base'
@@ -133,7 +132,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     }, [
       buyAsset,
       sellAsset,
-      buyFiat,
+      buyFiatCurrency,
       direction,
       fiatAmountDisplay,
       quote.amount,

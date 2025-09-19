@@ -8,7 +8,7 @@ import { useCallback, useMemo } from 'react'
 // import { ReceiveSummary } from './components/ReceiveSummary'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import type { FiatRamp } from '@/components/Modals/FiatRamps/config'
-import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
 import { Text } from '@/components/Text'
@@ -17,17 +17,15 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectBuyAccountId,
-  selectBuyFiatAsset,
+  selectBuyFiatCurrency,
   selectManualReceiveAddress,
   selectSelectedFiatRampQuote,
-  selectSellFiatAsset,
+  selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type FiatRampTradeFooterProps = {
-  affiliateBps: string
-  affiliateFeeAfterDiscountUserCurrency: string | undefined
   children?: JSX.Element
   hasUserEnteredAmount: boolean
   isError: boolean
@@ -43,13 +41,13 @@ type FiatRampTradeFooterProps = {
   icon: React.ReactNode
 } & (
   | {
-      type: FiatRampAction.Buy
+      direction: FiatRampAction.Buy
       buyAsset: Asset
       sellAsset?: never
       sellAccountId?: never
     }
   | {
-      type: FiatRampAction.Sell
+      direction: FiatRampAction.Sell
       sellAsset: Asset
       sellAccountId: string | undefined
       buyAsset?: never
@@ -63,7 +61,6 @@ const footerBgProp = {
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const FiatRampTradeFooter = ({
-  affiliateBps,
   children,
   hasUserEnteredAmount,
   isError,
@@ -76,15 +73,15 @@ export const FiatRampTradeFooter = ({
   invertRate,
   noExpand,
   quoteStatusTranslation,
-  type,
+  direction,
   icon,
   ...props
 }: FiatRampTradeFooterProps) => {
   const buyAsset = 'buyAsset' in props ? props.buyAsset : undefined
   const sellAsset = 'sellAsset' in props ? props.sellAsset : undefined
   const sellAccountId = 'sellAccountId' in props ? props.sellAccountId : undefined
-  const sellFiat = useAppSelector(selectSellFiatAsset)
-  const buyFiat = useAppSelector(selectBuyFiatAsset)
+  const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
@@ -100,8 +97,8 @@ export const FiatRampTradeFooter = ({
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const isLoading = useMemo(() => {
-    return isParentLoading || (!buyAssetFeeAsset && type === 'buy')
-  }, [buyAssetFeeAsset, isParentLoading, type])
+    return isParentLoading || (!buyAssetFeeAsset && direction === FiatRampAction.Buy)
+  }, [buyAssetFeeAsset, isParentLoading, direction])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -187,10 +184,16 @@ export const FiatRampTradeFooter = ({
       >
         {hasUserEnteredAmount && selectedQuote && !isLoading && (
           <RateGasRow
-            affiliateBps={affiliateBps}
-            buyAssetSymbol={type === 'buy' && buyAsset ? buyAsset.symbol : buyFiat?.code ?? 'USD'}
+            affiliateBps={'0'}
+            buyAssetSymbol={
+              direction === FiatRampAction.Buy && buyAsset
+                ? buyAsset.symbol
+                : buyFiatCurrency?.code ?? 'USD'
+            }
             sellAssetSymbol={
-              type === 'buy' && sellFiat ? sellFiat.code : sellAsset?.symbol ?? 'USD'
+              direction === FiatRampAction.Buy && sellFiatCurrency
+                ? sellFiatCurrency.code
+                : sellAsset?.symbol ?? 'USD'
             }
             rate={rate}
             deltaPercentage={deltaPercentage?.toString()}
@@ -214,7 +217,7 @@ export const FiatRampTradeFooter = ({
         borderBottomRadius='xl'
         width='full'
       >
-        {type === 'buy' && buyAsset && (
+        {direction === FiatRampAction.Buy && buyAsset && (
           <SharedRecipientAddress
             buyAsset={buyAsset}
             isWalletReceiveAddressLoading={false}

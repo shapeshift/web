@@ -76,7 +76,7 @@ const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
-  onFiatClick?: (fiat: FiatCurrencyItem) => void
+  onSelectFiatCurrency?: (fiat: FiatCurrencyItem) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
@@ -93,7 +93,7 @@ const components = { TopItemList, Footer }
 
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
-  onFiatClick,
+  onSelectFiatCurrency,
   formProps,
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
@@ -275,7 +275,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [searchString, handleSearchChange, translate],
   )
 
-  const searchFiats = useMemo(() => {
+  const searchFiatCurrencies = useMemo(() => {
     return matchSorter(fiatCurrencyObjects, searchString, {
       keys: ['code', 'name', 'symbol', 'name_plural'],
       threshold: matchSorter.rankings.CONTAINS,
@@ -284,17 +284,17 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const handleFiatClick = useCallback(
     (fiat: FiatCurrencyItem) => {
-      onFiatClick?.(fiat)
+      onSelectFiatCurrency?.(fiat)
     },
-    [onFiatClick],
+    [onSelectFiatCurrency],
   )
 
   const renferFiatItem = useCallback(
     (index: number) => {
-      const fiat = searchFiats[index]
+      const fiat = searchFiatCurrencies[index]
       return <FiatRow key={fiat.code} fiat={fiat} onClick={handleFiatClick} />
     },
-    [handleFiatClick, searchFiats],
+    [handleFiatClick, searchFiatCurrencies],
   )
 
   const listContent = useMemo(() => {
@@ -302,10 +302,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       return (
         <Box p={4}>
           <Text translation='common.fiat' mb={2} />
-          {searchFiats.length > 0 ? (
+          {searchFiatCurrencies.length > 0 ? (
             <Virtuoso
               className='scroll-container'
-              data={searchFiats}
+              data={searchFiatCurrencies}
               itemContent={renferFiatItem}
               style={style}
               overscan={1000}
@@ -369,10 +369,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             </TabPanel>
 
             <TabPanel px={2} py={0} height='100%' pt={2}>
-              {searchFiats.length > 0 ? (
+              {searchFiatCurrencies.length > 0 ? (
                 <Virtuoso
                   className='scroll-container'
-                  data={searchFiats}
+                  data={searchFiatCurrencies}
                   itemContent={renferFiatItem}
                   style={style}
                   overscan={1000}
@@ -428,7 +428,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     portfolioAssetsSortedByBalanceForChain,
     workerSearchState,
     renferFiatItem,
-    searchFiats,
+    searchFiatCurrencies,
     searchString,
     showFiatTab,
     showAssetTab,

@@ -9,7 +9,7 @@ export type CreateUrlProps = {
   address: string
   fiatCurrency: string
   fiatAmount?: string
-  cryptoAmount?: string
+  amountCryptoPrecision?: string
   options: {
     language: string
     mode: ColorMode

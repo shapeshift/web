@@ -7,8 +7,13 @@ import NumberFormat from 'react-number-format'
 import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 
+type QuickAmount = {
+  formattedAmount: string
+  value: string
+}
+
 type FiatInputProps = {
-  selectedFiat?: FiatCurrencyItem
+  selectedFiatCurrency?: FiatCurrencyItem
   amount: string
   placeholder?: string
   label: string
@@ -16,7 +21,7 @@ type FiatInputProps = {
   labelPostFix?: React.ReactNode
   showPrefix?: boolean
   isReadOnly?: boolean
-  quickAmounts?: string[]
+  quickAmounts?: QuickAmount[]
   onQuickAmountClick?: (amount: string) => void
   isLoading?: boolean
 }
@@ -55,7 +60,7 @@ const AmountInput = (props: InputProps) => {
 }
 
 export const FiatInput: React.FC<FiatInputProps> = ({
-  selectedFiat,
+  selectedFiatCurrency,
   amount,
   placeholder,
   label,
@@ -63,7 +68,20 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   labelPostFix,
   showPrefix = true,
   isReadOnly = false,
-  quickAmounts = ['$100', '$300', '$1,000'],
+  quickAmounts = [
+    {
+      amount: '$100',
+      value: '100',
+    },
+    {
+      amount: '$300',
+      value: '300',
+    },
+    {
+      amount: '$1,000',
+      value: '1000',
+    },
+  ],
   onQuickAmountClick,
   isLoading = false,
 }) => {
@@ -73,36 +91,24 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
   const fiatSymbol = useMemo(() => {
     if (!showPrefix) return ''
-    if (!selectedFiat) return localeParts.prefix
-    return selectedFiat.symbol
-  }, [selectedFiat, localeParts.prefix, showPrefix])
+    if (!selectedFiatCurrency) return localeParts.prefix
+    return selectedFiatCurrency.symbol
+  }, [selectedFiatCurrency, localeParts.prefix, showPrefix])
 
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
       if (onAmountChange) {
-        const cleanValue = values.value.replace(fiatSymbol, '').replace(/,/g, '')
-        onAmountChange(cleanValue)
+        onAmountChange(values.value)
       }
     },
-    [onAmountChange, fiatSymbol],
-  )
-
-  const handleOnChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (onAmountChange) {
-        const cleanValue = e.target.value.replace(fiatSymbol, '').replace(/,/g, '')
-        onAmountChange(cleanValue)
-      }
-    },
-    [onAmountChange, fiatSymbol],
+    [onAmountChange],
   )
 
   const handleQuickAmountClick = useCallback(
     (quickAmount: string) => () => {
-      const cleanAmount = quickAmount.replace(fiatSymbol, '').replace(/,/g, '')
-      onQuickAmountClick?.(cleanAmount)
+      onQuickAmountClick?.(quickAmount)
     },
-    [onQuickAmountClick, fiatSymbol],
+    [onQuickAmountClick],
   )
 
   const formattedPlaceholder = useMemo(() => {
@@ -110,7 +116,10 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   }, [placeholder, fiatSymbol])
 
   const formattedQuickAmounts = useMemo(() => {
-    return quickAmounts.map(amount => `${fiatSymbol}${amount.replace('$', '')}`)
+    return quickAmounts.map(amount => ({
+      formattedAmount: `${fiatSymbol}${amount.value.replace('$', '')}`,
+      value: amount.value,
+    }))
   }, [quickAmounts, fiatSymbol])
 
   return (
@@ -139,7 +148,6 @@ export const FiatInput: React.FC<FiatInputProps> = ({
               placeholder={formattedPlaceholder}
               value={amount}
               onValueChange={handleAmountChange}
-              onChange={handleOnChange}
               decimalScale={2}
             />
           )}
@@ -150,8 +158,8 @@ export const FiatInput: React.FC<FiatInputProps> = ({
         <Flex gap={4} mt={4} justifyContent='center'>
           {formattedQuickAmounts.map(quickAmount => (
             <Box
-              key={quickAmount}
-              onClick={handleQuickAmountClick(quickAmount)}
+              key={quickAmount.value}
+              onClick={handleQuickAmountClick(quickAmount.value)}
               cursor='pointer'
               px={2}
               py={1}
@@ -163,7 +171,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
               transition='all 0.2s'
               _hover={percentHover}
             >
-              {quickAmount}
+              {quickAmount.formattedAmount}
             </Box>
           ))}
         </Flex>

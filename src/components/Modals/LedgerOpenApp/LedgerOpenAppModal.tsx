@@ -11,8 +11,9 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { getLedgerAppName, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isThorMayaChainId } from 'packages/chain-adapters/src/cosmossdk/thorchain'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -32,6 +33,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
 
   const appName = useMemo(() => {
@@ -40,8 +42,10 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
 
   const appAsset = useMemo(() => {
     if (isEvmChainId(chainId)) return ethAsset
+    if (isThorMayaChainId(chainId)) return thorchainAsset
+
     return feeAsset
-  }, [feeAsset, chainId, ethAsset])
+  }, [feeAsset, chainId, ethAsset, thorchainAsset])
 
   const handleClose = useCallback(() => {
     closeModal()

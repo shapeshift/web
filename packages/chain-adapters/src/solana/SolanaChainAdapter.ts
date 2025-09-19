@@ -66,10 +66,7 @@ import type {
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath, verifyLedgerAppOpen } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
-import {
-  SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER,
-  SOLANA_MINIMUM_INSTRUCTION_COUNT,
-} from './constants'
+import { SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER } from './constants'
 import { isToken2022AccountInfo } from './types'
 import { microLamportsToLamports } from './utils'
 
@@ -402,6 +399,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const { sendMax, chainSpecific } = input
       const { instructions } = chainSpecific
 
+
       const serializedTx = await this.buildEstimationSerializedTx(input)
       const baseComputeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
@@ -411,10 +409,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
         : baseComputeUnits
 
-      const isSolTransfer = !chainSpecific.tokenId
-      const instructionCount = isSolTransfer
-        ? 0
-        : Math.max(instructions?.length ?? 0, SOLANA_MINIMUM_INSTRUCTION_COUNT)
+      // Honor instructions when provided, use baseFee fallback when missing
+      const hasInstructions = instructions && instructions.length > 0
+      const instructionCount = hasInstructions ? instructions.length : 0
 
       return {
         fast: {

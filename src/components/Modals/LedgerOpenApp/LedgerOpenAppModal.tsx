@@ -12,8 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { getLedgerAppName, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isThorMayaChainId } from 'packages/chain-adapters/src/cosmossdk/thorchain'
+import { getLedgerAppName, isEvmChainId, isThorMayaChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 

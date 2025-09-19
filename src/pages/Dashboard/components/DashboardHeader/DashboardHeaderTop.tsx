@@ -17,12 +17,15 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -110,6 +113,15 @@ export const DashboardHeaderTop = memo(() => {
   const assetId = useRouteAssetId()
   const accountId = useRouteAccountId()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+
+  // Either wallet is physically connected, or it's a Ledger in read-only mode
+  const canDisplayWalletActions = useMemo(
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
+  )
 
   const navigate = useNavigate()
   const send = useModal('send')
@@ -163,23 +175,30 @@ export const DashboardHeaderTop = memo(() => {
           icon={buyIcon}
           label={translate('fiatRamps.buy')}
           onClick={handleBuyClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
         <MobileActionButton
           icon={sendIcon}
           label={translate('common.send')}
           onClick={handleSendClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
         <MobileActionButton
           icon={receiveIcon}
           label={translate('common.receive')}
           onClick={handleReceiveClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
       </Flex>
     ),
-    [handleTradeClick, handleBuyClick, handleSendClick, handleReceiveClick, isConnected, translate],
+    [
+      handleTradeClick,
+      handleBuyClick,
+      handleSendClick,
+      handleReceiveClick,
+      canDisplayWalletActions,
+      translate,
+    ],
   )
 
   const desktopButtons = useMemo(
@@ -191,13 +210,25 @@ export const DashboardHeaderTop = memo(() => {
         justifyContent={'center'}
         display={desktopButtonGroupDisplay}
       >
-        <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleQrCodeClick}
+          leftIcon={qrCodeIcon}
+        >
           {translate('modals.send.qrCode')}
         </Button>
-        <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={arrowUpIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleSendClick}
+          leftIcon={arrowUpIcon}
+        >
           {translate('common.send')}
         </Button>
-        <Button isDisabled={!isConnected} onClick={handleReceiveClick} leftIcon={arrowDownIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleReceiveClick}
+          leftIcon={arrowDownIcon}
+        >
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>
@@ -210,7 +241,7 @@ export const DashboardHeaderTop = memo(() => {
       handleSendClick,
       handleReceiveClick,
       handleTradeClick,
-      isConnected,
+      canDisplayWalletActions,
       translate,
     ],
   )

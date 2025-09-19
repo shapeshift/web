@@ -10,8 +10,7 @@ export enum TradeRoutePaths {
 
 export type GetReceiveAddressArgs = {
   asset: Asset
-  wallet: HDWallet
-  deviceId: string
+  wallet: HDWallet | null
   accountMetadata: AccountMetadata
   pubKey?: string
 }

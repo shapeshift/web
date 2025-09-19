@@ -113,6 +113,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
       if (pubKey) return pubKey
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 

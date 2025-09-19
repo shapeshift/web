@@ -209,16 +209,14 @@ export const useLendingQuoteOpenQuery = ({
     selectMarketDataByAssetIdUserCurrency(state, _borrowAssetId),
   )
 
-  const getBorrowAssetReceiveAddress = useCallback(async () => {
+  const getBorrowAssetReceiveAddress = useCallback(() => {
     if (!wallet || !_borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
 
-    const deviceId = await wallet.getDeviceID()
     const pubKey = isLedger(wallet) ? fromAccountId(_borrowAccountId).account : undefined
 
     return getReceiveAddress({
       asset: borrowAsset,
       wallet,
-      deviceId,
       accountMetadata: destinationAccountMetadata,
       pubKey,
     })

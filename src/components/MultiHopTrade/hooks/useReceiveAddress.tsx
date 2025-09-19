@@ -21,9 +21,17 @@ export const getReceiveAddress = async ({
   const { chainId } = fromAssetId(asset.assetId)
   const { accountType, bip44Params } = accountMetadata
   const chainAdapter = getChainAdapterManager().get(chainId)
-  if (!(chainAdapter && wallet)) return
+  if (!chainAdapter) return
+  if (!(wallet || pubKey)) return
+
   const { accountNumber } = bip44Params
-  const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType, pubKey })
+
+  const address = await chainAdapter.getAddress({
+    wallet,
+    accountNumber,
+    accountType,
+    pubKey,
+  })
   return address
 }
 
@@ -36,7 +44,7 @@ export const useReceiveAddress = ({
   buyAccountId: AccountId | undefined
   buyAsset: Asset | undefined
 }) => {
-  const { wallet, deviceId } = useWallet().state
+  const { wallet } = useWallet().state
   const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
@@ -57,17 +65,18 @@ export const useReceiveAddress = ({
     queryKey: [
       'receiveAddress',
       buyAsset?.assetId,
-      deviceId,
       // IMPORTANT: Required to invalidate query cache when changing wallet - different ledgers can
       // have the same deviceId.
+      // Note, we don't use `deviceId` here as it's not guaranteed to be present (e.g disconnected Ledger),
+      // and sell/buy AccountIds are enough of discriminators
       sellAccountId,
       buyAccountId,
     ],
     queryFn:
-      !isInitializing && buyAsset && wallet && buyAccountId && buyAccountMetadata && deviceId
+      !isInitializing && buyAsset && wallet && buyAccountId && buyAccountMetadata
         ? async () => {
             // Already partially covered in isInitializing, but TypeScript lyfe mang.
-            if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata || !deviceId) {
+            if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
               return null
             }
 
@@ -92,7 +101,6 @@ export const useReceiveAddress = ({
               asset: buyAsset,
               wallet,
               accountMetadata: buyAccountMetadata,
-              deviceId,
               pubKey: shouldFetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
             })
 

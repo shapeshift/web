@@ -22,7 +22,11 @@ import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
 import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
@@ -44,6 +48,8 @@ const ConnectedMenu = memo(
     const { navigateToRoute } = useMenuRoutes()
     const translate = useTranslate()
     const settings = useModal('settings')
+    const walletType = useAppSelector(selectWalletType)
+    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
     const ConnectMenuComponent = useMemo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
@@ -63,6 +69,8 @@ const ConnectedMenu = memo(
     }, [onClose, settings])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
+    const isLedger = walletType === KeyManager.Ledger
+    const showLedgerDisconnectedState = !isConnected && isLedger && isLedgerReadOnlyEnabled
 
     return (
       <>
@@ -74,16 +82,31 @@ const ConnectedMenu = memo(
               onClick={handleClick}
               icon={menuItemIcon}
             >
-              <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-                <RawText>{walletInfo?.name}</RawText>
-                {!isConnected && (
+              <Flex
+                flexDir='column'
+                justifyContent='flex-start'
+                alignItems='flex-start'
+                width='100%'
+              >
+                <Flex flexDir='row' justifyContent='space-between' alignItems='center' width='100%'>
+                  <RawText>{walletInfo?.name}</RawText>
+                  {connectedWalletMenuRoutes && <ChevronRightIcon />}
+                </Flex>
+                {showLedgerDisconnectedState && (
+                  <Text
+                    translation={'connectWallet.menu.walletNotConnected'}
+                    fontSize='xs'
+                    color='yellow.500'
+                    mt={1}
+                  />
+                )}
+                {!isConnected && !isLedger && (
                   <Text
                     translation={'connectWallet.menu.disconnected'}
                     fontSize='sm'
                     color='yellow.500'
                   />
                 )}
-                {connectedWalletMenuRoutes && <ChevronRightIcon />}
               </Flex>
             </MenuItem>
           ) : (

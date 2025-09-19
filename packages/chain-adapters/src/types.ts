@@ -267,7 +267,7 @@ export interface TxHistoryInput {
 }
 
 export type GetAddressInputBase = {
-  wallet: HDWallet
+  wallet: HDWallet | null
   accountNumber: number
   isChange?: boolean
   addressIndex?: number

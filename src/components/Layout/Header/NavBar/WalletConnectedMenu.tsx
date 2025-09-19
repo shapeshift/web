@@ -75,15 +75,26 @@ const ConnectedMenu = memo(
     }, [onClose, settings])
 
     const handleReconnectWallet = useCallback(() => {
-      // Default to metamask connect route for most wallets
-      const route = '/metamask/connect'
+      let route: string
+
+      switch (walletType) {
+        case KeyManager.KeepKey:
+          route = '/keepkey/connect'
+          break
+        case KeyManager.Ledger:
+          route = '/ledger/connect'
+          break
+        default:
+          route = '/metamask/connect' // MIPD/MetaMask wallets
+      }
+
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
         payload: route,
       })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       onClose?.()
-    }, [dispatch, onClose])
+    }, [dispatch, onClose, walletType])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isLedger = walletType === KeyManager.Ledger
@@ -142,7 +153,7 @@ const ConnectedMenu = memo(
         <MenuDivider />
         <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
-          {!isConnected && (
+          {!isConnected && !isLedger && (
             <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
               {translate('connectWallet.menu.reconnectWallet')}
             </MenuItem>

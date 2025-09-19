@@ -4,6 +4,7 @@ import {
   fromAccountId,
   fromChainId,
   rujiAssetId,
+  solAssetId,
   tcyAssetId,
   thorchainAssetId,
   thorchainChainId,
@@ -241,17 +242,25 @@ export const handleSend = async ({
 
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
+      // Blind signing is bad mkay: don't slap complex instruction in simple SOL transfers
+      // This will make the Txs have more instructions than they should, and will fail in some wallets
+      // e.g Ledger without blind signing enabled
+      const isSolTransfer = sendInput.assetId === solAssetId
 
       const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
-        chainSpecific: {
-          tokenId: contractAddress,
-          computeUnitLimit: fees.chainSpecific.computeUnits,
-          computeUnitPrice: fees.chainSpecific.priorityFee,
-        },
+        chainSpecific: isSolTransfer
+          ? {
+              tokenId: contractAddress,
+            }
+          : {
+              tokenId: contractAddress,
+              computeUnitLimit: fees.chainSpecific.computeUnits,
+              computeUnitPrice: fees.chainSpecific.priorityFee,
+            },
       }
 
       const adapter = assertGetSolanaChainAdapter(chainId)

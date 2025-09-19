@@ -31,10 +31,7 @@ import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { ThorchainMsgDeposit, ThorchainMsgSend, ThorSupportedCoin } from '../types'
 import { ThorchainMessageType } from '../types'
 
-export const thorMayaChainIds = [
-  KnownChainIds.ThorchainMainnet,
-  KnownChainIds.MayachainMainnet,
-] as const
+const thorMayaChainIds = [KnownChainIds.ThorchainMainnet, KnownChainIds.MayachainMainnet] as const
 
 // is any of THORChain or THOR fork (only MAYAChain at the time of writing)
 export const isThorMayaChainId = (

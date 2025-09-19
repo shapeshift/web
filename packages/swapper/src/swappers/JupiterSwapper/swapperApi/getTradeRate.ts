@@ -108,7 +108,7 @@ export const getTradeRate = async (
   const isSellTokenToken2022 = sellTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
   const isBuyTokenToken2022 = buyTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
 
-  const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : input.affiliateBps
+  const affiliateBps = isSellTokenToken2022 || isBuyTokenToken2022 ? '0' : input.affiliateBps
 
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,
@@ -132,18 +132,27 @@ export const getTradeRate = async (
 
   const { data: priceResponse } = maybePriceResponse.unwrap()
 
+  const { instructions } = await createSwapInstructions({
+    priceResponse,
+    sendAddress: input.sendAddress ?? SOLANA_RANDOM_ADDRESS,
+    receiveAddress,
+    affiliateBps,
+    buyAsset,
+    sellAsset,
+    adapter,
+    jupiterUrl,
+  })
+
   const getFeeData = async () => {
     const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      // used as a placeholder for the sake of loosely estimating fees
-      to: SOLANA_RANDOM_ADDRESS,
+      // Use real address and instructions for accurate fee estimation whenever possible (Solana account connected)
+      to: input.sendAddress ?? SOLANA_RANDOM_ADDRESS,
       value: sellAmount,
       chainSpecific: {
-        from: SOLANA_RANDOM_ADDRESS,
-        tokenId:
-          sellAsset.assetId === solAssetId
-            ? undefined
-            : fromAssetId(sellAsset.assetId).assetReference,
+        from: input.sendAddress ?? SOLANA_RANDOM_ADDRESS,
+        instructions,
       },
     }
     const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
@@ -190,17 +199,6 @@ export const getTradeRate = async (
     // Divide by 100 to get actual decimal percentage from bps
     // e.g for 0.5% bps, Jupiter represents this as 50. 50/100 = 0.5, then we div by 100 again to honour our decimal format e.g 0.5/100 = 0.005
     bn(priceResponse.slippageBps).div(100).div(100).toString()
-
-  const { instructions } = await createSwapInstructions({
-    priceResponse,
-    sendAddress: input.sendAddress ?? SOLANA_RANDOM_ADDRESS,
-    receiveAddress,
-    affiliateBps,
-    buyAsset,
-    sellAsset,
-    adapter,
-    jupiterUrl,
-  })
 
   const accountCreationFees = calculateAccountCreationCosts(instructions)
 

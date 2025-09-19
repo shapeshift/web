@@ -52,7 +52,7 @@ export type EstimateFeesInput = {
   contractAddress: string | undefined
 }
 
-export const estimateFees = ({
+export const estimateFees = async ({
   amountCryptoPrecision,
   assetId,
   from,
@@ -104,10 +104,22 @@ export const estimateFees = ({
     }
     case CHAIN_NAMESPACE.Solana: {
       const adapter = assertGetSolanaChainAdapter(asset.chainId)
+
+      // For SPL transfers, build complete instruction set including compute budget
+      // For SOL transfers (pure sends i.e not e.g a Jup swap), pass no instructions to get 0 count (avoids blind signing)
+      const instructions = contractAddress
+        ? await adapter.buildEstimationInstructions({
+            from: account,
+            to,
+            tokenId: contractAddress,
+            value,
+          })
+        : undefined
+
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
-        chainSpecific: { from: account, tokenId: contractAddress },
+        chainSpecific: { from: account, tokenId: contractAddress, instructions },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -242,20 +254,33 @@ export const handleSend = async ({
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
 
+      const solanaAdapter = assertGetSolanaChainAdapter(chainId)
+      const { account } = fromAccountId(sendInput.accountId)
+      const instructions = await solanaAdapter.buildEstimationInstructions({
+        from: account,
+        to,
+        tokenId: contractAddress,
+        value,
+      })
+
       const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
-        chainSpecific: {
-          tokenId: contractAddress,
-          computeUnitLimit: fees.chainSpecific.computeUnits,
-          computeUnitPrice: fees.chainSpecific.priorityFee,
-        },
+        chainSpecific:
+          instructions.length <= 1
+            ? {
+                tokenId: contractAddress,
+              }
+            : {
+                tokenId: contractAddress,
+                computeUnitLimit: fees.chainSpecific.computeUnits,
+                computeUnitPrice: fees.chainSpecific.priorityFee,
+              },
       }
 
-      const adapter = assertGetSolanaChainAdapter(chainId)
-      return adapter.buildSendTransaction(input)
+      return solanaAdapter.buildSendTransaction(input)
     }
 
     throw new Error(`${chainId} not supported`)

@@ -399,7 +399,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const { sendMax, chainSpecific } = input
       const { instructions } = chainSpecific
 
-
       const serializedTx = await this.buildEstimationSerializedTx(input)
       const baseComputeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
@@ -409,9 +408,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
         : baseComputeUnits
 
-      // Honor instructions when provided, use baseFee fallback when missing
-      const hasInstructions = instructions && instructions.length > 0
-      const instructionCount = hasInstructions ? instructions.length : 0
+      // SOL transfers should have 0 instructions if they're askchually *just* a transfer (i.e "pure")
+      // There *are* some complex SOL transfers, e.g Jupiter swaps, that have instructions on top of transfer,
+      // and a lot of them at that
+      // SPL/Jupiter transfers should use actual instruction count from passed instructions
+      const isPureSolTransfer =
+        !chainSpecific.tokenId && (!instructions || instructions.length === 0)
+      const instructionCount = isPureSolTransfer ? 0 : instructions?.length ?? 0
 
       return {
         fast: {
@@ -490,9 +493,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     input: GetFeeDataInput<KnownChainIds.SolanaMainnet>,
   ): Promise<string> {
     const { to, chainSpecific } = input
-    const { from, tokenId, instructions = [] } = chainSpecific
+    const { from, tokenId, instructions } = chainSpecific
 
-    const estimationInstructions = [...instructions]
+    const estimationInstructions = instructions
+      ? instructions
+      : await this.buildEstimationInstructions({
+          from,
+          to,
+          tokenId,
+          value: input.value,
+        })
 
     const addressLookupTableAccounts = await this.getSolanaAddressLookupTableAccountsInfo(
       chainSpecific.addressLookupTableAccounts ?? [],
@@ -500,38 +510,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     if (isUndefined(input.to)) throw new Error(`${this.getName()}ChainAdapter: to is required`)
     if (!input.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
-
-    const value = Number(input.value)
-
-    if (!isNaN(value) && value > 0) {
-      if (tokenId) {
-        const tokenTransferInstructions = await this.buildTokenTransferInstructions({
-          from,
-          to,
-          tokenId,
-          value: input.value,
-        })
-
-        estimationInstructions.push(...tokenTransferInstructions)
-      } else {
-        estimationInstructions.push(
-          SystemProgram.transfer({
-            fromPubkey: new PublicKey(from),
-            toPubkey: new PublicKey(to),
-            lamports: value,
-          }),
-        )
-      }
-    }
-
-    // Set compute unit limit to the maximum compute units for the purposes of estimating the compute unit cost of a transaction,
-    // ensuring the transaction does not exceed the maximum compute units alotted for a single transaction.
-    estimationInstructions.push(
-      ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
-    )
-
-    // placeholder compute unit price instruction for the purposes of estimating the compute unit cost of a transaction
-    estimationInstructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
 
     const message = new TransactionMessage({
       payerKey: new PublicKey(input.chainSpecific.from),
@@ -545,7 +523,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return Buffer.from(transaction.serialize()).toString('base64')
   }
 
-  private async buildTokenTransferInstructions({
+  public async buildTokenTransferInstructions({
     from,
     to,
     tokenId,
@@ -600,6 +578,50 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
 
     return instructions
+  }
+
+  public async buildEstimationInstructions({
+    from,
+    to,
+    tokenId,
+    value,
+    existingInstructions = [],
+  }: {
+    from: string
+    to: string
+    tokenId?: string
+    value: string
+    existingInstructions?: TransactionInstruction[]
+  }): Promise<TransactionInstruction[]> {
+    const estimationInstructions = [...existingInstructions]
+
+    if (bnOrZero(value).gt(0)) {
+      if (tokenId) {
+        const tokenTransferInstructions = await this.buildTokenTransferInstructions({
+          from,
+          to,
+          tokenId,
+          value,
+        })
+        estimationInstructions.push(...tokenTransferInstructions)
+      } else {
+        estimationInstructions.push(
+          SystemProgram.transfer({
+            fromPubkey: new PublicKey(from),
+            toPubkey: new PublicKey(to),
+            lamports: Number(value),
+          }),
+        )
+      }
+    }
+
+    // Add compute budget instructions for estimation
+    estimationInstructions.push(
+      ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
+      ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }),
+    )
+
+    return estimationInstructions
   }
 
   public async createAssociatedTokenAccountInstruction({

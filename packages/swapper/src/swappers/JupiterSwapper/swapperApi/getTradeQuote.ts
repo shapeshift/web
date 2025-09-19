@@ -118,7 +118,7 @@ export const getTradeQuote = async (
   const isSellTokenToken2022 = sellTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
   const isBuyTokenToken2022 = buyTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
 
-  const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : input.affiliateBps
+  const affiliateBps = isSellTokenToken2022 || isBuyTokenToken2022 ? '0' : input.affiliateBps
 
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,

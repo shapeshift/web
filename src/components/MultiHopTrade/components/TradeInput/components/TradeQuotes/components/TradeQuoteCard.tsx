@@ -2,10 +2,10 @@ import { Box, Card, CardHeader, Flex, Tooltip, useColorModeValue } from '@chakra
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
-const borderRadius = { base: 'md', md: 'lg' }
+const borderRadius = { base: 'md', md: 'xl' }
 const hoverProps = {
   cursor: 'pointer',
-  bg: 'background.surface.hover',
+  bg: 'background.button.secondary.hover',
 }
 
 export type TradeQuoteCardProps = {
@@ -29,26 +29,23 @@ export const TradeQuoteCard = ({
   isDisabled,
   onClick,
 }: TradeQuoteCardProps) => {
-  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const redColor = useColorModeValue('red.500', 'red.200')
-  const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
+  const redColor = useColorModeValue('red.500', 'red.500')
 
   const activeSwapperColor = useMemo(() => {
     if (!isActionable) return redColor
     if (isActive) return 'border.focused'
-    return borderColor
-  }, [borderColor, isActionable, isActive, redColor])
+    return 'border.base'
+  }, [isActionable, isActive, redColor])
 
   const activeProps = useMemo(
-    () => ({ borderColor: isActive ? 'transparent' : focusColor }),
-    [focusColor, isActive],
+    () => ({ borderColor: isActive ? 'transparent' : 'border.focused' }),
+    [isActive],
   )
 
   return (
     <Card
-      borderWidth={2}
-      boxShadow='none'
-      bg={isActive ? 'background.surface.hover' : 'transparent'}
+      borderWidth={1}
+      bg={isActive ? 'background.surface.raised.base' : 'transparent'}
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : 'border.base'}
       _hover={isDisabled ? undefined : hoverProps}

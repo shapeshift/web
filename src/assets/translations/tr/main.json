@@ -31,6 +31,9 @@
     "claimable": "Toplanabilir",
     "comingSoon": "Yakında...",
     "approve": "Onayla",
+    "approveToken": "Token'ı Onayla",
+    "approveAmount": "Bakiyeyi Onayla",
+    "approveTo": "Onaylamak İçin",
     "reset": "Sıfırla",
     "confirm": "Onaylayın",
     "seeDetails": "Detayları gör",
@@ -215,7 +218,9 @@
     "boost": "Yükseltme",
     "viewOnExplorer": "Explorer'da görüntüle",
     "approval": "Onay",
-    "permit2Approval": "Permit2 Onayı"
+    "permit2Approval": "Permit2 Onayı",
+    "network": "Ağ",
+    "feeEstimate": "Ücret Tahmini"
   },
   "quickBuy": {
     "title": "Hızlı Satın Al %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Net Değer",
     "loadingAccounts": "Yüklenen %{portfolioAccountsLoaded} hesap",
     "walletBalance": "Cüzdan Bakiyesi",
+    "walletBalanceChange24Hr": "24 saatlik değişim",
     "earnBalance": "Kazanç Bakiyesi",
     "rewardsBalance": "Ödül Bakiyesi",
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
@@ -703,7 +709,6 @@
     "confirmed": "Onaylandı",
     "pending": "Beklemede",
     "failed": "Hatalı",
-    "network": "Ağ",
     "blockHeight": "Blok Yüksekliği",
     "to": "İle",
     "from": "İtibaren",
@@ -1405,7 +1410,8 @@
         "total": "Toplam",
         "amount": "Tutar",
         "transactionFee": "İşlem ücreti",
-        "fees": "Ücretler %{feeType}"
+        "fees": "Ücretler %{feeType}",
+        "pendingConfirmation": "Onay bekleniyor"
       },
       "sendForm": {
         "optionalAssetMemo": "İsteğe bağlı %{assetSymbol} Memo",
@@ -2273,7 +2279,8 @@
     "today": "Bugün",
     "yesterday": "Dün",
     "thisWeek": "Bu Hafta",
-    "thisMonth": "Bu Ay"
+    "thisMonth": "Bu Ay",
+    "transactionDetails": "İşlem Ayrıntıları"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Tüm Hesapları Bağla",
+        "interactContract": "Etkileşim Sözleşmesi",
+        "transactionData": "İşlem Verileri",
+        "method": "Yöntem",
+        "signingWith": "İle İmzala",
+        "sendingTo": "Gönderilecek",
         "signMessage": {
           "signingFrom": "İmzalayan",
           "requestFrom": "İstek Gönderen",
@@ -2373,7 +2385,9 @@
           "chainId": "Zincir ID",
           "authInfo": "Yetki bilgisi",
           "body": "Mesaj",
-          "comingSoon": "Çok yakında"
+          "comingSoon": "Çok yakında",
+          "contract": "Sözleşme",
+          "primaryType": "Birincil Tip"
         },
         "sendTransaction": {
           "sendingFrom": "Gönderen",

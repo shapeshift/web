@@ -31,6 +31,9 @@
     "claimable": "可领取的",
     "comingSoon": "即将推出 ...",
     "approve": "授权",
+    "approveToken": "授权代币",
+    "approveAmount": "授权数量",
+    "approveTo": "授权给",
     "reset": "重置",
     "confirm": "确认",
     "seeDetails": "查看具体信息",
@@ -215,7 +218,9 @@
     "boost": "加速",
     "viewOnExplorer": "在区块浏览器上查看",
     "approval": "批准",
-    "permit2Approval": "Permit2 授权"
+    "permit2Approval": "Permit2 授权",
+    "network": "网络",
+    "feeEstimate": "预计费用"
   },
   "quickBuy": {
     "title": "快速购买 %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "净值",
     "loadingAccounts": "已加载 %{portfolioAccountsLoaded} 个账户",
     "walletBalance": "钱包余额",
+    "walletBalanceChange24Hr": "24 小时变化",
     "earnBalance": "赚取余额",
     "rewardsBalance": "奖励余额",
     "earnBody": "通过质押你的资产或将其存入 DeFi 策略来赚取被动收入。",
@@ -703,7 +709,6 @@
     "confirmed": "已确认",
     "pending": "待处理",
     "failed": "失败的",
-    "network": "网络",
     "blockHeight": "区块高度",
     "to": "到",
     "from": "从",
@@ -1405,7 +1410,8 @@
         "total": "总共",
         "amount": "数量",
         "transactionFee": "交易手续费",
-        "fees": "费用 %{feeType}"
+        "fees": "费用 %{feeType}",
+        "pendingConfirmation": "等待确认中"
       },
       "sendForm": {
         "optionalAssetMemo": "可选 %{assetSymbol} 备忘录",
@@ -2273,7 +2279,8 @@
     "today": "今天",
     "yesterday": "昨天",
     "thisWeek": "本周",
-    "thisMonth": "本月"
+    "thisMonth": "本月",
+    "transactionDetails": "交易详情"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "钱包连接",
         "ethereum": "以太坊",
         "connectAll": "连接所有帐户",
+        "interactContract": "与合约交互",
+        "transactionData": "交易数据",
+        "method": "方法",
+        "signingWith": "使用此帐户签名：",
+        "sendingTo": "发送到",
         "signMessage": {
           "signingFrom": "签名来自",
           "requestFrom": "请求来自",
@@ -2373,7 +2385,9 @@
           "chainId": "链 ID",
           "authInfo": "授权信息",
           "body": "主体",
-          "comingSoon": "即将推出"
+          "comingSoon": "即将推出",
+          "contract": "合约",
+          "primaryType": "主要类型"
         },
         "sendTransaction": {
           "sendingFrom": "发送自",

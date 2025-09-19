@@ -1,11 +1,12 @@
-import { Image, VStack } from '@chakra-ui/react'
+import { VStack } from '@chakra-ui/react'
 import { useMutation } from '@tanstack/react-query'
 import type { FC, ReactNode } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 
 import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
 
-import { RawText } from '@/components/Text'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
@@ -46,18 +47,11 @@ export const WalletConnectSigningModal: FC<WalletConnectSigningModalProps> = ({
   if (!accountId) return null
 
   return (
-    <VStack spacing={0} align='stretch'>
-      {peerMetadata && (
-        <VStack spacing={4} align='center' py={6}>
-          <Image borderRadius='full' boxSize='48px' src={peerMetadata.icons?.[0]} />
-          <RawText fontWeight='semibold' fontSize='lg'>
-            {peerMetadata.name}
-          </RawText>
-        </VStack>
-      )}
-
-      {children}
-
+    <VStack spacing={0} align='stretch' flex={1} minHeight={0}>
+      {peerMetadata && <PeerMeta metadata={peerMetadata} />}
+      <DialogBody flex={1} overflow='auto' minHeight={0} pb={6}>
+        {children}
+      </DialogBody>
       <WalletConnectModalSigningFooter
         accountId={accountId}
         transaction={transaction}

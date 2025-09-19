@@ -8,7 +8,6 @@ import {
   MenuItem,
   MenuList,
   Skeleton,
-  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
@@ -40,29 +39,6 @@ const chevronIcon = <ChevronDownIcon />
 export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()
   const { setValue } = useFormContext<CustomTransactionData>()
-
-  const menuButtonBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
-  const menuButtonHoverBorderColor = useColorModeValue('gray.300', 'whiteAlpha.300')
-  const menuButtonActiveBorderColor = useColorModeValue('gray.400', 'whiteAlpha.400')
-  const menuListBorderColor = useColorModeValue('gray.200', 'whiteAlpha.200')
-  const buttonTextColor = useColorModeValue('gray.800', 'white')
-
-  const menuButtonHoverSx = useMemo(
-    () => ({ borderColor: menuButtonHoverBorderColor }),
-    [menuButtonHoverBorderColor],
-  )
-  const menuButtonActiveSx = useMemo(
-    () => ({ borderColor: menuButtonActiveBorderColor }),
-    [menuButtonActiveBorderColor],
-  )
-  const menuListSx = {
-    borderColor: menuListBorderColor,
-    borderRadius: 'lg',
-    py: 0,
-    px: 0,
-    minW: 'auto',
-    w: 'auto',
-  }
 
   const { speed } = useWatch<CustomTransactionData>()
   const { gasLimit } = useWatch<CustomTransactionData>()
@@ -129,7 +105,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
-        <RawText fontSize='sm' fontWeight='bold'>
+        <RawText fontSize='sm' fontWeight='medium'>
           {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
         </RawText>
         <HStack spacing={1} align='center'>
@@ -151,14 +127,8 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
           maxW='140px'
           variant='outline'
           bg='transparent'
-          borderColor={menuButtonBorderColor}
-          borderWidth='1px'
-          borderRadius='lg'
-          color={buttonTextColor}
           fontSize='sm'
           fontWeight='medium'
-          _hover={menuButtonHoverSx}
-          _active={menuButtonActiveSx}
           px={3}
         >
           <HStack spacing={1}>
@@ -166,7 +136,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
             <Box>{currentSpeedOption?.text}</Box>
           </HStack>
         </MenuButton>
-        <MenuList {...menuListSx}>
+        <MenuList>
           {SPEED_OPTIONS.map(option => (
             <MenuItem
               m={0}

@@ -86,6 +86,10 @@ export const Overview: React.FC<OverviewProps> = ({
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
+
+  useEffect(() => {
+    setFiatRampAction(defaultAction)
+  }, [defaultAction])
   const handleSelectChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) =>
       setFiatCurrency(e.target.value as CommonFiatCurrencies),

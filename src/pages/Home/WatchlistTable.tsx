@@ -1,13 +1,14 @@
 import { Button } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { FaStar } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 import type { Row } from 'react-table'
 
 import { MarketsTable } from '@/components/MarketsTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetsSortedByMarketCap } from '@/state/slices/selectors'
@@ -18,36 +19,36 @@ const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue' }
 
 type WatchlistTableProps = {
   forceCompactView?: boolean
-  onRowClick?: () => void
-  hideExploreMore?: boolean
 }
 
-export const WatchlistTable = ({
-  forceCompactView = false,
-  hideExploreMore = false,
-  onRowClick,
-}: WatchlistTableProps) => {
+export const WatchlistTable = memo(({ forceCompactView = false }: WatchlistTableProps) => {
   const watchedAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
+  const walletDrawer = useModal('walletDrawer')
   const translate = useTranslate()
   const rows = useMemo(() => {
     return assets.filter(asset => watchedAssetIds.includes(asset.assetId))
   }, [assets, watchedAssetIds])
 
   const handleButtonClick = useCallback(() => {
+    if (walletDrawer.isOpen) {
+      walletDrawer.close()
+    }
     navigate('/assets')
-  }, [navigate])
+  }, [navigate, walletDrawer])
 
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
-      onRowClick?.()
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
       vibrate('heavy')
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [navigate, onRowClick],
+    [navigate, walletDrawer],
   )
 
   if (watchedAssetIds.length === 0) {
@@ -59,17 +60,16 @@ export const WatchlistTable = ({
         ctaText='watchlist.empty.cta'
         ctaHref='/assets'
         buttonProps={emptyButtonProps}
+        onCtaClick={handleButtonClick}
       />
     )
   }
   return (
     <>
       <MarketsTable rows={rows} onRowClick={handleRowClick} forceCompactView={forceCompactView} />
-      {!hideExploreMore && (
-        <Button mx={6} onClick={handleButtonClick}>
-          {translate('watchlist.empty.cta')}
-        </Button>
-      )}
+      <Button mx={6} onClick={handleButtonClick}>
+        {translate('watchlist.empty.cta')}
+      </Button>
     </>
   )
-}
+})

@@ -1,10 +1,12 @@
-import { Modal, ModalBody, ModalContent, ModalOverlay, VStack } from '@chakra-ui/react'
+import type { ModalProps } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
 import { useCallback, useMemo, useRef } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -15,6 +17,7 @@ import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
+import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
@@ -32,6 +35,8 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
+
+const sessionProposalInitialEntries = [SessionProposalRoutes.Overview]
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 
@@ -54,9 +59,11 @@ export type WalletConnectRequestModalProps<T> = {
   onReject(): Promise<void>
 }
 
-const borderRadiusProp = { base: 0, md: 'xl' }
-const minWidthProp = { base: '100%', md: '500px' }
-const maxWidthProp = { base: 'full', md: '500px' }
+const modalProps: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'> = {
+  size: 'md',
+  scrollBehavior: 'inside',
+  preserveScrollBarGap: true,
+}
 
 const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState =>
   !!(state.modalData && state.web3wallet && state.activeModal)
@@ -166,12 +173,14 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         return (
-          <SessionProposalModal
-            onClose={handleClose}
-            dispatch={dispatch}
-            state={state}
-            ref={sessionProposalRef}
-          />
+          <MemoryRouter initialEntries={sessionProposalInitialEntries}>
+            <SessionProposalModal
+              onClose={handleClose}
+              dispatch={dispatch}
+              state={state}
+              ref={sessionProposalRef}
+            />
+          </MemoryRouter>
         )
       case WalletConnectModal.SignEIP155MessageConfirmation:
         if (!topic) return null
@@ -262,26 +271,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   if (modalContent === null) return null
 
   return (
-    <Modal
-      isOpen={!!activeModal}
-      onClose={handleRejectRequestAndClose}
-      variant='header-nav'
-      scrollBehavior='inside'
-      preserveScrollBarGap={true}
-    >
-      <ModalOverlay />
-      <ModalContent
-        width='full'
-        borderRadius={borderRadiusProp}
-        minWidth={minWidthProp}
-        maxWidth={maxWidthProp}
-      >
-        <ModalBody p={0}>
-          <VStack p={6} spacing={6} alignItems='stretch'>
-            {modalContent}
-          </VStack>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+    <Dialog isOpen={!!activeModal} onClose={handleRejectRequestAndClose} modalProps={modalProps}>
+      {modalContent}
+    </Dialog>
   )
 }

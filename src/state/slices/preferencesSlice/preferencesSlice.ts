@@ -88,6 +88,7 @@ export type FeatureFlags = {
   ButterSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
+  LedgerReadOnly: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
@@ -212,6 +213,7 @@ const initialState: Preferences = {
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+    LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,

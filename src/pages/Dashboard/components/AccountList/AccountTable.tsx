@@ -14,7 +14,6 @@ import range from 'lodash/range'
 import truncate from 'lodash/truncate'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { GroupedAccounts } from './GroupedAccounts'
@@ -26,6 +25,7 @@ import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -46,15 +46,15 @@ const emptyContainerProps: FlexProps = {
 
 type AccountTableProps = {
   forceCompactView?: boolean
-  onRowClick?: () => void
 }
 
-export const AccountTable = memo(({ forceCompactView = false, onRowClick }: AccountTableProps) => {
+export const AccountTable = memo(({ forceCompactView = false }: AccountTableProps) => {
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPrimaryPortfolioAccountRowsSortedByBalance)
   const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
+  const walletDrawer = useModal('walletDrawer')
 
   const { hasMore, next, data } = useInfiniteScroll({
     array: rowData,
@@ -71,7 +71,7 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
   const stackTextAlign = isCompactCols ? 'right' : 'left'
   const buttonWidth = isCompactCols ? 'full' : 'auto'
 
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
 
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
@@ -204,13 +204,15 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
 
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
       vibrate('heavy')
-      onRowClick?.()
       const { assetId } = row.original
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [navigate, onRowClick],
+    [navigate, walletDrawer],
   )
 
   const handlePrimaryRowClick = useCallback(
@@ -227,12 +229,15 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
 
   const handleAssetClick = useCallback(
     (asset: Asset) => {
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
       vibrate('heavy')
       const { assetId } = asset
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
-    [navigate],
+    [navigate, walletDrawer],
   )
 
   const handleRowLongPress = useCallback(
@@ -262,13 +267,17 @@ export const AccountTable = memo(({ forceCompactView = false, onRowClick }: Acco
     return rowData.map(row => assets[row.assetId]).filter(isSome)
   }, [rowData, assets])
 
-  if (!isLargerThanMd) {
+  if (!isLargerThanMd || forceCompactView) {
     return (
       <AssetList
         assets={accountsAssets}
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
-        height='calc(100vh - var(--mobile-header-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - 54px)'
+        height={
+          forceCompactView
+            ? '100%'
+            : 'calc(100vh - var(--mobile-header-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - 54px)'
+        }
         showRelatedAssets
       />
     )

@@ -6,6 +6,7 @@ import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
@@ -61,6 +62,12 @@ export const LimitTab = memo(() => {
           break
         case TradeInputTab.LimitOrder:
           navigate(LimitOrderRoutePaths.Input)
+          break
+        case TradeInputTab.BuyFiat:
+          navigate(FiatRampRoutePaths.Buy)
+          break
+        case TradeInputTab.SellFiat:
+          navigate(FiatRampRoutePaths.Sell)
           break
         case TradeInputTab.Claim:
           navigate(ClaimRoutePaths.Select)

@@ -2,6 +2,7 @@ import type { CardProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 
+import type { QuotesComponentProps } from '../../QuoteList/QuoteList'
 import { QuoteList } from '../../QuoteList/QuoteList'
 import { HorizontalCollapse } from './HorizontalCollapse'
 
@@ -10,6 +11,7 @@ export type CollapsibleQuoteListProps = {
   width: string | number
   height: string | number
   ml: CardProps['ml']
+  QuotesComponent?: React.FC<QuotesComponentProps>
 }
 
 export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
@@ -17,6 +19,7 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
   width,
   height,
   ml,
+  QuotesComponent,
 }) => {
   const borderColor = useColorModeValue('border.base', 'transparent') // Patch styling: border to remedy box shadow cut off in light mode
 
@@ -32,7 +35,7 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
 
   return (
     <HorizontalCollapse isOpen={isOpen} width={width} height={height}>
-      <QuoteList cardProps={cardProps} />
+      <QuoteList cardProps={cardProps} QuotesComponent={QuotesComponent} />
     </HorizontalCollapse>
   )
 }

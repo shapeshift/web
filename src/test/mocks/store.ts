@@ -162,6 +162,7 @@ export const mockStore: ReduxState = {
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,
       NewWalletManager: false,
+      SwapperFiatRamps: false,
       LedgerReadOnly: false,
     },
     quickBuyAmounts: [10, 50, 100],

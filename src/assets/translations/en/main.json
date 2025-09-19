@@ -42,6 +42,7 @@
     "activity": "Activity",
     "reject": "Reject",
     "goBack": "Go back",
+    "fiat": "Fiat",
     "connected": "Connected",
     "allocation": "Allocation",
     "trendingTokens": "Trending Tokens",
@@ -67,6 +68,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "crypto": "Crypto",
     "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
@@ -132,6 +134,11 @@
     "enterAmount": "Enter Amount",
     "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",
+    "creditCard": "Credit Card",
+    "bankTransfer": "Bank Transfer",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Buy/Sell",
     "all": "All",
     "viewAll": "View All",
@@ -259,6 +266,11 @@
     "trading": {
       "title": "Trading Error",
       "body": "The trading interface encountered an error. You can try again or refresh the page.",
+      "retry": "Try Again"
+    },
+    "ramp": {
+      "title": "Ramp Error",
+      "body": "The ramp interface encountered an error. You can try again or refresh the page.",
       "retry": "Try Again"
     },
     "suspense": {
@@ -985,7 +997,7 @@
     "viewTransaction": "View Transaction",
     "noQuotesAvailable": "No Quotes Available",
     "noQuotesAvailableDescription": "No available quotes found at this time. Try selecting another pair.",
-    "availableSwappers": "Available Swappers",
+    "availableQuotes": "Available Quotes",
     "unavailableSwappers": "Unavailable Swappers",
     "unlimited": "Unlimited",
     "streamStatus": "Stream Status",
@@ -1642,6 +1654,26 @@
         "ILS": "Israeli Shekel",
         "IDR": "Indonesian Rupiah"
       }
+    },
+    "ramp": {
+      "payWith": "Pay With",
+      "youGet": "You Get",
+      "sellAmount": "Sell Amount",
+      "receiveAmount": "Receive Amount",
+      "buyAsset": "Buy Asset",
+      "sellAsset": "Sell Asset",
+      "receiveAsset": "Receive Asset",
+      "previewOrder": "Preview Order",
+      "processingTime": "Processing Time: 1-3 business days",
+      "buyInfo": "Buy crypto with fiat currency",
+      "sellInfo": "Sell crypto for fiat currency",
+      "availableQuotes": "Available Quotes",
+      "bestRate": "Best Rate",
+      "fastest": "Fastest",
+      "rate": "Rate",
+      "amount": "Amount",
+      "paymentMethods": "Payment Methods",
+      "selectFiat": "Select Fiat Currency"
     },
     "mobileWelcome": {
       "success": {

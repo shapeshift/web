@@ -10,6 +10,7 @@ import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { useIsApprovalInitiallyNeeded } from '../hooks/useIsApprovalInitiallyNeeded'
 
 import { Amount } from '@/components/Amount/Amount'
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { RecipientAddressRow } from '@/components/RecipientAddressRow'
@@ -82,16 +83,21 @@ export const TradeConfirmSummary = () => {
     [translate],
   )
 
+  const swapperIcon = useMemo(() => {
+    return (
+      <SwapperIcons swapSource={activeQuote?.swapperName} swapperName={activeQuote?.swapperName} />
+    )
+  }, [activeQuote?.swapperName])
+
   return (
     <RateGasRow
       affiliateBps={affiliateBps}
-      buyAssetId={buyAsset.assetId}
-      sellAssetId={sellAsset.assetId}
+      buyAssetSymbol={buyAsset.symbol}
+      sellAssetSymbol={sellAsset.symbol}
       rate={bnOrZero(rate).toFixed(buyAsset.precision)}
       isLoading={isLoading}
       networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
-      swapperName={activeQuote?.swapperName}
-      swapSource={tradeQuoteFirstHop?.source}
+      icon={swapperIcon}
       isOpen
     >
       <Stack spacing={4} px={6} py={3} width='full'>

@@ -2,32 +2,26 @@ import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from '@chakra-ui/icons'
 import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
-import { SwapperIcons } from './SwapperIcons'
-
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
-import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { clickableLinkSx } from '@/theme/styles'
 
 type RateGasRowProps = {
   affiliateBps: string
-  buyAssetId: AssetId
+  buyAssetSymbol: AssetId
   isLoading?: boolean
   rate: string | undefined
-  sellAssetId: AssetId
-  swapperName: SwapperName | undefined
-  swapSource: SwapSource | undefined
+  sellAssetSymbol: AssetId
+  icon: React.ReactNode
   networkFeeFiatUserCurrency: string | undefined
   deltaPercentage?: string | null
   invertRate?: boolean
@@ -47,13 +41,12 @@ const rowHover = {
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
     affiliateBps,
-    buyAssetId,
+    buyAssetSymbol,
     children,
     isLoading,
     rate,
-    sellAssetId,
-    swapperName,
-    swapSource,
+    sellAssetSymbol,
+    icon,
     networkFeeFiatUserCurrency,
     deltaPercentage,
     noExpand,
@@ -64,8 +57,6 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     const { isOpen, onToggle } = useDisclosure()
     const [shouldInvertRate, setShouldInvertRate] = useState(Boolean(invertRate))
     const [hasClickedRate, setHasClickedRate] = useState(false)
-    const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
-    const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
 
     const feeMessage = useMemo(() => {
       const feePercentage = bnOrZero(affiliateBps).div(100).toString()
@@ -107,11 +98,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     }, [deltaPercentage])
 
     const rateContent = useMemo(() => {
-      if (!(rate && buyAsset && sellAsset)) return null
+      if (!(rate && buyAssetSymbol && sellAssetSymbol)) return null
 
-      const prefix = shouldInvertRate ? `1 ${buyAsset.symbol} =` : `1 ${sellAsset.symbol} =`
+      const prefix = shouldInvertRate ? `1 ${buyAssetSymbol} =` : `1 ${sellAssetSymbol} =`
       const value = shouldInvertRate ? bn(1).div(rate).toString() : rate
-      const symbol = shouldInvertRate ? sellAsset.symbol : buyAsset.symbol
+      const symbol = shouldInvertRate ? sellAssetSymbol : buyAssetSymbol
 
       return (
         <Flex>
@@ -129,7 +120,14 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
           {deltaPercentageFormatted}
         </Flex>
       )
-    }, [rate, buyAsset, sellAsset, shouldInvertRate, handleRateClick, deltaPercentageFormatted])
+    }, [
+      rate,
+      buyAssetSymbol,
+      sellAssetSymbol,
+      shouldInvertRate,
+      handleRateClick,
+      deltaPercentageFormatted,
+    ])
 
     const dropdownBg = useMemo(() => {
       return isOpen ? { base: 'transparent', md: 'background.surface.raised.base' } : 'transparent'
@@ -191,7 +189,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     borderColor='transparent'
                     alignItems='center'
                   >
-                    <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
+                    {icon}
                     {rateContent}
                     <TooltipWithTouch label={feePopoverContent} placement='top'>
                       <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />

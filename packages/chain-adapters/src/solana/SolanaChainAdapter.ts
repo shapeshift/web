@@ -615,11 +615,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       }
     }
 
-    // Add compute budget instructions for estimation
-    estimationInstructions.push(
-      ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
-      ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }),
-    )
+    // Only add compute budget instructions for SPL token operations
+    if (tokenId) {
+      estimationInstructions.push(
+        ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
+        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }),
+      )
+    }
 
     return estimationInstructions
   }

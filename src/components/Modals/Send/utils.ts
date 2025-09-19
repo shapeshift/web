@@ -268,15 +268,16 @@ export const handleSend = async ({
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
-        chainSpecific: !instructions.length
-          ? {
-              tokenId: contractAddress,
-            }
-          : {
-              tokenId: contractAddress,
-              computeUnitLimit: fees.chainSpecific.computeUnits,
-              computeUnitPrice: fees.chainSpecific.priorityFee,
-            },
+        chainSpecific:
+          instructions.length <= 1
+            ? {
+                tokenId: contractAddress,
+              }
+            : {
+                tokenId: contractAddress,
+                computeUnitLimit: fees.chainSpecific.computeUnits,
+                computeUnitPrice: fees.chainSpecific.priorityFee,
+              },
       }
 
       return solanaAdapter.buildSendTransaction(input)

@@ -74,19 +74,17 @@ const ConnectedMenu = memo(
       settings.open({})
     }, [onClose, settings])
 
-    const getRouteForWalletType = useCallback((walletType: string): string => {
-      switch (walletType) {
-        case KeyManager.KeepKey:
-          return '/keepkey/connect'
-        case KeyManager.Ledger:
-          return '/ledger/connect'
-        default:
-          return '/metamask/connect' // MIPD/MetaMask wallets
-      }
-    }, [])
-
     const handleReconnectWallet = useCallback(() => {
-      const route = getRouteForWalletType(walletType)
+      const route = (() => {
+        switch (walletType) {
+          case KeyManager.KeepKey:
+            return '/keepkey/connect'
+          case KeyManager.Ledger:
+            return '/ledger/connect'
+          default:
+            return '/metamask/connect' // MIPD/MetaMask wallets
+        }
+      })()
 
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
@@ -94,7 +92,7 @@ const ConnectedMenu = memo(
       })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       onClose?.()
-    }, [dispatch, getRouteForWalletType, onClose, walletType])
+    }, [dispatch, onClose, walletType])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isLedger = walletType === KeyManager.Ledger
@@ -128,16 +126,16 @@ const ConnectedMenu = memo(
                     mt={1}
                   />
                 )}
-                {isLocked && (
+                {!isConnected && !isLedger && (
                   <Text
-                    translation={'connectWallet.menu.locked'}
+                    translation={'connectWallet.menu.disconnected'}
                     fontSize='sm'
                     color='yellow.500'
                   />
                 )}
-                {!isConnected && !isLocked && !isLedger && (
+                {isLocked && (
                   <Text
-                    translation={'connectWallet.menu.disconnected'}
+                    translation={'connectWallet.menu.locked'}
                     fontSize='sm'
                     color='yellow.500'
                   />

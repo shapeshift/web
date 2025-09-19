@@ -30,7 +30,6 @@ export const WalletManagerDrawer: FC = memo(() => {
     return <UserMenu />
   }
 
-  // For connected state, use the new wallet drawer behavior
   return (
     <WalletButton
       onConnect={handleConnect}

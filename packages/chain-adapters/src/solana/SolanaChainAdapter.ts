@@ -411,7 +411,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
         : baseComputeUnits
 
-      const instructionCount = Math.max(instructions?.length ?? 0, SOLANA_MINIMUM_INSTRUCTION_COUNT)
+      const isSolTransfer = !chainSpecific.tokenId
+      const instructionCount = isSolTransfer
+        ? 0
+        : Math.max(instructions?.length ?? 0, SOLANA_MINIMUM_INSTRUCTION_COUNT)
+      debugger
 
       return {
         fast: {

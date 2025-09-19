@@ -81,8 +81,12 @@ const ConnectedMenu = memo(
             return '/keepkey/connect'
           case KeyManager.Ledger:
             return '/ledger/connect'
+          case KeyManager.MetaMask:
+          case KeyManager.Coinbase:
+          case KeyManager.Phantom:
+            return '/metamask/connect'
           default:
-            return '/metamask/connect' // MIPD/MetaMask wallets
+            throw new Error(`Unsupported wallet type for reconnect: ${walletType}`)
         }
       })()
 

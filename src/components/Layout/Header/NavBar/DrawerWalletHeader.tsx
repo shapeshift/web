@@ -32,6 +32,7 @@ const dotsIcon = <Icon as={TbDots} />
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
   isConnected: boolean
+  isLocked: boolean
   connectedType: InitialState['connectedType']
   onDisconnect: () => void
   onSwitchProvider: () => void
@@ -40,7 +41,15 @@ type DrawerHeaderProps = {
 }
 
 export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
-  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider, onSettingsClick }) => {
+  ({
+    walletInfo,
+    isConnected,
+    isLocked,
+    connectedType,
+    onDisconnect,
+    onSwitchProvider,
+    onSettingsClick,
+  }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
 
@@ -70,9 +79,12 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       [connectedType],
     )
 
-    const walletImageIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
+    const walletImageIcon = useMemo(
+      () => <WalletImage walletInfo={maybeMipdProvider?.info ?? walletInfo} />,
+      [walletInfo, maybeMipdProvider?.info],
+    )
 
-    if (!isConnected || !walletInfo) return null
+    if (!isConnected || isLocked || !walletInfo) return null
 
     return (
       <Flex align='center' justify='space-between'>
@@ -100,7 +112,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
               <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
                 <MenuItem icon={walletImageIcon} isDisabled closeOnSelect={false}>
                   <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-                    <Text>{walletInfo?.name}</Text>
+                    <Text>{label}</Text>
                   </Flex>
                 </MenuItem>
               </MenuGroup>

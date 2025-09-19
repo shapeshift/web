@@ -147,7 +147,7 @@ const DrawerWalletInner: FC = memo(() => {
   }, [isOpen, activeTabIndex])
 
   const {
-    state: { isConnected, walletInfo, connectedType, modal: walletModalOpen },
+    state: { isConnected, walletInfo, connectedType, isLocked, modal: walletModalOpen },
     dispatch,
     disconnect,
   } = useWallet()
@@ -219,6 +219,7 @@ const DrawerWalletInner: FC = memo(() => {
                   <DrawerWalletHeader
                     walletInfo={walletInfo}
                     isConnected={isConnected}
+                    isLocked={isLocked}
                     connectedType={connectedType}
                     onDisconnect={handleDisconnect}
                     onSwitchProvider={handleSwitchProvider}

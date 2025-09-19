@@ -4,8 +4,6 @@ import {
   Box,
   HStack,
   Icon,
-  Popover,
-  PopoverTrigger,
   SkeletonCircle,
   SkeletonText,
   Stack,
@@ -14,15 +12,12 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { debounce } from 'lodash'
 import type { JSX } from 'react'
-import { isValidElement, useCallback, useState } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
+import { isValidElement } from 'react'
 import { TbAlertTriangle } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { TooltipWithTouch } from '../TooltipWithTouch'
-import { AssetTeaser } from './AssetTeaser'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
@@ -35,7 +30,6 @@ type AssetCellProps = {
   assetId: AssetId
   subText?: string | JSX.Element
   postFix?: string
-  showTeaser?: boolean
   showAssetSymbol?: boolean
   icons?: string[]
   opportunityName?: string
@@ -72,7 +66,6 @@ const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean
 export const AssetCell = ({
   assetId,
   subText,
-  showTeaser,
   showAssetSymbol,
   postFix,
   icons,
@@ -83,16 +76,11 @@ export const AssetCell = ({
   ...rest
 }: AssetCellProps) => {
   const translate = useTranslate()
-  const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
-  const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
-  const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isSpamMarked = useAppSelector(state => selectIsSpamMarkedByAssetId(state, assetId))
-
-  const handlePopoverClose = useCallback(() => setShowPopover(false), [])
 
   if (!asset) return null
 
@@ -100,16 +88,6 @@ export const AssetCell = ({
 
   return (
     <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
-      {showTeaser && (
-        <Popover isOpen={showPopover} onClose={handlePopoverClose}>
-          <PopoverTrigger>
-            <Box onMouseEnter={debouncedHandleMouseEnter} onMouseLeave={handleOnMouseLeave}>
-              <FaInfoCircle />
-            </Box>
-          </PopoverTrigger>
-          {showPopover && <AssetTeaser assetId={assetId} />}
-        </Popover>
-      )}
       <HStack flex={1} width='100%'>
         <SkeletonCircle isLoaded={!!asset} mr={2} width='auto' height='auto'>
           {icons && icons.length > 1 ? (

@@ -4,12 +4,14 @@ import { memo, useCallback } from 'react'
 import { UserMenu } from './UserMenu'
 import { WalletButton } from './WalletButton'
 
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const WalletManagerDrawer: FC = memo(() => {
   const {
     state: { isConnected, walletInfo, isLocked, isLoadingLocalWallet },
+    dispatch,
   } = useWallet()
 
   const walletDrawer = useModal('walletDrawer')
@@ -20,8 +22,8 @@ export const WalletManagerDrawer: FC = memo(() => {
   }, [isConnected, walletDrawer])
 
   const handleConnect = useCallback(() => {
-    // Empty function - not used when connected
-  }, [])
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [dispatch])
 
   // If not connected or locked, fall back to the old UserMenu completely
   if (!isConnected || isLocked) {
@@ -35,7 +37,7 @@ export const WalletManagerDrawer: FC = memo(() => {
       walletInfo={walletInfo}
       isConnected={isConnected && !isLocked}
       isLoadingLocalWallet={isLoadingLocalWallet}
-      onClick={isConnected && !isLocked ? handleOpen : undefined}
+      onClick={handleOpen}
       data-test='navigation-wallet-dropdown-button'
     />
   )

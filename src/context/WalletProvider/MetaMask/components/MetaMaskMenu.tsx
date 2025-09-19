@@ -1,10 +1,8 @@
 import { MenuItem, Skeleton, Tag } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { TbPlugConnected } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/ManageAccountsMenuItem'
-import { WalletActions } from '@/context/WalletProvider/actions'
 import {
   checkIsMetaMaskDesktop,
   useIsSnapInstalled,
@@ -23,8 +21,7 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   const [isMetaMask, setIsMetaMask] = useState<null | boolean>(null)
 
   const {
-    state: { wallet, isConnected, isLocked },
-    dispatch,
+    state: { wallet },
   } = useWallet()
 
   useEffect(() => {
@@ -38,15 +35,6 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
       snapModal.open({})
     }
   }, [isCorrectVersion, isSnapInstalled, snapModal])
-
-  const handleReconnectWallet = useCallback(() => {
-    dispatch({
-      type: WalletActions.SET_INITIAL_ROUTE,
-      payload: '/metamask/connect',
-    })
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    onClose?.()
-  }, [dispatch, onClose])
 
   const renderSnapStatus = useMemo(() => {
     if (isSnapInstalled) {
@@ -62,28 +50,17 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
     }
   }, [isCorrectVersion, isSnapInstalled, translate])
 
-  const reconnectIcon = useMemo(() => <TbPlugConnected />, [])
-
-  return (
+  return isMetaMask ? (
     <>
-      {isMetaMask && isSnapInstalled && isCorrectVersion && (
-        <ManageAccountsMenuItem onClose={onClose} />
-      )}
-      {(!isConnected || isLocked) && (
-        <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
-          {translate('connectWallet.menu.reconnectWallet')}
-        </MenuItem>
-      )}
-      {isMetaMask && (
-        <MenuItem
-          justifyContent='space-between'
-          onClick={handleClick}
-          isDisabled={isSnapInstalled === true && isCorrectVersion === true}
-        >
-          {translate('walletProvider.metaMaskSnap.multiChainSnap')}
-          <Skeleton isLoaded={isSnapInstalled !== null}>{renderSnapStatus}</Skeleton>
-        </MenuItem>
-      )}
+      {isSnapInstalled && isCorrectVersion && <ManageAccountsMenuItem onClose={onClose} />}
+      <MenuItem
+        justifyContent='space-between'
+        onClick={handleClick}
+        isDisabled={isSnapInstalled === true && isCorrectVersion === true}
+      >
+        {translate('walletProvider.metaMaskSnap.multiChainSnap')}
+        <Skeleton isLoaded={isSnapInstalled !== null}>{renderSnapStatus}</Skeleton>
+      </MenuItem>
     </>
-  )
+  ) : null
 }

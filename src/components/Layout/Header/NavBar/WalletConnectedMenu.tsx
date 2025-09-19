@@ -74,19 +74,19 @@ const ConnectedMenu = memo(
       settings.open({})
     }, [onClose, settings])
 
-    const handleReconnectWallet = useCallback(() => {
-      let route: string
-
+    const getRouteForWalletType = useCallback((walletType: string): string => {
       switch (walletType) {
         case KeyManager.KeepKey:
-          route = '/keepkey/connect'
-          break
+          return '/keepkey/connect'
         case KeyManager.Ledger:
-          route = '/ledger/connect'
-          break
+          return '/ledger/connect'
         default:
-          route = '/metamask/connect' // MIPD/MetaMask wallets
+          return '/metamask/connect' // MIPD/MetaMask wallets
       }
+    }, [])
+
+    const handleReconnectWallet = useCallback(() => {
+      const route = getRouteForWalletType(walletType)
 
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
@@ -94,7 +94,7 @@ const ConnectedMenu = memo(
       })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       onClose?.()
-    }, [dispatch, onClose, walletType])
+    }, [dispatch, getRouteForWalletType, onClose, walletType])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isLedger = walletType === KeyManager.Ledger

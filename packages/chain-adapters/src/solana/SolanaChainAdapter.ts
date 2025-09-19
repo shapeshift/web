@@ -352,8 +352,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       this.assertSupportsChain(wallet)
 
-      await verifyLedgerAppOpen(this.chainId, wallet)
-
       const tx = await wallet.solanaSendTx?.(txToSign)
 
       if (!tx) throw new Error('error signing & broadcasting tx')

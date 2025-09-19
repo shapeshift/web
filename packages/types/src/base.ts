@@ -49,6 +49,8 @@ export type CosmosSdkChainId =
   | KnownChainIds.ThorchainMainnet
   | KnownChainIds.MayachainMainnet
 
+export type ThorMayaChainId = KnownChainIds.ThorchainMainnet | KnownChainIds.MayachainMainnet
+
 export type UtxoChainId =
   | KnownChainIds.BitcoinMainnet
   | KnownChainIds.BitcoinCashMainnet

@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -11,6 +11,7 @@ import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/Limi
 import { Claim } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/Claim'
 import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { blurBackgroundSx, gridOverlaySx } from '@/pages/Trade/constants'
 
 const padding = { base: 0, md: 8 }
 const mainPaddingTop = { base: 0, md: '4.5rem' }
@@ -57,22 +58,33 @@ export const ClaimTab = memo(() => {
 
   return (
     <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>
-      <SEO title={title} />
-      <Flex
-        pt={containerPaddingTop}
-        px={padding}
-        pb={containerPaddingBottom}
-        alignItems='flex-start'
+      <Box
+        position='relative'
         width='full'
-        justifyContent='center'
-        gap={4}
+        display='flex'
+        flex={1}
+        _before={gridOverlaySx}
+        _after={blurBackgroundSx}
       >
-        <FormProvider {...methods}>
-          <Routes>
-            <Route key={ClaimRoutePaths.Select} path={'*'} element={claimElement} />
-          </Routes>
-        </FormProvider>
-      </Flex>
+        <SEO title={title} />
+        <Flex
+          pt={containerPaddingTop}
+          px={padding}
+          pb={containerPaddingBottom}
+          alignItems='flex-start'
+          width='full'
+          justifyContent='center'
+          gap={4}
+          zIndex={2}
+          position='relative'
+        >
+          <FormProvider {...methods}>
+            <Routes>
+              <Route key={ClaimRoutePaths.Select} path={'*'} element={claimElement} />
+            </Routes>
+          </FormProvider>
+        </Flex>
+      </Box>
     </Main>
   )
 })

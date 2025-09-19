@@ -1,4 +1,4 @@
 export enum FiatRampRoutePaths {
-  Buy = '/ramp/buy',
-  Sell = '/ramp/sell',
+  Buy = '/ramp/trade/buy',
+  Sell = '/ramp/trade/sell',
 }

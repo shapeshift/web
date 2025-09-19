@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { FEE_ASSET_IDS, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   AccountMetadata,
   AccountMetadataById,
@@ -794,20 +795,44 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   },
 )
 
+// Intermediate memoized selector to precompute total balances by asset
+const selectTotalBalancesByAssetId = createDeepEqualOutputSelector(
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAssets,
+  (accountBalancesById, assets): Record<AssetId, string> => {
+    const totalsByAssetId: Record<AssetId, string> = {}
+
+    // Flatten all account balances into a single pass
+    Object.values(accountBalancesById).forEach(accountBalances => {
+      Object.entries(accountBalances).forEach(([assetId, balance]) => {
+        if (balance && assets[assetId]) {
+          const currentTotal = totalsByAssetId[assetId] || '0'
+          totalsByAssetId[assetId] = bnOrZero(currentTotal).plus(bnOrZero(balance)).toFixed()
+        }
+      })
+    })
+
+    return totalsByAssetId
+  },
+)
+
+// Optimized selector that uses precomputed balances
 export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioAccountRows,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectTotalBalancesByAssetId,
   selectAssets,
   selectMarketDataUserCurrency,
   selectRelatedAssetIdsByAssetIdInclusive,
   preferences.selectors.selectBalanceThresholdUserCurrency,
+  selectPortfolioTotalUserCurrencyBalance,
   (
     portfolioAccountRows,
-    accountBalancesById,
+    totalBalancesByAssetId,
     assets,
     marketData,
     relatedAssetIdsByAssetId,
     balanceThresholdUserCurrency,
+    totalPortfolioUserCurrencyBalance,
   ): AccountRowData[] => {
     const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
 
@@ -818,22 +843,27 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
 
         let totalCryptoBalance = bnOrZero(0)
 
-        Object.values(accountBalancesById).forEach(accountBalances => {
-          allRelatedAssetIds.forEach(relatedAssetId => {
-            const relatedAsset = assets[relatedAssetId]
-            const balance = accountBalances[relatedAssetId]
-            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset?.precision ?? 0)
+        allRelatedAssetIds.forEach(relatedAssetId => {
+          const relatedAsset = assets[relatedAssetId]
+          const balance = totalBalancesByAssetId[relatedAssetId]
 
+          if (balance && relatedAsset) {
+            const cryptoBalance = fromBaseUnit(bnOrZero(balance), relatedAsset.precision ?? 0)
             if (cryptoBalance) {
               totalCryptoBalance = totalCryptoBalance.plus(bnOrZero(cryptoBalance))
             }
-          })
+          }
         })
 
         const price = marketData[primaryAssetId]?.price ?? '0'
         const userCurrencyAmount = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
 
         if (userCurrencyAmount.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+
+        const allocation = userCurrencyAmount
+          .div(bnOrZero(totalPortfolioUserCurrencyBalance))
+          .times(100)
+          .toNumber()
 
         const primaryAccountRow: AccountRowData = {
           assetId: primaryAssetId,
@@ -842,8 +872,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
           symbol: primaryAsset?.symbol ?? '',
           fiatAmount: userCurrencyAmount.toFixed(2),
           cryptoAmount: totalCryptoBalance.toFixed(),
-          // @TODO: We probably don't need this anymore as we will remove balance chart
-          allocation: 0,
+          allocation,
           price,
           priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
           relatedAssetKey: primaryAsset?.relatedAssetKey,
@@ -1181,4 +1210,37 @@ export const selectIsAnyPortfolioGetAccountLoading = createSelector(
   (isPortfolioGetAccountLoadingByAccountId): boolean => {
     return Object.values(isPortfolioGetAccountLoadingByAccountId).some(isLoading => isLoading)
   },
+)
+
+// For a given account number, find the first EVM AccountId (they're all the same address) so we can get an address from a given account number
+export const selectEvmAddressByAccountNumber = createCachedSelector(
+  selectAccountIdsByAccountNumberAndChainId,
+  selectAccountNumberParamFromFilter,
+  (accountIdsByAccountNumberAndChainId, accountNumber): string | null => {
+    if (accountNumber === undefined) return null
+
+    const accountsByChain = accountIdsByAccountNumberAndChainId[accountNumber]
+    if (!accountsByChain) return null
+
+    // Find first EVM account ID - all EVM accounts for same account number share the same address
+    for (const [chainId, accountIds] of Object.entries(accountsByChain)) {
+      if (isEvmChainId(chainId) && accountIds?.[0]) {
+        return fromAccountId(accountIds[0]).account
+      }
+    }
+
+    return null
+  },
+)((_s: ReduxState, filter) => filter?.accountNumber ?? 'accountNumber')
+
+// Get unique account numbers that have at least one EVM account
+export const selectUniqueEvmAccountNumbers = createSelector(
+  selectAccountIdsByAccountNumberAndChainId,
+  accountIdsByAccountNumberAndChainId =>
+    Object.keys(accountIdsByAccountNumberAndChainId)
+      .map(Number)
+      .filter(accountNumber =>
+        Object.keys(accountIdsByAccountNumberAndChainId[accountNumber] ?? {}).some(isEvmChainId),
+      )
+      .sort((a, b) => a - b),
 )

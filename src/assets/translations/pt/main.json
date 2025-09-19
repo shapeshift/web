@@ -31,6 +31,9 @@
     "claimable": "Resgatável",
     "comingSoon": "Em breve ...",
     "approve": "Aprovar",
+    "approveToken": "Aprovar Token",
+    "approveAmount": "Aprove a Quantia",
+    "approveTo": "Aprovar Para",
     "reset": "Reiniciar",
     "confirm": "Confirmar",
     "seeDetails": "Veja detalhes",
@@ -215,7 +218,9 @@
     "boost": "Impulso",
     "viewOnExplorer": "Ver no explorador",
     "approval": "Aprovação",
-    "permit2Approval": "Aprovaçõa Permit2 "
+    "permit2Approval": "Aprovaçõa Permit2 ",
+    "network": "Rede",
+    "feeEstimate": "Estimativa de Taxa"
   },
   "quickBuy": {
     "title": "Compra Rápida %{assetOnChain}",
@@ -546,6 +551,7 @@
     "netWorth": "Total",
     "loadingAccounts": "Carregado %{portfolioAccountsLoaded} accounts",
     "walletBalance": "Disponível",
+    "walletBalanceChange24Hr": "Mudança em 24 horas",
     "earnBalance": "Investimentos",
     "rewardsBalance": "Recompensas",
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
@@ -703,7 +709,6 @@
     "confirmed": "Confirmado",
     "pending": "Pendente",
     "failed": "Falha",
-    "network": "Rede",
     "blockHeight": "Altura do Bloco",
     "to": "De",
     "from": "Para",
@@ -1405,7 +1410,8 @@
         "total": "Total",
         "amount": "Valor",
         "transactionFee": "Taxa de Transação",
-        "fees": "Taxas %{feeType}"
+        "fees": "Taxas %{feeType}",
+        "pendingConfirmation": "Confirmação pendente"
       },
       "sendForm": {
         "optionalAssetMemo": "Memo %{assetSymbol} opcional",
@@ -2273,7 +2279,8 @@
     "today": "Hoje",
     "yesterday": "Ontem",
     "thisWeek": "Essa semana",
-    "thisMonth": "Este mês"
+    "thisMonth": "Este mês",
+    "transactionDetails": "Detalhes da Transação"
   },
   "plugins": {
     "foxPage": {
@@ -2356,6 +2363,11 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Conectar todas as contas",
+        "interactContract": "Interagir Com o Contrato",
+        "transactionData": "Dados da transação",
+        "method": "Método",
+        "signingWith": "Assinando com",
+        "sendingTo": "Enviando para",
         "signMessage": {
           "signingFrom": "Assinatura de",
           "requestFrom": "Requisitado por",
@@ -2373,7 +2385,9 @@
           "chainId": "ID da rede",
           "authInfo": "Informação Auth",
           "body": "Corpo",
-          "comingSoon": "Em breve"
+          "comingSoon": "Em breve",
+          "contract": "Contrato",
+          "primaryType": "Tipo Primário"
         },
         "sendTransaction": {
           "sendingFrom": "Enviando de",

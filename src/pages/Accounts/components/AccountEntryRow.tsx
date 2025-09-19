@@ -3,11 +3,12 @@ import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectPortfolioUserCurrencyBalanceByFilter } from '@/state/slices/portfolioSlice/selectors'
@@ -24,6 +25,7 @@ type AccountEntryRowProps = {
   assetId: AssetId
   showNetworkIcon?: boolean
   maximumFractionDigits?: number
+  onClose?: () => void
 } & ButtonProps
 
 const fontSizeProps = { base: 'sm', md: 'md' }
@@ -36,9 +38,11 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   assetId,
   showNetworkIcon,
   maximumFractionDigits,
+  onClose,
   ...buttonProps
 }) => {
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
+  const walletDrawer = useModal('walletDrawer')
   const translate = useTranslate()
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
@@ -79,10 +83,13 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
     [assetIdOrIconSrcProps],
   )
 
-  const onClick = useCallback(
-    () => navigate(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
-    [navigate, filter],
-  )
+  const onClick = useCallback(() => {
+    if (walletDrawer.isOpen) {
+      walletDrawer.close()
+    }
+    navigate(`/assets/${assetId}`)
+    onClose?.()
+  }, [navigate, assetId, onClose, walletDrawer])
 
   return (
     <ListItem>

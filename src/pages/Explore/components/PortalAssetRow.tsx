@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useLongPress } from 'use-long-press'
 
 import { Amount } from '@/components/Amount/Amount'
+import { WatchAssetButton } from '@/components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from '@/components/AssetIcon'
 import type { AssetData } from '@/components/AssetSearch/components/AssetList'
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
@@ -130,9 +131,12 @@ export const PortalAssetRow: FC<PortalAssetRowProps> = memo(
           </Box>
         </Flex>
 
-        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
-          {rightContent}
-        </Flex>
+        <HStack>
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+            {rightContent}
+          </Flex>
+          <WatchAssetButton bg='transparent' assetId={asset.assetId} />
+        </HStack>
       </Button>
     )
   },

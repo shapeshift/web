@@ -29,16 +29,18 @@ import { useAppSelector } from '@/state/store'
 const settingsIcon = <SettingsIcon />
 const dotsIcon = <Icon as={TbDots} />
 
-type PopoverHeaderProps = {
+type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
   isConnected: boolean
   connectedType: InitialState['connectedType']
   onDisconnect: () => void
   onSwitchProvider: () => void
+  onClose?: () => void
+  onSettingsClick?: () => void
 }
 
-export const PopoverWalletHeader: FC<PopoverHeaderProps> = memo(
-  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider }) => {
+export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
+  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider, onSettingsClick }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
 
@@ -55,8 +57,10 @@ export const PopoverWalletHeader: FC<PopoverHeaderProps> = memo(
     )
 
     const handleSettingsClick = useCallback(() => {
+      if (onSettingsClick) return onSettingsClick()
+
       settings.open({})
-    }, [settings])
+    }, [settings, onSettingsClick])
 
     const repeatIcon = useMemo(() => <RepeatIcon />, [])
     const closeIcon = useMemo(() => <CloseIcon />, [])
@@ -92,7 +96,7 @@ export const PopoverWalletHeader: FC<PopoverHeaderProps> = memo(
               icon={dotsIcon}
               size='sm'
             />
-            <MenuList zIndex={2}>
+            <MenuList zIndex={'popover'}>
               <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
                 <MenuItem icon={walletImageIcon} isDisabled closeOnSelect={false}>
                   <Flex flexDir='row' justifyContent='space-between' alignItems='center'>

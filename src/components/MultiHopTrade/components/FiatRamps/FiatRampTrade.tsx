@@ -390,13 +390,11 @@ const RampRoutes = memo(({ onChangeTab, type }: RampRoutesProps) => {
   )
 
   return (
-    <>
-      <AnimatePresence mode='wait' initial={false}>
-        <Routes>
-          <Route key={FiatRampRoutePaths.Buy} path={'*'} element={tradeInputElement} />
-          <Route path='/ramp/*' element={tradeInputElement} />
-        </Routes>
-      </AnimatePresence>
-    </>
+    <AnimatePresence mode='wait' initial={false}>
+      <Routes>
+        <Route key={FiatRampRoutePaths.Buy} path={'*'} element={tradeInputElement} />
+        <Route path='/ramp/*' element={tradeInputElement} />
+      </Routes>
+    </AnimatePresence>
   )
 })

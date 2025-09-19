@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { AccountNumberRow } from './AccountNumberRow'
 
@@ -19,7 +18,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
-import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectIsAnyMarketDataApiQueryPending,
@@ -30,6 +28,8 @@ import { useAppSelector } from '@/state/store'
 
 type ChainRowProps = {
   chainId: ChainId
+  isSimpleMenu?: boolean
+  onClose?: () => void
 }
 
 const fontSize = { base: 'sm', md: 'md' }
@@ -37,11 +37,10 @@ const borderWidth = { base: 0, md: 1 }
 const hover = { borderColor: 'border.hover' }
 const stackPx = { base: 2, md: 4 }
 
-export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
+export const ChainRow: React.FC<ChainRowProps> = ({ chainId, isSimpleMenu = false, onClose }) => {
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
   const { isOpen, onToggle } = useDisclosure()
-  const navigate = useNavigate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
@@ -63,15 +62,11 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         accountNumber={Number(accountNumber)}
         accountIds={accountIds}
         chainId={chainId}
-        onClick={
-          // accountIds is strictly length 1 per accountNumber for account-based chains
-          !isUtxoAccountId(accountIds[0])
-            ? () => navigate(`/wallet/accounts/${accountIds[0]}`)
-            : undefined
-        }
+        isSimpleMenu={isSimpleMenu}
+        onClose={onClose}
       />
     ))
-  }, [accountIdsByAccountNumber, chainId, navigate, isOpen])
+  }, [accountIdsByAccountNumber, chainId, isOpen, isSimpleMenu, onClose])
 
   return asset ? (
     <ListItem

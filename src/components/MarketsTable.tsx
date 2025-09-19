@@ -8,6 +8,8 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
+import { WatchAssetButton } from './AssetHeader/WatchAssetButton'
+
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
 import { ReactTableNoPager } from '@/components/ReactTable/ReactTableNoPager'
@@ -147,6 +149,10 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(
               {translate('assets.assetCards.assetActions.trade')}
             </Button>
           ),
+        },
+        {
+          id: 'watch',
+          Cell: ({ row }: { row: RowProps }) => <WatchAssetButton assetId={row.original.assetId} />,
         },
       ],
       [handleTradeClick, isCompactCols, marketDataUserCurrencyById, translate],

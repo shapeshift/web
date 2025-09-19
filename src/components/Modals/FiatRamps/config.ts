@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
 
-import type commonFiatCurrencyList from './FiatCurrencyList.json'
+import commonFiatCurrencyList from './FiatCurrencyList.json'
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
 import {
   createCoinbaseUrl,
@@ -21,6 +21,7 @@ import banxaLogo from '@/assets/banxa.png'
 import CoinbaseLogo from '@/assets/coinbase-logo.svg'
 import MtPelerinLogo from '@/assets/mtpelerin.png'
 import OnRamperLogo from '@/assets/onramper-logo.svg'
+import { getOnramperQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -35,7 +36,47 @@ export type FiatCurrencyItem = {
   name_plural?: string
 }
 
+export type RampQuote = {
+  id: string
+  provider: FiatRamp
+  providerLogo?: string
+  fiatFee?: string
+  networkFee?: string
+  rate: string
+  amount: string
+  isBestRate?: boolean
+  isCreditCard?: boolean
+  isBankTransfer?: boolean
+  isApplePay?: boolean
+  isGooglePay?: boolean
+  isSepa?: boolean
+}
+
 export type CommonFiatCurrencies = keyof typeof commonFiatCurrencyList
+
+export const fiatCurrencies = Object.keys(commonFiatCurrencyList) as CommonFiatCurrencies[]
+
+export const fiatCurrencyObjects = Object.entries(commonFiatCurrencyList).map(
+  ([code, currency]) => ({
+    ...currency,
+    code,
+  }),
+) as FiatCurrencyItem[]
+
+export const fiatCurrencyObjectsByCode = fiatCurrencyObjects.reduce(
+  (acc, fiat) => {
+    acc[fiat.code] = fiat
+    return acc
+  },
+  {} as Record<string, FiatCurrencyItem>,
+)
+
+export type GetQuotesProps = {
+  fiatCurrency: FiatCurrencyItem
+  crypto: string
+  amount: string
+  direction: 'buy' | 'sell'
+}
 
 export interface SupportedFiatRampConfig {
   id: FiatRamp
@@ -51,6 +92,7 @@ export interface SupportedFiatRampConfig {
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
   getSupportedFiatList: () => CommonFiatCurrencies[]
+  getQuotes: undefined | ((args: GetQuotesProps) => Promise<RampQuote | null>)
   onSubmit: (args: CreateUrlProps) => Promise<string | undefined>
   minimumSellThreshold?: number
 }
@@ -72,6 +114,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyList, sellList])
     },
     getSupportedFiatList: () => getSupportedCoinbaseFiatCurrencies(),
+    getQuotes: undefined,
     onSubmit: props => {
       return Promise.resolve(createCoinbaseUrl(props))
     },
@@ -95,6 +138,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [filteredBuyAndSellAssetIds, filteredBuyAndSellAssetIds]
     },
     getSupportedFiatList: () => SUPPORTED_ONRAMPER_FIAT_CURRENCIES,
+    getQuotes: getOnramperQuote,
     onSubmit: async props => {
       try {
         const onRamperCheckoutUrl = await createOnRamperUrl(props)
@@ -118,6 +162,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),
+    getQuotes: undefined,
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)
@@ -144,6 +189,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
     getSupportedFiatList: () => getMtPelerinFiatCurrencies(),
+    getQuotes: undefined,
     onSubmit: props => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(props)

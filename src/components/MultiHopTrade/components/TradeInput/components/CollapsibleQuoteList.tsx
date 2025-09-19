@@ -11,6 +11,7 @@ export type CollapsibleQuoteListProps = {
   width: string | number
   height: string | number
   ml: CardProps['ml']
+  showQuoteRefreshCountdown?: boolean
   QuotesComponent?: React.FC<QuotesComponentProps>
 }
 
@@ -19,6 +20,7 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
   width,
   height,
   ml,
+  showQuoteRefreshCountdown,
   QuotesComponent,
 }) => {
   const borderColor = useColorModeValue('border.base', 'transparent') // Patch styling: border to remedy box shadow cut off in light mode
@@ -35,7 +37,11 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
 
   return (
     <HorizontalCollapse isOpen={isOpen} width={width} height={height}>
-      <QuoteList cardProps={cardProps} QuotesComponent={QuotesComponent} />
+      <QuoteList
+        cardProps={cardProps}
+        QuotesComponent={QuotesComponent}
+        showQuoteRefreshCountdown={showQuoteRefreshCountdown}
+      />
     </HorizontalCollapse>
   )
 }

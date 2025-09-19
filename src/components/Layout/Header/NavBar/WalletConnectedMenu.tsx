@@ -155,7 +155,7 @@ const ConnectedMenu = memo(
         <MenuDivider />
         <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
-          {(!isConnected || isLocked) && !isLedger && (
+          {(!isConnected || isLocked) && (
             <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
               {translate('connectWallet.menu.reconnectWallet')}
             </MenuItem>

@@ -47,19 +47,18 @@ const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
 
     return []
   })
-  const supportedMethods = allPaymentMethods.map(method => method?.toLowerCase())
+  const supportedMethods = allPaymentMethods.filter(Boolean).map(method => method.toLowerCase())
 
   return {
     isCreditCard: supportedMethods.some(
-      method => method?.includes('card') || method?.includes('credit') || method?.includes('debit'),
+      method => method.includes('card') || method.includes('credit') || method.includes('debit'),
     ),
     isBankTransfer: supportedMethods.some(
-      method =>
-        method?.includes('bank') || method?.includes('transfer') || method?.includes('wire'),
+      method => method.includes('bank') || method.includes('transfer') || method.includes('wire'),
     ),
-    isApplePay: supportedMethods.some(method => method?.includes('apple')),
-    isGooglePay: supportedMethods.some(method => method?.includes('google')),
-    isSepa: supportedMethods.some(method => method?.includes('sepa')),
+    isApplePay: supportedMethods.some(method => method.includes('apple')),
+    isGooglePay: supportedMethods.some(method => method.includes('google')),
+    isSepa: supportedMethods.some(method => method.includes('sepa')),
   }
 }
 
@@ -71,11 +70,10 @@ const convertOnramperQuotesToSingleRampQuote = (
   }
 
   const bestQuote = onramperQuotes.reduce<OnramperBuyQuote | null>((best, current) => {
-    if (current.errors) return best
-    if (!best) return current
-    if (!current.payout) return best
+    if (current.errors || !current.payout) return best
+    if (!best || !best.payout) return current
 
-    return current.payout && best.payout && current.payout > best.payout ? current : best
+    return current.payout > best.payout ? current : best
   }, null)
 
   if (!bestQuote) return null
@@ -86,10 +84,10 @@ const convertOnramperQuotesToSingleRampQuote = (
     id: `onramper-aggregated-${bestQuote.quoteId || 'quote'}`,
     provider: 'OnRamper',
     providerLogo: OnRamperLogo,
-    rate: bestQuote.rate?.toString() || '0',
-    fiatFee: bestQuote.transactionFee?.toString() || '0',
-    networkFee: bestQuote.networkFee?.toString() || '0',
-    amount: bestQuote.payout?.toString() || '0',
+    rate: bestQuote.rate?.toString() ?? '0',
+    fiatFee: bestQuote.transactionFee?.toString() ?? '0',
+    networkFee: bestQuote.networkFee?.toString() ?? '0',
+    amount: bestQuote.payout?.toString() ?? '0',
     isBestRate: true, // This is the best rate from OnRamper
     isFastest: false, // OnRamper doesn't provide speed information
     ...paymentMethodSupport,

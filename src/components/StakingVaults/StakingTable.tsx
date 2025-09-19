@@ -17,14 +17,13 @@ import { useAppSelector } from '@/state/store'
 type StakingTableProps = {
   data: EarnOpportunityType[]
   onClick: (arg: EarnOpportunityType) => void
-  showTeaser?: boolean
 }
 
 type RowProps = Row<EarnOpportunityType>
 
 const tagSize = { base: 'sm', md: 'md' }
 
-export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
+export const StakingTable = ({ data, onClick }: StakingTableProps) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssets)
   const columns: Column<EarnOpportunityType>[] = useMemo(
@@ -46,7 +45,6 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
               subText={row.original.version}
               icons={row.original.icons}
               opportunityName={row.original.opportunityName}
-              showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
               isExternal={row.original.isReadOnly}
             />
@@ -131,7 +129,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
     ],
-    [assets, showTeaser, translate],
+    [assets, translate],
   )
 
   const handleRowClick = useCallback(

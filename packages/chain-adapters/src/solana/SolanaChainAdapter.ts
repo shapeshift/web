@@ -415,7 +415,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const instructionCount = isSolTransfer
         ? 0
         : Math.max(instructions?.length ?? 0, SOLANA_MINIMUM_INSTRUCTION_COUNT)
-      debugger
 
       return {
         fast: {

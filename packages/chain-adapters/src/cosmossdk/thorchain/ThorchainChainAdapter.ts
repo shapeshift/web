@@ -1,8 +1,8 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet, ThorchainSignTx, ThorchainWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import type { RootBip44Params, ThorMayaChainId } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -30,15 +30,6 @@ import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseA
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { ThorchainMsgDeposit, ThorchainMsgSend, ThorSupportedCoin } from '../types'
 import { ThorchainMessageType } from '../types'
-
-const thorMayaChainIds = [KnownChainIds.ThorchainMainnet, KnownChainIds.MayachainMainnet] as const
-
-// is any of THORChain or THOR fork (only MAYAChain at the time of writing)
-export const isThorMayaChainId = (
-  maybeThorMayaChainId: string | ChainId,
-): maybeThorMayaChainId is ThorMayaChainId => {
-  return thorMayaChainIds.includes(maybeThorMayaChainId as ThorMayaChainId)
-}
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic native fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants

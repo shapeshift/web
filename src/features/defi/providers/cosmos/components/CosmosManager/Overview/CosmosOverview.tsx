@@ -8,7 +8,6 @@ import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
@@ -118,7 +117,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const cosmosEmptyAssets = useMemo(() => (stakingAsset ? [stakingAsset] : []), [stakingAsset])
 
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
@@ -152,18 +150,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
         search: qs.stringify({
           ...query,
           modal: DefiAction.Deposit,
-        }),
-      }),
-    [navigate, location.pathname, query],
-  )
-
-  const handleLearnMoreClick = useCallback(
-    () => () =>
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          ...query,
-          modal: DefiAction.GetStarted,
         }),
       }),
     [navigate, location.pathname, query],
@@ -223,17 +209,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
           <CircularProgress isIndeterminate />
         </Center>
       </DefiModalContent>
-    )
-  }
-
-  if (totalBondings.eq(0)) {
-    return (
-      <CosmosEmpty
-        assets={cosmosEmptyAssets}
-        apy={defaultOpportunityMetadata?.apy ?? ''}
-        onStakeClick={handleStakeClick}
-        onLearnMoreClick={handleLearnMoreClick}
-      />
     )
   }
 

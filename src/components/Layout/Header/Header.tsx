@@ -16,6 +16,7 @@ import { NavigationDropdown } from './NavBar/NavigationDropdown'
 import { ShapeShiftMenu } from './NavBar/ShapeShiftMenu'
 import { UserMenu } from './NavBar/UserMenu'
 import { WalletManagerDrawer } from './NavBar/WalletManagerDrawer'
+import { SettingsMenu } from './SettingsMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
@@ -211,6 +212,7 @@ export const Header = memo(() => {
             )}
             {isConnected && !isActionCenterEnabled && <TxWindow />}
             {isConnected && isActionCenterEnabled && <ActionCenter />}
+            {!isConnected && <SettingsMenu />}
             {hasWallet && (
               <Divider orientation='vertical' height='24px' borderColor='border.bold' />
             )}

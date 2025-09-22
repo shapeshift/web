@@ -29,23 +29,23 @@ export const useLedgerConnectionState = () => {
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
   )
 
+  const handleConnect = useCallback((event: USBConnectionEvent) => {
+    if (isLedgerDevice(event.device)) {
+      setDeviceState('connected')
+    }
+  }, [])
+
+  const handleDisconnect = useCallback((event: USBConnectionEvent) => {
+    if (isLedgerDevice(event.device)) {
+      setDeviceState('disconnected')
+    }
+  }, [])
+
   useEffect(() => {
     // Only enable USB monitoring for users who have previously connected a Ledger
     // This ensures no shenanigans re: new Ledger USB detection logic for the very initial state of
     // no USB perms granted, first time connecting a Ledger to app
     if (!isLedgerReadOnlyEnabled || !navigator.usb || !isPreviousLedgerDeviceDetected) return
-
-    const handleConnect = (event: USBConnectionEvent) => {
-      if (isLedgerDevice(event.device)) {
-        setDeviceState('connected')
-      }
-    }
-
-    const handleDisconnect = (event: USBConnectionEvent) => {
-      if (isLedgerDevice(event.device)) {
-        setDeviceState('disconnected')
-      }
-    }
 
     navigator.usb.addEventListener('connect', handleConnect)
     navigator.usb.addEventListener('disconnect', handleDisconnect)
@@ -66,7 +66,7 @@ export const useLedgerConnectionState = () => {
       navigator.usb.removeEventListener('connect', handleConnect)
       navigator.usb.removeEventListener('disconnect', handleDisconnect)
     }
-  }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected])
+  }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected, handleConnect, handleDisconnect])
 
   const handleAutoConnect = useCallback(async () => {
     if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') {

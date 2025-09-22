@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'
+
 import { usdcAssetId } from '@/test/mocks/accounts'
 
 describe('@/lib/address', () => {

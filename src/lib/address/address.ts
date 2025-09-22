@@ -39,6 +39,15 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
 
 const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
+const parseHexChainId = (hexChainId: string | undefined, fallbackChainId: ChainId): ChainId => {
+  if (!hexChainId) return fallbackChainId
+
+  return toChainId({
+    chainNamespace: CHAIN_NAMESPACE.Evm,
+    chainReference: fromHex(hexChainId as `0x${string}`, 'number').toString() as any,
+  })
+}
+
 export const parseMaybeUrlWithChainId = ({
   assetId,
   chainId,
@@ -49,16 +58,9 @@ export const parseMaybeUrlWithChainId = ({
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
 
+        // Handle ERC-20 token transfers
         if (parsedUrl.parameters?.address && parsedUrl.target_address) {
-          const actualChainId = parsedUrl.chain_id
-            ? toChainId({
-                chainNamespace: CHAIN_NAMESPACE.Evm,
-                chainReference: fromHex(
-                  parsedUrl.chain_id as `0x${string}`,
-                  'number',
-                ).toString() as any,
-              })
-            : chainId
+          const actualChainId = parseHexChainId(parsedUrl.chain_id, chainId)
 
           const tokenAssetId = toAssetId({
             chainId: actualChainId,
@@ -66,64 +68,51 @@ export const parseMaybeUrlWithChainId = ({
             assetReference: parsedUrl.target_address.toLowerCase(),
           })
 
-          const state = store.getState()
-          const asset = selectAssetById(state, tokenAssetId)
+          const asset = selectAssetById(store.getState(), tokenAssetId)
+          if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
 
-          if (!asset) {
-            throw new Error(DANGEROUS_ETH_URL_ERROR)
-          }
-
-          const amountCryptoPrecision = (() => {
-            if (!parsedUrl.parameters?.uint256) return undefined
-
+          let amountCryptoPrecision: string | undefined
+          if (parsedUrl.parameters.uint256) {
             try {
-              return fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
-            } catch (error) {
-              return undefined
+              amountCryptoPrecision = fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+            } catch {
+              // Invalid amount, ignore
             }
-          })()
+          }
 
           return {
             assetId: tokenAssetId,
             maybeAddress: parsedUrl.parameters.address,
             chainId: actualChainId,
-            ...(amountCryptoPrecision ? { amountCryptoPrecision } : {}),
+            ...(amountCryptoPrecision && { amountCryptoPrecision }),
           }
         }
 
-        const finalChainId = parsedUrl.chain_id
-          ? toChainId({
-              chainNamespace: CHAIN_NAMESPACE.Evm,
-              chainReference: fromHex(
-                parsedUrl.chain_id as `0x${string}`,
-                'number',
-              ).toString() as any,
-            })
-          : chainId
-
+        // Handle native ETH transfers
+        const finalChainId = parseHexChainId(parsedUrl.chain_id, chainId)
         const finalAssetId =
           parsedUrl.chain_id && finalChainId !== chainId
             ? getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId
             : assetId
 
-        const amountCryptoPrecision = (() => {
-          const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-          if (!rawAmount || !finalAssetId) return undefined
-
+        let amountCryptoPrecision: string | undefined
+        const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+        if (rawAmount && finalAssetId) {
           try {
-            const state = store.getState()
-            const feeAsset = selectAssetById(state, finalAssetId)
-            return feeAsset ? fromBaseUnit(rawAmount, feeAsset.precision) : undefined
-          } catch (error) {
-            return undefined
+            const feeAsset = selectAssetById(store.getState(), finalAssetId)
+            if (feeAsset) {
+              amountCryptoPrecision = fromBaseUnit(rawAmount, feeAsset.precision)
+            }
+          } catch {
+            // Invalid amount, ignore
           }
-        })()
+        }
 
         return {
           assetId: finalAssetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
           chainId: finalChainId,
-          ...(amountCryptoPrecision ? { amountCryptoPrecision } : {}),
+          ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
       } catch (error) {
         if (error instanceof Error) {

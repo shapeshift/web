@@ -151,8 +151,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (maybeUrlResult.assetId) return navigate(SendRoutes.Details)
 
           navigate(SendRoutes.Address)
-        } catch (e) {
-          setAddressError(e instanceof Error ? e.message : 'Unknown error')
+        } catch (e: any) {
+          setAddressError(e.message)
         }
       })()
     },

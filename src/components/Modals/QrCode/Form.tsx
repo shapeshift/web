@@ -21,7 +21,7 @@ import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/addre
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectHighestUserCurrencyBalanceAccountByAssetId, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 type QrCodeFormProps = {
@@ -122,6 +122,17 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           methods.setValue(SendFormFields.To, address)
           methods.setValue(SendFormFields.VanityAddress, vanityAddress)
           
+          // Set accountId to the highest balance account for this asset
+          if (maybeUrlResult.assetId) {
+            const state = store.getState()
+            const defaultAccountId = selectHighestUserCurrencyBalanceAccountByAssetId(state, { 
+              assetId: maybeUrlResult.assetId 
+            })
+            if (defaultAccountId) {
+              methods.setValue(SendFormFields.AccountId, defaultAccountId)
+            }
+          }
+          
           if (maybeUrlResult.amountCryptoPrecision) {
             console.log('Setting form amounts:', {
               cryptoAmount: maybeUrlResult.amountCryptoPrecision,
@@ -160,21 +171,18 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             console.log('Navigating to Select (ETH address without amount)')
             return navigate(SendRoutes.Select)
           } else if (maybeUrlResult.assetId === ethAssetId && maybeUrlResult.amountCryptoPrecision) {
-            console.log('Navigating to Details (ETH with amount - assuming native ETH send)')
+            // ETH with amount - skip to details for review
             return navigate(SendRoutes.Details)
           }
 
           // Smart navigation based on available data
           if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-            console.log('Navigating to Details (full QR with asset + amount)')
-            // Full QR with asset, recipient, and amount → skip to details
+            // Full QR with asset, recipient, and amount → skip to details for review
             navigate(SendRoutes.Details)
           } else if (maybeUrlResult.assetId) {
-            console.log('Navigating to Details (asset QR without amount)')
             // QR with asset and recipient → skip to details for amount entry
             navigate(SendRoutes.Details)
           } else {
-            console.log('Navigating to Address (fallback)')
             // Fallback to address screen
             navigate(SendRoutes.Address)
           }

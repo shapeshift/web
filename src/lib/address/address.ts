@@ -38,7 +38,6 @@ export const parseMaybeUrlWithChainId = ({
     case ethChainId:
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
-        console.log({ parsedUrl, urlOrAddress })
 
         // Handle ERC-20 token transfers with asset validation
         if (parsedUrl.parameters?.address && parsedUrl.target_address) {
@@ -59,34 +58,17 @@ export const parseMaybeUrlWithChainId = ({
           // Validate asset exists in store
           const state = store.getState()
           const asset = selectAssetById(state, tokenAssetId)
-          console.log('Token Asset Validation:', {
-            tokenAssetId,
-            assetFound: !!asset,
-            actualChainId,
-            contractAddress: parsedUrl.target_address,
-            recipient: parsedUrl.parameters.address,
-            amount: parsedUrl.parameters.uint256
-          })
           
           if (!asset) {
-            console.log('Asset not found in store, throwing error:', tokenAssetId)
             throw new Error(DANGEROUS_ETH_URL_ERROR)
           }
-          
-          console.log('Asset validation successful, returning token data')
           
           // Convert amount from base units to human readable using asset precision
           let humanAmount: string | undefined
           if (parsedUrl.parameters?.uint256) {
             try {
               humanAmount = fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
-              console.log('Amount conversion:', {
-                baseAmount: parsedUrl.parameters.uint256,
-                precision: asset.precision,
-                humanAmount
-              })
             } catch (error) {
-              console.warn('Failed to convert amount, skipping:', error)
               humanAmount = undefined
             }
           }
@@ -112,14 +94,6 @@ export const parseMaybeUrlWithChainId = ({
           getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId 
           : assetId
 
-        console.log('Native asset parsing:', {
-          originalChainId: chainId,
-          finalChainId,
-          originalAssetId: assetId,
-          finalAssetId,
-          hasChainIdInQR: !!parsedUrl.chain_id,
-          parsedChainId: parsedUrl.chain_id
-        })
 
         // Convert native asset amount from base units to human readable
         let humanAmount: string | undefined
@@ -130,18 +104,10 @@ export const parseMaybeUrlWithChainId = ({
             const nativeAsset = selectAssetById(state, finalAssetId)
             if (nativeAsset) {
               humanAmount = fromBaseUnit(rawAmount, nativeAsset.precision)
-              console.log('Native amount conversion:', {
-                baseAmount: rawAmount,
-                precision: nativeAsset.precision,
-                humanAmount,
-                assetSymbol: nativeAsset.symbol
-              })
             } else {
-              console.warn('Native asset not found for amount conversion:', finalAssetId)
               humanAmount = undefined
             }
           } catch (error) {
-            console.warn('Failed to convert native amount, skipping:', error)
             humanAmount = undefined
           }
         }

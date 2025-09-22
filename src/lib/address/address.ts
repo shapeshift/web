@@ -39,23 +39,19 @@ export const parseMaybeUrlWithChainId = ({
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
 
-        // Handle ERC-20 token transfers with asset validation
         if (parsedUrl.parameters?.address && parsedUrl.target_address) {
-          // Convert hex chain_id to proper ChainId if available
           const actualChainId = parsedUrl.chain_id ? 
             toChainId({ 
               chainNamespace: CHAIN_NAMESPACE.Evm, 
               chainReference: fromHex(parsedUrl.chain_id as `0x${string}`, 'number').toString() as any
             }) : chainId
 
-          // Construct potential token asset ID
           const tokenAssetId = toAssetId({ 
             chainId: actualChainId, 
             assetNamespace: ASSET_NAMESPACE.erc20, 
             assetReference: parsedUrl.target_address.toLowerCase() 
           })
           
-          // Validate asset exists in store
           const state = store.getState()
           const asset = selectAssetById(state, tokenAssetId)
           
@@ -63,65 +59,56 @@ export const parseMaybeUrlWithChainId = ({
             throw new Error(DANGEROUS_ETH_URL_ERROR)
           }
           
-          // Convert amount from base units to human readable using asset precision
-          let humanAmount: string | undefined
-          if (parsedUrl.parameters?.uint256) {
+          const humanAmount = (() => {
+            if (!parsedUrl.parameters?.uint256) return undefined
+            
             try {
-              humanAmount = fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+              return fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
             } catch (error) {
-              humanAmount = undefined
+              return undefined
             }
-          }
+          })()
           
-          // Return with proper recipient (parameters.address) and token asset info
           return {
             assetId: tokenAssetId,
-            maybeAddress: parsedUrl.parameters.address, // recipient, not contract
+            maybeAddress: parsedUrl.parameters.address,
             chainId: actualChainId,
             ...(humanAmount ? { amountCryptoPrecision: humanAmount } : {}),
           }
         }
 
-        // Use chain_id from QR if available for chain pre-selection
         const finalChainId = parsedUrl.chain_id ? 
           toChainId({ 
             chainNamespace: CHAIN_NAMESPACE.Evm, 
             chainReference: fromHex(parsedUrl.chain_id as `0x${string}`, 'number').toString() as any
           }) : chainId
 
-        // For native assets with chain_id, use the correct chain's native asset
         const finalAssetId = parsedUrl.chain_id && finalChainId !== chainId ? 
           getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId 
           : assetId
 
-
-        // Convert native asset amount from base units to human readable
-        let humanAmount: string | undefined
-        const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-        if (rawAmount && finalAssetId) {
+        const humanAmount = (() => {
+          const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+          if (!rawAmount || !finalAssetId) return undefined
+          
           try {
             const state = store.getState()
             const nativeAsset = selectAssetById(state, finalAssetId)
-            if (nativeAsset) {
-              humanAmount = fromBaseUnit(rawAmount, nativeAsset.precision)
-            } else {
-              humanAmount = undefined
-            }
+            return nativeAsset ? fromBaseUnit(rawAmount, nativeAsset.precision) : undefined
           } catch (error) {
-            humanAmount = undefined
+            return undefined
           }
-        }
+        })()
 
         return {
           assetId: finalAssetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
-          chainId: finalChainId, // Enables chain pre-selection for all QRs
+          chainId: finalChainId,
           ...(humanAmount ? { amountCryptoPrecision: humanAmount } : {}),
         }
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
-          // address, not url, don't log
           if (error.message.includes('Not an Ethereum URI')) break
         }
         console.error(error)
@@ -144,7 +131,6 @@ export const parseMaybeUrlWithChainId = ({
         }
       } catch (error) {
         if (error instanceof Error) {
-          // address, not url, don't log
           if (error.message.includes('Invalid BIP21 URI')) break
         }
         console.error(error)
@@ -173,17 +159,8 @@ export const parseMaybeUrl = async ({
       if (!adapter) throw new Error('Adapter not found')
 
       const defaultAssetId = adapter.getFeeAssetId()
-      // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
-        // Use the asset ID from parsing if available (e.g., ERC-20 tokens), otherwise use native asset
         const finalAssetId = maybeUrl.assetId || defaultAssetId
-        console.log('parseMaybeUrl returning:', {
-          chainId,
-          finalAssetId,
-          defaultAssetId,
-          parsedAssetId: maybeUrl.assetId,
-          amount: maybeUrl.amountCryptoPrecision
-        })
         return {
           chainId,
           value: urlOrAddress,
@@ -192,7 +169,6 @@ export const parseMaybeUrl = async ({
         }
       }
 
-      // Validation was unsuccessful, but this may still be a valid address for this adapter
       const isValidAddress = await validateAddress({ chainId, maybeAddress: urlOrAddress })
       if (isValidAddress) {
         return {
@@ -202,14 +178,10 @@ export const parseMaybeUrl = async ({
         }
       }
     } catch (error: any) {
-      // We want this actual error to be rethrown as it's eventually user-facing
       if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
-      // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
-      // Swallow the error and continue
     }
   }
 
-  // Validation failed for all ChainIds. Now this is an actual error.
   throw new Error('Address not found in QR code')
 }
 

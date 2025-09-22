@@ -21,7 +21,7 @@ import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/addre
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectHighestUserCurrencyBalanceAccountByAssetId, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 type QrCodeFormProps = {
@@ -115,34 +115,14 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           }
           const { address, vanityAddress } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
 
-          // Set asset and address - amounts are already converted to human readable in parsing logic
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)
-          // Set the processed address fields (same as Address component does)
           methods.setValue(SendFormFields.To, address)
           methods.setValue(SendFormFields.VanityAddress, vanityAddress)
           
-          // Set accountId to the highest balance account for this asset
-          if (maybeUrlResult.assetId) {
-            const state = store.getState()
-            const defaultAccountId = selectHighestUserCurrencyBalanceAccountByAssetId(state, { 
-              assetId: maybeUrlResult.assetId 
-            })
-            if (defaultAccountId) {
-              methods.setValue(SendFormFields.AccountId, defaultAccountId)
-            }
-          }
-          
           if (maybeUrlResult.amountCryptoPrecision) {
-            console.log('Setting form amounts:', {
-              cryptoAmount: maybeUrlResult.amountCryptoPrecision,
-              assetId: maybeUrlResult.assetId
-            })
-            
-            // Amount is already in human readable format from parsing
             methods.setValue(SendFormFields.AmountCryptoPrecision, maybeUrlResult.amountCryptoPrecision)
             
-            // Calculate and set fiat amount
             const marketData = selectMarketDataByAssetIdUserCurrency(
               store.getState(),
               maybeUrlResult.assetId ?? '',
@@ -152,38 +132,19 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
               .toString()
             
             methods.setValue(SendFormFields.FiatAmount, fiatAmount)
-            console.log('Calculated fiat amount:', { fiatAmount, price: marketData?.price })
           }
 
-          // Smart navigation: skip steps when data is available
-          console.log('QR Navigation Debug (QrCode Modal):', {
-            hasAssetId: !!maybeUrlResult.assetId,
-            hasAmount: !!maybeUrlResult.amountCryptoPrecision,
-            assetId: maybeUrlResult.assetId,
-            amount: maybeUrlResult.amountCryptoPrecision,
-            isEth: maybeUrlResult.assetId === ethAssetId,
-            fullResult: maybeUrlResult
-          })
-
-          // ETH QRs without amounts should go to asset selection since user might want to send tokens
-          // But ETH QRs with amounts probably want to send native ETH, so skip to details
           if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision) {
-            console.log('Navigating to Select (ETH address without amount)')
             return navigate(SendRoutes.Select)
           } else if (maybeUrlResult.assetId === ethAssetId && maybeUrlResult.amountCryptoPrecision) {
-            // ETH with amount - skip to details for review
             return navigate(SendRoutes.Details)
           }
 
-          // Smart navigation based on available data
           if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-            // Full QR with asset, recipient, and amount → skip to details for review
             navigate(SendRoutes.Details)
           } else if (maybeUrlResult.assetId) {
-            // QR with asset and recipient → skip to details for amount entry
             navigate(SendRoutes.Details)
           } else {
-            // Fallback to address screen
             navigate(SendRoutes.Address)
           }
         } catch (e: any) {

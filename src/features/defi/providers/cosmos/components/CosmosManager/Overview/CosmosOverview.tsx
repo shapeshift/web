@@ -2,11 +2,9 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import qs from 'qs'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { WithdrawCard } from './WithdrawCard'
 
@@ -55,7 +53,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     accountId: routeAccountId,
     assetNamespace,
@@ -140,20 +138,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
-
-  const navigate = useNavigate()
-
-  const handleStakeClick = useCallback(
-    () =>
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          ...query,
-          modal: DefiAction.Deposit,
-        }),
-      }),
-    [navigate, location.pathname, query],
-  )
 
   const underlyingAssetsCryptoPrecision = useMemo(
     () => [

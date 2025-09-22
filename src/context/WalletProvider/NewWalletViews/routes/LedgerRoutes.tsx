@@ -41,7 +41,7 @@ export const LedgerRoutes = () => {
 
   const {
     connectionState,
-    isDisconnected: isUSBDisconnected,
+    isConnected: isUSBConnected,
     handleAutoConnect,
   } = useLedgerConnectionState()
 
@@ -143,7 +143,7 @@ export const LedgerRoutes = () => {
     // 2. AND have a Ledger physically connected (for the sake of simplicity, we assume USB perms granted, if not, welcome to bugs hell)
     // This ensures first-time users get develop behavior exactly
     const shouldAttemptAutoConnect =
-      isPreviousLedgerDeviceDetected && !isUSBDisconnected && connectionState === 'idle'
+      isPreviousLedgerDeviceDetected && isUSBConnected && connectionState === 'idle'
 
     if (!shouldAttemptAutoConnect) return
 
@@ -152,7 +152,7 @@ export const LedgerRoutes = () => {
     modalType,
     isLedgerReadOnlyEnabled,
     isPreviousLedgerDeviceDetected,
-    isUSBDisconnected,
+    isUSBConnected,
     handleAutoConnect,
     connectionState,
   ])
@@ -177,7 +177,7 @@ export const LedgerRoutes = () => {
   const ledgerPairElement = useMemo(() => {
     if (
       isLedgerReadOnlyEnabled &&
-      (connectionState === 'failed' || isUSBDisconnected) &&
+      (connectionState === 'failed' || !isUSBConnected) &&
       isPreviousLedgerDeviceDetected
     ) {
       return <LedgerReadOnlyBody />
@@ -205,7 +205,7 @@ export const LedgerRoutes = () => {
   }, [
     isLedgerReadOnlyEnabled,
     connectionState,
-    isUSBDisconnected,
+    isUSBConnected,
     deviceCountError,
     error,
     handlePair,

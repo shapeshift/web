@@ -142,7 +142,8 @@ export const LedgerRoutes = () => {
     // 1. Have connected a Ledger before (portfolio data exists)
     // 2. AND have a Ledger physically connected (for the sake of simplicity, we assume USB perms granted, if not, welcome to bugs hell)
     // This ensures first-time users get develop behavior exactly
-    const shouldAttemptAutoConnect = isPreviousLedgerDeviceDetected && !isUSBDisconnected
+    const shouldAttemptAutoConnect =
+      isPreviousLedgerDeviceDetected && !isUSBDisconnected && connectionState === 'idle'
 
     if (!shouldAttemptAutoConnect) return
 
@@ -153,6 +154,7 @@ export const LedgerRoutes = () => {
     isPreviousLedgerDeviceDetected,
     isUSBDisconnected,
     handleAutoConnect,
+    connectionState,
   ])
 
   const secondaryButton = useMemo(

@@ -173,9 +173,6 @@ export const LedgerRoutes = () => {
   )
 
   const ledgerPairElement = useMemo(() => {
-    // Only show loading for explicit user actions, not auto-connect attempts
-    const combinedLoading = isLoading
-
     if (
       isLedgerReadOnlyEnabled &&
       (connectionState === 'failed' || isUSBDisconnected) &&
@@ -197,7 +194,7 @@ export const LedgerRoutes = () => {
             ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
             : 'walletProvider.ledger.connect.pairNewDeviceButton'
         }
-        isLoading={combinedLoading}
+        isLoading={isLoading}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
         secondaryContent={secondaryButton}

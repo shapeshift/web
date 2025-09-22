@@ -11,8 +11,11 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssets,
@@ -43,6 +46,13 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   const {
     state: { isConnected },
   } = useWallet()
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const canDisplayBalances = useMemo(
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
+  )
   const groupedAssetBalances = useAppSelector(state =>
     selectGroupedAssetsWithBalances(state, asset.assetId),
   )
@@ -170,7 +180,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
             </CText>
             <Flex alignItems='center' gap={2}>
               {!showPrice &&
-              isConnected &&
+              canDisplayBalances &&
               (!hideZeroBalanceAmounts ||
                 bnOrZero(groupedAssetBalances?.primaryAsset.fiatAmount).gt(0)) ? (
                 <Amount.Crypto
@@ -213,7 +223,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           )}
 
           {!showPrice &&
-            isConnected &&
+            canDisplayBalances &&
             ((bnOrZero(groupedAssetBalances?.primaryAsset.cryptoAmount).gt(0) &&
               hideZeroBalanceAmounts) ||
               !hideZeroBalanceAmounts) && (

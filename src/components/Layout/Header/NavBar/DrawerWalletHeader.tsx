@@ -1,4 +1,4 @@
-import { CloseIcon, RepeatIcon, SettingsIcon } from '@chakra-ui/icons'
+import { CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Icon,
@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
-import { TbDots } from 'react-icons/tb'
+import { TbDots, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { WalletImage } from './WalletImage'
@@ -26,7 +26,7 @@ import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/Profil
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
-const settingsIcon = <SettingsIcon />
+const settingsIcon = <TbSettings />
 const dotsIcon = <Icon as={TbDots} />
 
 type DrawerHeaderProps = {
@@ -89,24 +89,26 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     return (
       <Flex align='center' justify='space-between'>
         <Flex align='center' gap={2}>
-          <ProfileAvatar size='sm' borderRadius='full' />
+          <ProfileAvatar size='md' borderRadius='full' />
           <Text fontWeight='medium'>{label}</Text>
         </Flex>
         <Flex gap={2}>
           <IconButton
             aria-label='Settings'
-            rounded='full'
+            isRound
+            fontSize='lg'
             icon={settingsIcon}
-            size='sm'
+            size='md'
             onClick={handleSettingsClick}
           />
           <Menu>
             <MenuButton
               as={IconButton}
-              rounded='full'
+              isRound
+              fontSize='lg'
               aria-label='Menu'
               icon={dotsIcon}
-              size='sm'
+              size='md'
             />
             <MenuList zIndex={'popover'}>
               <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>

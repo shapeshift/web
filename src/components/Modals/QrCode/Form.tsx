@@ -113,42 +113,46 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             chainId: maybeUrlResult.chainId,
             urlOrAddress: decodedText,
           }
-          const { address, vanityAddress } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+          const { address, vanityAddress } = await parseAddressInputWithChainId(
+            parseAddressInputWithChainIdArgs,
+          )
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)
           methods.setValue(SendFormFields.To, address)
           methods.setValue(SendFormFields.VanityAddress, vanityAddress)
-          
+
           if (maybeUrlResult.amountCryptoPrecision) {
-            methods.setValue(SendFormFields.AmountCryptoPrecision, maybeUrlResult.amountCryptoPrecision)
-            
+            methods.setValue(
+              SendFormFields.AmountCryptoPrecision,
+              maybeUrlResult.amountCryptoPrecision,
+            )
+
             const marketData = selectMarketDataByAssetIdUserCurrency(
               store.getState(),
               maybeUrlResult.assetId ?? '',
             )
-            const fiatAmount = bnOrZero(maybeUrlResult.amountCryptoPrecision)
+            const amountUserCurrency = bnOrZero(maybeUrlResult.amountCryptoPrecision)
               .times(bnOrZero(marketData?.price))
               .toString()
-            
-            methods.setValue(SendFormFields.FiatAmount, fiatAmount)
+
+            methods.setValue(SendFormFields.FiatAmount, amountUserCurrency)
           }
 
-          if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision) {
+          if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision)
             return navigate(SendRoutes.Select)
-          } else if (maybeUrlResult.assetId === ethAssetId && maybeUrlResult.amountCryptoPrecision) {
-            return navigate(SendRoutes.Details)
-          }
 
-          if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-            navigate(SendRoutes.Details)
-          } else if (maybeUrlResult.assetId) {
-            navigate(SendRoutes.Details)
-          } else {
-            navigate(SendRoutes.Address)
-          }
-        } catch (e: any) {
-          setAddressError(e.message)
+          if (maybeUrlResult.assetId === ethAssetId && maybeUrlResult.amountCryptoPrecision)
+            return navigate(SendRoutes.Details)
+
+          if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision)
+            return navigate(SendRoutes.Details)
+
+          if (maybeUrlResult.assetId) return navigate(SendRoutes.Details)
+
+          navigate(SendRoutes.Address)
+        } catch (e) {
+          setAddressError(e instanceof Error ? e.message : 'Unknown error')
         }
       })()
     },

@@ -1,5 +1,15 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId, toAssetId, toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  bchChainId,
+  btcChainId,
+  CHAIN_NAMESPACE,
+  dogeChainId,
+  ethChainId,
+  ltcChainId,
+  toAssetId,
+  toChainId,
+} from '@shapeshiftoss/caip'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'
@@ -12,8 +22,8 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { store } from '@/state/store'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { store } from '@/state/store'
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -40,61 +50,70 @@ export const parseMaybeUrlWithChainId = ({
         const parsedUrl = parseEthUrl(urlOrAddress)
 
         if (parsedUrl.parameters?.address && parsedUrl.target_address) {
-          const actualChainId = parsedUrl.chain_id ? 
-            toChainId({ 
-              chainNamespace: CHAIN_NAMESPACE.Evm, 
-              chainReference: fromHex(parsedUrl.chain_id as `0x${string}`, 'number').toString() as any
-            }) : chainId
+          const actualChainId = parsedUrl.chain_id
+            ? toChainId({
+                chainNamespace: CHAIN_NAMESPACE.Evm,
+                chainReference: fromHex(
+                  parsedUrl.chain_id as `0x${string}`,
+                  'number',
+                ).toString() as any,
+              })
+            : chainId
 
-          const tokenAssetId = toAssetId({ 
-            chainId: actualChainId, 
-            assetNamespace: ASSET_NAMESPACE.erc20, 
-            assetReference: parsedUrl.target_address.toLowerCase() 
+          const tokenAssetId = toAssetId({
+            chainId: actualChainId,
+            assetNamespace: ASSET_NAMESPACE.erc20,
+            assetReference: parsedUrl.target_address.toLowerCase(),
           })
-          
+
           const state = store.getState()
           const asset = selectAssetById(state, tokenAssetId)
-          
+
           if (!asset) {
             throw new Error(DANGEROUS_ETH_URL_ERROR)
           }
-          
-          const humanAmount = (() => {
+
+          const amountCryptoPrecision = (() => {
             if (!parsedUrl.parameters?.uint256) return undefined
-            
+
             try {
               return fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
             } catch (error) {
               return undefined
             }
           })()
-          
+
           return {
             assetId: tokenAssetId,
             maybeAddress: parsedUrl.parameters.address,
             chainId: actualChainId,
-            ...(humanAmount ? { amountCryptoPrecision: humanAmount } : {}),
+            ...(amountCryptoPrecision ? { amountCryptoPrecision } : {}),
           }
         }
 
-        const finalChainId = parsedUrl.chain_id ? 
-          toChainId({ 
-            chainNamespace: CHAIN_NAMESPACE.Evm, 
-            chainReference: fromHex(parsedUrl.chain_id as `0x${string}`, 'number').toString() as any
-          }) : chainId
+        const finalChainId = parsedUrl.chain_id
+          ? toChainId({
+              chainNamespace: CHAIN_NAMESPACE.Evm,
+              chainReference: fromHex(
+                parsedUrl.chain_id as `0x${string}`,
+                'number',
+              ).toString() as any,
+            })
+          : chainId
 
-        const finalAssetId = parsedUrl.chain_id && finalChainId !== chainId ? 
-          getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId 
-          : assetId
+        const finalAssetId =
+          parsedUrl.chain_id && finalChainId !== chainId
+            ? getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId
+            : assetId
 
-        const humanAmount = (() => {
+        const amountCryptoPrecision = (() => {
           const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
           if (!rawAmount || !finalAssetId) return undefined
-          
+
           try {
             const state = store.getState()
-            const nativeAsset = selectAssetById(state, finalAssetId)
-            return nativeAsset ? fromBaseUnit(rawAmount, nativeAsset.precision) : undefined
+            const feeAsset = selectAssetById(state, finalAssetId)
+            return feeAsset ? fromBaseUnit(rawAmount, feeAsset.precision) : undefined
           } catch (error) {
             return undefined
           }
@@ -104,11 +123,12 @@ export const parseMaybeUrlWithChainId = ({
           assetId: finalAssetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
           chainId: finalChainId,
-          ...(humanAmount ? { amountCryptoPrecision: humanAmount } : {}),
+          ...(amountCryptoPrecision ? { amountCryptoPrecision } : {}),
         }
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+          // address, not url, don't log
           if (error.message.includes('Not an Ethereum URI')) break
         }
         console.error(error)
@@ -131,6 +151,7 @@ export const parseMaybeUrlWithChainId = ({
         }
       } catch (error) {
         if (error instanceof Error) {
+          // address, not url, don't log
           if (error.message.includes('Invalid BIP21 URI')) break
         }
         console.error(error)
@@ -159,6 +180,7 @@ export const parseMaybeUrl = async ({
       if (!adapter) throw new Error('Adapter not found')
 
       const defaultAssetId = adapter.getFeeAssetId()
+      // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
         const finalAssetId = maybeUrl.assetId || defaultAssetId
         return {
@@ -169,6 +191,7 @@ export const parseMaybeUrl = async ({
         }
       }
 
+      // Validation was unsuccessful, but this may still be a valid address for this adapter
       const isValidAddress = await validateAddress({ chainId, maybeAddress: urlOrAddress })
       if (isValidAddress) {
         return {
@@ -177,11 +200,15 @@ export const parseMaybeUrl = async ({
           assetId: defaultAssetId,
         }
       }
-    } catch (error: any) {
-      if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+    } catch (error) {
+      // We want this actual error to be rethrown as it's eventually user-facing
+      if (error instanceof Error && error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
+      // Swallow the error and continue
     }
   }
 
+  // Validation failed for all ChainIds. Now this is an actual error.
   throw new Error('Address not found in QR code')
 }
 

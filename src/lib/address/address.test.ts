@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'
+import { usdcAssetId } from '@/test/mocks/accounts'
 
 describe('@/lib/address', () => {
   describe('parseMaybeUrlWithChainId', () => {
@@ -74,7 +75,7 @@ describe('@/lib/address', () => {
         assetId: ethAssetId,
         chainId: ethChainId,
         maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-        amountCryptoPrecision: '2014000000000000000',
+        amountCryptoPrecision: '2.014',
       }
 
       expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -90,10 +91,73 @@ describe('@/lib/address', () => {
         assetId: ethAssetId,
         chainId: ethChainId,
         maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-        amountCryptoPrecision: '2014000000000000000',
+        amountCryptoPrecision: '2.014',
       }
 
       expect(parseMaybeUrlWithChainId(input2)).toEqual(expectedOutput2)
+    })
+
+    it('should parse native EVM asset with amount and chain_id as hex', () => {
+      const input = {
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        urlOrAddress:
+          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@0x1?value=2014000000000000000',
+      }
+
+      const expectedOutput: ParseAddressByChainIdOutput = {
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        amountCryptoPrecision: '2.014',
+      }
+
+      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+    })
+
+    it('should parse ERC-20 token transfer with amount and destination', () => {
+      const input = {
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        urlOrAddress:
+          'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD&uint256=100000',
+      }
+
+      const expectedOutput: ParseAddressByChainIdOutput = {
+        assetId: usdcAssetId,
+        chainId: ethChainId,
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        amountCryptoPrecision: '0.1',
+      }
+
+      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+    })
+
+    it('should parse regular address QR with chain_id as hex', () => {
+      const input = {
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        urlOrAddress: 'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@0x1',
+      }
+
+      const expectedOutput: ParseAddressByChainIdOutput = {
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+      }
+
+      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+    })
+
+    it('should throw error for ERC-20 token not in asset registry', () => {
+      const input = {
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        urlOrAddress:
+          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD/transfer?address=0xABCDEF1234567890ABCDEF1234567890ABCDEF12&uint256=1000000',
+      }
+
+      expect(() => parseMaybeUrlWithChainId(input)).toThrow('modals.send.errors.qrDangerousEthUrl')
     })
 
     it('should parse address from BIP-21 URL with bitcoin URN scheme', () => {

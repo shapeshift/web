@@ -17,7 +17,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
@@ -41,13 +41,13 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isKeepKeyHDWallet } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
-import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -119,7 +119,9 @@ export const Overview: React.FC<OverviewProps> = ({
   )
   const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
 
-  const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
+  const chainId = assetId ? fromAssetId(assetId).chainId : undefined
+  const walletSupportsChain = useWalletSupportsChain(chainId ?? '', wallet)
+  const isUnsupportedAsset = !walletSupportsChain
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>

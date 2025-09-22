@@ -64,7 +64,7 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
-import { toAddressNList, toRootDerivationPath } from '../utils'
+import { toAddressNList, toRootDerivationPath, verifyLedgerAppOpen } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import {
   SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER,
@@ -165,6 +165,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       if (pubKey) return pubKey
 
       this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const address = await wallet.solanaGetAddress({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
@@ -320,6 +322,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const { txToSign, wallet } = signTxInput
 
       this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.solanaSignTx(txToSign)
 

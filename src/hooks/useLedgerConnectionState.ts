@@ -81,15 +81,11 @@ export const useLedgerConnectionState = () => {
       return
     }
 
-    try {
-      const wallet = await adapter.pairDevice().catch(() => null)
+    const wallet = await adapter.pairDevice().catch(() => null)
 
-      if (wallet) {
-        setConnectionState('success')
-        return
-      }
-    } catch {
-      // Intentionally empty catch block - error is handled below
+    if (wallet) {
+      setConnectionState('success')
+      return
     }
 
     // If we reach here, pairing failed - set state based on device connectivity

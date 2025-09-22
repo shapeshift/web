@@ -113,26 +113,35 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             chainId: maybeUrlResult.chainId,
             urlOrAddress: decodedText,
           }
-          const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+          const { address, vanityAddress } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
 
+          // Set asset and address - amounts are already converted to human readable in parsing logic
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)
-          methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
+          // Set the processed address fields (same as Address component does)
+          methods.setValue(SendFormFields.To, address)
+          methods.setValue(SendFormFields.VanityAddress, vanityAddress)
+          
           if (maybeUrlResult.amountCryptoPrecision) {
+            console.log('Setting form amounts:', {
+              cryptoAmount: maybeUrlResult.amountCryptoPrecision,
+              assetId: maybeUrlResult.assetId
+            })
+            
+            // Amount is already in human readable format from parsing
+            methods.setValue(SendFormFields.AmountCryptoPrecision, maybeUrlResult.amountCryptoPrecision)
+            
+            // Calculate and set fiat amount
             const marketData = selectMarketDataByAssetIdUserCurrency(
               store.getState(),
               maybeUrlResult.assetId ?? '',
             )
-            methods.setValue(
-              SendFormFields.AmountCryptoPrecision,
-              maybeUrlResult.amountCryptoPrecision,
-            )
-            methods.setValue(
-              SendFormFields.FiatAmount,
-              bnOrZero(maybeUrlResult.amountCryptoPrecision)
-                .times(bnOrZero(marketData?.price))
-                .toString(),
-            )
+            const fiatAmount = bnOrZero(maybeUrlResult.amountCryptoPrecision)
+              .times(bnOrZero(marketData?.price))
+              .toString()
+            
+            methods.setValue(SendFormFields.FiatAmount, fiatAmount)
+            console.log('Calculated fiat amount:', { fiatAmount, price: marketData?.price })
           }
 
           // Smart navigation: skip steps when data is available

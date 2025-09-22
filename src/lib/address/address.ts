@@ -11,6 +11,7 @@ import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { store } from '@/state/store'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 
@@ -73,16 +74,29 @@ export const parseMaybeUrlWithChainId = ({
           }
           
           console.log('Asset validation successful, returning token data')
+          
+          // Convert amount from base units to human readable using asset precision
+          let humanAmount: string | undefined
+          if (parsedUrl.parameters?.uint256) {
+            try {
+              humanAmount = fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+              console.log('Amount conversion:', {
+                baseAmount: parsedUrl.parameters.uint256,
+                precision: asset.precision,
+                humanAmount
+              })
+            } catch (error) {
+              console.warn('Failed to convert amount, skipping:', error)
+              humanAmount = undefined
+            }
+          }
+          
           // Return with proper recipient (parameters.address) and token asset info
           return {
             assetId: tokenAssetId,
             maybeAddress: parsedUrl.parameters.address, // recipient, not contract
             chainId: actualChainId,
-            ...(parsedUrl.parameters?.uint256
-              ? {
-                  amountCryptoPrecision: bnOrZero(parsedUrl.parameters.uint256).toFixed(),
-                }
-              : {}),
+            ...(humanAmount ? { amountCryptoPrecision: humanAmount } : {}),
           }
         }
 
@@ -107,17 +121,36 @@ export const parseMaybeUrlWithChainId = ({
           parsedChainId: parsedUrl.chain_id
         })
 
+        // Convert native asset amount from base units to human readable
+        let humanAmount: string | undefined
+        const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+        if (rawAmount && finalAssetId) {
+          try {
+            const state = store.getState()
+            const nativeAsset = selectAssetById(state, finalAssetId)
+            if (nativeAsset) {
+              humanAmount = fromBaseUnit(rawAmount, nativeAsset.precision)
+              console.log('Native amount conversion:', {
+                baseAmount: rawAmount,
+                precision: nativeAsset.precision,
+                humanAmount,
+                assetSymbol: nativeAsset.symbol
+              })
+            } else {
+              console.warn('Native asset not found for amount conversion:', finalAssetId)
+              humanAmount = undefined
+            }
+          } catch (error) {
+            console.warn('Failed to convert native amount, skipping:', error)
+            humanAmount = undefined
+          }
+        }
+
         return {
           assetId: finalAssetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
           chainId: finalChainId, // Enables chain pre-selection for all QRs
-          ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-            ? {
-                amountCryptoPrecision: bnOrZero(
-                  parsedUrl.parameters.value ?? parsedUrl.parameters.amount,
-                ).toFixed(),
-              }
-            : {}),
+          ...(humanAmount ? { amountCryptoPrecision: humanAmount } : {}),
         }
       } catch (error) {
         if (error instanceof Error) {

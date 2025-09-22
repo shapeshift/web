@@ -11,8 +11,10 @@ import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
+import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectBuyFiatCurrency,
   selectInputBuyAsset,
@@ -38,6 +40,13 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     const sellAsset = useAppSelector(selectInputSellAsset)
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
+    const selectedUserCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
+
+    dispatch(
+      marketApi.endpoints.findByFiatSymbol.initiate({
+        symbol: buyFiatCurrency?.code as SupportedFiatCurrencies,
+      }),
+    )
 
     const buyAssetMarketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
@@ -46,6 +55,8 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
       selectMarketDataByAssetIdUserCurrency(state, sellAsset?.assetId ?? ''),
     )
 
+    const fiatMarketData = useAppSelector(marketData.selectors.selectFiatMarketData)
+
     const buyAmountUserCurrency = useMemo(() => {
       return bnOrZero(quote.amount)
         .times(buyAssetMarketData?.price ?? 0)
@@ -53,10 +64,32 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     }, [quote.amount, buyAssetMarketData])
 
     const buyAmountCryptoPrecision = useMemo(() => {
+      if (direction === FiatRampAction.Buy) {
+        return bnOrZero(quote.amount)
+          .div(sellAssetMarketData?.price ?? 0)
+          .toString()
+      }
+
+      const usdRate = fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]?.price ?? 0
+
+      if (buyFiatCurrency?.code === selectedUserCurrency || !usdRate)
+        return bnOrZero(quote.amount)
+          .div(sellAssetMarketData?.price ?? 0)
+          .toFixed(sellAsset?.precision ?? 0)
+
       return bnOrZero(quote.amount)
+        .div(usdRate)
         .div(sellAssetMarketData?.price ?? 0)
-        .toString()
-    }, [quote.amount, sellAssetMarketData])
+        .toFixed(sellAsset?.precision ?? 0)
+    }, [
+      quote.amount,
+      sellAssetMarketData,
+      fiatMarketData,
+      direction,
+      buyFiatCurrency,
+      sellAsset,
+      selectedUserCurrency,
+    ])
 
     const handleQuoteSelection = useCallback(() => {
       dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(quote))

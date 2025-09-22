@@ -23,9 +23,13 @@ export const FiatMenuButton = ({
   buttonProps,
   isLoading,
 }: FiatMenuButtonProps) => {
-  const icon = useMemo(() => {
-    return <LazyLoadAvatar src={getFiatFlagUrl(selectedFiatCurrency)} size='xs' />
+  const flagUrl = useMemo(() => {
+    return getFiatFlagUrl(selectedFiatCurrency)
   }, [selectedFiatCurrency])
+
+  const icon = useMemo(() => {
+    return <LazyLoadAvatar src={flagUrl} size='xs' name={selectedFiatCurrency.name} />
+  }, [selectedFiatCurrency, flagUrl])
 
   const handleAssetClick = useCallback(() => {
     onClick?.()

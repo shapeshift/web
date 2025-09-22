@@ -1,8 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId, toAssetId, toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'
+import { fromHex } from 'viem'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -10,6 +11,8 @@ import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { store } from '@/state/store'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -34,15 +37,80 @@ export const parseMaybeUrlWithChainId = ({
     case ethChainId:
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
+        console.log({ parsedUrl, urlOrAddress })
 
-        if (parsedUrl.parameters?.address) {
-          throw new Error(DANGEROUS_ETH_URL_ERROR)
+        // Handle ERC-20 token transfers with asset validation
+        if (parsedUrl.parameters?.address && parsedUrl.target_address) {
+          // Convert hex chain_id to proper ChainId if available
+          const actualChainId = parsedUrl.chain_id ? 
+            toChainId({ 
+              chainNamespace: CHAIN_NAMESPACE.Evm, 
+              chainReference: fromHex(parsedUrl.chain_id as `0x${string}`, 'number').toString() as any
+            }) : chainId
+
+          // Construct potential token asset ID
+          const tokenAssetId = toAssetId({ 
+            chainId: actualChainId, 
+            assetNamespace: ASSET_NAMESPACE.erc20, 
+            assetReference: parsedUrl.target_address.toLowerCase() 
+          })
+          
+          // Validate asset exists in store
+          const state = store.getState()
+          const asset = selectAssetById(state, tokenAssetId)
+          console.log('Token Asset Validation:', {
+            tokenAssetId,
+            assetFound: !!asset,
+            actualChainId,
+            contractAddress: parsedUrl.target_address,
+            recipient: parsedUrl.parameters.address,
+            amount: parsedUrl.parameters.uint256
+          })
+          
+          if (!asset) {
+            console.log('Asset not found in store, throwing error:', tokenAssetId)
+            throw new Error(DANGEROUS_ETH_URL_ERROR)
+          }
+          
+          console.log('Asset validation successful, returning token data')
+          // Return with proper recipient (parameters.address) and token asset info
+          return {
+            assetId: tokenAssetId,
+            maybeAddress: parsedUrl.parameters.address, // recipient, not contract
+            chainId: actualChainId,
+            ...(parsedUrl.parameters?.uint256
+              ? {
+                  amountCryptoPrecision: bnOrZero(parsedUrl.parameters.uint256).toFixed(),
+                }
+              : {}),
+          }
         }
 
+        // Use chain_id from QR if available for chain pre-selection
+        const finalChainId = parsedUrl.chain_id ? 
+          toChainId({ 
+            chainNamespace: CHAIN_NAMESPACE.Evm, 
+            chainReference: fromHex(parsedUrl.chain_id as `0x${string}`, 'number').toString() as any
+          }) : chainId
+
+        // For native assets with chain_id, use the correct chain's native asset
+        const finalAssetId = parsedUrl.chain_id && finalChainId !== chainId ? 
+          getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId 
+          : assetId
+
+        console.log('Native asset parsing:', {
+          originalChainId: chainId,
+          finalChainId,
+          originalAssetId: assetId,
+          finalAssetId,
+          hasChainIdInQR: !!parsedUrl.chain_id,
+          parsedChainId: parsedUrl.chain_id
+        })
+
         return {
-          assetId,
+          assetId: finalAssetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
-          chainId,
+          chainId: finalChainId, // Enables chain pre-selection for all QRs
           ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
             ? {
                 amountCryptoPrecision: bnOrZero(
@@ -105,13 +173,22 @@ export const parseMaybeUrl = async ({
 
       if (!adapter) throw new Error('Adapter not found')
 
-      const assetId = adapter.getFeeAssetId()
+      const defaultAssetId = adapter.getFeeAssetId()
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
+        // Use the asset ID from parsing if available (e.g., ERC-20 tokens), otherwise use native asset
+        const finalAssetId = maybeUrl.assetId || defaultAssetId
+        console.log('parseMaybeUrl returning:', {
+          chainId,
+          finalAssetId,
+          defaultAssetId,
+          parsedAssetId: maybeUrl.assetId,
+          amount: maybeUrl.amountCryptoPrecision
+        })
         return {
           chainId,
           value: urlOrAddress,
-          assetId,
+          assetId: finalAssetId,
           amountCryptoPrecision: maybeUrl.amountCryptoPrecision,
         }
       }
@@ -122,7 +199,7 @@ export const parseMaybeUrl = async ({
         return {
           chainId,
           value: urlOrAddress,
-          assetId,
+          assetId: defaultAssetId,
         }
       }
     } catch (error: any) {

@@ -135,13 +135,40 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          // We don't parse EIP-681 URLs because they're unsafe
-          // Some wallets may be smart, like Trust just showing an address as a QR code to avoid dangerously unsafe parameters
-          // Others might do dangerous tricks in the way they represent an asset, using various parameters to do so
-          // There's also the fact that we will assume the AssetId to be the native one of the first chain we managed to validate the address
-          // Which may not be the chain the user wants to send, or they may want to send a token - so we should always ask the user to select the asset
-          if (maybeUrlResult.assetId === ethAssetId) return navigate(SendRoutes.Select)
-          navigate(SendRoutes.Address)
+          // Smart navigation: skip steps when data is available
+          console.log('QR Navigation Debug (QrCode Modal):', {
+            hasAssetId: !!maybeUrlResult.assetId,
+            hasAmount: !!maybeUrlResult.amountCryptoPrecision,
+            assetId: maybeUrlResult.assetId,
+            amount: maybeUrlResult.amountCryptoPrecision,
+            isEth: maybeUrlResult.assetId === ethAssetId,
+            fullResult: maybeUrlResult
+          })
+
+          // ETH QRs without amounts should go to asset selection since user might want to send tokens
+          // But ETH QRs with amounts probably want to send native ETH, so skip to details
+          if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision) {
+            console.log('Navigating to Select (ETH address without amount)')
+            return navigate(SendRoutes.Select)
+          } else if (maybeUrlResult.assetId === ethAssetId && maybeUrlResult.amountCryptoPrecision) {
+            console.log('Navigating to Details (ETH with amount - assuming native ETH send)')
+            return navigate(SendRoutes.Details)
+          }
+
+          // Smart navigation based on available data
+          if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
+            console.log('Navigating to Details (full QR with asset + amount)')
+            // Full QR with asset, recipient, and amount → skip to details
+            navigate(SendRoutes.Details)
+          } else if (maybeUrlResult.assetId) {
+            console.log('Navigating to Details (asset QR without amount)')
+            // QR with asset and recipient → skip to details for amount entry
+            navigate(SendRoutes.Details)
+          } else {
+            console.log('Navigating to Address (fallback)')
+            // Fallback to address screen
+            navigate(SendRoutes.Address)
+          }
         } catch (e: any) {
           setAddressError(e.message)
         }

@@ -101,7 +101,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     }
   }, [chainId, stakingAssetId])
 
-  const defaultOpportunityMetadata = useAppSelector(state =>
+  const opportunityMetadata = useAppSelector(state =>
     selectStakingOpportunityByFilter(state, filteredOpportunitiesMetadataFilter),
   )
 
@@ -110,8 +110,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
 
   const loaded = useMemo(
-    () => Boolean(opportunityData || defaultOpportunityMetadata),
-    [defaultOpportunityMetadata, opportunityData],
+    () => Boolean(opportunityData || opportunityMetadata),
+    [opportunityMetadata, opportunityData],
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -196,7 +196,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
-  if (!opportunityData) return null
+  if (!opportunityMetadata) return null
 
   return (
     <Overview
@@ -204,12 +204,12 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       onAccountIdChange={handleAccountIdChange}
       positionAddress={accountId ? fromAccountId(accountId).account : undefined}
       asset={stakingAsset}
-      name={opportunityData.name}
-      icons={makeOpportunityIcons({ assets, opportunity: opportunityData })}
+      name={opportunityMetadata.name}
+      icons={makeOpportunityIcons({ assets, opportunity: opportunityMetadata })}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={underlyingAssetsCryptoPrecision}
       provider={makeDefiProviderDisplayName({
-        provider: opportunityData.provider,
+        provider: opportunityMetadata.provider,
         assetName: stakingAsset.name,
       })}
       menu={overviewMenu}

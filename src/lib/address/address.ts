@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   bchChainId,
@@ -87,7 +87,7 @@ export const parseMaybeUrlWithChainId = ({
                 chainReference: fromHex(
                   parsedUrl.chain_id as `0x${string}`,
                   'number',
-                ).toString() as any,
+                ).toString() as ChainReference,
               })
             : chainId
 
@@ -100,14 +100,9 @@ export const parseMaybeUrlWithChainId = ({
           const asset = selectAssetById(store.getState(), tokenAssetId)
           if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
 
-          let amountCryptoPrecision: string | undefined
-          if (parsedUrl.parameters.uint256) {
-            try {
-              amountCryptoPrecision = fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
-            } catch {
-              // Invalid amount, ignore
-            }
-          }
+          const amountCryptoPrecision = parsedUrl.parameters.uint256
+            ? fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+            : undefined
 
           return {
             assetId: tokenAssetId,
@@ -124,7 +119,7 @@ export const parseMaybeUrlWithChainId = ({
               chainReference: fromHex(
                 parsedUrl.chain_id as `0x${string}`,
                 'number',
-              ).toString() as any,
+              ).toString() as ChainReference,
             })
           : chainId
         const finalAssetId =
@@ -144,7 +139,7 @@ export const parseMaybeUrlWithChainId = ({
           chainId: chainIdOrDefault,
           ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Error) {
           if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
           // address, not url, don't log
@@ -168,7 +163,7 @@ export const parseMaybeUrlWithChainId = ({
             ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
             : {}),
         }
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Error) {
           // address, not url, don't log
           if (error.message.includes('Invalid BIP21 URI')) break
@@ -202,6 +197,7 @@ export const parseMaybeUrl = async ({
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
         const finalAssetId = maybeUrl.assetId || defaultAssetId
+        console.log({ finalAssetId })
         return {
           chainId,
           value: urlOrAddress,
@@ -219,9 +215,9 @@ export const parseMaybeUrl = async ({
           assetId: defaultAssetId,
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       // We want this actual error to be rethrown as it's eventually user-facing
-      if (error instanceof Error && error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
       // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
       // Swallow the error and continue
     }
@@ -398,7 +394,6 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
         chainId,
       }
     : parseMaybeUrlWithChainId(args)
-  console.log({ maybeParsedArgs })
 
   const isValidAddress = await validateAddress(maybeParsedArgs)
   // we're dealing with a valid address

@@ -39,7 +39,7 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should not parse float amount param', () => {
+      it('should parse float amount param for EVM (non-compliant wallet handling)', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
@@ -50,7 +50,7 @@ describe('@/lib/address', () => {
           assetId: ethAssetId,
           chainId: ethChainId,
           maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-          // No amountCryptoPrecision should be parsed due to float detection
+          amountCryptoPrecision: '0.1', // EVM floats treated as precision units for non-compliant wallets
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)

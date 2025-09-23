@@ -97,7 +97,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     (decodedText: string) => {
       ;(async () => {
         try {
-          console.log('QR scanned:', decodedText)
           // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
@@ -118,8 +117,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )
-
-          console.log({ maybeUrlResult, address, vanityAddress })
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)

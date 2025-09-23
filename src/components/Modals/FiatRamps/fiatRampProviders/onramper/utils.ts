@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
+import { QUOTE_TIMEOUT_MS } from 'packages/swapper/src/constants'
 import { isAddress, zeroAddress } from 'viem'
 
 import type { GetQuotesArgs, RampQuote } from '../../config'
@@ -83,8 +84,7 @@ const convertOnramperQuotesToSingleRampQuote = (
     fiatFee: bestQuote.transactionFee?.toString() ?? '0',
     networkFee: bestQuote.networkFee?.toString() ?? '0',
     amount: bestQuote.payout?.toString() ?? '0',
-    // @TODO: when adding another provider, we need to add a way to compare rates
-    isBestRate: true,
+    isBestRate: false,
     ...paymentMethodSupport,
   }
 }
@@ -109,6 +109,7 @@ export const getOnramperQuote = async ({
       headers: {
         Authorization: apiKey,
       },
+      timeout: QUOTE_TIMEOUT_MS,
     })
 
     return convertOnramperQuotesToSingleRampQuote(response.data)

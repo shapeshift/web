@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -140,15 +140,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision)
+          if (!isToken(maybeUrlResult.assetId) && !maybeUrlResult.amountCryptoPrecision) {
             return navigate(SendRoutes.Select)
-
-          if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision)
-            return navigate(SendRoutes.Details)
-
-          if (maybeUrlResult.assetId) return navigate(SendRoutes.Address)
-
-          navigate(SendRoutes.Address)
+          }
+          return navigate(SendRoutes.Details)
         } catch (e: any) {
           setAddressError(e.message)
         }

@@ -28,7 +28,6 @@ export const useLedgerAccountGuard = () => {
   useEffect(() => {
     if (!isConnected || !wallet || hasCheckedRef.current) return
 
-    // Only proceed for Ledger wallets
     if (walletType !== KeyManager.Ledger) return
 
     // Only open if we don't already have accounts connected

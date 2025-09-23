@@ -143,6 +143,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision)
             return navigate(SendRoutes.Select)
 
+          if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision)
+            return navigate(SendRoutes.Details)
+
           if (maybeUrlResult.assetId) return navigate(SendRoutes.Address)
 
           navigate(SendRoutes.Address)

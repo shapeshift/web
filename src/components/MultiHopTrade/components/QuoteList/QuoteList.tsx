@@ -39,6 +39,8 @@ export type QuoteListProps = {
   cardProps?: CardProps
   showQuoteRefreshCountdown?: boolean
   QuotesComponent?: React.FC<QuotesComponentProps>
+  showSortBy?: boolean
+  QuoteTimerComponent?: React.FC
 }
 
 const cardHeight = {
@@ -50,7 +52,9 @@ export const QuoteList: React.FC<QuoteListProps> = ({
   onBack,
   cardProps,
   showQuoteRefreshCountdown = true,
+  showSortBy = true,
   QuotesComponent = TradeQuotes,
+  QuoteTimerComponent = QuoteTimer,
 }) => {
   const translate = useTranslate()
 
@@ -73,34 +77,38 @@ export const QuoteList: React.FC<QuoteListProps> = ({
           <Heading fontSize='md'>{translate('trade.availableQuotes')}</Heading>
         </Flex>
         <Flex alignItems='center' gap={2}>
-          <Display.Desktop>
-            <Text color={sortByTextColor} fontWeight='normal' fontSize='sm'>
-              {translate('common.sortBy')}
-            </Text>
-          </Display.Desktop>
-          <Menu>
-            <MenuButton as={Button} size='sm' rightIcon={chevronDownIcon}>
-              {selectedSortOption?.label ?? translate('common.sortBy')}
-            </MenuButton>
-            <MenuList zIndex='banner' maxWidth='230px'>
-              <Box fontWeight='normal' fontSize='sm' px={4} pt={2} pb={3}>
-                <Text whiteSpace='normal'>{translate('trade.sort.info')}</Text>
-              </Box>
+          {showSortBy && (
+            <>
+              <Display.Desktop>
+                <Text color={sortByTextColor} fontWeight='normal' fontSize='sm'>
+                  {translate('common.sortBy')}
+                </Text>
+              </Display.Desktop>
+              <Menu>
+                <MenuButton as={Button} size='sm' rightIcon={chevronDownIcon}>
+                  {selectedSortOption?.label ?? translate('common.sortBy')}
+                </MenuButton>
+                <MenuList zIndex='banner' maxWidth='230px'>
+                  <Box fontWeight='normal' fontSize='sm' px={4} pt={2} pb={3}>
+                    <Text whiteSpace='normal'>{translate('trade.sort.info')}</Text>
+                  </Box>
 
-              <MenuOptionGroup type='radio' value={currentSortOption}>
-                {quoteSortOptions.map(quoteSortOpt => (
-                  <MenuItemOption
-                    value={quoteSortOpt.value}
-                    onClick={quoteSortOpt.handleClick}
-                    fontSize='sm'
-                  >
-                    {quoteSortOpt.label}
-                  </MenuItemOption>
-                ))}
-              </MenuOptionGroup>
-            </MenuList>
-          </Menu>
-          {showQuoteRefreshCountdown && <QuoteTimer />}
+                  <MenuOptionGroup type='radio' value={currentSortOption}>
+                    {quoteSortOptions.map(quoteSortOpt => (
+                      <MenuItemOption
+                        value={quoteSortOpt.value}
+                        onClick={quoteSortOpt.handleClick}
+                        fontSize='sm'
+                      >
+                        {quoteSortOpt.label}
+                      </MenuItemOption>
+                    ))}
+                  </MenuOptionGroup>
+                </MenuList>
+              </Menu>
+            </>
+          )}
+          {showQuoteRefreshCountdown && <QuoteTimerComponent />}
         </Flex>
       </CardHeader>
       <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>

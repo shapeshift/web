@@ -9,11 +9,11 @@ import { Route, Routes } from 'react-router-dom'
 
 import { FiatRampRoutePaths } from './types'
 
-import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { AssetIcon } from '@/components/AssetIcon'
 import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
 import { fiatCurrencyObjectsByCode, supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { FiatRampQuoteTimer } from '@/components/MultiHopTrade/components/FiatRamps/components/FiatRampQuoteTimer'
 import { FiatRampTradeBody } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeBody'
 import { FiatRampTradeFooter } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeFooter'
 import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
@@ -24,8 +24,10 @@ import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/compo
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -74,6 +76,9 @@ type RampRoutesProps = {
 const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const dispatch = useAppDispatch()
+  const {
+    state: { isConnected },
+  } = useWallet()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -119,17 +124,24 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     [direction],
   )
 
+  const FiatRampQuoteTimerComponent = useCallback(
+    () => <FiatRampQuoteTimer direction={direction} />,
+    [direction],
+  )
+
   const SideComponent = useCallback(
     (props: CollapsibleQuoteListProps) => {
       return (
         <CollapsibleQuoteList
           QuotesComponent={RampQuotesComponent}
-          showQuoteRefreshCountdown={false}
+          showQuoteRefreshCountdown={true}
+          showSortBy={false}
+          QuoteTimerComponent={FiatRampQuoteTimerComponent}
           {...props}
         />
       )
     },
-    [RampQuotesComponent],
+    [RampQuotesComponent, FiatRampQuoteTimerComponent],
   )
 
   const handleSellAssetChange = useCallback(
@@ -182,7 +194,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     [dispatch],
   )
 
-  const quotesQueries = useGetRampQuotes({
+  const { queries: quotesQueries } = useGetRampQuotes({
     fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency,
     assetId: direction === FiatRampAction.Buy ? buyAsset.assetId : sellAsset.assetId,
     amount: direction === FiatRampAction.Buy ? sellFiatAmount : sellAmountCryptoPrecision,
@@ -200,16 +212,19 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
 
   useEffect(() => {
     dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
-  }, [debouncedSellAmount, dispatch])
-
-  useEffect(() => {
-    dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
     dispatch(tradeRampInput.actions.setSellAmountCryptoPrecision('0'))
     dispatch(tradeRampInput.actions.setSellFiatAmount('0'))
   }, [direction, dispatch])
 
+  // Unselect quote when amount changes (but not on refetch)
+  useEffect(() => {
+    dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
+    queryClient.resetQueries({ queryKey: ['rampQuote'] })
+  }, [debouncedSellAmount, dispatch])
+
   const handleSubmit = useCallback(async () => {
     if (!selectedQuote?.provider) return
+    if (!isConnected) return
 
     const ramp = supportedFiatRamps[selectedQuote.provider]
     const mpData = {
@@ -252,6 +267,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     selectedQuote?.provider,
     sellAmountCryptoPrecision,
     sellFiatAmount,
+    isConnected,
   ])
 
   const bodyContent = useMemo(
@@ -290,8 +306,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   )
 
   const rampIcon = useMemo(() => {
-    return <AssetIcon src={OnRamperLogo} />
-  }, [])
+    return <AssetIcon src={selectedQuote?.providerLogo} />
+  }, [selectedQuote?.providerLogo])
 
   const rateValue = useMemo(() => {
     if (!selectedQuote?.rate) return '1'

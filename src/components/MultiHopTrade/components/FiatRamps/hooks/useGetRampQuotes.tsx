@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
+import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/config'
 import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
 import {
   findOnramperTokenIdByAssetId,
@@ -10,9 +10,8 @@ import {
 } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
 import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
-import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
-import { useAppDispatch } from '@/state/store'
 
 type UseGetRampQuotesProps = {
   fiatCurrency: FiatCurrencyItem
@@ -28,7 +27,6 @@ export const useGetRampQuotes = ({
   direction,
 }: UseGetRampQuotesProps) => {
   const { data: ramps } = useGetFiatRampsQuery()
-  const dispatch = useAppDispatch()
 
   const { data: onramperCurrencies } = useQuery({
     queryKey: ['onramperCurrencies'],
@@ -40,10 +38,8 @@ export const useGetRampQuotes = ({
   const debouncedAmount = useDebounce(amount, 1000)
 
   const queryKey = useMemo(() => {
-    dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
-
     return ['rampQuote', fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies]
-  }, [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies, dispatch])
+  }, [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies])
 
   const supportedRamps = useMemo(() => {
     if (!ramps?.byAssetId[assetId]?.[direction]) return []
@@ -79,8 +75,31 @@ export const useGetRampQuotes = ({
               })
           }
         },
+        staleTime: 0,
+        enabled: bnOrZero(debouncedAmount).gt(0),
+        gcTime: 0,
       })) ?? [],
   })
 
-  return rampQuoteQueries
+  // Sort quotes by best rate (highest amount out)
+  const sortedQuotes = useMemo(() => {
+    const successfulQuotes = rampQuoteQueries
+      .filter(query => query.isSuccess && query.data)
+      .map(query => query.data as RampQuote)
+      .sort((a, b) => {
+        const amountA = bnOrZero(a.amount)
+        const amountB = bnOrZero(b.amount)
+        return amountB.comparedTo(amountA)
+      })
+
+    return successfulQuotes.map((quote, index) => ({
+      ...quote,
+      isBestRate: index === 0,
+    }))
+  }, [rampQuoteQueries])
+
+  return {
+    queries: rampQuoteQueries,
+    sortedQuotes,
+  }
 }

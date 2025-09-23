@@ -9,6 +9,8 @@ import type { CreateUrlProps } from '../types'
 import { getConfig } from '@/config'
 import { isSome } from '@/lib/utils'
 
+export { getMtPelerinQuote } from './mtpelerin/utils'
+
 type MtPelerinResponse = {
   [identifier: string]: {
     symbol: string

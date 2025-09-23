@@ -1,0 +1,76 @@
+import { usePrevious } from '@chakra-ui/react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+
+import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { useHasFocus } from '@/hooks/useHasFocus'
+import {
+  selectBuyFiatCurrency,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
+  selectSellFiatAmount,
+  selectSellFiatCurrency,
+} from '@/state/slices/tradeRampInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
+
+export const FIAT_RAMP_QUOTE_REFRESH_INTERVAL_MS = 30_000 // 30 seconds
+
+export const useFiatRampQuotePolling = (direction: FiatRampAction) => {
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellFiatAmount = useAppSelector(selectSellFiatAmount)
+  const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
+
+  const queryClient = useQueryClient()
+  const hasFocus = useHasFocus()
+  const previousHasFocus = usePrevious(hasFocus)
+
+  const inputQueryKeys = useMemo(
+    () => ({
+      buyAsset,
+      sellAmountCryptoPrecision,
+      sellAsset,
+      sellFiatAmount,
+      sellFiatCurrency,
+      buyFiatCurrency,
+      direction,
+    }),
+    [
+      buyAsset,
+      sellAmountCryptoPrecision,
+      sellAsset,
+      sellFiatAmount,
+      sellFiatCurrency,
+      buyFiatCurrency,
+      direction,
+    ],
+  )
+  const previousInputReactions = usePrevious(inputQueryKeys)
+
+  const query = useQuery({
+    queryKey: ['fiatRampQuoteRefresh', inputQueryKeys],
+    queryFn: () => {
+      const isNotRefocus = previousHasFocus && hasFocus
+      const isNotInputChange = inputQueryKeys === previousInputReactions
+
+      // Only invalidate if this was triggered by an interval, not refocus or input change
+      if (isNotRefocus && isNotInputChange) {
+        // Invalidate all ramp quote queries
+        queryClient.invalidateQueries({
+          queryKey: ['rampQuote'],
+        })
+      }
+
+      return { lastExecutedTime: Date.now() }
+    },
+    refetchInterval: FIAT_RAMP_QUOTE_REFRESH_INTERVAL_MS,
+    refetchOnWindowFocus: 'always',
+    gcTime: 0,
+    enabled: hasFocus,
+  })
+
+  return query
+}

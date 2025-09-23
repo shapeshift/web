@@ -192,14 +192,28 @@ export const reloadWebview = (): Promise<boolean> => {
  * No-ops when not running inside a React Native WebView.
  */
 export const mobileVibrate = (level: HapticLevel): Promise<void> => {
-  return postMessage<void>({ cmd: 'vibrate', level })
+  // We don't want to throw an error here as it will break the app
+  // for the purpose of the app not vibrating, it would be an issue
+  try {
+    return postMessage<void>({ cmd: 'vibrate', level })
+  } catch (e) {
+    console.error(e)
+    return Promise.resolve()
+  }
 }
 
 /**
  * Open the store review dialog on mobile.
  */
 export const requestStoreReview = (): Promise<boolean> => {
-  return postMessage<boolean>({ cmd: 'requestStoreReview' })
+  // We don't want to throw an error here as it will break the app
+  // for the purpose of the app not able to send store review, it would be blocking for nothing
+  try {
+    return postMessage<boolean>({ cmd: 'requestStoreReview' })
+  } catch (e) {
+    console.error(e)
+    return Promise.resolve(false)
+  }
 }
 
 /**

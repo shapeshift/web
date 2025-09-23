@@ -99,9 +99,18 @@ export const parseMaybeUrlWithChainId = ({
         const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
         if (rawAmount && finalAssetId) {
           try {
-            const feeAsset = selectAssetById(store.getState(), finalAssetId)
-            if (feeAsset) {
-              amountCryptoPrecision = fromBaseUnit(rawAmount, feeAsset.precision)
+            // Skip decimal float amounts (like 0.1) but allow scientific notation (like 2.014e18)
+            const amountBN = bnOrZero(rawAmount)
+            const hasDecimalPlaces = amountBN.decimalPlaces() !== null && amountBN.decimalPlaces()! > 0
+            const isScientificNotation = rawAmount.toLowerCase().includes('e')
+            
+            if (hasDecimalPlaces && !isScientificNotation) {
+              // Decimal float detected (like 0.1), skip amount parsing to avoid precision issues
+            } else {
+              const feeAsset = selectAssetById(store.getState(), finalAssetId)
+              if (feeAsset) {
+                amountCryptoPrecision = fromBaseUnit(rawAmount, feeAsset.precision)
+              }
             }
           } catch {
             // Invalid amount, ignore

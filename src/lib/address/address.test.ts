@@ -50,7 +50,7 @@ describe('@/lib/address', () => {
           assetId: ethAssetId,
           chainId: ethChainId,
           maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-          amountCryptoPrecision: '0.1', // EVM floats treated as precision units for non-compliant wallets
+          amountCryptoPrecision: '0.1',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -67,7 +67,7 @@ describe('@/lib/address', () => {
           assetId: ethAssetId,
           chainId: ethChainId,
           maybeAddress: '0x5678CDEF9012ABCD3456789ABCDEF012345678FE',
-          amountCryptoPrecision: '0.00000000000000001', // 10 wei in ETH
+          amountCryptoPrecision: '0.00000000000000001',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -418,8 +418,8 @@ describe('@/lib/address', () => {
         }
 
         const expectedOutput: ParseAddressByChainIdOutput = {
-          assetId: ethAssetId, // Note: Should get BSC asset ID but falls back to input assetId
-          chainId: bscChainId, // 0x38 = 56 (BSC chain ID)
+          assetId: ethAssetId,
+          chainId: bscChainId,
           maybeAddress: '0x3A9F5C8E2B7D1F4A6C9E2B8D5F1A7C4E9B2F6A83',
         }
 

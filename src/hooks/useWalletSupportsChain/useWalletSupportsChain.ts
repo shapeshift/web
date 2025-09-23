@@ -61,7 +61,6 @@ const checkWalletHasRuntimeSupport = ({
   isSnapInstalled,
   connectedType,
 }: CheckWalletHasRuntimeSupportArgs) => {
-  // Handle Ledger read-only mode
   if (!wallet && connectedType === KeyManager.Ledger) return true
 
   if (!wallet) return false

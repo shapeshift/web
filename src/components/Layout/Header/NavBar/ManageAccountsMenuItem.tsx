@@ -32,7 +32,8 @@ export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
     accountManagementPopover.open({})
   }, [accountManagementPopover, onClose])
 
-  const shouldHideAccountManagement = isLedgerReadOnlyEnabled && connectedType === KeyManager.Ledger && !wallet
+  const shouldHideAccountManagement =
+    isLedgerReadOnlyEnabled && connectedType === KeyManager.Ledger && !wallet
 
   return (
     <>

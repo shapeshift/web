@@ -90,7 +90,7 @@ const postMessage = <T>(msg: Message): Promise<T> => {
         // @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
         // No effect if `eventListener` has already been removed
         window.removeEventListener('message', eventListener)
-        reject(new Error('PostMessage timed out'))
+        reject(new Error(`PostMessage ${msg.cmd} timed out`))
       }, 10000)
 
       window.addEventListener('message', eventListener)

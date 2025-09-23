@@ -2,6 +2,8 @@ import {
   bscChainId,
   btcAssetId,
   btcChainId,
+  dogeAssetId,
+  dogeChainId,
   ethAssetId,
   ethChainId,
   ltcAssetId,
@@ -66,6 +68,56 @@ describe('@/lib/address', () => {
           chainId: ethChainId,
           maybeAddress: '0x5678CDEF9012ABCD3456789ABCDEF012345678FE',
           amountCryptoPrecision: '0.00000000000000001', // 10 wei in ETH
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse Bitcoin with BIP-21 float amounts correctly', () => {
+        const input = {
+          assetId: btcAssetId,
+          chainId: btcChainId,
+          urlOrAddress: 'bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?amount=0.424242',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: btcAssetId,
+          chainId: btcChainId,
+          maybeAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+          amountCryptoPrecision: '0.424242',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse plain DOGE addresses', () => {
+        const input = {
+          assetId: dogeAssetId,
+          chainId: dogeChainId,
+          urlOrAddress: 'DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: dogeAssetId,
+          chainId: dogeChainId,
+          maybeAddress: 'DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse DOGE with BIP-21 amounts', () => {
+        const input = {
+          assetId: dogeAssetId,
+          chainId: dogeChainId,
+          urlOrAddress: 'doge:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42123',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: dogeAssetId,
+          chainId: dogeChainId,
+          maybeAddress: 'DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L',
+          amountCryptoPrecision: '42123',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)

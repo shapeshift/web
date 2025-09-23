@@ -216,7 +216,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   useEffect(() => {
     dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
     queryClient.resetQueries({ queryKey: ['rampQuote'] })
-  }, [debouncedSellAmount, dispatch])
+  }, [debouncedSellAmount, dispatch, sellFiatCurrency, sellAsset, buyFiatCurrency, buyAsset])
 
   const handleSubmit = useCallback(async () => {
     if (!selectedQuote?.provider) return

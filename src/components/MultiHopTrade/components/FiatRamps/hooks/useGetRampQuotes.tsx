@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useQueries, useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import type { RampQuote } from '@/components/Modals/FiatRamps/config'
 import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
@@ -13,8 +13,6 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
-import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
-import { useAppDispatch } from '@/state/store'
 
 type UseGetRampQuotesProps = {
   fiatCurrency: FiatCurrencyItem
@@ -30,7 +28,6 @@ export const useGetRampQuotes = ({
   direction,
 }: UseGetRampQuotesProps) => {
   const { data: ramps } = useGetFiatRampsQuery()
-  const dispatch = useAppDispatch()
 
   const { data: onramperCurrencies } = useQuery({
     queryKey: ['onramperCurrencies'],
@@ -41,14 +38,9 @@ export const useGetRampQuotes = ({
 
   const debouncedAmount = useDebounce(amount, 1000)
 
-  useEffect(() => {
-    dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
-  }, [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies, dispatch])
-
-  const queryKey = useMemo(
-    () => ['rampQuote', fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies],
-    [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies],
-  )
+  const queryKey = useMemo(() => {
+    return ['rampQuote', debouncedAmount, direction, onramperCurrencies]
+  }, [debouncedAmount, direction, onramperCurrencies])
 
   const supportedRamps = useMemo(() => {
     if (!ramps?.byAssetId[assetId]?.[direction]) return []

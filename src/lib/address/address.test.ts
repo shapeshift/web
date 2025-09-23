@@ -21,7 +21,7 @@ import { usdcAssetId } from '@/test/mocks/accounts'
 describe('@/lib/address', () => {
   describe('parseMaybeUrlWithChainId', () => {
     describe('Trust Mobile', () => {
-      it('should handle unsupported Stellar schema gracefully', () => {
+      it('should handle unsupported stellar: scheme', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
@@ -37,7 +37,7 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should not parse float amounts from Trust USDC receive QRs', () => {
+      it('should not parse float amount param', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
@@ -54,9 +54,7 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should parse Trust ETH QRs as wei due to non-compliance with ERC-681', () => {
-        // Trust violates ERC-681 spec by using raw numbers instead of proper decimal notation
-        // They send "amount=10" meaning 10 ETH but according to spec it should be 10 wei
+      it('should parse amount as base unit for ERC-681', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
@@ -73,7 +71,7 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should parse Bitcoin with BIP-21 float amounts correctly', () => {
+      it('should parse amount as precision for BIP-21', () => {
         const input = {
           assetId: btcAssetId,
           chainId: btcChainId,
@@ -264,7 +262,7 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should throw error for ERC-20 token not in asset registry', () => {
+      it('should throw error for ERC-20 token not in asset slice', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,

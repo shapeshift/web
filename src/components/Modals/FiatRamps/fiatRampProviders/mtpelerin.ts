@@ -9,6 +9,8 @@ import { getConfig } from '@/config'
 import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { isSome } from '@/lib/utils'
 
+export { getMtPelerinQuote } from './mtpelerin/utils'
+
 type MtPelerinResponse = {
   [identifier: string]: {
     symbol: string

@@ -122,10 +122,6 @@ describe('@/lib/address', () => {
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
-
-      it.skip('should parse other Trust wallet QR codes when support is added', () => {
-        // TODO: Add additional Trust wallet QR code test cases
-      })
     })
 
     describe('MetaMask Mobile', () => {
@@ -343,10 +339,6 @@ describe('@/lib/address', () => {
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
-
-      it.skip('should parse other Rabby wallet QR codes when support is added', () => {
-        // TODO: Add additional Rabby wallet QR code test cases
-      })
     })
 
     describe('BASE Mobile', () => {
@@ -364,10 +356,6 @@ describe('@/lib/address', () => {
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-      })
-
-      it.skip('should parse other BASE wallet QR codes when support is added', () => {
-        // TODO: Add additional BASE wallet QR code test cases
       })
     })
 
@@ -402,10 +390,6 @@ describe('@/lib/address', () => {
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-      })
-
-      it.skip('should parse other Ledger Live QR codes when support is added', () => {
-        // TODO: Add additional Ledger Live QR code test cases
       })
     })
 
@@ -473,10 +457,6 @@ describe('@/lib/address', () => {
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
-
-      it.skip('should parse other Keplr QR codes when support is added', () => {
-        // TODO: Add additional Keplr QR code test cases
-      })
     })
 
     describe('Phantom', () => {
@@ -510,10 +490,6 @@ describe('@/lib/address', () => {
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-      })
-
-      it.skip('should parse other Phantom QR codes when support is added', () => {
-        // TODO: Add additional Phantom QR code test cases
       })
     })
   })

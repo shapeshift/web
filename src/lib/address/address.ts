@@ -65,7 +65,6 @@ const parseMaybeAmountCryptoPrecision = ({
     return asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
   }
 
-  // A float for e.g UTXOs (BIP-21) is absolutely invalid.
   return undefined
 }
 
@@ -79,8 +78,15 @@ export const parseMaybeUrlWithChainId = ({
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
 
-        // Handle ERC-20 token transfers
-        if (parsedUrl.parameters?.address && parsedUrl.target_address) {
+        // https://eips.ethereum.org/EIPS/eip-681
+        // Technically, `transfer` method is the only discriminator needed to detect ERC-20 transfer intents, but let's not assume specs are honoured across
+        // wallets, and let's add address (destination) and target_address (contract) checks here to be sure
+        // e.g `ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1`
+        if (
+          parsedUrl.function_name === 'transfer' &&
+          parsedUrl.parameters?.address &&
+          parsedUrl.target_address
+        ) {
           const actualChainId = parsedUrl.chain_id
             ? toChainId({
                 chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -112,7 +118,7 @@ export const parseMaybeUrlWithChainId = ({
           }
         }
 
-        // Handle native ETH transfers
+        // Native EVM asset transfers
         const chainIdOrDefault = parsedUrl.chain_id
           ? toChainId({
               chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -139,7 +145,7 @@ export const parseMaybeUrlWithChainId = ({
           chainId: chainIdOrDefault,
           ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
-      } catch (error: any) {
+      } catch (error) {
         if (error instanceof Error) {
           if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
           // address, not url, don't log
@@ -163,7 +169,7 @@ export const parseMaybeUrlWithChainId = ({
             ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
             : {}),
         }
-      } catch (error: any) {
+      } catch (error) {
         if (error instanceof Error) {
           // address, not url, don't log
           if (error.message.includes('Invalid BIP21 URI')) break
@@ -197,7 +203,6 @@ export const parseMaybeUrl = async ({
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
         const finalAssetId = maybeUrl.assetId || defaultAssetId
-        console.log({ finalAssetId })
         return {
           chainId,
           value: urlOrAddress,
@@ -215,9 +220,9 @@ export const parseMaybeUrl = async ({
           assetId: defaultAssetId,
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       // We want this actual error to be rethrown as it's eventually user-facing
-      if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      if (error instanceof Error && error.message === DANGEROUS_ETH_URL_ERROR) throw error
       // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
       // Swallow the error and continue
     }

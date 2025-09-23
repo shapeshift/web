@@ -38,8 +38,8 @@ export const useGetRampQuotes = ({
   const debouncedAmount = useDebounce(amount, 1000)
 
   const queryKey = useMemo(() => {
-    return ['rampQuote', fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies]
-  }, [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies])
+    return ['rampQuote', debouncedAmount, direction, onramperCurrencies]
+  }, [debouncedAmount, direction, onramperCurrencies])
 
   const supportedRamps = useMemo(() => {
     if (!ramps?.byAssetId[assetId]?.[direction]) return []

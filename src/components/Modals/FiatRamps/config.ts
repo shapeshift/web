@@ -12,6 +12,7 @@ import {
   createMtPelerinUrl,
   getMtPelerinAssets,
   getMtPelerinFiatCurrencies,
+  getMtPelerinQuote,
 } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
 import { SUPPORTED_ONRAMPER_FIAT_CURRENCIES } from './fiatRampProviders/onramper/constants'
@@ -32,7 +33,7 @@ export type FiatCurrencyItem = {
   symbol_native?: string
   decimal_digits?: number
   rounding?: number
-  code: string
+  code: CommonFiatCurrencies
   name_plural?: string
 }
 
@@ -189,7 +190,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
     getSupportedFiatList: () => getMtPelerinFiatCurrencies(),
-    getQuotes: undefined,
+    getQuotes: getMtPelerinQuote,
     onSubmit: props => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(props)

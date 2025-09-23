@@ -2497,7 +2497,6 @@
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
-          "howTo": "How to connect to a dApp?",
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect",
           "connectionError": "Can't connect to provided URI.",

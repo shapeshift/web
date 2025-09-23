@@ -10,7 +10,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Link,
   VStack,
 } from '@chakra-ui/react'
 import type { ClipboardEventHandler } from 'react'
@@ -128,12 +127,6 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
             <Heading flex={1} fontSize='xl'>
               <Text translation='plugins.walletConnectToDapps.modal.connect.title' />
             </Heading>
-            <Link href='#' target='_blank'>
-              <Button colorScheme='blue' variant='link'>
-                {translate('plugins.walletConnectToDapps.modal.connect.howTo')}
-              </Button>
-            </Link>
-
             <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
               <InputGroup size='lg'>
                 <InputRightElement>

@@ -1,5 +1,5 @@
 export type { CosmosSdkChainAdapter } from './CosmosSdkBaseAdapter'
-export { cosmosSdkChainIds, CosmosSdkBaseAdapter } from './CosmosSdkBaseAdapter'
+export { cosmosSdkChainIds, CosmosSdkBaseAdapter, isThorMayaChainId } from './CosmosSdkBaseAdapter'
 
 export * as cosmossdk from './types'
 

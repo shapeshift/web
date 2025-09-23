@@ -124,20 +124,20 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           methods.setValue(SendFormFields.VanityAddress, vanityAddress)
 
           if (maybeUrlResult.amountCryptoPrecision) {
-            methods.setValue(
-              SendFormFields.AmountCryptoPrecision,
-              maybeUrlResult.amountCryptoPrecision,
-            )
-
             const marketData = selectMarketDataByAssetIdUserCurrency(
               store.getState(),
               maybeUrlResult.assetId ?? '',
             )
-            const amountUserCurrency = bnOrZero(maybeUrlResult.amountCryptoPrecision)
-              .times(bnOrZero(marketData?.price))
-              .toString()
-
-            methods.setValue(SendFormFields.FiatAmount, amountUserCurrency)
+            methods.setValue(
+              SendFormFields.AmountCryptoPrecision,
+              maybeUrlResult.amountCryptoPrecision,
+            )
+            methods.setValue(
+              SendFormFields.FiatAmount,
+              bnOrZero(maybeUrlResult.amountCryptoPrecision)
+                .times(bnOrZero(marketData?.price))
+                .toString(),
+            )
           }
 
           if (maybeUrlResult.assetId === ethAssetId && !maybeUrlResult.amountCryptoPrecision)

@@ -1,6 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { isToken } from '@shapeshiftoss/utils'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -118,6 +119,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             parseAddressInputWithChainIdArgs,
           )
 
+          console.log({ maybeUrlResult, address, vanityAddress })
+
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)
           methods.setValue(SendFormFields.To, address)
@@ -140,7 +143,21 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          if (!isToken(maybeUrlResult.assetId) && !maybeUrlResult.amountCryptoPrecision) {
+          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
+          // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
+          const supportsErc681 =
+            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
+          // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
+          // (although we have heuristics to make it safe)
+          // For the purpose of being spec compliant, we assume that if there was an `amount` field, that means native amount (which it should, according to the spec)
+          // And we then assume native asset transfer as a result - users can always change asset in the amount screen if that was wrong
+          // However, if not asset AND no amount are specific, we don't assume anything, and let em select the asset manually
+          const isAmbiguousTransfer =
+            supportsErc681 &&
+            !isToken(maybeUrlResult.assetId) &&
+            !maybeUrlResult.amountCryptoPrecision
+
+          if (isAmbiguousTransfer) {
             return navigate(SendRoutes.Select)
           }
           return navigate(SendRoutes.Details)

@@ -6,6 +6,7 @@ import {
   CHAIN_NAMESPACE,
   dogeChainId,
   ethChainId,
+  fromAssetId,
   ltcChainId,
   toAssetId,
   toChainId,
@@ -38,6 +39,35 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
 }
 
 const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
+
+const parseMaybeAmountCryptoPrecision = ({
+  rawAmount,
+  assetId,
+}: {
+  rawAmount: string
+  assetId: AssetId
+}): string | undefined => {
+  const decimalPlaces = bnOrZero(rawAmount).decimalPlaces()
+  const hasDecimalPlaces = decimalPlaces !== null && decimalPlaces > 0
+  const isScientificNotation = rawAmount.toLowerCase().includes('e')
+  const isFloatAmount = hasDecimalPlaces && !isScientificNotation
+  const isEvmChain = fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.Evm
+
+  if (isFloatAmount && isEvmChain) {
+    // According to ERC-681, amount must be in base unit - but some wallets are particularly derp e.g Trust.
+    // For ints, we'll just parse it wrong and that's their fault, but at least for floats, we can detect that
+    // it's a float and notice they've done the base unit dance wrong and handle gracefully.
+    return rawAmount
+  }
+
+  if (!isFloatAmount) {
+    const asset = selectAssetById(store.getState(), assetId)
+    return asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
+  }
+
+  // A float for e.g UTXOs (BIP-21) is absolutely invalid.
+  return undefined
+}
 
 export const parseMaybeUrlWithChainId = ({
   assetId,
@@ -102,28 +132,11 @@ export const parseMaybeUrlWithChainId = ({
             ? getChainAdapterManager().get(chainIdOrDefault)?.getFeeAssetId() ?? assetId
             : assetId
 
-        let amountCryptoPrecision: string | undefined
         const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-        if (rawAmount && finalAssetId) {
-          try {
-            // Skip decimal float amounts (like 0.1) but allow scientific notation (like 2.014e18)
-            const amountBN = bnOrZero(rawAmount)
-            const decimalPlaces = amountBN.decimalPlaces()
-            const hasDecimalPlaces = decimalPlaces !== null && decimalPlaces > 0
-            const isScientificNotation = rawAmount.toLowerCase().includes('e')
-
-            if (hasDecimalPlaces && !isScientificNotation) {
-              // Decimal float detected (like 0.1), skip amount parsing to avoid precision issues
-            } else {
-              const feeAsset = selectAssetById(store.getState(), finalAssetId)
-              if (feeAsset) {
-                amountCryptoPrecision = fromBaseUnit(rawAmount, feeAsset.precision)
-              }
-            }
-          } catch {
-            // Invalid amount, ignore
-          }
-        }
+        const amountCryptoPrecision =
+          rawAmount && finalAssetId
+            ? parseMaybeAmountCryptoPrecision({ rawAmount, assetId: finalAssetId })
+            : undefined
 
         return {
           assetId: finalAssetId,
@@ -385,6 +398,7 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
         chainId,
       }
     : parseMaybeUrlWithChainId(args)
+  console.log({ maybeParsedArgs })
 
   const isValidAddress = await validateAddress(maybeParsedArgs)
   // we're dealing with a valid address

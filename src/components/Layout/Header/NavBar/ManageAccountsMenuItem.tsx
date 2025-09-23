@@ -3,8 +3,10 @@ import { MenuDivider, MenuItem } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const editIcon = <EditIcon />
 type ManageAccountsMenuItemProps = {
@@ -20,6 +22,9 @@ export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
 }) => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const { state } = useWallet()
+  const { wallet, connectedType } = state
   const accountManagementPopover = useModal('manageAccounts')
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
@@ -27,10 +32,12 @@ export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
     accountManagementPopover.open({})
   }, [accountManagementPopover, onClose])
 
+  const shouldHideAccountManagement = isLedgerReadOnlyEnabled && connectedType === KeyManager.Ledger && !wallet
+
   return (
     <>
       {displayDivider && <MenuDivider />}
-      {isAccountManagementEnabled && (
+      {isAccountManagementEnabled && !shouldHideAccountManagement && (
         <MenuItem icon={editIcon} onClick={onClick ?? handleManageAccountsMenuItemClick}>
           {translate('accountManagement.menuTitle')}
         </MenuItem>

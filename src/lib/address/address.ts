@@ -39,15 +39,6 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
 
 const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
-const parseHexChainId = (hexChainId: string | undefined, fallbackChainId: ChainId): ChainId => {
-  if (!hexChainId) return fallbackChainId
-
-  return toChainId({
-    chainNamespace: CHAIN_NAMESPACE.Evm,
-    chainReference: fromHex(hexChainId as `0x${string}`, 'number').toString() as any,
-  })
-}
-
 export const parseMaybeUrlWithChainId = ({
   assetId,
   chainId,
@@ -60,7 +51,15 @@ export const parseMaybeUrlWithChainId = ({
 
         // Handle ERC-20 token transfers
         if (parsedUrl.parameters?.address && parsedUrl.target_address) {
-          const actualChainId = parseHexChainId(parsedUrl.chain_id, chainId)
+          const actualChainId = parsedUrl.chain_id
+            ? toChainId({
+                chainNamespace: CHAIN_NAMESPACE.Evm,
+                chainReference: fromHex(
+                  parsedUrl.chain_id as `0x${string}`,
+                  'number',
+                ).toString() as any,
+              })
+            : chainId
 
           const tokenAssetId = toAssetId({
             chainId: actualChainId,
@@ -89,10 +88,18 @@ export const parseMaybeUrlWithChainId = ({
         }
 
         // Handle native ETH transfers
-        const finalChainId = parseHexChainId(parsedUrl.chain_id, chainId)
+        const chainIdOrDefault = parsedUrl.chain_id
+          ? toChainId({
+              chainNamespace: CHAIN_NAMESPACE.Evm,
+              chainReference: fromHex(
+                parsedUrl.chain_id as `0x${string}`,
+                'number',
+              ).toString() as any,
+            })
+          : chainId
         const finalAssetId =
-          parsedUrl.chain_id && finalChainId !== chainId
-            ? getChainAdapterManager().get(finalChainId)?.getFeeAssetId() ?? assetId
+          parsedUrl.chain_id && chainIdOrDefault !== chainId
+            ? getChainAdapterManager().get(chainIdOrDefault)?.getFeeAssetId() ?? assetId
             : assetId
 
         let amountCryptoPrecision: string | undefined
@@ -101,9 +108,10 @@ export const parseMaybeUrlWithChainId = ({
           try {
             // Skip decimal float amounts (like 0.1) but allow scientific notation (like 2.014e18)
             const amountBN = bnOrZero(rawAmount)
-            const hasDecimalPlaces = amountBN.decimalPlaces() !== null && amountBN.decimalPlaces()! > 0
+            const decimalPlaces = amountBN.decimalPlaces()
+            const hasDecimalPlaces = decimalPlaces !== null && decimalPlaces > 0
             const isScientificNotation = rawAmount.toLowerCase().includes('e')
-            
+
             if (hasDecimalPlaces && !isScientificNotation) {
               // Decimal float detected (like 0.1), skip amount parsing to avoid precision issues
             } else {
@@ -120,7 +128,7 @@ export const parseMaybeUrlWithChainId = ({
         return {
           assetId: finalAssetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
-          chainId: finalChainId,
+          chainId: chainIdOrDefault,
           ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
       } catch (error) {

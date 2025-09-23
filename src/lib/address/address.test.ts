@@ -25,13 +25,15 @@ describe('@/lib/address', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
-          urlOrAddress: 'stellar:GADCG5ZWXLGQXVUXR4ZPJQLQ87XHTJV4JCTF8QFV5Z8LEZH4QRXB6ABC?amount=50',
+          urlOrAddress:
+            'stellar:GADCG5ZWXLGQXVUXR4ZPJQLQ87XHTJV4JCTF8QFV5Z8LEZH4QRXB6ABC?amount=50',
         }
 
         const expectedOutput: ParseAddressByChainIdOutput = {
           assetId: ethAssetId,
           chainId: ethChainId,
-          maybeAddress: 'stellar:GADCG5ZWXLGQXVUXR4ZPJQLQ87XHTJV4JCTF8QFV5Z8LEZH4QRXB6ABC?amount=50',
+          maybeAddress:
+            'stellar:GADCG5ZWXLGQXVUXR4ZPJQLQ87XHTJV4JCTF8QFV5Z8LEZH4QRXB6ABC?amount=50',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -270,7 +272,9 @@ describe('@/lib/address', () => {
             'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD/transfer?address=0xABCDEF1234567890ABCDEF1234567890ABCDEF12&uint256=1000000',
         }
 
-        expect(() => parseMaybeUrlWithChainId(input)).toThrow('modals.send.errors.qrDangerousEthUrl')
+        expect(() => parseMaybeUrlWithChainId(input)).toThrow(
+          'modals.send.errors.qrDangerousEthUrl',
+        )
       })
 
       it('should parse address from BIP-21 URL with bitcoin URN scheme', () => {

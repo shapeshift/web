@@ -28,7 +28,6 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -53,10 +52,12 @@ import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAd
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { generateReceiveQrAddress } from '@/lib/address/generateReceiveQrAddress'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstFourLastFour } from '@/lib/utils'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
@@ -145,6 +146,7 @@ const AmountModal = ({
 
 export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
+  const { isConnected } = state
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
   const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string | null>('')
@@ -172,18 +174,18 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
+  const walletType = useAppSelector(selectWalletType)
+
   useEffect(() => {
     ;(async () => {
       if (!accountMetadata) return
-      if (!wallet) return
       setIsAddressLoading(true)
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
-        deviceId: await wallet.getDeviceID(),
         accountMetadata,
         pubKey:
-          isLedger(wallet) && selectedAccountId
+          walletType === KeyManager.Ledger && selectedAccountId
             ? fromAccountId(selectedAccountId as AccountId).account
             : undefined,
       })
@@ -201,6 +203,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     accountMetadata,
     selectedAccountId,
     navigate,
+    walletType,
   ])
 
   useEffect(() => {
@@ -336,7 +339,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      {wallet && chainAdapter ? (
+      {receiveAddress ? (
         <>
           <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
             <Box>
@@ -444,7 +447,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                   translation='modals.receive.setAmount'
                 />
               </Flex>
-              {!(wallet.getVendor() === 'Native') && (
+              {!(wallet?.getVendor() === 'Native') && (
                 <Flex direction='column' align='center' gap={2}>
                   <IconButton
                     icon={verifyIcon}
@@ -454,7 +457,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                       }`,
                     )}
                     onClick={handleVerify}
-                    isDisabled={!receiveAddress}
+                    isDisabled={!receiveAddress || !isConnected}
                     size='lg'
                     borderRadius='full'
                     color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}
@@ -500,7 +503,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <Text translation='modals.receive.unsupportedAsset' />
         </DialogBody>
       )}
-
       <AmountModal
         isOpen={isAmountModalOpen}
         onClose={onAmountModalClose}
@@ -514,3 +516,4 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     </>
   )
 }
+

@@ -390,6 +390,8 @@
       "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
+      "reconnectWallet": "Reconnect Wallet",
+      "walletNotConnected": "Your wallet is not currently connected. This will impact transactions.",
       "connecting": "Connecting..."
     }
   },
@@ -1845,7 +1847,8 @@
         "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
-        "body": "Unable to connect Ledger wallet"
+        "header": "Can't connect to Ledger",
+        "body": "We were not able to detect your ledger, but you can connect in read only mode."
       },
       "readOnly": {
         "button": "Connect as Read Only"

@@ -554,7 +554,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({
                   type: WalletActions.SET_WALLET,
                   payload: {
-                    wallet: null, // No physical wallet connection yet
+                    wallet: null,
                     name,
                     icon,
                     deviceId: localWalletDeviceId,
@@ -563,7 +563,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: true,
+                  // This is the app refresh case - always assume the device is physically disconnected
+                  // The only reliable way to connect is the imperative one with "Pair Device" button
+                  payload: false,
                 })
 
                 // Show the Ledger modal and navigate to connect screen

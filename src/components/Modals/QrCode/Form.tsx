@@ -102,6 +102,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
 
+          // This should
+          // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount and asset
+          // - If no valid payment URI, fall back to plain address parsing by exhausting knownChainIds
+          // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
+          // - If no valid asset is found, it should go to the select asset step
           const urlDirectResult = parseUrlDirect(decodedText)
 
           // Attempts parsing as payment URI first, otherwise defaults to address parsing

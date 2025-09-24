@@ -179,7 +179,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse EIP-681 URL with dangerous parameters and strip them', () => {
+    it('should parse ERC-20 token transfer with amount and destination', () => {
       const result = parseUrlDirect(
         'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD&uint256=100000',
       )
@@ -291,7 +291,7 @@ describe('parseUrlDirect', () => {
     })
   })
 
-  describe('Trust Mobile BIP-21 examples', () => {
+  describe('Trust Mobile (BIP-21)', () => {
     it('should parse Ethereum BIP-21 with amount', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?amount=0.1',

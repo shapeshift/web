@@ -138,10 +138,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
               urlOrAddress: decodedText,
             }
             const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-            return {
-              address: result.address,
-              vanityAddress: result.vanityAddress,
-            }
+            return { address: result.address, vanityAddress: result.vanityAddress }
           })()
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')

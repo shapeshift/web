@@ -91,7 +91,6 @@ describe('@/lib/address', () => {
     })
 
     it('should return empty for address on wrong chain', async () => {
-      // Ethereum address on Bitcoin chain should fail
       const result = await parseAddressInputWithChainId({
         chainId: btcChainId,
         urlOrAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',

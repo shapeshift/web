@@ -17,7 +17,7 @@ import { useSendDetails } from './useSendDetails'
 
 import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import type { ResolveVanityAddressReturn } from '@/lib/address/address'
+import type { ResolveVanityAddressReturn } from '@/lib/address/types'
 import { ensLookup } from '@/lib/address/ens'
 import { fromBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'

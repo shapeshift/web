@@ -9,21 +9,12 @@ import {
 import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
-export type {
-  ParseAddressInputReturn,
-  ResolveVanityAddress,
-  ResolveVanityAddressReturn,
-  ReverseLookupVanityAddress,
-  ValidateVanityAddress,
-} from './types'
-export { validateAddress } from './validation'
-
 export const parseAddress = async ({
   address,
 }: {
   address: string
 }): Promise<ParseAddressResult> => {
-  // Find which chain this address belongs to
+  // Iterate over supportedChainIds
   for (const chainId of knownChainIds) {
     try {
       const isValidAddress = await validateAddress({ chainId, maybeAddress: address })

@@ -11,7 +11,7 @@ import { Overview } from './Overview'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import type { ParseAddressInputReturn } from '@/lib/address/address'
+import type { ParseAddressInputReturn } from '@/lib/address/types'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {

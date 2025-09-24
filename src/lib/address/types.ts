@@ -84,7 +84,7 @@ export type ParseAddressInputReturn = {
   chainId: ChainId
 }
 
-export type ParseMaybeUrlResult = {
+export type ParseAddressResult = {
   assetId?: AssetId
   chainId: ChainId
   value: string

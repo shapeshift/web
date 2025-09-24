@@ -269,7 +269,7 @@ describe('generateReceiveQrAddress', () => {
         amountCryptoPrecision: '1.0',
       })
 
-      expect(result).toBe(`ethereum:${testAddress}@1?value=1000000000000000000`)
+      expect(result).toBe(`ethereum:${testAddress}@1?value=1e18`)
     })
 
     it('should generate EIP-681 format with value for fractional ETH', () => {
@@ -279,7 +279,7 @@ describe('generateReceiveQrAddress', () => {
         amountCryptoPrecision: '0.5',
       })
 
-      expect(result).toBe(`ethereum:${testAddress}@1?value=500000000000000000`)
+      expect(result).toBe(`ethereum:${testAddress}@1?value=5e17`)
     })
 
     it('should generate EIP-681 format with value for Base ETH', () => {
@@ -289,7 +289,7 @@ describe('generateReceiveQrAddress', () => {
         amountCryptoPrecision: '2.0',
       })
 
-      expect(result).toBe(`ethereum:${testAddress}@8453?value=2000000000000000000`)
+      expect(result).toBe(`ethereum:${testAddress}@8453?value=2e18`)
     })
 
     it('should generate EIP-681 format with value for Avalanche AVAX', () => {
@@ -299,7 +299,7 @@ describe('generateReceiveQrAddress', () => {
         amountCryptoPrecision: '10.5',
       })
 
-      expect(result).toBe(`ethereum:${testAddress}@43114?value=10500000000000000000`)
+      expect(result).toBe(`ethereum:${testAddress}@43114?value=1.05e19`)
     })
   })
 
@@ -314,7 +314,7 @@ describe('generateReceiveQrAddress', () => {
       // USDC has 6 decimals, so 100.0 USDC = 100000000 base units
       // USDC contract address on Ethereum is 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
       expect(result).toBe(
-        `ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=${testAddress}&uint256=100000000`,
+        `ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=${testAddress}&uint256=1e8`,
       )
     })
 
@@ -327,7 +327,7 @@ describe('generateReceiveQrAddress', () => {
 
       // 50.123456 USDC = 50123456 base units (6 decimals)
       expect(result).toBe(
-        `ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=${testAddress}&uint256=50123456`,
+        `ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=${testAddress}&uint256=5.0123456e7`,
       )
     })
 
@@ -394,7 +394,7 @@ describe('generateReceiveQrAddress', () => {
         amountCryptoPrecision: '1.0',
       })
 
-      expect(result).toBe(`solana:${testSolanaAddress}?amount=1.0`)
+      expect(result).toBe(`solana:${testSolanaAddress}?amount=1`)
     })
 
     it('should generate Solana Pay format with fractional SOL amount', () => {

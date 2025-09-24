@@ -1,9 +1,13 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
+import { encodeURL } from '@solana/pay'
+import { PublicKey } from '@solana/web3.js'
+import { build as buildEthUrl } from 'eth-url-parser'
 
 import { CHAIN_ID_TO_URN_SCHEME } from './constants'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 
 export type GenerateReceiveQrAddressArgs = {
@@ -57,13 +61,24 @@ export const generateReceiveQrAddress = ({
       }
 
       if (isTokenAsset) {
-        // SPL token transfer: solana:{recipient}?amount={tokenAmount}&spl-token={tokenMint}
+        // SPL token transfer
         const { assetReference: tokenMint } = fromAssetId(assetId)
-        return `solana:${receiveAddress}?amount=${amountCryptoPrecision}&spl-token=${tokenMint}`
+        return encodeURL({
+          recipient: new PublicKey(receiveAddress),
+          // @ts-expect-error - Version discrepancy between @solana/pay BigNumber (v8.1.0) and our BigNumber (v7.2.1)
+          // See: https://github.com/MikeMcl/bignumber.js/blob/main/CHANGELOG.md#810
+          amount: bnOrZero(amountCryptoPrecision),
+          splToken: new PublicKey(tokenMint),
+        }).toString()
       }
 
-      // Native SOL: solana:{address}?amount={amountInSOL}
-      return `solana:${receiveAddress}?amount=${amountCryptoPrecision}`
+      // Native SOL transfer
+      return encodeURL({
+        recipient: new PublicKey(receiveAddress),
+        // @ts-expect-error - Version discrepancy between @solana/pay BigNumber (v8.1.0) and our BigNumber (v7.2.1)
+        // See: https://github.com/MikeMcl/bignumber.js/blob/main/CHANGELOG.md#810
+        amount: bnOrZero(amountCryptoPrecision),
+      }).toString()
     }
 
     case CHAIN_NAMESPACE.Evm: {
@@ -71,19 +86,36 @@ export const generateReceiveQrAddress = ({
       const isTokenAsset = isToken(assetId)
 
       if (!amountCryptoPrecision) {
-        return `ethereum:${receiveAddress}@${evmNetworkId}`
+        return buildEthUrl({
+          target_address: receiveAddress,
+          chain_id: `${evmNetworkId}`,
+        })
       }
 
       if (isTokenAsset) {
-        // ERC-20 token transfer: ethereum:{tokenContract}@{chainId}/transfer?address={userAddress}&uint256={tokenAmount}
+        // ERC-20 token transfer
         const { assetReference: tokenContract } = fromAssetId(assetId)
         const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
-        return `ethereum:${tokenContract}@${evmNetworkId}/transfer?address=${receiveAddress}&uint256=${amountBaseUnit}`
+        return buildEthUrl({
+          target_address: tokenContract,
+          chain_id: `${evmNetworkId}`,
+          function_name: 'transfer',
+          parameters: {
+            address: receiveAddress,
+            uint256: amountBaseUnit,
+          },
+        })
       }
 
-      // Native token: ethereum:{address}@{chainId}?value={amountInWei}
+      // Native token transfer
       const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
-      return `ethereum:${receiveAddress}@${evmNetworkId}?value=${amountBaseUnit}`
+      return buildEthUrl({
+        target_address: receiveAddress,
+        chain_id: `${evmNetworkId}`,
+        parameters: {
+          value: amountBaseUnit,
+        },
+      })
     }
 
     default:

@@ -161,8 +161,25 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => thorchainAssetId,
       getDisplayName: () => 'Thorchain',
-      // Simplified THORChain validation (real implementation uses bech32.decode with 'thor' prefix)
-      validateAddress: (address: string) => ({ valid: address.startsWith('thor1') && address.length >= 42 }),
+      validateAddress: (address: string) => {
+        const THORCHAIN_PREFIX = 'thor'
+        
+        try {
+          const bech32 = require('bech32')
+          const decoded = bech32.decode(address)
+          if (decoded.prefix !== THORCHAIN_PREFIX) {
+            return { valid: false }
+          }
+
+          const wordsLength = decoded.words.length
+          if (wordsLength !== 32) {
+            return { valid: false }
+          }
+          return { valid: true }
+        } catch (e) {
+          return { valid: false }
+        }
+      },
     },
   ],
   [

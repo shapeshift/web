@@ -1,5 +1,4 @@
-// Removed URL parsing imports - now handled by bip21.ts
-import type { ParseAddressByChainIdInput, ParseAddressInput, ParseMaybeUrlResult } from './types'
+import type { ParseAddressByChainIdInput, ParseAddressInput, ParseAddressResult } from './types'
 import { validateAddress } from './validation'
 import {
   resolveVanityAddress,
@@ -22,22 +21,15 @@ export type {
 // Re-export validation function
 export { validateAddress } from './validation'
 
-// URL detection functions are now imported from bip21.ts
-// Vanity address functions are now imported from vanityAddress.ts
-// Validation functions are now imported from validation.ts
-
-// parseMaybeUrlWithChainId function removed - URL parsing now handled by parseUrlDirect in bip21.ts
-
-export const parseMaybeUrl = async ({
-  urlOrAddress,
+export const parseAddress = async ({
+  address,
 }: {
-  urlOrAddress: string
-}): Promise<ParseMaybeUrlResult> => {
-  // We know this is NOT a URL (parseUrlDirect already failed)
-  // So just find which chain this plain address belongs to
+  address: string
+}): Promise<ParseAddressResult> => {
+  // Find which chain this plain address belongs to
   for (const chainId of knownChainIds) {
     try {
-      const isValidAddress = await validateAddress({ chainId, maybeAddress: urlOrAddress })
+      const isValidAddress = await validateAddress({ chainId, maybeAddress: address })
       if (isValidAddress) {
         const adapter = getChainAdapterManager().get(chainId)
         if (!adapter) continue // Try next chain if no adapter
@@ -45,7 +37,7 @@ export const parseMaybeUrl = async ({
         const defaultAssetId = adapter.getFeeAssetId()
         return {
           chainId,
-          value: urlOrAddress,
+          value: address,
           assetId: defaultAssetId,
         }
       }
@@ -55,16 +47,15 @@ export const parseMaybeUrl = async ({
     }
   }
 
-  // Validation failed for all chains
+  // Validation failed for all ChainIds
   throw new Error('Address not found in QR code')
 }
 
-// All vanity address and validation functions are now imported from respective modules
 
 // Parses an address or vanity address for a **known** ChainId
 export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async args => {
   const { assetId, chainId, amountCryptoPrecision } = args
-  // URL parsing is now handled by parseUrlDirect in bip21.ts - this function only handles addresses/ENS
+  // This function only handles addresses/ENS
   const maybeParsedArgs = {
     assetId,
     maybeAddress: args.urlOrAddress,
@@ -95,7 +86,7 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
 
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match
 export const parseAddressInput: ParseAddressInput = async args => {
-  // URL parsing is now handled by parseUrlDirect in bip21.ts - this function only handles addresses/ENS
+  // This function only handles addresses/ENS
   for (const chainId of knownChainIds) {
     const parsedArgs = {
       assetId: args.assetId,

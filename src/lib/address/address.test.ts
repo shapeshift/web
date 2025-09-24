@@ -8,7 +8,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { describe, expect, it, vi } from 'vitest'
 
-import { parseAddressInputWithChainId, parseMaybeUrl } from './address'
+import { parseAddress, parseAddressInputWithChainId } from './address'
 
 import { mockChainAdapters } from '@/test/mocks/portfolio'
 
@@ -17,10 +17,10 @@ vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
 }))
 
 describe('@/lib/address', () => {
-  describe('parseMaybeUrl', () => {
+  describe('parseAddress', () => {
     it('should find Bitcoin address in correct chain', async () => {
-      const result = await parseMaybeUrl({
-        urlOrAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+      const result = await parseAddress({
+        address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       })
 
       expect(result).toEqual({
@@ -31,8 +31,8 @@ describe('@/lib/address', () => {
     })
 
     it('should find Ethereum address in correct chain', async () => {
-      const result = await parseMaybeUrl({
-        urlOrAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      const result = await parseAddress({
+        address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
       })
 
       expect(result).toEqual({
@@ -43,8 +43,8 @@ describe('@/lib/address', () => {
     })
 
     it('should find Solana address in correct chain', async () => {
-      const result = await parseMaybeUrl({
-        urlOrAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+      const result = await parseAddress({
+        address: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
       })
 
       expect(result).toEqual({
@@ -56,8 +56,8 @@ describe('@/lib/address', () => {
 
     it('should throw error for invalid address', async () => {
       await expect(
-        parseMaybeUrl({
-          urlOrAddress: 'invalid-address-format',
+        parseAddress({
+          address: 'invalid-address-format',
         }),
       ).rejects.toThrow('Address not found in QR code')
     })

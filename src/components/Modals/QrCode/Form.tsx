@@ -18,7 +18,7 @@ import { Status } from '../Send/views/Status'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
-import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
 import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
@@ -102,22 +102,20 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
 
-          // Try parsing as payment URI first, otherwise use legacy address parser
           const urlDirectResult = parseUrlDirect(decodedText)
 
-          const maybeUrlResult = (() => {
+          // Attempts parsing as payment URI first, otherwise defaults to address parsing
+          // (finding assetId/chainId by exhausting knownChainIds)
+          const maybeUrlResult = await (async () => {
             if (urlDirectResult) {
-              // Convert to legacy format
               return {
                 assetId: urlDirectResult.assetId,
                 chainId: urlDirectResult.chainId,
                 value: decodedText,
                 amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
               }
-            } else {
-              // Use legacy parser for plain addresses
-              return parseMaybeUrl({ urlOrAddress: decodedText })
             }
+            return await parseAddress({ address: decodedText })
           })()
 
           if (!maybeUrlResult.assetId) return
@@ -125,23 +123,20 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           // Get validated address and vanity address
           const { address, vanityAddress } = await (async () => {
             if (urlDirectResult) {
-              // For URLs, we already have the validated address and asset
               return {
                 address: urlDirectResult.maybeAddress,
-                vanityAddress: urlDirectResult.maybeAddress, // No vanity resolution needed for URLs
+                vanityAddress: urlDirectResult.maybeAddress,
               }
-            } else {
-              // For plain addresses, use the full validation process
-              const parseAddressInputWithChainIdArgs = {
-                assetId: maybeUrlResult.assetId,
-                chainId: maybeUrlResult.chainId,
-                urlOrAddress: decodedText,
-              }
-              const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-              return {
-                address: result.address,
-                vanityAddress: result.vanityAddress,
-              }
+            }
+            const parseAddressInputWithChainIdArgs = {
+              assetId: maybeUrlResult.assetId,
+              chainId: maybeUrlResult.chainId,
+              urlOrAddress: decodedText,
+            }
+            const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+            return {
+              address: result.address,
+              vanityAddress: result.vanityAddress,
             }
           })()
 

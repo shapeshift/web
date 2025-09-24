@@ -74,7 +74,13 @@ export const Address = () => {
           setValue(SendFormFields.VanityAddress, '')
           const { assetId, chainId } = asset
           // this does not throw, everything inside is handled
-          const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
+          // Disable URL parsing for manual input - users don't type URLs, they scan QR codes
+          const parseAddressInputWithChainIdArgs = {
+            assetId,
+            chainId,
+            urlOrAddress,
+            disableUrlParsing: true,
+          }
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )

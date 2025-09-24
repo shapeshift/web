@@ -19,6 +19,7 @@ import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -102,22 +103,42 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
 
-          // This should
-          // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
-          // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
-          // If no valid asset is found, it should go to the select asset step
-          const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+          // NEW: Try efficient URL parsing first (O(1) - no chain iteration!)
+          const urlDirectResult = parseUrlDirect(decodedText)
+
+          let maybeUrlResult
+          if (urlDirectResult) {
+            // URL parsing succeeded - convert to legacy format for compatibility
+            maybeUrlResult = {
+              assetId: urlDirectResult.assetId,
+              chainId: urlDirectResult.chainId,
+              value: decodedText,
+              amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+            }
+          } else {
+            // Fallback to legacy parser for plain addresses (still does chain iteration)
+            maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+          }
 
           if (!maybeUrlResult.assetId) return
 
-          const parseAddressInputWithChainIdArgs = {
-            assetId: maybeUrlResult.assetId,
-            chainId: maybeUrlResult.chainId,
-            urlOrAddress: decodedText,
+          // If we got the result from URL parsing, we already have the clean address
+          let address, vanityAddress
+          if (urlDirectResult) {
+            // For URLs, we already have the validated address and asset
+            address = urlDirectResult.maybeAddress
+            vanityAddress = urlDirectResult.maybeAddress // No vanity resolution needed for URLs
+          } else {
+            // For plain addresses, use the full validation process
+            const parseAddressInputWithChainIdArgs = {
+              assetId: maybeUrlResult.assetId,
+              chainId: maybeUrlResult.chainId,
+              urlOrAddress: decodedText,
+            }
+            const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+            address = result.address
+            vanityAddress = result.vanityAddress
           }
-          const { address, vanityAddress } = await parseAddressInputWithChainId(
-            parseAddressInputWithChainIdArgs,
-          )
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)

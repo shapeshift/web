@@ -25,6 +25,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -226,14 +227,34 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
       try {
-        const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+        // Try efficient URL parsing first (O(1) for URLs)
+        const urlDirectResult = parseUrlDirect(decodedText)
+        let maybeUrlResult
+        let address
 
-        const parseAddressInputWithChainIdArgs = {
-          assetId: maybeUrlResult.assetId,
-          chainId: maybeUrlResult.chainId,
-          urlOrAddress: decodedText,
+        if (urlDirectResult) {
+          // O(1) URL parsing succeeded - convert to legacy format and get address
+          maybeUrlResult = {
+            assetId: urlDirectResult.assetId,
+            chainId: urlDirectResult.chainId,
+            value: decodedText,
+            amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+          }
+
+          // For URLs, use the address directly from URL parsing
+          address = urlDirectResult.maybeAddress
+        } else {
+          // Fallback to legacy parser for plain addresses
+          maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+
+          const parseAddressInputWithChainIdArgs = {
+            assetId: maybeUrlResult.assetId,
+            chainId: maybeUrlResult.chainId,
+            urlOrAddress: decodedText,
+          }
+          const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+          address = result.address
         }
-        const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
 
         methods.setValue(SendFormFields.Input, address)
 

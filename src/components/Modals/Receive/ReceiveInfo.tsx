@@ -32,7 +32,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { TbCheck, TbCopy, TbExternalLink, TbHash, TbX, TbZoomCheck } from 'react-icons/tb'
+import { TbCheck, TbCopy, TbExternalLink, TbHash, TbZoomCheck } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
@@ -76,7 +76,6 @@ const receiveAddressActive = { color: 'blue.800' }
 const copyIcon = <TbCopy />
 const externalLinkIcon = <TbExternalLink />
 const setAmountIcon = <TbHash />
-const clearAmountIcon = <TbX />
 
 const AmountModal = ({
   isOpen,
@@ -108,7 +107,7 @@ const AmountModal = ({
         <ModalBody>
           <FormControl>
             <FormLabel>
-              {translate('modals.receive.amountLabel', { symbol: symbol.toUpperCase() })}
+              {translate('common.amount')} ({symbol.toUpperCase()})
             </FormLabel>
             <Input
               value={amountInput}
@@ -308,16 +307,9 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
             noSpace={true}
           />
         )}
-        <IconButton
-          icon={clearAmountIcon}
-          size='xs'
-          variant='ghost'
-          aria-label='Clear amount'
-          onClick={handleAmountClear}
-        />
       </Flex>
     )
-  }, [receiveAmount, symbol, amountUserCurrency, handleAmountClear])
+  }, [receiveAmount, symbol, amountUserCurrency])
 
   const qrCodeText = useMemo(() => {
     const generatedText = generateReceiveQrAddress({

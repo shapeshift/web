@@ -9,12 +9,25 @@ import {
   ethAssetId,
   optimismAssetId,
   polygonAssetId,
+  solAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { PublicKey } from '@solana/web3.js'
+import WAValidator from 'multicoin-address-validator'
+import { isAddress } from 'viem'
 
 import { accountToPortfolio } from '@/state/slices/portfolioSlice/utils'
+
+// Import chain ID helpers (simplified versions)
+const chainIdToChainLabel = (chainId: string) => {
+  if (chainId.includes('bitcoin')) return 'bitcoin'
+  if (chainId.includes('litecoin')) return 'litecoin'
+  if (chainId.includes('dogecoin')) return 'dogecoin'
+  if (chainId.includes('bitcoincash')) return 'bitcoincash'
+  return 'bitcoin' // default fallback
+}
 
 type MockChainIds =
   | KnownChainIds.EthereumMainnet
@@ -39,12 +52,35 @@ export const mockUpsertPortfolio = (accounts: Account<MockChainIds>[], assetIds:
   return accountToPortfolio({ portfolioAccounts, assetIds })
 }
 
+// Real chain adapter validation implementations
+const validateBitcoinAddress = (address: string, chainId: string) => {
+  const chainLabel = chainIdToChainLabel(chainId)
+  const isValidAddress = WAValidator.validate(address, chainLabel)
+  return { valid: isValidAddress }
+}
+
+const validateEthereumAddress = (address: string) => {
+  const isValidAddress = isAddress(address)
+  return { valid: isValidAddress }
+}
+
+const validateSolanaAddress = (address: string) => {
+  try {
+    new PublicKey(address)
+    return { valid: true }
+  } catch (err) {
+    return { valid: false }
+  }
+}
+
 export const mockChainAdapters = new Map([
   [
     KnownChainIds.BitcoinMainnet,
     {
       getFeeAssetId: () => btcAssetId,
       getDisplayName: () => 'Bitcoin',
+      validateAddress: (address: string) =>
+        validateBitcoinAddress(address, KnownChainIds.BitcoinMainnet),
     },
   ],
   [
@@ -52,6 +88,8 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => cosmosAssetId,
       getDisplayName: () => 'Cosmos',
+      // Cosmos adapter not easily available, use simple validation
+      validateAddress: (address: string) => ({ valid: address.startsWith('cosmos') }),
     },
   ],
   [
@@ -59,6 +97,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => ethAssetId,
       getDisplayName: () => 'Ethereum',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -66,6 +105,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => avalancheAssetId,
       getDisplayName: () => 'Avalanche',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -73,6 +113,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => optimismAssetId,
       getDisplayName: () => 'Optimism',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -80,6 +121,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => bscAssetId,
       getDisplayName: () => 'Binance Smart Chain',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -87,6 +129,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => polygonAssetId,
       getDisplayName: () => 'Polygon',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -94,6 +137,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => arbitrumAssetId,
       getDisplayName: () => 'Arbitrum One',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -101,6 +145,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => arbitrumNovaAssetId,
       getDisplayName: () => 'Arbitrum Nova',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -108,6 +153,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => baseAssetId,
       getDisplayName: () => 'Base',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -115,6 +161,16 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => thorchainAssetId,
       getDisplayName: () => 'Thorchain',
+      // THORChain adapter not easily available, use simple validation
+      validateAddress: (address: string) => ({ valid: address.startsWith('thor') }),
+    },
+  ],
+  [
+    KnownChainIds.SolanaMainnet,
+    {
+      getFeeAssetId: () => solAssetId,
+      getDisplayName: () => 'Solana',
+      validateAddress: validateSolanaAddress,
     },
   ],
 ])

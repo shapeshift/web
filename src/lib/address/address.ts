@@ -83,6 +83,7 @@ export const parseMaybeUrlWithChainId = ({
   chainId: inputChainId,
   urlOrAddress,
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
+  console.log(urlOrAddress)
   switch (inputChainId) {
     case ethChainId:
     case arbitrumChainId:
@@ -238,6 +239,7 @@ export const parseMaybeUrl = async ({
 }: {
   urlOrAddress: string
 }): Promise<ParseMaybeUrlResult> => {
+  console.log(urlOrAddress)
   // Iterate over supportedChainIds
   for (const chainId of knownChainIds) {
     try {

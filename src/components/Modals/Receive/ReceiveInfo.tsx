@@ -1,16 +1,28 @@
 import {
   Box,
+  Button,
   Card,
   CardBody,
   Flex,
+  FormControl,
+  FormLabel,
   HStack,
   IconButton,
+  Input,
   LightMode,
   Link,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Skeleton,
   SkeletonText,
   Tag,
   useColorModeValue,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
@@ -20,7 +32,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { TbCheck, TbCopy, TbExternalLink, TbZoomCheck } from 'react-icons/tb'
+import { TbCheck, TbCopy, TbExternalLink, TbHash, TbX, TbZoomCheck } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
@@ -28,6 +40,7 @@ import type { Address } from 'viem'
 import { SupportedNetworks } from './SupportedNetworks'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { Amount } from '@/components/Amount/Amount'
 import { LogoQRCode } from '@/components/LogoQRCode/LogoQRCode'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
@@ -41,8 +54,13 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { generateReceiveQrAddress } from '@/lib/address/generateReceiveQrAddress'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstFourLastFour } from '@/lib/utils'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type ReceivePropsType = {
@@ -57,6 +75,8 @@ const receiveAddressActive = { color: 'blue.800' }
 
 const copyIcon = <TbCopy />
 const externalLinkIcon = <TbExternalLink />
+const setAmountIcon = <TbHash />
+const clearAmountIcon = <TbX />
 
 export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
@@ -65,6 +85,13 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const [ensName, setEnsName] = useState<string | null>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
+  const [receiveAmount, setReceiveAmount] = useState<string | undefined>()
+  const [amountInput, setAmountInput] = useState<string>('')
+  const {
+    isOpen: isAmountModalOpen,
+    onOpen: onAmountModalOpen,
+    onClose: onAmountModalClose,
+  } = useDisclosure()
   const chainAdapterManager = getChainAdapterManager()
   const navigate = useNavigate()
   const { chainId, name, symbol } = asset
@@ -74,6 +101,9 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const accountFilter = useMemo(() => ({ accountId: selectedAccountId ?? '' }), [selectedAccountId])
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
@@ -155,12 +185,50 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
+  const handleSetAmount = useCallback(() => {
+    setAmountInput(receiveAmount ?? '')
+    onAmountModalOpen()
+  }, [receiveAmount, onAmountModalOpen])
+
+  const handleAmountConfirm = useCallback(() => {
+    setReceiveAmount(amountInput || undefined)
+    onAmountModalClose()
+  }, [amountInput, onAmountModalClose])
+
+  const handleAmountInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmountInput(e.target.value)
+  }, [])
+
+  const handleAmountClear = useCallback(() => {
+    setReceiveAmount(undefined)
+    setAmountInput('')
+    onAmountModalClose()
+  }, [onAmountModalClose])
+
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { symbol: symbol.toUpperCase() }],
     [symbol],
   )
 
   const verifyIcon = useMemo(() => (verified ? <TbCheck /> : <TbZoomCheck />), [verified])
+
+  const fiatAmount = useMemo(() => {
+    if (!receiveAmount || !marketData?.price) return undefined
+    return bnOrZero(receiveAmount).times(marketData.price).toString()
+  }, [receiveAmount, marketData?.price])
+
+  const qrCodeText = useMemo(
+    () => {
+      const generatedText = generateReceiveQrAddress({
+        receiveAddress: receiveAddress ?? '',
+        asset,
+        amountCryptoPrecision: receiveAmount,
+      })
+      console.log('Generated QR code text:', generatedText)
+      return generatedText
+    },
+    [receiveAddress, asset, receiveAmount],
+  )
 
   return (
     <>
@@ -222,7 +290,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
               <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
                   <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
-                    <LogoQRCode text={receiveAddress} asset={asset} data-test='receive-qr-code' />
+                    <LogoQRCode text={qrCodeText} asset={asset} data-test='receive-qr-code' />
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
                     <Flex
@@ -244,10 +312,38 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                 </LightMode>
               </CardBody>
             </Card>
+
+            {receiveAmount && (
+              <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={2}>
+                <Amount.Crypto
+                  value={bnOrZero(receiveAmount).toString()}
+                  symbol={symbol.toUpperCase()}
+                  fontSize='md'
+                  fontWeight='bold'
+                />
+                {fiatAmount && (
+                  <Amount.Fiat
+                    prefix='(≈ '
+                    suffix=')'
+                    value={bnOrZero(fiatAmount).toString()}
+                    fontSize='sm'
+                    color='text.subtle'
+                  />
+                )}
+                <IconButton
+                  icon={clearAmountIcon}
+                  size='xs'
+                  variant='ghost'
+                  aria-label='Clear amount'
+                  onClick={handleAmountClear}
+                />
+              </Flex>
+            )}
+
             <SupportedNetworks asset={asset} />
           </DialogBody>
           <DialogFooter flexDir='column' py={4}>
-            <HStack spacing={20}>
+            <HStack spacing={8} justify='center'>
               <Flex direction='column' align='center' gap={2}>
                 <IconButton
                   icon={copyIcon}
@@ -263,6 +359,23 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                   color='text.subtle'
                   fontWeight='medium'
                   translation='modals.receive.copy'
+                />
+              </Flex>
+              <Flex direction='column' align='center' gap={2}>
+                <IconButton
+                  icon={setAmountIcon}
+                  aria-label={translate('modals.receive.setAmount')}
+                  onClick={handleSetAmount}
+                  isDisabled={!receiveAddress}
+                  size='lg'
+                  borderRadius='full'
+                  color='text.base'
+                />
+                <Text
+                  fontSize='sm'
+                  color='text.subtle'
+                  fontWeight='medium'
+                  translation='modals.receive.setAmount'
                 />
               </Flex>
               {!(wallet.getVendor() === 'Native') && (
@@ -321,6 +434,49 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <Text translation='modals.receive.unsupportedAsset' />
         </DialogBody>
       )}
+
+      {/* Set Amount Modal */}
+      <Modal isOpen={isAmountModalOpen} onClose={onAmountModalClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{translate('modals.receive.setAmount')}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <FormLabel>
+                {translate('modals.receive.amountLabel', { symbol: symbol.toUpperCase() })}
+              </FormLabel>
+              <Input
+                value={amountInput}
+                onChange={handleAmountInputChange}
+                placeholder={`0.0 ${symbol.toUpperCase()}`}
+                data-test='receive-amount-input'
+                type='text'
+                inputMode='decimal'
+              />
+              <Text
+                fontSize='sm'
+                color='text.subtle'
+                mt={2}
+                translation='modals.receive.amountNote'
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant='ghost' mr={3} onClick={onAmountModalClose}>
+              {translate('common.cancel')}
+            </Button>
+            {receiveAmount && (
+              <Button variant='ghost' mr={3} onClick={handleAmountClear}>
+                {translate('common.clear')}
+              </Button>
+            )}
+            <Button colorScheme='blue' onClick={handleAmountConfirm}>
+              {translate('common.confirm')}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   )
 }

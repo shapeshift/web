@@ -9,7 +9,6 @@ import {
 import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
-// Re-export types and functions for backward compatibility
 export type {
   ParseAddressInputReturn,
   ResolveVanityAddress,
@@ -17,8 +16,6 @@ export type {
   ReverseLookupVanityAddress,
   ValidateVanityAddress,
 } from './types'
-
-// Re-export validation function
 export { validateAddress } from './validation'
 
 export const parseAddress = async ({
@@ -26,13 +23,13 @@ export const parseAddress = async ({
 }: {
   address: string
 }): Promise<ParseAddressResult> => {
-  // Find which chain this plain address belongs to
+  // Find which chain this address belongs to
   for (const chainId of knownChainIds) {
     try {
       const isValidAddress = await validateAddress({ chainId, maybeAddress: address })
       if (isValidAddress) {
         const adapter = getChainAdapterManager().get(chainId)
-        if (!adapter) continue // Try next chain if no adapter
+        if (!adapter) continue
 
         const defaultAssetId = adapter.getFeeAssetId()
         return {
@@ -42,12 +39,11 @@ export const parseAddress = async ({
         }
       }
     } catch (error) {
-      // Continue to next chain on validation errors
       continue
     }
   }
 
-  // Validation failed for all ChainIds
+  // Address validation failed
   throw new Error('Address validation failed')
 }
 
@@ -62,10 +58,10 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
   }
 
   const isValidAddress = await validateAddress(maybeParsedArgs)
-  // we're dealing with a valid address
+  // Valid address
   if (isValidAddress) {
     const vanityAddress = await reverseLookupVanityAddress(maybeParsedArgs)
-    // return a valid address, and a possibly blank or populated vanity address
+    // Return address with vanity address lookup
     return {
       address: maybeParsedArgs.maybeAddress,
       vanityAddress,
@@ -73,11 +69,11 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
       amountCryptoPrecision: maybeParsedArgs.amountCryptoPrecision,
     }
   }
-  // at this point it's not a valid address, but may not be a vanity address
+  // Check if it's a vanity address
   const isVanityAddress = await validateVanityAddress(maybeParsedArgs)
-  // it's neither a valid address nor a vanity address
+  // Not a valid address or vanity address
   if (!isVanityAddress) return { address: '', vanityAddress: '', chainId }
-  // at this point it's a valid vanity address, let's resolve it
+  // Resolve vanity address
   const address = await resolveVanityAddress(maybeParsedArgs)
   return { address, vanityAddress: maybeParsedArgs.maybeAddress, chainId }
 }

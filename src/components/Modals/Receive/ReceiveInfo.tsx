@@ -63,7 +63,6 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
 type ReceivePropsType = {
   asset: Asset
   accountId?: AccountId
@@ -73,11 +72,9 @@ type ReceivePropsType = {
 const accountDropdownButtonProps = { variant: 'ghost', mt: 4 }
 const receiveAddressHover = { color: 'blue.500' }
 const receiveAddressActive = { color: 'blue.800' }
-
 const copyIcon = <TbCopy />
 const externalLinkIcon = <TbExternalLink />
 const setAmountIcon = <TbHash />
-
 const AmountModal = ({
   isOpen,
   onClose,

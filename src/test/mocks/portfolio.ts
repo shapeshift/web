@@ -161,8 +161,8 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => thorchainAssetId,
       getDisplayName: () => 'Thorchain',
-      // THORChain adapter not easily available, use simple validation
-      validateAddress: (address: string) => ({ valid: address.startsWith('thor') }),
+      // Simplified THORChain validation (real implementation uses bech32.decode with 'thor' prefix)
+      validateAddress: (address: string) => ({ valid: address.startsWith('thor1') && address.length >= 42 }),
     },
   ],
   [

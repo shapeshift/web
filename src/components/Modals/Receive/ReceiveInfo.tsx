@@ -320,7 +320,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       asset,
       amountCryptoPrecision: receiveAmount,
     })
-    console.log('Generated QR code text:', generatedText)
     return generatedText
   }, [receiveAddress, asset, receiveAmount])
 
@@ -516,4 +515,3 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     </>
   )
 }
-

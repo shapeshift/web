@@ -99,7 +99,7 @@ export type ParseAddressInput = (
   args: ParseAddressInputArgs,
 ) => Promise<ParseAddressInputReturn | undefined>
 
-// NEW: URL Direct Parsing Types
+// URL Direct Parsing Types
 export type ParseUrlDirectResult = {
   chainId: ChainId
   assetId: AssetId

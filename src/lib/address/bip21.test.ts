@@ -36,29 +36,29 @@ vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
 
 describe('parseUrlDirect', () => {
   describe('Plain addresses (should return null)', () => {
-    it('should return null for plain Bitcoin address', () => {
+    it('should parse plain Ethereum addresses', () => {
       const result = parseUrlDirect('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
       expect(result).toBeNull()
     })
 
-    it('should return null for plain Ethereum address', () => {
+    it('should not parse EIP-681 URL for ENS domain', () => {
       const result = parseUrlDirect('0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD')
       expect(result).toBeNull()
     })
 
-    it('should return null for ENS domain', () => {
+    it('should handle unsupported stellar: scheme', () => {
       const result = parseUrlDirect('vitalik.eth')
       expect(result).toBeNull()
     })
 
-    it('should return null for plain Solana address', () => {
+    it('should parse BIP-21 base: scheme with amount in precision', () => {
       const result = parseUrlDirect('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
       expect(result).toBeNull()
     })
   })
 
   describe('Pure BIP-21 URLs (UTXO chains)', () => {
-    it('should parse Bitcoin BIP-21 URL without amount', () => {
+    it('should parse address from BIP-21 URL with bitcoin URN scheme', () => {
       const result = parseUrlDirect('bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
 
       expect(result).toEqual({
@@ -68,7 +68,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Bitcoin BIP-21 URL with amount', () => {
+    it('should parse DOGE with BIP-21 amounts', () => {
       const result = parseUrlDirect('bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?amount=0.424242')
 
       expect(result).toEqual({
@@ -79,7 +79,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Dogecoin BIP-21 URL with amount', () => {
+    it('should parse plain DOGE addresses', () => {
       const result = parseUrlDirect('doge:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42123')
 
       expect(result).toEqual({
@@ -90,7 +90,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Litecoin BIP-21 URL with amount', () => {
+    it('should parse BIP-21 avalanchec: scheme with amount in precision', () => {
       const result = parseUrlDirect('litecoin:LTC123DEADBEEF5678ABCD1234DEADBEEF567?amount=2.5')
 
       expect(result).toEqual({
@@ -103,7 +103,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('Pure BIP-21 URLs (Cosmos chains)', () => {
-    it('should parse THORChain BIP-21 URL with amount', () => {
+    it('should parse amount as precision for BIP-21', () => {
       const result = parseUrlDirect(
         'thorchain:thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2?amount=0.1',
       )
@@ -116,7 +116,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Cosmos BIP-21 URL with amount', () => {
+    it('should parse BIP-21 ethereum: scheme with amount in precision', () => {
       const result = parseUrlDirect(
         'cosmos:cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3?amount=10.5',
       )
@@ -131,7 +131,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('EIP-681 URLs (EVM chains)', () => {
-    it('should parse Ethereum EIP-681 URL without amount', () => {
+    it('should parse address from EIP-681 URL without parameters', () => {
       const result = parseUrlDirect('ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1')
 
       expect(result).toEqual({
@@ -141,7 +141,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Ethereum EIP-681 URL with value parameter', () => {
+    it('should parse EIP-681 URL with amount/value params', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?value=1000000000000000000',
       )
@@ -154,7 +154,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Arbitrum EIP-681 URL with hex chain_id', () => {
+    it('should parse native EVM asset with amount and chain_id as hex', () => {
       const result = parseUrlDirect('ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@0xa4b1')
 
       expect(result).toEqual({
@@ -164,7 +164,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse ERC-20 token transfer URL', () => {
+    it('should parse EIP-681 URL with dangerous parameters and strip them', () => {
       const result = parseUrlDirect(
         'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD&uint256=100000',
       )
@@ -177,14 +177,14 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should return null for ERC-20 transfer URL without chain_id', () => {
+    it('should not parse address if there is a mismatch between chainId and URN scheme', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD/transfer?address=0xABCDEF1234567890ABCDEF1234567890ABCDEF12&uint256=1000000',
       )
       expect(result).toBeNull()
     })
 
-    it('should throw error for unknown ERC-20 token with chain_id', () => {
+    it('should throw error for ERC-20 token not in asset slice', () => {
       expect(() =>
         parseUrlDirect(
           'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1/transfer?address=0xABCDEF1234567890ABCDEF1234567890ABCDEF12&uint256=1000000',
@@ -192,7 +192,7 @@ describe('parseUrlDirect', () => {
       ).toThrow('modals.send.errors.qrDangerousEthUrl')
     })
 
-    it('should handle EIP-681 URL with amount parameter (not value)', () => {
+    it('should parse regular address QR with chain_id as hex', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?amount=2.014e18',
       )
@@ -207,7 +207,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('Solana Pay URLs', () => {
-    it('should parse plain Solana BIP-21 URL without Solana Pay params', () => {
+    it('should parse mainnet receive QRs with ethereum: prefix', () => {
       // This should be treated as pure BIP-21, not Solana Pay
       const result = parseUrlDirect('solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
 
@@ -218,7 +218,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Solana Pay native SOL transfer URL', () => {
+    it('should parse plain Solana addresses', () => {
       const result = parseUrlDirect(
         'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=0.123456789',
       )
@@ -231,7 +231,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Solana Pay SPL token transfer URL', () => {
+    it('should parse plain Bitcoin addresses', () => {
       const wifAssetId = toAssetId({
         chainId: solanaChainId,
         assetNamespace: 'token',

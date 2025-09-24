@@ -247,7 +247,7 @@ export const parseEip681 = (urlOrAddress: string): ParseUrlDirectResult => {
 }
 
 /**
- * NEW: Parse URL directly without chain iteration
+ * Parse URL directly without chain iteration
  * Returns extracted chain/asset/address/amount from URL or null for plain addresses
  */
 export const parseUrlDirect = (urlOrAddress: string): ParseUrlDirectResult | null => {

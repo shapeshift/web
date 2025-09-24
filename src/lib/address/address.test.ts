@@ -1,5 +1,7 @@
 import {
+  avalancheAssetId,
   avalancheChainId,
+  baseAssetId,
   baseChainId,
   bscChainId,
   btcAssetId,
@@ -8,6 +10,8 @@ import {
   dogeChainId,
   ethAssetId,
   ethChainId,
+  gnosisAssetId,
+  gnosisChainId,
   ltcAssetId,
   ltcChainId,
   solanaChainId,
@@ -66,7 +70,7 @@ describe('@/lib/address', () => {
         }
 
         const expectedOutput: ParseAddressByChainIdOutput = {
-          assetId: ethAssetId,
+          assetId: baseAssetId,
           chainId: baseChainId,
           maybeAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
           amountCryptoPrecision: '0.1',
@@ -84,10 +88,27 @@ describe('@/lib/address', () => {
         }
 
         const expectedOutput: ParseAddressByChainIdOutput = {
-          assetId: ethAssetId,
+          assetId: avalancheAssetId,
           chainId: avalancheChainId,
           maybeAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
           amountCryptoPrecision: '1.1234567812345677',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse BIP-21 xdai: scheme with amount in precision', () => {
+        const input = {
+          assetId: ethAssetId,
+          chainId: ethChainId,
+          urlOrAddress: 'xdai:0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?amount=0.01',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: gnosisAssetId,
+          chainId: gnosisChainId,
+          maybeAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+          amountCryptoPrecision: '0.01',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)

@@ -1,13 +1,20 @@
 import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  avalancheChainId,
+  baseChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   dogeChainId,
   ethChainId,
-  fromAssetId,
+  gnosisChainId,
   ltcChainId,
+  optimismChainId,
+  polygonChainId,
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
@@ -32,40 +39,43 @@ type VanityAddressValidatorsByChainId = {
 
 const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [ethChainId]: 'ethereum',
+  [arbitrumChainId]: 'arbitrum',
+  [optimismChainId]: 'optimism',
+  [polygonChainId]: 'polygon',
+  [bscChainId]: 'smartchain',
+  [avalancheChainId]: 'avalanchec',
+  [baseChainId]: 'base',
+  [gnosisChainId]: 'xdai',
   [btcChainId]: 'bitcoin',
   [bchChainId]: 'bitcoincash',
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
 
+const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(
+  Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
+)
+
 const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
-const parseMaybeAmountCryptoPrecision = ({
-  rawAmount,
-  assetId,
-}: {
-  rawAmount: string
-  assetId: AssetId
-}): string | undefined => {
-  const decimalPlaces = bnOrZero(rawAmount).decimalPlaces()
-  const hasDecimalPlaces = decimalPlaces !== null && decimalPlaces > 0
-  const isScientificNotation = rawAmount.toLowerCase().includes('e')
-  const isFloatAmount = hasDecimalPlaces && !isScientificNotation
-  const isEvmChain = fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.Evm
+const isBip21Url = (urlOrAddress: string): boolean =>
+  Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
 
-  if (isFloatAmount && isEvmChain) {
-    // According to ERC-681, amount must be in base unit - but some wallets are particularly derp e.g Trust.
-    // For ints, we'll just parse it wrong and that's their fault, but at least for floats, we can detect that
-    // it's a float and notice they've done the base unit dance wrong and handle gracefully.
-    return rawAmount
+const isErc681Url = (urlOrAddress: string): boolean => {
+  // ERC-681 enforces ethereum: prefix regardless of chain
+  if (!urlOrAddress.startsWith('ethereum:')) return false
+
+  try {
+    const parsedUrl = parseEthUrl(urlOrAddress)
+    // ERC-681 specific features: chain_id, function_name, or ERC-681 specific parameters like gas, gasLimit, gasPrice
+    const hasErc681Features = Boolean(parsedUrl.chain_id || parsedUrl.function_name)
+    const hasErc681Params = Boolean(
+      parsedUrl.parameters?.gas || parsedUrl.parameters?.gasLimit || parsedUrl.parameters?.gasPrice,
+    )
+    return hasErc681Features || hasErc681Params
+  } catch {
+    return false
   }
-
-  if (!isFloatAmount) {
-    const asset = selectAssetById(store.getState(), assetId)
-    return asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
-  }
-
-  return undefined
 }
 
 export const parseMaybeUrlWithChainId = ({
@@ -75,7 +85,47 @@ export const parseMaybeUrlWithChainId = ({
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
   switch (inputChainId) {
     case ethChainId:
+    case arbitrumChainId:
+    case optimismChainId:
+    case polygonChainId:
+    case bscChainId:
+    case avalancheChainId:
+    case baseChainId:
+    case gnosisChainId:
       try {
+        // ERC-681 is a superset of BIP-21, so we first need to check from the lowest common denominator (BIP-21) and then highest (EIP-681)
+        if (isBip21Url(urlOrAddress) && !isErc681Url(urlOrAddress)) {
+          const scheme = urlOrAddress.split(':')[0]
+          if (!scheme || !URN_SCHEME_TO_CHAIN_ID[scheme]) {
+            throw new Error('Invalid BIP-21 URL: scheme not detected')
+          }
+
+          const detectedChainId = URN_SCHEME_TO_CHAIN_ID[scheme]
+
+          if (!detectedChainId) throw new Error('Invalid BIP-21 URL: ChainId not detected')
+
+          const parsedUrl = bip21.decode(urlOrAddress, scheme)
+
+          const chainId = detectedChainId === inputChainId ? inputChainId : detectedChainId
+          const assetId =
+            detectedChainId === inputChainId && inputAssetId
+              ? inputAssetId
+              : getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ||
+                toAssetId({
+                  chainId: detectedChainId,
+                  assetNamespace: ASSET_NAMESPACE.slip44,
+                  assetReference: ASSET_REFERENCE.Ethereum,
+                })
+
+          return {
+            assetId,
+            maybeAddress: parsedUrl.address,
+            chainId,
+            ...(parsedUrl.options?.amount && {
+              amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed(),
+            }),
+          }
+        }
         const parsedUrl = parseEthUrl(urlOrAddress)
 
         const chainId = (() => {
@@ -134,8 +184,9 @@ export const parseMaybeUrlWithChainId = ({
         const assetId = inputAssetId || getChainAdapterManager().get(chainId)?.getFeeAssetId()
 
         const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+        const asset = selectAssetById(store.getState(), assetId ?? '')
         const amountCryptoPrecision =
-          rawAmount && assetId ? parseMaybeAmountCryptoPrecision({ rawAmount, assetId }) : undefined
+          rawAmount && asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
 
         return {
           assetId,

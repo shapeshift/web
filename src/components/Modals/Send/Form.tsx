@@ -227,7 +227,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
       try {
-        // Try parsing as payment URI first
         const urlDirectResult = parseUrlDirect(decodedText)
 
         const maybeUrlResult = await (() => {
@@ -243,11 +242,13 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
         const address = urlDirectResult
           ? urlDirectResult.maybeAddress
-          : (await parseAddressInputWithChainId({
-              assetId: maybeUrlResult.assetId,
-              chainId: maybeUrlResult.chainId,
-              urlOrAddress: decodedText,
-            })).address
+          : (
+              await parseAddressInputWithChainId({
+                assetId: maybeUrlResult.assetId,
+                chainId: maybeUrlResult.chainId,
+                urlOrAddress: decodedText,
+              })
+            ).address
 
         methods.setValue(SendFormFields.Input, address)
 

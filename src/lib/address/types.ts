@@ -95,10 +95,6 @@ export type ParseAddressByChainIdInput = (
   args: ParseAddressByChainIdInputArgs,
 ) => Promise<ParseAddressInputReturn>
 
-export type ParseAddressInput = (
-  args: ParseAddressInputArgs,
-) => Promise<ParseAddressInputReturn | undefined>
-
 // URL Direct Parsing Types
 export type ParseUrlDirectResult = {
   chainId: ChainId

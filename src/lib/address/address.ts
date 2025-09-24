@@ -13,8 +13,8 @@ import {
 } from '@shapeshiftoss/caip'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
-import type { Address } from 'viem'
-import { fromHex } from 'viem'
+import type { Address, Hex } from 'viem'
+import { fromHex, isHex } from 'viem'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -69,14 +69,36 @@ const parseMaybeAmountCryptoPrecision = ({
 }
 
 export const parseMaybeUrlWithChainId = ({
-  assetId,
-  chainId,
+  assetId: inputAssetId,
+  chainId: inputChainId,
   urlOrAddress,
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
-  switch (chainId) {
+  switch (inputChainId) {
     case ethChainId:
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
+
+        const chainId = (() => {
+          if (!parsedUrl.chain_id) return inputChainId
+
+          // fuarking specs mang: types say this should be a stringified number and so does the spec,
+          // but in reality may be an hex string e.g ethereum:0xSomeAddy@0xa4b1 (arbitrum)
+          if (isHex(parsedUrl.chain_id)) {
+            return toChainId({
+              chainNamespace: CHAIN_NAMESPACE.Evm,
+              chainReference: fromHex(
+                parsedUrl.chain_id as Hex,
+                'number',
+              ).toString() as ChainReference,
+            })
+          }
+
+          // Assume it's a stringified number
+          return toChainId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: parsedUrl.chain_id as ChainReference,
+          })
+        })()
 
         // https://eips.ethereum.org/EIPS/eip-681
         // Technically, `transfer` method is the only discriminator needed to detect ERC-20 transfer intents, but let's not assume specs are honoured across
@@ -87,18 +109,8 @@ export const parseMaybeUrlWithChainId = ({
           parsedUrl.parameters?.address &&
           parsedUrl.target_address
         ) {
-          const actualChainId = parsedUrl.chain_id
-            ? toChainId({
-                chainNamespace: CHAIN_NAMESPACE.Evm,
-                chainReference: fromHex(
-                  parsedUrl.chain_id as `0x${string}`,
-                  'number',
-                ).toString() as ChainReference,
-              })
-            : chainId
-
           const tokenAssetId = toAssetId({
-            chainId: actualChainId,
+            chainId,
             assetNamespace: ASSET_NAMESPACE.erc20,
             assetReference: parsedUrl.target_address.toLowerCase(),
           })
@@ -113,36 +125,22 @@ export const parseMaybeUrlWithChainId = ({
           return {
             assetId: tokenAssetId,
             maybeAddress: parsedUrl.parameters.address,
-            chainId: actualChainId,
+            chainId,
             ...(amountCryptoPrecision && { amountCryptoPrecision }),
           }
         }
 
         // Native EVM asset transfers
-        const chainIdOrDefault = parsedUrl.chain_id
-          ? toChainId({
-              chainNamespace: CHAIN_NAMESPACE.Evm,
-              chainReference: fromHex(
-                parsedUrl.chain_id as `0x${string}`,
-                'number',
-              ).toString() as ChainReference,
-            })
-          : chainId
-        const finalAssetId =
-          parsedUrl.chain_id && chainIdOrDefault !== chainId
-            ? getChainAdapterManager().get(chainIdOrDefault)?.getFeeAssetId() ?? assetId
-            : assetId
+        const assetId = inputAssetId || getChainAdapterManager().get(chainId)?.getFeeAssetId()
 
         const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
         const amountCryptoPrecision =
-          rawAmount && finalAssetId
-            ? parseMaybeAmountCryptoPrecision({ rawAmount, assetId: finalAssetId })
-            : undefined
+          rawAmount && assetId ? parseMaybeAmountCryptoPrecision({ rawAmount, assetId }) : undefined
 
         return {
-          assetId: finalAssetId,
+          assetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
-          chainId: chainIdOrDefault,
+          chainId,
           ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
       } catch (error) {
@@ -159,12 +157,12 @@ export const parseMaybeUrlWithChainId = ({
     case dogeChainId:
     case ltcChainId:
       try {
-        const urnScheme = CHAIN_ID_TO_URN_SCHEME[chainId]
+        const urnScheme = CHAIN_ID_TO_URN_SCHEME[inputChainId]
         const parsedUrl = bip21.decode(urlOrAddress, urnScheme)
         return {
-          assetId,
+          assetId: inputAssetId,
           maybeAddress: parsedUrl.address,
-          chainId,
+          chainId: inputChainId,
           ...(parsedUrl.options?.amount
             ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
             : {}),
@@ -178,10 +176,10 @@ export const parseMaybeUrlWithChainId = ({
       }
       break
     default:
-      return { assetId, chainId, maybeAddress: urlOrAddress }
+      return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
   }
 
-  return { assetId, chainId, maybeAddress: urlOrAddress }
+  return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
 }
 
 export const parseMaybeUrl = async ({

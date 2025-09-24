@@ -1,7 +1,6 @@
 import { Box, Button, Flex, HStack, Tag, useDisclosure, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -18,7 +17,9 @@ import {
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
 import { RawText } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
@@ -81,14 +82,15 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
     onOpen: handleDrawerOpen,
     onClose: handleDrawerClose,
   } = useDisclosure()
-  const wallet = useWallet().state.wallet
+  const { state } = useWallet()
+  const { wallet, connectedType } = state
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
   const availableChainIds = useMemo(() => {
-    // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
-    return wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
-  }, [wallet, walletSupportedChainIds])
+    return connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
+  }, [connectedType, walletSupportedChainIds])
 
   const handleClickChain = useCallback(
     (chainId: ChainId) => {
@@ -118,6 +120,13 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
     onBack?.()
     close()
   }, [close, onBack])
+
+  // no `wallet`, no accounts management. That would be a dead click if you were to try to connect accounts
+  useEffect(() => {
+    if (isLedgerReadOnlyEnabled && !wallet && isOpen) {
+      close()
+    }
+  }, [isLedgerReadOnlyEnabled, wallet, isOpen, close])
 
   return (
     <>

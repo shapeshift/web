@@ -241,18 +241,13 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           return parseAddress({ address: decodedText })
         })()
 
-        const address = await (async () => {
-          if (urlDirectResult) {
-            return urlDirectResult.maybeAddress
-          }
-          const parseAddressInputWithChainIdArgs = {
-            assetId: maybeUrlResult.assetId,
-            chainId: maybeUrlResult.chainId,
-            urlOrAddress: decodedText,
-          }
-          const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-          return result.address
-        })()
+        const address = urlDirectResult
+          ? urlDirectResult.maybeAddress
+          : (await parseAddressInputWithChainId({
+              assetId: maybeUrlResult.assetId,
+              chainId: maybeUrlResult.chainId,
+              urlOrAddress: decodedText,
+            })).address
 
         methods.setValue(SendFormFields.Input, address)
 

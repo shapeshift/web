@@ -230,16 +230,15 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         // Try parsing as payment URI first
         const urlDirectResult = parseUrlDirect(decodedText)
 
-        const maybeUrlResult = await (async () => {
-          if (urlDirectResult) {
+        const maybeUrlResult = await (() => {
+          if (urlDirectResult)
             return {
               assetId: urlDirectResult.assetId,
               chainId: urlDirectResult.chainId,
               value: decodedText,
               amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
             }
-          }
-          return await parseAddress({ address: decodedText })
+          return parseAddress({ address: decodedText })
         })()
 
         const address = await (async () => {

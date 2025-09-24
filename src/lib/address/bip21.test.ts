@@ -36,22 +36,22 @@ vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
 
 describe('parseUrlDirect', () => {
   describe('Plain addresses (should return null)', () => {
-    it('should parse plain Ethereum addresses', () => {
+    it('should return null for plain Bitcoin addresses', () => {
       const result = parseUrlDirect('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
       expect(result).toBeNull()
     })
 
-    it('should not parse EIP-681 URL for ENS domain', () => {
+    it('should return null for plain Ethereum addresses', () => {
       const result = parseUrlDirect('0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD')
       expect(result).toBeNull()
     })
 
-    it('should handle unsupported stellar: scheme', () => {
+    it('should return null for ENS domains', () => {
       const result = parseUrlDirect('vitalik.eth')
       expect(result).toBeNull()
     })
 
-    it('should parse BIP-21 base: scheme with amount in precision', () => {
+    it('should return null for plain Solana addresses', () => {
       const result = parseUrlDirect('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
       expect(result).toBeNull()
     })
@@ -68,7 +68,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse DOGE with BIP-21 amounts', () => {
+    it('should parse Bitcoin BIP-21 with amount', () => {
       const result = parseUrlDirect('bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?amount=0.424242')
 
       expect(result).toEqual({
@@ -79,7 +79,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse plain DOGE addresses', () => {
+    it('should parse DOGE BIP-21 with amount', () => {
       const result = parseUrlDirect('doge:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42123')
 
       expect(result).toEqual({
@@ -90,7 +90,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse BIP-21 avalanchec: scheme with amount in precision', () => {
+    it('should parse Litecoin BIP-21 with amount', () => {
       const result = parseUrlDirect('litecoin:LTC123DEADBEEF5678ABCD1234DEADBEEF567?amount=2.5')
 
       expect(result).toEqual({
@@ -103,7 +103,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('Pure BIP-21 URLs (Cosmos chains)', () => {
-    it('should parse amount as precision for BIP-21', () => {
+    it('should parse THORChain BIP-21 with amount', () => {
       const result = parseUrlDirect(
         'thorchain:thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2?amount=0.1',
       )
@@ -116,7 +116,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse BIP-21 ethereum: scheme with amount in precision', () => {
+    it('should parse Cosmos BIP-21 with amount', () => {
       const result = parseUrlDirect(
         'cosmos:cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3?amount=10.5',
       )
@@ -192,7 +192,7 @@ describe('parseUrlDirect', () => {
       ).toThrow('modals.send.errors.qrDangerousEthUrl')
     })
 
-    it('should parse regular address QR with chain_id as hex', () => {
+    it('should parse EIP-681 URL with scientific notation amount', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?amount=2.014e18',
       )
@@ -207,8 +207,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('Solana Pay URLs', () => {
-    it('should parse mainnet receive QRs with ethereum: prefix', () => {
-      // This should be treated as pure BIP-21, not Solana Pay
+    it('should parse Solana Pay URL without amount', () => {
       const result = parseUrlDirect('solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
 
       expect(result).toEqual({
@@ -218,7 +217,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse plain Solana addresses', () => {
+    it('should parse Solana Pay URL with amount', () => {
       const result = parseUrlDirect(
         'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=0.123456789',
       )
@@ -231,7 +230,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse plain Bitcoin addresses', () => {
+    it('should parse Solana Pay URL with SPL token', () => {
       const wifAssetId = toAssetId({
         chainId: solanaChainId,
         assetNamespace: 'token',
@@ -252,7 +251,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('Trust Mobile BIP-21 examples', () => {
-    it('should parse ethereum: BIP-21 with amount', () => {
+    it('should parse Ethereum BIP-21 with amount', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?amount=0.1',
       )
@@ -265,7 +264,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse base: BIP-21 with amount', () => {
+    it('should parse Base BIP-21 with amount', () => {
       const result = parseUrlDirect('base:0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?amount=0.1')
 
       expect(result).toEqual({
@@ -276,7 +275,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse avalanchec: BIP-21 with amount', () => {
+    it('should parse Avalanche BIP-21 with amount', () => {
       const result = parseUrlDirect(
         'avalanchec:0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?amount=1.1234567812345678',
       )
@@ -289,7 +288,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse xdai: BIP-21 with amount', () => {
+    it('should parse Gnosis BIP-21 with amount', () => {
       const result = parseUrlDirect('xdai:0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?amount=0.01')
 
       expect(result).toEqual({

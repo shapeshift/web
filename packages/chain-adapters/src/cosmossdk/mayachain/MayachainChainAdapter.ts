@@ -93,6 +93,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
 
       if (pubKey) return pubKey
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
@@ -116,6 +117,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
     try {
       const { txToSign, wallet } = signTxInput
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
@@ -235,6 +237,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.MayachainMa
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
       const hex = await this.signTransaction(signTxInput)

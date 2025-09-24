@@ -14,6 +14,7 @@ import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
 import { cardstyles } from '@/components/MultiHopTrade/const'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 
 type MatchParams = {
@@ -106,12 +107,15 @@ const RampContent: React.FC = () => {
 
 const rampContentElement = <RampContent />
 const navigateElement = <Navigate to='buy' replace />
+const rampTabElement = <RampTab />
 
 export const Ramp: React.FC = () => {
   return (
     <Routes>
       <Route path='buy/*' element={rampContentElement} />
       <Route path='sell/*' element={rampContentElement} />
+      <Route path='trade/buy' element={rampTabElement} />
+      <Route path='trade/sell' element={rampTabElement} />
       <Route index element={navigateElement} />
     </Routes>
   )

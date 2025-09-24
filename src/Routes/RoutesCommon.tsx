@@ -31,6 +31,7 @@ import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
 import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -237,6 +238,16 @@ export const routes: Route[] = [
     mobileNav: false,
     priority: 4,
     routes: [
+      {
+        path: `/ramp/trade/buy`,
+        main: RampTab,
+        hide: true,
+      },
+      {
+        path: `/ramp/trade/sell`,
+        main: RampTab,
+        hide: true,
+      },
       {
         path: '/ramp/buy/*',
         label: 'fiatRamps.buy',

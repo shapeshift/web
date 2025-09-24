@@ -91,6 +91,7 @@ export type FeatureFlags = {
   LedgerReadOnly: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
+  SwapperFiatRamps: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -215,6 +216,7 @@ const initialState: Preferences = {
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
+    SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

@@ -17,6 +17,8 @@ import {
   gnosisChainId,
   ltcAssetId,
   ltcChainId,
+  mayachainAssetId,
+  mayachainChainId,
   solanaChainId,
   solAssetId,
   thorchainAssetId,
@@ -102,7 +104,7 @@ describe('parseUrlDirect', () => {
     })
   })
 
-  describe('Pure BIP-21 URLs (Cosmos chains)', () => {
+  describe('Pure BIP-21 URLs (Cosmos / THORMaya chains)', () => {
     it('should parse THORChain BIP-21 with amount', () => {
       const result = parseUrlDirect(
         'thorchain:thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2?amount=0.1',
@@ -126,6 +128,19 @@ describe('parseUrlDirect', () => {
         chainId: cosmosChainId,
         maybeAddress: 'cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3',
         amountCryptoPrecision: '10.5',
+      })
+    })
+
+    it('should parse Maya BIP-21 with amount', () => {
+      const result = parseUrlDirect(
+        'mayachain:maya1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3?amount=5.25',
+      )
+
+      expect(result).toEqual({
+        assetId: mayachainAssetId,
+        chainId: mayachainChainId,
+        maybeAddress: 'maya1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3',
+        amountCryptoPrecision: '5.25',
       })
     })
   })
@@ -204,6 +219,19 @@ describe('parseUrlDirect', () => {
         amountCryptoPrecision: '2.014',
       })
     })
+
+    it('should parse EIP-681 URL with decimal value parameter', () => {
+      const result = parseUrlDirect(
+        'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?value=1234567890123456789',
+      )
+
+      expect(result).toEqual({
+        assetId: ethAssetId,
+        chainId: ethChainId,
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        amountCryptoPrecision: '1.234567890123456789',
+      })
+    })
   })
 
   describe('Solana Pay URLs', () => {
@@ -246,6 +274,25 @@ describe('parseUrlDirect', () => {
         chainId: solanaChainId,
         maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
         amountCryptoPrecision: '0.1',
+      })
+    })
+
+    it('should parse Solana Pay URL with SPL token and decimal amount', () => {
+      const wifAssetId = toAssetId({
+        chainId: solanaChainId,
+        assetNamespace: 'token',
+        assetReference: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+      })
+
+      const result = parseUrlDirect(
+        'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=12.34567890&spl-token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+      )
+
+      expect(result).toEqual({
+        assetId: wifAssetId,
+        chainId: solanaChainId,
+        maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+        amountCryptoPrecision: '12.3456789',
       })
     })
   })

@@ -7,6 +7,7 @@ import {
   btcAssetId,
   cosmosAssetId,
   ethAssetId,
+  mayachainAssetId,
   optimismAssetId,
   polygonAssetId,
   solAssetId,
@@ -180,6 +181,14 @@ export const mockChainAdapters = new Map([
           return { valid: false }
         }
       },
+    },
+  ],
+  [
+    KnownChainIds.MayachainMainnet,
+    {
+      getFeeAssetId: () => mayachainAssetId,
+      getDisplayName: () => 'Mayachain',
+      validateAddress: (address: string) => ({ valid: address.startsWith('maya') }),
     },
   ],
   [

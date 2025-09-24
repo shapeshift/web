@@ -59,7 +59,7 @@ describe('@/lib/address', () => {
         parseAddress({
           address: 'invalid-address-format',
         }),
-      ).rejects.toThrow('Address not found in QR code')
+      ).rejects.toThrow('Address validation failed')
     })
   })
 

@@ -48,14 +48,12 @@ export const parseAddress = async ({
   }
 
   // Validation failed for all ChainIds
-  throw new Error('Address not found in QR code')
+  throw new Error('Address validation failed')
 }
-
 
 // Parses an address or vanity address for a **known** ChainId
 export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async args => {
   const { assetId, chainId, amountCryptoPrecision } = args
-  // This function only handles addresses/ENS
   const maybeParsedArgs = {
     assetId,
     maybeAddress: args.urlOrAddress,
@@ -86,7 +84,6 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
 
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match
 export const parseAddressInput: ParseAddressInput = async args => {
-  // This function only handles addresses/ENS
   for (const chainId of knownChainIds) {
     const parsedArgs = {
       assetId: args.assetId,

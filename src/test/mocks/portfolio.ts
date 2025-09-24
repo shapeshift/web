@@ -163,7 +163,7 @@ export const mockChainAdapters = new Map([
       getDisplayName: () => 'Thorchain',
       validateAddress: (address: string) => {
         const THORCHAIN_PREFIX = 'thor'
-        
+
         try {
           const bech32 = require('bech32')
           const decoded = bech32.decode(address)

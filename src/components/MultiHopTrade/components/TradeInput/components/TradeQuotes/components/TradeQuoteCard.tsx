@@ -1,9 +1,6 @@
 import { Box, Card, CardHeader, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
-
-import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
 
 const borderRadius = { base: 'md', md: 'xl' }
 const hoverProps = {
@@ -12,8 +9,8 @@ const hoverProps = {
 }
 
 export type TradeQuoteCardProps = {
-  swapperName: SwapperName
-  swapperTitle?: string
+  icon: JSX.Element
+  title?: string
   isActive: boolean
   isActionable: boolean
   headerContent: JSX.Element
@@ -23,8 +20,8 @@ export type TradeQuoteCardProps = {
 }
 
 export const TradeQuoteCard = ({
-  swapperName,
-  swapperTitle,
+  icon,
+  title,
   isActive,
   isActionable,
   headerContent,
@@ -64,10 +61,8 @@ export const TradeQuoteCard = ({
     >
       <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4} pb={2}>
         <Flex alignItems='center' gap={2}>
-          <Tooltip label={swapperTitle}>
-            <Box>
-              <SwapperIcon swapperName={swapperName} size='sm' />
-            </Box>
+          <Tooltip label={title}>
+            <Box>{icon}</Box>
           </Tooltip>
           {headerContent}
         </Flex>

@@ -6,6 +6,8 @@ import {
   bscChainId,
   btcAssetId,
   btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
   dogeAssetId,
   dogeChainId,
   ethAssetId,
@@ -16,12 +18,20 @@ import {
   ltcChainId,
   solanaChainId,
   solAssetId,
+  thorchainAssetId,
+  thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'
+
+import { mockChainAdapters } from '@/test/mocks/portfolio'
+
+vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
+}))
 
 import { usdcAssetId } from '@/test/mocks/accounts'
 
@@ -535,12 +545,6 @@ describe('@/lib/address', () => {
       })
 
       it('should parse Cosmos chain BIP-21 URLs (THORChain RUNE)', () => {
-        const thorchainAssetId = toAssetId({
-          chainId: 'cosmos:thorchain-mainnet-v1',
-          assetNamespace: 'slip44',
-          assetReference: 'thorchain',
-        })
-
         const input = {
           assetId: solAssetId,
           chainId: solanaChainId,
@@ -549,7 +553,7 @@ describe('@/lib/address', () => {
 
         const expectedOutput: ParseAddressByChainIdOutput = {
           assetId: thorchainAssetId,
-          chainId: 'cosmos:thorchain-mainnet-v1',
+          chainId: thorchainChainId,
           maybeAddress: 'thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2',
           amountCryptoPrecision: '0.1',
         }
@@ -558,12 +562,6 @@ describe('@/lib/address', () => {
       })
 
       it('should parse Cosmos chain BIP-21 URLs (Cosmos ATOM)', () => {
-        const cosmosAssetId = toAssetId({
-          chainId: 'cosmos:cosmoshub-4',
-          assetNamespace: 'slip44',
-          assetReference: 'cosmos',
-        })
-
         const input = {
           assetId: solAssetId,
           chainId: solanaChainId,
@@ -572,7 +570,7 @@ describe('@/lib/address', () => {
 
         const expectedOutput: ParseAddressByChainIdOutput = {
           assetId: cosmosAssetId,
-          chainId: 'cosmos:cosmoshub-4',
+          chainId: cosmosChainId,
           maybeAddress: 'cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3',
           amountCryptoPrecision: '10.5',
         }
@@ -581,12 +579,6 @@ describe('@/lib/address', () => {
       })
 
       it('should parse plain Solana URLs as pure BIP-21 (not Solana Pay)', () => {
-        const solanaAssetId = toAssetId({
-          chainId: solanaChainId,
-          assetNamespace: 'slip44',
-          assetReference: 'solana',
-        })
-
         const input = {
           assetId: solAssetId,
           chainId: solanaChainId,
@@ -594,7 +586,7 @@ describe('@/lib/address', () => {
         }
 
         const expectedOutput: ParseAddressByChainIdOutput = {
-          assetId: solanaAssetId,
+          assetId: solAssetId,
           chainId: solanaChainId,
           maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
         }

@@ -474,7 +474,7 @@ describe('generateReceiveQrAddress', () => {
         amountCryptoPrecision: '1.0',
       })
 
-      expect(result).toBe('')
+      expect(result).toBe('bitcoin:?amount=1.0')
     })
 
     it('should handle zero amounts for UTXO chains', () => {

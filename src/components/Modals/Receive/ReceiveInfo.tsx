@@ -78,6 +78,110 @@ const externalLinkIcon = <TbExternalLink />
 const setAmountIcon = <TbHash />
 const clearAmountIcon = <TbX />
 
+const ReceiveAmountRow = ({
+  receiveAmount,
+  symbol,
+  amountUserCurrency,
+  onClear,
+}: {
+  receiveAmount: string
+  symbol: string
+  amountUserCurrency: string
+  onClear: () => void
+}) => (
+  <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={1}>
+    <Amount.Crypto
+      value={bnOrZero(receiveAmount).toString()}
+      symbol={symbol.toUpperCase()}
+      fontSize='md'
+      fontWeight='bold'
+    />
+    {amountUserCurrency && bnOrZero(amountUserCurrency).gt(0) && (
+      <Amount.Fiat
+        prefix='(≈'
+        suffix=')'
+        value={amountUserCurrency}
+        fontSize='sm'
+        color='text.subtle'
+        noSpace={true}
+      />
+    )}
+    <IconButton
+      icon={clearAmountIcon}
+      size='xs'
+      variant='ghost'
+      aria-label='Clear amount'
+      onClick={onClear}
+    />
+  </Flex>
+)
+
+const AmountModal = ({
+  isOpen,
+  onClose,
+  symbol,
+  amountInput,
+  onAmountInputChange,
+  onConfirm,
+  onClear,
+  receiveAmount,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  symbol: string
+  amountInput: string
+  onAmountInputChange: () => (e: React.ChangeEvent<HTMLInputElement>) => void
+  onConfirm: () => void
+  onClear: () => void
+  receiveAmount?: string
+}) => {
+  const translate = useTranslate()
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>{translate('modals.receive.setAmount')}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <FormControl>
+            <FormLabel>
+              {translate('modals.receive.amountLabel', { symbol: symbol.toUpperCase() })}
+            </FormLabel>
+            <Input
+              value={amountInput}
+              onChange={onAmountInputChange()}
+              placeholder='Enter amount'
+              data-test='receive-amount-input'
+              type='text'
+              inputMode='decimal'
+            />
+            <Text
+              fontSize='sm'
+              color='text.subtle'
+              mt={2}
+              translation='modals.receive.amountNote'
+            />
+          </FormControl>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant='ghost' mr={3} onClick={onClose}>
+            {translate('common.cancel')}
+          </Button>
+          {receiveAmount && (
+            <Button variant='ghost' mr={3} onClick={onClear}>
+              {translate('common.clear')}
+            </Button>
+          )}
+          <Button colorScheme='blue' onClick={onConfirm}>
+            {translate('common.confirm')}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  )
+}
+
 export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
@@ -195,9 +299,10 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     onAmountModalClose()
   }, [amountInput, onAmountModalClose])
 
-  const handleAmountInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmountInput(e.target.value)
-  }, [])
+  const handleAmountInputChange = useCallback(
+    () => (e: React.ChangeEvent<HTMLInputElement>) => setAmountInput(e.target.value),
+    [],
+  )
 
   const handleAmountClear = useCallback(() => {
     setReceiveAmount(undefined)
@@ -212,10 +317,13 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
 
   const verifyIcon = useMemo(() => (verified ? <TbCheck /> : <TbZoomCheck />), [verified])
 
-  const fiatAmount = useMemo(() => {
-    if (!receiveAmount || !marketData?.price) return undefined
-    return bnOrZero(receiveAmount).times(marketData.price).toString()
-  }, [receiveAmount, marketData?.price])
+  const amountUserCurrency = useMemo(
+    () =>
+      bnOrZero(receiveAmount)
+        .times(bnOrZero(marketData?.price))
+        .toString(),
+    [receiveAmount, marketData?.price],
+  )
 
   const qrCodeText = useMemo(() => {
     const generatedText = generateReceiveQrAddress({
@@ -311,31 +419,12 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
             </Card>
 
             {receiveAmount && (
-              <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={1}>
-                <Amount.Crypto
-                  value={bnOrZero(receiveAmount).toString()}
-                  symbol={symbol.toUpperCase()}
-                  fontSize='md'
-                  fontWeight='bold'
-                />
-                {fiatAmount && (
-                  <Amount.Fiat
-                    prefix='(≈'
-                    suffix=')'
-                    value={bnOrZero(fiatAmount).toString()}
-                    fontSize='sm'
-                    color='text.subtle'
-                    noSpace={true}
-                  />
-                )}
-                <IconButton
-                  icon={clearAmountIcon}
-                  size='xs'
-                  variant='ghost'
-                  aria-label='Clear amount'
-                  onClick={handleAmountClear}
-                />
-              </Flex>
+              <ReceiveAmountRow
+                receiveAmount={receiveAmount}
+                symbol={symbol}
+                amountUserCurrency={amountUserCurrency}
+                onClear={handleAmountClear}
+              />
             )}
 
             <SupportedNetworks asset={asset} />
@@ -433,48 +522,16 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
         </DialogBody>
       )}
 
-      {/* Set Amount Modal */}
-      <Modal isOpen={isAmountModalOpen} onClose={onAmountModalClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{translate('modals.receive.setAmount')}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl>
-              <FormLabel>
-                {translate('modals.receive.amountLabel', { symbol: symbol.toUpperCase() })}
-              </FormLabel>
-              <Input
-                value={amountInput}
-                onChange={handleAmountInputChange}
-                placeholder={`0.0 ${symbol.toUpperCase()}`}
-                data-test='receive-amount-input'
-                type='text'
-                inputMode='decimal'
-              />
-              <Text
-                fontSize='sm'
-                color='text.subtle'
-                mt={2}
-                translation='modals.receive.amountNote'
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant='ghost' mr={3} onClick={onAmountModalClose}>
-              {translate('common.cancel')}
-            </Button>
-            {receiveAmount && (
-              <Button variant='ghost' mr={3} onClick={handleAmountClear}>
-                {translate('common.clear')}
-              </Button>
-            )}
-            <Button colorScheme='blue' onClick={handleAmountConfirm}>
-              {translate('common.confirm')}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AmountModal
+        isOpen={isAmountModalOpen}
+        onClose={onAmountModalClose}
+        symbol={symbol}
+        amountInput={amountInput}
+        onAmountInputChange={handleAmountInputChange}
+        onConfirm={handleAmountConfirm}
+        onClear={handleAmountClear}
+        receiveAmount={receiveAmount}
+      />
     </>
   )
 }

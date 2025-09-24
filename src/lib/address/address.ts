@@ -1,20 +1,9 @@
 import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import {
-  arbitrumChainId,
   ASSET_NAMESPACE,
   ASSET_REFERENCE,
-  avalancheChainId,
-  baseChainId,
-  bchChainId,
-  bscChainId,
-  btcChainId,
   CHAIN_NAMESPACE,
-  dogeChainId,
   ethChainId,
-  gnosisChainId,
-  ltcChainId,
-  optimismChainId,
-  polygonChainId,
   solanaChainId,
   toAssetId,
   toChainId,
@@ -45,11 +34,14 @@ type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
 
+
 const isBip21Url = (urlOrAddress: string): boolean =>
   Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
 
 const isErc681Url = (urlOrAddress: string): boolean => {
   // ERC-681 enforces ethereum: prefix regardless of chain
+  // Note: this doesn't mean this is an EIP-681 URL, may be its BIP-21 subset,
+  // hence why we need to check for EIP-681 specific features
   if (!urlOrAddress.startsWith('ethereum:')) return false
 
   try {
@@ -67,6 +59,8 @@ const isErc681Url = (urlOrAddress: string): boolean => {
 
 const isSolanaPayUrl = (urlOrAddress: string): boolean => {
   // Solana Pay enforces solana: prefix
+  // Note: this doesn't mean this is a Solana Pay URL, may be its BIP-21 subset,
+  // hence why we need to check for Solana Pay specific params
   if (!urlOrAddress.startsWith('solana:')) return false
 
   try {
@@ -113,17 +107,11 @@ export const parseMaybeUrlWithChainId = ({
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
   console.log(urlOrAddress)
 
-  // Early validation: Only process BIP-21 URLs (all valid schemes: bitcoin:, ethereum:, solana:, etc.)
+  // Early return for plain addresses (not BIP-21 compatible URLs)
   if (!isBip21Url(urlOrAddress)) {
-    throw new Error('Invalid URL: Not a recognized BIP-21 compatible scheme')
+    return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
   }
 
-  // Three-branch URL parsing logic for BIP-21 URLs:
-  // 1. Pure BIP-21 URLs: bitcoin:address?amount=1, thorchain:address?amount=1
-  // 2. Solana Pay URLs: solana:address?amount=1&spl-token=mint
-  // 3. EIP-681 URLs: ethereum:address@chainId (handled in switch statement)
-
-  // Branch 1: Handle pure BIP-21 URLs (excludes EIP-681 and Solana Pay)
   if (isPureBip21Url(urlOrAddress)) {
     const scheme = urlOrAddress.split(':')[0]
     if (!scheme || !URN_SCHEME_TO_CHAIN_ID[scheme]) {
@@ -203,107 +191,93 @@ export const parseMaybeUrlWithChainId = ({
     }
   }
 
-  // Branch 3: Handle EIP-681 URLs (EVM-specific, via switch statement)
-  switch (inputChainId) {
-    case ethChainId:
-    case arbitrumChainId:
-    case optimismChainId:
-    case polygonChainId:
-    case bscChainId:
-    case avalancheChainId:
-    case baseChainId:
-    case gnosisChainId:
-      try {
-        // Handle EIP-681 URLs (EVM-specific)
-        const parsedUrl = parseEthUrl(urlOrAddress)
+  // Branch 3: Handle EIP-681 URLs
+  if (isErc681Url(urlOrAddress)) {
+    try {
+      // Handle EIP-681 URLs (EVM-specific)
+      const parsedUrl = parseEthUrl(urlOrAddress)
 
-        const chainId = (() => {
-          if (!parsedUrl.chain_id) return inputChainId
+      const chainId = (() => {
+        if (!parsedUrl.chain_id) return inputChainId
 
-          // fuarking specs mang: types say this should be a stringified number and so does the spec,
-          // but in reality may be an hex string e.g ethereum:0xSomeAddy@0xa4b1 (arbitrum)
-          if (isHex(parsedUrl.chain_id)) {
-            return toChainId({
-              chainNamespace: CHAIN_NAMESPACE.Evm,
-              chainReference: fromHex(
-                parsedUrl.chain_id as Hex,
-                'number',
-              ).toString() as ChainReference,
-            })
-          }
-
-          // Assume it's a stringified number
+        // fuarking specs mang: types say this should be a stringified number and so does the spec,
+        // but in reality may be an hex string e.g ethereum:0xSomeAddy@0xa4b1 (arbitrum)
+        if (isHex(parsedUrl.chain_id)) {
           return toChainId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: parsedUrl.chain_id as ChainReference,
+            chainReference: fromHex(
+              parsedUrl.chain_id as Hex,
+              'number',
+            ).toString() as ChainReference,
           })
-        })()
-
-        // https://eips.ethereum.org/EIPS/eip-681
-        // Technically, `transfer` method is the only discriminator needed to detect ERC-20 transfer intents, but let's not assume specs are honoured across
-        // wallets, and let's add address (destination) and target_address (contract) checks here to be sure
-        // e.g `ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1`
-        if (
-          parsedUrl.function_name === 'transfer' &&
-          parsedUrl.parameters?.address &&
-          parsedUrl.target_address
-        ) {
-          const tokenAssetId = toAssetId({
-            chainId,
-            assetNamespace: ASSET_NAMESPACE.erc20,
-            assetReference: parsedUrl.target_address.toLowerCase(),
-          })
-
-          const asset = selectAssetById(store.getState(), tokenAssetId)
-          if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
-
-          const amountCryptoPrecision = parsedUrl.parameters.uint256
-            ? fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
-            : undefined
-
-          return {
-            assetId: tokenAssetId,
-            maybeAddress: parsedUrl.parameters.address,
-            chainId,
-            ...(amountCryptoPrecision && { amountCryptoPrecision }),
-          }
         }
 
-        // Native EVM asset transfers
-        const assetId = inputAssetId || getChainAdapterManager().get(chainId)?.getFeeAssetId()
+        // Assume it's a stringified number
+        return toChainId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: parsedUrl.chain_id as ChainReference,
+        })
+      })()
 
-        const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-        const asset = selectAssetById(store.getState(), assetId ?? '')
-        const amountCryptoPrecision =
-          rawAmount && asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
+      // https://eips.ethereum.org/EIPS/eip-681
+      // Technically, `transfer` method is the only discriminator needed to detect ERC-20 transfer intents, but let's not assume specs are honoured across
+      // wallets, and let's add address (destination) and target_address (contract) checks here to be sure
+      // e.g `ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1`
+      if (
+        parsedUrl.function_name === 'transfer' &&
+        parsedUrl.parameters?.address &&
+        parsedUrl.target_address
+      ) {
+        const tokenAssetId = toAssetId({
+          chainId,
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          assetReference: parsedUrl.target_address.toLowerCase(),
+        })
+
+        const asset = selectAssetById(store.getState(), tokenAssetId)
+        if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
+
+        const amountCryptoPrecision = parsedUrl.parameters.uint256
+          ? fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+          : undefined
 
         return {
-          assetId,
-          maybeAddress: parsedUrl.target_address ?? urlOrAddress,
+          assetId: tokenAssetId,
+          maybeAddress: parsedUrl.parameters.address,
           chainId,
           ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
-      } catch (error) {
-        if (error instanceof Error) {
-          if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
-          // address, not url, don't log
-          if (error.message.includes('Not an Ethereum URI')) break
-        }
-        console.error(error)
       }
-      break
-    case btcChainId:
-    case bchChainId:
-    case dogeChainId:
-    case ltcChainId:
-      // BIP-21 URLs are handled by the common early branch above
-      // This case now only handles plain addresses
-      break
-    default:
-      return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
+
+      // Native EVM asset transfers
+      const assetId = inputAssetId || getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+      const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+      const asset = selectAssetById(store.getState(), assetId ?? '')
+      const amountCryptoPrecision =
+        rawAmount && asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
+
+      return {
+        assetId,
+        maybeAddress: parsedUrl.target_address ?? urlOrAddress,
+        chainId,
+        ...(amountCryptoPrecision && { amountCryptoPrecision }),
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+        // address, not url, don't log
+        if (error.message.includes('Not an Ethereum URI')) {
+          // If EIP-681 parsing fails, fall through to plain address handling
+        } else {
+          console.error(error)
+        }
+      }
+    }
   }
 
-  return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
+  // We shouldn't end up here but just in case
+  throw new Error('Unhandled URL parsing case')
 }
 
 export const parseMaybeUrl = async ({

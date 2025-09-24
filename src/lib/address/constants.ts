@@ -14,6 +14,7 @@ import {
   mayachainChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 
@@ -28,15 +29,14 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [avalancheChainId]: 'avalanchec',
   [baseChainId]: 'base',
   [gnosisChainId]: 'xdai',
-  // UTXO chains use their specific schemes for BIP-21
   [btcChainId]: 'bitcoin',
   [bchChainId]: 'bitcoincash',
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
-  // Cosmos chains use their specific schemes for BIP-21
   [thorchainChainId]: 'thorchain',
   [cosmosChainId]: 'cosmos',
   [mayachainChainId]: 'mayachain',
+  [solanaChainId]: 'solana',
 }
 
 export const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(

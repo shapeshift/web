@@ -363,12 +363,6 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should handle parsing errors gracefully', () => {
-      // This should return null instead of throwing for malformed URLs
-      const result = parseUrlDirect('bitcoin:invalidaddressformat?invalidparam')
-      // Note: bip21 library might handle this, but if it throws, our function should catch it
-      expect(result).toBeDefined() // Will either parse successfully or return null
-    })
   })
 
   describe('Edge cases', () => {

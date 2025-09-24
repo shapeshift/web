@@ -125,21 +125,16 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
           if (!maybeUrlResult.assetId) return
 
-          const { address, vanityAddress } = await (async () => {
-            if (urlDirectResult) {
-              return {
+          const { address, vanityAddress } = urlDirectResult
+            ? {
                 address: urlDirectResult.maybeAddress,
                 vanityAddress: urlDirectResult.maybeAddress,
               }
-            }
-            const parseAddressInputWithChainIdArgs = {
-              assetId: maybeUrlResult.assetId,
-              chainId: maybeUrlResult.chainId,
-              urlOrAddress: decodedText,
-            }
-            const result = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-            return { address: result.address, vanityAddress: result.vanityAddress }
-          })()
+            : await parseAddressInputWithChainId({
+                assetId: maybeUrlResult.assetId,
+                chainId: maybeUrlResult.chainId,
+                urlOrAddress: decodedText,
+              })
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)

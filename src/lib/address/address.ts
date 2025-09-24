@@ -23,6 +23,11 @@ import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address, Hex } from 'viem'
 import { fromHex, isHex } from 'viem'
 
+import {
+  CHAIN_ID_TO_URN_SCHEME,
+  DANGEROUS_ETH_URL_ERROR,
+  URN_SCHEME_TO_CHAIN_ID,
+} from './constants'
 import { ensReverseLookupShim } from './ens'
 
 import { knownChainIds } from '@/constants/chains'
@@ -36,27 +41,6 @@ import { store } from '@/state/store'
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
-
-const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
-  [ethChainId]: 'ethereum',
-  [arbitrumChainId]: 'arbitrum',
-  [optimismChainId]: 'optimism',
-  [polygonChainId]: 'polygon',
-  [bscChainId]: 'smartchain',
-  [avalancheChainId]: 'avalanchec',
-  [baseChainId]: 'base',
-  [gnosisChainId]: 'xdai',
-  [btcChainId]: 'bitcoin',
-  [bchChainId]: 'bitcoincash',
-  [dogeChainId]: 'doge',
-  [ltcChainId]: 'litecoin',
-}
-
-const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(
-  Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
-)
-
-const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
 const isBip21Url = (urlOrAddress: string): boolean =>
   Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))

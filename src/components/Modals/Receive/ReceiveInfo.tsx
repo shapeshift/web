@@ -217,18 +217,15 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     return bnOrZero(receiveAmount).times(marketData.price).toString()
   }, [receiveAmount, marketData?.price])
 
-  const qrCodeText = useMemo(
-    () => {
-      const generatedText = generateReceiveQrAddress({
-        receiveAddress: receiveAddress ?? '',
-        asset,
-        amountCryptoPrecision: receiveAmount,
-      })
-      console.log('Generated QR code text:', generatedText)
-      return generatedText
-    },
-    [receiveAddress, asset, receiveAmount],
-  )
+  const qrCodeText = useMemo(() => {
+    const generatedText = generateReceiveQrAddress({
+      receiveAddress: receiveAddress ?? '',
+      asset,
+      amountCryptoPrecision: receiveAmount,
+    })
+    console.log('Generated QR code text:', generatedText)
+    return generatedText
+  }, [receiveAddress, asset, receiveAmount])
 
   return (
     <>
@@ -314,7 +311,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
             </Card>
 
             {receiveAmount && (
-              <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={2}>
+              <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={1}>
                 <Amount.Crypto
                   value={bnOrZero(receiveAmount).toString()}
                   symbol={symbol.toUpperCase()}
@@ -323,11 +320,12 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
                 />
                 {fiatAmount && (
                   <Amount.Fiat
-                    prefix='(≈ '
+                    prefix='(≈'
                     suffix=')'
                     value={bnOrZero(fiatAmount).toString()}
                     fontSize='sm'
                     color='text.subtle'
+                    noSpace={true}
                   />
                 )}
                 <IconButton

@@ -1,4 +1,6 @@
 import {
+  avalancheChainId,
+  baseChainId,
   bscChainId,
   btcAssetId,
   btcChainId,
@@ -20,7 +22,7 @@ import { usdcAssetId } from '@/test/mocks/accounts'
 
 describe('@/lib/address', () => {
   describe('parseMaybeUrlWithChainId', () => {
-    describe('Trust Mobile', () => {
+    describe('Trust Mobile - BIP-21 QR Codes', () => {
       it('should handle unsupported stellar: scheme', () => {
         const input = {
           assetId: ethAssetId,
@@ -39,7 +41,7 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should parse float amount param for EVM (non-compliant wallet handling)', () => {
+      it('should parse BIP-21 ethereum: scheme with amount in precision', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
@@ -56,18 +58,36 @@ describe('@/lib/address', () => {
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
       })
 
-      it('should parse amount as base unit for ERC-681', () => {
+      it('should parse BIP-21 base: scheme with amount in precision', () => {
         const input = {
           assetId: ethAssetId,
           chainId: ethChainId,
-          urlOrAddress: 'ethereum:0x5678CDEF9012ABCD3456789ABCDEF012345678FE?amount=10',
+          urlOrAddress: 'base:0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?amount=0.1',
         }
 
         const expectedOutput: ParseAddressByChainIdOutput = {
           assetId: ethAssetId,
+          chainId: baseChainId,
+          maybeAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+          amountCryptoPrecision: '0.1',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse BIP-21 avalanchec: scheme with amount in precision', () => {
+        const input = {
+          assetId: ethAssetId,
           chainId: ethChainId,
-          maybeAddress: '0x5678CDEF9012ABCD3456789ABCDEF012345678FE',
-          amountCryptoPrecision: '0.00000000000000001',
+          urlOrAddress:
+            'avalanchec:0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?amount=1.1234567812345678',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: ethAssetId,
+          chainId: avalancheChainId,
+          maybeAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+          amountCryptoPrecision: '1.1234567812345677',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)

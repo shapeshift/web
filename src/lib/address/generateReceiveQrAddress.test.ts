@@ -11,6 +11,8 @@ import {
   bscChainId,
   btcAssetId,
   btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
   dogeAssetId,
   dogeChainId,
   ethAssetId,
@@ -19,10 +21,16 @@ import {
   gnosisChainId,
   ltcAssetId,
   ltcChainId,
+  mayachainAssetId,
+  mayachainChainId,
   optimismAssetId,
   optimismChainId,
   polygonAssetId,
   polygonChainId,
+  solanaChainId,
+  solAssetId,
+  thorchainAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
@@ -67,10 +75,40 @@ const mockUsdcAsset = createMockAsset(usdcAssetId, ethChainId, 'USD Coin', 'USDC
 const mockDogeAsset = createMockAsset(dogeAssetId, dogeChainId, 'Dogecoin', 'DOGE', 8)
 const mockLtcAsset = createMockAsset(ltcAssetId, ltcChainId, 'Litecoin', 'LTC', 8)
 const mockBchAsset = createMockAsset(bchAssetId, bchChainId, 'Bitcoin Cash', 'BCH', 8)
+// Cosmos chains
+const mockThorchainAsset = createMockAsset(
+  thorchainAssetId,
+  thorchainChainId,
+  'THORChain',
+  'RUNE',
+  8,
+)
+const mockCosmosAsset = createMockAsset(cosmosAssetId, cosmosChainId, 'Cosmos', 'ATOM', 6)
+const mockMayachainAsset = createMockAsset(
+  mayachainAssetId,
+  mayachainChainId,
+  'MayaChain',
+  'CACAO',
+  10,
+)
+// Solana chain
+const mockSolanaAsset = createMockAsset(solAssetId, solanaChainId, 'Solana', 'SOL', 9)
+// WIF SPL token on Solana (using correct AssetId format)
+const mockWifAsset = createMockAsset(
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+  solanaChainId,
+  'dogwifhat',
+  'WIF',
+  6,
+)
 
 describe('generateReceiveQrAddress', () => {
   const testAddress = '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD'
   const testBtcAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+  const testSolanaAddress = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+  const testThorchainAddress = 'thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2'
+  const testCosmosAddress = 'cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3'
+  const testMayachainAddress = 'maya1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2' // TODO: get real address
 
   describe('UTXO chains (Phase 1)', () => {
     it('should return plain address for Bitcoin', () => {
@@ -304,6 +342,127 @@ describe('generateReceiveQrAddress', () => {
       expect(result).toBe(
         `ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=${testAddress}&uint256=1`,
       )
+    })
+  })
+
+  describe('Cosmos chains - BIP-21 with amounts (Phase 3)', () => {
+    it('should generate BIP-21 format for THORChain (RUNE)', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testThorchainAddress,
+        asset: mockThorchainAsset,
+        amountCryptoPrecision: '0.1',
+      })
+
+      expect(result).toBe(`thorchain:${testThorchainAddress}?amount=0.1`)
+    })
+
+    it('should generate BIP-21 format for Cosmos (ATOM)', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testCosmosAddress,
+        asset: mockCosmosAsset,
+        amountCryptoPrecision: '10.5',
+      })
+
+      expect(result).toBe(`cosmos:${testCosmosAddress}?amount=10.5`)
+    })
+
+    it('should generate BIP-21 format for MayaChain (CACAO)', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testMayachainAddress,
+        asset: mockMayachainAsset,
+        amountCryptoPrecision: '5.0',
+      })
+
+      expect(result).toBe(`mayachain:${testMayachainAddress}?amount=5.0`)
+    })
+  })
+
+  describe('Solana - Solana Pay format (Phase 3)', () => {
+    it('should return plain address for Solana without amount', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testSolanaAddress,
+        asset: mockSolanaAsset,
+      })
+
+      expect(result).toBe(testSolanaAddress)
+    })
+
+    it('should generate Solana Pay format with amount', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testSolanaAddress,
+        asset: mockSolanaAsset,
+        amountCryptoPrecision: '1.0',
+      })
+
+      expect(result).toBe(`solana:${testSolanaAddress}?amount=1.0`)
+    })
+
+    it('should generate Solana Pay format with fractional SOL amount', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testSolanaAddress,
+        asset: mockSolanaAsset,
+        amountCryptoPrecision: '0.5',
+      })
+
+      expect(result).toBe(`solana:${testSolanaAddress}?amount=0.5`)
+    })
+
+    it('should generate Solana Pay format with precise amount', () => {
+      const result = generateReceiveQrAddress({
+        receiveAddress: testSolanaAddress,
+        asset: mockSolanaAsset,
+        amountCryptoPrecision: '0.123456789',
+      })
+
+      expect(result).toBe(`solana:${testSolanaAddress}?amount=0.123456789`)
+    })
+
+    describe('SPL Token transfers', () => {
+      it('should return plain address for WIF SPL token without amount', () => {
+        const result = generateReceiveQrAddress({
+          receiveAddress: testSolanaAddress,
+          asset: mockWifAsset,
+        })
+
+        expect(result).toBe(testSolanaAddress)
+      })
+
+      it('should generate Solana Pay SPL transfer format for WIF token', () => {
+        const result = generateReceiveQrAddress({
+          receiveAddress: testSolanaAddress,
+          asset: mockWifAsset,
+          amountCryptoPrecision: '0.1',
+        })
+
+        // SPL token transfer format: solana:recipient?amount=0.1&spl-token=tokenMint
+        expect(result).toBe(
+          `solana:${testSolanaAddress}?amount=0.1&spl-token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm`,
+        )
+      })
+
+      it('should generate Solana Pay SPL transfer format with fractional amount', () => {
+        const result = generateReceiveQrAddress({
+          receiveAddress: testSolanaAddress,
+          asset: mockWifAsset,
+          amountCryptoPrecision: '2.5',
+        })
+
+        expect(result).toBe(
+          `solana:${testSolanaAddress}?amount=2.5&spl-token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm`,
+        )
+      })
+
+      it('should generate Solana Pay SPL transfer format with precise amount', () => {
+        const result = generateReceiveQrAddress({
+          receiveAddress: testSolanaAddress,
+          asset: mockWifAsset,
+          amountCryptoPrecision: '0.123456',
+        })
+
+        expect(result).toBe(
+          `solana:${testSolanaAddress}?amount=0.123456&spl-token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm`,
+        )
+      })
     })
   })
 

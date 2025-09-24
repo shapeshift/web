@@ -13,13 +13,15 @@ export type GenerateReceiveQrAddressArgs = {
 }
 
 /**
- * Generates a receive QR code address string following EIP-681 for EVM chains and BIP-21 for UTXOs
+ * Generates a receive QR code address string following different standards per chain type:
  *
  * For EVM chains (Phase 1): ethereum:{address}@{chainId}
  * For EVM chains with amount (Phase 2): ethereum:{address}@{chainId}?value={amountInWei}
  * For EVM chains with ERC-20 amount (Phase 2): ethereum:{tokenContract}@{chainId}/transfer?address={userAddress}&uint256={tokenAmount}
  * For UTXO chains (Phase 1): {address}
  * For UTXO chains with amount (Phase 2): {scheme}:{address}?amount={amountInCrypto}
+ * For Cosmos chains (Phase 3): {scheme}:{address}?amount={amountInCrypto} (BIP-21 format)
+ * For Solana (Phase 3): solana:{address}?amount={amountInSOL} (Solana Pay format)
  */
 export const generateReceiveQrAddress = ({
   receiveAddress,
@@ -52,7 +54,43 @@ export const generateReceiveQrAddress = ({
     return receiveAddress
   }
 
-  // Handle non-EVM, non-UTXO chains (fallback to plain address)
+  // Handle Cosmos chains with BIP-21 format
+  if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
+    // Basic address format: just the address
+    if (!amountCryptoPrecision) {
+      return receiveAddress
+    }
+
+    // With amount: {scheme}:{address}?amount={amountInCrypto}
+    const scheme = CHAIN_ID_TO_URN_SCHEME[chainId]
+    if (scheme) {
+      return `${scheme}:${receiveAddress}?amount=${amountCryptoPrecision}`
+    }
+
+    // Fallback to plain address if scheme not found
+    return receiveAddress
+  }
+
+  // Handle Solana with Solana Pay format
+  if (chainNamespace === CHAIN_NAMESPACE.Solana) {
+    const isTokenAsset = isToken(assetId)
+
+    // Basic address format: just the address (both SOL and SPL tokens)
+    if (!amountCryptoPrecision) {
+      return receiveAddress
+    }
+
+    if (isTokenAsset) {
+      // SPL token transfer: solana:{recipient}?amount={tokenAmount}&spl-token={tokenMint}
+      const { assetReference: tokenMint } = fromAssetId(assetId)
+      return `solana:${receiveAddress}?amount=${amountCryptoPrecision}&spl-token=${tokenMint}`
+    }
+
+    // Native SOL: solana:{address}?amount={amountInSOL}
+    return `solana:${receiveAddress}?amount=${amountCryptoPrecision}`
+  }
+
+  // Handle non-EVM, non-UTXO, non-Cosmos, non-Solana chains (fallback to plain address)
   if (chainNamespace !== CHAIN_NAMESPACE.Evm) {
     return receiveAddress
   }

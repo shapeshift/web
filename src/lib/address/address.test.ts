@@ -16,6 +16,7 @@ import {
   ltcChainId,
   solanaChainId,
   solAssetId,
+  toAssetId,
 } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
@@ -528,6 +529,115 @@ describe('@/lib/address', () => {
           assetId: solAssetId,
           chainId: solanaChainId,
           maybeAddress: 'GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse Cosmos chain BIP-21 URLs (THORChain RUNE)', () => {
+        const thorchainAssetId = toAssetId({
+          chainId: 'cosmos:thorchain-mainnet-v1',
+          assetNamespace: 'slip44',
+          assetReference: 'thorchain',
+        })
+
+        const input = {
+          assetId: solAssetId,
+          chainId: solanaChainId,
+          urlOrAddress: 'thorchain:thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2?amount=0.1',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: thorchainAssetId,
+          chainId: 'cosmos:thorchain-mainnet-v1',
+          maybeAddress: 'thor1w8x5m9k2p7q4v6n3c8b5f1a9r2e7t4y6u8i5o2',
+          amountCryptoPrecision: '0.1',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse Cosmos chain BIP-21 URLs (Cosmos ATOM)', () => {
+        const cosmosAssetId = toAssetId({
+          chainId: 'cosmos:cosmoshub-4',
+          assetNamespace: 'slip44',
+          assetReference: 'cosmos',
+        })
+
+        const input = {
+          assetId: solAssetId,
+          chainId: solanaChainId,
+          urlOrAddress: 'cosmos:cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3?amount=10.5',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: cosmosAssetId,
+          chainId: 'cosmos:cosmoshub-4',
+          maybeAddress: 'cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3',
+          amountCryptoPrecision: '10.5',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse plain Solana URLs as pure BIP-21 (not Solana Pay)', () => {
+        const solanaAssetId = toAssetId({
+          chainId: solanaChainId,
+          assetNamespace: 'slip44',
+          assetReference: 'solana',
+        })
+
+        const input = {
+          assetId: solAssetId,
+          chainId: solanaChainId,
+          urlOrAddress: 'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: solanaAssetId,
+          chainId: solanaChainId,
+          maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse Solana Pay native SOL transfer URLs', () => {
+        const input = {
+          assetId: solAssetId,
+          chainId: solanaChainId,
+          urlOrAddress: 'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=0.123456789',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: solAssetId,
+          chainId: solanaChainId,
+          maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+          amountCryptoPrecision: '0.123456789',
+        }
+
+        expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
+
+      it('should parse Solana Pay SPL token transfer URLs', () => {
+        const wifAssetId = toAssetId({
+          chainId: solanaChainId,
+          assetNamespace: 'token',
+          assetReference: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+        })
+
+        const input = {
+          assetId: solAssetId,
+          chainId: solanaChainId,
+          urlOrAddress:
+            'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=0.1&spl-token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+        }
+
+        const expectedOutput: ParseAddressByChainIdOutput = {
+          assetId: wifAssetId,
+          chainId: solanaChainId,
+          maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+          amountCryptoPrecision: '0.1',
         }
 
         expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)

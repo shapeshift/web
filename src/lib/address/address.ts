@@ -15,9 +15,11 @@ import {
   ltcChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
+import { parseURL as parseSolanaPayUrl } from '@solana/pay'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address, Hex } from 'viem'
@@ -35,6 +37,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { store } from '@/state/store'
 
@@ -62,12 +65,145 @@ const isErc681Url = (urlOrAddress: string): boolean => {
   }
 }
 
+const isSolanaPayUrl = (urlOrAddress: string): boolean => {
+  // Solana Pay enforces solana: prefix
+  if (!urlOrAddress.startsWith('solana:')) return false
+
+  try {
+    // Try parsing with @solana/pay to validate it's a proper Solana Pay URL
+    const parsed = parseSolanaPayUrl(urlOrAddress)
+
+    // Check for Solana Pay-specific parameters (similar to EIP-681 feature detection)
+    // A plain solana:address without parameters should not be treated as Solana Pay
+    const hasSolanaPayParams = Boolean(
+      ('amount' in parsed && parsed.amount) ||
+        ('splToken' in parsed && parsed.splToken) ||
+        ('reference' in parsed && parsed.reference) ||
+        ('label' in parsed && parsed.label) ||
+        ('message' in parsed && parsed.message) ||
+        ('memo' in parsed && parsed.memo),
+    )
+
+    return hasSolanaPayParams
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Checks if the URL is a pure BIP-21 URL, excluding EVM (EIP-681) and Solana Pay supersets.
+ *
+ * Pure BIP-21 URLs include:
+ * - UTXO chains: bitcoin:, litecoin:, dogecoin:, bitcoincash:
+ * - Cosmos chains: thorchain:, cosmos:, mayachain:
+ * - Plain Solana addresses: solana:address (without Solana Pay parameters)
+ *
+ * Excluded supersets:
+ * - EIP-681 (EVM): ethereum: URLs with special EVM features
+ * - Solana Pay: solana: URLs with amount, spl-token, reference, label, message, or memo
+ */
+const isPureBip21Url = (urlOrAddress: string): boolean => {
+  return isBip21Url(urlOrAddress) && !isErc681Url(urlOrAddress) && !isSolanaPayUrl(urlOrAddress)
+}
+
 export const parseMaybeUrlWithChainId = ({
   assetId: inputAssetId,
   chainId: inputChainId,
   urlOrAddress,
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
   console.log(urlOrAddress)
+
+  // Early validation: Only process BIP-21 URLs (all valid schemes: bitcoin:, ethereum:, solana:, etc.)
+  if (!isBip21Url(urlOrAddress)) {
+    throw new Error('Invalid URL: Not a recognized BIP-21 compatible scheme')
+  }
+
+  // Three-branch URL parsing logic for BIP-21 URLs:
+  // 1. Pure BIP-21 URLs: bitcoin:address?amount=1, thorchain:address?amount=1
+  // 2. Solana Pay URLs: solana:address?amount=1&spl-token=mint
+  // 3. EIP-681 URLs: ethereum:address@chainId (handled in switch statement)
+
+  // Branch 1: Handle pure BIP-21 URLs (excludes EIP-681 and Solana Pay)
+  if (isPureBip21Url(urlOrAddress)) {
+    const scheme = urlOrAddress.split(':')[0]
+    if (!scheme || !URN_SCHEME_TO_CHAIN_ID[scheme]) {
+      throw new Error('Invalid BIP-21 URL: scheme not detected')
+    }
+
+    const detectedChainId = URN_SCHEME_TO_CHAIN_ID[scheme]
+    if (!detectedChainId) throw new Error('Invalid BIP-21 URL: ChainId not detected')
+
+    const parsedUrl = bip21.decode(urlOrAddress, scheme)
+
+    // Determine final chainId and assetId based on detected vs input chain
+    const chainId = detectedChainId === inputChainId ? inputChainId : detectedChainId
+    const assetId = (() => {
+      // If detected chain matches input and we have an input assetId, use it
+      if (detectedChainId === inputChainId && inputAssetId) {
+        return inputAssetId
+      }
+
+      // For UTXO chains, if we're parsing with the correct chain, use the input assetId
+      if (isUtxoChainId(detectedChainId) && detectedChainId === inputChainId) {
+        return inputAssetId
+      }
+
+      // Otherwise, get the fee asset for the detected chain
+      return (
+        getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ||
+        toAssetId({
+          chainId: detectedChainId,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+          assetReference: ASSET_REFERENCE.Ethereum,
+        })
+      )
+    })()
+
+    return {
+      assetId,
+      maybeAddress: parsedUrl.address,
+      chainId,
+      ...(parsedUrl.options?.amount && {
+        amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed(),
+      }),
+    }
+  }
+
+  // Branch 2: Handle Solana Pay URLs
+  if (isSolanaPayUrl(urlOrAddress)) {
+    const parsed = parseSolanaPayUrl(urlOrAddress)
+
+    // Type guard to ensure we have a TransferRequestURL (not TransactionRequestURL)
+    if (!('recipient' in parsed)) {
+      throw new Error('Invalid Solana Pay URL: TransactionRequestURLs not supported')
+    }
+
+    const parsedSolana = parsed as any // Cast to access all properties
+
+    // Determine assetId based on whether it's an SPL token or native SOL
+    const assetId = parsedSolana.splToken
+      ? toAssetId({
+          chainId: solanaChainId,
+          assetNamespace: ASSET_NAMESPACE.splToken,
+          assetReference: parsedSolana.splToken.toString(),
+        })
+      : toAssetId({
+          chainId: solanaChainId,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+          assetReference: ASSET_REFERENCE.Solana,
+        })
+
+    return {
+      assetId,
+      maybeAddress: parsedSolana.recipient.toString(),
+      chainId: solanaChainId,
+      ...(parsedSolana.amount && {
+        amountCryptoPrecision: parsedSolana.amount.toString(),
+      }),
+    }
+  }
+
+  // Branch 3: Handle EIP-681 URLs (EVM-specific, via switch statement)
   switch (inputChainId) {
     case ethChainId:
     case arbitrumChainId:
@@ -78,39 +214,7 @@ export const parseMaybeUrlWithChainId = ({
     case baseChainId:
     case gnosisChainId:
       try {
-        // ERC-681 is a superset of BIP-21, so we first need to check from the lowest common denominator (BIP-21) and then highest (EIP-681)
-        if (isBip21Url(urlOrAddress) && !isErc681Url(urlOrAddress)) {
-          const scheme = urlOrAddress.split(':')[0]
-          if (!scheme || !URN_SCHEME_TO_CHAIN_ID[scheme]) {
-            throw new Error('Invalid BIP-21 URL: scheme not detected')
-          }
-
-          const detectedChainId = URN_SCHEME_TO_CHAIN_ID[scheme]
-
-          if (!detectedChainId) throw new Error('Invalid BIP-21 URL: ChainId not detected')
-
-          const parsedUrl = bip21.decode(urlOrAddress, scheme)
-
-          const chainId = detectedChainId === inputChainId ? inputChainId : detectedChainId
-          const assetId =
-            detectedChainId === inputChainId && inputAssetId
-              ? inputAssetId
-              : getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ||
-                toAssetId({
-                  chainId: detectedChainId,
-                  assetNamespace: ASSET_NAMESPACE.slip44,
-                  assetReference: ASSET_REFERENCE.Ethereum,
-                })
-
-          return {
-            assetId,
-            maybeAddress: parsedUrl.address,
-            chainId,
-            ...(parsedUrl.options?.amount && {
-              amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed(),
-            }),
-          }
-        }
+        // Handle EIP-681 URLs (EVM-specific)
         const parsedUrl = parseEthUrl(urlOrAddress)
 
         const chainId = (() => {
@@ -192,24 +296,8 @@ export const parseMaybeUrlWithChainId = ({
     case bchChainId:
     case dogeChainId:
     case ltcChainId:
-      try {
-        const urnScheme = CHAIN_ID_TO_URN_SCHEME[inputChainId]
-        const parsedUrl = bip21.decode(urlOrAddress, urnScheme)
-        return {
-          assetId: inputAssetId,
-          maybeAddress: parsedUrl.address,
-          chainId: inputChainId,
-          ...(parsedUrl.options?.amount
-            ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
-            : {}),
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          // address, not url, don't log
-          if (error.message.includes('Invalid BIP21 URI')) break
-        }
-        console.error(error)
-      }
+      // BIP-21 URLs are handled by the common early branch above
+      // This case now only handles plain addresses
       break
     default:
       return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }

@@ -12,6 +12,7 @@ type LedgerDeviceState = 'connected' | 'disconnected' | 'unknown'
 type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
 
 const AUTO_CONNECT_DELAY = 500
+// https://github.com/LedgerHQ/ledger-live/blob/c2d2cbcd81fe46ac1967802b3770a05d805a4d0e/libs/ledgerjs/packages/devices/src/index.ts#L147-L161
 const LEDGER_VENDOR_ID = 0x2c97
 const LEDGER_DEVICE_ID = '0001'
 

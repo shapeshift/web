@@ -18,7 +18,6 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 
-// URN scheme mapping for all chains (used for BIP-21 and EIP-681)
 export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   // EVM chains use 'ethereum' as the universal scheme for EIP-681
   [ethChainId]: 'ethereum',

@@ -26,7 +26,6 @@ import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { store } from '@/state/store'
 
-// URL Detection Functions
 export const isBip21Url = (urlOrAddress: string): boolean =>
   Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
 

@@ -220,16 +220,16 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse EIP-681 URL with decimal value parameter', () => {
+    it('should parse EIP-681 URL with scientific notation value parameter', () => {
       const result = parseUrlDirect(
-        'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?value=1234567890123456789',
+        'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?value=1.5e18',
       )
 
       expect(result).toEqual({
         assetId: ethAssetId,
         chainId: ethChainId,
         maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-        amountCryptoPrecision: '1.234567890123456789',
+        amountCryptoPrecision: '1.5',
       })
     })
   })
@@ -277,22 +277,16 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse Solana Pay URL with SPL token and decimal amount', () => {
-      const wifAssetId = toAssetId({
-        chainId: solanaChainId,
-        assetNamespace: 'token',
-        assetReference: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
-      })
-
+    it('should parse Solana Pay URL with scientific notation amount', () => {
       const result = parseUrlDirect(
-        'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=12.34567890&spl-token=EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+        'solana:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM?amount=1.5e-3',
       )
 
       expect(result).toEqual({
-        assetId: wifAssetId,
+        assetId: solAssetId,
         chainId: solanaChainId,
         maybeAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
-        amountCryptoPrecision: '12.3456789',
+        amountCryptoPrecision: '0.0015',
       })
     })
   })

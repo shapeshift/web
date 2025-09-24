@@ -34,7 +34,6 @@ type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
 
-
 const isBip21Url = (urlOrAddress: string): boolean =>
   Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
 
@@ -70,12 +69,12 @@ const isSolanaPayUrl = (urlOrAddress: string): boolean => {
     // Check for Solana Pay-specific parameters (similar to EIP-681 feature detection)
     // A plain solana:address without parameters should not be treated as Solana Pay
     const hasSolanaPayParams = Boolean(
-      ('amount' in parsed && parsed.amount) ||
-        ('splToken' in parsed && parsed.splToken) ||
-        ('reference' in parsed && parsed.reference) ||
-        ('label' in parsed && parsed.label) ||
-        ('message' in parsed && parsed.message) ||
-        ('memo' in parsed && parsed.memo),
+      'amount' in parsed ||
+        'splToken' in parsed ||
+        'reference' in parsed ||
+        'label' in parsed ||
+        'message' in parsed ||
+        'memo' in parsed,
     )
 
     return hasSolanaPayParams

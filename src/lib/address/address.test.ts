@@ -27,13 +27,12 @@ import { describe, expect, it, vi } from 'vitest'
 import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'
 
+import { usdcAssetId } from '@/test/mocks/accounts'
 import { mockChainAdapters } from '@/test/mocks/portfolio'
 
 vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
-
-import { usdcAssetId } from '@/test/mocks/accounts'
 
 describe('@/lib/address', () => {
   describe('parseMaybeUrlWithChainId', () => {

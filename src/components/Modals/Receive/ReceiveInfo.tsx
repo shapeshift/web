@@ -78,44 +78,6 @@ const externalLinkIcon = <TbExternalLink />
 const setAmountIcon = <TbHash />
 const clearAmountIcon = <TbX />
 
-const ReceiveAmountRow = ({
-  receiveAmount,
-  symbol,
-  amountUserCurrency,
-  onClear,
-}: {
-  receiveAmount: string
-  symbol: string
-  amountUserCurrency: string
-  onClear: () => void
-}) => (
-  <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={1}>
-    <Amount.Crypto
-      value={bnOrZero(receiveAmount).toString()}
-      symbol={symbol.toUpperCase()}
-      fontSize='md'
-      fontWeight='bold'
-    />
-    {amountUserCurrency && bnOrZero(amountUserCurrency).gt(0) && (
-      <Amount.Fiat
-        prefix='(≈'
-        suffix=')'
-        value={amountUserCurrency}
-        fontSize='sm'
-        color='text.subtle'
-        noSpace={true}
-      />
-    )}
-    <IconButton
-      icon={clearAmountIcon}
-      size='xs'
-      variant='ghost'
-      aria-label='Clear amount'
-      onClick={onClear}
-    />
-  </Flex>
-)
-
 const AmountModal = ({
   isOpen,
   onClose,
@@ -325,6 +287,38 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     [receiveAmount, marketData?.price],
   )
 
+  const receiveAmountRow = useMemo(() => {
+    if (!receiveAmount) return null
+
+    return (
+      <Flex justifyContent='center' alignItems='center' textAlign='center' mb={4} gap={1}>
+        <Amount.Crypto
+          value={bnOrZero(receiveAmount).toString()}
+          symbol={symbol.toUpperCase()}
+          fontSize='md'
+          fontWeight='bold'
+        />
+        {amountUserCurrency && bnOrZero(amountUserCurrency).gt(0) && (
+          <Amount.Fiat
+            prefix='(≈'
+            suffix=')'
+            value={amountUserCurrency}
+            fontSize='sm'
+            color='text.subtle'
+            noSpace={true}
+          />
+        )}
+        <IconButton
+          icon={clearAmountIcon}
+          size='xs'
+          variant='ghost'
+          aria-label='Clear amount'
+          onClick={handleAmountClear}
+        />
+      </Flex>
+    )
+  }, [receiveAmount, symbol, amountUserCurrency, handleAmountClear])
+
   const qrCodeText = useMemo(() => {
     const generatedText = generateReceiveQrAddress({
       receiveAddress: receiveAddress ?? '',
@@ -418,14 +412,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
               </CardBody>
             </Card>
 
-            {receiveAmount && (
-              <ReceiveAmountRow
-                receiveAmount={receiveAmount}
-                symbol={symbol}
-                amountUserCurrency={amountUserCurrency}
-                onClear={handleAmountClear}
-              />
-            )}
+            {receiveAmountRow}
 
             <SupportedNetworks asset={asset} />
           </DialogBody>

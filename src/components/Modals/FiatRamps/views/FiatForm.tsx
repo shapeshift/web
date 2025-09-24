@@ -40,7 +40,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const sortedAssets = useSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
 
   const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
 

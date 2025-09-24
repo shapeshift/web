@@ -9,7 +9,6 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
-import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -67,7 +66,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const chainAdapterManager = getChainAdapterManager()
   const send = useModal('send')
   const receive = useModal('receive')
-  const fiatRamps = useModal('fiatRamps')
   const assetActionsDrawer = useModal('assetActionsDrawer')
   const translate = useTranslate()
   const mixpanel = getMixPanel()
@@ -107,12 +105,9 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
   const handleBuySellClick = useCallback(() => {
     vibrate('heavy')
-    fiatRamps.open({
-      assetId: assetSupportsBuy ? assetId : ethAssetId,
-      fiatRampAction: FiatRampAction.Buy,
-      accountId,
-    })
-  }, [accountId, assetId, assetSupportsBuy, fiatRamps])
+    const targetAssetId = assetSupportsBuy ? assetId : ethAssetId
+    navigate(`/ramp/buy?defaultAsset=${encodeURIComponent(targetAssetId)}`)
+  }, [assetId, assetSupportsBuy, navigate])
 
   const handleTradeClick = useCallback(() => {
     vibrate('heavy')

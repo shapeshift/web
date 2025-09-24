@@ -260,20 +260,6 @@ export const routes: Route[] = [
         main: Ramp,
         hide: true,
       },
-      ...assetIdPaths.flatMap(assetIdPath => [
-        {
-          path: `/ramp/buy${assetIdPath}`,
-          label: 'fiatRamps.buy',
-          main: Ramp,
-          hide: true,
-        },
-        {
-          path: `/ramp/sell${assetIdPath}`,
-          label: 'fiatRamps.sell',
-          main: Ramp,
-          hide: true,
-        },
-      ]),
     ],
   },
   {

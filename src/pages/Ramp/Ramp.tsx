@@ -1,8 +1,8 @@
 import { Box, Card, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { PageContainer } from '../Buy/components/PageContainer'
 import { TopAssets } from '../Buy/TopAssets'
@@ -14,12 +14,12 @@ import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
 import { cardstyles } from '@/components/MultiHopTrade/const'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { useQuery } from '@/hooks/useQuery/useQuery'
 import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 
-type MatchParams = {
-  chainId?: string
-  assetSubId?: string
+type QueryParams = {
+  defaultAsset?: string
 }
 
 const layoutMainStyle = { paddingInlineStart: 0, paddingInlineEnd: 0 }
@@ -32,8 +32,8 @@ const RampContent: React.FC = () => {
   useGetFiatRampsQuery()
 
   const location = useLocation()
-  const { chainId, assetSubId } = useParams<MatchParams>()
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
+  const query = useQuery<QueryParams>()
+  const defaultAssetId = query.defaultAsset as AssetId | undefined
 
   const isSellRoute = location.pathname.startsWith('/ramp/sell')
   const titleKey = isSellRoute ? 'rampPage.sellTitle' : 'rampPage.buyTitle'
@@ -42,13 +42,6 @@ const RampContent: React.FC = () => {
   const translate = useTranslate()
 
   const action = location.pathname.includes('/sell') ? FiatRampAction.Sell : FiatRampAction.Buy
-
-  useEffect(() => {
-    // Auto select asset when passed in via params
-    if (chainId && assetSubId) {
-      setSelectedAssetId(`${chainId}/${assetSubId}`)
-    }
-  }, [assetSubId, chainId])
 
   const titleTransaltionsComponents: TextPropTypes['components'] = useMemo(
     () => ({
@@ -94,7 +87,7 @@ const RampContent: React.FC = () => {
             </Flex>
             <Box flexBasis='400px' textAlign='left'>
               <Card mx={cardMxOffsetBase} {...cardstyles}>
-                <FiatForm assetId={selectedAssetId} fiatRampAction={action} />
+                <FiatForm assetId={defaultAssetId} fiatRampAction={action} />
               </Card>
             </Box>
           </Flex>

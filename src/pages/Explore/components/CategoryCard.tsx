@@ -1,7 +1,8 @@
 import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
+import type { Asset } from 'packages/types/src/base'
 import { memo, useCallback, useMemo } from 'react'
+import { useInView } from 'react-intersection-observer'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -37,6 +38,10 @@ export const CategoryCard = memo(
     const assetTitleColor = useColorModeValue('black', 'white')
     const translate = useTranslate()
     const assetActionsDrawer = useModal('assetActionsDrawer')
+    const { ref, inView } = useInView({
+      initialInView:
+        category === MarketsCategories.Trending || category === MarketsCategories.TopMovers,
+    })
 
     const categoryHook =
       category === MarketsCategories.OneClickDefi
@@ -48,9 +53,15 @@ export const CategoryCard = memo(
       isLoading: isCategoryQueryDataLoading,
       isError: isCategoryQueryDataError,
     } = categoryHook({
-      enabled: category !== MarketsCategories.OneClickDefi,
+      enabled: category !== MarketsCategories.OneClickDefi && inView,
       orderBy: OrderDirection.Descending,
-      sortBy: SortOptionsKeys.PriceChange,
+      sortBy:
+        category === MarketsCategories.MarketCap
+          ? SortOptionsKeys.MarketCap
+          : SortOptionsKeys.PriceChange,
+      page: 1,
+      // Use a higher limit to get more assets as some assets might be unsupported like XRP
+      limit: 10,
     })
 
     const {
@@ -59,7 +70,7 @@ export const CategoryCard = memo(
       isError: isPortalsAssetsError,
     } = usePortalsAssetsQuery({
       chainIds: [],
-      enabled: category === MarketsCategories.OneClickDefi,
+      enabled: category === MarketsCategories.OneClickDefi && inView,
       sortBy: SortOptionsKeys.Volume,
       orderBy: OrderDirection.Descending,
       minApy: '1',
@@ -87,7 +98,9 @@ export const CategoryCard = memo(
       return category === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
     }, [oneClickDefiAssets, categoryAssets, category])
 
-    const isLoading = isCategoryQueryDataLoading || isPortalsAssetsLoading
+    const isLoading =
+      isCategoryQueryDataLoading ||
+      (category === MarketsCategories.OneClickDefi && isPortalsAssetsLoading)
     const isError = isCategoryQueryDataError || isPortalsAssetsError
 
     const assetSearchRowData = useMemo(() => {
@@ -109,7 +122,7 @@ export const CategoryCard = memo(
     }, [navigate, category])
 
     const content = useMemo(() => {
-      if (isLoading) {
+      if (isLoading || !inView) {
         if (layout === 'horizontal') {
           return (
             <Flex gap={4} overflowX='auto' pb={2} pe={4}>
@@ -117,8 +130,8 @@ export const CategoryCard = memo(
                 <Skeleton
                   key={index}
                   display='block'
-                  width='200px'
-                  height='100px'
+                  width='300px'
+                  height='137px'
                   borderRadius='10px'
                 />
               ))}
@@ -134,19 +147,19 @@ export const CategoryCard = memo(
                 align='center'
                 width='100%'
                 justifyContent='space-between'
+                py={4}
                 px={4}
-                py={2}
               >
                 <Flex align='center'>
-                  <Skeleton width='32px' height='32px' borderRadius='100%' me={2} />
+                  <Skeleton width='40px' height='40px' borderRadius='100%' me={2} />
                   <Flex flexDir='column' gap={1}>
-                    <Skeleton width='100px' height='14px' />
-                    <Skeleton width='60px' height='12px' />
+                    <Skeleton width='100px' height='16px' />
+                    <Skeleton width='60px' height='14px' />
                   </Flex>
                 </Flex>
                 <Flex align='flex-end' flexDir='column' gap={1}>
-                  <Skeleton width='60px' height='14px' />
-                  <Skeleton width='40px' height='12px' />
+                  <Skeleton width='60px' height='16px' />
+                  <Skeleton width='40px' height='14px' />
                 </Flex>
               </Flex>
             ))}
@@ -218,6 +231,7 @@ export const CategoryCard = memo(
       maxAssets,
       portalsAssets,
       category,
+      inView,
     ])
 
     return (
@@ -227,6 +241,7 @@ export const CategoryCard = memo(
         my={6}
         mx={layout === 'horizontal' ? -4 : 0}
         pl={layout === 'horizontal' ? 4 : 0}
+        ref={ref}
       >
         <Flex
           alignItems='center'

@@ -49,10 +49,10 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
   }
 
   const isValidAddress = await validateAddress(maybeParsedArgs)
-  // Valid address
+  // we're dealing with a valid address
   if (isValidAddress) {
     const vanityAddress = await reverseLookupVanityAddress(maybeParsedArgs)
-    // Return address with vanity address lookup
+    // return a valid address, and a possibly blank or populated vanity address
     return {
       address: maybeParsedArgs.maybeAddress,
       vanityAddress,
@@ -60,11 +60,11 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
       amountCryptoPrecision: maybeParsedArgs.amountCryptoPrecision,
     }
   }
-  // Check if it's a vanity address
+  // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityAddress(maybeParsedArgs)
-  // Not a valid address or vanity address
+  // it's neither a valid address nor a vanity address
   if (!isVanityAddress) return { address: '', vanityAddress: '', chainId }
-  // Resolve vanity address
+  // at this point it's a valid vanity address, let's resolve it
   const address = await resolveVanityAddress(maybeParsedArgs)
   return { address, vanityAddress: maybeParsedArgs.maybeAddress, chainId }
 }

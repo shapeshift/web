@@ -76,15 +76,16 @@ export const isSolanaPayUrl = (urlOrAddress: string): boolean => {
 }
 
 /**
- * Checks if the URL is a pure BIP-21 URL, excluding EVM (EIP-681) and Solana Pay supersets.
+ * Checks if the URL is a pure BIP-21 URL, excluding EIP-681 and Solana Pay supersets.
  *
  * Pure BIP-21 URLs include:
  * - UTXO chains: bitcoin:, litecoin:, dogecoin:, bitcoincash:
  * - Cosmos chains: thorchain:, cosmos:, mayachain:
+ * - EVM chains: ethereum:, base:, arbitrum:, etc. (without EIP-681 features like chain_id/@chainId)
  * - Plain Solana addresses: solana:address (without Solana Pay parameters)
  *
  * Excluded supersets:
- * - EIP-681 (EVM): ethereum: URLs with special EVM features
+ * - EIP-681 (EVM): ethereum: URLs with chain_id, function_name, or EVM-specific parameters
  * - Solana Pay: solana: URLs with amount, spl-token, reference, label, message, or memo
  */
 export const isPureBip21Url = (urlOrAddress: string): boolean => {

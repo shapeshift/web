@@ -3,6 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
 import { encodeURL } from '@solana/pay'
 import { PublicKey } from '@solana/web3.js'
+import bip21 from 'bip21'
 import { build as buildEthUrl } from 'eth-url-parser'
 
 import { CHAIN_ID_TO_URN_SCHEME } from './constants'
@@ -10,69 +11,55 @@ import { CHAIN_ID_TO_URN_SCHEME } from './constants'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 
-export type GenerateReceiveQrAddressArgs = {
+export type GenerateReceiveQrTextArgs = {
   receiveAddress: string
   asset: Asset
   amountCryptoPrecision?: string
 }
 
-export const generateReceiveQrAddress = ({
+export const generateReceiveQrText = ({
   receiveAddress,
   asset,
   amountCryptoPrecision,
-}: GenerateReceiveQrAddressArgs): string => {
+}: GenerateReceiveQrTextArgs): string => {
+  if (!receiveAddress) {
+    throw new Error('receiveAddress is required')
+  }
+
   const { chainId, assetId } = asset
   const { chainNamespace } = fromChainId(chainId)
+  const scheme = CHAIN_ID_TO_URN_SCHEME[chainId]
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Utxo: {
-      if (!amountCryptoPrecision) {
-        return receiveAddress
-      }
+      if (!amountCryptoPrecision) return receiveAddress
+      if (!scheme) return receiveAddress
 
-      const scheme = CHAIN_ID_TO_URN_SCHEME[chainId]
-      if (scheme) {
-        // Handle bitcoincash: prefix specifically to avoid double-prefixing
-        const cleanAddress = receiveAddress.replace('bitcoincash:', '')
-        return `${scheme}:${cleanAddress}?amount=${amountCryptoPrecision}`
-      }
-
-      return receiveAddress
+      const cleanAddress = receiveAddress.replace('bitcoincash:', '')
+      return bip21.encode(cleanAddress, { amount: amountCryptoPrecision }, scheme)
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
-      if (!amountCryptoPrecision) {
-        return receiveAddress
-      }
+      if (!amountCryptoPrecision) return receiveAddress
+      if (!scheme) return receiveAddress
 
-      const scheme = CHAIN_ID_TO_URN_SCHEME[chainId]
-      if (scheme) {
-        return `${scheme}:${receiveAddress}?amount=${amountCryptoPrecision}`
-      }
-
-      return receiveAddress
+      return bip21.encode(receiveAddress, { amount: amountCryptoPrecision }, scheme)
     }
 
     case CHAIN_NAMESPACE.Solana: {
-      const isTokenAsset = isToken(assetId)
+      if (!amountCryptoPrecision) return receiveAddress
 
-      if (!amountCryptoPrecision) {
-        return receiveAddress
-      }
-
-      if (isTokenAsset) {
-        // SPL token transfer
-        const { assetReference: tokenMint } = fromAssetId(assetId)
+      if (isToken(assetId)) {
+        const { assetReference } = fromAssetId(assetId)
         return encodeURL({
           recipient: new PublicKey(receiveAddress),
           // @ts-expect-error - Version discrepancy between @solana/pay BigNumber (v8.1.0) and our BigNumber (v7.2.1)
           // See: https://github.com/MikeMcl/bignumber.js/blob/main/CHANGELOG.md#810
           amount: bnOrZero(amountCryptoPrecision),
-          splToken: new PublicKey(tokenMint),
+          splToken: new PublicKey(assetReference),
         }).toString()
       }
 
-      // Native SOL transfer
       return encodeURL({
         recipient: new PublicKey(receiveAddress),
         // @ts-expect-error - Version discrepancy between @solana/pay BigNumber (v8.1.0) and our BigNumber (v7.2.1)
@@ -83,7 +70,6 @@ export const generateReceiveQrAddress = ({
 
     case CHAIN_NAMESPACE.Evm: {
       const evmNetworkId = Number(fromChainId(chainId).chainReference)
-      const isTokenAsset = isToken(assetId)
 
       if (!amountCryptoPrecision) {
         return buildEthUrl({
@@ -92,12 +78,11 @@ export const generateReceiveQrAddress = ({
         })
       }
 
-      if (isTokenAsset) {
-        // ERC-20 token transfer
-        const { assetReference: tokenContract } = fromAssetId(assetId)
+      if (isToken(assetId)) {
+        const { assetReference } = fromAssetId(assetId)
         const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
         return buildEthUrl({
-          target_address: tokenContract,
+          target_address: assetReference,
           chain_id: `${evmNetworkId}`,
           function_name: 'transfer',
           parameters: {
@@ -107,7 +92,6 @@ export const generateReceiveQrAddress = ({
         })
       }
 
-      // Native token transfer
       const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
       return buildEthUrl({
         target_address: receiveAddress,

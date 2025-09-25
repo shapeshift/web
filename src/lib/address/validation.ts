@@ -2,7 +2,6 @@ import type { ValidateAddressArgs, ValidateAddressByChainId, ValidateAddressRetu
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
-// validate a given address
 export const validateAddress: ValidateAddressByChainId = async ({
   chainId,
   maybeAddress,

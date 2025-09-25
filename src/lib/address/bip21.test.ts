@@ -387,15 +387,10 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should handle empty address in BIP-21 URL', () => {
-      const result = parseUrlDirect('bitcoin:?amount=1.0')
-
-      expect(result).toEqual({
-        assetId: btcAssetId,
-        chainId: btcChainId,
-        maybeAddress: '',
-        amountCryptoPrecision: '1',
-      })
+    it('should throw error for empty address in BIP-21 URL', () => {
+      expect(() => {
+        parseUrlDirect('bitcoin:?amount=1.0')
+      }).toThrow()
     })
   })
 })

@@ -1,4 +1,38 @@
-import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import {
+  arbitrumAssetId,
+  arbitrumChainId,
+  avalancheAssetId,
+  avalancheChainId,
+  baseAssetId,
+  baseChainId,
+  bchAssetId,
+  bchChainId,
+  bscAssetId,
+  bscChainId,
+  btcAssetId,
+  btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  dogeAssetId,
+  dogeChainId,
+  ethAssetId,
+  ethChainId,
+  foxAssetId,
+  gnosisAssetId,
+  gnosisChainId,
+  ltcAssetId,
+  ltcChainId,
+  mayachainAssetId,
+  mayachainChainId,
+  optimismAssetId,
+  optimismChainId,
+  polygonAssetId,
+  polygonChainId,
+  solanaChainId,
+  solAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 
@@ -86,6 +120,217 @@ export const bitcoin: Asset = {
   relatedAssetKey: null,
 }
 
+export const arbitrum: Asset = {
+  chainId: arbitrumChainId,
+  assetId: arbitrumAssetId,
+  name: 'Arbitrum',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/279/thumb/ethereum.png',
+  explorer: 'https://arbiscan.io',
+  explorerTxLink: 'https://arbiscan.io/tx/',
+  explorerAddressLink: 'https://arbiscan.io/address/',
+  relatedAssetKey: null,
+}
+
+export const optimism: Asset = {
+  chainId: optimismChainId,
+  assetId: optimismAssetId,
+  name: 'Optimism',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/279/thumb/ethereum.png',
+  explorer: 'https://optimistic.etherscan.io',
+  explorerTxLink: 'https://optimistic.etherscan.io/tx/',
+  explorerAddressLink: 'https://optimistic.etherscan.io/address/',
+  relatedAssetKey: null,
+}
+
+export const polygon: Asset = {
+  chainId: polygonChainId,
+  assetId: polygonAssetId,
+  name: 'Polygon',
+  symbol: 'MATIC',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/4713/thumb/matic-token-icon.png',
+  explorer: 'https://polygonscan.com',
+  explorerTxLink: 'https://polygonscan.com/tx/',
+  explorerAddressLink: 'https://polygonscan.com/address/',
+  relatedAssetKey: null,
+}
+
+export const bsc: Asset = {
+  chainId: bscChainId,
+  assetId: bscAssetId,
+  name: 'BNB Smart Chain',
+  symbol: 'BNB',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/825/thumb/bnb-icon2_2x.png',
+  explorer: 'https://bscscan.com',
+  explorerTxLink: 'https://bscscan.com/tx/',
+  explorerAddressLink: 'https://bscscan.com/address/',
+  relatedAssetKey: null,
+}
+
+export const gnosis: Asset = {
+  chainId: gnosisChainId,
+  assetId: gnosisAssetId,
+  name: 'Gnosis',
+  symbol: 'xDAI',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/11062/thumb/xdai.png',
+  explorer: 'https://gnosisscan.io',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  relatedAssetKey: null,
+}
+
+export const base: Asset = {
+  chainId: baseChainId,
+  assetId: baseAssetId,
+  name: 'Base',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/279/thumb/ethereum.png',
+  explorer: 'https://basescan.org',
+  explorerTxLink: 'https://basescan.org/tx/',
+  explorerAddressLink: 'https://basescan.org/address/',
+  relatedAssetKey: null,
+}
+
+export const avalanche: Asset = {
+  chainId: avalancheChainId,
+  assetId: avalancheAssetId,
+  name: 'Avalanche',
+  symbol: 'AVAX',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/12559/thumb/coin-round-red.png',
+  explorer: 'https://snowtrace.io',
+  explorerTxLink: 'https://snowtrace.io/tx/',
+  explorerAddressLink: 'https://snowtrace.io/address/',
+  relatedAssetKey: null,
+}
+
+export const dogecoin: Asset = {
+  chainId: dogeChainId,
+  assetId: dogeAssetId,
+  name: 'Dogecoin',
+  symbol: 'DOGE',
+  precision: 8,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/5/thumb/dogecoin.png',
+  explorer: 'https://dogechain.info',
+  explorerTxLink: 'https://dogechain.info/tx/',
+  explorerAddressLink: 'https://dogechain.info/address/',
+  relatedAssetKey: null,
+}
+
+export const litecoin: Asset = {
+  chainId: ltcChainId,
+  assetId: ltcAssetId,
+  name: 'Litecoin',
+  symbol: 'LTC',
+  precision: 8,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/2/thumb/litecoin.png',
+  explorer: 'https://blockchair.com/litecoin',
+  explorerTxLink: 'https://blockchair.com/litecoin/transaction/',
+  explorerAddressLink: 'https://blockchair.com/litecoin/address/',
+  relatedAssetKey: null,
+}
+
+export const bitcoinCash: Asset = {
+  chainId: bchChainId,
+  assetId: bchAssetId,
+  name: 'Bitcoin Cash',
+  symbol: 'BCH',
+  precision: 8,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/780/thumb/bitcoin-cash-circle.png',
+  explorer: 'https://blockchair.com/bitcoin-cash',
+  explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/',
+  explorerAddressLink: 'https://blockchair.com/bitcoin-cash/address/',
+  relatedAssetKey: null,
+}
+
+export const thorchain: Asset = {
+  chainId: thorchainChainId,
+  assetId: thorchainAssetId,
+  name: 'THORChain',
+  symbol: 'RUNE',
+  precision: 8,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/6595/thumb/RUNE.png',
+  explorer: 'https://viewblock.io/thorchain',
+  explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  explorerAddressLink: 'https://viewblock.io/thorchain/address/',
+  relatedAssetKey: null,
+}
+
+export const cosmos: Asset = {
+  chainId: cosmosChainId,
+  assetId: cosmosAssetId,
+  name: 'Cosmos',
+  symbol: 'ATOM',
+  precision: 6,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/1481/thumb/cosmos_hub.png',
+  explorer: 'https://www.mintscan.io/cosmos',
+  explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
+  explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
+  relatedAssetKey: null,
+}
+
+export const mayachain: Asset = {
+  chainId: mayachainChainId,
+  assetId: mayachainAssetId,
+  name: 'MAYAChain',
+  symbol: 'CACAO',
+  precision: 10,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/27892/thumb/cacao.png',
+  explorer: 'https://www.mayascan.org',
+  explorerTxLink: 'https://www.mayascan.org/tx/',
+  explorerAddressLink: 'https://www.mayascan.org/address/',
+  relatedAssetKey: null,
+}
+
+export const solana: Asset = {
+  chainId: solanaChainId,
+  assetId: solAssetId,
+  name: 'Solana',
+  symbol: 'SOL',
+  precision: 9,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/4128/thumb/solana.png',
+  explorer: 'https://explorer.solana.com',
+  explorerTxLink: 'https://explorer.solana.com/tx/',
+  explorerAddressLink: 'https://explorer.solana.com/address/',
+  relatedAssetKey: null,
+}
+
+export const wif: Asset = {
+  chainId: solanaChainId,
+  assetId:
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+  name: 'dogwifhat',
+  symbol: 'WIF',
+  precision: 6,
+  color: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/33566/thumb/dogwifcoin.jpg',
+  explorer: 'https://explorer.solana.com',
+  explorerTxLink: 'https://explorer.solana.com/tx/',
+  explorerAddressLink: 'https://explorer.solana.com/address/',
+  relatedAssetKey: null,
+}
+
 export const mockAssetState = (obj?: Record<string, any>) =>
   merge(
     {
@@ -95,8 +340,43 @@ export const mockAssetState = (obj?: Record<string, any>) =>
         [usdc.assetId]: usdc,
         [zero.assetId]: zero,
         [bitcoin.assetId]: bitcoin,
+        [arbitrum.assetId]: arbitrum,
+        [optimism.assetId]: optimism,
+        [polygon.assetId]: polygon,
+        [bsc.assetId]: bsc,
+        [gnosis.assetId]: gnosis,
+        [base.assetId]: base,
+        [avalanche.assetId]: avalanche,
+        [dogecoin.assetId]: dogecoin,
+        [litecoin.assetId]: litecoin,
+        [bitcoinCash.assetId]: bitcoinCash,
+        [thorchain.assetId]: thorchain,
+        [cosmos.assetId]: cosmos,
+        [mayachain.assetId]: mayachain,
+        [solana.assetId]: solana,
+        [wif.assetId]: wif,
       },
-      ids: [ethereum.assetId, fox.assetId, usdc.assetId, bitcoin.assetId],
+      ids: [
+        ethereum.assetId,
+        fox.assetId,
+        usdc.assetId,
+        bitcoin.assetId,
+        arbitrum.assetId,
+        optimism.assetId,
+        polygon.assetId,
+        bsc.assetId,
+        gnosis.assetId,
+        base.assetId,
+        avalanche.assetId,
+        dogecoin.assetId,
+        litecoin.assetId,
+        bitcoinCash.assetId,
+        thorchain.assetId,
+        cosmos.assetId,
+        mayachain.assetId,
+        solana.assetId,
+        wif.assetId,
+      ],
     },
     obj,
   )

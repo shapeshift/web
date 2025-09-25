@@ -16,6 +16,7 @@ import {
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { PublicKey } from '@solana/web3.js'
+import { bech32 } from 'bech32'
 import WAValidator from 'multicoin-address-validator'
 import { isAddress } from 'viem'
 
@@ -89,8 +90,14 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => cosmosAssetId,
       getDisplayName: () => 'Cosmos',
-      // Cosmos adapter not easily available, use simple validation
-      validateAddress: (address: string) => ({ valid: address.startsWith('cosmos') }),
+      validateAddress: (address: string) => {
+        try {
+          const { prefix } = bech32.decode(address)
+          return prefix === 'cosmos' ? { valid: true } : { valid: false }
+        } catch {
+          return { valid: false }
+        }
+      },
     },
   ],
   [
@@ -163,21 +170,10 @@ export const mockChainAdapters = new Map([
       getFeeAssetId: () => thorchainAssetId,
       getDisplayName: () => 'Thorchain',
       validateAddress: (address: string) => {
-        const THORCHAIN_PREFIX = 'thor'
-
         try {
-          const bech32 = require('bech32')
-          const decoded = bech32.decode(address)
-          if (decoded.prefix !== THORCHAIN_PREFIX) {
-            return { valid: false }
-          }
-
-          const wordsLength = decoded.words.length
-          if (wordsLength !== 32) {
-            return { valid: false }
-          }
-          return { valid: true }
-        } catch (e) {
+          const { prefix } = bech32.decode(address)
+          return prefix === 'thor' ? { valid: true } : { valid: false }
+        } catch {
           return { valid: false }
         }
       },
@@ -188,7 +184,14 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => mayachainAssetId,
       getDisplayName: () => 'Mayachain',
-      validateAddress: (address: string) => ({ valid: address.startsWith('maya') }),
+      validateAddress: (address: string) => {
+        try {
+          const { prefix } = bech32.decode(address)
+          return prefix === 'maya' ? { valid: true } : { valid: false }
+        } catch {
+          return { valid: false }
+        }
+      },
     },
   ],
   [

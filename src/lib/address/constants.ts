@@ -43,3 +43,4 @@ export const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(
 )
 
 export const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
+export const EMPTY_ADDRESS_ERROR = 'Address is required'

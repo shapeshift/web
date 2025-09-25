@@ -54,7 +54,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { generateReceiveQrAddress } from '@/lib/address/generateReceiveQrAddress'
+import { generateReceiveQrText } from '@/lib/address/generateReceiveQrText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstFourLastFour } from '@/lib/utils'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
@@ -315,7 +315,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const qrCodeText = useMemo(() => {
     if (!receiveAddress) return ''
 
-    return generateReceiveQrAddress({
+    return generateReceiveQrText({
       receiveAddress,
       asset,
       amountCryptoPrecision: receiveAmount,

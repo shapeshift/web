@@ -16,6 +16,7 @@ import { fromHex, isHex } from 'viem'
 import {
   CHAIN_ID_TO_URN_SCHEME,
   DANGEROUS_ETH_URL_ERROR,
+  EMPTY_ADDRESS_ERROR,
   URN_SCHEME_TO_CHAIN_ID,
 } from './constants'
 import type { ParseUrlDirectResult } from './types'
@@ -104,6 +105,10 @@ export const parsePureBip21 = (urlOrAddress: string): ParseUrlDirectResult => {
 
   const parsedUrl = bip21.decode(urlOrAddress, scheme)
 
+  if (!parsedUrl.address) {
+    throw new Error(EMPTY_ADDRESS_ERROR)
+  }
+
   // Get the fee asset for the detected chain
   // First try chain adapter, then construct asset ID manually based on chain
   let assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId()
@@ -149,6 +154,10 @@ export const parseSolanaPay = (urlOrAddress: string): ParseUrlDirectResult => {
   }
 
   const parsedSolana = parsed as any // Cast to access all properties
+
+  if (!parsedSolana.recipient) {
+    throw new Error(EMPTY_ADDRESS_ERROR)
+  }
 
   // Determine assetId based on whether it's an SPL token or native SOL
   const assetId = parsedSolana.splToken
@@ -208,6 +217,9 @@ export const parseEip681 = (urlOrAddress: string): ParseUrlDirectResult => {
     parsedUrl.parameters?.address &&
     parsedUrl.target_address
   ) {
+    if (!parsedUrl.parameters.address) {
+      throw new Error(EMPTY_ADDRESS_ERROR)
+    }
     const tokenAssetId = toAssetId({
       chainId,
       assetNamespace: ASSET_NAMESPACE.erc20,
@@ -271,6 +283,7 @@ export const parseUrlDirect = (urlOrAddress: string): ParseUrlDirectResult | nul
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      if (error.message === EMPTY_ADDRESS_ERROR) throw error
       // For other parsing errors, return null to indicate this should be treated as a plain address
     }
     return null

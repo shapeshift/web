@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 
-// Vanity Address Types
 export type ValidateVanityAddressArgs = {
   assetId?: AssetId
   maybeAddress: string
@@ -48,7 +47,6 @@ export type ReverseResolversByChainId = {
   [k: ChainId]: ReverseLookupVanityAddress[]
 }
 
-// Address Validation Types
 export type ValidateAddressArgs = {
   chainId: ChainId
   maybeAddress: string
@@ -58,7 +56,6 @@ export type ValidateAddressReturn = boolean
 
 export type ValidateAddressByChainId = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
 
-// Parse Address Input Types
 export type ParseAddressInputArgs = {
   assetId?: AssetId
   urlOrAddress: string
@@ -95,7 +92,6 @@ export type ParseAddressByChainIdInput = (
   args: ParseAddressByChainIdInputArgs,
 ) => Promise<ParseAddressInputReturn>
 
-// URL Direct Parsing Types
 export type ParseUrlDirectResult = {
   chainId: ChainId
   assetId: AssetId

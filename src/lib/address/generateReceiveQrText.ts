@@ -10,6 +10,7 @@ import { CHAIN_ID_TO_URN_SCHEME } from './constants'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
+import { EMPTY_ADDRESS_ERROR } from './constants'
 
 export type GenerateReceiveQrTextArgs = {
   receiveAddress: string
@@ -23,7 +24,7 @@ export const generateReceiveQrText = ({
   amountCryptoPrecision,
 }: GenerateReceiveQrTextArgs): string => {
   if (!receiveAddress) {
-    throw new Error('receiveAddress is required')
+    throw new Error(EMPTY_ADDRESS_ERROR)
   }
 
   const { chainId, assetId } = asset

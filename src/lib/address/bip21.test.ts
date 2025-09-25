@@ -28,6 +28,7 @@ import {
 import { describe, expect, it, vi } from 'vitest'
 
 import { parseUrlDirect } from './bip21'
+import { EMPTY_ADDRESS_ERROR } from './constants'
 
 import { usdcAssetId } from '@/test/mocks/accounts'
 import { mockChainAdapters } from '@/test/mocks/portfolio'
@@ -390,7 +391,7 @@ describe('parseUrlDirect', () => {
     it('should throw error for empty address in BIP-21 URL', () => {
       expect(() => {
         parseUrlDirect('bitcoin:?amount=1.0')
-      }).toThrow()
+      }).toThrow(EMPTY_ADDRESS_ERROR)
     })
   })
 })

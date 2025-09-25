@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { generateReceiveQrText } from './generateReceiveQrText'
+import { EMPTY_ADDRESS_ERROR } from './constants'
 
 import {
   arbitrum,
@@ -428,7 +429,7 @@ describe('generateReceiveQrText', () => {
           asset: bitcoin,
           amountCryptoPrecision: '1.0',
         })
-      }).toThrow()
+      }).toThrow(EMPTY_ADDRESS_ERROR)
     })
 
     it('should handle zero amounts for UTXO chains', () => {

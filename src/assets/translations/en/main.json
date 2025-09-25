@@ -1493,7 +1493,6 @@
       "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Supported Networks",
-      "amountLabel": "Amount (%{symbol})",
       "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."
     },
     "deposit": {

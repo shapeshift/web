@@ -109,27 +109,22 @@ export const parsePureBip21 = (urlOrAddress: string): ParseUrlDirectResult => {
     throw new Error(EMPTY_ADDRESS_ERROR)
   }
 
-  // Get the fee asset for the detected chain
-  // First try chain adapter, then construct asset ID manually based on chain
-  let assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId()
-
-  if (!assetId) {
-    // Map chain IDs to their correct SLIP-44 asset references
+  const assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ?? (() => {
     const slip44References: Record<string, string> = {
-      'bip122:000000000019d6689c085ae165831e93': ASSET_REFERENCE.Bitcoin, // Bitcoin
-      'bip122:00000000001a91e3dace36e2be3bf030': ASSET_REFERENCE.Dogecoin, // Dogecoin
-      'bip122:12a765e31ffd4059bada1e25190f6e98': ASSET_REFERENCE.Litecoin, // Litecoin
-      'bip122:000000000000000000651ef99cb9fcbe': ASSET_REFERENCE.BitcoinCash, // Bitcoin Cash
+      'bip122:000000000019d6689c085ae165831e93': ASSET_REFERENCE.Bitcoin,
+      'bip122:00000000001a91e3dace36e2be3bf030': ASSET_REFERENCE.Dogecoin,
+      'bip122:12a765e31ffd4059bada1e25190f6e98': ASSET_REFERENCE.Litecoin,
+      'bip122:000000000000000000651ef99cb9fcbe': ASSET_REFERENCE.BitcoinCash,
     }
 
     const slip44Reference = slip44References[detectedChainId] || ASSET_REFERENCE.Ethereum
 
-    assetId = toAssetId({
+    return toAssetId({
       chainId: detectedChainId,
       assetNamespace: ASSET_NAMESPACE.slip44,
       assetReference: slip44Reference,
     })
-  }
+  })()
 
   const result: ParseUrlDirectResult = {
     assetId,

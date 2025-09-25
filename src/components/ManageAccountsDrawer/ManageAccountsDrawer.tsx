@@ -68,6 +68,13 @@ export const ManageAccountsDrawer = ({
   useEffect(() => {
     // no `wallet`, no accounts management. That would be a dead click if you were to try to connect accounts
     if (isLedgerReadOnlyEnabled && !wallet && isOpen) {
+      console.log('[Ledger Debug] Auto-closing ManageAccountsDrawer:', { 
+        reason: 'no wallet', 
+        isLedgerReadOnlyEnabled, 
+        hasWallet: !!wallet,
+        isOpen,
+        timestamp: Date.now()
+      })
       onClose()
     }
   }, [isLedgerReadOnlyEnabled, wallet, isOpen, onClose])

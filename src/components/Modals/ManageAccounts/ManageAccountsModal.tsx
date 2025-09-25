@@ -124,6 +124,13 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   // no `wallet`, no accounts management. That would be a dead click if you were to try to connect accounts
   useEffect(() => {
     if (isLedgerReadOnlyEnabled && !wallet && isOpen) {
+      console.log('[Ledger Debug] Auto-closing ManageAccountsModal:', { 
+        reason: 'no wallet', 
+        isLedgerReadOnlyEnabled, 
+        hasWallet: !!wallet,
+        isOpen,
+        timestamp: Date.now()
+      })
       close()
     }
   }, [isLedgerReadOnlyEnabled, wallet, isOpen, close])

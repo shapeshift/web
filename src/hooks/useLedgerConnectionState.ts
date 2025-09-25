@@ -32,12 +32,24 @@ export const useLedgerConnectionState = () => {
 
   const handleConnect = useCallback((event: USBConnectionEvent) => {
     if (isLedgerDevice(event.device)) {
+      console.log('[Ledger Debug] USB connect event:', {
+        device: event.device.productName,
+        vendorId: event.device.vendorId,
+        productId: event.device.productId,
+        timestamp: Date.now()
+      })
       setDeviceState('connected')
     }
   }, [])
 
   const handleDisconnect = useCallback((event: USBConnectionEvent) => {
     if (isLedgerDevice(event.device)) {
+      console.log('[Ledger Debug] USB disconnect event:', {
+        device: event.device.productName,
+        vendorId: event.device.vendorId,
+        productId: event.device.productId,
+        timestamp: Date.now()
+      })
       setDeviceState('disconnected')
     }
   }, [])
@@ -54,9 +66,21 @@ export const useLedgerConnectionState = () => {
     const checkInitialState = async () => {
       try {
         const devices = await navigator.usb.getDevices()
+        console.log('[Ledger Debug] Initial USB device check:', {
+          totalDevices: devices.length,
+          ledgerDevices: devices.filter(isLedgerDevice).map(d => ({
+            productName: d.productName,
+            vendorId: d.vendorId,
+            productId: d.productId
+          })),
+          timestamp: Date.now()
+        })
         const hasLedger = devices.some(isLedgerDevice)
-        setDeviceState(hasLedger ? 'connected' : 'disconnected')
+        const newState = hasLedger ? 'connected' : 'disconnected'
+        console.log('[Ledger Debug] Initial device state set:', { state: newState })
+        setDeviceState(newState)
       } catch (error) {
+        console.log('[Ledger Debug] Initial USB check failed:', { error: error.message })
         setDeviceState('unknown')
       }
     }
@@ -125,7 +149,20 @@ export const useLedgerConnectionState = () => {
       isUSBDisconnected &&
       state.walletInfo
 
+    console.log('[Ledger Debug] Wallet disconnect evaluation:', {
+      isCurrentWalletLedger,
+      isWalletConnected,
+      hasWallet,
+      isUSBDisconnected,
+      hasWalletInfo: !!state.walletInfo,
+      shouldDisconnectWallet,
+      deviceState,
+      timestamp: Date.now()
+    })
+
     if (!shouldDisconnectWallet) return
+
+    console.log('[Ledger Debug] Disconnecting wallet due to USB disconnection')
 
     dispatch({
       type: WalletActions.SET_IS_CONNECTED,

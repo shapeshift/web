@@ -19,7 +19,6 @@ import {
 } from '@shapeshiftoss/caip'
 
 export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
-  // EVM chains use 'ethereum' as the universal scheme for EIP-681
   [ethChainId]: 'ethereum',
   [arbitrumChainId]: 'arbitrum',
   [optimismChainId]: 'optimism',

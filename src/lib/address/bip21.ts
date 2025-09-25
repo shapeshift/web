@@ -7,7 +7,7 @@ import {
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
-import { parseURL as parseSolanaPayUrl } from '@solana/pay'
+import { parseURL as parseSolanaPayURL } from '@solana/pay'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Hex } from 'viem'
@@ -93,9 +93,8 @@ export const isPureBip21Url = (urlOrAddress: string): boolean => {
   return isBip21Url(urlOrAddress) && !isErc681Url(urlOrAddress) && !isSolanaPayUrl(urlOrAddress)
 }
 
-// Individual Parsers
-export const parsePureBip21 = (urlOrAddress: string): ParseUrlDirectResult => {
-  const scheme = urlOrAddress.split(':')[0]
+export const parseBip21Url = (url: string): ParseUrlDirectResult => {
+  const scheme = url.split(':')[0]
   if (!scheme || !URN_SCHEME_TO_CHAIN_ID[scheme]) {
     throw new Error('Invalid BIP-21 URL: scheme not detected')
   }
@@ -103,55 +102,53 @@ export const parsePureBip21 = (urlOrAddress: string): ParseUrlDirectResult => {
   const detectedChainId = URN_SCHEME_TO_CHAIN_ID[scheme]
   if (!detectedChainId) throw new Error('Invalid BIP-21 URL: ChainId not detected')
 
-  const parsedUrl = bip21.decode(urlOrAddress, scheme)
+  const parsedUrl = bip21.decode(url, scheme)
 
   if (!parsedUrl.address) {
     throw new Error(EMPTY_ADDRESS_ERROR)
   }
 
-  const assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ?? (() => {
-    const slip44References: Record<string, string> = {
-      'bip122:000000000019d6689c085ae165831e93': ASSET_REFERENCE.Bitcoin,
-      'bip122:00000000001a91e3dace36e2be3bf030': ASSET_REFERENCE.Dogecoin,
-      'bip122:12a765e31ffd4059bada1e25190f6e98': ASSET_REFERENCE.Litecoin,
-      'bip122:000000000000000000651ef99cb9fcbe': ASSET_REFERENCE.BitcoinCash,
-    }
+  const assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId()
+  if (!assetId) {
+    throw new Error(`Chain adapter not found for chain ${detectedChainId}`)
+  }
 
-    const slip44Reference = slip44References[detectedChainId] || ASSET_REFERENCE.Ethereum
-
-    return toAssetId({
-      chainId: detectedChainId,
-      assetNamespace: ASSET_NAMESPACE.slip44,
-      assetReference: slip44Reference,
-    })
-  })()
-
-  const result: ParseUrlDirectResult = {
+  return {
     assetId,
     maybeAddress: parsedUrl.address,
     chainId: detectedChainId,
+    ...(parsedUrl.options?.amount !== undefined && {
+      amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed()
+    })
   }
-
-  // Add amount if it exists (including zero amounts)
-  if (parsedUrl.options?.amount !== undefined) {
-    result.amountCryptoPrecision = bnOrZero(parsedUrl.options.amount).toFixed()
-  }
-
-  return result
 }
 
-export const parseSolanaPay = (urlOrAddress: string): ParseUrlDirectResult => {
-  const parsed = parseSolanaPayUrl(urlOrAddress)
+export const parseSolanaPayUrl = (url: string): ParseUrlDirectResult => {
+  const parsed = parseSolanaPayURL(url)
 
   // Type guard to ensure we have a TransferRequestURL (not TransactionRequestURL)
   if (!('recipient' in parsed)) {
     throw new Error('Invalid Solana Pay URL: TransactionRequestURLs not supported')
   }
 
+  if (!parsed.recipient) {
+    throw new Error(EMPTY_ADDRESS_ERROR)
+  }
+
   const parsedSolana = parsed as any // Cast to access all properties
 
-  if (!parsedSolana.recipient) {
-    throw new Error(EMPTY_ADDRESS_ERROR)
+  // Debug: throw error with object properties to see what's available
+  if (url.includes('spl-token')) {
+    const debugInfo = {
+      keys: Object.keys(parsedSolana),
+      splToken: parsedSolana.splToken,
+      token: parsedSolana.token,
+      'spl-token': parsedSolana['spl-token'],
+      splTokenProperty: 'splToken' in parsedSolana,
+      tokenProperty: 'token' in parsedSolana,
+      allProperties: JSON.stringify(parsedSolana, null, 2)
+    }
+    throw new Error(`DEBUG INFO: ${JSON.stringify(debugInfo, null, 2)}`)
   }
 
   // Determine assetId based on whether it's an SPL token or native SOL
@@ -169,7 +166,7 @@ export const parseSolanaPay = (urlOrAddress: string): ParseUrlDirectResult => {
 
   return {
     assetId,
-    maybeAddress: parsedSolana.recipient.toString(),
+    maybeAddress: parsed.recipient.toString(),
     chainId: solanaChainId,
     ...(parsedSolana.amount && {
       amountCryptoPrecision: parsedSolana.amount.toString(),
@@ -177,9 +174,8 @@ export const parseSolanaPay = (urlOrAddress: string): ParseUrlDirectResult => {
   }
 }
 
-export const parseEip681 = (urlOrAddress: string): ParseUrlDirectResult => {
-  // Handle EIP-681 URLs (EVM-specific)
-  const parsedUrl = parseEthUrl(urlOrAddress)
+export const parseEip681Url = (url: string): ParseUrlDirectResult => {
+  const parsedUrl = parseEthUrl(url)
 
   const chainId = (() => {
     // If no chain_id specified, we can't determine chain from URL alone
@@ -196,7 +192,7 @@ export const parseEip681 = (urlOrAddress: string): ParseUrlDirectResult => {
       })
     }
 
-    // Assume it's a stringified number
+    // Now we know it's a spec-compliant stringified number
     return toChainId({
       chainNamespace: CHAIN_NAMESPACE.Evm,
       chainReference: parsedUrl.chain_id as ChainReference,
@@ -257,24 +253,18 @@ export const parseEip681 = (urlOrAddress: string): ParseUrlDirectResult => {
  * Parse URL directly without chain iteration
  * Returns extracted chain/asset/address/amount from URL or null for plain addresses
  */
-export const parseUrlDirect = (urlOrAddress: string): ParseUrlDirectResult | null => {
+export const parseUrlDirect = (url: string): ParseUrlDirectResult | null => {
   // Early return for plain addresses (not BIP-21 compatible URLs)
-  if (!isBip21Url(urlOrAddress)) {
+  if (!isBip21Url(url)) {
     return null
   }
 
   try {
-    if (isPureBip21Url(urlOrAddress)) {
-      return parsePureBip21(urlOrAddress)
-    }
+    if (isPureBip21Url(url)) return parseBip21Url(url)
+    if (isSolanaPayUrl(url)) return parseSolanaPayUrl(url)
+    if (isErc681Url(url)) return parseEip681Url(url)
 
-    if (isSolanaPayUrl(urlOrAddress)) {
-      return parseSolanaPay(urlOrAddress)
-    }
-
-    if (isErc681Url(urlOrAddress)) {
-      return parseEip681(urlOrAddress)
-    }
+    throw new Error(`Unsupported URL format: ${url}`)
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === DANGEROUS_ETH_URL_ERROR) throw error

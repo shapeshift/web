@@ -6,7 +6,10 @@ import {
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
+  dogeAssetId,
   ethAssetId,
+  gnosisAssetId,
+  ltcAssetId,
   mayachainAssetId,
   optimismAssetId,
   polygonAssetId,
@@ -200,6 +203,32 @@ export const mockChainAdapters = new Map([
       getFeeAssetId: () => solAssetId,
       getDisplayName: () => 'Solana',
       validateAddress: validateSolanaAddress,
+    },
+  ],
+  [
+    KnownChainIds.GnosisMainnet,
+    {
+      getFeeAssetId: () => gnosisAssetId,
+      getDisplayName: () => 'Gnosis',
+      validateAddress: validateEthereumAddress,
+    },
+  ],
+  [
+    KnownChainIds.DogecoinMainnet,
+    {
+      getFeeAssetId: () => dogeAssetId,
+      getDisplayName: () => 'Dogecoin',
+      validateAddress: (address: string) =>
+        validateBitcoinAddress(address, KnownChainIds.DogecoinMainnet),
+    },
+  ],
+  [
+    KnownChainIds.LitecoinMainnet,
+    {
+      getFeeAssetId: () => ltcAssetId,
+      getDisplayName: () => 'Litecoin',
+      validateAddress: (address: string) =>
+        validateBitcoinAddress(address, KnownChainIds.LitecoinMainnet),
     },
   ],
 ])

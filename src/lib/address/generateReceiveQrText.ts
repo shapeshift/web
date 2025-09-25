@@ -79,9 +79,10 @@ export const generateReceiveQrText = ({
         })
       }
 
+      const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
+
       if (isToken(assetId)) {
         const { assetReference } = fromAssetId(assetId)
-        const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
         return buildEthUrl({
           target_address: assetReference,
           chain_id: `${evmNetworkId}`,
@@ -93,7 +94,6 @@ export const generateReceiveQrText = ({
         })
       }
 
-      const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
       return buildEthUrl({
         target_address: receiveAddress,
         chain_id: `${evmNetworkId}`,

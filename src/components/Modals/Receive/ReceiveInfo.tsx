@@ -1,26 +1,16 @@
 import {
   Box,
-  Button,
   Card,
   CardBody,
   Flex,
-  FormControl,
-  FormLabel,
   HStack,
   IconButton,
-  Input,
   LightMode,
   Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Skeleton,
   SkeletonText,
   Tag,
+  useBreakpointValue,
   useColorModeValue,
   useDisclosure,
   useToast,
@@ -36,6 +26,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Address } from 'viem'
 
+import { ReceiveAmount } from './ReceiveAmount'
 import { SupportedNetworks } from './SupportedNetworks'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
@@ -76,88 +67,6 @@ const copyIcon = <TbCopy />
 const externalLinkIcon = <TbExternalLink />
 const setAmountIcon = <TbHash />
 
-const AmountModal = ({
-  isOpen,
-  onClose,
-  symbol,
-  currentAmount,
-  onConfirm,
-}: {
-  isOpen: boolean
-  onClose: () => void
-  symbol: string
-  currentAmount?: string
-  onConfirm: (amount: string | undefined) => void
-}) => {
-  const [amountInput, setAmountInput] = useState('')
-  const translate = useTranslate()
-
-  useEffect(() => {
-    if (isOpen) {
-      setAmountInput(currentAmount ?? '')
-    }
-  }, [isOpen, currentAmount])
-
-  const handleInputChange = useCallback(
-    () => (e: React.ChangeEvent<HTMLInputElement>) => setAmountInput(e.target.value),
-    [],
-  )
-
-  const handleConfirm = useCallback(() => {
-    onConfirm(amountInput || undefined)
-    onClose()
-  }, [amountInput, onConfirm, onClose])
-
-  const handleClear = useCallback(() => {
-    onConfirm(undefined)
-    onClose()
-  }, [onConfirm, onClose])
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{translate('modals.receive.setAmount')}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <FormControl>
-            <FormLabel>
-              {translate('common.amount')} ({symbol.toUpperCase()})
-            </FormLabel>
-            <Input
-              value={amountInput}
-              onChange={handleInputChange()}
-              placeholder={translate('common.enterAmount')}
-              data-test='receive-amount-input'
-              type='text'
-              inputMode='decimal'
-            />
-            <Text
-              fontSize='sm'
-              color='text.subtle'
-              mt={2}
-              translation='modals.receive.amountNote'
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant='ghost' mr={3} onClick={onClose}>
-            {translate('common.cancel')}
-          </Button>
-          {currentAmount && (
-            <Button variant='ghost' mr={3} onClick={handleClear}>
-              {translate('common.clear')}
-            </Button>
-          )}
-          <Button colorScheme='blue' onClick={handleConfirm}>
-            {translate('common.confirm')}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  )
-}
-
 export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const { state } = useWallet()
   const { isConnected } = state
@@ -167,6 +76,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const [receiveAmount, setReceiveAmount] = useState<string | undefined>()
+  const [isSettingAmount, setIsSettingAmount] = useState<boolean>(false)
   const {
     isOpen: isAmountModalOpen,
     onOpen: onAmountModalOpen,
@@ -266,13 +176,25 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     }
   }, [receiveAddress, symbol, toast, translate])
 
-  const handleSetAmount = useCallback(() => {
-    onAmountModalOpen()
-  }, [onAmountModalOpen])
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
-  const handleAmountConfirm = useCallback((amount: string | undefined) => {
+  const handleSetAmountClick = useCallback(() => {
+    if (isMobile) {
+      setIsSettingAmount(true)
+    } else {
+      onAmountModalOpen()
+    }
+  }, [isMobile, onAmountModalOpen])
+
+  const handleSetAmountConfirm = useCallback((amount: string | undefined) => {
     setReceiveAmount(amount)
+    setIsSettingAmount(false)
   }, [])
+
+  const handleSetAmountClose = useCallback(() => {
+    setIsSettingAmount(false)
+    onAmountModalClose()
+  }, [onAmountModalClose])
 
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { symbol: symbol.toUpperCase() }],
@@ -322,6 +244,17 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     })
   }, [receiveAddress, asset, receiveAmount])
 
+  if (isSettingAmount) {
+    return (
+      <ReceiveAmount
+        onClose={handleSetAmountClose}
+        symbol={symbol}
+        currentAmount={receiveAmount}
+        onConfirm={handleSetAmountConfirm}
+      />
+    )
+  }
+
   return (
     <>
       <DialogHeader>
@@ -337,169 +270,166 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      <>
-        <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
-          <Box>
-            <SkeletonText
-              noOfLines={3}
-              display='flex'
-              flexDir='column'
-              alignItems='center'
-              skeletonHeight='16px'
-              spacing='2'
-              isLoaded={!!receiveAddress}
-            >
-              <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />
-            </SkeletonText>
-          </Box>
-          <AccountDropdown
-            showLabel={false}
-            assetId={asset.assetId}
-            defaultAccountId={selectedAccountId || undefined}
-            onChange={setSelectedAccountId}
-            buttonProps={accountDropdownButtonProps}
-          />
-          <Flex justifyContent='center'>
-            {ensName && (
-              <Tag bg={bg} borderRadius='full' color='text.subtle' mt={8} pl={4} pr={4}>
-                {ensName}
-              </Tag>
-            )}
-          </Flex>
-
-          <Card
-            variant='unstyled'
-            borderRadius='xl'
-            mb={4}
-            display='inline-block'
-            p={0}
-            mx='auto'
-            textAlign='center'
-            bg='white'
-            boxShadow='lg'
+      <DialogBody alignItems='center' justifyContent='center' textAlign='center' py={4}>
+        <Box>
+          <SkeletonText
+            noOfLines={3}
+            display='flex'
+            flexDir='column'
+            alignItems='center'
+            skeletonHeight='16px'
+            spacing='2'
+            isLoaded={!!receiveAddress}
           >
-            <CardBody display='inline-block' textAlign='center' p={6}>
-              <LightMode>
-                <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
-                  <LogoQRCode text={qrCodeText} asset={asset} data-test='receive-qr-code' />
-                </Skeleton>
-                <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
-                  <Flex
-                    color='text.subtle'
-                    alignItems='center'
-                    justifyContent='center'
-                    fontSize='sm'
-                    onClick={handleCopyClick}
-                    _hover={receiveAddressHover}
-                    _active={receiveAddressActive}
-                    cursor='pointer'
-                  >
-                    <MiddleEllipsis
-                      value={receiveAddress ?? ''}
-                      data-test='receive-address-label'
-                    />
-                  </Flex>
-                </Skeleton>
-              </LightMode>
-            </CardBody>
-          </Card>
-          {receiveAmountRow}
-          <SupportedNetworks asset={asset} />
-        </DialogBody>
-        <DialogFooter flexDir='column' py={4}>
-          <HStack spacing={8} justify='center'>
-            <Flex direction='column' align='center' gap={2}>
-              <IconButton
-                icon={copyIcon}
-                aria-label={translate('modals.receive.copy')}
-                onClick={handleCopyClick}
-                isDisabled={!receiveAddress}
-                size='lg'
-                borderRadius='full'
-                color='text.base'
-              />
-              <Text
-                fontSize='sm'
-                color='text.subtle'
-                fontWeight='medium'
-                translation='modals.receive.copy'
-              />
-            </Flex>
-            <Flex direction='column' align='center' gap={2}>
-              <IconButton
-                icon={setAmountIcon}
-                aria-label={translate('modals.receive.setAmount')}
-                onClick={handleSetAmount}
-                isDisabled={!receiveAddress}
-                size='lg'
-                borderRadius='full'
-                color='text.base'
-              />
-              <Text
-                fontSize='sm'
-                color='text.subtle'
-                fontWeight='medium'
-                translation='modals.receive.setAmount'
-              />
-            </Flex>
-            {!(wallet?.getVendor() === 'Native') && (
-              <Flex direction='column' align='center' gap={2}>
-                <IconButton
-                  icon={verifyIcon}
-                  aria-label={translate(
-                    `modals.receive.${
-                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                    }`,
-                  )}
-                  onClick={handleVerify}
-                  isDisabled={!receiveAddress || !isConnected}
-                  size='lg'
-                  borderRadius='full'
-                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}
-                />
-                <Text
-                  fontSize='sm'
+            <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />
+          </SkeletonText>
+        </Box>
+        <AccountDropdown
+          showLabel={false}
+          assetId={asset.assetId}
+          defaultAccountId={selectedAccountId || undefined}
+          onChange={setSelectedAccountId}
+          buttonProps={accountDropdownButtonProps}
+        />
+        <Flex justifyContent='center'>
+          {ensName && (
+            <Tag bg={bg} borderRadius='full' color='text.subtle' mt={8} pl={4} pr={4}>
+              {ensName}
+            </Tag>
+          )}
+        </Flex>
+
+        <Card
+          variant='unstyled'
+          borderRadius='xl'
+          mb={4}
+          display='inline-block'
+          p={0}
+          mx='auto'
+          textAlign='center'
+          bg='white'
+          boxShadow='lg'
+        >
+          <CardBody display='inline-block' textAlign='center' p={6}>
+            <LightMode>
+              <Skeleton isLoaded={!!receiveAddress && !isAddressLoading} mb={2}>
+                <LogoQRCode text={qrCodeText} asset={asset} data-test='receive-qr-code' />
+              </Skeleton>
+              <Skeleton isLoaded={!!receiveAddress && !isAddressLoading}>
+                <Flex
                   color='text.subtle'
-                  fontWeight='medium'
-                  translation={`modals.receive.${
-                    verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                  }`}
-                />
-              </Flex>
-            )}
+                  alignItems='center'
+                  justifyContent='center'
+                  fontSize='sm'
+                  onClick={handleCopyClick}
+                  _hover={receiveAddressHover}
+                  _active={receiveAddressActive}
+                  cursor='pointer'
+                >
+                  <MiddleEllipsis value={receiveAddress ?? ''} data-test='receive-address-label' />
+                </Flex>
+              </Skeleton>
+            </LightMode>
+          </CardBody>
+        </Card>
+        {receiveAmountRow}
+        <SupportedNetworks asset={asset} />
+      </DialogBody>
+      <DialogFooter flexDir='column' py={4}>
+        <HStack spacing={8} justify='center'>
+          <Flex direction='column' align='center' gap={2}>
+            <IconButton
+              icon={copyIcon}
+              aria-label={translate('modals.receive.copy')}
+              onClick={handleCopyClick}
+              isDisabled={!receiveAddress}
+              size='lg'
+              borderRadius='full'
+              color='text.base'
+            />
+            <Text
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='medium'
+              translation='modals.receive.copy'
+            />
+          </Flex>
+          <Flex direction='column' align='center' gap={2}>
+            <IconButton
+              icon={setAmountIcon}
+              aria-label={translate('modals.receive.setAmount')}
+              onClick={handleSetAmountClick}
+              isDisabled={!receiveAddress}
+              size='lg'
+              borderRadius='full'
+              color='text.base'
+            />
+            <Text
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='medium'
+              translation='modals.receive.setAmount'
+            />
+          </Flex>
+          {!(wallet?.getVendor() === 'Native') && (
             <Flex direction='column' align='center' gap={2}>
               <IconButton
-                as={Link}
-                icon={externalLinkIcon}
-                aria-label={translate('modals.receive.blockExplorer')}
-                href={
-                  asset?.explorerAddressLink && receiveAddress
-                    ? `${asset.explorerAddressLink}${receiveAddress}`
-                    : undefined
-                }
-                isExternal
-                isDisabled={!receiveAddress || !asset?.explorerAddressLink}
+                icon={verifyIcon}
+                aria-label={translate(
+                  `modals.receive.${
+                    verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                  }`,
+                )}
+                onClick={handleVerify}
+                isDisabled={!receiveAddress || !isConnected}
                 size='lg'
                 borderRadius='full'
-                color='text.base'
+                color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.base'}
               />
               <Text
                 fontSize='sm'
                 color='text.subtle'
                 fontWeight='medium'
-                translation='modals.receive.blockExplorer'
+                translation={`modals.receive.${
+                  verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                }`}
               />
             </Flex>
-          </HStack>
-        </DialogFooter>
-      </>
-      <AmountModal
-        isOpen={isAmountModalOpen}
-        onClose={onAmountModalClose}
-        symbol={symbol}
-        currentAmount={receiveAmount}
-        onConfirm={handleAmountConfirm}
-      />
+          )}
+          <Flex direction='column' align='center' gap={2}>
+            <IconButton
+              as={Link}
+              icon={externalLinkIcon}
+              aria-label={translate('modals.receive.blockExplorer')}
+              href={
+                asset?.explorerAddressLink && receiveAddress
+                  ? `${asset.explorerAddressLink}${receiveAddress}`
+                  : undefined
+              }
+              isExternal
+              isDisabled={!receiveAddress || !asset?.explorerAddressLink}
+              size='lg'
+              borderRadius='full'
+              color='text.base'
+            />
+            <Text
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='medium'
+              translation='modals.receive.blockExplorer'
+            />
+          </Flex>
+        </HStack>
+      </DialogFooter>
+      {isAmountModalOpen && (
+        <ReceiveAmount
+          onClose={handleSetAmountClose}
+          symbol={symbol}
+          currentAmount={receiveAmount}
+          onConfirm={handleSetAmountConfirm}
+          isModal
+        />
+      )}
     </>
   )
 }

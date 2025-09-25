@@ -550,6 +550,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       if (input.pubKey) return input.pubKey
 
+      if (!wallet) throw new Error('wallet is required')
+
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 

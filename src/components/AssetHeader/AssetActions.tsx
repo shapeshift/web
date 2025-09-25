@@ -3,22 +3,25 @@ import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, isNft } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaCreditCard, FaEllipsisH } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -63,8 +66,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 }) => {
   const navigate = useNavigate()
 
-  const [isValidChainId, setIsValidChainId] = useState(true)
-  const chainAdapterManager = getChainAdapterManager()
   const send = useModal('send')
   const receive = useModal('receive')
   const fiatRamps = useModal('fiatRamps')
@@ -72,18 +73,26 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const {
-    state: { isConnected },
+    state: { isConnected, wallet },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+
+  // Either wallet is physically connected, or it's a Ledger in read-only mode
+  const canDisplayAssetActions = useMemo(
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
+  )
+
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
-  useEffect(() => {
-    const isValid = chainAdapterManager.has(asset.chainId)
-    setIsValidChainId(isValid)
-  }, [chainAdapterManager, asset])
+  const isValidChainId = useWalletSupportsChain(asset.chainId, wallet)
 
   const handleWalletModalOpen = useCallback(
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -91,18 +100,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   )
   const handleSendClick = useCallback(() => {
     vibrate('heavy')
-    if (!isConnected) return handleWalletModalOpen()
+    if (!canDisplayAssetActions) return handleWalletModalOpen()
     mixpanel?.track(MixPanelEvent.SendClick)
     send.open({ assetId, accountId })
-  }, [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send])
+  }, [accountId, assetId, handleWalletModalOpen, canDisplayAssetActions, mixpanel, send])
   const handleReceiveClick = useCallback(() => {
     vibrate('heavy')
-    if (isConnected) {
+    if (canDisplayAssetActions) {
       return receive.open({ asset, accountId })
     }
 
     handleWalletModalOpen()
-  }, [accountId, asset, handleWalletModalOpen, isConnected, receive])
+  }, [accountId, asset, handleWalletModalOpen, canDisplayAssetActions, receive])
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {
@@ -175,7 +184,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
                 aria-label={translate('navBar.buyCryptoShort')}
                 _after={IconButtonAfter}
                 onClick={handleBuySellClick}
-                isDisabled={!isConnected}
+                isDisabled={!canDisplayAssetActions}
                 colorScheme='blue'
               />
             </Flex>

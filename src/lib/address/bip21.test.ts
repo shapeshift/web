@@ -82,13 +82,13 @@ describe('parseUrlDirect', () => {
     })
 
     it('should parse DOGE BIP-21 with amount', () => {
-      const result = parseUrlDirect('doge:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42123')
+      const result = parseUrlDirect('doge:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42.123456')
 
       expect(result).toEqual({
         assetId: dogeAssetId,
         chainId: dogeChainId,
         maybeAddress: 'DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L',
-        amountCryptoPrecision: '42123',
+        amountCryptoPrecision: '42.123456',
       })
     })
 
@@ -192,7 +192,7 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should not parse address if there is a mismatch between chainId and URN scheme', () => {
+    it('should return null for EIP-681 URL missing chain_id', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD/transfer?address=0xABCDEF1234567890ABCDEF1234567890ABCDEF12&uint256=1000000',
       )
@@ -207,7 +207,7 @@ describe('parseUrlDirect', () => {
       ).toThrow('modals.send.errors.qrDangerousEthUrl')
     })
 
-    it('should parse EIP-681 URL with scientific notation amount', () => {
+    it('should parse EIP-681 URL with scientific notation amount parameter', () => {
       const result = parseUrlDirect(
         'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD@1?amount=2.014e18',
       )
@@ -342,7 +342,7 @@ describe('parseUrlDirect', () => {
   })
 
   describe('Error handling', () => {
-    it('should return null for unsupported stellar scheme', () => {
+    it('should return null for unsupported scheme', () => {
       const result = parseUrlDirect(
         'stellar:GADCG5ZWXLGQXVUXR4ZPJQLQ87XHTJV4JCTF8QFV5Z8LEZH4QRXB6ABC?amount=50',
       )

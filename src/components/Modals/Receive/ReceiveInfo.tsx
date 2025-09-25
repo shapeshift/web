@@ -75,6 +75,7 @@ const receiveAddressActive = { color: 'blue.800' }
 const copyIcon = <TbCopy />
 const externalLinkIcon = <TbExternalLink />
 const setAmountIcon = <TbHash />
+
 const AmountModal = ({
   isOpen,
   onClose,
@@ -91,7 +92,6 @@ const AmountModal = ({
   const [amountInput, setAmountInput] = useState('')
   const translate = useTranslate()
 
-  // Reset input when modal opens with current amount
   useEffect(() => {
     if (isOpen) {
       setAmountInput(currentAmount ?? '')

@@ -9,26 +9,26 @@ export const accountManagement = createQueryKeys('accountManagement', {
     queryKey: ['getAccount', accountId],
     queryFn: async () => {
       const { chainId, account: pubkey } = fromAccountId(accountId)
-      console.log('[Ledger Debug] getAccount called:', { 
-        accountId, 
-        chainId, 
-        pubkey: pubkey.slice(0, 10) + '...', 
-        timestamp: Date.now() 
+      console.log('[Ledger Debug] getAccount called:', {
+        accountId,
+        chainId,
+        pubkey: pubkey.slice(0, 10) + '...',
+        timestamp: Date.now(),
       })
       const adapter = assertGetChainAdapter(chainId)
       try {
         const account = await adapter.getAccount(pubkey)
-        console.log('[Ledger Debug] getAccount success:', { 
-          accountId, 
+        console.log('[Ledger Debug] getAccount success:', {
+          accountId,
           balance: account.balance,
-          timestamp: Date.now() 
+          timestamp: Date.now(),
         })
         return account
       } catch (error) {
-        console.log('[Ledger Debug] getAccount failed:', { 
-          accountId, 
+        console.log('[Ledger Debug] getAccount failed:', {
+          accountId,
           error: error.message,
-          timestamp: Date.now() 
+          timestamp: Date.now(),
         })
         throw error
       }

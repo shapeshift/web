@@ -71,7 +71,7 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
   // Debug USB devices whenever the component is open
   useEffect(() => {
     if (!isOpen) return
-    
+
     const logUSBDevices = async () => {
       try {
         if (navigator.usb) {
@@ -81,16 +81,16 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
             devices: devices.map(d => ({
               productName: d.productName,
               vendorId: d.vendorId,
-              productId: d.productId
+              productId: d.productId,
             })),
-            timestamp: Date.now()
+            timestamp: Date.now(),
           })
         }
       } catch (error) {
         console.log('[Ledger Debug] Failed to get USB devices in SelectChain:', error.message)
       }
     }
-    
+
     logUSBDevices()
   }, [isOpen])
 

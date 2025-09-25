@@ -2,7 +2,7 @@ import type { ListProps } from '@chakra-ui/react'
 import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
-import type { FC } from 'react'
+import type { FC, WheelEvent } from 'react'
 import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
 import { Virtuoso } from 'react-virtuoso'
@@ -94,6 +94,11 @@ export const AssetList: FC<AssetListProps> = ({
     [assets, itemData, rowComponent, showPrice, onImportClick, showRelatedAssets],
   )
 
+  // Handle wheel events to ensure scrolling works in nested modal context
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.stopPropagation()
+  }, [])
+
   if (isLoading) {
     return (
       <Flex
@@ -151,6 +156,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   return (
     <Virtuoso
+      onWheel={handleWheel}
       className='scroll-container'
       data={assets}
       itemContent={renderRow}

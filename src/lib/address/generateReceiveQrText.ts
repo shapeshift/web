@@ -6,11 +6,10 @@ import { PublicKey } from '@solana/web3.js'
 import bip21 from 'bip21'
 import { build as buildEthUrl } from 'eth-url-parser'
 
-import { CHAIN_ID_TO_URN_SCHEME } from './constants'
+import { CHAIN_ID_TO_URN_SCHEME, EMPTY_ADDRESS_ERROR } from './constants'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
-import { EMPTY_ADDRESS_ERROR } from './constants'
 
 export type GenerateReceiveQrTextArgs = {
   receiveAddress: string

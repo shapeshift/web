@@ -57,7 +57,7 @@ export const isSolanaPayUrl = (urlOrAddress: string): boolean => {
 
   try {
     // Try parsing with @solana/pay to validate it's a proper Solana Pay URL
-    const parsed = parseSolanaPayUrl(urlOrAddress)
+    const parsed = parseSolanaPayURL(urlOrAddress)
 
     // Check for Solana Pay-specific parameters (similar to EIP-681 feature detection)
     // A plain solana:address without parameters should not be treated as Solana Pay
@@ -108,19 +108,35 @@ export const parseBip21Url = (url: string): ParseUrlDirectResult => {
     throw new Error(EMPTY_ADDRESS_ERROR)
   }
 
-  const assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId()
-  if (!assetId) {
-    throw new Error(`Chain adapter not found for chain ${detectedChainId}`)
-  }
+  const assetId =
+    getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ??
+    (() => {
+      const slip44References: Record<string, string> = {
+        'bip122:000000000019d6689c085ae165831e93': ASSET_REFERENCE.Bitcoin,
+        'bip122:00000000001a91e3dace36e2be3bf030': ASSET_REFERENCE.Dogecoin,
+        'bip122:12a765e31ffd4059bada1e25190f6e98': ASSET_REFERENCE.Litecoin,
+        'bip122:000000000000000000651ef99cb9fcbe': ASSET_REFERENCE.BitcoinCash,
+      }
 
-  return {
+      const slip44Reference = slip44References[detectedChainId] || ASSET_REFERENCE.Ethereum
+
+      return toAssetId({
+        chainId: detectedChainId,
+        assetNamespace: ASSET_NAMESPACE.slip44,
+        assetReference: slip44Reference,
+      })
+    })()
+
+  const result: ParseUrlDirectResult = {
     assetId,
     maybeAddress: parsedUrl.address,
     chainId: detectedChainId,
     ...(parsedUrl.options?.amount !== undefined && {
-      amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed()
-    })
+      amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed(),
+    }),
   }
+
+  return result
 }
 
 export const parseSolanaPayUrl = (url: string): ParseUrlDirectResult => {
@@ -136,20 +152,6 @@ export const parseSolanaPayUrl = (url: string): ParseUrlDirectResult => {
   }
 
   const parsedSolana = parsed as any // Cast to access all properties
-
-  // Debug: throw error with object properties to see what's available
-  if (url.includes('spl-token')) {
-    const debugInfo = {
-      keys: Object.keys(parsedSolana),
-      splToken: parsedSolana.splToken,
-      token: parsedSolana.token,
-      'spl-token': parsedSolana['spl-token'],
-      splTokenProperty: 'splToken' in parsedSolana,
-      tokenProperty: 'token' in parsedSolana,
-      allProperties: JSON.stringify(parsedSolana, null, 2)
-    }
-    throw new Error(`DEBUG INFO: ${JSON.stringify(debugInfo, null, 2)}`)
-  }
 
   // Determine assetId based on whether it's an SPL token or native SOL
   const assetId = parsedSolana.splToken
@@ -273,7 +275,4 @@ export const parseUrlDirect = (url: string): ParseUrlDirectResult | null => {
     }
     return null
   }
-
-  // We shouldn't end up here but just in case
-  return null
 }

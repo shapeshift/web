@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { generateReceiveQrText } from './generateReceiveQrText'
 import { EMPTY_ADDRESS_ERROR } from './constants'
+import { generateReceiveQrText } from './generateReceiveQrText'
 
 import {
   arbitrum,
@@ -29,7 +29,8 @@ describe('generateReceiveQrText', () => {
   const testAddress = '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD'
   const testBtcAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
   const testSolanaAddress = '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
-  const testThorchainAddress = 'thorpub1addwnpepq08ltrkgtsg40sd2qhac4cf402f2gy7maelzsa7nw92n75zfh3cm27af493'
+  const testThorchainAddress =
+    'thorpub1addwnpepq08ltrkgtsg40sd2qhac4cf402f2gy7maelzsa7nw92n75zfh3cm27af493'
   const testCosmosAddress = 'cosmos1x7k9m2p5w8q3r6v9c4n8b7f2a5x1e4r7t9y6u3'
   const testMayachainAddress = 'maya1g98cy3n9mmjrpn0sxmn63lztelera37n8yyjwl'
 

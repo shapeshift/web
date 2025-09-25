@@ -39,8 +39,8 @@ export const usePrefetchExploreCategories = () => {
 
     const marketCapDescOrder: CoinGeckoSortKey = 'market_cap_desc'
     queryClient.prefetchQuery({
-      queryKey: ['coinGeckoMarkets', OrderDirection.Descending, 1, 10],
-      queryFn: () => getCoingeckoMarkets(marketCapDescOrder, undefined, undefined),
+      queryKey: ['coinGeckoMarkets', marketCapDescOrder, 1, 250],
+      queryFn: () => getCoingeckoMarkets(marketCapDescOrder, 1, 250),
       staleTime: Infinity,
     })
   }, [queryClient])

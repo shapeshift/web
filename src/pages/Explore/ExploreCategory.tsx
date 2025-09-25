@@ -79,6 +79,8 @@ export const ExploreCategory = () => {
     enabled: category !== MarketsCategories.OneClickDefi,
     orderBy: selectedOrder,
     sortBy: selectedSort,
+    page: category === MarketsCategories.MarketCap ? 1 : undefined,
+    limit: category === MarketsCategories.MarketCap ? 250 : undefined,
   })
 
   const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({

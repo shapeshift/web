@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Text as CText, Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
-import type { Asset } from 'packages/types/src/base'
 import { memo, useCallback, useMemo } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useTranslate } from 'react-polyglot'
@@ -59,9 +59,8 @@ export const CategoryCard = memo(
         category === MarketsCategories.MarketCap
           ? SortOptionsKeys.MarketCap
           : SortOptionsKeys.PriceChange,
-      page: 1,
-      // Use a higher limit to get more assets as some assets might be unsupported like XRP
-      limit: 10,
+      page: category === MarketsCategories.MarketCap ? 1 : undefined,
+      limit: category === MarketsCategories.MarketCap ? 250 : undefined,
     })
 
     const {

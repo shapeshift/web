@@ -20,7 +20,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
+import { bnOrZero, getAssetNamespaceFromChainId, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'
@@ -39,6 +39,8 @@ import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { CoinGeckoSortKey } from '@/lib/market-service/coingecko/coingecko'
 import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
+import { selectAssets } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
@@ -47,6 +49,8 @@ const getCoinDetails = async (
   i: number,
   all: CoingeckoAsset[],
 ) => {
+  const assets = selectAssets(store.getState())
+
   try {
     const { data } = await queryClient.fetchQuery({
       queryKey: ['coingecko', 'coin', marketCap.id],
@@ -137,9 +141,16 @@ export const getCoingeckoMarketsRaw = async (
   page = 1,
   pageSize = 100,
 ): Promise<CoinGeckoMarketCap[]> => {
-  const { data } = await axios.get<CoinGeckoMarketCap[]>(
-    `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
-  )
+  const data = await queryClient.fetchQuery({
+    queryKey: ['coingeckoMarketsRaw', order, page, pageSize],
+    queryFn: async () => {
+      const { data } = await axios.get<CoinGeckoMarketCap[]>(
+        `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
+      )
+      return data
+    },
+    staleTime: Infinity,
+  })
 
   return data
 }
@@ -150,6 +161,7 @@ export const getCoingeckoMarkets = async (
   pageSize = 100,
 ): Promise<CoingeckoAsset[]> => {
   const data = await getCoingeckoMarketsRaw(order, page, pageSize)
+
   const all: CoingeckoAsset[] = []
 
   await Promise.allSettled(data.map((marketData, i) => getCoinDetails(marketData, i, all)))

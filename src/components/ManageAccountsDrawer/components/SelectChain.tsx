@@ -87,7 +87,10 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
           })
         }
       } catch (error) {
-        console.log('[Ledger Debug] Failed to get USB devices in SelectChain:', error.message)
+        console.log(
+          '[Ledger Debug] Failed to get USB devices in SelectChain:',
+          (error as any).message,
+        )
       }
     }
 

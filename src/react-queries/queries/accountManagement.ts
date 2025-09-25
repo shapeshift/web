@@ -27,7 +27,7 @@ export const accountManagement = createQueryKeys('accountManagement', {
       } catch (error) {
         console.log('[Ledger Debug] getAccount failed:', {
           accountId,
-          error: error.message,
+          error: (error as any).message,
           timestamp: Date.now(),
         })
         throw error

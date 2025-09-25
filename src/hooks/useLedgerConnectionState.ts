@@ -162,23 +162,38 @@ export const useLedgerConnectionState = () => {
 
     if (!shouldDisconnectWallet) return
 
-    console.log('[Ledger Debug] Disconnecting wallet due to USB disconnection')
+    console.log('[Ledger Debug] Scheduling wallet disconnect in 1000ms...')
 
-    dispatch({
-      type: WalletActions.SET_IS_CONNECTED,
-      payload: false,
-    })
+    // Add 1000ms debounce to handle quick hardware reconnections
+    const disconnectTimeoutId = setTimeout(() => {
+      // Check if still disconnected after debounce period
+      if (deviceState === 'disconnected') {
+        console.log('[Ledger Debug] Disconnecting wallet after debounce period')
+        
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: false,
+        })
 
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        wallet: null,
-        name: LEDGER_NAME,
-        icon: LEDGER_ICON,
-        deviceId: LEDGER_DEVICE_ID,
-        connectedType: KeyManager.Ledger,
-      },
-    })
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: null,
+            name: LEDGER_NAME,
+            icon: LEDGER_ICON,
+            deviceId: LEDGER_DEVICE_ID,
+            connectedType: KeyManager.Ledger,
+          },
+        })
+      } else {
+        console.log('[Ledger Debug] Device reconnected during debounce, canceling disconnect')
+      }
+    }, 1000)
+
+    return () => {
+      console.log('[Ledger Debug] Clearing disconnect timeout')
+      clearTimeout(disconnectTimeoutId)
+    }
   }, [state, deviceState, dispatch, isLedgerReadOnlyEnabled])
 
   const deviceHelpers = useMemo(

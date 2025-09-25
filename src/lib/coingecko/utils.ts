@@ -56,7 +56,7 @@ const getCoinDetails = async (
     const assetIds = adapters.coingeckoToAssetIds(marketCap.id)
 
     if (assetIds && assetIds.length > 0) {
-      // Check if we already have this asset in our store
+      // Check if we already have this asset in memory
       const existingAsset = assetIds.find(assetId => assets[assetId])
 
       if (existingAsset) {

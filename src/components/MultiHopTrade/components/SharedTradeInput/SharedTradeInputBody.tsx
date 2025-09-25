@@ -1,4 +1,4 @@
-import { Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -121,7 +121,7 @@ export const SharedTradeInputBody = ({
   )
 
   return (
-    <Flex flexDir='column' height='100%' minHeight={0}>
+    <Flex flexDir='column' height='100%' minHeight={0} overflow={'auto'}>
       <Stack spacing={0} flex='0 0 auto'>
         <SellAssetInput
           accountId={sellAccountId}

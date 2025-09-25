@@ -1,4 +1,4 @@
-import { Box, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'

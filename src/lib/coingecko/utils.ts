@@ -20,7 +20,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero, getAssetNamespaceFromChainId, isSome } from '@shapeshiftoss/utils'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'
@@ -52,6 +52,24 @@ const getCoinDetails = async (
   const assets = selectAssets(store.getState())
 
   try {
+    // First, try to get asset IDs using the adapter
+    const assetIds = adapters.coingeckoToAssetIds(marketCap.id)
+
+    if (assetIds && assetIds.length > 0) {
+      // Check if we already have this asset in our store
+      const existingAsset = assetIds.find(assetId => assets[assetId])
+
+      if (existingAsset) {
+        // We already have this asset, create CoingeckoAsset without details
+        // The existing asset in Redux store already has all the necessary data
+        all[i] = {
+          assetId: existingAsset,
+        }
+        return
+      }
+    }
+
+    // Fallback to individual API call only if we don't have the asset
     const { data } = await queryClient.fetchQuery({
       queryKey: ['coingecko', 'coin', marketCap.id],
       // Shared query across consumers, so make it infinite as there will be a lot of overlap

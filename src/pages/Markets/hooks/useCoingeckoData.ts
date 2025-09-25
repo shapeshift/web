@@ -38,6 +38,18 @@ const selectCoingeckoAssets = (
       const assetId = topMover.assetId
       const chainId = fromAssetId(assetId).chainId
       const feeAsset = selectFeeAssetById(store.getState(), assetId)
+
+      // Handle optional details - if we don't have details, we already have the asset
+      if (!topMover.details) {
+        // Asset already exists in store, just add to results
+        if (!acc.chainIds.includes(chainId)) {
+          acc.chainIds.push(chainId)
+        }
+        acc.byId[assetId] = topMover
+        acc.ids.push(assetId)
+        return acc
+      }
+
       const precision =
         topMover.details.detail_platforms[topMover.details.asset_platform_id]?.decimal_place
       if (!feeAsset) return acc

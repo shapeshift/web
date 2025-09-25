@@ -1,6 +1,5 @@
 import { Button, SimpleGrid, Stack, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -11,6 +10,7 @@ import { DrawerWrapper } from './DrawerWrapper'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { RawText } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
@@ -62,18 +62,18 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
   const translate = useTranslate()
   const [searchTermChainIds, setSearchTermChainIds] = useState<ChainId[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const wallet = useWallet().state.wallet
+  const { state } = useWallet()
+  const { connectedType } = state
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
 
   const availableChainIds = useMemo(() => {
-    // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
     const allAvailableChainIds =
-      wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
+      connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
 
     return allAvailableChainIds.filter(chainId => !walletConnectedChainIds.includes(chainId))
-  }, [wallet, walletConnectedChainIds, walletSupportedChainIds])
+  }, [connectedType, walletConnectedChainIds, walletSupportedChainIds])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 

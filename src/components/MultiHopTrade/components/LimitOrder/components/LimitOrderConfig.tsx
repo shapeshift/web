@@ -413,10 +413,15 @@ export const LimitOrderConfig = ({
           >
             1 {displayAsset.symbol}
           </Button>
-          <Text translation='limitOrder.isWorth' />
+          <Text whiteSpace='nowrap' translation='limitOrder.isWorth' />
         </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
-          <Text translation='limitOrder.market' mr={2} />
+          <Text
+            translation='limitOrder.market'
+            mr={2}
+            fontSize='sm'
+            opacity={isMarketButtonDisabled ? 0.5 : 1}
+          />
           <Skeleton isLoaded={!isLoading}>
             <Button
               variant='unstyled'
@@ -440,6 +445,7 @@ export const LimitOrderConfig = ({
               customInput={AmountInput}
               decimalScale={isInputtingFiatSellAmount ? 2 : priceAsset.precision}
               isNumericString={true}
+              textOverflow='ellipsis'
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               allowedDecimalSeparators={allowedDecimalSeparators}

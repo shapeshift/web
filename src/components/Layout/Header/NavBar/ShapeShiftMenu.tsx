@@ -25,6 +25,7 @@ import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { useHoverIntent } from '@/hooks/useHoverIntent'
 import { breakpoints } from '@/theme/theme'
 
 const productItemHoverSx = { bg: 'background.button.secondary.base' }
@@ -129,6 +130,8 @@ export const ShapeShiftMenu = () => {
   const translate = useTranslate()
   const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
 
+  const { handleMouseEnter, handleMouseLeave } = useHoverIntent(isOpen, onOpen, onClose)
+
   const afterSx = useMemo(
     () => ({
       content: '""',
@@ -136,14 +139,19 @@ export const ShapeShiftMenu = () => {
       top: '100%',
       left: 0,
       right: 0,
-      height: '10px',
+      height: '20px',
       display: isOpen ? 'block' : 'none',
     }),
     [isOpen],
   )
 
   return (
-    <Box onMouseEnter={onOpen} onMouseLeave={onClose} position='relative' _after={afterSx}>
+    <Box
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      position='relative'
+      _after={afterSx}
+    >
       <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
         <MenuButton
           as={HStack}
@@ -170,8 +178,8 @@ export const ShapeShiftMenu = () => {
           p={0}
           minW='500px'
           mt={0}
-          onMouseEnter={onOpen}
-          onMouseLeave={onClose}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           onClickCapture={onClose}
         >
           <VStack align='stretch' spacing={4}>

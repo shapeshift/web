@@ -29,6 +29,7 @@ type ReceiveAmountContentProps = {
   symbol: string
   currentAmount?: string
   onConfirm: (amount: string | undefined) => void
+  isModal?: boolean
 }
 
 const ReceiveAmountContent = ({
@@ -36,6 +37,7 @@ const ReceiveAmountContent = ({
   symbol,
   currentAmount,
   onConfirm,
+  isModal = false,
 }: ReceiveAmountContentProps) => {
   const [amountInput, setAmountInput] = useState('')
   const translate = useTranslate()
@@ -121,51 +123,53 @@ const ReceiveAmountContent = ({
           </Flex>
         </Flex>
       </Display.Mobile>
-      <Display.Desktop>
-        <ModalHeader>
-          <Text translation={'modals.receive.setAmount'} />
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <FormControl textAlign='center'>
-            <NumberFormat
-              customInput={Input}
-              value={amountInput}
-              onValueChange={handleValueChange}
-              placeholder={`0 ${symbol.toUpperCase()}`}
-              data-test='receive-amount-input'
-              inputMode='decimal'
-              autoFocus
-              size='lg'
-              fontSize='xl'
-              fontWeight='semibold'
-              textAlign='center'
-              variant='flushed'
-              suffix={` ${symbol.toUpperCase()}`}
-              isNumericString
-            />
-            <Text
-              fontSize='sm'
-              color='text.subtle'
-              mt={2}
-              translation={'modals.receive.amountNote'}
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant='ghost' mr={3} onClick={onClose}>
-            {translate('common.cancel')}
-          </Button>
-          {currentAmount && (
-            <Button variant='ghost' mr={3} onClick={handleClear}>
-              {translate('common.clear')}
+      {isModal && (
+        <Display.Desktop>
+          <ModalHeader>
+            <Text translation={'modals.receive.setAmount'} />
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl textAlign='center'>
+              <NumberFormat
+                customInput={Input}
+                value={amountInput}
+                onValueChange={handleValueChange}
+                placeholder={`0 ${symbol.toUpperCase()}`}
+                data-test='receive-amount-input'
+                inputMode='decimal'
+                autoFocus
+                size='lg'
+                fontSize='xl'
+                fontWeight='semibold'
+                textAlign='center'
+                variant='flushed'
+                suffix={` ${symbol.toUpperCase()}`}
+                isNumericString
+              />
+              <Text
+                fontSize='sm'
+                color='text.subtle'
+                mt={2}
+                translation={'modals.receive.amountNote'}
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant='ghost' mr={3} onClick={onClose}>
+              {translate('common.cancel')}
             </Button>
-          )}
-          <Button colorScheme='blue' onClick={handleConfirm}>
-            {translate('common.confirm')}
-          </Button>
-        </ModalFooter>
-      </Display.Desktop>
+            {currentAmount && (
+              <Button variant='ghost' mr={3} onClick={handleClear}>
+                {translate('common.clear')}
+              </Button>
+            )}
+            <Button colorScheme='blue' onClick={handleConfirm}>
+              {translate('common.confirm')}
+            </Button>
+          </ModalFooter>
+        </Display.Desktop>
+      )}
     </>
   )
 }
@@ -192,9 +196,10 @@ export const ReceiveAmount = ({
         symbol={symbol}
         currentAmount={currentAmount}
         onConfirm={onConfirm}
+        isModal={isModal}
       />
     ),
-    [onClose, symbol, currentAmount, onConfirm],
+    [onClose, symbol, currentAmount, onConfirm, isModal],
   )
 
   if (isModal) {

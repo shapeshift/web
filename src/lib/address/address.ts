@@ -1,8 +1,20 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  bchChainId,
+  btcChainId,
+  CHAIN_NAMESPACE,
+  dogeChainId,
+  ethChainId,
+  fromAssetId,
+  ltcChainId,
+  toAssetId,
+  toChainId,
+} from '@shapeshiftoss/caip'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
-import type { Address } from 'viem'
+import type { Address, Hex } from 'viem'
+import { fromHex, isHex } from 'viem'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -10,6 +22,9 @@ import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { store } from '@/state/store'
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -25,31 +40,108 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
 
 const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
-export const parseMaybeUrlWithChainId = ({
+const parseMaybeAmountCryptoPrecision = ({
+  rawAmount,
   assetId,
-  chainId,
+}: {
+  rawAmount: string
+  assetId: AssetId
+}): string | undefined => {
+  const decimalPlaces = bnOrZero(rawAmount).decimalPlaces()
+  const hasDecimalPlaces = decimalPlaces !== null && decimalPlaces > 0
+  const isScientificNotation = rawAmount.toLowerCase().includes('e')
+  const isFloatAmount = hasDecimalPlaces && !isScientificNotation
+  const isEvmChain = fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.Evm
+
+  if (isFloatAmount && isEvmChain) {
+    // According to ERC-681, amount must be in base unit - but some wallets are particularly derp e.g Trust.
+    // For ints, we'll just parse it wrong and that's their fault, but at least for floats, we can detect that
+    // it's a float and notice they've done the base unit dance wrong and handle gracefully.
+    return rawAmount
+  }
+
+  if (!isFloatAmount) {
+    const asset = selectAssetById(store.getState(), assetId)
+    return asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
+  }
+
+  return undefined
+}
+
+export const parseMaybeUrlWithChainId = ({
+  assetId: inputAssetId,
+  chainId: inputChainId,
   urlOrAddress,
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
-  switch (chainId) {
+  switch (inputChainId) {
     case ethChainId:
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
 
-        if (parsedUrl.parameters?.address) {
-          throw new Error(DANGEROUS_ETH_URL_ERROR)
+        const chainId = (() => {
+          if (!parsedUrl.chain_id) return inputChainId
+
+          // fuarking specs mang: types say this should be a stringified number and so does the spec,
+          // but in reality may be an hex string e.g ethereum:0xSomeAddy@0xa4b1 (arbitrum)
+          if (isHex(parsedUrl.chain_id)) {
+            return toChainId({
+              chainNamespace: CHAIN_NAMESPACE.Evm,
+              chainReference: fromHex(
+                parsedUrl.chain_id as Hex,
+                'number',
+              ).toString() as ChainReference,
+            })
+          }
+
+          // Assume it's a stringified number
+          return toChainId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: parsedUrl.chain_id as ChainReference,
+          })
+        })()
+
+        // https://eips.ethereum.org/EIPS/eip-681
+        // Technically, `transfer` method is the only discriminator needed to detect ERC-20 transfer intents, but let's not assume specs are honoured across
+        // wallets, and let's add address (destination) and target_address (contract) checks here to be sure
+        // e.g `ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1`
+        if (
+          parsedUrl.function_name === 'transfer' &&
+          parsedUrl.parameters?.address &&
+          parsedUrl.target_address
+        ) {
+          const tokenAssetId = toAssetId({
+            chainId,
+            assetNamespace: ASSET_NAMESPACE.erc20,
+            assetReference: parsedUrl.target_address.toLowerCase(),
+          })
+
+          const asset = selectAssetById(store.getState(), tokenAssetId)
+          if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
+
+          const amountCryptoPrecision = parsedUrl.parameters.uint256
+            ? fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+            : undefined
+
+          return {
+            assetId: tokenAssetId,
+            maybeAddress: parsedUrl.parameters.address,
+            chainId,
+            ...(amountCryptoPrecision && { amountCryptoPrecision }),
+          }
         }
+
+        // Native EVM asset transfers
+        const assetId = inputAssetId || getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+        const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+        const amountCryptoPrecision =
+          rawAmount && assetId ? parseMaybeAmountCryptoPrecision({ rawAmount, assetId }) : undefined
 
         return {
           assetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
           chainId,
-          ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-            ? {
-                amountCryptoPrecision: bnOrZero(
-                  parsedUrl.parameters.value ?? parsedUrl.parameters.amount,
-                ).toFixed(),
-              }
-            : {}),
+          ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -65,12 +157,12 @@ export const parseMaybeUrlWithChainId = ({
     case dogeChainId:
     case ltcChainId:
       try {
-        const urnScheme = CHAIN_ID_TO_URN_SCHEME[chainId]
+        const urnScheme = CHAIN_ID_TO_URN_SCHEME[inputChainId]
         const parsedUrl = bip21.decode(urlOrAddress, urnScheme)
         return {
-          assetId,
+          assetId: inputAssetId,
           maybeAddress: parsedUrl.address,
-          chainId,
+          chainId: inputChainId,
           ...(parsedUrl.options?.amount
             ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
             : {}),
@@ -84,10 +176,10 @@ export const parseMaybeUrlWithChainId = ({
       }
       break
     default:
-      return { assetId, chainId, maybeAddress: urlOrAddress }
+      return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
   }
 
-  return { assetId, chainId, maybeAddress: urlOrAddress }
+  return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
 }
 
 export const parseMaybeUrl = async ({
@@ -105,13 +197,14 @@ export const parseMaybeUrl = async ({
 
       if (!adapter) throw new Error('Adapter not found')
 
-      const assetId = adapter.getFeeAssetId()
+      const defaultAssetId = adapter.getFeeAssetId()
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
+        const finalAssetId = maybeUrl.assetId || defaultAssetId
         return {
           chainId,
           value: urlOrAddress,
-          assetId,
+          assetId: finalAssetId,
           amountCryptoPrecision: maybeUrl.amountCryptoPrecision,
         }
       }
@@ -122,12 +215,12 @@ export const parseMaybeUrl = async ({
         return {
           chainId,
           value: urlOrAddress,
-          assetId,
+          assetId: defaultAssetId,
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       // We want this actual error to be rethrown as it's eventually user-facing
-      if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      if (error instanceof Error && error.message === DANGEROUS_ETH_URL_ERROR) throw error
       // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
       // Swallow the error and continue
     }

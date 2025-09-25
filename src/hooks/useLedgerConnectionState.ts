@@ -36,7 +36,7 @@ export const useLedgerConnectionState = () => {
         device: event.device.productName,
         vendorId: event.device.vendorId,
         productId: event.device.productId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
       setDeviceState('connected')
     }
@@ -48,7 +48,7 @@ export const useLedgerConnectionState = () => {
         device: event.device.productName,
         vendorId: event.device.vendorId,
         productId: event.device.productId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
       setDeviceState('disconnected')
     }
@@ -71,16 +71,16 @@ export const useLedgerConnectionState = () => {
           ledgerDevices: devices.filter(isLedgerDevice).map(d => ({
             productName: d.productName,
             vendorId: d.vendorId,
-            productId: d.productId
+            productId: d.productId,
           })),
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })
         const hasLedger = devices.some(isLedgerDevice)
         const newState = hasLedger ? 'connected' : 'disconnected'
         console.log('[Ledger Debug] Initial device state set:', { state: newState })
         setDeviceState(newState)
       } catch (error) {
-        console.log('[Ledger Debug] Initial USB check failed:', { error: error.message })
+        console.log('[Ledger Debug] Initial USB check failed:', { error: (error as any)?.message })
         setDeviceState('unknown')
       }
     }
@@ -157,7 +157,7 @@ export const useLedgerConnectionState = () => {
       hasWalletInfo: !!state.walletInfo,
       shouldDisconnectWallet,
       deviceState,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     if (!shouldDisconnectWallet) return
@@ -169,7 +169,7 @@ export const useLedgerConnectionState = () => {
       // Check if still disconnected after debounce period
       if (deviceState === 'disconnected') {
         console.log('[Ledger Debug] Disconnecting wallet after debounce period')
-        
+
         dispatch({
           type: WalletActions.SET_IS_CONNECTED,
           payload: false,

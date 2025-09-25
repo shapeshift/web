@@ -17,6 +17,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
+import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { PublicKey } from '@solana/web3.js'
 import { bech32 } from 'bech32'
@@ -24,15 +25,6 @@ import WAValidator from 'multicoin-address-validator'
 import { isAddress } from 'viem'
 
 import { accountToPortfolio } from '@/state/slices/portfolioSlice/utils'
-
-// Import chain ID helpers (simplified versions)
-const chainIdToChainLabel = (chainId: string) => {
-  if (chainId.includes('bitcoin')) return 'bitcoin'
-  if (chainId.includes('litecoin')) return 'litecoin'
-  if (chainId.includes('dogecoin')) return 'dogecoin'
-  if (chainId.includes('bitcoincash')) return 'bitcoincash'
-  return 'bitcoin' // default fallback
-}
 
 type MockChainIds =
   | KnownChainIds.EthereumMainnet
@@ -58,7 +50,7 @@ export const mockUpsertPortfolio = (accounts: Account<MockChainIds>[], assetIds:
 }
 
 // Real chain adapter validation implementations
-const validateBitcoinAddress = (address: string, chainId: string) => {
+const validateUtxoAddress = (address: string, chainId: string) => {
   const chainLabel = chainIdToChainLabel(chainId)
   const isValidAddress = WAValidator.validate(address, chainLabel)
   return { valid: isValidAddress }
@@ -85,7 +77,7 @@ export const mockChainAdapters = new Map([
       getFeeAssetId: () => btcAssetId,
       getDisplayName: () => 'Bitcoin',
       validateAddress: (address: string) =>
-        validateBitcoinAddress(address, KnownChainIds.BitcoinMainnet),
+        validateUtxoAddress(address, KnownChainIds.BitcoinMainnet),
     },
   ],
   [
@@ -219,7 +211,7 @@ export const mockChainAdapters = new Map([
       getFeeAssetId: () => dogeAssetId,
       getDisplayName: () => 'Dogecoin',
       validateAddress: (address: string) =>
-        validateBitcoinAddress(address, KnownChainIds.DogecoinMainnet),
+        validateUtxoAddress(address, KnownChainIds.DogecoinMainnet),
     },
   ],
   [
@@ -228,7 +220,7 @@ export const mockChainAdapters = new Map([
       getFeeAssetId: () => ltcAssetId,
       getDisplayName: () => 'Litecoin',
       validateAddress: (address: string) =>
-        validateBitcoinAddress(address, KnownChainIds.LitecoinMainnet),
+        validateUtxoAddress(address, KnownChainIds.LitecoinMainnet),
     },
   ],
 ])

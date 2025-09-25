@@ -208,5 +208,3 @@ export const ReceiveAmount = ({
 
   return content
 }
-
-export { ReceiveAmountContent }

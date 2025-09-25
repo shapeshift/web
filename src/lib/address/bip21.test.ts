@@ -362,7 +362,6 @@ describe('parseUrlDirect', () => {
         maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
       })
     })
-
   })
 
   describe('Edge cases', () => {

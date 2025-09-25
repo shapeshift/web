@@ -79,22 +79,39 @@ const AmountModal = ({
   isOpen,
   onClose,
   symbol,
-  amountInput,
-  onAmountInputChange,
+  currentAmount,
   onConfirm,
-  onClear,
-  receiveAmount,
 }: {
   isOpen: boolean
   onClose: () => void
   symbol: string
-  amountInput: string
-  onAmountInputChange: () => (e: React.ChangeEvent<HTMLInputElement>) => void
-  onConfirm: () => void
-  onClear: () => void
-  receiveAmount?: string
+  currentAmount?: string
+  onConfirm: (amount: string | undefined) => void
 }) => {
+  const [amountInput, setAmountInput] = useState('')
   const translate = useTranslate()
+
+  // Reset input when modal opens with current amount
+  useEffect(() => {
+    if (isOpen) {
+      setAmountInput(currentAmount ?? '')
+    }
+  }, [isOpen, currentAmount])
+
+  const handleInputChange = useCallback(
+    () => (e: React.ChangeEvent<HTMLInputElement>) => setAmountInput(e.target.value),
+    [],
+  )
+
+  const handleConfirm = useCallback(() => {
+    onConfirm(amountInput || undefined)
+    onClose()
+  }, [amountInput, onConfirm, onClose])
+
+  const handleClear = useCallback(() => {
+    onConfirm(undefined)
+    onClose()
+  }, [onConfirm, onClose])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -109,8 +126,8 @@ const AmountModal = ({
             </FormLabel>
             <Input
               value={amountInput}
-              onChange={onAmountInputChange()}
-              placeholder='Enter amount'
+              onChange={handleInputChange()}
+              placeholder={translate('common.enterAmount')}
               data-test='receive-amount-input'
               type='text'
               inputMode='decimal'
@@ -127,12 +144,12 @@ const AmountModal = ({
           <Button variant='ghost' mr={3} onClick={onClose}>
             {translate('common.cancel')}
           </Button>
-          {receiveAmount && (
-            <Button variant='ghost' mr={3} onClick={onClear}>
+          {currentAmount && (
+            <Button variant='ghost' mr={3} onClick={handleClear}>
               {translate('common.clear')}
             </Button>
           )}
-          <Button colorScheme='blue' onClick={onConfirm}>
+          <Button colorScheme='blue' onClick={handleConfirm}>
             {translate('common.confirm')}
           </Button>
         </ModalFooter>
@@ -150,7 +167,6 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const [receiveAmount, setReceiveAmount] = useState<string | undefined>()
-  const [amountInput, setAmountInput] = useState<string>('')
   const {
     isOpen: isAmountModalOpen,
     onOpen: onAmountModalOpen,
@@ -251,25 +267,12 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   }, [receiveAddress, symbol, toast, translate])
 
   const handleSetAmount = useCallback(() => {
-    setAmountInput(receiveAmount ?? '')
     onAmountModalOpen()
-  }, [receiveAmount, onAmountModalOpen])
+  }, [onAmountModalOpen])
 
-  const handleAmountConfirm = useCallback(() => {
-    setReceiveAmount(amountInput || undefined)
-    onAmountModalClose()
-  }, [amountInput, onAmountModalClose])
-
-  const handleAmountInputChange = useCallback(
-    () => (e: React.ChangeEvent<HTMLInputElement>) => setAmountInput(e.target.value),
-    [],
-  )
-
-  const handleAmountClear = useCallback(() => {
-    setReceiveAmount(undefined)
-    setAmountInput('')
-    onAmountModalClose()
-  }, [onAmountModalClose])
+  const handleAmountConfirm = useCallback((amount: string | undefined) => {
+    setReceiveAmount(amount)
+  }, [])
 
   const onlySendTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.receive.onlySend', { symbol: symbol.toUpperCase() }],
@@ -297,27 +300,26 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           fontSize='md'
           fontWeight='bold'
         />
-        {amountUserCurrency && bnOrZero(amountUserCurrency).gt(0) && (
-          <Amount.Fiat
-            prefix='(≈'
-            suffix=')'
-            value={amountUserCurrency}
-            fontSize='sm'
-            color='text.subtle'
-            noSpace={true}
-          />
-        )}
+        <Amount.Fiat
+          prefix='(≈'
+          suffix=')'
+          value={amountUserCurrency}
+          fontSize='sm'
+          color='text.subtle'
+          noSpace={true}
+        />
       </Flex>
     )
   }, [receiveAmount, symbol, amountUserCurrency])
 
   const qrCodeText = useMemo(() => {
-    const generatedText = generateReceiveQrAddress({
-      receiveAddress: receiveAddress ?? '',
+    if (!receiveAddress) return ''
+
+    return generateReceiveQrAddress({
+      receiveAddress,
       asset,
       amountCryptoPrecision: receiveAmount,
     })
-    return generatedText
   }, [receiveAddress, asset, receiveAmount])
 
   return (
@@ -495,11 +497,8 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
         isOpen={isAmountModalOpen}
         onClose={onAmountModalClose}
         symbol={symbol}
-        amountInput={amountInput}
-        onAmountInputChange={handleAmountInputChange}
+        currentAmount={receiveAmount}
         onConfirm={handleAmountConfirm}
-        onClear={handleAmountClear}
-        receiveAmount={receiveAmount}
       />
     </>
   )

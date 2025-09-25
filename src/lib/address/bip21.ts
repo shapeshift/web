@@ -108,24 +108,11 @@ export const parseBip21Url = (url: string): ParseUrlDirectResult => {
     throw new Error(EMPTY_ADDRESS_ERROR)
   }
 
-  const assetId =
-    getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ??
-    (() => {
-      const slip44References: Record<string, string> = {
-        'bip122:000000000019d6689c085ae165831e93': ASSET_REFERENCE.Bitcoin,
-        'bip122:00000000001a91e3dace36e2be3bf030': ASSET_REFERENCE.Dogecoin,
-        'bip122:12a765e31ffd4059bada1e25190f6e98': ASSET_REFERENCE.Litecoin,
-        'bip122:000000000000000000651ef99cb9fcbe': ASSET_REFERENCE.BitcoinCash,
-      }
+  const assetId = getChainAdapterManager().get(detectedChainId)?.getFeeAssetId()
 
-      const slip44Reference = slip44References[detectedChainId] || ASSET_REFERENCE.Ethereum
-
-      return toAssetId({
-        chainId: detectedChainId,
-        assetNamespace: ASSET_NAMESPACE.slip44,
-        assetReference: slip44Reference,
-      })
-    })()
+  if (!assetId) {
+    throw new Error(`Chain adapter not found for chain ${detectedChainId}`)
+  }
 
   const result: ParseUrlDirectResult = {
     assetId,
@@ -142,7 +129,7 @@ export const parseBip21Url = (url: string): ParseUrlDirectResult => {
 export const parseSolanaPayUrl = (url: string): ParseUrlDirectResult => {
   const parsed = parseSolanaPayURL(url)
 
-  // Type guard to ensure we have a TransferRequestURL (not TransactionRequestURL)
+  // We should always have a destination addy
   if (!('recipient' in parsed)) {
     throw new Error('Invalid Solana Pay URL: TransactionRequestURLs not supported')
   }

@@ -53,8 +53,6 @@ export const generateReceiveQrText = ({
         const { assetReference } = fromAssetId(assetId)
         return encodeURL({
           recipient: new PublicKey(receiveAddress),
-          // @ts-expect-error - Version discrepancy between @solana/pay BigNumber (v8.1.0) and our BigNumber (v7.2.1)
-          // See: https://github.com/MikeMcl/bignumber.js/blob/main/CHANGELOG.md#810
           amount: bnOrZero(amountCryptoPrecision),
           splToken: new PublicKey(assetReference),
         }).toString()
@@ -62,8 +60,6 @@ export const generateReceiveQrText = ({
 
       return encodeURL({
         recipient: new PublicKey(receiveAddress),
-        // @ts-expect-error - Version discrepancy between @solana/pay BigNumber (v8.1.0) and our BigNumber (v7.2.1)
-        // See: https://github.com/MikeMcl/bignumber.js/blob/main/CHANGELOG.md#810
         amount: bnOrZero(amountCryptoPrecision),
       }).toString()
     }

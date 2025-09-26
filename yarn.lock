@@ -10797,7 +10797,7 @@ __metadata:
     axios: ^1.12.0
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
-    bignumber.js: ^9.1.2
+    bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
     bs58check: ^2.1.2
@@ -15922,7 +15922,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.1.0":
+"bignumber.js@npm:^9.1.0, bignumber.js@npm:^9.3.1":
   version: 9.3.1
   resolution: "bignumber.js@npm:9.3.1"
   checksum: 6ab100271a23a75bb8b99a4b1a34a1a94967ac0b9a52a198147607bd91064e72c6f356380d7a09cd687bf50d81ad2ed1a0a8edfaa90369c9003ed8bb2440d7f0

@@ -230,8 +230,8 @@ export const ShapeShiftMenu = () => {
                 <FooterLink href='https://snapshot.org/#/shapeshiftdao.eth' isExternal>
                   {translate('shapeShiftMenu.footer.governance')}
                 </FooterLink>
-                <FooterLink href='https://shapeshift.notion.site/' isExternal>
-                  {translate('shapeShiftMenu.footer.documentation')}
+                <FooterLink href='https://shapeshift.com/support' isExternal>
+                  {translate('shapeShiftMenu.footer.support')}
                 </FooterLink>
                 <FooterLink href='https://shapeshift.com/blog' isExternal>
                   {translate('shapeShiftMenu.footer.blog')}

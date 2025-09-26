@@ -41,6 +41,7 @@ export const useLedgerConnectionState = () => {
       setDeviceState('disconnected')
     }
   }, [])
+
   useEffect(() => {
     // Only enable USB monitoring for users who have previously connected a Ledger
     // This ensures no shenanigans re: new Ledger USB detection logic for the very initial state of

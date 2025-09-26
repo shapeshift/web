@@ -13,6 +13,8 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom'
 
+import { useHoverIntent } from '@/hooks/useHoverIntent'
+
 const menuButtonHoverSx = { bg: 'background.surface.elevated' }
 const menuButtonActiveSx = { bg: 'transparent' }
 
@@ -34,6 +36,8 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const location = useLocation()
   const navigate = useNavigate()
   const translate = useTranslate()
+
+  const { handleMouseEnter, handleMouseLeave } = useHoverIntent(isOpen, onOpen, onClose)
 
   const handleClick = useCallback(() => navigate(defaultPath), [navigate, defaultPath])
 
@@ -63,14 +67,19 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       top: '100%',
       left: 0,
       right: 0,
-      height: '10px',
+      height: '20px',
       display: isOpen ? 'block' : 'none',
     }),
     [isOpen],
   )
 
   return (
-    <Box onMouseEnter={onOpen} onMouseLeave={onClose} position='relative' _after={afterSx}>
+    <Box
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      position='relative'
+      _after={afterSx}
+    >
       <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
         <MenuButton
           as={Button}

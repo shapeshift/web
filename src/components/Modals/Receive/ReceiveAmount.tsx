@@ -145,7 +145,13 @@ const ReceiveAmountContent = ({
               {translate('common.clear')}
             </Button>
           )}
-          <Button colorScheme='blue' flex={1} size='lg' onClick={handleConfirm}>
+          <Button
+            colorScheme='blue'
+            flex={1}
+            size='lg'
+            onClick={handleConfirm}
+            isDisabled={!amountInput}
+          >
             {translate('common.confirm')}
           </Button>
         </DialogFooter>
@@ -194,7 +200,7 @@ const ReceiveAmountContent = ({
                 {translate('common.clear')}
               </Button>
             )}
-            <Button colorScheme='blue' onClick={handleConfirm}>
+            <Button colorScheme='blue' onClick={handleConfirm} isDisabled={!amountInput}>
               {translate('common.confirm')}
             </Button>
           </ModalFooter>

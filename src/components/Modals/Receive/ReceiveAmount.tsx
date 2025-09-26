@@ -164,6 +164,9 @@ const ReceiveAmountContent = ({
                 onValueChange={handleValueChange}
                 placeholder={`0 ${symbol.toUpperCase()}`}
                 data-test='receive-amount-input'
+                decimalSeparator={localeParts.decimal}
+                thousandSeparator={localeParts.group}
+                allowedDecimalSeparators={allowedDecimalSeparators}
                 inputMode='decimal'
                 autoFocus
                 size='lg'

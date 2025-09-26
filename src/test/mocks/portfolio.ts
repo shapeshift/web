@@ -6,13 +6,23 @@ import {
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
+  dogeAssetId,
   ethAssetId,
+  gnosisAssetId,
+  ltcAssetId,
+  mayachainAssetId,
   optimismAssetId,
   polygonAssetId,
+  solAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
+import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { PublicKey } from '@solana/web3.js'
+import { bech32 } from 'bech32'
+import WAValidator from 'multicoin-address-validator'
+import { isAddress } from 'viem'
 
 import { accountToPortfolio } from '@/state/slices/portfolioSlice/utils'
 
@@ -39,12 +49,35 @@ export const mockUpsertPortfolio = (accounts: Account<MockChainIds>[], assetIds:
   return accountToPortfolio({ portfolioAccounts, assetIds })
 }
 
+// Real chain adapter validation implementations
+const validateUtxoAddress = (address: string, chainId: string) => {
+  const chainLabel = chainIdToChainLabel(chainId)
+  const isValidAddress = WAValidator.validate(address, chainLabel)
+  return { valid: isValidAddress }
+}
+
+const validateEthereumAddress = (address: string) => {
+  const isValidAddress = isAddress(address)
+  return { valid: isValidAddress }
+}
+
+const validateSolanaAddress = (address: string) => {
+  try {
+    new PublicKey(address)
+    return { valid: true }
+  } catch (err) {
+    return { valid: false }
+  }
+}
+
 export const mockChainAdapters = new Map([
   [
     KnownChainIds.BitcoinMainnet,
     {
       getFeeAssetId: () => btcAssetId,
       getDisplayName: () => 'Bitcoin',
+      validateAddress: (address: string) =>
+        validateUtxoAddress(address, KnownChainIds.BitcoinMainnet),
     },
   ],
   [
@@ -52,6 +85,14 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => cosmosAssetId,
       getDisplayName: () => 'Cosmos',
+      validateAddress: (address: string) => {
+        try {
+          const { prefix } = bech32.decode(address)
+          return prefix === 'cosmos' ? { valid: true } : { valid: false }
+        } catch {
+          return { valid: false }
+        }
+      },
     },
   ],
   [
@@ -59,6 +100,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => ethAssetId,
       getDisplayName: () => 'Ethereum',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -66,6 +108,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => avalancheAssetId,
       getDisplayName: () => 'Avalanche',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -73,6 +116,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => optimismAssetId,
       getDisplayName: () => 'Optimism',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -80,6 +124,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => bscAssetId,
       getDisplayName: () => 'Binance Smart Chain',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -87,6 +132,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => polygonAssetId,
       getDisplayName: () => 'Polygon',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -94,6 +140,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => arbitrumAssetId,
       getDisplayName: () => 'Arbitrum One',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -101,6 +148,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => arbitrumNovaAssetId,
       getDisplayName: () => 'Arbitrum Nova',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -108,6 +156,7 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => baseAssetId,
       getDisplayName: () => 'Base',
+      validateAddress: validateEthereumAddress,
     },
   ],
   [
@@ -115,6 +164,63 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => thorchainAssetId,
       getDisplayName: () => 'Thorchain',
+      validateAddress: (address: string) => {
+        try {
+          const { prefix } = bech32.decode(address)
+          return prefix === 'thor' ? { valid: true } : { valid: false }
+        } catch {
+          return { valid: false }
+        }
+      },
+    },
+  ],
+  [
+    KnownChainIds.MayachainMainnet,
+    {
+      getFeeAssetId: () => mayachainAssetId,
+      getDisplayName: () => 'Mayachain',
+      validateAddress: (address: string) => {
+        try {
+          const { prefix } = bech32.decode(address)
+          return prefix === 'maya' ? { valid: true } : { valid: false }
+        } catch {
+          return { valid: false }
+        }
+      },
+    },
+  ],
+  [
+    KnownChainIds.SolanaMainnet,
+    {
+      getFeeAssetId: () => solAssetId,
+      getDisplayName: () => 'Solana',
+      validateAddress: validateSolanaAddress,
+    },
+  ],
+  [
+    KnownChainIds.GnosisMainnet,
+    {
+      getFeeAssetId: () => gnosisAssetId,
+      getDisplayName: () => 'Gnosis',
+      validateAddress: validateEthereumAddress,
+    },
+  ],
+  [
+    KnownChainIds.DogecoinMainnet,
+    {
+      getFeeAssetId: () => dogeAssetId,
+      getDisplayName: () => 'Dogecoin',
+      validateAddress: (address: string) =>
+        validateUtxoAddress(address, KnownChainIds.DogecoinMainnet),
+    },
+  ],
+  [
+    KnownChainIds.LitecoinMainnet,
+    {
+      getFeeAssetId: () => ltcAssetId,
+      getDisplayName: () => 'Litecoin',
+      validateAddress: (address: string) =>
+        validateUtxoAddress(address, KnownChainIds.LitecoinMainnet),
     },
   ],
 ])

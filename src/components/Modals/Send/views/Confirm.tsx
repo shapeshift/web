@@ -184,11 +184,11 @@ export const Confirm = () => {
               </InlineCopyButton>
             </Row.Value>
           </Row>
-          <Row>
+          <Row flexWrap='wrap'>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
-            <Row.Value>
+            <Row.Value fontSize={vanityAddress ? 'sm' : 'md'}>
               <InlineCopyButton value={to}>
                 {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
               </InlineCopyButton>

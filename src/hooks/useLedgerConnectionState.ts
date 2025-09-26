@@ -12,10 +12,7 @@ type LedgerDeviceState = 'connected' | 'disconnected' | 'unknown'
 type ConnectionState = 'idle' | 'attempting' | 'success' | 'failed'
 
 const AUTO_CONNECT_DELAY = 500
-<<<<<<< HEAD
-=======
 // https://github.com/LedgerHQ/ledger-live/blob/c2d2cbcd81fe46ac1967802b3770a05d805a4d0e/libs/ledgerjs/packages/devices/src/index.ts#L147-L161
->>>>>>> origin/develop
 const LEDGER_VENDOR_ID = 0x2c97
 const LEDGER_DEVICE_ID = '0001'
 
@@ -33,8 +30,6 @@ export const useLedgerConnectionState = () => {
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
   )
 
-<<<<<<< HEAD
-=======
   const handleConnect = useCallback((event: USBConnectionEvent) => {
     if (isLedgerDevice(event.device)) {
       setDeviceState('connected')
@@ -46,29 +41,12 @@ export const useLedgerConnectionState = () => {
       setDeviceState('disconnected')
     }
   }, [])
-
->>>>>>> origin/develop
   useEffect(() => {
     // Only enable USB monitoring for users who have previously connected a Ledger
     // This ensures no shenanigans re: new Ledger USB detection logic for the very initial state of
     // no USB perms granted, first time connecting a Ledger to app
     if (!isLedgerReadOnlyEnabled || !navigator.usb || !isPreviousLedgerDeviceDetected) return
 
-<<<<<<< HEAD
-    const handleConnect = (event: USBConnectionEvent) => {
-      if (isLedgerDevice(event.device)) {
-        setDeviceState('connected')
-      }
-    }
-
-    const handleDisconnect = (event: USBConnectionEvent) => {
-      if (isLedgerDevice(event.device)) {
-        setDeviceState('disconnected')
-      }
-    }
-
-=======
->>>>>>> origin/develop
     navigator.usb.addEventListener('connect', handleConnect)
     navigator.usb.addEventListener('disconnect', handleDisconnect)
 
@@ -88,11 +66,7 @@ export const useLedgerConnectionState = () => {
       navigator.usb.removeEventListener('connect', handleConnect)
       navigator.usb.removeEventListener('disconnect', handleDisconnect)
     }
-<<<<<<< HEAD
-  }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected])
-=======
   }, [isLedgerReadOnlyEnabled, isPreviousLedgerDeviceDetected, handleConnect, handleDisconnect])
->>>>>>> origin/develop
 
   const handleAutoConnect = useCallback(async () => {
     if (!isLedgerReadOnlyEnabled || connectionState !== 'idle') {
@@ -107,23 +81,11 @@ export const useLedgerConnectionState = () => {
       return
     }
 
-<<<<<<< HEAD
-    try {
-      const wallet = await adapter.pairDevice().catch(() => null)
-
-      if (wallet) {
-        setConnectionState('success')
-        return
-      }
-    } catch {
-      // Intentionally empty catch block - error is handled below
-=======
     const wallet = await adapter.pairDevice().catch(() => null)
 
     if (wallet) {
       setConnectionState('success')
       return
->>>>>>> origin/develop
     }
 
     // If we reach here, pairing failed - set state based on device connectivity

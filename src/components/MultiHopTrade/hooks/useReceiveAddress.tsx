@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
@@ -27,7 +28,7 @@ export const getReceiveAddress = async ({
   const { accountNumber } = bip44Params
 
   const address = await chainAdapter.getAddress({
-    wallet,
+    wallet: wallet as HDWallet,
     accountNumber,
     accountType,
     pubKey,

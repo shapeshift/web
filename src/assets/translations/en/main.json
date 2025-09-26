@@ -390,10 +390,7 @@
       "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
-<<<<<<< HEAD
       "locked": "(Locked)",
-=======
->>>>>>> origin/develop
       "reconnectWallet": "Reconnect Wallet",
       "walletNotConnected": "Your wallet is not currently connected. This will impact transactions.",
       "connecting": "Connecting..."

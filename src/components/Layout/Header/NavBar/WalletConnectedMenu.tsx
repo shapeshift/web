@@ -137,7 +137,6 @@ const ConnectedMenu = memo(
                     color='yellow.500'
                   />
                 )}
-<<<<<<< HEAD
                 {isLocked && (
                   <Text
                     translation={'connectWallet.menu.locked'}
@@ -145,8 +144,6 @@ const ConnectedMenu = memo(
                     color='yellow.500'
                   />
                 )}
-=======
->>>>>>> origin/develop
               </Flex>
             </MenuItem>
           ) : (

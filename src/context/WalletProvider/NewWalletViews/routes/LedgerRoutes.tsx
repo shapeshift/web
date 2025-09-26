@@ -199,7 +199,7 @@ export const LedgerRoutes = () => {
         isLoading={isLoading}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
-        secondaryButton={secondaryButton}
+        secondaryContent={secondaryButton}
       />
     )
   }, [

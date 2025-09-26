@@ -38,6 +38,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
+import { usePrefetchExploreCategories } from '@/pages/Explore/hooks/usePrefetchExploreCategories'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { selectAssets, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -90,6 +91,8 @@ export const Explore = memo(() => {
   const navigate = useNavigate()
   const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const assetActionsDrawer = useModal('assetActionsDrawer')
+
+  usePrefetchExploreCategories()
 
   const allAssets = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)

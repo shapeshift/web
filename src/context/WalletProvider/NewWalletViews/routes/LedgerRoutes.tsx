@@ -41,7 +41,7 @@ export const LedgerRoutes = () => {
 
   const {
     connectionState,
-    isDisconnected: isUSBDisconnected,
+    isConnected: isUSBConnected,
     handleAutoConnect,
   } = useLedgerConnectionState()
 
@@ -142,7 +142,8 @@ export const LedgerRoutes = () => {
     // 1. Have connected a Ledger before (portfolio data exists)
     // 2. AND have a Ledger physically connected (for the sake of simplicity, we assume USB perms granted, if not, welcome to bugs hell)
     // This ensures first-time users get develop behavior exactly
-    const shouldAttemptAutoConnect = isPreviousLedgerDeviceDetected && !isUSBDisconnected
+    const shouldAttemptAutoConnect =
+      isPreviousLedgerDeviceDetected && isUSBConnected && connectionState === 'idle'
 
     if (!shouldAttemptAutoConnect) return
 
@@ -151,8 +152,9 @@ export const LedgerRoutes = () => {
     modalType,
     isLedgerReadOnlyEnabled,
     isPreviousLedgerDeviceDetected,
-    isUSBDisconnected,
+    isUSBConnected,
     handleAutoConnect,
+    connectionState,
   ])
 
   const secondaryButton = useMemo(
@@ -173,12 +175,9 @@ export const LedgerRoutes = () => {
   )
 
   const ledgerPairElement = useMemo(() => {
-    // Only show loading for explicit user actions, not auto-connect attempts
-    const combinedLoading = isLoading
-
     if (
       isLedgerReadOnlyEnabled &&
-      (connectionState === 'failed' || isUSBDisconnected) &&
+      (connectionState === 'failed' || !isUSBConnected) &&
       isPreviousLedgerDeviceDetected
     ) {
       return <LedgerReadOnlyBody />
@@ -197,16 +196,16 @@ export const LedgerRoutes = () => {
             ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
             : 'walletProvider.ledger.connect.pairNewDeviceButton'
         }
-        isLoading={combinedLoading}
+        isLoading={isLoading}
         error={error ?? deviceCountError}
         onPairDeviceClick={handlePair}
-        secondaryContent={secondaryButton}
+        secondaryButton={secondaryButton}
       />
     )
   }, [
     isLedgerReadOnlyEnabled,
     connectionState,
-    isUSBDisconnected,
+    isUSBConnected,
     deviceCountError,
     error,
     handlePair,

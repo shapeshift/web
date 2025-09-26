@@ -131,7 +131,9 @@ export const Dashboard = memo(() => {
     if (isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger) return
 
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [isLoadingLocalWallet, isConnected, isLedgerReadOnlyEnabled, walletType, walletDispatch])
+    // walletType intentionally excluded to prevent race condition that would reopen the wallet modal after connection on refresh
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoadingLocalWallet, isConnected, isLedgerReadOnlyEnabled, walletDispatch])
 
   const mobileHome = useMemo(() => <MobileHome />, [])
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])

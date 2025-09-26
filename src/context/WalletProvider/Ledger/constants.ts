@@ -15,6 +15,7 @@ import { uniq } from 'lodash'
 import { getSupportedEvmChainIds } from '@/lib/utils/evm'
 
 export const LEDGER_DEVICE_ID = '0001'
+// https://github.com/LedgerHQ/ledger-live/blob/c2d2cbcd81fe46ac1967802b3770a05d805a4d0e/libs/ledgerjs/packages/devices/src/index.ts#L147-L161
 export const LEDGER_VENDOR_ID = 0x2c97
 
 /*

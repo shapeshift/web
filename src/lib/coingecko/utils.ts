@@ -39,6 +39,8 @@ import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { CoinGeckoSortKey } from '@/lib/market-service/coingecko/coingecko'
 import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
+import { selectAssets } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
@@ -47,7 +49,27 @@ const getCoinDetails = async (
   i: number,
   all: CoingeckoAsset[],
 ) => {
+  const assets = selectAssets(store.getState())
+
   try {
+    // First, try to get asset IDs using the adapter
+    const assetIds = adapters.coingeckoToAssetIds(marketCap.id)
+
+    if (assetIds && assetIds.length > 0) {
+      // Check if we already have this asset in memory
+      const existingAsset = assetIds.find(assetId => assets[assetId])
+
+      if (existingAsset) {
+        // We already have this asset, create CoingeckoAsset without details
+        // The existing asset in Redux store already has all the necessary data
+        all[i] = {
+          assetId: existingAsset,
+        }
+        return
+      }
+    }
+
+    // Fallback to individual API call only if we don't have the asset
     const { data } = await queryClient.fetchQuery({
       queryKey: ['coingecko', 'coin', marketCap.id],
       // Shared query across consumers, so make it infinite as there will be a lot of overlap
@@ -137,9 +159,16 @@ export const getCoingeckoMarketsRaw = async (
   page = 1,
   pageSize = 100,
 ): Promise<CoinGeckoMarketCap[]> => {
-  const { data } = await axios.get<CoinGeckoMarketCap[]>(
-    `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
-  )
+  const data = await queryClient.fetchQuery({
+    queryKey: ['coingeckoMarketsRaw', order, page, pageSize],
+    queryFn: async () => {
+      const { data } = await axios.get<CoinGeckoMarketCap[]>(
+        `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
+      )
+      return data
+    },
+    staleTime: Infinity,
+  })
 
   return data
 }
@@ -150,6 +179,7 @@ export const getCoingeckoMarkets = async (
   pageSize = 100,
 ): Promise<CoingeckoAsset[]> => {
   const data = await getCoingeckoMarketsRaw(order, page, pageSize)
+
   const all: CoingeckoAsset[] = []
 
   await Promise.allSettled(data.map((marketData, i) => getCoinDetails(marketData, i, all)))

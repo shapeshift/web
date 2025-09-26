@@ -52,7 +52,7 @@ export const useHasAppUpdated = (): { hasUpdated: boolean; initialMetadata?: Met
     fn() // run this once, makes testing easier
 
     // cleanup
-    return () => clearTimeout(interval)
+    return () => clearInterval(interval)
   }, [fetchData, initialMetadata, isLocalhost, metadataUrl])
 
   if (isLocalhost) return { hasUpdated: false, initialMetadata } // never return true on localhost

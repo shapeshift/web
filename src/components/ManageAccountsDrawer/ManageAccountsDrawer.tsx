@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ImportAccounts } from './components/ImportAccounts'
 import { SelectChain } from './components/SelectChain'
 
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 
@@ -21,6 +22,7 @@ export const ManageAccountsDrawer = ({
   chainId: parentSelectedChainId,
 }: ManageAccountsDrawerProps) => {
   const wallet = useWallet().state.wallet
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
@@ -57,12 +59,18 @@ export const ManageAccountsDrawer = ({
     }
   }, [parentSelectedChainId, handleNext, step])
 
-  // Reset the step if the parent chainId is reset
   useEffect(() => {
     if (parentSelectedChainId === null) {
       setStep('selectChain')
     }
   }, [parentSelectedChainId])
+
+  useEffect(() => {
+    // no `wallet`, no accounts management. That would be a dead click if you were to try to connect accounts
+    if (isLedgerReadOnlyEnabled && !wallet && isOpen) {
+      onClose()
+    }
+  }, [isLedgerReadOnlyEnabled, wallet, isOpen, onClose])
 
   const handleSelectChainId = useCallback(
     (chainId: ChainId) => {

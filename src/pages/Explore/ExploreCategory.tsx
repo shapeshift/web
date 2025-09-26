@@ -42,7 +42,9 @@ export const ExploreCategory = () => {
   const assetsById = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(marketData.selectors.selectMarketDataUsd)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
-  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(SortOptionsKeys.Volume)
+  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
+    category === MarketsCategories.MarketCap ? SortOptionsKeys.MarketCap : SortOptionsKeys.Volume,
+  )
   const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)
   const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
 
@@ -73,21 +75,15 @@ export const ExploreCategory = () => {
 
   const rows = useRows({ limit: 250 })
 
-  const {
-    data: categoryQueryData,
-    isLoading: isCategoryQueryDataLoading,
-    isFetching: isCategoryQueryDataFetching,
-  } = categoryHook({
+  const { data: categoryQueryData, isLoading: isCategoryQueryDataLoading } = categoryHook({
     enabled: category !== MarketsCategories.OneClickDefi,
     orderBy: selectedOrder,
     sortBy: selectedSort,
+    page: category === MarketsCategories.MarketCap ? 1 : undefined,
+    limit: category === MarketsCategories.MarketCap ? 250 : undefined,
   })
 
-  const {
-    data: portalsAssets,
-    isLoading: isPortalsAssetsLoading,
-    isFetching: isPortalsAssetsFetching,
-  } = usePortalsAssetsQuery({
+  const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     enabled: true,
     chainIds:
       category && selectedChainId === 'all' ? rows[category].supportedChainIds : [selectedChainId],
@@ -277,10 +273,8 @@ export const ExploreCategory = () => {
             disableUnsupported={false}
             portalsAssets={portalsAssets}
             isLoading={
-              isPortalsAssetsLoading ||
-              isPortalsAssetsFetching ||
-              isCategoryQueryDataLoading ||
-              isCategoryQueryDataFetching
+              (category === MarketsCategories.OneClickDefi && isPortalsAssetsLoading) ||
+              isCategoryQueryDataLoading
             }
             height='100vh'
             showPrice

@@ -1,6 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -96,6 +97,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     (decodedText: string) => {
       ;(async () => {
         try {
+          console.log('QR decode text:', decodedText)
           // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
@@ -113,11 +115,15 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             chainId: maybeUrlResult.chainId,
             urlOrAddress: decodedText,
           }
-          const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+          const { address, vanityAddress } = await parseAddressInputWithChainId(
+            parseAddressInputWithChainIdArgs,
+          )
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)
-          methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
+          methods.setValue(SendFormFields.To, address)
+          methods.setValue(SendFormFields.VanityAddress, vanityAddress)
+
           if (maybeUrlResult.amountCryptoPrecision) {
             const marketData = selectMarketDataByAssetIdUserCurrency(
               store.getState(),
@@ -135,13 +141,24 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          // We don't parse EIP-681 URLs because they're unsafe
-          // Some wallets may be smart, like Trust just showing an address as a QR code to avoid dangerously unsafe parameters
-          // Others might do dangerous tricks in the way they represent an asset, using various parameters to do so
-          // There's also the fact that we will assume the AssetId to be the native one of the first chain we managed to validate the address
-          // Which may not be the chain the user wants to send, or they may want to send a token - so we should always ask the user to select the asset
-          if (maybeUrlResult.assetId === ethAssetId) return navigate(SendRoutes.Select)
-          navigate(SendRoutes.Address)
+          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
+          // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
+          const supportsErc681 =
+            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
+          // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
+          // (although we have heuristics to make it safe)
+          // For the purpose of being spec compliant, we assume that if there was an `amount` field, that means native amount (which it should, according to the spec)
+          // And we then assume native asset transfer as a result - users can always change asset in the amount screen if that was wrong
+          // However, if not asset AND no amount are specific, we don't assume anything, and let em select the asset manually
+          const isAmbiguousTransfer =
+            supportsErc681 &&
+            !isToken(maybeUrlResult.assetId) &&
+            !maybeUrlResult.amountCryptoPrecision
+
+          if (isAmbiguousTransfer) {
+            return navigate(SendRoutes.Select)
+          }
+          return navigate(SendRoutes.Details)
         } catch (e: any) {
           setAddressError(e.message)
         }

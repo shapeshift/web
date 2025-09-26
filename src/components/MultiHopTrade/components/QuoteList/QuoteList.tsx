@@ -30,10 +30,15 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppSelector } from '@/state/store'
 const chevronDownIcon = <ChevronDownIcon />
 
+export type QuotesComponentProps = {
+  onBack?: () => void
+}
+
 export type QuoteListProps = {
   onBack?: () => void
   cardProps?: CardProps
   showQuoteRefreshCountdown?: boolean
+  QuotesComponent?: React.FC<QuotesComponentProps>
 }
 
 const cardHeight = {
@@ -45,6 +50,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
   onBack,
   cardProps,
   showQuoteRefreshCountdown = true,
+  QuotesComponent = TradeQuotes,
 }) => {
   const translate = useTranslate()
 
@@ -64,7 +70,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
       <CardHeader px={4} pt={4} display='flex' alignItems='center' justifyContent='space-between'>
         <Flex alignItems={'center'} gap={2}>
           {onBack && <BackButton ml={-2} onClick={onBack} />}
-          <Heading fontSize='md'>{translate('trade.availableSwappers')}</Heading>
+          <Heading fontSize='md'>{translate('trade.availableQuotes')}</Heading>
         </Flex>
         <Flex alignItems='center' gap={2}>
           <Display.Desktop>
@@ -98,7 +104,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({
         </Flex>
       </CardHeader>
       <CardBody className='scroll-container' px={0} overflowY='auto' flex='1 1 auto'>
-        <TradeQuotes onBack={onBack} />
+        <QuotesComponent onBack={onBack} />
       </CardBody>
     </Card>
   )

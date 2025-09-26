@@ -1,10 +1,12 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Card, HStack, Stack } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { RateGasRow } from '../RateGasRow'
 
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
@@ -30,15 +32,18 @@ export const LimitOrderDetail = () => {
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
+  const swapperIcon = useMemo(() => {
+    return <SwapperIcons swapSource={SwapperName.CowSwap} swapperName={SwapperName.CowSwap} />
+  }, [])
+
   return (
     <RateGasRow
       affiliateBps={DEFAULT_FEE_BPS}
-      buyAssetId={buyAsset?.assetId ?? ''}
-      sellAssetId={sellAsset?.assetId ?? ''}
+      buyAssetSymbol={buyAsset?.symbol ?? ''}
+      sellAssetSymbol={sellAsset?.symbol ?? ''}
       rate={bnOrZero(limitPrice?.buyAssetDenomination).toFixed(buyAsset?.precision ?? 0)}
       networkFeeFiatUserCurrency='0' // no network fees for CoW, this is a message signing
-      swapperName={SwapperName.CowSwap}
-      swapSource={SwapperName.CowSwap}
+      icon={swapperIcon}
       sx={rateGasRowSx}
     >
       <Stack spacing={4} width='full' px={6} py={3}>

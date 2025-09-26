@@ -64,6 +64,7 @@ export const usePortalsAssetsQuery = ({
     staleTime: 60 * 1000 * 5,
     select: tokens => {
       if (!portalsPlatformsData) return
+      if (!enabled) return
 
       return tokens.reduce<PortalsAssets>(
         (acc, token) => {

@@ -74,7 +74,14 @@ export const Address = () => {
           setValue(SendFormFields.VanityAddress, '')
           const { assetId, chainId } = asset
           // this does not throw, everything inside is handled
-          const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
+          const parseAddressInputWithChainIdArgs = {
+            assetId,
+            chainId,
+            urlOrAddress,
+            // i.e that's an address field, not an URL - we do have some relics of URLs working here but that's not expected
+            // and it's half-working at the time of writing in prod, so KISS, no-one uses that anyway, can always bring back as-needed
+            disableUrlParsing: true,
+          }
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )

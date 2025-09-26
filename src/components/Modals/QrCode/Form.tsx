@@ -18,7 +18,8 @@ import { Status } from '../Send/views/Status'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
-import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
+import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -97,27 +98,42 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     (decodedText: string) => {
       ;(async () => {
         try {
-          console.log('QR decode text:', decodedText)
           // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
 
           // This should
-          // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
+          // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount, asset and chainId
+          // - If no valid payment URI, fall back to plain address parsing by exhausting knownChainIds
           // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
           // If no valid asset is found, it should go to the select asset step
-          const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+          const urlDirectResult = parseUrlDirect(decodedText)
+
+          // Attempts parsing as payment URI first, otherwise defaults to address parsing
+          // (finding assetId/chainId by exhausting knownChainIds)
+          const maybeUrlResult = await (() => {
+            if (urlDirectResult)
+              return {
+                assetId: urlDirectResult.assetId,
+                chainId: urlDirectResult.chainId,
+                value: decodedText,
+                amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+              }
+            return parseAddress({ address: decodedText })
+          })()
 
           if (!maybeUrlResult.assetId) return
 
-          const parseAddressInputWithChainIdArgs = {
-            assetId: maybeUrlResult.assetId,
-            chainId: maybeUrlResult.chainId,
-            urlOrAddress: decodedText,
-          }
-          const { address, vanityAddress } = await parseAddressInputWithChainId(
-            parseAddressInputWithChainIdArgs,
-          )
+          const { address, vanityAddress } = urlDirectResult
+            ? {
+                address: urlDirectResult.maybeAddress,
+                vanityAddress: urlDirectResult.maybeAddress,
+              }
+            : await parseAddressInputWithChainId({
+                assetId: maybeUrlResult.assetId,
+                chainId: maybeUrlResult.chainId,
+                urlOrAddress: decodedText,
+              })
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)

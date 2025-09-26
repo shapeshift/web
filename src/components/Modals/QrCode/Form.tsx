@@ -33,6 +33,8 @@ type QrCodeFormProps = {
 
 const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 
+const formStyle = { height: '100%' }
+
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
@@ -205,7 +207,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-      <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
+      <form
+        onSubmit={methods.handleSubmit(handleSubmit)}
+        onKeyDown={checkKeyDown}
+        style={formStyle}
+      >
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
             <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />

@@ -4,6 +4,8 @@ import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
+export { getBanxaQuote } from './banxa/utils'
+
 export const getSupportedBanxaFiatCurrencies = (): CommonFiatCurrencies[] => {
   return [
     'AED',

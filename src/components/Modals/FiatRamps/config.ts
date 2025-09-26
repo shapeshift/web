@@ -2,7 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
 
 import commonFiatCurrencyList from './FiatCurrencyList.json'
-import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
+import {
+  createBanxaUrl,
+  getBanxaQuote,
+  getSupportedBanxaFiatCurrencies,
+} from './fiatRampProviders/banxa'
 import {
   createCoinbaseUrl,
   getCoinbaseSupportedAssets,
@@ -74,7 +78,7 @@ export const fiatCurrencyObjectsByCode = fiatCurrencyObjects.reduce(
 
 export type GetQuotesProps = {
   fiatCurrency: FiatCurrencyItem
-  crypto: string
+  crypto: AssetId
   amount: string
   direction: 'buy' | 'sell'
 }
@@ -163,7 +167,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),
-    getQuotes: undefined,
+    getQuotes: getBanxaQuote,
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)

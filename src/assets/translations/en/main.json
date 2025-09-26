@@ -431,8 +431,6 @@
       },
       "cosmosOverview": {
         "rewards": "The rewards you earn will accrue automatically.",
-        "cta": "Start Staking",
-        "learnMore": "Learn More",
         "withdrawals": "Unstaking",
         "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"

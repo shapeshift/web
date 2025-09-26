@@ -340,7 +340,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
           {receiveAmountRow}
           <SupportedNetworks asset={asset} />
         </DialogBody>
-        <DialogFooter flexDir='column' py={4}>
+        <DialogFooter flexDir='column' pt={4}>
           <HStack spacing={8} justify='center'>
             <Flex direction='column' align='center' gap={2}>
               <IconButton

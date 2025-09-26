@@ -1,7 +1,7 @@
+import type { InputProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   IconButton,
   Input,
@@ -20,7 +20,12 @@ import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { Display } from '@/components/Display'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 const closeIcon = <TbX />
 
@@ -32,6 +37,25 @@ type ReceiveAmountContentProps = {
   isModal?: boolean
 }
 
+const AmountInput = (props: InputProps) => {
+  return (
+    <Input
+      size='lg'
+      fontSize='65px'
+      lineHeight='65px'
+      fontWeight='bold'
+      textAlign='center'
+      border='none'
+      borderRadius='lg'
+      type='number'
+      bg='transparent'
+      variant='unstyled'
+      color={props.value ? 'text.base' : 'text.subtle'}
+      {...props}
+    />
+  )
+}
+
 const ReceiveAmountContent = ({
   onClose,
   symbol,
@@ -41,6 +65,9 @@ const ReceiveAmountContent = ({
 }: ReceiveAmountContentProps) => {
   const [amountInput, setAmountInput] = useState('')
   const translate = useTranslate()
+  const {
+    number: { localeParts },
+  } = useLocaleFormatter()
 
   useEffect(() => {
     setAmountInput(currentAmount ?? '')
@@ -63,16 +90,11 @@ const ReceiveAmountContent = ({
   return (
     <>
       <Display.Mobile>
-        <Flex direction='column' height='100vh' bg='background.surface.base'>
-          <Flex
-            justify='space-between'
-            align='center'
-            p={4}
-            borderBottom='1px solid'
-            borderColor='border.base'
-          >
-            <Box />
+        <DialogHeader>
+          <DialogHeader.Middle>
             <Text fontSize='lg' fontWeight='semibold' translation={'modals.receive.setAmount'} />
+          </DialogHeader.Middle>
+          <DialogHeader.Right>
             <IconButton
               icon={closeIcon}
               aria-label='Close'
@@ -80,16 +102,21 @@ const ReceiveAmountContent = ({
               size='sm'
               onClick={onClose}
             />
-          </Flex>
+          </DialogHeader.Right>
+        </DialogHeader>
+        <DialogBody>
           <Box flex={1} p={6} display='flex' flexDirection='column' justifyContent='center'>
             <FormControl textAlign='center'>
               <NumberFormat
-                customInput={Input}
+                customInput={AmountInput}
                 value={amountInput}
                 onValueChange={handleValueChange}
                 placeholder={`0 ${symbol.toUpperCase()}`}
                 data-test='receive-amount-input'
+                decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
+                thousandSeparator={localeParts.group}
+                allowedDecimalSeparators={allowedDecimalSeparators}
                 autoFocus
                 size='lg'
                 fontSize='4xl'
@@ -108,20 +135,20 @@ const ReceiveAmountContent = ({
               />
             </FormControl>
           </Box>
-          <Flex p={4} gap={3} borderTop='1px solid' borderColor='border.base'>
-            <Button variant='ghost' flex={1} size='lg' onClick={onClose}>
-              {translate('common.cancel')}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant='ghost' flex={1} size='lg' onClick={onClose}>
+            {translate('common.cancel')}
+          </Button>
+          {currentAmount && (
+            <Button variant='ghost' flex={1} size='lg' onClick={handleClear}>
+              {translate('common.clear')}
             </Button>
-            {currentAmount && (
-              <Button variant='ghost' flex={1} size='lg' onClick={handleClear}>
-                {translate('common.clear')}
-              </Button>
-            )}
-            <Button colorScheme='blue' flex={1} size='lg' onClick={handleConfirm}>
-              {translate('common.confirm')}
-            </Button>
-          </Flex>
-        </Flex>
+          )}
+          <Button colorScheme='blue' flex={1} size='lg' onClick={handleConfirm}>
+            {translate('common.confirm')}
+          </Button>
+        </DialogFooter>
       </Display.Mobile>
       {isModal && (
         <Display.Desktop>

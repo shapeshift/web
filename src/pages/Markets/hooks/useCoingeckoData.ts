@@ -38,6 +38,18 @@ const selectCoingeckoAssets = (
       const assetId = topMover.assetId
       const chainId = fromAssetId(assetId).chainId
       const feeAsset = selectFeeAssetById(store.getState(), assetId)
+
+      // Handle optional details - if we don't have details, we already have the asset
+      if (!topMover.details) {
+        // Asset already exists in store, just add to results
+        if (!acc.chainIds.includes(chainId)) {
+          acc.chainIds.push(chainId)
+        }
+        acc.byId[assetId] = topMover
+        acc.ids.push(assetId)
+        return acc
+      }
+
       const precision =
         topMover.details.detail_platforms[topMover.details.asset_platform_id]?.decimal_place
       if (!feeAsset) return acc
@@ -153,7 +165,9 @@ export const useTopMoversQuery = ({
     queryFn: enabled ? getCoingeckoTopMovers : skipToken,
     staleTime: Infinity,
     select: data =>
-      selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
+      enabled
+        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy)
+        : undefined,
   })
 
   return topMoversQuery
@@ -176,7 +190,9 @@ export const useTrendingQuery = ({
     queryFn: enabled ? getCoingeckoTrending : skipToken,
     staleTime: Infinity,
     select: data =>
-      selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
+      enabled
+        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy)
+        : undefined,
   })
 
   return trendingQuery
@@ -199,7 +215,9 @@ export const useRecentlyAddedQuery = ({
     queryFn: enabled ? getCoingeckoRecentlyAdded : skipToken,
     staleTime: Infinity,
     select: data =>
-      selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
+      enabled
+        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy)
+        : undefined,
   })
 
   return recentlyAddedQuery
@@ -209,10 +227,14 @@ export const useMarketsQuery = ({
   enabled = true,
   orderBy,
   sortBy,
+  page,
+  limit,
 }: {
   orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
   enabled?: boolean
+  page?: number
+  limit?: number
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
@@ -242,10 +264,10 @@ export const useMarketsQuery = ({
   const order: CoinGeckoSortKey = `${prefixOrderBy}_${sort}`
 
   const recentlyAddedQuery = useQuery({
-    queryKey: ['coinGeckoMarkets', order],
-    queryFn: enabled ? () => getCoingeckoMarkets(order) : skipToken,
+    queryKey: ['coinGeckoMarkets', order, page, limit],
+    queryFn: enabled ? () => getCoingeckoMarkets(order, page, limit) : skipToken,
     staleTime: Infinity,
-    select: data => selectCoingeckoAssets(data, dispatch, assets),
+    select: data => (enabled ? selectCoingeckoAssets(data, dispatch, assets) : undefined),
   })
 
   return recentlyAddedQuery

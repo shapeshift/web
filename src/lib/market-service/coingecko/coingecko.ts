@@ -15,6 +15,7 @@ import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
 
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTimeFrameBounds } from '@/lib/utils'
 
@@ -62,10 +63,16 @@ export class CoinGeckoMarketService implements MarketService {
     try {
       const marketData = await Promise.all(
         pageCount.map(async page => {
-          const { data } = await axios.get<CoinGeckoMarketCap>(
-            `${this.baseUrl}/coins/markets?vs_currency=usd&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=false`,
-          )
-          return data ?? []
+          const data = await queryClient.fetchQuery({
+            queryKey: ['coingeckoMarketsRaw', orderBy, page, perPage],
+            queryFn: async () => {
+              const { data } = await axios.get<CoinGeckoMarketCap[]>(
+                `${this.baseUrl}/coins/markets?vs_currency=usd&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=false`,
+              )
+              return data ?? []
+            },
+          })
+          return data
         }),
       )
 

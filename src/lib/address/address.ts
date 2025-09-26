@@ -1,8 +1,27 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  avalancheChainId,
+  baseChainId,
+  bchChainId,
+  bscChainId,
+  btcChainId,
+  CHAIN_NAMESPACE,
+  dogeChainId,
+  ethChainId,
+  gnosisChainId,
+  ltcChainId,
+  optimismChainId,
+  polygonChainId,
+  toAssetId,
+  toChainId,
+} from '@shapeshiftoss/caip'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
-import type { Address } from 'viem'
+import type { Address, Hex } from 'viem'
+import { fromHex, isHex } from 'viem'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -10,6 +29,9 @@ import { knownChainIds } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from '@/lib/address/ens'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { store } from '@/state/store'
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -17,39 +39,160 @@ type VanityAddressValidatorsByChainId = {
 
 const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [ethChainId]: 'ethereum',
+  [arbitrumChainId]: 'arbitrum',
+  [optimismChainId]: 'optimism',
+  [polygonChainId]: 'polygon',
+  [bscChainId]: 'smartchain',
+  [avalancheChainId]: 'avalanchec',
+  [baseChainId]: 'base',
+  [gnosisChainId]: 'xdai',
   [btcChainId]: 'bitcoin',
   [bchChainId]: 'bitcoincash',
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
 
+const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(
+  Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
+)
+
 const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
+const isBip21Url = (urlOrAddress: string): boolean =>
+  Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
+
+const isErc681Url = (urlOrAddress: string): boolean => {
+  // ERC-681 enforces ethereum: prefix regardless of chain
+  if (!urlOrAddress.startsWith('ethereum:')) return false
+
+  try {
+    const parsedUrl = parseEthUrl(urlOrAddress)
+    // ERC-681 specific features: chain_id, function_name, or ERC-681 specific parameters like gas, gasLimit, gasPrice
+    const hasErc681Features = Boolean(parsedUrl.chain_id || parsedUrl.function_name)
+    const hasErc681Params = Boolean(
+      parsedUrl.parameters?.gas || parsedUrl.parameters?.gasLimit || parsedUrl.parameters?.gasPrice,
+    )
+    return hasErc681Features || hasErc681Params
+  } catch {
+    return false
+  }
+}
+
 export const parseMaybeUrlWithChainId = ({
-  assetId,
-  chainId,
+  assetId: inputAssetId,
+  chainId: inputChainId,
   urlOrAddress,
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
-  switch (chainId) {
+  switch (inputChainId) {
     case ethChainId:
+    case arbitrumChainId:
+    case optimismChainId:
+    case polygonChainId:
+    case bscChainId:
+    case avalancheChainId:
+    case baseChainId:
+    case gnosisChainId:
       try {
+        // ERC-681 is a superset of BIP-21, so we first need to check from the lowest common denominator (BIP-21) and then highest (EIP-681)
+        if (isBip21Url(urlOrAddress) && !isErc681Url(urlOrAddress)) {
+          const scheme = urlOrAddress.split(':')[0]
+          if (!scheme || !URN_SCHEME_TO_CHAIN_ID[scheme]) {
+            throw new Error('Invalid BIP-21 URL: scheme not detected')
+          }
+
+          const detectedChainId = URN_SCHEME_TO_CHAIN_ID[scheme]
+
+          if (!detectedChainId) throw new Error('Invalid BIP-21 URL: ChainId not detected')
+
+          const parsedUrl = bip21.decode(urlOrAddress, scheme)
+
+          const chainId = detectedChainId === inputChainId ? inputChainId : detectedChainId
+          const assetId =
+            detectedChainId === inputChainId && inputAssetId
+              ? inputAssetId
+              : getChainAdapterManager().get(detectedChainId)?.getFeeAssetId() ||
+                toAssetId({
+                  chainId: detectedChainId,
+                  assetNamespace: ASSET_NAMESPACE.slip44,
+                  assetReference: ASSET_REFERENCE.Ethereum,
+                })
+
+          return {
+            assetId,
+            maybeAddress: parsedUrl.address,
+            chainId,
+            ...(parsedUrl.options?.amount && {
+              amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed(),
+            }),
+          }
+        }
         const parsedUrl = parseEthUrl(urlOrAddress)
 
-        if (parsedUrl.parameters?.address) {
-          throw new Error(DANGEROUS_ETH_URL_ERROR)
+        const chainId = (() => {
+          if (!parsedUrl.chain_id) return inputChainId
+
+          // fuarking specs mang: types say this should be a stringified number and so does the spec,
+          // but in reality may be an hex string e.g ethereum:0xSomeAddy@0xa4b1 (arbitrum)
+          if (isHex(parsedUrl.chain_id)) {
+            return toChainId({
+              chainNamespace: CHAIN_NAMESPACE.Evm,
+              chainReference: fromHex(
+                parsedUrl.chain_id as Hex,
+                'number',
+              ).toString() as ChainReference,
+            })
+          }
+
+          // Assume it's a stringified number
+          return toChainId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: parsedUrl.chain_id as ChainReference,
+          })
+        })()
+
+        // https://eips.ethereum.org/EIPS/eip-681
+        // Technically, `transfer` method is the only discriminator needed to detect ERC-20 transfer intents, but let's not assume specs are honoured across
+        // wallets, and let's add address (destination) and target_address (contract) checks here to be sure
+        // e.g `ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1`
+        if (
+          parsedUrl.function_name === 'transfer' &&
+          parsedUrl.parameters?.address &&
+          parsedUrl.target_address
+        ) {
+          const tokenAssetId = toAssetId({
+            chainId,
+            assetNamespace: ASSET_NAMESPACE.erc20,
+            assetReference: parsedUrl.target_address.toLowerCase(),
+          })
+
+          const asset = selectAssetById(store.getState(), tokenAssetId)
+          if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
+
+          const amountCryptoPrecision = parsedUrl.parameters.uint256
+            ? fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
+            : undefined
+
+          return {
+            assetId: tokenAssetId,
+            maybeAddress: parsedUrl.parameters.address,
+            chainId,
+            ...(amountCryptoPrecision && { amountCryptoPrecision }),
+          }
         }
+
+        // Native EVM asset transfers
+        const assetId = inputAssetId || getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+        const rawAmount = parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
+        const asset = selectAssetById(store.getState(), assetId ?? '')
+        const amountCryptoPrecision =
+          rawAmount && asset ? fromBaseUnit(rawAmount, asset.precision) : undefined
 
         return {
           assetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,
           chainId,
-          ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
-            ? {
-                amountCryptoPrecision: bnOrZero(
-                  parsedUrl.parameters.value ?? parsedUrl.parameters.amount,
-                ).toFixed(),
-              }
-            : {}),
+          ...(amountCryptoPrecision && { amountCryptoPrecision }),
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -65,12 +208,12 @@ export const parseMaybeUrlWithChainId = ({
     case dogeChainId:
     case ltcChainId:
       try {
-        const urnScheme = CHAIN_ID_TO_URN_SCHEME[chainId]
+        const urnScheme = CHAIN_ID_TO_URN_SCHEME[inputChainId]
         const parsedUrl = bip21.decode(urlOrAddress, urnScheme)
         return {
-          assetId,
+          assetId: inputAssetId,
           maybeAddress: parsedUrl.address,
-          chainId,
+          chainId: inputChainId,
           ...(parsedUrl.options?.amount
             ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
             : {}),
@@ -84,10 +227,10 @@ export const parseMaybeUrlWithChainId = ({
       }
       break
     default:
-      return { assetId, chainId, maybeAddress: urlOrAddress }
+      return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
   }
 
-  return { assetId, chainId, maybeAddress: urlOrAddress }
+  return { assetId: inputAssetId, chainId: inputChainId, maybeAddress: urlOrAddress }
 }
 
 export const parseMaybeUrl = async ({
@@ -105,13 +248,14 @@ export const parseMaybeUrl = async ({
 
       if (!adapter) throw new Error('Adapter not found')
 
-      const assetId = adapter.getFeeAssetId()
+      const defaultAssetId = adapter.getFeeAssetId()
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
+        const finalAssetId = maybeUrl.assetId || defaultAssetId
         return {
           chainId,
           value: urlOrAddress,
-          assetId,
+          assetId: finalAssetId,
           amountCryptoPrecision: maybeUrl.amountCryptoPrecision,
         }
       }
@@ -122,12 +266,12 @@ export const parseMaybeUrl = async ({
         return {
           chainId,
           value: urlOrAddress,
-          assetId,
+          assetId: defaultAssetId,
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       // We want this actual error to be rethrown as it's eventually user-facing
-      if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      if (error instanceof Error && error.message === DANGEROUS_ETH_URL_ERROR) throw error
       // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
       // Swallow the error and continue
     }

@@ -72,7 +72,7 @@ export type RecentlyAddedResponse = RecentlyAddedCoin[]
 
 export type CoingeckoAsset = {
   assetId: AssetId
-  details: CoingeckoAssetDetails
+  details?: CoingeckoAssetDetails
 }
 
 export type CoingeckoList = {

@@ -2,7 +2,6 @@ import { btcChainId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -27,7 +26,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
@@ -165,17 +164,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return input.sendAddress
   })()
 
-  // For bitcoin, we need a btc address, for other chains we need the BASE treasury address
-  // as all fees should be claimed on BASE (see https://docs.relay.link/how-it-works/fees)
-  const affiliateTreasuryAddress = (() => {
-    switch (sellAsset.chainId) {
-      case KnownChainIds.BitcoinMainnet:
-        return getTreasuryAddressFromChainId(sellAsset.chainId)
-      default:
-        return DAO_TREASURY_BASE
-    }
-  })()
-
   const maybeQuote = await fetchRelayTrade(
     {
       originChainId: sellRelayChainId,
@@ -192,7 +180,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       referrer: 'shapeshift',
       appFees: [
         {
-          recipient: affiliateTreasuryAddress,
+          // Relay expects a BASE EVM address for affiliate fees
+          recipient: DAO_TREASURY_BASE,
           fee: affiliateBps,
         },
       ],

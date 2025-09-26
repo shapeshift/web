@@ -73,10 +73,25 @@ export class MarketServiceManager {
     if (isNft(assetId)) {
       return null
     }
+    const assets = this.assetService.assetsById
 
     const result = await (async () => {
+      const portalsProvider = this.marketProviders.find(
+        provider => provider instanceof PortalsMarketService,
+      )
+
+      const asset = assets[assetId]
+
+      // Portals is prioritized when finding by AssetId, as it has more reliable data for LP tokens
+      const prioritizedProviders = asset?.isPool
+        ? [
+            ...(portalsProvider ? [portalsProvider] : []),
+            ...this.marketProviders.filter(provider => !(provider instanceof PortalsMarketService)),
+          ]
+        : this.marketProviders
+
       // Loop through market providers and look for asset market data. Once found, exit loop.
-      for (const provider of this.marketProviders) {
+      for (const provider of prioritizedProviders) {
         try {
           const data = await provider.findByAssetId({ assetId })
           if (data) return data

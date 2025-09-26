@@ -6,6 +6,10 @@ on:
   schedule:
   - cron: '0 9 * * *' # 9AM UTC every day
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   regenerate-and-create-pr:
     runs-on: ubuntu-latest
@@ -40,7 +44,7 @@ jobs:
         run: |
           git checkout -B feat_regenerate_asset_data
           git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name "asset-generation-bot"
           git add -A
           CURRENT_DATE=$(date +'%m/%d/%Y')
           git diff --staged --quiet || git commit -m "feat: regenerate asset data $CURRENT_DATE"
@@ -48,7 +52,7 @@ jobs:
 
       - name: Create Pull Request
         env:
-          GITHUB_TOKEN: ${{ secrets.ZEROXEAN_PUBLIC_REPO_ONLY_GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           CURRENT_DATE=$(date +'%m/%d/%Y')
           gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data $CURRENT_DATE" --body "Generated from CI."

@@ -2,7 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 
-import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
+import {
+  createBanxaUrl,
+  getBanxaQuote,
+  getSupportedBanxaFiatCurrencies,
+} from './fiatRampProviders/banxa'
 import {
   createCoinbaseUrl,
   getCoinbaseSupportedAssets,
@@ -46,7 +50,7 @@ export type RampQuote = {
 
 export type GetQuotesArgs = {
   fiatCurrency: FiatCurrencyItem
-  crypto: string
+  crypto: AssetId
   amount: string
   direction: 'buy' | 'sell'
 }
@@ -135,7 +139,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),
-    getQuotes: noop,
+    getQuotes: getBanxaQuote,
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)

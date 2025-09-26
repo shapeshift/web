@@ -4,6 +4,7 @@ import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
 import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
+export { getBanxaQuote } from './banxa/utils'
 
 export const getSupportedBanxaFiatCurrencies = (): CommonFiatCurrencies[] => {
   return [

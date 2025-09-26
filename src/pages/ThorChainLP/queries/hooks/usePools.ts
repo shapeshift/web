@@ -39,7 +39,7 @@ export const usePools = () => {
           acc.push(pool)
           return acc
         }, [])
-        .sort((a, b) => bn(b.runeDepth).comparedTo(a.runeDepth))
+        .sort((a, b) => bn(b.runeDepth).comparedTo(a.runeDepth) ?? 0)
     },
     [assets, runeMarketData],
   )

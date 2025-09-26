@@ -63,11 +63,11 @@ export const AvailablePools = () => {
       )
     })
 
-    const sortedAvailable = availablePools.sort((a, b) =>
-      bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
+    const sortedAvailable = availablePools.sort(
+      (a, b) => bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)) ?? 0,
     )
-    const sortedOthers = unavailablePools.sort((a, b) =>
-      bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)),
+    const sortedOthers = unavailablePools.sort(
+      (a, b) => bnOrZero(b.tvlFiat).comparedTo(bnOrZero(a.tvlFiat)) ?? 0,
     )
 
     return [...sortedAvailable, ...sortedOthers]

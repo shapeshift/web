@@ -14,17 +14,20 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { TbPencil } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { AnimatedCheck } from '../AnimatedCheck'
+import { useMixpanel } from '../MultiHopTrade/components/TradeConfirm/hooks/useMixpanel'
 import { TooltipWithTouch } from '../TooltipWithTouch'
 import { useQuickBuy } from './hooks/useQuickBuy'
 import { QuickBuyTradeButton } from './QuickBuyTradeButton'
 
 import { Amount } from '@/components/Amount/Amount'
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 
 const editIcon = <Icon as={TbPencil} boxSize={6} color='text.subtle' />
@@ -67,9 +70,13 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
     cancelPurchase()
   }, [cancelPurchase])
 
+  const eventData = useMemo(() => getMixpanelEventData(), [])
+  const trackMixpanelEvent = useMixpanel(eventData)
+
   const handleConfirmPurchase = useCallback((): void => {
+    trackMixpanelEvent(MixPanelEvent.QuickBuyConfirm)
     confirmPurchase()
-  }, [confirmPurchase])
+  }, [confirmPurchase, trackMixpanelEvent])
 
   if (isNativeAsset) {
     // We use native asset as the sell asset right now so can't quick buy it
@@ -110,7 +117,9 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
                     rounded='full'
                     background={isSuccess ? 'green.500' : undefined}
                     // eslint-disable-next-line react-memo/require-usememo
-                    onClick={() => startPurchase(amount)}
+                    onClick={() => {
+                      startPurchase(amount)
+                    }}
                     flex={1}
                     isDisabled={isNotEnoughFunds}
                     fontSize='lg'

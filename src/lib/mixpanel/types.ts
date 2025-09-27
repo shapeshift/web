@@ -74,6 +74,10 @@ export enum MixPanelEvent {
   SendClick = 'Send Click',
   SendBroadcast = 'Send Broadcast',
   HighlightedTokenClicked = 'Highlighted Token Clicked',
+  QuickBuyPreview = 'Quick Buy Preview',
+  QuickBuyConfirm = 'Quick Buy Confirm',
+  QuickBuySuccess = 'Quick Buy Success',
+  QuickBuyFailed = 'Quick Buy Failed',
 }
 
 export type TrackOpportunityProps = {

@@ -39,7 +39,29 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
 
   const { handleMouseEnter, handleMouseLeave } = useHoverIntent(isOpen, onOpen, onClose)
 
-  const handleClick = useCallback(() => navigate(defaultPath), [navigate, defaultPath])
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 1) {
+        // Middle-click
+        e.preventDefault()
+        window.open(`#${defaultPath}`, '_blank')
+      }
+    },
+    [defaultPath],
+  )
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl/Cmd+click
+        e.preventDefault()
+        window.open(`#${defaultPath}`, '_blank')
+      } else {
+        navigate(defaultPath)
+      }
+    },
+    [navigate, defaultPath],
+  )
 
   const isActive = useMemo(() => {
     const currentPath = location.pathname
@@ -86,6 +108,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
           variant='ghost'
           fontWeight='medium'
           onClick={handleClick}
+          onMouseDown={handleMouseDown}
           px={3}
           py={2}
           borderRadius='md'

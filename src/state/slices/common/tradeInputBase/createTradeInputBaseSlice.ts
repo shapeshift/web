@@ -1,4 +1,4 @@
-import type { Draft, PayloadAction } from '@reduxjs/toolkit'
+import type { Draft, PayloadAction, SliceSelectors } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -153,14 +153,17 @@ export type BaseReducers<T extends TradeInputBaseState> = ReturnType<typeof getB
 export function createTradeInputBaseSlice<
   S extends Record<string, any>,
   T extends TradeInputBaseState,
+  U extends SliceSelectors<T> = SliceSelectors<T>,
 >({
   name,
   initialState,
   extraReducers,
+  selectors,
 }: {
   name: string
   initialState: T
   extraReducers: (baseReducers: BaseReducers<T>) => S
+  selectors?: U
 }) {
   const baseReducers = getBaseReducers(initialState)
   return createSlice({
@@ -168,5 +171,6 @@ export function createTradeInputBaseSlice<
     initialState,
     // Note: extraReducers are added last to deliberately override baseReducers where needed
     reducers: { ...baseReducers, ...extraReducers(baseReducers) },
+    selectors,
   })
 }

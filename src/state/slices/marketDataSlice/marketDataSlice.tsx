@@ -77,7 +77,7 @@ export const marketData = createSlice({
           const marketCapA = bnOrZero(marketDataA.marketCap)
           const marketCapB = bnOrZero(marketDataB.marketCap)
 
-          return marketCapB.comparedTo(marketCapA)
+          return marketCapB.comparedTo(marketCapA) ?? 0
         })
 
         // Rebuilds state.crypto.byId with the ordered index we just built above

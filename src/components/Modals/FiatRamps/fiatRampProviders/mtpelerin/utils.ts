@@ -31,7 +31,7 @@ const getMtPelerinSellLimits = async (currency: string): Promise<string | null> 
 }
 
 /**
- * Get Mt Pelerin quote for crypto-fiat conversion
+ * Get Mt Pelerin quote for crypto<->fiat conversion
  */
 export const getMtPelerinQuote = async ({
   fiatCurrency,

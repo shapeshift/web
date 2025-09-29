@@ -55,8 +55,7 @@ export const useLedgerConnectionState = () => {
       try {
         const devices = await navigator.usb.getDevices()
         const hasLedger = devices.some(isLedgerDevice)
-        const newState = hasLedger ? 'connected' : 'disconnected'
-        setDeviceState(newState)
+        setDeviceState(hasLedger ? 'connected' : 'disconnected')
       } catch (error) {
         setDeviceState('unknown')
       }

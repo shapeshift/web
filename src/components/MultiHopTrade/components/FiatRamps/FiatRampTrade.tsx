@@ -318,19 +318,6 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     return selectedQuote.rate
   }, [selectedQuote?.rate, direction])
 
-  const rateValue = useMemo(() => {
-    if (!selectedQuote?.rate) return '1'
-
-    // For buy operations, invert the rate to show "1 BTC = $X" instead of "1 USD = X BTC"
-    if (direction === FiatRampAction.Buy) {
-      const rate = bnOrZero(selectedQuote.rate)
-      if (rate.isZero()) return '1'
-      return bnOrZero(1).div(rate).toString()
-    }
-
-    return selectedQuote.rate
-  }, [selectedQuote?.rate, direction])
-
   const footerContent = useMemo(() => {
     const baseProps = {
       affiliateBps: '0',

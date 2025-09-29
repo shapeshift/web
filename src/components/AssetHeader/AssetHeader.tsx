@@ -95,7 +95,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       </PageHeader.Middle>
       <PageHeader.Right>
         <Display.Desktop>
-          {canDisplayAssetActions ? (
+          {canDisplayAssetActions && (
             <Flex display={displayMdFlex}>
               <AssetActions
                 assetId={assetId}
@@ -103,7 +103,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
                 cryptoBalance={cryptoBalance}
               />
             </Flex>
-          ) : null}
+          )}
         </Display.Desktop>
       </PageHeader.Right>
     </PageHeader>

@@ -1,15 +1,10 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
 import type { ContainerProps } from '@chakra-ui/react'
-import { Flex, Heading, IconButton, Link } from '@chakra-ui/react'
+import { Flex, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, isNft } from '@shapeshiftoss/caip'
-import { isToken } from '@shapeshiftoss/utils'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { AssetActions } from './AssetActions'
-import { WatchAssetButton } from './WatchAssetButton'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { Display } from '@/components/Display'
@@ -34,12 +29,10 @@ type AssetHeaderProps = {
   accountId?: AccountId
 } & ContainerProps
 
-const externalLinkIcon = <ExternalLinkIcon />
 const displayMdFlex = { base: 'none', md: 'flex' }
 const fontSizeMd2xl = { base: 'xl', md: '2xl' }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
-  const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const marketData = useAppSelector(state =>
@@ -69,19 +62,6 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   const formattedPrice = toFiat(marketData?.price ?? '0')
 
-  const href = (() => {
-    const { assetReference } = fromAssetId(asset.assetId)
-
-    if (isNft(asset.assetId)) {
-      const [token] = assetReference.split('/')
-      return `${asset.explorer}/token/${token}?a=${asset.id}`
-    }
-
-    if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
-
-    return asset.explorer
-  })()
-
   if (!chainId) return null
   if (!assetId) return null
 
@@ -96,17 +76,6 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
               <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
                 {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
               </Heading>
-
-              <WatchAssetButton assetId={assetId} />
-              <IconButton
-                as={Link}
-                isExternal
-                href={href}
-                colorScheme='blue'
-                aria-label={translate('defi.viewOnChain')}
-                variant='ghost'
-                icon={externalLinkIcon}
-              />
             </Flex>
           </Flex>
         </Display.Desktop>
@@ -136,9 +105,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             </Flex>
           ) : null}
         </Display.Desktop>
-        <Display.Mobile>
-          <WatchAssetButton assetId={assetId} />
-        </Display.Mobile>
+        <Display.Mobile>{null}</Display.Mobile>
       </PageHeader.Right>
     </PageHeader>
   )

@@ -7,7 +7,6 @@ import { PathIcon } from '@/components/Icons/PathIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
 import { Text } from '@/components/Text'
-import { isSome } from '@/lib/utils'
 import {
   selectBuyFiatCurrency,
   selectInputBuyAsset,
@@ -43,31 +42,33 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
     return direction === FiatRampAction.Buy ? sellFiatAmount : sellAmount
   }, [direction, sellAmount, sellFiatAmount])
 
-  const quotesQueries = useGetRampQuotes({
+  const { queries: quotesQueries, sortedQuotes } = useGetRampQuotes({
     fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency,
     assetId: direction === FiatRampAction.Buy ? buyAsset.assetId : sellAsset.assetId,
     amount: quoteAmount,
     direction,
   })
 
-  const displayQuotes = useMemo(() => {
-    const quotes = quotesQueries.map(query => query.data ?? undefined).filter(isSome)
-
-    if (!quotes || quotes.length === 0) return []
-
-    return quotes
-  }, [quotesQueries])
-
-  // Auto-select the first quote when quotes are available and no quote is selected
-  useEffect(() => {
-    if (displayQuotes.length > 0 && !selectedQuote) {
-      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(displayQuotes[0]))
-    }
-  }, [displayQuotes, selectedQuote, dispatch])
-
   const isQueryLoading = useMemo(() => {
     return quotesQueries.some(query => query.isLoading) || isLoading
   }, [quotesQueries, isLoading])
+
+  // Auto-select the best quote when quotes are available and no quote is selected
+  // This only happens on first load or when amount changes (not on refetch)
+  useEffect(() => {
+    if (isQueryLoading && !selectedQuote) return
+
+    if (sortedQuotes.length > 0) {
+      const bestQuote =
+        sortedQuotes.find(quote => selectedQuote && selectedQuote.provider === quote.provider) ||
+        sortedQuotes[0]
+
+      if (!bestQuote) return
+      if (bestQuote.id === selectedQuote?.id) return
+
+      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(bestQuote))
+    }
+  }, [sortedQuotes, selectedQuote, dispatch, isQueryLoading])
 
   if (isQueryLoading) {
     return (
@@ -81,7 +82,7 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
 
   return (
     <VStack spacing={4} p={4} align='stretch'>
-      {!displayQuotes.length ? (
+      {!sortedQuotes.length ? (
         <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
           <Flex
             maxWidth='300px'
@@ -97,13 +98,13 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
         </Flex>
       ) : null}
 
-      {displayQuotes.map(quote => (
+      {sortedQuotes.map(quote => (
         <FiatRampQuoteCard
           key={quote.id}
           isActive={selectedQuote?.id === quote.id}
           isBestRate={quote.isBestRate}
           quote={quote}
-          isLoading={isLoading}
+          isLoading={isQueryLoading}
           onBack={onBack}
           fiatCurrency={direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency}
           direction={direction}

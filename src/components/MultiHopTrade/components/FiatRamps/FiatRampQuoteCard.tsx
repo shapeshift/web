@@ -12,7 +12,6 @@ import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
-import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -65,7 +64,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
           .toString()
       }
 
-      const fiatRate = fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]?.price ?? 0
+      const fiatRate = fiatMarketData[buyFiatCurrency?.code]?.price ?? 0
 
       if (buyFiatCurrency?.code === selectedUserCurrency || !fiatRate)
         return bnOrZero(quote.amount)

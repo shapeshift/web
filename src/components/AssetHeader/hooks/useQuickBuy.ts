@@ -1,12 +1,16 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { bn } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCurrentHopIndex } from '../../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
+import { useMixpanel } from '../../MultiHopTrade/components/TradeConfirm/hooks/useMixpanel'
 import { useGetTradeRates } from '../../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -17,6 +21,7 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
+import { selectCurrentSwap } from '@/state/slices/swapSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectConfirmedQuote,
@@ -117,6 +122,8 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
       : undefined,
   )
 
+  const currentSwap = useAppSelector(selectCurrentSwap)
+
   const isNativeAsset = useMemo(() => {
     return Boolean(asset && feeAsset && asset.assetId === feeAsset.assetId)
   }, [asset, feeAsset])
@@ -144,16 +151,22 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     }
   }, [])
 
+  const [eventData, setEventData] = useState<ReturnType<typeof getMixpanelEventData>>(undefined)
+  const trackMixpanelEvent = useMixpanel(eventData)
+  const mixpanel = useMemo(() => getMixPanel(), [])
+
   const setErrorState = useCallback(
     (messageKey: string, amount: number) => {
+      trackMixpanelEvent(MixPanelEvent.QuickBuyFailed)
       setQuickBuyState({ status: 'error', amount, messageKey })
       resetTrade()
     },
-    [resetTrade],
+    [resetTrade, trackMixpanelEvent],
   )
 
   const setSuccessState = useCallback(
     (amount: number) => {
+      trackMixpanelEvent(MixPanelEvent.QuickBuySuccess)
       setQuickBuyState({ status: 'success', amount })
       resetTrade()
 
@@ -164,7 +177,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
         )
       }, SUCCESS_TIMEOUT_MS)
     },
-    [resetTrade, clearSuccessTimer],
+    [resetTrade, clearSuccessTimer, trackMixpanelEvent],
   )
 
   const startPurchase = useCallback(
@@ -233,20 +246,39 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
     dispatch(tradeQuoteSlice.actions.initializeQuickBuyTrade(bestNoErrorQuote.quote))
     hasInitializedTradeRef.current = true
-  }, [dispatch, quickBuyState.status, quickBuyState.amount, sortedTradeQuotes, setErrorState])
+
+    const currentEventData = getMixpanelEventData()
+    setEventData(currentEventData)
+
+    if (currentEventData && mixpanel) {
+      mixpanel.track(MixPanelEvent.QuickBuyPreview, currentEventData)
+    }
+  }, [
+    dispatch,
+    quickBuyState.status,
+    quickBuyState.amount,
+    sortedTradeQuotes,
+    setErrorState,
+    mixpanel,
+  ])
 
   useEffect(() => {
     if (quickBuyState.status !== 'executing') return
 
     const swapState = hopExecutionMetadata?.swap.state
+    const swapStatus = currentSwap?.status
 
-    if (swapState === TransactionExecutionState.Failed) {
+    if (swapState === TransactionExecutionState.Failed || swapStatus === SwapStatus.Failed) {
       setErrorState('quickBuy.error.failed', quickBuyState.amount ?? 0)
-    } else if (swapState === TransactionExecutionState.Complete) {
+    } else if (
+      swapStatus === SwapStatus.Success ||
+      swapState === TransactionExecutionState.Complete
+    ) {
       setSuccessState(quickBuyState.amount ?? 0)
     }
   }, [
     hopExecutionMetadata?.swap,
+    currentSwap?.status,
     quickBuyState.status,
     quickBuyState.amount,
     setErrorState,

@@ -17,7 +17,7 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 
-import type { CommonFiatCurrencies } from '../../config'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 export const SUPPORTED_ONRAMPER_FIAT_CURRENCIES: CommonFiatCurrencies[] = [
   'AOA',

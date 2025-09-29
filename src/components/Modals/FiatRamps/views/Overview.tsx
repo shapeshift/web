@@ -25,9 +25,8 @@ import { useTranslate } from 'react-polyglot'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { CommonFiatCurrencies, FiatCurrencyItem, FiatRamp } from '../config'
+import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
-import commonFiatCurrencyList from '../FiatCurrencyList.json'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
@@ -42,6 +41,8 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItems } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { useMipdProviders } from '@/lib/mipd'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -295,8 +296,7 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [address, vanityAddress])
 
   const renderFiatOptions = useMemo(() => {
-    const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
-    return options.map(option => (
+    return fiatCurrencyItems.map(option => (
       <option key={option.code} value={option.code}>
         {`${option.code} - ${option.name}`}
       </option>

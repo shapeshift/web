@@ -9,10 +9,10 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Text as RawText,
   Select,
   Spinner,
   Stack,
+  Text as RawText,
   useColorMode,
   useToast,
 } from '@chakra-ui/react'

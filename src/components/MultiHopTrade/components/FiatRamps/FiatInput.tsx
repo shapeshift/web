@@ -122,14 +122,13 @@ export const FiatInput: React.FC<FiatInputProps> = ({
               isNumericString={true}
               disabled={isReadOnly}
               prefix={fiatSymbol}
-              suffix={localeParts.postfix}
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               thousandSeparator={localeParts.group}
+              decimalScale={selectedFiatCurrency.decimal_digits}
               placeholder={formattedPlaceholder}
               value={amount}
               onValueChange={handleAmountChange}
-              decimalScale={2}
             />
           )}
         </Box>

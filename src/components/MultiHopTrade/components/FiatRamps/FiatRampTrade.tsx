@@ -26,7 +26,6 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
-import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -196,10 +195,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   }, [direction, dispatch])
 
   useEffect(() => {
-    if (!fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]) {
+    if (!fiatMarketData[buyFiatCurrency?.code]) {
       dispatch(
         marketApi.endpoints.findByFiatSymbol.initiate({
-          symbol: buyFiatCurrency?.code as SupportedFiatCurrencies,
+          symbol: buyFiatCurrency?.code,
         }),
       )
     }
@@ -233,7 +232,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         currentUrl: window.location.href,
       },
     })
-    if (url) popup.open({ url, title: 'Buy' })
+    if (url) popup.open({ url, title: direction === FiatRampAction.Buy ? 'Buy' : 'Sell' })
   }, [
     assets,
     buyAsset?.assetId,
@@ -370,8 +369,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         SideComponent={SideComponent}
         shouldOpenSideComponent={Boolean(
           direction === FiatRampAction.Buy
-            ? sellFiatAmount && sellFiatAmount !== '0'
-            : sellAmountCryptoPrecision && sellAmountCryptoPrecision !== '0',
+            ? bnOrZero(sellFiatAmount).toFixed()
+            : bnOrZero(sellAmountCryptoPrecision).toFixed(),
         )}
         tradeInputTab={
           direction === FiatRampAction.Buy ? TradeInputTab.BuyFiat : TradeInputTab.SellFiat

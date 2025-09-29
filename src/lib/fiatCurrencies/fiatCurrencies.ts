@@ -1,12 +1,14 @@
 import commonFiatCurrencyList from './FiatCurrencyList.json'
 
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
+
 export type FiatCurrencyItem = {
   symbol: string
   name: string
   symbol_native?: string
   decimal_digits?: number
   rounding?: number
-  code: string
+  code: SupportedFiatCurrencies
   name_plural?: string
 }
 

@@ -10748,7 +10748,6 @@ __metadata:
     "@tanstack/react-table": ^8.20.6
     "@tanstack/react-virtual": ^3.11.2
     "@testing-library/react": ^13.3.0
-    "@types/bignumber.js": ^5.0.0
     "@types/bip21": ^2.0.0
     "@types/bs58check": ^2.1.0
     "@types/cli-progress": ^3.11.5
@@ -10797,7 +10796,7 @@ __metadata:
     axios: ^1.12.0
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
-    bignumber.js: ^9.1.2
+    bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
     bs58check: ^2.1.2
@@ -11860,15 +11859,6 @@ __metadata:
   dependencies:
     "@babel/types": ^7.3.0
   checksum: a797ea09c72307569e3ee08aa3900ca744ce3091114084f2dc59b67a45ee7d01df7865252790dbfa787a7915ce892cdc820c9b920f3683292765fc656b08dc63
-  languageName: node
-  linkType: hard
-
-"@types/bignumber.js@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@types/bignumber.js@npm:5.0.0"
-  dependencies:
-    bignumber.js: "*"
-  checksum: f31a196da8b93d35c30879f4cc449e1099057ef27514554d2a5c80e2b1ba8cb8925919a2d92700d723ea959cb8b9d66f2917eea4f98a36f9f5d9e24c10c9c36f
   languageName: node
   linkType: hard
 
@@ -15894,13 +15884,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:*, bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.0.1, bignumber.js@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "bignumber.js@npm:9.1.1"
-  checksum: ad243b7e2f9120b112d670bb3d674128f0bd2ca1745b0a6c9df0433bd2c0252c43e6315d944c2ac07b4c639e7496b425e46842773cf89c6a2dcd4f31e5c4b11e
-  languageName: node
-  linkType: hard
-
 "bignumber.js@npm:9.0.1":
   version: 9.0.1
   resolution: "bignumber.js@npm:9.0.1"
@@ -15915,6 +15898,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.0.1, bignumber.js@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "bignumber.js@npm:9.1.1"
+  checksum: ad243b7e2f9120b112d670bb3d674128f0bd2ca1745b0a6c9df0433bd2c0252c43e6315d944c2ac07b4c639e7496b425e46842773cf89c6a2dcd4f31e5c4b11e
+  languageName: node
+  linkType: hard
+
 "bignumber.js@npm:^9.0.2, bignumber.js@npm:^9.1.2":
   version: 9.1.2
   resolution: "bignumber.js@npm:9.1.2"
@@ -15922,7 +15912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.1.0":
+"bignumber.js@npm:^9.1.0, bignumber.js@npm:^9.3.1":
   version: 9.3.1
   resolution: "bignumber.js@npm:9.3.1"
   checksum: 6ab100271a23a75bb8b99a4b1a34a1a94967ac0b9a52a198147607bd91064e72c6f356380d7a09cd687bf50d81ad2ed1a0a8edfaa90369c9003ed8bb2440d7f0

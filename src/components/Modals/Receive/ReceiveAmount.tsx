@@ -145,7 +145,13 @@ const ReceiveAmountContent = ({
               {translate('common.clear')}
             </Button>
           )}
-          <Button colorScheme='blue' flex={1} size='lg' onClick={handleConfirm}>
+          <Button
+            colorScheme='blue'
+            flex={1}
+            size='lg'
+            onClick={handleConfirm}
+            isDisabled={!amountInput}
+          >
             {translate('common.confirm')}
           </Button>
         </DialogFooter>
@@ -164,6 +170,9 @@ const ReceiveAmountContent = ({
                 onValueChange={handleValueChange}
                 placeholder={`0 ${symbol.toUpperCase()}`}
                 data-test='receive-amount-input'
+                decimalSeparator={localeParts.decimal}
+                thousandSeparator={localeParts.group}
+                allowedDecimalSeparators={allowedDecimalSeparators}
                 inputMode='decimal'
                 autoFocus
                 size='lg'
@@ -191,7 +200,7 @@ const ReceiveAmountContent = ({
                 {translate('common.clear')}
               </Button>
             )}
-            <Button colorScheme='blue' onClick={handleConfirm}>
+            <Button colorScheme='blue' onClick={handleConfirm} isDisabled={!amountInput}>
               {translate('common.confirm')}
             </Button>
           </ModalFooter>

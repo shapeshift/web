@@ -99,7 +99,9 @@ export const YourPositions = () => {
       activePositions
         .flatMap(position => position?.data?.positions ?? [])
         .filter(isSome)
-        .sort((a, b) => bn(b.totalValueFiatUserCurrency).comparedTo(a.totalValueFiatUserCurrency)),
+        .sort(
+          (a, b) => bn(b.totalValueFiatUserCurrency).comparedTo(a.totalValueFiatUserCurrency) ?? 0,
+        ),
     [activePositions],
   )
 

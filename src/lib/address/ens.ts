@@ -7,9 +7,9 @@ import type {
   ResolveVanityAddressReturn,
   ReverseLookupVanityAddress,
   ValidateVanityAddress,
-} from './address'
+} from './types'
 
-export const resolveEnsDomain: ResolveVanityAddress = ({ maybeAddress: value }) => ensLookup(value)
+export const resolveEnsDomain: ResolveVanityAddress = ({ maybeAddress }) => ensLookup(maybeAddress)
 
 // leave async such that this works with other async validators
 export const validateEnsDomain: ValidateVanityAddress = ({ maybeAddress }) =>

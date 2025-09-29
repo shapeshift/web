@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-export * from 'bignumber.js'
+export { default as BigNumber } from 'bignumber.js'
 
 export type BN = BigNumber
 

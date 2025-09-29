@@ -105,7 +105,6 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             </Flex>
           ) : null}
         </Display.Desktop>
-        <Display.Mobile>{null}</Display.Mobile>
       </PageHeader.Right>
     </PageHeader>
   )

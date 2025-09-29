@@ -41,7 +41,6 @@ const ChainButton = ({
   const feeAssetId = chainIdToFeeAssetId(chainId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const handleClick = useCallback(() => {
-    console.log('[Ledger Debug] Chain button clicked:', { chainId, timestamp: Date.now() })
     onClick(chainId)
   }, [chainId, onClick])
 
@@ -67,35 +66,6 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
   const [searchQuery, setSearchQuery] = useState('')
   const { state } = useWallet()
   const { connectedType } = state
-
-  // Debug USB devices whenever the component is open
-  useEffect(() => {
-    if (!isOpen) return
-
-    const logUSBDevices = async () => {
-      try {
-        if (navigator.usb) {
-          const devices = await navigator.usb.getDevices()
-          console.log('[Ledger Debug] USB devices when SelectChain opened:', {
-            totalDevices: devices.length,
-            devices: devices.map(d => ({
-              productName: d.productName,
-              vendorId: d.vendorId,
-              productId: d.productId,
-            })),
-            timestamp: Date.now(),
-          })
-        }
-      } catch (error) {
-        console.log(
-          '[Ledger Debug] Failed to get USB devices in SelectChain:',
-          (error as any).message,
-        )
-      }
-    }
-
-    logUSBDevices()
-  }, [isOpen])
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)

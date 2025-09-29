@@ -10,6 +10,7 @@ import MtPelerinLogo from '@/assets/mtpelerin.png'
 import { getMtPelerinFiatCurrencies } from '@/components/Modals/FiatRamps/fiatRampProviders/mtpelerin'
 import { getConfig } from '@/config'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 /**
  * Get minimum sell limits for a currency from Mt Pelerin API
@@ -44,7 +45,7 @@ export const getMtPelerinQuote = async ({
 
     const supportedFiatCurrencies = getMtPelerinFiatCurrencies()
 
-    if (!supportedFiatCurrencies.includes(fiatCurrency.code)) {
+    if (!supportedFiatCurrencies.includes(fiatCurrency.code as CommonFiatCurrencies)) {
       return
     }
 

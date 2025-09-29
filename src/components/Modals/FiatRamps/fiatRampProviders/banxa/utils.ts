@@ -3,13 +3,14 @@ import { adapters, fromAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { QUOTE_TIMEOUT_MS } from 'packages/swapper/src/constants'
 
-import type { GetQuotesProps, RampQuote } from '../../config'
+import type { GetQuotesArgs, RampQuote } from '../../config'
 import type { BanxaQuoteRequest, BanxaQuoteResponse } from './types'
 
 import banxaLogo from '@/assets/banxa.png'
 import { getSupportedBanxaFiatCurrencies } from '@/components/Modals/FiatRamps/fiatRampProviders/banxa'
 import { getConfig } from '@/config'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 /**
  * Get Banxa quote for crypto-fiat conversion
@@ -19,20 +20,20 @@ export const getBanxaQuote = async ({
   crypto,
   amount,
   direction,
-}: GetQuotesProps): Promise<RampQuote | null> => {
+}: GetQuotesArgs): Promise<RampQuote | undefined> => {
   try {
     const baseUrl = getConfig().VITE_BANXA_API_URL
 
     const supportedFiatCurrencies = getSupportedBanxaFiatCurrencies()
 
-    if (!supportedFiatCurrencies.includes(fiatCurrency.code)) {
-      return null
+    if (!supportedFiatCurrencies.includes(fiatCurrency.code as CommonFiatCurrencies)) {
+      return
     }
 
     const banxaTicker = adapters.assetIdToBanxaTicker(crypto as AssetId)
     if (!banxaTicker) {
       console.warn(`Asset ${crypto} not supported by Banxa`)
-      return null
+      return
     }
 
     const blockchain = adapters.getBanxaBlockchainFromChainId(
@@ -40,7 +41,7 @@ export const getBanxaQuote = async ({
     )
     if (!blockchain) {
       console.warn(`Blockchain not supported by Banxa for asset ${crypto}`)
-      return null
+      return
     }
 
     const requestData: BanxaQuoteRequest = {
@@ -91,6 +92,6 @@ export const getBanxaQuote = async ({
     }
   } catch (e) {
     console.error('Error fetching Banxa quotes:', e)
-    return null
+    return
   }
 }

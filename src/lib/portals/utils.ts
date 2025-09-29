@@ -114,6 +114,10 @@ export const fetchPortalsTokens = async ({
         page: page + 1,
         accTokens: newTokens,
         totalLimit,
+        minApy,
+        sortBy,
+        sortDirection,
+        tags,
       })
     } else {
       // No more pages, return all accumulated tokens

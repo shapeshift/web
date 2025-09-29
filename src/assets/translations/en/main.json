@@ -1845,7 +1845,7 @@
       },
       "failure": {
         "header": "Can't connect to Ledger",
-        "body": "We were not able to detect your ledger, but you can connect in read only mode."
+        "body": "We were not able to detect your Ledger, but you can connect in read only mode."
       },
       "readOnly": {
         "button": "Connect as Read Only"

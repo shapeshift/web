@@ -49,10 +49,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
     direction,
   })
 
-  const displayQuotes = useMemo(() => {
-    return sortedQuotes
-  }, [sortedQuotes])
-
   const isQueryLoading = useMemo(() => {
     return quotesQueries.some(query => query.isLoading) || isLoading
   }, [quotesQueries, isLoading])
@@ -62,18 +58,19 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   useEffect(() => {
     if (isQueryLoading && !selectedQuote) return
 
-    if (displayQuotes.length > 0) {
+    if (sortedQuotes.length > 0) {
       const bestQuote =
-        displayQuotes.find(quote => selectedQuote && selectedQuote.provider === quote.provider) ||
-        displayQuotes[0]
+        sortedQuotes.find(quote => selectedQuote && selectedQuote.provider === quote.provider) ||
+        sortedQuotes[0]
 
+      if (!bestQuote) return
       if (bestQuote.id === selectedQuote?.id) return
 
       dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(bestQuote))
     }
-  }, [displayQuotes, selectedQuote, dispatch, isQueryLoading])
+  }, [sortedQuotes, selectedQuote, dispatch, isQueryLoading])
 
-  if (isQueryLoading && !selectedQuote) {
+  if (isQueryLoading) {
     return (
       <VStack spacing={4} p={4}>
         {[1, 2].map(i => (
@@ -85,7 +82,7 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
 
   return (
     <VStack spacing={4} p={4} align='stretch'>
-      {!displayQuotes.length ? (
+      {!sortedQuotes.length ? (
         <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
           <Flex
             maxWidth='300px'
@@ -101,7 +98,7 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
         </Flex>
       ) : null}
 
-      {displayQuotes.map(quote => (
+      {sortedQuotes.map(quote => (
         <FiatRampQuoteCard
           key={quote.id}
           isActive={selectedQuote?.id === quote.id}

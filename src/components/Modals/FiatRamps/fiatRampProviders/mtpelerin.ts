@@ -2,11 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
-import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
 import { getConfig } from '@/config'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { isSome } from '@/lib/utils'
 
 type MtPelerinResponse = {

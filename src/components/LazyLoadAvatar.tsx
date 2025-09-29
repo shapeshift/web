@@ -19,6 +19,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(src ? false : true)
   const handleImageLoaded = useCallback(() => setImageLoaded(true), [])
+
   return (
     <SkeletonCircle
       isLoaded={imageLoaded}

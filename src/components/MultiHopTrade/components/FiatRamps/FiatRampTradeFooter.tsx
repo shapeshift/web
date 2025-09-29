@@ -1,32 +1,36 @@
 import type { CardFooterProps } from '@chakra-ui/react'
 import { CardFooter, Flex } from '@chakra-ui/react'
-import type { SwapperName } from '@shapeshiftoss/swapper'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 
 // import { ReceiveSummary } from './components/ReceiveSummary'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
+import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { vibrate } from '@/lib/vibrate'
 import { selectFeeAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import {
+  selectBuyAccountId,
+  selectBuyFiatCurrency,
+  selectManualReceiveAddress,
+  selectSelectedFiatRampQuote,
+  selectSellFiatCurrency,
+} from '@/state/slices/tradeRampInputSlice/selectors'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type FiatRampTradeFooterProps = {
-  affiliateBps: string
-  affiliateFeeAfterDiscountUserCurrency: string | undefined
   children?: JSX.Element
   hasUserEnteredAmount: boolean
-  inputAmountUsd: string | undefined
   isError: boolean
   isLoading: boolean
   rate: string | undefined
   shouldDisablePreviewButton: boolean | undefined
-  rampName: SwapperName | undefined
   networkFeeFiatUserCurrency: string | undefined
   marketRate?: string
   invertRate?: boolean
@@ -35,13 +39,13 @@ type FiatRampTradeFooterProps = {
   icon: React.ReactNode
 } & (
   | {
-      type: 'buy'
+      direction: FiatRampAction.Buy
       buyAsset: Asset
       sellAsset?: never
       sellAccountId?: never
     }
   | {
-      type: 'sell'
+      direction: FiatRampAction.Sell
       sellAsset: Asset
       sellAccountId: string | undefined
       buyAsset?: never
@@ -55,7 +59,6 @@ const footerBgProp = {
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
 export const FiatRampTradeFooter = ({
-  affiliateBps,
   children,
   hasUserEnteredAmount,
   isError,
@@ -64,26 +67,35 @@ export const FiatRampTradeFooter = ({
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   networkFeeFiatUserCurrency,
   marketRate,
-  rampName,
   invertRate,
   noExpand,
   quoteStatusTranslation,
-  type,
+  direction,
   icon,
   ...props
 }: FiatRampTradeFooterProps) => {
   const buyAsset = 'buyAsset' in props ? props.buyAsset : undefined
   const sellAsset = 'sellAsset' in props ? props.sellAsset : undefined
   const sellAccountId = 'sellAccountId' in props ? props.sellAccountId : undefined
+  const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
+  const dispatch = useAppDispatch()
+  const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
+  const buyAccountId = useAppSelector(selectBuyAccountId)
+  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+
+  const walletReceiveAddress = useMemo(() => {
+    return buyAccountId ? fromAccountId(buyAccountId).account : undefined
+  }, [buyAccountId])
 
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   const isLoading = useMemo(() => {
-    return isParentLoading || (!buyAssetFeeAsset && type === 'buy')
-  }, [buyAssetFeeAsset, isParentLoading, type])
+    return isParentLoading || (!buyAssetFeeAsset && direction === FiatRampAction.Buy)
+  }, [buyAssetFeeAsset, isParentLoading, direction])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -110,38 +122,45 @@ export const FiatRampTradeFooter = ({
     return percentDifference
   }, [rate, marketRate])
 
-  const handleClick = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+  const handleIsValidatingChange = useCallback(
+    (isValidating: boolean) => {
+      dispatch(tradeRampInput.actions.setIsManualReceiveAddressValidating(isValidating))
+    },
+    [dispatch],
+  )
 
-  // @TODO: wire up all those handlers when we have the proper state management for it
-  const handleCancel = useCallback(() => {
-    vibrate('heavy')
-  }, [])
-
-  const handleEdit = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+  const handleIsValidChange = useCallback(
+    (isValid: boolean) => {
+      dispatch(tradeRampInput.actions.setIsManualReceiveAddressValid(isValid))
+    },
+    [dispatch],
+  )
 
   const handleError = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+    dispatch(tradeRampInput.actions.setManualReceiveAddress(undefined))
+  }, [dispatch])
 
-  const handleIsValidatingChange = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+  const handleEdit = useCallback(() => {
+    dispatch(tradeRampInput.actions.setIsManualReceiveAddressEditing(true))
+  }, [dispatch])
 
-  const handleIsValidChange = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+  const handleCancel = useCallback(() => {
+    dispatch(tradeRampInput.actions.setIsManualReceiveAddressEditing(false))
+    dispatch(tradeRampInput.actions.setIsManualReceiveAddressValid(undefined))
+  }, [dispatch])
 
   const handleReset = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+    dispatch(tradeRampInput.actions.setManualReceiveAddress(undefined))
+    dispatch(tradeRampInput.actions.setIsManualReceiveAddressValid(undefined))
+  }, [dispatch])
 
-  const handleSubmit = useCallback(() => {
-    vibrate('heavy')
-  }, [])
+  const handleSubmit = useCallback(
+    (address: string) => {
+      dispatch(tradeRampInput.actions.setManualReceiveAddress(address))
+      dispatch(tradeRampInput.actions.setIsManualReceiveAddressEditing(false))
+    },
+    [dispatch],
+  )
 
   return (
     <CardFooter
@@ -160,19 +179,29 @@ export const FiatRampTradeFooter = ({
         width='full'
         px={2}
       >
-        <RateGasRow
-          affiliateBps={affiliateBps}
-          // @TODO: Add proper selected fiat
-          buyAssetSymbol={type === 'buy' && buyAsset ? buyAsset.symbol : 'USD'}
-          sellAssetSymbol={type === 'buy' && sellAsset ? sellAsset.symbol : 'USD'}
-          rate={rate}
-          deltaPercentage={deltaPercentage?.toString()}
-          isLoading={isLoading && !rate}
-          networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
-          invertRate={invertRate}
-          icon={icon}
-          noExpand={noExpand}
-        />
+        {hasUserEnteredAmount && selectedQuote && !isLoading && (
+          <RateGasRow
+            affiliateBps={'0'}
+            buyAssetSymbol={
+              direction === FiatRampAction.Buy && buyAsset
+                ? buyAsset.symbol
+                : buyFiatCurrency?.code ?? 'USD'
+            }
+            sellAssetSymbol={
+              direction === FiatRampAction.Buy && sellFiatCurrency
+                ? sellFiatCurrency.code
+                : sellAsset?.symbol ?? 'USD'
+            }
+            rate={rate}
+            deltaPercentage={deltaPercentage?.toString()}
+            isLoading={isLoading && !rate}
+            networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
+            invertRate={invertRate}
+            icon={icon}
+            noExpand={noExpand}
+            hideGasAmount
+          />
+        )}
       </Flex>
       <Flex
         borderTopWidth={1}
@@ -185,13 +214,12 @@ export const FiatRampTradeFooter = ({
         borderBottomRadius='xl'
         width='full'
       >
-        {type === 'buy' && buyAsset && (
+        {direction === FiatRampAction.Buy && buyAsset && (
           <SharedRecipientAddress
             buyAsset={buyAsset}
             isWalletReceiveAddressLoading={false}
-            // @TODO: wire up with receive address when we have proper state management
-            walletReceiveAddress={'0x0000000000000000000000000000000000000000'}
-            manualReceiveAddress={undefined}
+            walletReceiveAddress={walletReceiveAddress}
+            manualReceiveAddress={manualReceiveAddress}
             onCancel={handleCancel}
             onEdit={handleEdit}
             onError={handleError}
@@ -211,8 +239,7 @@ export const FiatRampTradeFooter = ({
           size='lg-multiline'
           data-test='trade-form-preview-button'
           isDisabled={shouldDisablePreviewButton}
-          isValidWallet={true}
-          onClick={handleClick}
+          isValidWallet
         >
           {buttonText}
         </ButtonWalletPredicate>

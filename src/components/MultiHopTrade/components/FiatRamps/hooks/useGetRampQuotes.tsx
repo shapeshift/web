@@ -1,0 +1,91 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
+
+import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
+import {
+  findOnramperTokenIdByAssetId,
+  getSupportedOnramperCurrencies,
+} from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
+import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
+import { useAppDispatch } from '@/state/store'
+
+type UseGetRampQuotesProps = {
+  fiatCurrency: FiatCurrencyItem
+  assetId: AssetId
+  amount: string
+  direction: FiatRampAction
+}
+
+export const useGetRampQuotes = ({
+  fiatCurrency,
+  assetId,
+  amount,
+  direction,
+}: UseGetRampQuotesProps) => {
+  const { data: ramps } = useGetFiatRampsQuery()
+  const dispatch = useAppDispatch()
+
+  const { data: onramperCurrencies } = useQuery({
+    queryKey: ['onramperCurrencies'],
+    queryFn: getSupportedOnramperCurrencies,
+    gcTime: Infinity,
+    staleTime: Infinity,
+  })
+
+  const debouncedAmount = useDebounce(amount, 1000)
+
+  useEffect(() => {
+    dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
+  }, [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies, dispatch])
+
+  const queryKey = useMemo(
+    () => ['rampQuote', fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies],
+    [fiatCurrency, assetId, debouncedAmount, direction, onramperCurrencies],
+  )
+
+  const supportedRamps = useMemo(() => {
+    if (!ramps?.byAssetId[assetId]?.[direction]) return []
+
+    return ramps?.byAssetId[assetId]?.[direction].map(fiatRampId => supportedFiatRamps[fiatRampId])
+  }, [ramps, assetId, direction])
+
+  const rampQuoteQueries = useQueries({
+    queries:
+      supportedRamps?.map(fiatRamp => ({
+        queryKey: [...queryKey, fiatRamp.id],
+        queryFn: () => {
+          switch (fiatRamp.id) {
+            case 'OnRamper': {
+              if (!onramperCurrencies) throw new Error('Onramper currencies not found')
+              const crypto = findOnramperTokenIdByAssetId(assetId, onramperCurrencies)
+              if (!crypto) throw new Error('Asset not found')
+
+              return fiatRamp.getQuotes?.({
+                fiatCurrency,
+                crypto,
+                amount,
+                direction,
+              })
+            }
+            default: {
+              if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
+
+              return fiatRamp.getQuotes?.({
+                fiatCurrency,
+                crypto: assetId,
+                amount,
+                direction,
+              })
+            }
+          }
+        },
+      })) ?? [],
+  })
+
+  return rampQuoteQueries
+}

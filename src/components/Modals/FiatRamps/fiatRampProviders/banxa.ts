@@ -1,8 +1,9 @@
 import { adapters, fromAssetId } from '@shapeshiftoss/caip'
 
-import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
+
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 export const getSupportedBanxaFiatCurrencies = (): CommonFiatCurrencies[] => {
   return [

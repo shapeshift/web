@@ -7,12 +7,13 @@ import { TradeQuoteCard } from '../TradeInput/components/TradeQuotes/components/
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/config'
+import type { RampQuote } from '@/components/Modals/FiatRamps/config'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
-import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -42,12 +43,6 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
     const selectedUserCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
-    dispatch(
-      marketApi.endpoints.findByFiatSymbol.initiate({
-        symbol: buyFiatCurrency?.code as SupportedFiatCurrencies,
-      }),
-    )
-
     const buyAssetMarketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
     )
@@ -70,15 +65,15 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
           .toString()
       }
 
-      const usdRate = fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]?.price ?? 0
+      const fiatRate = fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]?.price ?? 0
 
-      if (buyFiatCurrency?.code === selectedUserCurrency || !usdRate)
+      if (buyFiatCurrency?.code === selectedUserCurrency || !fiatRate)
         return bnOrZero(quote.amount)
           .div(sellAssetMarketData?.price ?? 0)
           .toFixed(sellAsset?.precision ?? 0)
 
       return bnOrZero(quote.amount)
-        .div(usdRate)
+        .div(fiatRate)
         .div(sellAssetMarketData?.price ?? 0)
         .toFixed(sellAsset?.precision ?? 0)
     }, [

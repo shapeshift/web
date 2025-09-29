@@ -4,16 +4,11 @@ import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 
-import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-
-type QuickAmount = {
-  formattedAmount: string
-  value: string
-}
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 type FiatInputProps = {
-  selectedFiatCurrency?: FiatCurrencyItem
+  selectedFiatCurrency: FiatCurrencyItem
   amount: string
   placeholder?: string
   label: string
@@ -21,7 +16,7 @@ type FiatInputProps = {
   labelPostFix?: React.ReactNode
   showPrefix?: boolean
   isReadOnly?: boolean
-  quickAmounts?: QuickAmount[]
+  quickAmounts?: string[]
   onQuickAmountClick?: (amount: string) => void
   isLoading?: boolean
 }
@@ -68,20 +63,7 @@ export const FiatInput: React.FC<FiatInputProps> = ({
   labelPostFix,
   showPrefix = true,
   isReadOnly = false,
-  quickAmounts = [
-    {
-      amount: '$100',
-      value: '100',
-    },
-    {
-      amount: '$300',
-      value: '300',
-    },
-    {
-      amount: '$1,000',
-      value: '1000',
-    },
-  ],
+  quickAmounts = ['100', '300', '1000'],
   onQuickAmountClick,
   isLoading = false,
 }) => {
@@ -91,9 +73,12 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
   const fiatSymbol = useMemo(() => {
     if (!showPrefix) return ''
-    if (!selectedFiatCurrency) return localeParts.prefix
     return selectedFiatCurrency.symbol
-  }, [selectedFiatCurrency, localeParts.prefix, showPrefix])
+  }, [selectedFiatCurrency, showPrefix])
+
+  console.log({
+    fiatSymbol,
+  })
 
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
@@ -117,8 +102,8 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
   const formattedQuickAmounts = useMemo(() => {
     return quickAmounts.map(amount => ({
-      formattedAmount: `${fiatSymbol}${amount.value.replace('$', '')}`,
-      value: amount.value,
+      formattedAmount: `${fiatSymbol}${amount}`,
+      value: amount,
     }))
   }, [quickAmounts, fiatSymbol])
 
@@ -166,7 +151,6 @@ export const FiatInput: React.FC<FiatInputProps> = ({
               borderRadius='lg'
               fontSize='md'
               fontWeight='medium'
-              color='text.pimary'
               bg='background.surface.raised.base'
               transition='all 0.2s'
               _hover={percentHover}

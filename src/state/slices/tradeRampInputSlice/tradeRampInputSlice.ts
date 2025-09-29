@@ -7,13 +7,15 @@ import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type { BaseReducers } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 
-import type { FiatCurrencyItem, RampQuote } from '@/components/Modals/FiatRamps/config'
+import type { RampQuote } from '@/components/Modals/FiatRamps/config'
+import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { localAssetData } from '@/lib/asset-service'
-import type { TradeInputState } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 export type TradeRampInputState = {
-  buyFiatCurrency: FiatCurrencyItem | undefined
-  sellFiatCurrency: FiatCurrencyItem | undefined
+  buyFiatCurrency: FiatCurrencyItem
+  sellFiatCurrency: FiatCurrencyItem
   slippagePreferencePercentage: string | undefined
   buyAsset: Asset
   sellAsset: Asset
@@ -34,8 +36,8 @@ export type TradeRampInputState = {
 const initialState: TradeRampInputState = {
   buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
-  buyFiatCurrency: undefined,
-  sellFiatCurrency: undefined,
+  buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
+  sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',
@@ -55,12 +57,6 @@ export const tradeRampInput = createTradeInputBaseSlice({
   name: 'tradeRampInput',
   initialState,
   extraReducers: (_baseReducers: BaseReducers<TradeRampInputState>) => ({
-    setSellAssetUtxoChangeAddress: (
-      state: TradeInputState,
-      action: PayloadAction<string | undefined>,
-    ) => {
-      state.sellAssetUtxoChangeAddress = action.payload
-    },
     setBuyFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
       state.buyFiatCurrency = action.payload
     },

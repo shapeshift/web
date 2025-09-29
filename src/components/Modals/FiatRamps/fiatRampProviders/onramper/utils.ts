@@ -3,7 +3,7 @@ import { adapters, ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftos
 import axios from 'axios'
 import { isAddress, zeroAddress } from 'viem'
 
-import type { GetQuotesProps, RampQuote } from '../../config'
+import type { GetQuotesArgs, RampQuote } from '../../config'
 import { getChainIdFromOnramperNetwork } from './constants'
 import type {
   Crypto,
@@ -59,9 +59,9 @@ const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
 
 const convertOnramperQuotesToSingleRampQuote = (
   onramperQuotes: OnramperBuyQuoteResponse,
-): RampQuote | null => {
+): RampQuote | undefined => {
   if (!onramperQuotes || onramperQuotes.length === 0) {
-    return null
+    return
   }
 
   const bestQuote = onramperQuotes.reduce<OnramperBuyQuote | null>((best, current) => {
@@ -71,7 +71,7 @@ const convertOnramperQuotesToSingleRampQuote = (
     return current.payout > best.payout ? current : best
   }, null)
 
-  if (!bestQuote) return null
+  if (!bestQuote) return
 
   const paymentMethodSupport = aggregatePaymentMethodSupport(onramperQuotes)
 
@@ -95,7 +95,7 @@ export const getOnramperQuote = async ({
   crypto,
   amount,
   direction,
-}: GetQuotesProps): Promise<RampQuote | null> => {
+}: GetQuotesArgs): Promise<RampQuote | undefined> => {
   try {
     const baseUrl = getConfig().VITE_ONRAMPER_API_URL
     const apiKey = getConfig().VITE_ONRAMPER_API_KEY
@@ -114,7 +114,6 @@ export const getOnramperQuote = async ({
     return convertOnramperQuotesToSingleRampQuote(response.data)
   } catch (e) {
     console.error('Error fetching OnRamper quotes:', e)
-    return null
   }
 }
 

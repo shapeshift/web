@@ -202,7 +202,7 @@ export const FiatRampTradeFooter = ({
             invertRate={invertRate}
             icon={icon}
             noExpand={noExpand}
-            hideGasAmount={true}
+            hideGasAmount
           />
         )}
       </Flex>
@@ -242,7 +242,7 @@ export const FiatRampTradeFooter = ({
           size='lg-multiline'
           data-test='trade-form-preview-button'
           isDisabled={shouldDisablePreviewButton}
-          isValidWallet={true}
+          isValidWallet
         >
           {buttonText}
         </ButtonWalletPredicate>

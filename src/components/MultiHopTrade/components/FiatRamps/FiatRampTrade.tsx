@@ -11,8 +11,7 @@ import { FiatRampRoutePaths } from './types'
 
 import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { AssetIcon } from '@/components/AssetIcon'
-import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
-import { fiatCurrencyObjectsByCode, supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
+import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampTradeBody } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeBody'
 import { FiatRampTradeFooter } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeFooter'
@@ -23,13 +22,15 @@ import { SharedTradeInput } from '@/components/MultiHopTrade/components/SharedTr
 import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import {
@@ -79,38 +80,24 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const maybeSellFiatCurrency = useAppSelector(selectSellFiatCurrency)
-  const maybeBuyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
+  const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
   const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
-
-  const sellFiatCurrency =
-    maybeSellFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
-  const buyFiatCurrency =
-    maybeBuyFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
 
   const assets = useAppSelector(selectAssets)
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const popup = useModal('popup')
-  const selectedCurrencyCode = useAppSelector(preferences.selectors.selectSelectedCurrency)
-  const selectedCurrency = fiatCurrencyObjectsByCode[selectedCurrencyCode]
 
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+
+  const fiatMarketData = useAppSelector(marketData.selectors.selectFiatMarketData)
 
   const walletReceiveAddress = useMemo(() => {
     return buyAccountId ? fromAccountId(buyAccountId).account : undefined
   }, [buyAccountId])
-
-  useEffect(() => {
-    if (!maybeSellFiatCurrency) {
-      dispatch(tradeRampInput.actions.setSellFiatAsset(selectedCurrency))
-    }
-    if (!maybeBuyFiatCurrency) {
-      dispatch(tradeRampInput.actions.setBuyFiatAsset(selectedCurrency))
-    }
-  }, [maybeSellFiatCurrency, maybeBuyFiatCurrency, dispatch, selectedCurrency])
 
   const RampQuotesComponent = useCallback(
     (props: QuotesComponentProps) => {
@@ -207,6 +194,16 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     dispatch(tradeRampInput.actions.setSellAmountCryptoPrecision('0'))
     dispatch(tradeRampInput.actions.setSellFiatAmount('0'))
   }, [direction, dispatch])
+
+  useEffect(() => {
+    if (!fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]) {
+      dispatch(
+        marketApi.endpoints.findByFiatSymbol.initiate({
+          symbol: buyFiatCurrency?.code as SupportedFiatCurrencies,
+        }),
+      )
+    }
+  }, [dispatch, buyFiatCurrency?.code, fiatMarketData])
 
   const handleSubmit = useCallback(async () => {
     if (!selectedQuote?.provider) return

@@ -11,10 +11,10 @@ import {
   DialogHeaderMiddle,
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
-import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
 import type { TradeAssetSearchProps } from '@/components/TradeAssetSearch/TradeAssetSearch'
 import { TradeAssetSearch } from '@/components/TradeAssetSearch/TradeAssetSearch'
 import { useModal } from '@/hooks/useModal/useModal'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string

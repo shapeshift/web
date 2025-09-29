@@ -5,8 +5,8 @@ import { useCallback, useMemo } from 'react'
 import { AssetRowLoading } from './AssetRowLoading'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
-import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
-import { getFiatFlagUrl } from '@/constants/fiatLogos'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyFlagUrlsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 export type FiatMenuButtonProps = {
   selectedFiatCurrency: FiatCurrencyItem
@@ -23,13 +23,15 @@ export const FiatMenuButton = ({
   buttonProps,
   isLoading,
 }: FiatMenuButtonProps) => {
-  const flagUrl = useMemo(() => {
-    return getFiatFlagUrl(selectedFiatCurrency)
-  }, [selectedFiatCurrency])
-
   const icon = useMemo(() => {
-    return <LazyLoadAvatar src={flagUrl} size='xs' name={selectedFiatCurrency.name} />
-  }, [selectedFiatCurrency, flagUrl])
+    return (
+      <LazyLoadAvatar
+        src={fiatCurrencyFlagUrlsByCode[selectedFiatCurrency.code]}
+        size='xs'
+        name={selectedFiatCurrency.name}
+      />
+    )
+  }, [selectedFiatCurrency])
 
   const handleAssetClick = useCallback(() => {
     onClick?.()

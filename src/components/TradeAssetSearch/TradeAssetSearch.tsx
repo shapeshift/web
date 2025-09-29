@@ -36,14 +36,14 @@ import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 import { INCREASE_VIEWPORT_BY } from '@/components/AssetSearch/components/AssetList'
 import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from '@/components/ChainMenu'
-import type { FiatCurrencyItem } from '@/components/Modals/FiatRamps/config'
-import { fiatCurrencyObjects } from '@/components/Modals/FiatRamps/config'
 import { Text } from '@/components/Text'
 import { FiatRow } from '@/components/TradeAssetSearch/components/FiatRow'
 import { knownChainIds } from '@/constants/chains'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItems } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectPortfolioAssetsByChainId,
@@ -276,7 +276,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const searchFiatCurrencies = useMemo(() => {
-    return matchSorter(fiatCurrencyObjects, searchString, {
+    return matchSorter(fiatCurrencyItems, searchString, {
       keys: ['code', 'name', 'symbol', 'name_plural'],
       threshold: matchSorter.rankings.CONTAINS,
     }) as FiatCurrencyItem[]

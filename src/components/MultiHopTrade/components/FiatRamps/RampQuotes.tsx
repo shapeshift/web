@@ -4,11 +4,9 @@ import { useEffect, useMemo } from 'react'
 import { FiatRampQuoteCard } from './FiatRampQuoteCard'
 
 import { PathIcon } from '@/components/Icons/PathIcon'
-import { fiatCurrencyObjectsByCode } from '@/components/Modals/FiatRamps/config'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
 import { Text } from '@/components/Text'
-import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { isSome } from '@/lib/utils'
 import {
   selectBuyFiatCurrency,
@@ -35,13 +33,8 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const maybeSellFiatCurrency = useAppSelector(selectSellFiatCurrency)
-  const maybeBuyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
-
-  const sellFiatCurrency =
-    maybeSellFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
-  const buyFiatCurrency =
-    maybeBuyFiatCurrency ?? fiatCurrencyObjectsByCode[FiatCurrencyTypeEnum.USD]
+  const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
   const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
@@ -58,7 +51,7 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   })
 
   const displayQuotes = useMemo(() => {
-    const quotes = quotesQueries.map(query => query.data).filter(isSome)
+    const quotes = quotesQueries.map(query => query.data ?? undefined).filter(isSome)
 
     if (!quotes || quotes.length === 0) return []
 
@@ -112,7 +105,7 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
           quote={quote}
           isLoading={isLoading}
           onBack={onBack}
-          fiatCurrency={sellFiatCurrency}
+          fiatCurrency={direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency}
           direction={direction}
         />
       ))}

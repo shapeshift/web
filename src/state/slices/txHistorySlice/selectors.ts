@@ -382,7 +382,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
   (hydrationMeta, walletAccountIds, accountId, timeframe) => {
-    const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
+    const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL, 0)
 
     const checkIsTxHistoryAvailable = (accountId: AccountId) => {
       const hydrationMetaForAccount = hydrationMeta[accountId]

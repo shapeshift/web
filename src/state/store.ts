@@ -8,7 +8,7 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
-import { portals, portalsApi } from './apis/portals/portalsApi'
+import { portalsApi } from './apis/portals/portalsApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import type { ReduxState } from './reducer'
@@ -36,7 +36,6 @@ const apiMiddleware = [
   swapperApi.middleware,
   fiatRampApi.middleware,
   snapshotApi.middleware,
-  portals.middleware,
   portalsApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,

@@ -18,13 +18,11 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
   ...rest
 }) => {
   const [imageLoaded, setImageLoaded] = useState(src ? false : true)
-  const [imageError, setImageError] = useState(false)
   const handleImageLoaded = useCallback(() => setImageLoaded(true), [])
-  const handleImageError = useCallback(() => setImageError(true), [])
 
   return (
     <SkeletonCircle
-      isLoaded={Boolean(imageLoaded || (imageError && name))}
+      isLoaded={imageLoaded}
       width='auto'
       height='auto'
       display='flex'
@@ -34,7 +32,6 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
       <Avatar
         loading='lazy'
         onLoad={handleImageLoaded}
-        onError={handleImageError}
         src={src}
         size={size}
         icon={icon}

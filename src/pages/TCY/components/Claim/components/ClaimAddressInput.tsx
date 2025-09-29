@@ -10,7 +10,7 @@ import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { validateAddress } from '@/lib/address/address'
+import { validateAddress } from '@/lib/address/validation'
 import { selectAccountIdsByAssetId, selectAccountIdsByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

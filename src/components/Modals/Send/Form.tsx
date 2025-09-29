@@ -24,7 +24,8 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
+import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -226,14 +227,28 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
       try {
-        const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+        const urlDirectResult = parseUrlDirect(decodedText)
 
-        const parseAddressInputWithChainIdArgs = {
-          assetId: maybeUrlResult.assetId,
-          chainId: maybeUrlResult.chainId,
-          urlOrAddress: decodedText,
-        }
-        const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+        const maybeUrlResult = await (() => {
+          if (urlDirectResult)
+            return {
+              assetId: urlDirectResult.assetId,
+              chainId: urlDirectResult.chainId,
+              value: decodedText,
+              amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+            }
+          return parseAddress({ address: decodedText })
+        })()
+
+        const address = urlDirectResult
+          ? urlDirectResult.maybeAddress
+          : (
+              await parseAddressInputWithChainId({
+                assetId: maybeUrlResult.assetId,
+                chainId: maybeUrlResult.chainId,
+                urlOrAddress: decodedText,
+              })
+            ).address
 
         methods.setValue(SendFormFields.Input, address)
 

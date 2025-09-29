@@ -1490,7 +1490,8 @@
       "verified": "Verified",
       "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
-      "supportedNetworks": "Supported Networks"
+      "supportedNetworks": "Supported Networks",
+      "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."
     },
     "deposit": {
       "allocation": {

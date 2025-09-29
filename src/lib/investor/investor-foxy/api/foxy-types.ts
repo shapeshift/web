@@ -1,7 +1,6 @@
 import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
-import type { BigNumber } from 'bignumber.js'
 import type { Contract } from 'ethers'
 
 export type FoxyAddressesType = {

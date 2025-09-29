@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "Parear com dispositivo existente",
         "pairExistingDeviceBody": "Conectando um dispositivo Ledger diferente? Clique em 'Parear novo dispositivo' para começar do zero."
       },
-      "failure": {
-        "body": "Não foi possível conectar a Ledger"
-      },
       "gettingChangeAddress": "Obtendo endereço de troco...",
       "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo.",
       "signWarning": "Antes de assinar, certifique-se de ter o aplicativo %{chain} aberto no seu dispositivo."

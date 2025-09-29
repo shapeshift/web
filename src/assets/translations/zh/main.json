@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "配对现有设备",
         "pairExistingDeviceBody": "正在连接其他 Ledger 设备？单击“配对新设备”即可重新开始。"
       },
-      "failure": {
-        "body": "无法连接 Ledger 钱包"
-      },
       "gettingChangeAddress": "正在获取退款地址...",
       "connectWarning": "在连接链之前，请确保您的设备上已打开该应用程序。",
       "signWarning": "在签名之前，请确保您的设备上已打开 %{chain} 应用程序。"

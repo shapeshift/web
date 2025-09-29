@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "Vorhandenes Gerät koppeln",
         "pairExistingDeviceBody": "Sie möchten ein anderes Ledger Gerät verbinden? Klicken Sie auf „Neues Gerät koppeln“, um neu zu beginnen."
       },
-      "failure": {
-        "body": "Ledger Wallet kann nicht verbunden werden"
-      },
       "gettingChangeAddress": "Erhalte Retourgeld Adresse",
       "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
       "signWarning": "Stellen Sie vor dem Signieren sicher, dass die %{chain} App auf Ihrem Gerät geöffnet ist."

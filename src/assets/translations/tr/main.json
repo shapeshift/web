@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "Mevcut cihazı eşleştir",
         "pairExistingDeviceBody": "Farklı bir Ledger cihazı mı bağlanıyorsunuz? Yeni bir başlangıç ​​yapmak için 'Yeni cihazı eşleştir'e tıklayın."
       },
-      "failure": {
-        "body": "Ledger cüzdanına bağlanılamıyor"
-      },
       "gettingChangeAddress": "Adres değişikliği alınıyor...",
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
       "signWarning": "İmzalamadan önce cihazınızda %{chain} uygulamasının açık olduğundan emin olun."

@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "既存のデバイスをペアリングする",
         "pairExistingDeviceBody": "別の Ledger デバイスを接続しますか? 「新しいデバイスをペアリング」をクリックして最初からやり直してください。"
       },
-      "failure": {
-        "body": "Ledgerウォレットに接続できません"
-      },
       "gettingChangeAddress": "住所変更を取得しています...",
       "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
       "signWarning": "署名する前に、デバイスで %{chain} アプリが開いていることを確認してください。"

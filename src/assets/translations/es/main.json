@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "Emparejar dispositivo existente",
         "pairExistingDeviceBody": "¿Conectando un dispositivo Ledger diferente? Haga clic en 'Emparejar nuevo dispositivo' para comenzar de nuevo."
       },
-      "failure": {
-        "body": "No se puede conectar la billetera Ledger"
-      },
       "gettingChangeAddress": "Obteniendo cambio de dirección...",
       "connectWarning": "Antes de conectar una cadena, asegúrese de tener la app abierta en su dispositivo.",
       "signWarning": "Antes de firmar, asegúrese de tener la app %{chain} abierta en su dispositivo."

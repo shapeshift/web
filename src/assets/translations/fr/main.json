@@ -1777,9 +1777,6 @@
         "pairExistingDeviceButton": "Appairer un appareil existant",
         "pairExistingDeviceBody": "Vous connectez un autre appareil Ledger ? Cliquez sur \"Appairer un nouvel appareil\" pour commencer à zéro."
       },
-      "failure": {
-        "body": "Impossible de connecter le porte-monnaie Ledger"
-      },
       "gettingChangeAddress": "Obtention de l'adresse de change...",
       "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil.",
       "signWarning": "Avant de signer, assurez-vous que l'app %{chain} est ouverte sur votre appareil."

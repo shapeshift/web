@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from 'packages/types/src/base'
+import type { Asset } from 'packages/types'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type { BaseReducers } from '../common/tradeInputBase/createTradeInputBaseSlice'

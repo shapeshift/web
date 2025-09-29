@@ -7,7 +7,6 @@ import { useCallback, useMemo } from 'react'
 
 // import { ReceiveSummary } from './components/ReceiveSummary'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import type { FiatRamp } from '@/components/Modals/FiatRamps/config'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
@@ -32,7 +31,6 @@ type FiatRampTradeFooterProps = {
   isLoading: boolean
   rate: string | undefined
   shouldDisablePreviewButton: boolean | undefined
-  rampName: FiatRamp | undefined
   networkFeeFiatUserCurrency: string | undefined
   marketRate?: string
   invertRate?: boolean
@@ -69,7 +67,6 @@ export const FiatRampTradeFooter = ({
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   networkFeeFiatUserCurrency,
   marketRate,
-  rampName,
   invertRate,
   noExpand,
   quoteStatusTranslation,

@@ -76,10 +76,6 @@ export const FiatInput: React.FC<FiatInputProps> = ({
     return selectedFiatCurrency.symbol
   }, [selectedFiatCurrency, showPrefix])
 
-  console.log({
-    fiatSymbol,
-  })
-
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
       if (onAmountChange) {

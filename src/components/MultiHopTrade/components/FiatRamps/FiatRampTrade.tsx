@@ -315,7 +315,6 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         !hasUserEnteredAmount ||
         (!sellAsset && !sellFiatCurrency) ||
         (!buyAsset && !buyFiatCurrency),
-      rampName: undefined,
       networkFeeFiatUserCurrency: selectedQuote?.networkFee ?? '0',
       quoteStatusTranslation: 'trade.previewTrade',
       noExpand: true,

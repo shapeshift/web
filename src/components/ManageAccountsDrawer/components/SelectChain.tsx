@@ -40,9 +40,7 @@ const ChainButton = ({
 }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const handleClick = useCallback(() => {
-    onClick(chainId)
-  }, [chainId, onClick])
+  const handleClick = useCallback(() => onClick(chainId), [chainId, onClick])
 
   const chainAdapter = useMemo(() => {
     return assertGetChainAdapter(chainId)

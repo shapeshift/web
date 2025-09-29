@@ -369,8 +369,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         SideComponent={SideComponent}
         shouldOpenSideComponent={Boolean(
           direction === FiatRampAction.Buy
-            ? bnOrZero(sellFiatAmount).toFixed()
-            : bnOrZero(sellAmountCryptoPrecision).toFixed(),
+            ? bnOrZero(sellFiatAmount).gt(0)
+            : bnOrZero(sellAmountCryptoPrecision).gt(0),
         )}
         tradeInputTab={
           direction === FiatRampAction.Buy ? TradeInputTab.BuyFiat : TradeInputTab.SellFiat

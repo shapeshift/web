@@ -128,7 +128,8 @@ export const useLedgerConnectionState = () => {
 
     if (!shouldDisconnectWallet) return
 
-    // Add 1000ms debounce to handle quick hardware reconnections
+    // Add 1000ms debounce to handle unstable Ledger USB connections that cause rapid
+    // disconnect/reconnect cycles (often <200ms apart) which aren't actual disconnections
     const disconnectTimeoutId = setTimeout(() => {
       // Check if still disconnected after debounce period
       if (deviceState === 'disconnected') {

@@ -250,7 +250,9 @@ export const ExploreCategory = () => {
           display='flex'
           flexDir='column'
           flex='1 1 auto'
-          height={'calc(100vh - var(--mobile-nav-offset) - 140px)'}
+          height={
+            'calc(100vh - var(--mobile-nav-offset) - 80px - var(--safe-area-inset-top) - env(safe-area-inset-top))'
+          }
         >
           <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>
             <InputGroup size='md'>

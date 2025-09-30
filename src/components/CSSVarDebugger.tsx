@@ -1,4 +1,4 @@
-import { Box, Text as CText, HStack, VStack } from '@chakra-ui/react'
+import { Box, HStack, Text as CText, VStack } from '@chakra-ui/react'
 import { memo, useEffect, useState } from 'react'
 
 export const CSSVarDebugger = memo(() => {

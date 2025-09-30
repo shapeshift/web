@@ -48,6 +48,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!runeAsset) return
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
+      if (!epochs.length) return
 
       const latestEpoch = epochs[0]
 

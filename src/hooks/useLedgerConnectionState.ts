@@ -25,6 +25,8 @@ export const useLedgerConnectionState = () => {
   const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
 
   const { dispatch, state, getAdapter } = useWallet()
+  // Hoist specific fields to prevent debounce starvation from unrelated state changes
+  const { connectedType, isConnected, wallet, walletInfo } = state
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
@@ -113,36 +115,51 @@ export const useLedgerConnectionState = () => {
   useEffect(() => {
     if (!isLedgerReadOnlyEnabled) return
 
-    const isCurrentWalletLedger = state.connectedType === KeyManager.Ledger
-    const isWalletConnected = state.isConnected
-    const hasWallet = !!state.wallet
+    const isCurrentWalletLedger = connectedType === KeyManager.Ledger
+    const isWalletConnected = isConnected
+    const hasWallet = !!wallet
     const isUSBDisconnected = deviceState === 'disconnected'
 
     const shouldDisconnectWallet =
-      isCurrentWalletLedger &&
-      isWalletConnected &&
-      hasWallet &&
-      isUSBDisconnected &&
-      state.walletInfo
+      isCurrentWalletLedger && isWalletConnected && hasWallet && isUSBDisconnected && walletInfo
 
     if (!shouldDisconnectWallet) return
 
-    dispatch({
-      type: WalletActions.SET_IS_CONNECTED,
-      payload: false,
-    })
+    // Add 1000ms debounce to handle unstable Ledger USB connections that cause rapid
+    // disconnect/reconnect cycles (often <200ms apart) which aren't actual disconnections
+    const disconnectTimeoutId = setTimeout(() => {
+      // Check if still disconnected after debounce period
+      if (deviceState === 'disconnected') {
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: false,
+        })
 
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        wallet: null,
-        name: LEDGER_NAME,
-        icon: LEDGER_ICON,
-        deviceId: LEDGER_DEVICE_ID,
-        connectedType: KeyManager.Ledger,
-      },
-    })
-  }, [state, deviceState, dispatch, isLedgerReadOnlyEnabled])
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: null,
+            name: LEDGER_NAME,
+            icon: LEDGER_ICON,
+            deviceId: LEDGER_DEVICE_ID,
+            connectedType: KeyManager.Ledger,
+          },
+        })
+      }
+    }, 1000)
+
+    return () => {
+      clearTimeout(disconnectTimeoutId)
+    }
+  }, [
+    connectedType,
+    isConnected,
+    wallet,
+    walletInfo,
+    deviceState,
+    dispatch,
+    isLedgerReadOnlyEnabled,
+  ])
 
   const deviceHelpers = useMemo(
     () => ({

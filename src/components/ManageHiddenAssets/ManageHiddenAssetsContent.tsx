@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { ManageHiddenAssetsList } from './ManageHiddenAssetsList'
 
-export const ManageHiddenAssetsView = () => {
+export const ManageHiddenAssetsContent = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
 

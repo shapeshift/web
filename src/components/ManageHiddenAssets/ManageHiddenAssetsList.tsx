@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { isSome } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -33,6 +34,8 @@ const eyeIcon = <TbEye />
 const externalLinkIcon = <TbExternalLink />
 const fileTextIcon = <TbFileText />
 
+const hoverStylesSx = { _hover: { bg: 'gray.50', _dark: { bg: 'gray.700' } } }
+
 type ManageHiddenAssetsListProps = {
   onClose?: () => void
 }
@@ -44,9 +47,9 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
 
-  const hiddenAssets = useAppSelector(state => {
-    return spamMarkedAssetIds.map(assetId => selectAssetById(state, assetId)).filter(Boolean)
-  })
+  const hiddenAssets = useAppSelector(state =>
+    spamMarkedAssetIds.map(assetId => selectAssetById(state, assetId)).filter(isSome),
+  )
 
   const handleShowAsset = useCallback(
     (assetId: AssetId) => {
@@ -81,8 +84,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     return asset.explorer
   }
 
-  const hoverStyles = useMemo(() => ({ bg: 'gray.50', _dark: { bg: 'gray.700' } }), [])
-
   const AssetRow: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
@@ -98,7 +99,7 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     if (!asset) return null
 
     return (
-      <Flex align='center' justify='space-between' p={4} borderRadius='md' _hover={hoverStyles}>
+      <Flex align='center' justify='space-between' p={4} borderRadius='md' sx={hoverStylesSx}>
         <Flex align='center' gap={3} flex={1}>
           <AssetIcon assetId={assetId} size='sm' />
           <Box>
@@ -170,9 +171,9 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
 
   return (
     <Stack spacing={1}>
-      {hiddenAssets.map(asset =>
-        asset ? <AssetRow key={asset.assetId} assetId={asset.assetId} /> : null,
-      )}
+      {hiddenAssets.map(asset => (
+        <AssetRow key={asset.assetId} assetId={asset.assetId} />
+      ))}
     </Stack>
   )
 }

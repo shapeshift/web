@@ -25,6 +25,8 @@ export const useLedgerConnectionState = () => {
   const [connectionState, setConnectionState] = useState<ConnectionState>('idle')
 
   const { dispatch, state, getAdapter } = useWallet()
+  // Hoist specific fields to prevent debounce starvation from unrelated state changes
+  const { connectedType, isConnected, wallet, walletInfo } = state
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
@@ -113,17 +115,13 @@ export const useLedgerConnectionState = () => {
   useEffect(() => {
     if (!isLedgerReadOnlyEnabled) return
 
-    const isCurrentWalletLedger = state.connectedType === KeyManager.Ledger
-    const isWalletConnected = state.isConnected
-    const hasWallet = !!state.wallet
+    const isCurrentWalletLedger = connectedType === KeyManager.Ledger
+    const isWalletConnected = isConnected
+    const hasWallet = !!wallet
     const isUSBDisconnected = deviceState === 'disconnected'
 
     const shouldDisconnectWallet =
-      isCurrentWalletLedger &&
-      isWalletConnected &&
-      hasWallet &&
-      isUSBDisconnected &&
-      state.walletInfo
+      isCurrentWalletLedger && isWalletConnected && hasWallet && isUSBDisconnected && walletInfo
 
     if (!shouldDisconnectWallet) return
 
@@ -153,7 +151,15 @@ export const useLedgerConnectionState = () => {
     return () => {
       clearTimeout(disconnectTimeoutId)
     }
-  }, [state, deviceState, dispatch, isLedgerReadOnlyEnabled])
+  }, [
+    connectedType,
+    isConnected,
+    wallet,
+    walletInfo,
+    deviceState,
+    dispatch,
+    isLedgerReadOnlyEnabled,
+  ])
 
   const deviceHelpers = useMemo(
     () => ({

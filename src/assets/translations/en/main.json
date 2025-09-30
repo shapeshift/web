@@ -2180,8 +2180,8 @@
     "hideAsset": "Hide Asset",
     "showAsset": "Show Asset",
     "spam": {
-      "warning": "This asset will be hidden because you've marked it as spam.",
-      "marked": "This asset is marked as spam.",
+      "warning": "This asset will be hidden across the app and can be shown again by clicking 'Show Asset' in the asset menu.",
+      "marked": "This asset is currently hidden.",
       "reportAsSpam": "Report as spam",
       "reportAsNotSpam": "Mark as not spam"
     },

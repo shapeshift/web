@@ -224,6 +224,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }: GetAddressInput): Promise<string> {
     try {
       this.assertIsAccountTypeSupported(accountType)
+      if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
       const bip44Params = this.getBip44Params({

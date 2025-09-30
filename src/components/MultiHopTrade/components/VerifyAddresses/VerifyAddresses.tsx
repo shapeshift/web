@@ -17,7 +17,7 @@ import {
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { WithBackButton } from '../WithBackButton'
 
@@ -144,12 +144,9 @@ export const VerifyAddresses = () => {
   const fetchAddresses = useCallback(async () => {
     if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
 
-    const deviceId = await wallet.getDeviceID()
-
     const fetchedSellAddress = await getReceiveAddress({
       asset: sellAsset,
       wallet,
-      deviceId,
       accountMetadata: sellAccountMetadata,
       pubKey: fromAccountId(sellAssetAccountId).account,
     })
@@ -162,7 +159,6 @@ export const VerifyAddresses = () => {
       return getReceiveAddress({
         asset: buyAsset,
         wallet,
-        deviceId,
         accountMetadata: buyAccountMetadata,
         pubKey: fromAccountId(buyAssetAccountId).account,
       })
@@ -421,6 +417,10 @@ export const VerifyAddresses = () => {
   const handleBack = useCallback(() => {
     navigate(TradeRoutePaths.Input)
   }, [navigate])
+
+  if (!wallet) {
+    return <Navigate to={TradeRoutePaths.Input} replace />
+  }
 
   return (
     <SlideTransition>

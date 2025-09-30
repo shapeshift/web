@@ -8,17 +8,17 @@ import { describe, expect, it } from 'vitest'
 import type { NumberFormatter, NumberValue } from './useLocaleFormatter'
 import { useLocaleFormatter } from './useLocaleFormatter'
 
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
+import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { TestProviders } from '@/test/TestProviders'
 
-type Scenario = [string, FiatTypeEnum, string[]]
+type Scenario = [string, FiatCurrencyTypeEnum, string[]]
 
 function setup({
   locale,
   fiat,
 }: {
   locale?: string
-  fiat: FiatTypeEnum
+  fiat: FiatCurrencyTypeEnum
 }): RenderHookResult<ReturnType<typeof useLocaleFormatter>, NumberFormatter> {
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -30,7 +30,7 @@ describe('useLocaleFormatter', () => {
   const scenarios: Scenario[] = [
     [
       'en-US',
-      FiatTypeEnum.USD,
+      FiatCurrencyTypeEnum.USD,
       [
         '$123.45',
         '$1,234.45',
@@ -50,7 +50,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'en-GB',
-      FiatTypeEnum.EUR,
+      FiatCurrencyTypeEnum.EUR,
       [
         '€123.45',
         '€1,234.45',
@@ -70,7 +70,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'de-DE',
-      FiatTypeEnum.EUR,
+      FiatCurrencyTypeEnum.EUR,
       [
         '123,45 €',
         '1.234,45 €',
@@ -90,7 +90,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'en',
-      FiatTypeEnum.JPY,
+      FiatCurrencyTypeEnum.JPY,
       [
         '¥123.45',
         '¥1,234.45',
@@ -110,7 +110,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'ja-JP',
-      FiatTypeEnum.JPY,
+      FiatCurrencyTypeEnum.JPY,
       [
         '￥123.45',
         '￥1,234.45',
@@ -130,7 +130,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'en',
-      FiatTypeEnum.LBP,
+      FiatCurrencyTypeEnum.LBP,
       [
         'LBP 123.45',
         'LBP 1,234.45',
@@ -150,7 +150,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'hi-IN',
-      FiatTypeEnum.INR,
+      FiatCurrencyTypeEnum.INR,
       [
         '₹123.45',
         '₹1,234.45',
@@ -170,7 +170,7 @@ describe('useLocaleFormatter', () => {
     ],
     [
       'en-US',
-      FiatTypeEnum.BHD,
+      FiatCurrencyTypeEnum.BHD,
       [
         'BHD 123.45',
         'BHD 1,234.45',
@@ -215,7 +215,7 @@ describe('useLocaleFormatter', () => {
     it.each([
       [
         'en',
-        FiatTypeEnum.EUR,
+        FiatCurrencyTypeEnum.EUR,
         {
           decimal: '.',
           fraction: 2,
@@ -228,7 +228,7 @@ describe('useLocaleFormatter', () => {
       ],
       [
         'es',
-        FiatTypeEnum.EUR,
+        FiatCurrencyTypeEnum.EUR,
         {
           decimal: ',',
           fraction: 2,
@@ -241,7 +241,7 @@ describe('useLocaleFormatter', () => {
       ],
       [
         'en',
-        FiatTypeEnum.BHD,
+        FiatCurrencyTypeEnum.BHD,
         {
           decimal: '.',
           fraction: 3,
@@ -259,7 +259,7 @@ describe('useLocaleFormatter', () => {
     })
 
     it('should default to en/USD', () => {
-      const { result } = setup({ fiat: FiatTypeEnum.USD })
+      const { result } = setup({ fiat: FiatCurrencyTypeEnum.USD })
 
       expect(result.current.number.localeParts).toMatchObject({
         decimal: '.',
@@ -296,7 +296,7 @@ describe('useLocaleFormatter', () => {
     ]
 
     it.each(scenarios)('parses %p and returns %s', ({ number, symbol, options }, expected) => {
-      const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
+      const { result } = setup({ locale: 'en-US', fiat: FiatCurrencyTypeEnum.USD })
 
       expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
     })

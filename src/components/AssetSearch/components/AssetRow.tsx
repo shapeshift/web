@@ -16,12 +16,15 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { defaultLongPressConfig } from '@/constants/longPress'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import { chainIdToChainDisplayName, middleEllipsis } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
@@ -73,6 +76,13 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const {
       state: { isConnected, wallet },
     } = useWallet()
+    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+    const walletType = useAppSelector(selectWalletType)
+    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+    const canDisplayBalances = useMemo(
+      () => isConnected || isLedgerReadOnly,
+      [isConnected, isLedgerReadOnly],
+    )
 
     const assetId = asset?.assetId
     const relatedAssetIdsFilter = useMemo(
@@ -174,7 +184,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       }
 
       if (
-        isConnected &&
+        canDisplayBalances &&
         !hideAssetBalance &&
         !isCustomAsset &&
         (!hideZeroBalanceAmounts || bnOrZero(userCurrencyBalance).gt(0))
@@ -194,7 +204,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       userCurrencyBalance,
       handleImportClick,
       hideAssetBalance,
-      isConnected,
+      canDisplayBalances,
       isCustomAsset,
       showPrice,
       translate,

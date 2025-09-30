@@ -1,6 +1,8 @@
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
+import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
+import { fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import type { ReduxState } from '@/state/reducer'
 import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
@@ -57,7 +59,6 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   portalsApi: mockApiFactory('portalsApi' as const),
-  portals: mockApiFactory('portals' as const),
   swapperApi: mockSwapperApi,
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
@@ -162,6 +163,7 @@ export const mockStore: ReduxState = {
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,
       NewWalletManager: false,
+      SwapperFiatRamps: false,
       LedgerReadOnly: false,
     },
     quickBuyAmounts: [10, 50, 100],
@@ -302,6 +304,25 @@ export const mockStore: ReduxState = {
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
     selectedBuyAssetChainId: 'All',
     selectedSellAssetChainId: 'All',
+  },
+  tradeRampInput: {
+    buyAsset: defaultAsset,
+    sellAsset: defaultAsset,
+    sellAccountId: undefined,
+    buyAccountId: undefined,
+    sellAmountCryptoPrecision: '0',
+    isInputtingFiatSellAmount: false,
+    manualReceiveAddress: undefined,
+    isManualReceiveAddressValidating: false,
+    isManualReceiveAddressEditing: false,
+    isManualReceiveAddressValid: undefined,
+    selectedBuyAssetChainId: 'All',
+    selectedSellAssetChainId: 'All',
+    buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
+    sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
+    sellFiatAmount: '0',
+    slippagePreferencePercentage: undefined,
+    selectedFiatRampQuote: null,
   },
   tradeQuote: {
     activeQuoteMeta: undefined,

@@ -13,6 +13,8 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom'
 
+import { useHoverIntent } from '@/hooks/useHoverIntent'
+
 const menuButtonHoverSx = { bg: 'background.surface.elevated' }
 const menuButtonActiveSx = { bg: 'transparent' }
 
@@ -35,7 +37,31 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  const handleClick = useCallback(() => navigate(defaultPath), [navigate, defaultPath])
+  const { handleMouseEnter, handleMouseLeave } = useHoverIntent(isOpen, onOpen, onClose)
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 1) {
+        // Middle-click
+        e.preventDefault()
+        window.open(`#${defaultPath}`, '_blank')
+      }
+    },
+    [defaultPath],
+  )
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl/Cmd+click
+        e.preventDefault()
+        window.open(`#${defaultPath}`, '_blank')
+      } else {
+        navigate(defaultPath)
+      }
+    },
+    [navigate, defaultPath],
+  )
 
   const isActive = useMemo(() => {
     const currentPath = location.pathname
@@ -63,20 +89,26 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       top: '100%',
       left: 0,
       right: 0,
-      height: '10px',
+      height: '20px',
       display: isOpen ? 'block' : 'none',
     }),
     [isOpen],
   )
 
   return (
-    <Box onMouseEnter={onOpen} onMouseLeave={onClose} position='relative' _after={afterSx}>
+    <Box
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      position='relative'
+      _after={afterSx}
+    >
       <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
         <MenuButton
           as={Button}
           variant='ghost'
           fontWeight='medium'
           onClick={handleClick}
+          onMouseDown={handleMouseDown}
           px={3}
           py={2}
           borderRadius='md'

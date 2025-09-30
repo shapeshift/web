@@ -14,6 +14,7 @@ import {
 import type { TradeAssetSearchProps } from '@/components/TradeAssetSearch/TradeAssetSearch'
 import { TradeAssetSearch } from '@/components/TradeAssetSearch/TradeAssetSearch'
 import { useModal } from '@/hooks/useModal/useModal'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string
@@ -35,6 +36,7 @@ type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onAssetClick,
+  onSelectFiatCurrency,
   close,
   isOpen,
   allowWalletUnsupportedAssets,
@@ -43,6 +45,8 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   chainIdFilterPredicate,
   selectedChainId,
   onSelectedChainIdChange,
+  showFiatTab,
+  showAssetTab,
 }) => {
   const translate = useTranslate()
 
@@ -53,6 +57,15 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
     },
     [close, onAssetClick],
   )
+
+  const handleSelectFiat = useCallback(
+    (fiat: FiatCurrencyItem) => {
+      onSelectFiatCurrency?.(fiat)
+      close()
+    },
+    [onSelectFiatCurrency, close],
+  )
+
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>
       <DialogHeader>
@@ -63,11 +76,14 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       </DialogHeader>
       <TradeAssetSearch
         onAssetClick={handleAssetClick}
+        onSelectFiatCurrency={handleSelectFiat}
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         selectedChainId={selectedChainId}
         onSelectedChainIdChange={onSelectedChainIdChange}
+        showFiatTab={showFiatTab}
+        showAssetTab={showAssetTab}
       />
     </Dialog>
   )

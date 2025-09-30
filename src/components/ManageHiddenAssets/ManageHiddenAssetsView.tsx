@@ -20,7 +20,7 @@ export const ManageHiddenAssetsView = () => {
     <Box height='100%' display='flex' flexDirection='column'>
       <Flex align='center' p={4} borderBottomWidth={1} borderColor='border.base'>
         <IconButton
-          aria-label='Back'
+          aria-label={translate('common.back')}
           icon={arrowBackIcon}
           variant='ghost'
           mr={3}

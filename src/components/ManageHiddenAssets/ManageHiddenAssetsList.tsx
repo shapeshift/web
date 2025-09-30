@@ -126,7 +126,7 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
           <Menu>
             <MenuButton
               as={IconButton}
-              aria-label='More options'
+              aria-label={translate('common.moreOptions')}
               icon={dotsIcon}
               variant='ghost'
               size='sm'

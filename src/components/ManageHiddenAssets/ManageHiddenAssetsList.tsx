@@ -25,6 +25,7 @@ import { isSome } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
+  selectAssets,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -66,7 +67,7 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     [navigate, onClose],
   )
 
-  const assets = useAppSelector(state => state.assets.byId)
+  const assets = useAppSelector(selectAssets)
 
   const getExplorerHref = (assetId: AssetId) => {
     const asset = assets[assetId]

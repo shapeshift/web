@@ -964,6 +964,8 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
       .filter(isSome)
       .sort((a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber())
 
+    if (relatedAssets.length === 0) return null
+
     const totalFiatBalance = allRelatedAssetIds
       .reduce((sum, assetId) => {
         if (spamAssetIdsSet.has(assetId)) return sum

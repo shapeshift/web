@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
+import { Box, Button, Divider, Link, Stack, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
@@ -17,7 +17,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isNativeHDWallet } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectRelatedAssetIdsByAssetIdInclusive } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const starIcon = <TbStar />
@@ -40,6 +40,11 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const relatedAssetIds = useAppSelector(
+    state => selectRelatedAssetIdsByAssetIdInclusive(state)[assetId],
+  )
+  const canHideAsset = !asset?.isPrimary || !relatedAssetIds || relatedAssetIds.length <= 1
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
@@ -147,20 +152,29 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
                   </Button>
                 </Link>
               )}
-              <Button
-                variant='ghost'
-                px={6}
-                width='full'
-                height={14}
-                color='red.400'
-                leftIcon={flagIcon}
-                onClick={handleToggleSpam}
-                justifyContent='flex-start'
-                size='lg'
-                fontSize='md'
+              <Tooltip
+                label={canHideAsset ? '' : translate('assets.cannotHidePrimary')}
+                hasArrow
+                isDisabled={canHideAsset}
               >
-                {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
-              </Button>
+                <Button
+                  variant='ghost'
+                  px={6}
+                  width='full'
+                  height={14}
+                  color={isSpamMarked ? 'inherit' : 'red.400'}
+                  leftIcon={flagIcon}
+                  onClick={canHideAsset ? handleToggleSpam : undefined}
+                  justifyContent='flex-start'
+                  size='lg'
+                  fontSize='md'
+                  isDisabled={!canHideAsset}
+                  opacity={canHideAsset ? 1 : 0.6}
+                  cursor={canHideAsset ? 'pointer' : 'not-allowed'}
+                >
+                  {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
+                </Button>
+              </Tooltip>
             </Stack>
           )}
         </DialogBody>

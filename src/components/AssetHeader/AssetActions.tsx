@@ -9,6 +9,7 @@ import {
   MenuItem,
   MenuList,
   Stack,
+  Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, isNft } from '@shapeshiftoss/caip'
@@ -34,7 +35,7 @@ import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectRelatedAssetIdsByAssetIdInclusive } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const IconButtonAfter = {
@@ -95,6 +96,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
+  const relatedAssetIds = useAppSelector(
+    state => selectRelatedAssetIdsByAssetIdInclusive(state)[assetId],
+  )
+  const canHideAsset = !asset.isPrimary || !relatedAssetIds || relatedAssetIds.length <= 1
 
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const walletType = useAppSelector(selectWalletType)
@@ -345,15 +351,23 @@ export const AssetActions: React.FC<AssetActionProps> = ({
                 {translate('common.viewOnExplorer')}
               </MenuItem>
             )}
-            <MenuItem
-              as='a'
-              icon={flagIcon}
-              onClick={handleToggleSpam}
-              color={isSpamMarked ? 'inherit' : 'red.400'}
-              cursor='pointer'
+            <Tooltip
+              label={canHideAsset ? '' : translate('assets.cannotHidePrimary')}
+              hasArrow
+              isDisabled={canHideAsset}
             >
-              {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
-            </MenuItem>
+              <MenuItem
+                as='a'
+                icon={flagIcon}
+                onClick={canHideAsset ? handleToggleSpam : undefined}
+                color={isSpamMarked ? 'inherit' : 'red.400'}
+                cursor={canHideAsset ? 'pointer' : 'not-allowed'}
+                isDisabled={!canHideAsset}
+                opacity={canHideAsset ? 1 : 0.6}
+              >
+                {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
+              </MenuItem>
+            </Tooltip>
           </MenuList>
         </Menu>
       </Flex>

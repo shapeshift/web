@@ -2179,6 +2179,7 @@
     "more": "More",
     "hideAsset": "Hide Asset",
     "showAsset": "Show Asset",
+    "cannotHidePrimary": "Cannot hide primary assets that have related variants",
     "spam": {
       "warning": "This asset can be shown again by opening the wallet dropdown and clicking 'Manage Hidden Assets'.",
       "marked": "This asset is currently hidden."

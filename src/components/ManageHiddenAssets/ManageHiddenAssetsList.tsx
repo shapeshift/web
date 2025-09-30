@@ -85,9 +85,9 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
 
   const AssetRow: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
     const asset = useAppSelector(state => selectAssetById(state, assetId))
-    const filter = useMemo(() => ({ assetId }), [assetId])
+    const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
     const cryptoBalance = useAppSelector(state =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+      selectPortfolioCryptoPrecisionBalanceByFilter(state, assetBalanceFilter),
     )
 
     const explorerHref = useMemo(() => getExplorerHref(assetId), [assetId])

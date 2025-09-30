@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
+    "viewAssetDetails": "View Asset Details",
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
@@ -2176,6 +2177,8 @@
   },
   "assets": {
     "more": "More",
+    "hideAsset": "Hide Asset",
+    "showAsset": "Show Asset",
     "spam": {
       "warning": "This asset will be hidden because you've marked it as spam.",
       "marked": "This asset is marked as spam.",
@@ -2794,6 +2797,14 @@
       "cta": "Explore more assets"
     },
     "title": "Watchlist"
+  },
+  "manageHiddenAssets": {
+    "title": "Manage Hidden Assets",
+    "menuTitle": "Manage Hidden Assets",
+    "empty": {
+      "title": "No hidden assets",
+      "body": "Assets you hide will appear here, making it easy to show them again later."
+    }
   },
   "explore": {
     "pools": {

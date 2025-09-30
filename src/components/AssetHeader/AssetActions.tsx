@@ -352,9 +352,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
               color={isSpamMarked ? 'inherit' : 'red.400'}
               cursor='pointer'
             >
-              {isSpamMarked
-                ? translate('assets.spam.reportAsNotSpam')
-                : translate('assets.spam.reportAsSpam')}
+              {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
             </MenuItem>
           </MenuList>
         </Menu>

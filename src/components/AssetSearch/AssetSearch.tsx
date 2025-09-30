@@ -16,6 +16,7 @@ import { AssetList } from './components/AssetList'
 import { ChainList } from '@/components/TradeAssetSearch/Chains/ChainList'
 import { searchAssets } from '@/lib/assetSearch'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectWalletConnectedChainIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -39,15 +40,22 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const navigate = useNavigate()
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
 
   const supportedAssets = useMemo(() => {
     const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
+
+    // Filter out spam-marked assets from search results
+    const nonSpamAssets = fungibleAssets.filter(
+      asset => !spamMarkedAssetIds.includes(asset.assetId),
+    )
+
     if (allowWalletUnsupportedAssets) {
-      return fungibleAssets
+      return nonSpamAssets
     }
 
-    return fungibleAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
-  }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
+    return nonSpamAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+  }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds, spamMarkedAssetIds])
 
   /**
    * assets filtered by selected chain ids

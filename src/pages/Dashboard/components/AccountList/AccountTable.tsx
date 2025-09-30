@@ -31,6 +31,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import type { AccountRowData, AccountRowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
@@ -50,8 +51,15 @@ type AccountTableProps = {
 
 export const AccountTable = memo(({ forceCompactView = false }: AccountTableProps) => {
   const loading = useSelector(selectIsPortfolioLoading)
-  const rowData = useSelector(selectPrimaryPortfolioAccountRowsSortedByBalance)
+  const allRowData = useSelector(selectPrimaryPortfolioAccountRowsSortedByBalance)
   const assets = useSelector(selectAssets)
+  const spamMarkedAssetIds = useSelector(preferences.selectors.selectSpamMarkedAssetIds)
+
+  // Filter out spam-marked assets from the portfolio view
+  const rowData = useMemo(
+    () => allRowData.filter(row => !spamMarkedAssetIds.includes(row.assetId)),
+    [allRowData, spamMarkedAssetIds],
+  )
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
   const walletDrawer = useModal('walletDrawer')

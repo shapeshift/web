@@ -3,6 +3,7 @@ import {
   CloseIcon,
   RepeatIcon,
   SettingsIcon,
+  ViewIcon,
   WarningTwoIcon,
 } from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
@@ -32,6 +33,7 @@ const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
 const repeatIcon = <RepeatIcon />
 const settingsIcon = <SettingsIcon />
+const viewIcon = <ViewIcon />
 
 const ConnectedMenu = memo(
   ({
@@ -48,6 +50,7 @@ const ConnectedMenu = memo(
     const { navigateToRoute } = useMenuRoutes()
     const translate = useTranslate()
     const settings = useModal('settings')
+    const manageHiddenAssets = useModal('manageHiddenAssets')
     const walletType = useAppSelector(selectWalletType)
     const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
     const ConnectMenuComponent = useMemo(
@@ -67,6 +70,11 @@ const ConnectedMenu = memo(
       onClose && onClose()
       settings.open({})
     }, [onClose, settings])
+
+    const handleManageHiddenAssetsClick = useCallback(() => {
+      onClose && onClose()
+      manageHiddenAssets.open({})
+    }, [onClose, manageHiddenAssets])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isLedger = walletType === KeyManager.Ledger
@@ -118,6 +126,10 @@ const ConnectedMenu = memo(
         <MenuDivider />
         <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
+          <MenuDivider />
+          <MenuItem icon={viewIcon} onClick={handleManageHiddenAssetsClick}>
+            {translate('manageHiddenAssets.menuTitle')}
+          </MenuItem>
           <MenuDivider />
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}

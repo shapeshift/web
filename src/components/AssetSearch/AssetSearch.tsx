@@ -47,11 +47,9 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     const fungibleAssets = assets.filter(
       asset => !isNft(asset.assetId) && !spamAssetIdsSet.has(asset.assetId),
     )
-
     if (allowWalletUnsupportedAssets) {
       return fungibleAssets
     }
-
     return fungibleAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
   }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds, spamMarkedAssetIds])
 

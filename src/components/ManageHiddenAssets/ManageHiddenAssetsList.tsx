@@ -110,7 +110,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
             </Text>
           </Box>
         </Flex>
-
         <Flex align='center' gap={3}>
           <Stack spacing={0} fontWeight='medium' textAlign='right'>
             <Amount.Crypto
@@ -122,7 +121,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
               truncateLargeNumbers={true}
             />
           </Stack>
-
           <Menu>
             <MenuButton
               as={IconButton}

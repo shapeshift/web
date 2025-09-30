@@ -238,20 +238,11 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   lineHeight={1}
                   value={groupedAssetBalances?.primaryAsset.fiatAmount.toString()}
                 />
-                <Flex>
-                  {networksIcons}
-                  <Center
-                    bg='background.button.secondary.base'
-                    borderRightRadius='full'
-                    pl={2}
-                    ml={-2}
-                  >
-                    {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                  </Center>
-                </Flex>
+                <Flex>{networksIcons}</Flex>
               </Flex>
             )}
         </Flex>
+        <Center boxSize={8}>{isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}</Center>
       </Button>
 
       <Collapse in={isOpen} unmountOnExit>

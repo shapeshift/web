@@ -2180,10 +2180,8 @@
     "hideAsset": "Hide Asset",
     "showAsset": "Show Asset",
     "spam": {
-      "warning": "This asset will be hidden across the app and can be shown again by opening the wallet dropdown and clicking 'Manage Hidden Assets'.",
-      "marked": "This asset is currently hidden.",
-      "reportAsSpam": "Report as spam",
-      "reportAsNotSpam": "Mark as not spam"
+      "warning": "This asset can be shown again by opening the wallet dropdown and clicking 'Manage Hidden Assets'.",
+      "marked": "This asset is currently hidden."
     },
     "assetDetails": {
       "assetHeader": {

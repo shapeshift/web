@@ -147,21 +147,25 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
   selectPortfolioAssetBalancesBaseUnit,
   preferences.selectors.selectBalanceThresholdUserCurrency,
   preferences.selectors.selectSpamMarkedAssetIds,
-  (assetsById, marketData, balances, balanceThresholdUserCurrency, spamMarkedAssetIds) =>
-    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
-      const asset = assetsById[assetId]
-      if (!asset) return acc
-      // Exclude spam-marked (hidden) assets from portfolio calculations
-      if (spamMarkedAssetIds.includes(assetId)) return acc
-      const precision = asset.precision
-      if (precision === undefined) return acc
-      const price = marketData[assetId]?.price
-      const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-      const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
-      acc[assetId] = assetUserCurrencyBalance.toFixed(2)
-      return acc
-    }, {}),
+  (assetsById, marketData, balances, balanceThresholdUserCurrency, spamMarkedAssetIds) => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+    return Object.entries(balances).reduce<Record<AssetId, string>>(
+      (acc, [assetId, baseUnitBalance]) => {
+        const asset = assetsById[assetId]
+        if (!asset) return acc
+        if (spamAssetIdsSet.has(assetId)) return acc
+        const precision = asset.precision
+        if (precision === undefined) return acc
+        const price = marketData[assetId]?.price
+        const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
+        const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
+        if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+        acc[assetId] = assetUserCurrencyBalance.toFixed(2)
+        return acc
+      },
+      {},
+    )
+  },
 )
 
 export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSelector(

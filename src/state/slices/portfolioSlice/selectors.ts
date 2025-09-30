@@ -765,12 +765,12 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
     totalPortfolioUserCurrencyBalance,
     spamMarkedAssetIds,
   ): AccountRowData[] => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
     const assetRows = Object.entries(balances).reduce<AccountRowData[]>(
       (acc, [assetId, baseUnitBalance]) => {
         const asset = assetsById[assetId]
         if (!asset) return acc
-        // Exclude spam-marked (hidden) assets from portfolio rows
-        if (spamMarkedAssetIds.includes(assetId)) return acc
+        if (spamAssetIdsSet.has(assetId)) return acc
         const { name, icon, symbol, precision } = asset
         const price = marketData[assetId]?.price ?? '0'
         const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
@@ -916,6 +916,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
     spamMarkedAssetIds,
     primaryAssetId,
   ): GroupedAssetBalance | null => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
     const primaryAsset = assetsById[primaryAssetId]
     const primaryRow = accountRows.find(row => row.assetId === primaryAssetId) ?? {
       assetId: primaryAssetId,
@@ -935,8 +936,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
     const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId] || []
     const relatedAssets = allRelatedAssetIds
       .map(assetId => {
-        // Exclude spam-marked (hidden) assets from related assets list
-        if (spamMarkedAssetIds.includes(assetId)) return null
+        if (spamAssetIdsSet.has(assetId)) return null
 
         const row = accountRows.find(row => row.assetId === assetId)
         const asset = assetsById[assetId]
@@ -966,8 +966,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
 
     const totalFiatBalance = allRelatedAssetIds
       .reduce((sum, assetId) => {
-        // Exclude spam-marked (hidden) assets from total calculations
-        if (spamMarkedAssetIds.includes(assetId)) return sum
+        if (spamAssetIdsSet.has(assetId)) return sum
         const row = accountRows.find(row => row.assetId === assetId)
         return sum.plus(row?.fiatAmount ?? '0')
       }, bnOrZero(0))
@@ -975,8 +974,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
 
     const totalCryptoBalance = allRelatedAssetIds
       .reduce((sum, assetId) => {
-        // Exclude spam-marked (hidden) assets from total calculations
-        if (spamMarkedAssetIds.includes(assetId)) return sum
+        if (spamAssetIdsSet.has(assetId)) return sum
         const row = accountRows.find(row => row.assetId === assetId)
         return sum.plus(row?.cryptoAmount ?? '0')
       }, bnOrZero(0))

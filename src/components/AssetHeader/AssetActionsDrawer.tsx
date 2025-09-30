@@ -159,9 +159,7 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
                 size='lg'
                 fontSize='md'
               >
-                {isSpamMarked
-                  ? translate('assets.spam.reportAsNotSpam')
-                  : translate('assets.spam.reportAsSpam')}
+                {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
               </Button>
             </Stack>
           )}

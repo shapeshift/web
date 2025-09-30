@@ -29,7 +29,14 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
   selectOnlyConnectedChainsParamFromFilter,
   selectAssets,
   preferences.selectors.selectSpamMarkedAssetIds,
-  (relatedAssetIndex, asset, walletConnectedChainIds, onlyConnectedChains, assets, spamMarkedAssetIds): AssetId[] => {
+  (
+    relatedAssetIndex,
+    asset,
+    walletConnectedChainIds,
+    onlyConnectedChains,
+    assets,
+    spamMarkedAssetIds,
+  ): AssetId[] => {
     if (!asset) return []
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
@@ -40,8 +47,9 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
       .filter(assetId => assets?.[assetId])
 
     // `asset.assetId` may be the same as `relatedAssetKey`, so dedupe
-    const relatedAssetIdsInclusive = Array.from(new Set(relatedAssetIdsInclusiveWithDuplicates))
-      .filter(assetId => !spamMarkedAssetIds.includes(assetId))
+    const relatedAssetIdsInclusive = Array.from(
+      new Set(relatedAssetIdsInclusiveWithDuplicates),
+    ).filter(assetId => assetId === asset.assetId || !spamMarkedAssetIds.includes(assetId))
 
     if (!onlyConnectedChains) return relatedAssetIdsInclusive
 

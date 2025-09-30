@@ -49,9 +49,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
 
-      const latestEpoch = epochs.reduce((prev, current) => {
-        return current.number > prev.number ? current : prev
-      })
+      const latestEpoch = epochs[0]
 
       const distributionRate =
         latestEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]

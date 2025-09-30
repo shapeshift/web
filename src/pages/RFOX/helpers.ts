@@ -36,7 +36,7 @@ export const selectStakingBalance = (abiStakingInfo: AbiStakingInfo) => {
 }
 
 export const selectLastEpoch = (data: EpochWithIpfsHash[]): EpochWithIpfsHash | undefined => {
-  return data[data.length - 1]
+  return data[0]
 }
 
 const stakingContractByAssetId = {

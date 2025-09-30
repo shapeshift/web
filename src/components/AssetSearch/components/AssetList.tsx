@@ -156,7 +156,7 @@ export const AssetList: FC<AssetListProps> = ({
     return (
       <Box
         maxHeight={height}
-        overflow='visible'
+        overflow='auto'
         height='auto'
         minH='50vh'
         className='scroll-container'

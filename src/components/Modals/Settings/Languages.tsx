@@ -1,5 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Flex, Icon, IconButton, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -9,6 +9,12 @@ import type { MaybeDrawerProps } from './SettingsCommon'
 
 import { locales } from '@/assets/translations/constants'
 import { getLocaleLabel } from '@/assets/translations/utils'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+} from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -78,24 +84,28 @@ export const Languages = ({ isDrawer = false }: MaybeDrawerProps) => {
 
   return (
     <SlideTransition>
-      <IconButton
-        variant='ghost'
-        icon={arrowBackIcon}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={handleGoBack}
-      />
-      <ModalHeader textAlign='center'>{translate('modals.settings.language')}</ModalHeader>
+      <DialogHeader textAlign='center'>
+        <DialogHeaderLeft>
+          <IconButton
+            variant='ghost'
+            icon={arrowBackIcon}
+            aria-label={translate('common.back')}
+            position='absolute'
+            top={2}
+            left={3}
+            fontSize='xl'
+            size='sm'
+            isRound
+            onClick={handleGoBack}
+          />
+        </DialogHeaderLeft>
+        <DialogHeaderMiddle>{translate('modals.settings.language')}</DialogHeaderMiddle>
+      </DialogHeader>
       <>
-        <ModalBody alignItems='center' justifyContent='center' textAlign='center'>
+        <DialogBody alignItems='center' justifyContent='center' textAlign='center'>
           {selectedLocaleButton}
           {otherLocaleButtons}
-        </ModalBody>
+        </DialogBody>
       </>
     </SlideTransition>
   )

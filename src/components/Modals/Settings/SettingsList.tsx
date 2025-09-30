@@ -1,10 +1,16 @@
-import { ModalBody, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { SettingsContent } from './SettingsContent'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import {
+  DialogHeader,
+  DialogHeaderMiddle,
+  DialogHeaderRight,
+} from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -31,13 +37,15 @@ export const SettingsList: FC = () => {
 
   return (
     <SlideTransition>
-      <ModalHeader textAlign='center' userSelect='none' onClick={handleHeaderClick}>
-        {translate('modals.settings.settings')}
-      </ModalHeader>
-      <ModalCloseButton />
-      <ModalBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
+      <DialogHeader textAlign='center' userSelect='none' onClick={handleHeaderClick}>
+        <DialogHeaderMiddle> {translate('modals.settings.settings')} </DialogHeaderMiddle>
+        <DialogHeaderRight>
+          <DialogCloseButton />
+        </DialogHeaderRight>
+      </DialogHeader>
+      <DialogBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
         <SettingsContent />
-      </ModalBody>
+      </DialogBody>
     </SlideTransition>
   )
 }

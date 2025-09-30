@@ -1,5 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Flex, Icon, IconButton, Stack } from '@chakra-ui/react'
 import sortBy from 'lodash/sortBy'
 import { useCallback, useMemo } from 'react'
 import { FaCheck } from 'react-icons/fa'
@@ -9,6 +9,12 @@ import { useNavigate } from 'react-router-dom'
 import type { MaybeDrawerProps } from './SettingsCommon'
 import { currencyFormatsRepresenter } from './SettingsCommon'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+} from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { CurrencyFormats, preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -75,21 +81,25 @@ export const CurrencyFormat = ({ isDrawer = false }: MaybeDrawerProps) => {
 
   return (
     <SlideTransition>
-      <IconButton
-        variant='ghost'
-        icon={arrowBackIcon}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={handleGoBack}
-      />
-      <ModalHeader textAlign='center'>{translate('modals.settings.currencyFormat')}</ModalHeader>
+      <DialogHeader textAlign='center'>
+        <DialogHeaderLeft>
+          <IconButton
+            variant='ghost'
+            icon={arrowBackIcon}
+            aria-label={translate('common.back')}
+            position='absolute'
+            top={2}
+            left={3}
+            fontSize='xl'
+            size='sm'
+            isRound
+            onClick={handleGoBack}
+          />
+        </DialogHeaderLeft>
+        <DialogHeaderMiddle>{translate('modals.settings.currencyFormat')}</DialogHeaderMiddle>
+      </DialogHeader>
       <>
-        <ModalBody
+        <DialogBody
           alignItems='center'
           justifyContent='center'
           textAlign='center'
@@ -98,7 +108,7 @@ export const CurrencyFormat = ({ isDrawer = false }: MaybeDrawerProps) => {
           overflowX='hidden'
         >
           {formatButtons}
-        </ModalBody>
+        </DialogBody>
       </>
     </SlideTransition>
   )

@@ -1,15 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  IconButton,
-  ModalBody,
-  ModalHeader,
-  Stack,
-  Tooltip,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, Icon, IconButton, Stack, Tooltip } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -17,6 +7,12 @@ import { useNavigate } from 'react-router-dom'
 
 import type { MaybeDrawerProps } from './SettingsCommon'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+} from '@/components/Modal/components/DialogHeader'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { reloadWebview } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
@@ -125,21 +121,25 @@ export const ClearCache = ({ isDrawer = false }: MaybeDrawerProps) => {
 
   return (
     <SlideTransition>
-      <IconButton
-        variant='ghost'
-        icon={arrowBackIcon}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={goBack}
-      />
-      <ModalHeader textAlign='center'>{translate('modals.settings.clearCache')}</ModalHeader>
+      <DialogHeader textAlign='center'>
+        <DialogHeaderLeft>
+          <IconButton
+            variant='ghost'
+            icon={arrowBackIcon}
+            aria-label={translate('common.back')}
+            position='absolute'
+            top={2}
+            left={3}
+            fontSize='xl'
+            size='sm'
+            isRound
+            onClick={goBack}
+          />
+        </DialogHeaderLeft>
+        <DialogHeaderMiddle>{translate('modals.settings.clearCache')}</DialogHeaderMiddle>
+      </DialogHeader>
       <>
-        <ModalBody
+        <DialogBody
           alignItems='center'
           justifyContent='center'
           textAlign='center'
@@ -148,7 +148,7 @@ export const ClearCache = ({ isDrawer = false }: MaybeDrawerProps) => {
           overflowX='hidden'
         >
           {clearButtons}
-        </ModalBody>
+        </DialogBody>
       </>
     </SlideTransition>
   )

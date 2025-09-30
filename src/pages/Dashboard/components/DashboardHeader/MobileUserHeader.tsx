@@ -1,6 +1,6 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Text } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -41,6 +41,24 @@ export const MobileUserHeader = ({
     () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
     [mipdProviders, maybeRdns],
   )
+
+  useLayoutEffect(() => {
+    const body = document.body
+    const header = document.querySelector('.mobile-user-header')
+    if (window.visualViewport) {
+      const vv = window.visualViewport
+      const fixPosition = () => {
+        if (body && header) {
+          body.style.setProperty('--mobile-header-user-offset', `${header.clientHeight}px`)
+        }
+      }
+      vv.addEventListener('resize', fixPosition)
+      fixPosition()
+      return () => {
+        window.removeEventListener('resize', fixPosition)
+      }
+    }
+  }, [])
 
   const label = useMemo(
     () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,

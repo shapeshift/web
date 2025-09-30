@@ -263,7 +263,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
 
   if (direction === FiatRampAction.Buy) {
     return (
-      <Stack spacing={4}>
+      <Stack spacing={4} height='100%' overflowY='auto'>
         <FiatInput
           selectedFiatCurrency={sellFiatCurrency}
           amount={sellFiatAmount}
@@ -296,7 +296,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   }
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} height='100%' overflowY='auto'>
       <TradeAssetInput
         accountId={undefined}
         assetId={sellAsset.assetId}

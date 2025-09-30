@@ -16,6 +16,7 @@ import { MaxSlippage } from './MaxSlippage'
 import { Protocol } from './Protocol'
 import { RecipientAddress } from './RecipientAddress'
 
+import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
@@ -348,6 +349,10 @@ export const ConfirmSummary = ({
     priceImpactColor,
   ])
 
+  const swapperIcon = useMemo(() => {
+    return <SwapperIcons swapperName={activeSwapperName} swapSource={tradeQuoteStep?.source} />
+  }, [activeSwapperName, tradeQuoteStep?.source])
+
   return (
     <SharedTradeInputFooter
       affiliateBps={affiliateBps}
@@ -372,8 +377,8 @@ export const ConfirmSummary = ({
         {(isCompact || isSmallerThanXl) && (
           <Protocol
             onClick={handleOpenCompactQuoteList}
-            swapSource={tradeQuoteStep?.source}
-            swapperName={activeSwapperName}
+            title={tradeQuoteStep?.source}
+            icon={swapperIcon}
           />
         )}
         <RecipientAddress

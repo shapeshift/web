@@ -24,7 +24,7 @@ import { getConfig } from '@/config'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from '@/lib/portals/constants'
 import type { GetTokensResponse, HistoryResponse } from '@/lib/portals/types'
-import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
+import { assertUnreachable, getStableTimestamp, getTimeFrameBounds } from '@/lib/utils'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)
@@ -128,7 +128,7 @@ export class PortalsMarketService implements MarketService {
       const url = `${this.baseUrl}/v2/tokens/history`
       const params = {
         id,
-        from: Math.floor(Date.now() / 1000) - 86400, // 24 hours ago
+        from: dayjs(getStableTimestamp(5)).subtract(24, 'hours').unix(),
         resolution: '1d',
         page: 0,
       }
@@ -172,7 +172,7 @@ export class PortalsMarketService implements MarketService {
     }
 
     const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
-    const { start: _start, end } = getTimeFrameBounds(timeframe)
+    const { start: _start, end } = getTimeFrameBounds(timeframe, 5)
 
     const resolution = (() => {
       switch (timeframe) {
@@ -194,7 +194,9 @@ export class PortalsMarketService implements MarketService {
     try {
       // Portals can only get historical market data up to 1 year ago
       const start =
-        timeframe === HistoryTimeframe.ALL ? dayjs().startOf('minute').subtract(1, 'year') : _start
+        timeframe === HistoryTimeframe.ALL
+          ? dayjs(getStableTimestamp(5)).subtract(1, 'year')
+          : _start
       const from = Math.floor(start.valueOf() / 1000)
       const to = Math.floor(end.valueOf() / 1000)
       const url = `${this.baseUrl}/v2/tokens/history`

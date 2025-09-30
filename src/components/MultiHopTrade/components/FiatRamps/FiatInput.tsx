@@ -1,23 +1,24 @@
 import type { InputProps } from '@chakra-ui/react'
-import { Box, Flex, Input, Text } from '@chakra-ui/react'
+import { Box, Flex, Input, Skeleton, Text } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
-import { FiatTypeEnum } from '@/constants/FiatTypeEnum'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 type FiatInputProps = {
-  selectedFiat?: FiatTypeEnumWithoutCryptos
+  selectedFiatCurrency: FiatCurrencyItem
   amount: string
   placeholder?: string
   label: string
   onAmountChange?: (amount: string) => void
   labelPostFix?: React.ReactNode
+  showPrefix?: boolean
   isReadOnly?: boolean
   quickAmounts?: string[]
   onQuickAmountClick?: (amount: string) => void
+  isLoading?: boolean
 }
 
 const percentHover = {
@@ -54,32 +55,31 @@ const AmountInput = (props: InputProps) => {
 }
 
 export const FiatInput: React.FC<FiatInputProps> = ({
-  selectedFiat,
+  selectedFiatCurrency,
   amount,
   placeholder,
   label,
   onAmountChange,
   labelPostFix,
+  showPrefix = true,
   isReadOnly = false,
-  quickAmounts = ['$100', '$300', '$1,000'],
+  quickAmounts = ['100', '300', '1000'],
   onQuickAmountClick,
+  isLoading = false,
 }) => {
   const {
     number: { localeParts },
   } = useLocaleFormatter()
+
+  const fiatSymbol = useMemo(() => {
+    if (!showPrefix) return ''
+    return selectedFiatCurrency.symbol
+  }, [selectedFiatCurrency, showPrefix])
+
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
       if (onAmountChange) {
-        onAmountChange(values.value.replace('$', '').replace(',', ''))
-      }
-    },
-    [onAmountChange],
-  )
-
-  const handleOnChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (onAmountChange) {
-        onAmountChange(e.target.value.replace('$', '').replace(',', ''))
+        onAmountChange(values.value)
       }
     },
     [onAmountChange],
@@ -87,14 +87,21 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
   const handleQuickAmountClick = useCallback(
     (quickAmount: string) => () => {
-      onQuickAmountClick?.(quickAmount.replace('$', '').replace(',', ''))
+      onQuickAmountClick?.(quickAmount)
     },
     [onQuickAmountClick],
   )
 
   const formattedPlaceholder = useMemo(() => {
-    return placeholder ?? `${localeParts.prefix}0.00${localeParts.postfix}`
-  }, [placeholder, localeParts.prefix, localeParts.postfix])
+    return placeholder ?? `${fiatSymbol}0.00`
+  }, [placeholder, fiatSymbol])
+
+  const formattedQuickAmounts = useMemo(() => {
+    return quickAmounts.map(amount => ({
+      formattedAmount: `${fiatSymbol}${amount}`,
+      value: amount,
+    }))
+  }, [quickAmounts, fiatSymbol])
 
   return (
     <Box px={6}>
@@ -107,50 +114,46 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
       <Flex gap={2} alignItems='stretch'>
         <Box flex='1'>
-          <NumberFormat
-            customInput={AmountInput}
-            isNumericString={true}
-            disabled={isReadOnly}
-            prefix={localeParts.prefix}
-            suffix={localeParts.postfix}
-            decimalSeparator={localeParts.decimal}
-            inputMode='decimal'
-            thousandSeparator={localeParts.group}
-            placeholder={formattedPlaceholder}
-            value={amount}
-            onValueChange={handleAmountChange}
-            onChange={handleOnChange}
-          />
+          {isLoading ? (
+            <Skeleton height='65px' width='100%' />
+          ) : (
+            <NumberFormat
+              customInput={AmountInput}
+              isNumericString={true}
+              disabled={isReadOnly}
+              prefix={fiatSymbol}
+              decimalSeparator={localeParts.decimal}
+              inputMode='decimal'
+              thousandSeparator={localeParts.group}
+              decimalScale={selectedFiatCurrency.decimal_digits}
+              placeholder={formattedPlaceholder}
+              value={amount}
+              onValueChange={handleAmountChange}
+            />
+          )}
         </Box>
       </Flex>
 
       {!isReadOnly && quickAmounts.length > 0 && (
         <Flex gap={4} mt={4} justifyContent='center'>
-          {quickAmounts.map(quickAmount => (
+          {formattedQuickAmounts.map(quickAmount => (
             <Box
-              key={quickAmount}
-              onClick={handleQuickAmountClick(quickAmount)}
+              key={quickAmount.value}
+              onClick={handleQuickAmountClick(quickAmount.value)}
               cursor='pointer'
               px={2}
               py={1}
               borderRadius='lg'
               fontSize='md'
               fontWeight='medium'
-              color='text.pimary'
               bg='background.surface.raised.base'
               transition='all 0.2s'
               _hover={percentHover}
             >
-              {quickAmount}
+              {quickAmount.formattedAmount}
             </Box>
           ))}
         </Flex>
-      )}
-
-      {selectedFiat && selectedFiat !== FiatTypeEnum.USD && amount && (
-        <Text fontSize='xs' color='text.subtle' mt={2} textAlign='right'>
-          ≈ ${amount} USD
-        </Text>
       )}
     </Box>
   )

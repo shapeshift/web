@@ -27,6 +27,7 @@ type RateGasRowProps = {
   invertRate?: boolean
   noExpand?: boolean
   isOpen?: boolean
+  hideGasAmount?: boolean
   sx?: StackProps['sx']
 } & PropsWithChildren
 
@@ -48,6 +49,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     sellAssetSymbol,
     icon,
     networkFeeFiatUserCurrency,
+    hideGasAmount = false,
     deltaPercentage,
     noExpand,
     invertRate,
@@ -198,30 +200,32 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                 </Row.Value>
               </Row>
               <Flex gap={1} alignItems='center'>
-                <Tooltip
-                  label={translate(
-                    networkFeeFiatUserCurrency
-                      ? 'trade.quote.gas'
-                      : 'trade.tooltip.continueSwapping',
-                  )}
-                >
-                  <Box>
-                    <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
-                      <Row.Label fontSize='sm'>
-                        <FaGasPump />
-                      </Row.Label>
-                      <Row.Value>
-                        {!networkFeeFiatUserCurrency ? (
-                          <Tooltip label={translate('trade.tooltip.continueSwapping')}>
-                            <Text translation={'trade.unknownGas'} fontSize='sm' />
-                          </Tooltip>
-                        ) : (
-                          <Amount.Fiat fontSize='sm' value={networkFeeFiatUserCurrency} />
-                        )}
-                      </Row.Value>
-                    </Row>
-                  </Box>
-                </Tooltip>
+                {!hideGasAmount && (
+                  <Tooltip
+                    label={translate(
+                      networkFeeFiatUserCurrency
+                        ? 'trade.quote.gas'
+                        : 'trade.tooltip.continueSwapping',
+                    )}
+                  >
+                    <Box>
+                      <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
+                        <Row.Label fontSize='sm'>
+                          <FaGasPump />
+                        </Row.Label>
+                        <Row.Value>
+                          {!networkFeeFiatUserCurrency ? (
+                            <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                              <Text translation={'trade.unknownGas'} fontSize='sm' />
+                            </Tooltip>
+                          ) : (
+                            <Amount.Fiat fontSize='sm' value={networkFeeFiatUserCurrency} />
+                          )}
+                        </Row.Value>
+                      </Row>
+                    </Box>
+                  </Tooltip>
+                )}
                 {!noExpand &&
                   (isOpen ? (
                     <ChevronUpIcon color='text.subtle' boxSize='1.25rem' />

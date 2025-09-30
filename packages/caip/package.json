@@ -22,12 +22,13 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild:esm && yarn postbuild:cjs",
     "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "yarn generate:coingecko && yarn generate:coincap",
     "generate:coingecko": "yarn build && yarn run -T tsx src/adapters/coingecko/generate.ts",
     "generate:coincap": "yarn build && yarn run -T tsx src/adapters/coincap/generate.ts",
-    "postbuild": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   }
 }

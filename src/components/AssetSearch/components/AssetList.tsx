@@ -27,6 +27,7 @@ export type AssetData = {
   showRelatedAssets?: boolean
   useWindowScroll?: boolean
   showWatchAssetButton?: boolean
+  overflow?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
@@ -155,7 +156,7 @@ export const AssetList: FC<AssetListProps> = ({
     return (
       <Box
         maxHeight={height}
-        overflow='auto'
+        overflow='visible'
         height='auto'
         minH='50vh'
         className='scroll-container'

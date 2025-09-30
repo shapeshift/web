@@ -242,7 +242,9 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
               </Flex>
             )}
         </Flex>
-        <Center boxSize={8}>{isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}</Center>
+        <Center ml='auto' boxSize={8}>
+          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        </Center>
       </Button>
 
       <Collapse in={isOpen} unmountOnExit>

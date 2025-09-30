@@ -17,7 +17,8 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isNativeHDWallet } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectRelatedAssetIdsByAssetIdInclusive } from '@/state/slices/selectors'
+import { selectRelatedAssetIdsInclusive } from '@/state/slices/related-assets-selectors'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const starIcon = <TbStar />
@@ -41,19 +42,21 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const relatedAssetIds = useAppSelector(
-    state => selectRelatedAssetIdsByAssetIdInclusive(state)[assetId],
-  )
-  const canHideAsset = !asset?.isPrimary || !relatedAssetIds || relatedAssetIds.length <= 1
-
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
-  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
-  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
-
   const isSpamMarked = useMemo(
     () => spamMarkedAssetIds.includes(assetId),
     [assetId, spamMarkedAssetIds],
   )
+
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const relatedAssetIds = useAppSelector(s => selectRelatedAssetIdsInclusive(s, filter))
+  const relatedAssetCount = relatedAssetIds?.length ?? 0
+  const isPrimaryWithRelatedVariants = Boolean(asset?.isPrimary) && relatedAssetCount > 1
+  const canHideAsset = !isPrimaryWithRelatedVariants
+  const canToggleSpam = canHideAsset || isSpamMarked
+  const hideTooltipLabel = isPrimaryWithRelatedVariants && !isSpamMarked
+  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
 
   const isWatchlistMarked = useMemo(
     () => watchlistAssetIds.includes(assetId),
@@ -153,9 +156,10 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
                 </Link>
               )}
               <Tooltip
-                label={canHideAsset ? '' : translate('assets.cannotHidePrimary')}
+                label={hideTooltipLabel ? translate('assets.cannotHidePrimary') : ''}
                 hasArrow
-                isDisabled={canHideAsset}
+                isDisabled={!hideTooltipLabel}
+                shouldWrapChildren
               >
                 <Button
                   variant='ghost'
@@ -164,13 +168,13 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
                   height={14}
                   color={isSpamMarked ? 'inherit' : 'red.400'}
                   leftIcon={flagIcon}
-                  onClick={canHideAsset ? handleToggleSpam : undefined}
+                  onClick={canToggleSpam ? handleToggleSpam : undefined}
                   justifyContent='flex-start'
                   size='lg'
                   fontSize='md'
-                  isDisabled={!canHideAsset}
-                  opacity={canHideAsset ? 1 : 0.6}
-                  cursor={canHideAsset ? 'pointer' : 'not-allowed'}
+                  isDisabled={!canToggleSpam}
+                  opacity={canToggleSpam ? 1 : 0.6}
+                  cursor={canToggleSpam ? 'pointer' : 'not-allowed'}
                 >
                   {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
                 </Button>

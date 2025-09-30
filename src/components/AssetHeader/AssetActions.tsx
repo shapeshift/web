@@ -1,10 +1,21 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { StackDirection } from '@chakra-ui/react'
-import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Stack,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, isNft } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { FaCreditCard, FaEllipsisH } from 'react-icons/fa'
+import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -22,8 +33,9 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const IconButtonAfter = {
   content: 'attr(aria-label)',
@@ -48,6 +60,10 @@ const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const swapIcon = <SwapIcon />
 const faCreditCardIcon = <FaCreditCard />
+const starIcon = <TbStar />
+const fullStarIcon = <TbStarFilled />
+const linkIcon = <TbExternalLink />
+const flagIcon = <TbFlag />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -65,6 +81,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   isMobile,
 }) => {
   const navigate = useNavigate()
+  const appDispatch = useAppDispatch()
 
   const send = useModal('send')
   const receive = useModal('receive')
@@ -91,6 +108,19 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
+
+  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
+  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
+
+  const isSpamMarked = useMemo(
+    () => spamMarkedAssetIds.includes(assetId),
+    [assetId, spamMarkedAssetIds],
+  )
+
+  const isWatchlistMarked = useMemo(
+    () => watchlistAssetIds.includes(assetId),
+    [assetId, watchlistAssetIds],
+  )
 
   const isValidChainId = useWalletSupportsChain(asset.chainId, wallet)
 
@@ -132,6 +162,28 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     vibrate('heavy')
     assetActionsDrawer.open({ assetId })
   }, [assetActionsDrawer, assetId])
+
+  const handleWatchAsset = useCallback(() => {
+    appDispatch(preferences.actions.toggleWatchedAssetId(assetId))
+  }, [assetId, appDispatch])
+
+  const handleToggleSpam = useCallback(() => {
+    appDispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
+  }, [assetId, appDispatch])
+
+  const explorerHref = useMemo(() => {
+    if (!asset) return
+    const { assetReference } = fromAssetId(asset.assetId)
+
+    if (isNft(asset.assetId)) {
+      const [token] = assetReference.split('/')
+      return `${asset.explorer}/token/${token}?a=${asset.id}`
+    }
+
+    if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
+
+    return asset.explorer
+  }, [asset])
 
   if (isMobile) {
     return (
@@ -262,6 +314,50 @@ export const AssetActions: React.FC<AssetActionProps> = ({
         >
           {translate('common.receive')}
         </Button>
+        <Menu>
+          <MenuButton
+            as={Button}
+            leftIcon={moreIcon}
+            size='sm-multiline'
+            flex={buttonFlexProps}
+            width={buttonWidthProps}
+            aria-label={translate('assets.more')}
+          >
+            {translate('assets.more')}
+          </MenuButton>
+          <MenuList>
+            <MenuItem
+              as='a'
+              icon={isWatchlistMarked ? fullStarIcon : starIcon}
+              onClick={handleWatchAsset}
+              cursor='pointer'
+            >
+              {isWatchlistMarked ? translate('watchlist.remove') : translate('watchlist.add')}
+            </MenuItem>
+            {explorerHref && (
+              <MenuItem
+                icon={linkIcon}
+                as='a'
+                href={explorerHref}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                {translate('common.viewOnExplorer')}
+              </MenuItem>
+            )}
+            <MenuItem
+              as='a'
+              icon={flagIcon}
+              onClick={handleToggleSpam}
+              color={isSpamMarked ? 'inherit' : 'red.400'}
+              cursor='pointer'
+            >
+              {isSpamMarked
+                ? translate('assets.spam.reportAsNotSpam')
+                : translate('assets.spam.reportAsSpam')}
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
     </Stack>
   )

@@ -147,7 +147,7 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
                   {translate('common.viewOnExplorer')}
                 </MenuItem>
               )}
-              <MenuItem icon={eyeIcon} onClick={handleShowClick} color='blue.500'>
+              <MenuItem icon={eyeIcon} onClick={handleShowClick} color='red.500'>
                 {translate('assets.showAsset')}
               </MenuItem>
             </MenuList>

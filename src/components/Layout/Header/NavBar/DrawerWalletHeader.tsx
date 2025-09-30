@@ -105,7 +105,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
               icon={dotsIcon}
               size='md'
             />
-            <MenuList zIndex={'popover'}>
+            <MenuList zIndex='banner'>
               <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
                 <MenuItem icon={walletImageIcon} isDisabled closeOnSelect={false}>
                   <Flex flexDir='row' justifyContent='space-between' alignItems='center'>

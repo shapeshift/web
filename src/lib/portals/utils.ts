@@ -29,7 +29,7 @@ export const fetchPortalsTokens = async ({
   minApy,
   sortBy,
   sortDirection,
-  limit = 250,
+  totalLimit,
   tags,
 }: {
   chainIds: ChainId[] | undefined
@@ -50,7 +50,7 @@ export const fetchPortalsTokens = async ({
     | 'volumeUsd1d'
     | 'volumeUsd7d'
   sortDirection?: 'asc' | 'desc'
-  limit: number | 'all'
+  totalLimit: number | 'all'
   tags?: string[]
 }): Promise<TokenInfo[]> => {
   if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
@@ -77,8 +77,8 @@ export const fetchPortalsTokens = async ({
 
   try {
     const params = {
-      // Limit per *page*, unrelated to our akschual limit
-      limit: '250',
+      // fetch remaining tokens needed (up to 250 max per page)
+      limit: Math.min(totalLimit === 'all' ? 250 : Number(totalLimit) - accTokens.length, 250),
       // Minimum 100,000 bucks liquidity if asset is a LP token
       minLiquidity: '100000',
       // undefined means all networks
@@ -107,9 +107,18 @@ export const fetchPortalsTokens = async ({
 
     const newTokens = accTokens.concat(pageTokens)
 
-    if (pageResponse.data.more && (limit === 'all' || newTokens.length < Number(limit))) {
+    if (pageResponse.data.more && (totalLimit === 'all' || newTokens.length < Number(totalLimit))) {
       // If there are more pages, recursively fetch the next page
-      return fetchPortalsTokens({ chainIds, page: page + 1, accTokens: newTokens, limit })
+      return fetchPortalsTokens({
+        chainIds,
+        page: page + 1,
+        accTokens: newTokens,
+        totalLimit,
+        minApy,
+        sortBy,
+        sortDirection,
+        tags,
+      })
     } else {
       // No more pages, return all accumulated tokens
       console.log(
@@ -264,7 +273,7 @@ export const getPortalTokens = async (
   })
   const chainId = nativeAsset.chainId
 
-  const portalsTokens = await fetchPortalsTokens({ chainIds: [chainId], limit })
+  const portalsTokens = await fetchPortalsTokens({ chainIds: [chainId], totalLimit: limit })
   return portalsTokens
     .map(token =>
       token.liquidity > 0

@@ -1,12 +1,19 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
+import { QUOTE_TIMEOUT_MS } from 'packages/swapper/src/constants'
 import { isAddress, zeroAddress } from 'viem'
 
-import type { CommonFiatCurrencies } from '../../config'
+import type { GetQuotesArgs, RampQuote } from '../../config'
 import { getChainIdFromOnramperNetwork } from './constants'
-import type { Crypto, OnramperBuyQuoteResponse, OnRamperGatewaysResponse } from './types'
+import type {
+  Crypto,
+  OnramperBuyQuote,
+  OnramperBuyQuoteResponse,
+  OnRamperGatewaysResponse,
+} from './types'
 
+import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { getConfig } from '@/config'
 
 // https://docs.onramper.com/reference/get_supported
@@ -26,31 +33,88 @@ export const getSupportedOnramperCurrencies = async () => {
   }
 }
 
+const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
+  const allPaymentMethods = quotes.reduce<string[]>((acc, quote) => {
+    if (quote.availablePaymentMethods) {
+      acc.push(...quote.availablePaymentMethods.map(method => method.paymentTypeId))
+    }
+    if (quote.paymentMethod) {
+      acc.push(quote.paymentMethod)
+    }
+    return acc
+  }, [])
+  const supportedMethods = allPaymentMethods.filter(Boolean).map(method => method.toLowerCase())
+
+  return {
+    isCreditCard: supportedMethods.some(
+      method => method.includes('card') || method.includes('credit') || method.includes('debit'),
+    ),
+    isBankTransfer: supportedMethods.some(
+      method => method.includes('bank') || method.includes('transfer') || method.includes('wire'),
+    ),
+    isApplePay: supportedMethods.some(method => method.includes('apple')),
+    isGooglePay: supportedMethods.some(method => method.includes('google')),
+    isSepa: supportedMethods.some(method => method.includes('sepa')),
+  }
+}
+
+const convertOnramperQuotesToSingleRampQuote = (
+  onramperQuotes: OnramperBuyQuoteResponse,
+): RampQuote | undefined => {
+  if (!onramperQuotes || onramperQuotes.length === 0) {
+    return
+  }
+
+  const bestQuote = onramperQuotes.reduce<OnramperBuyQuote | null>((best, current) => {
+    if (current.errors || !current.payout) return best
+    if (!best || !best.payout) return current
+
+    return current.payout > best.payout ? current : best
+  }, null)
+
+  if (!bestQuote) return
+
+  const paymentMethodSupport = aggregatePaymentMethodSupport(onramperQuotes)
+
+  return {
+    id: `onramper-aggregated-${bestQuote.quoteId || 'quote'}`,
+    provider: 'OnRamper',
+    providerLogo: OnRamperLogo,
+    rate: bestQuote.rate?.toString() ?? '0',
+    fiatFee: bestQuote.transactionFee?.toString() ?? '0',
+    networkFee: bestQuote.networkFee?.toString() ?? '0',
+    amount: bestQuote.payout?.toString() ?? '0',
+    isBestRate: false,
+    ...paymentMethodSupport,
+  }
+}
+
 // https://docs.onramper.com/reference/get_quotes-fiat-crypto
-export const getOnramperBuyQuote = async ({
-  fiat,
+export const getOnramperQuote = async ({
+  fiatCurrency,
   crypto,
-  fiatAmount,
-}: {
-  fiat: CommonFiatCurrencies
-  crypto: string
-  fiatAmount: number
-}) => {
+  amount,
+  direction,
+}: GetQuotesArgs): Promise<RampQuote | undefined> => {
   try {
     const baseUrl = getConfig().VITE_ONRAMPER_API_URL
     const apiKey = getConfig().VITE_ONRAMPER_API_KEY
 
-    const url = `${baseUrl}quotes/${fiat.toLowerCase()}/${crypto.toLowerCase()}?amount=${fiatAmount}`
+    const url =
+      direction === 'buy'
+        ? `${baseUrl}quotes/${fiatCurrency.code.toLowerCase()}/${crypto.toLowerCase()}?amount=${amount}`
+        : `${baseUrl}quotes/${crypto.toLowerCase()}/${fiatCurrency.code.toLowerCase()}?amount=${amount}&type=sell`
 
-    return (
-      await axios.get<OnramperBuyQuoteResponse>(url, {
-        headers: {
-          Authorization: apiKey,
-        },
-      })
-    ).data
+    const response = await axios.get<OnramperBuyQuoteResponse>(url, {
+      headers: {
+        Authorization: apiKey,
+      },
+      timeout: QUOTE_TIMEOUT_MS,
+    })
+
+    return convertOnramperQuotesToSingleRampQuote(response.data)
   } catch (e) {
-    console.error(e)
+    console.error('Error fetching OnRamper quotes:', e)
   }
 }
 

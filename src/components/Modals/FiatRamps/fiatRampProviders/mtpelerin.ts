@@ -2,12 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
-import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
 import { getConfig } from '@/config'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { isSome } from '@/lib/utils'
+
+export { getMtPelerinQuote } from './mtpelerin/utils'
 
 type MtPelerinResponse = {
   [identifier: string]: {
@@ -63,6 +65,8 @@ export const createMtPelerinUrl = ({
   action,
   assetId,
   fiatCurrency,
+  fiatAmount,
+  amountCryptoPrecision,
   options: { mode, language },
 }: CreateUrlProps): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
@@ -92,11 +96,27 @@ export const createMtPelerinUrl = ({
     params.set('ssc', mtPelerinSymbol)
     // Default sell tab destination currency
     params.set('sdc', mtPelerinFiatCurrency)
+    // Sell tab source amount (crypto amount)
+    if (amountCryptoPrecision) {
+      params.set('ssa', amountCryptoPrecision)
+    }
+    // Sell tab destination amount (fiat amount)
+    if (fiatAmount) {
+      params.set('sda', fiatAmount)
+    }
   } else {
     // Default buy tab destination currency
     params.set('bdc', mtPelerinSymbol)
     // Default buy tab source currency
     params.set('bsc', mtPelerinFiatCurrency)
+    // Buy tab source amount (fiat amount)
+    if (fiatAmount) {
+      params.set('bsa', fiatAmount)
+    }
+    // Buy tab destination amount (crypto amount)
+    if (amountCryptoPrecision) {
+      params.set('bda', amountCryptoPrecision)
+    }
   }
   const network = adapters.getMtPelerinNetFromAssetId(assetId)
   if (!network) throw new Error('Network not supported by MtPelerin')

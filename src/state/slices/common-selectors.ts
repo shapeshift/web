@@ -146,10 +146,13 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   preferences.selectors.selectBalanceThresholdUserCurrency,
-  (assetsById, marketData, balances, balanceThresholdUserCurrency) =>
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (assetsById, marketData, balances, balanceThresholdUserCurrency, spamMarkedAssetIds) =>
     Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
       const asset = assetsById[assetId]
       if (!asset) return acc
+      // Exclude spam-marked (hidden) assets from portfolio calculations
+      if (spamMarkedAssetIds.includes(assetId)) return acc
       const precision = asset.precision
       if (precision === undefined) return acc
       const price = marketData[assetId]?.price

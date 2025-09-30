@@ -459,7 +459,8 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAccountBalancesBaseUnit,
-  (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (assets, marketData, portfolioAccountsCryptoBalances, spamMarkedAssetIds): PortfolioAccountBalancesById => {
     const userCurrencyAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
       [k: AccountId]: { [k: AssetId]: string }
     }>((acc, [accountId, account]) => {
@@ -467,6 +468,7 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
         (acc: [AssetId, BigNumber][], [assetId, cryptoBalance]) => {
           const asset = assets?.[assetId]
           if (!asset) return acc
+          if (spamMarkedAssetIds.includes(assetId)) return acc
 
           const { precision } = asset
           const price = marketData[assetId]?.price ?? 0

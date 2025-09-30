@@ -276,7 +276,7 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
         height={
           forceCompactView
             ? '100%'
-            : 'calc(100vh - var(--mobile-header-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - 54px)'
+            : 'calc(100vh - var(--mobile-header-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - var(--mobile-nav-offset) - 54px)'
         }
         showRelatedAssets
       />

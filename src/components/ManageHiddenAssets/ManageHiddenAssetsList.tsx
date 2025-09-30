@@ -52,21 +52,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     spamMarkedAssetIds.map(assetId => selectAssetById(state, assetId)).filter(isSome),
   )
 
-  const handleShowAsset = useCallback(
-    (assetId: AssetId) => {
-      appDispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
-    },
-    [appDispatch],
-  )
-
-  const handleViewAssetDetails = useCallback(
-    (assetId: AssetId) => {
-      navigate(`/assets/${assetId}`)
-      onClose?.()
-    },
-    [navigate, onClose],
-  )
-
   const assets = useAppSelector(selectAssets)
 
   const getExplorerHref = (assetId: AssetId) => {
@@ -94,8 +79,14 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
 
     const explorerHref = useMemo(() => getExplorerHref(assetId), [assetId])
 
-    const handleViewDetailsClick = useCallback(() => handleViewAssetDetails(assetId), [assetId])
-    const handleShowClick = useCallback(() => handleShowAsset(assetId), [assetId])
+    const handleViewDetailsClick = useCallback(() => {
+      navigate(`/assets/${assetId}`)
+      onClose?.()
+    }, [assetId])
+
+    const handleShowClick = useCallback(() => {
+      appDispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
+    }, [assetId])
 
     if (!asset) return null
 

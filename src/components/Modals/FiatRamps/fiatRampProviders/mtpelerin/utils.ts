@@ -62,6 +62,11 @@ export const getMtPelerinQuote = async ({
       return
     }
 
+    if (bnOrZero(amount).lte(0)) {
+      console.warn(`Amount ${amount} is less than or equal to 0`)
+      return
+    }
+
     const requestData = {
       sourceCurrency: direction === 'buy' ? fiatCurrency.code : mtPelerinSymbol,
       destCurrency: direction === 'buy' ? mtPelerinSymbol : fiatCurrency.code,

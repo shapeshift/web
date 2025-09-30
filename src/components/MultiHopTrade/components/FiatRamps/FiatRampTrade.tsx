@@ -472,8 +472,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Routes>
-        <Route path='/buy/quotes' element={quoteListElement} />
-        <Route path='/sell/quotes' element={quoteListElement} />
+        <Route path='buy/quotes' element={quoteListElement} />
+        <Route path='sell/quotes' element={quoteListElement} />
         <Route path='*' element={tradeInputElement} />
       </Routes>
     </AnimatePresence>

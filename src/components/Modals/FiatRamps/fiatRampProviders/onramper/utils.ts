@@ -15,6 +15,7 @@ import type {
 
 import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // https://docs.onramper.com/reference/get_supported
 export const getSupportedOnramperCurrencies = async () => {
@@ -99,6 +100,11 @@ export const getOnramperQuote = async ({
   try {
     const baseUrl = getConfig().VITE_ONRAMPER_API_URL
     const apiKey = getConfig().VITE_ONRAMPER_API_KEY
+
+    if (bnOrZero(amount).lte(0)) {
+      console.warn(`Amount ${amount} is less than or equal to 0`)
+      return
+    }
 
     const url =
       direction === 'buy'

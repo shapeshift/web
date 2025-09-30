@@ -53,31 +53,35 @@ export const useGetRampQuotes = ({
     queries:
       supportedRamps?.map(fiatRamp => ({
         queryKey: [...queryKey, fiatRamp.id],
-        queryFn: () => {
-          switch (fiatRamp.id) {
-            case 'OnRamper': {
-              if (!onramperCurrencies) throw new Error('Onramper currencies not found')
-              const crypto = findOnramperTokenIdByAssetId(assetId, onramperCurrencies)
-              if (!crypto) throw new Error('Asset not found')
+        queryFn: async () => {
+          const result = await (async () => {
+            switch (fiatRamp.id) {
+              case 'OnRamper': {
+                if (!onramperCurrencies) throw new Error('Onramper currencies not found')
+                const crypto = findOnramperTokenIdByAssetId(assetId, onramperCurrencies)
+                if (!crypto) throw new Error('Asset not found')
 
-              return fiatRamp.getQuotes?.({
-                fiatCurrency,
-                crypto,
-                amount,
-                direction,
-              })
-            }
-            default: {
-              if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
+                return await fiatRamp.getQuotes?.({
+                  fiatCurrency,
+                  crypto,
+                  amount,
+                  direction,
+                })
+              }
+              default: {
+                if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
 
-              return fiatRamp.getQuotes?.({
-                fiatCurrency,
-                crypto: assetId,
-                amount,
-                direction,
-              })
+                return await fiatRamp.getQuotes?.({
+                  fiatCurrency,
+                  crypto: assetId,
+                  amount,
+                  direction,
+                })
+              }
             }
-          }
+          })()
+
+          return result || null
         },
         staleTime: 0,
         enabled: bnOrZero(debouncedAmount).gt(0),
@@ -88,7 +92,7 @@ export const useGetRampQuotes = ({
   // Sort quotes by best rate (highest amount out)
   const sortedQuotes = useMemo(() => {
     const successfulQuotes = rampQuoteQueries
-      .filter(query => query.isSuccess && query.data)
+      .filter(query => query.isSuccess && query.data && query.data !== null)
       .map(query => query.data as RampQuote)
       .sort((a, b) => {
         const amountA = bnOrZero(a.amount)

@@ -43,18 +43,16 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
 
   const supportedAssets = useMemo(() => {
-    const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
-
-    // Filter out spam-marked assets from search results
-    const nonSpamAssets = fungibleAssets.filter(
-      asset => !spamMarkedAssetIds.includes(asset.assetId),
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+    const fungibleAssets = assets.filter(
+      asset => !isNft(asset.assetId) && !spamAssetIdsSet.has(asset.assetId),
     )
 
     if (allowWalletUnsupportedAssets) {
-      return nonSpamAssets
+      return fungibleAssets
     }
 
-    return nonSpamAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+    return fungibleAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
   }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds, spamMarkedAssetIds])
 
   /**

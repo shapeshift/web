@@ -128,7 +128,7 @@ const ConnectedMenu = memo(
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
           <MenuDivider />
           <MenuItem icon={viewIcon} onClick={handleManageHiddenAssetsClick}>
-            {translate('manageHiddenAssets.menuTitle')}
+            {translate('manageHiddenAssets.title')}
           </MenuItem>
           <MenuDivider />
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>

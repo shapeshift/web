@@ -2800,7 +2800,6 @@
   },
   "manageHiddenAssets": {
     "title": "Manage Hidden Assets",
-    "menuTitle": "Manage Hidden Assets",
     "empty": {
       "title": "No hidden assets",
       "body": "Assets you hide will appear here, making it easy to show them again later."

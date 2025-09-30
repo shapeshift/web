@@ -118,7 +118,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
                 {ConnectMenuComponent && <ConnectMenuComponent />}
                 <MenuDivider />
                 <MenuItem icon={eyeOffIcon} onClick={handleManageHiddenAssetsClick}>
-                  {translate('manageHiddenAssets.menuTitle')}
+                  {translate('manageHiddenAssets.title')}
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>

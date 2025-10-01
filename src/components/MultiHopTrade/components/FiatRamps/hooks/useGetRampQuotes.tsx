@@ -51,7 +51,7 @@ export const useGetRampQuotes = ({
 
   const queries = useMemo(
     () =>
-      supportedRamps.map(fiatRamp => ({
+      supportedRamps?.map(fiatRamp => ({
         queryKey: [...queryKey, fiatRamp.id],
         queryFn: () => {
           switch (fiatRamp.id) {

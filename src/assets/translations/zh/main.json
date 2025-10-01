@@ -3,6 +3,8 @@
     "amount": "数量",
     "ascending": "升序",
     "descending": "降序",
+    "selectAll": "全选",
+    "unselectAll": "取消全选",
     "free": "免费",
     "trade": "交易",
     "trades": "交易",
@@ -40,6 +42,7 @@
     "activity": "激活",
     "reject": "拒绝",
     "goBack": "返回",
+    "fiat": "法币",
     "connected": "已连接",
     "allocation": "分配",
     "trendingTokens": "热门代币",
@@ -65,6 +68,7 @@
     "pairing": "配对中",
     "connectWalletToGetStartedWith": "连接钱包以开始使用 %{feature}",
     "connectedWallet": "已连接的钱包",
+    "crypto": "加密货币",
     "walletActions": "钱包操作",
     "connectedWalletSettings": "钱包设置",
     "noWallet": "没有连接钱包",
@@ -130,6 +134,11 @@
     "enterAmount": "输入数量",
     "enterAddress": "输入地址",
     "pageNotFound": "找不到你要查找的页面",
+    "creditCard": "信用卡",
+    "bankTransfer": "银行转账",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "买/卖",
     "all": "全部",
     "viewAll": "查看全部",
@@ -259,17 +268,24 @@
       "body": "交易界面出现错误。您可以重试或刷新本页面。",
       "retry": "重试"
     },
+    "ramp": {
+      "title": "Ramp 错误",
+      "body": "Ramp 界面出现错误，您可以重试或刷新页面。",
+      "retry": "重试"
+    },
     "suspense": {
       "title": "加载失败",
       "body": "无法正确加载此内容。",
       "retry": "重试"
     }
   },
-  "buyPage": {
-    "title": "<span>快速</span>购买加密货币 ",
-    "body": "使用信用卡、借记卡或银行账户来购买比特币、以太坊、USDT、USDC 或其他顶级加密货币。适用于非 KYC 用户。",
-    "disclaimer": "*你还可以直接出售加密货币以换取现金存入你的银行账户。",
-    "ctaTitle": "你还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和 <span>在 %{chainCount} 条链上跟踪你的加密货币</span>",
+  "rampPage": {
+    "buyTitle": "<span>在几秒钟内</span>购买加密货币",
+    "sellTitle": "<span>在几秒钟内</span>出售加密货币",
+    "buyBody": "使用信用卡、借记卡或银行账户购买比特币、以太币、USDT、USDC 或其他热门加密货币，无需 KYC。",
+    "sellBody": "使用信用卡、借记卡或银行账户出售比特币、以太币、USDT、USDC 或其他热门加密货币，无需 KYC。",
+    "disclaimer": "*您可以直接使用加密货币换取现金并存入您的银行账户。",
+    "ctaTitle": "您还可以使用各种主流钱包，通过 ShapeShift 进行交易，赚取收益并<span>在 %{chainCount} 条链上追踪您的加密货币资产</span>",
     "availableAssets": "可用资产"
   },
   "updateToast": {
@@ -374,6 +390,8 @@
       "switchWallet": "切换钱包",
       "disconnect": "断开",
       "disconnected": "(已断开)",
+      "reconnectWallet": "重新连接钱包",
+      "walletNotConnected": "您的钱包目前未连接，这将影响交易。",
       "connecting": "正在连接..."
     }
   },
@@ -412,8 +430,6 @@
       },
       "cosmosOverview": {
         "rewards": "你获得的奖励将自动累积。",
-        "cta": "开始质押",
-        "learnMore": "了解更多",
         "withdrawals": "取消质押",
         "emptyWithdraws": "此处将显示待处理的取消质押请求。",
         "availableDate": "在 %{date} 可用"
@@ -665,7 +681,6 @@
     "market": "市场",
     "limitOrder": "限价订单",
     "claims": "领取",
-    "tradeShort": "交易",
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "购买/出售",
     "lending": "贷款",
@@ -674,6 +689,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX 生态系统",
     "markets": "市场",
+    "tokens": "代币",
+    "swap": "交换",
     "actionMenu": {
       "send": {
         "title": "发送",
@@ -695,6 +712,34 @@
         "title": "扫描二维码",
         "body": "轻松扫描以发送或接收加密货币"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "产品",
+    "mobileApp": {
+      "title": "手机应用",
+      "subtitle": "交易和管理加密货币"
+    },
+    "foxToken": {
+      "title": "FOX 代币",
+      "subtitle": "我们的治理代币"
+    },
+    "classic": {
+      "title": "经典",
+      "subtitle": "OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift 钱包",
+      "subtitle": "了解我们的钱包"
+    },
+    "footer": {
+      "governance": "治理",
+      "support": "支持",
+      "blog": "博客",
+      "faq": "常见问题",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
     }
   },
   "transactionRow": {
@@ -952,7 +997,7 @@
     "viewTransaction": "查看交易",
     "noQuotesAvailable": "没有可用报价",
     "noQuotesAvailableDescription": "目前未找到可用的报价。请尝试选择另一对。",
-    "availableSwappers": "可用交换者",
+    "availableQuotes": "可用报价",
     "unavailableSwappers": "不可用的交换者",
     "unlimited": "无限的",
     "streamStatus": "Stream 状态",
@@ -1445,7 +1490,8 @@
       "verified": "已验证",
       "notVerified": "地址不匹配",
       "blockExplorer": "探索",
-      "supportedNetworks": "支持的网络"
+      "supportedNetworks": "支持的网络",
+      "amountNote": "输入您希望接收的数量。这将生成一个带有该数量的二维码，以便更轻松地进行收款。"
     },
     "deposit": {
       "allocation": {
@@ -1609,6 +1655,26 @@
         "ILS": "以色列谢克尔",
         "IDR": "印尼盾"
       }
+    },
+    "ramp": {
+      "payWith": "支付",
+      "youGet": "获得",
+      "sellAmount": "卖出数量",
+      "receiveAmount": "接收数量",
+      "buyAsset": "购买资产",
+      "sellAsset": "出售资产",
+      "receiveAsset": "接收资产",
+      "previewOrder": "预览订单",
+      "processingTime": "处理时间：1-3 个工作日",
+      "buyInfo": "使用法定货币购买加密货币",
+      "sellInfo": "出售加密货币换取法定货币",
+      "availableQuotes": "可用报价",
+      "bestRate": "最佳费率",
+      "fastest": "最快",
+      "rate": "费率",
+      "amount": "数量",
+      "paymentMethods": "支付方法",
+      "selectFiat": "选择法定货币"
     },
     "mobileWelcome": {
       "success": {
@@ -1778,7 +1844,11 @@
         "pairExistingDeviceBody": "正在连接其他 Ledger 设备？单击“配对新设备”即可重新开始。"
       },
       "failure": {
-        "body": "无法连接 Ledger 钱包"
+        "header": "无法连接到 Ledger",
+        "body": "我们无法检测到您的 Ledger，但您可以以只读模式连接。"
+      },
+      "readOnly": {
+        "button": "以只读模式连接"
       },
       "gettingChangeAddress": "正在获取退款地址...",
       "connectWarning": "在连接链之前，请确保您的设备上已打开该应用程序。",
@@ -1824,6 +1894,7 @@
       "active": "活跃",
       "notActive": "不活跃",
       "addSnap": "添加快照",
+      "installError": "安装 MetaMask 多链快照时发生错误",
       "uninstall": {
         "title": "你已从 MetaMask 中删除了多链支持！",
         "subtitle": "在 MetaMask 上重新添加多链快照，即可在以下链上发送、接收、追踪、交易和赚钱："
@@ -2367,6 +2438,13 @@
         "transactionData": "交易数据",
         "method": "方法",
         "signingWith": "使用此帐户签名：",
+        "connectWith": "连接到此帐户：",
+        "chooseAccount": "选择帐户",
+        "chooseNetwork": "选择网络",
+        "required": "必填",
+        "noAccount": "您在 %{chainName} 上没有与此地址对应的帐户",
+        "connectionRequest": "连接请求",
+        "connectionRequestTooltip": "连接将允许此应用请求批准交易。",
         "sendingTo": "发送到",
         "signMessage": {
           "signingFrom": "签名来自",
@@ -2421,7 +2499,6 @@
         },
         "connect": {
           "title": "通过 WalletConnect 将你的钱包连接到 dApp 并触发交易",
-          "howTo": "如何连接到一个 dApp ？",
           "linkPlaceholder": "二维码或连接链接",
           "connect": "连接",
           "connectionError": "无法连接到提供的 URI。",

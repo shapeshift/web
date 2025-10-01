@@ -3,6 +3,8 @@
     "amount": "金額",
     "ascending": "上昇",
     "descending": "降順",
+    "selectAll": "すべて選択",
+    "unselectAll": "すべて選択解除",
     "free": "無料",
     "trade": "トレード",
     "trades": "トレード",
@@ -40,6 +42,7 @@
     "activity": "アクティビティ",
     "reject": "拒否する",
     "goBack": "戻る",
+    "fiat": "フィアット",
     "connected": "接続済み",
     "allocation": "割り当て",
     "trendingTokens": "トレンドトークン",
@@ -65,6 +68,7 @@
     "pairing": "ペアリング",
     "connectWalletToGetStartedWith": "%{feature} を使い始めるにはウォレットを接続してください",
     "connectedWallet": "ウォレット接続済み",
+    "crypto": "暗号",
     "walletActions": "ウォレットアクション\n",
     "connectedWalletSettings": "ウォレットの設定",
     "noWallet": "ウォレットが接続されていません",
@@ -130,6 +134,11 @@
     "enterAmount": "金額を入力",
     "enterAddress": "アドレスを入力",
     "pageNotFound": "お探しのページが見つかりません",
+    "creditCard": "クレジットカード",
+    "bankTransfer": "銀行振込",
+    "applePay": "アップルペイ",
+    "googlePay": "Googleペイ",
+    "sepa": "SEPA",
     "buySell": "売買",
     "all": "全て",
     "viewAll": "すべて見る",
@@ -259,18 +268,25 @@
       "body": "取引インターフェースでエラーが発生しました。もう一度お試しいただくか、ページを更新してください。",
       "retry": "もう一度やり直してください"
     },
+    "ramp": {
+      "title": "ランプエラー",
+      "body": "ランプインターフェースでエラーが発生しました。もう一度お試しいただくか、ページを更新してください。",
+      "retry": "もう一度やり直してください"
+    },
     "suspense": {
       "title": "読み込みに失敗しました",
       "body": "このコンテンツは正しく読み込めませんでした。",
       "retry": "リトライ"
     }
   },
-  "buyPage": {
-    "title": "暗号通貨を購入 <span>即時に</span>",
-    "body": "クレジットカード、デビットカード、または銀行口座を使用します。ビットコイン、イーサリアム、USDT、USDC、またはその他のトップ暗号通貨を購入します。非KYCプロバイダーも利用可能。",
-    "disclaimer": "＊暗号通貨を直接売却して銀行口座に現金化することもできます。",
-    "ctaTitle": "また、ShapeShiftをすべてのトップウォレットで使用して、取引し、利回りを獲得し、 <span>%{chainCount} チェーン全体で暗号通貨を追跡します</span>",
-    "availableAssets": "利用可能なアセット"
+  "rampPage": {
+    "buyTitle": "暗号通貨を<span>数秒で</span>購入",
+    "sellTitle": "暗号通貨を<span>数秒で</span>売却",
+    "buyBody": "クレジットカード、デビットカード、または銀行口座をご利用いただけます。ビットコイン、イーサリアム、USDT、USDC、その他の主要暗号通貨をご購入いただけます。KYC不要のプロバイダーもご利用いただけます。",
+    "sellBody": "クレジットカード、デビットカード、または銀行口座をご利用いただけます。ビットコイン、イーサリアム、USDT、USDC、その他の主要暗号通貨を売却できます。KYC不要のプロバイダーもご利用いただけます。",
+    "disclaimer": "*暗号通貨を売却して銀行口座に直接現金化することもできます。",
+    "ctaTitle": "ShapeShift をすべてのトップウォレットで使用して取引し、利回りを獲得し、<span>%{chainCount} チェーンにわたって暗号資産を追跡</span>することもできます。",
+    "availableAssets": "利用可能な資産"
   },
   "updateToast": {
     "body": "アプリのアップデートが可能です!",
@@ -374,6 +390,8 @@
       "switchWallet": "ウォレットを切り替える",
       "disconnect": "切断する",
       "disconnected": "(切断済み)",
+      "reconnectWallet": "ウォレットを再接続する",
+      "walletNotConnected": "現在、ウォレットが接続されていません。取引に影響します。",
       "connecting": "接続中..."
     }
   },
@@ -412,8 +430,6 @@
       },
       "cosmosOverview": {
         "rewards": "獲得した報酬は自動的に蓄積されます。",
-        "cta": "ステーキングを開始する",
-        "learnMore": "詳細",
         "withdrawals": "ステーキング解除",
         "emptyWithdraws": "保留中のステーキング解除のリクエストはここに表示されます。",
         "availableDate": "利用可能 %{date}"
@@ -665,7 +681,6 @@
     "market": "マーケット",
     "limitOrder": "指値注文",
     "claims": "クレーム",
-    "tradeShort": "取引",
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
     "lending": "貸し出し",
@@ -674,6 +689,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOXエコシステム",
     "markets": "市場",
+    "tokens": "トークン",
+    "swap": "スワップ",
     "actionMenu": {
       "send": {
         "title": "送信",
@@ -695,6 +712,34 @@
         "title": "QRコードをスキャンする",
         "body": "簡単にスキャンして暗号通貨を送受信する"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "製品",
+    "mobileApp": {
+      "title": "モバイルアプリ",
+      "subtitle": "暗号通貨の取引と管理"
+    },
+    "foxToken": {
+      "title": "FOXトークン",
+      "subtitle": "ガバナンストークン"
+    },
+    "classic": {
+      "title": "クラシック",
+      "subtitle": "OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShiftウォレット",
+      "subtitle": "ウォレットについて学ぶ"
+    },
+    "footer": {
+      "governance": "ガバナンス",
+      "support": "サポート",
+      "blog": "ブログ",
+      "faq": "よくある質問",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "ツイッター"
     }
   },
   "transactionRow": {
@@ -952,7 +997,7 @@
     "viewTransaction": "トランザクションの表示",
     "noQuotesAvailable": "利用できる引用はありません",
     "noQuotesAvailableDescription": "現時点では利用可能な引用が見つかりません。別のペアを選択してください。",
-    "availableSwappers": "利用可能な見積もり",
+    "availableQuotes": "提示レート",
     "unavailableSwappers": "利用できないスワッパー",
     "unlimited": "無制限",
     "streamStatus": "ストリームステータス",
@@ -1445,7 +1490,8 @@
       "verified": "確認済み",
       "notVerified": "アドレスの不一致",
       "blockExplorer": "エクスプローラー",
-      "supportedNetworks": "サポートされているネットワーク"
+      "supportedNetworks": "サポートされているネットワーク",
+      "amountNote": "ご希望の金額を入力してください。金額が記載されたQRコードが生成され、お支払いが簡単になります。"
     },
     "deposit": {
       "allocation": {
@@ -1609,6 +1655,26 @@
         "ILS": "イスラエルシェケル",
         "IDR": "インドネシアルピア"
       }
+    },
+    "ramp": {
+      "payWith": "お支払い方法",
+      "youGet": "受領",
+      "sellAmount": "売却額",
+      "receiveAmount": "受取金額",
+      "buyAsset": "資産を購入",
+      "sellAsset": "資産を売る",
+      "receiveAsset": "資産を受け取る",
+      "previewOrder": "注文内容の確認",
+      "processingTime": "処理時間: 1～3営業日",
+      "buyInfo": "法定通貨で暗号通貨を購入する",
+      "sellInfo": "暗号通貨を法定通貨に売却する",
+      "availableQuotes": "提示レート",
+      "bestRate": "ベストレート",
+      "fastest": "最速",
+      "rate": "レート",
+      "amount": "金額",
+      "paymentMethods": "支払い方法",
+      "selectFiat": "法定通貨を選択"
     },
     "mobileWelcome": {
       "success": {
@@ -1778,7 +1844,11 @@
         "pairExistingDeviceBody": "別の Ledger デバイスを接続しますか? 「新しいデバイスをペアリング」をクリックして最初からやり直してください。"
       },
       "failure": {
-        "body": "Ledgerウォレットに接続できません"
+        "header": "Ledgerに接続できません",
+        "body": "Ledger を検出できませんでしたが、読み取り専用モードで接続できます。"
+      },
+      "readOnly": {
+        "button": "読み取り専用として接続"
       },
       "gettingChangeAddress": "住所変更を取得しています...",
       "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
@@ -1824,6 +1894,7 @@
       "active": "アクティブ",
       "notActive": "非アクティブ",
       "addSnap": "スナップを追加",
+      "installError": "MetaMaskにMultichain Snapをインストール中にエラーが発生しました",
       "uninstall": {
         "title": "MetaMaskからマルチチェーンのサポートが削除されました。",
         "subtitle": "MetaMaskにマルチチェーンスナップを再追加して、次のチェーンを使用して送信、受信、追跡、取引、および収益を獲得します。"
@@ -2367,6 +2438,13 @@
         "transactionData": "取引データ",
         "method": "メソッド",
         "signingWith": "署名アカウント",
+        "connectWith": "接続する",
+        "chooseAccount": "アカウントを選択",
+        "chooseNetwork": "ネットワークを選択",
+        "required": "必須",
+        "noAccount": "このアドレスの%{chainName}のアカウントがありません",
+        "connectionRequest": "接続リクエスト",
+        "connectionRequestTooltip": "接続すると、このdAppはトランザクションの承認をリクエストできるようになります",
         "sendingTo": "送信先",
         "signMessage": {
           "signingFrom": "署名者",
@@ -2421,7 +2499,6 @@
         },
         "connect": {
           "title": "WalletConnect経由でウォレットをdAppに接続し、トランザクションを始めます",
-          "howTo": "dAppに接続するにはどうすればよいですか?",
           "linkPlaceholder": "QRコードまたはリンク",
           "connect": "接続する",
           "connectionError": "指定されたURIに接続できません。",

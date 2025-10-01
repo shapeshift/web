@@ -26,6 +26,12 @@ export class ChainAdapterError extends Error {
 }
 
 export const ErrorHandler = async (err: unknown, metadata?: ErrorMetadata): Promise<never> => {
+  if (err instanceof Error && err.message.toLowerCase().includes('blind sign')) {
+    throw new ChainAdapterError(err, {
+      translation: 'chainAdapters.errors.blindSigningRequired',
+    })
+  }
+
   if ((err as AxiosError).isAxiosError) {
     const response = JSON.stringify((err as AxiosError).response?.data)
     if (metadata) throw new ChainAdapterError(response, metadata)

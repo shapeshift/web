@@ -3,6 +3,8 @@
     "amount": "Cantidad",
     "ascending": "Ascendente",
     "descending": "Descendente",
+    "selectAll": "Seleccionar Todo",
+    "unselectAll": "Deseleccionar Todo",
     "free": "Gratis",
     "trade": "Intercambiar",
     "trades": "Intercambios",
@@ -40,6 +42,7 @@
     "activity": "Actividad",
     "reject": "Rechazar",
     "goBack": "Regresar",
+    "fiat": "Fíat",
     "connected": "Conectado",
     "allocation": "Asignación",
     "trendingTokens": "Tokens en Tendencia",
@@ -65,6 +68,7 @@
     "pairing": "Emparejando",
     "connectWalletToGetStartedWith": "Conecte una billetera para comenzar a usar %{feature}",
     "connectedWallet": "Billetera Conectada",
+    "crypto": "Cripto",
     "walletActions": "Acciones de Billetera",
     "connectedWalletSettings": "Configuración de billetera",
     "noWallet": "Sin billetera conectada",
@@ -130,6 +134,11 @@
     "enterAmount": "Ingrese la cantidad",
     "enterAddress": "Ingrese Dirección",
     "pageNotFound": "La página que buscas no se encuentra",
+    "creditCard": "Tarjeta de Crédito",
+    "bankTransfer": "Transferencia Bancaria",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Comprar/Vender",
     "all": "Todo",
     "viewAll": "Ver todo",
@@ -259,17 +268,24 @@
       "body": "Se ha producido un error en la interfaz de intercambio. Vuelve a intentar o actualiza la página.",
       "retry": "Intentar Nuevamente"
     },
+    "ramp": {
+      "title": "Error de Rampa",
+      "body": "Se produjo un error en la interfaz de rampa. Vuelve a intentarlo o actualiza la página.",
+      "retry": "Intentar Nuevamente"
+    },
     "suspense": {
       "title": "Error al cargar",
       "body": "Este contenido no se pudo cargar correctamente.",
       "retry": "Volver a Intentar"
     }
   },
-  "buyPage": {
-    "title": "Comprar Cripto <span>en Segundos</span>",
-    "body": "Utilice una tarjeta de crédito, tarjeta de débito o cuenta bancaria. Compre Bitcoin, Ethereum, USDT, USDC o cientos de otras criptomonedas.",
-    "disclaimer": "*También puede vender cripto directamente en efectivohacia su cuenta bancaria.",
-    "ctaTitle": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y <span>Rastree su cripto en %{chainCount} cadenas</span>",
+  "rampPage": {
+    "buyTitle": "Compra Cripto <span>en Segundos</span>",
+    "sellTitle": "Vende Cripto <span>en Segundos</span>",
+    "buyBody": "Usa una tarjeta de crédito, débito o cuenta bancaria. Compra Bitcoin, Ethereum, USDT, USDC u otras cripto importantes. Ofrecemos proveedores sin KYC.",
+    "sellBody": "Usa una tarjeta de crédito, débito o cuenta bancaria. Vende Bitcoin, Ethereum, USDT, USDC u otras cripto importantes. Ofrecemos proveedores sin KYC.",
+    "disclaimer": "*También puedes vender cripto directamente por efectivo en tu cuenta bancaria.",
+    "ctaTitle": "También puedes usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y <span>rastrear tu cripto entre %{chainCount} cadenas</span>",
     "availableAssets": "Activos Disponibles"
   },
   "updateToast": {
@@ -374,6 +390,8 @@
       "switchWallet": "Cambiar Billetera",
       "disconnect": "Desconectar",
       "disconnected": "(Desconectado)",
+      "reconnectWallet": "Reconectar Billetera",
+      "walletNotConnected": "Tu billetera no está conectada actualmente. Esto afectará tus transacciones.",
       "connecting": "Conectando..."
     }
   },
@@ -412,8 +430,6 @@
       },
       "cosmosOverview": {
         "rewards": "Las recompensas que gane se acumularán automáticamente.",
-        "cta": "Iniciar Staking",
-        "learnMore": "Aprende más",
         "withdrawals": "Retirar Staking",
         "emptyWithdraws": "Aquí se mostrarán las solicitudes pendientes de retirar Staking.",
         "availableDate": "disponible %{date}"
@@ -665,7 +681,6 @@
     "market": "Mercado",
     "limitOrder": "Órdenes limitadas",
     "claims": "Reclamos",
-    "tradeShort": "Intercambie",
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
     "lending": "Préstamo",
@@ -674,6 +689,8 @@
     "tcy": "TCY",
     "foxEcosystem": "Ecosistema FOX",
     "markets": "Mercados",
+    "tokens": "Tokens",
+    "swap": "Intercambiar",
     "actionMenu": {
       "send": {
         "title": "Enviar",
@@ -695,6 +712,34 @@
         "title": "Escanear código QR",
         "body": "Escanee fácilmente para enviar o recibir cripto"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "Productos",
+    "mobileApp": {
+      "title": "App Móvil",
+      "subtitle": "Intercambio y gestión de cripto"
+    },
+    "foxToken": {
+      "title": "Token FOX",
+      "subtitle": "Nuestro Token de Gobernanza"
+    },
+    "classic": {
+      "title": "Clásico",
+      "subtitle": "ShapeShift OG"
+    },
+    "wallet": {
+      "title": "Billetera ShapeShift",
+      "subtitle": "Conozca nuestra billetera"
+    },
+    "footer": {
+      "governance": "Gobernanza",
+      "support": "Soporte",
+      "blog": "Blog",
+      "faq": "Preguntas Frecuentes",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
     }
   },
   "transactionRow": {
@@ -952,7 +997,7 @@
     "viewTransaction": "Ver Transacción",
     "noQuotesAvailable": "No hay Cotizaciones Disponibles",
     "noQuotesAvailableDescription": "No se encontraron cotizaciones disponibles en este momento. Intente seleccionar otro par.",
-    "availableSwappers": "Cotizaciones Disponibles",
+    "availableQuotes": "Cotizaciones Disponibles",
     "unavailableSwappers": "Intercambiadores No Disponibles",
     "unlimited": "Ilimitado",
     "streamStatus": "Estado Stream",
@@ -1445,7 +1490,8 @@
       "verified": "Verificado",
       "notVerified": "Discrepancia de dirección",
       "blockExplorer": "Explorador",
-      "supportedNetworks": "Redes Compatibles"
+      "supportedNetworks": "Redes Compatibles",
+      "amountNote": "Introduce el importe que deseas solicitar. Se generará un código QR con el importe para facilitar los pagos."
     },
     "deposit": {
       "allocation": {
@@ -1609,6 +1655,26 @@
         "ILS": "Shekel Israelí",
         "IDR": "Rupia Indonesia"
       }
+    },
+    "ramp": {
+      "payWith": "Pagar con",
+      "youGet": "Obtienes",
+      "sellAmount": "Cantidad de Venta",
+      "receiveAmount": "Cantidad Recibida",
+      "buyAsset": "Comprar Activo",
+      "sellAsset": "Vender Activo",
+      "receiveAsset": "Recibir Activo",
+      "previewOrder": "Vista Previa de Orden",
+      "processingTime": "Tiempo de Procesamiento: 1-3 días hábiles",
+      "buyInfo": "Comprar cripto con moneda fiat",
+      "sellInfo": "Vender cripto por moneda fiat",
+      "availableQuotes": "Cotizaciones Disponibles",
+      "bestRate": "Mejor Tarifa",
+      "fastest": "Más Rápido",
+      "rate": "Tasa",
+      "amount": "Cantidad",
+      "paymentMethods": "Métodos de Pago",
+      "selectFiat": "Seleccione Moneda Fiat"
     },
     "mobileWelcome": {
       "success": {
@@ -1777,6 +1843,13 @@
         "pairExistingDeviceButton": "Emparejar dispositivo existente",
         "pairExistingDeviceBody": "¿Conectando un dispositivo Ledger diferente? Haga clic en 'Emparejar nuevo dispositivo' para comenzar de nuevo."
       },
+      "failure": {
+        "header": "No se puede conectar Ledger",
+        "body": "No pudimos detectar su Ledger, pero puede conectarse en modo solo lectura."
+      },
+      "readOnly": {
+        "button": "Conectar como Solo Lectura"
+      },
       "gettingChangeAddress": "Obteniendo cambio de dirección...",
       "connectWarning": "Antes de conectar una cadena, asegúrese de tener la app abierta en su dispositivo.",
       "signWarning": "Antes de firmar, asegúrese de tener la app %{chain} abierta en su dispositivo."
@@ -1821,6 +1894,7 @@
       "active": "Activo",
       "notActive": "No Activo",
       "addSnap": "Agregar Snap",
+      "installError": "Se produjo un error al instalar Snap Multicadena en MetaMask",
       "uninstall": {
         "title": "¡Has eliminado la compatibilidad Multicadena de MetaMask!",
         "subtitle": "Vuelva a agregar Snap Multicadena en MetaMask para enviar, recibir, rastrear, intercambiar y ganar con las siguientes cadenas:"
@@ -2364,6 +2438,13 @@
         "transactionData": "Datos de Transacción",
         "method": "Método",
         "signingWith": "Firmando con",
+        "connectWith": "Conectar con",
+        "chooseAccount": "Elija una Cuenta",
+        "chooseNetwork": "Elija Red",
+        "required": "Requerido",
+        "noAccount": "No tienes una cuenta en %{chainName} para esta dirección",
+        "connectionRequest": "Solicitud de Conexión",
+        "connectionRequestTooltip": "La conexión permite que esta dApp solicite aprobaciones de transacciones",
         "sendingTo": "Enviando a",
         "signMessage": {
           "signingFrom": "Firmando desde",
@@ -2418,7 +2499,6 @@
         },
         "connect": {
           "title": "Conecte su billetera a una dApp a través de WalletConnect y active transacciones",
-          "howTo": "¿Cómo conectar a una dApp?",
           "linkPlaceholder": "Código QR o enlace de conexión",
           "connect": "Conectar",
           "connectionError": "No se puede conectar al URI proporcionado.",

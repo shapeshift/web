@@ -1,9 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { createThrottle, isSome } from '@shapeshiftoss/utils'
+import { isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
-import qs from 'qs'
 import { getAddress, isAddress, isAddressEqual, zeroAddress } from 'viem'
 
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
@@ -20,7 +19,6 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { localAssetData } from '@/lib/asset-service'
 
 const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
-const PORTALS_API_KEY = getConfig().VITE_PORTALS_API_KEY
 
 export const fetchPortalsTokens = async ({
   chainIds,
@@ -53,18 +51,6 @@ export const fetchPortalsTokens = async ({
   totalLimit: number | 'all'
   tags?: string[]
 }): Promise<TokenInfo[]> => {
-  if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
-  if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
-
-  const url = `${PORTALS_BASE_URL}/v2/tokens`
-
-  const { throttle, clear } = createThrottle({
-    capacity: 500, // 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
-    costPerReq: 1,
-    drainPerInterval: 125, // Replenish 25 requests every 15 seconds
-    intervalMs: 15000, // 15 seconds
-  })
-
   const networks = chainIds?.map(chainId => CHAIN_ID_TO_PORTALS_NETWORK[chainId])
 
   if (typeof networks === 'object') {
@@ -76,28 +62,21 @@ export const fetchPortalsTokens = async ({
   const supportedNetworks = typeof networks === 'object' ? networks.filter(isSome) : undefined
 
   try {
-    const params = {
-      // fetch remaining tokens needed (up to 250 max per page)
-      limit: Math.min(totalLimit === 'all' ? 250 : Number(totalLimit) - accTokens.length, 250),
-      // Minimum 100,000 bucks liquidity if asset is a LP token
-      minLiquidity: '100000',
-      // undefined means all networks
-      networks: supportedNetworks,
-      page: page.toString(),
-      sortBy,
-      sortDirection,
-      minApy,
-      tags,
-    }
-
-    await throttle()
-
-    const pageResponse = await axios.get<GetTokensResponse>(url, {
-      paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-      headers: {
-        Authorization: `Bearer ${PORTALS_API_KEY}`,
+    const pageResponse = await axios.get<GetTokensResponse>(`${PORTALS_BASE_URL}/v2/tokens`, {
+      params: {
+        // fetch remaining tokens needed (up to 250 max per page)
+        limit: Math.min(totalLimit === 'all' ? 250 : Number(totalLimit) - accTokens.length, 250),
+        // Minimum 100,000 bucks liquidity if asset is a LP token
+        minLiquidity: '100000',
+        // undefined means all networks
+        networks: supportedNetworks,
+        page: page.toString(),
+        sortBy,
+        sortDirection,
+        minApy,
+        tags,
       },
-      params,
+      paramsSerializer: { indexes: null },
     })
 
     const pageTokens = pageResponse.data.tokens.filter(
@@ -126,11 +105,9 @@ export const fetchPortalsTokens = async ({
           newTokens.length
         }`,
       )
-      clear() // Clear the interval when done
       return newTokens
     }
   } catch (error) {
-    clear() // Clear the interval on error
     if (axios.isAxiosError(error)) {
       console.error(`Failed to fetch Portals tokens: ${error.message}`)
     } else {
@@ -262,9 +239,6 @@ export const getPortalTokens = async (
   nativeAsset: Asset,
   limit: number | 'all',
 ): Promise<Asset[]> => {
-  if (!PORTALS_API_KEY) throw new Error('VITE_PORTALS_API_KEY not set')
-  if (!PORTALS_BASE_URL) throw new Error('VITE_PORTALS_BASE_URL not set')
-
   const portalsPlatforms = await queryClient.fetchQuery({
     queryFn: () => fetchPortalsPlatforms(),
     queryKey: ['portalsPlatforms'],
@@ -284,16 +258,10 @@ export const getPortalTokens = async (
 }
 
 export const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
-  const url = `${PORTALS_BASE_URL}/v2/platforms`
-
   try {
-    const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
-      headers: {
-        Authorization: `Bearer ${PORTALS_API_KEY}`,
-      },
-    })
+    const { data } = await axios.get<GetPlatformsResponse>(`${PORTALS_BASE_URL}/v2/platforms`)
 
-    const byId = platforms.reduce<PlatformsById>((acc, platform) => {
+    const byId = data.reduce<PlatformsById>((acc, platform) => {
       acc[platform.platform] = platform
       return acc
     }, {})
@@ -313,20 +281,15 @@ export const fetchPortalsAccount = async (
   chainId: ChainId,
   owner: string,
 ): Promise<Record<AssetId, TokenInfo>> => {
-  const url = `${PORTALS_BASE_URL}/v2/account`
-
   const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
   if (!network) throw new Error(`Unsupported chainId: ${chainId}`)
 
   try {
-    const { data } = await axios.get<GetBalancesResponse>(url, {
+    const { data } = await axios.get<GetBalancesResponse>(`${PORTALS_BASE_URL}/v2/account`, {
       params: {
         networks: [network],
         owner,
-      },
-      headers: {
-        Authorization: `Bearer ${PORTALS_API_KEY}`,
       },
     })
 

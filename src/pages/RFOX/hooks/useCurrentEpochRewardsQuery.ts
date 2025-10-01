@@ -51,22 +51,17 @@ export const useCurrentEpochRewardsQuery = ({
         if (!epochHistory || !currentEpochRewardUnits || !affiliateRevenue || !currentEpochMetadata)
           return 0n
 
-        const orderedEpochHistory = epochHistory.sort((a, b) => b.number - a.number)
+        const previousEpochRewardUnits = epochHistory.reduce((lastKnownEpochRewardUnits, epoch) => {
+          if (lastKnownEpochRewardUnits !== 0n) return lastKnownEpochRewardUnits
 
-        const previousEpochRewardUnits = orderedEpochHistory.reduce(
-          (lastKnownEpochRewardUnits, epoch) => {
-            if (lastKnownEpochRewardUnits !== 0n) return lastKnownEpochRewardUnits
+          const distribution =
+            epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
+              ?.distributionsByStakingAddress[
+              getAddress(fromAccountId(stakingAssetAccountId).account)
+            ]?.totalRewardUnits
 
-            const distribution =
-              epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-                ?.distributionsByStakingAddress[
-                getAddress(fromAccountId(stakingAssetAccountId).account)
-              ]?.totalRewardUnits
-
-            return distribution ? BigInt(distribution) : 0n
-          },
-          0n,
-        )
+          return distribution ? BigInt(distribution) : 0n
+        }, 0n)
 
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 

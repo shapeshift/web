@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
-import noop from 'lodash/noop'
 
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
 import {
@@ -65,7 +64,7 @@ export interface SupportedFiatRampConfig {
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
   getSupportedFiatList: () => CommonFiatCurrencies[]
-  getQuotes: (args: GetQuotesArgs) => Promise<RampQuote | undefined> | void
+  getQuotes?: (args: GetQuotesArgs) => Promise<RampQuote | null>
   onSubmit: (args: CreateUrlProps) => Promise<string | undefined>
   minimumSellThreshold?: number
 }
@@ -87,7 +86,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyList, sellList])
     },
     getSupportedFiatList: () => getSupportedCoinbaseFiatCurrencies(),
-    getQuotes: noop,
     onSubmit: props => {
       return Promise.resolve(createCoinbaseUrl(props))
     },
@@ -135,7 +133,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),
-    getQuotes: noop,
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)

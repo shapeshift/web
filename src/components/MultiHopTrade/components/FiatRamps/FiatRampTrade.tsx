@@ -100,7 +100,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const popup = useModal('popup')
-  const pathname = useLocation().pathname
+  const { pathname } = useLocation()
 
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
@@ -222,14 +222,9 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     }
   }, [debouncedSellAmount, dispatch, sellFiatCurrency, sellAsset, buyFiatCurrency, buyAsset])
 
-  const isQueryLoading = useMemo(() => {
-    return quotesQueries.some(query => query.isLoading)
-  }, [quotesQueries])
-
   // Auto-select the best quote when quotes are available and no quote is selected
   // This only happens on first load or when amount changes (not on refetch)
   useEffect(() => {
-    if (isQueryLoading && !selectedQuote) return
     if (pathname.includes('quotes')) return
 
     if (sortedQuotes.length > 0) {
@@ -242,7 +237,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
 
       dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(bestQuote))
     }
-  }, [sortedQuotes, selectedQuote, dispatch, isQueryLoading, pathname])
+  }, [sortedQuotes, selectedQuote, dispatch, isFetchingQuotes, pathname])
 
   const handleSubmit = useCallback(async () => {
     if (!selectedQuote?.provider) return
@@ -442,7 +437,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     ],
   )
 
-  const wrappedQuoteList = useCallback(
+  const quoteListComponent = useCallback(
     (props: QuoteListProps) => (
       <QuoteList
         {...props}
@@ -460,13 +455,13 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       <SlideTransitionRoute
         height={tradeInputRef.current?.offsetHeight ?? '660px'}
         width={tradeInputRef.current?.offsetWidth ?? 'full'}
-        component={wrappedQuoteList}
+        component={quoteListComponent}
         parentRoute={
           direction === FiatRampAction.Buy ? FiatRampRoutePaths.Buy : FiatRampRoutePaths.Sell
         }
       />
     ),
-    [wrappedQuoteList, direction],
+    [quoteListComponent, direction],
   )
 
   return (

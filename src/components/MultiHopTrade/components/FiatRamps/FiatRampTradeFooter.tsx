@@ -2,6 +2,7 @@ import type { CardFooterProps } from '@chakra-ui/react'
 import { CardFooter, Flex } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import noop from 'lodash/noop'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 
@@ -187,7 +188,7 @@ export const FiatRampTradeFooter = ({
         {selectedQuote && !isLoading && (
           <Display.Mobile>
             <Protocol
-              onClick={onOpenQuoteList || (() => {})}
+              onClick={onOpenQuoteList || noop}
               title={selectedQuote.provider}
               icon={icon}
             />

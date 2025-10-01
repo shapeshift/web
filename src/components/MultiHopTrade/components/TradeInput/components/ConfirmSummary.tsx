@@ -374,10 +374,10 @@ export const ConfirmSummary = ({
     >
       <>
         {maybeWarning}
-        {(isCompact || isSmallerThanXl) && (
+        {(isCompact || isSmallerThanXl) && tradeQuoteStep?.source && (
           <Protocol
             onClick={handleOpenCompactQuoteList}
-            title={tradeQuoteStep?.source}
+            title={tradeQuoteStep.source}
             icon={swapperIcon}
           />
         )}

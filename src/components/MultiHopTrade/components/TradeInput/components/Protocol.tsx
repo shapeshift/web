@@ -7,13 +7,11 @@ import { clickableLinkSx } from '@/theme/styles'
 
 type ProtocolProps = {
   onClick: () => void
-  title: string | undefined
+  title: string
   icon: React.ReactNode
 }
 
 export const Protocol = ({ onClick, title, icon }: ProtocolProps) => {
-  if (!title || !icon) return null
-
   return (
     <Row alignItems='center' fontSize='sm'>
       <Row.Label>

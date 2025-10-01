@@ -310,7 +310,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
         showInputSkeleton={false}
         showFiatSkeleton={false}
         formControlProps={formControlProps}
-        label='Sell Amount'
+        label={translate('modals.ramp.sellAmount')}
         onAccountIdChange={handleAccountIdChange}
       />
 

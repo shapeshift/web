@@ -49,50 +49,61 @@ export const useGetRampQuotes = ({
     return ramps?.byAssetId[assetId]?.[direction].map(fiatRampId => supportedFiatRamps[fiatRampId])
   }, [ramps, assetId, direction])
 
-  const rampQuoteQueries = useQueries({
-    queries:
-      supportedRamps?.map(fiatRamp => ({
+  const queries = useMemo(
+    () =>
+      supportedRamps.map(fiatRamp => ({
         queryKey: [...queryKey, fiatRamp.id],
-        queryFn: async () => {
-          const result = await (async () => {
-            switch (fiatRamp.id) {
-              case 'OnRamper': {
-                if (!onramperCurrencies) throw new Error('Onramper currencies not found')
-                const crypto = findOnramperTokenIdByAssetId(assetId, onramperCurrencies)
-                if (!crypto) throw new Error('Asset not found')
+        queryFn: () => {
+          switch (fiatRamp.id) {
+            case 'OnRamper': {
+              if (!onramperCurrencies) throw new Error('Onramper currencies not found')
+              const crypto = findOnramperTokenIdByAssetId(assetId, onramperCurrencies)
+              if (!crypto) throw new Error('Asset not found')
+              if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
 
-                return await fiatRamp.getQuotes?.({
-                  fiatCurrency,
-                  crypto,
-                  amount,
-                  direction,
-                })
-              }
-              default: {
-                if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
-
-                return await fiatRamp.getQuotes?.({
-                  fiatCurrency,
-                  crypto: assetId,
-                  amount,
-                  direction,
-                })
-              }
+              return fiatRamp.getQuotes({
+                fiatCurrency,
+                crypto,
+                amount,
+                direction,
+              })
             }
-          })()
+            default: {
+              if (!fiatRamp.getQuotes) throw new Error('Fiat ramp get quotes not found')
 
-          return result || null
+              return fiatRamp.getQuotes({
+                fiatCurrency,
+                crypto: assetId,
+                amount,
+                direction,
+              })
+            }
+          }
         },
         staleTime: 0,
         enabled: bnOrZero(debouncedAmount).gt(0),
         gcTime: 0,
       })) ?? [],
+    [
+      supportedRamps,
+      queryKey,
+      onramperCurrencies,
+      fiatCurrency,
+      assetId,
+      amount,
+      direction,
+      debouncedAmount,
+    ],
+  )
+
+  const rampQuoteQueries = useQueries({
+    queries,
   })
 
   // Sort quotes by best rate (highest amount out)
   const sortedQuotes = useMemo(() => {
     const successfulQuotes = rampQuoteQueries
-      .filter(query => query.isSuccess && query.data && query.data !== null)
+      .filter(query => query.isSuccess && query.data)
       .map(query => query.data as RampQuote)
       .sort((a, b) => {
         const amountA = bnOrZero(a.amount)

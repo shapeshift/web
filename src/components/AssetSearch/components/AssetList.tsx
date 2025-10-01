@@ -140,13 +140,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (assets.length <= 10) {
     return (
-      <Box
-        maxHeight={height}
-        overflow='auto'
-        height='auto'
-        minH='50vh'
-        className='scroll-container'
-      >
+      <Box overflow='auto' height='auto' className='scroll-container'>
         {assets.map((asset, index) => (
           <Box key={asset.assetId}>{renderRow(index)}</Box>
         ))}

@@ -17,7 +17,6 @@ import { foxEthLpAssetIds } from '@/state/slices/opportunitiesSlice/constants'
 import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 
 const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
-const PORTALS_API_KEY = getConfig().VITE_PORTALS_API_KEY
 
 type GetPortalsUniV2PoolAssetIdsOutput = AssetId[]
 
@@ -36,18 +35,13 @@ export const portalsApi = createApi({
         const networks = evmNetworks.map(network => network?.toLowerCase()).filter(isSome)
 
         const { data } = await axios.get<GetTokensResponse>(`${PORTALS_BASE_URL}/v2/tokens`, {
-          headers: {
-            Authorization: `Bearer ${PORTALS_API_KEY}`,
-          },
           params: {
             platforms: ['uniswapv2'],
             networks,
             minLiquidity: '100000',
             limit: '250',
           },
-          paramsSerializer: {
-            indexes: null,
-          },
+          paramsSerializer: { indexes: null },
         })
 
         if (!data?.tokens?.length) throw new Error('No Portals data, sadpepe.jpg')

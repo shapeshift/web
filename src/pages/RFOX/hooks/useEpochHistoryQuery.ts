@@ -30,12 +30,14 @@ export const fetchEpochHistory = async (): Promise<EpochWithIpfsHash[]> => {
     queryFn: fetchCurrentEpochMetadata,
   })
 
-  return Promise.all(
+  const epochs = await Promise.all(
     Object.values(currentEpochMetadata.ipfsHashByEpoch).map(async hash => {
       const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)
       return { ...data, ipfsHash: hash }
     }),
   )
+
+  return epochs.sort((a, b) => b.number - a.number)
 }
 
 export const useEpochHistoryQuery = <SelectData = EpochWithIpfsHash[]>({

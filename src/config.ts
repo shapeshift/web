@@ -130,7 +130,6 @@ const validators = {
   VITE_ALCHEMY_API_KEY: str(),
   VITE_MORALIS_API_KEY: str(),
   VITE_ALCHEMY_SOLANA_BASE_URL: url(),
-  VITE_PORTALS_API_KEY: str(),
   VITE_CHATWOOT_TOKEN: str(),
   VITE_CHATWOOT_URL: str(),
   VITE_FEATURE_CHATWOOT: bool({ default: false }),

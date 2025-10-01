@@ -69,8 +69,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
       isActive={isActive}
       fontWeight='medium'
       onClick={handleClick}
-      pb={3}
-      pt={5}
+      py={3}
       flex={1}
       zIndex='sticky'
       {...rest}

@@ -190,11 +190,7 @@ export const Explore = memo(() => {
           display='flex'
           flexDir='column'
           flex='1 1 auto'
-          height={
-            isSearching
-              ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 40px - 1rem)'
-              : 'auto'
-          }
+          height={isSearching ? 'calc(100vh - var(--mobile-nav-offset) - 130px)' : 'auto'}
         >
           <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>
             <InputGroup size='md'>
@@ -213,7 +209,7 @@ export const Explore = memo(() => {
               assets={assetResults}
               handleClick={handleAssetClick}
               disableUnsupported={false}
-              height='100vh'
+              height='calc(100vh - var(--mobile-nav-offset) - 70px)'
               showPrice
               showRelatedAssets
               handleLongPress={handleAssetLongPress}

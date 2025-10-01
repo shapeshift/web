@@ -11,7 +11,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { getStakingContract, selectLastEpoch } from '@/pages/RFOX/helpers'
+import { getStakingContract, selectLatestEpoch } from '@/pages/RFOX/helpers'
 import { useEpochHistoryQuery } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
@@ -59,34 +59,35 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
       .toFixed(4)
   }, [totalStakedCryptoResult.data, depositAmount])
 
-  const { data: lastEpoch } = useEpochHistoryQuery({ select: selectLastEpoch })
+  const { data: latestEpoch } = useEpochHistoryQuery({ select: selectLatestEpoch })
 
   const estimatedFoxBurn = useMemo(() => {
-    if (!lastEpoch) return
+    if (!latestEpoch) return
     if (!stakingAsset) return
     if (!stakingAssetUsdPrice) return
 
     return bnOrZero(shapeShiftRevenue)
-      .times(lastEpoch.burnRate)
+      .times(latestEpoch.burnRate)
       .div(stakingAssetUsdPrice)
       .toFixed(0)
-  }, [lastEpoch, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset])
+  }, [latestEpoch, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset])
 
   const estimatedRewards = useMemo(() => {
-    if (!lastEpoch) return
+    if (!latestEpoch) return
     if (!poolShare) return
     if (!runeUsdPrice) return
 
     // @TODO: we might not need this optional chain here if the data exists
     const distributionRate =
-      lastEpoch.detailsByStakingContract[getStakingContract(stakingAssetId)]?.distributionRate ?? 0
+      latestEpoch.detailsByStakingContract[getStakingContract(stakingAssetId)]?.distributionRate ??
+      0
 
     return bnOrZero(shapeShiftRevenue)
       .times(distributionRate)
       .times(poolShare)
       .div(runeUsdPrice)
       .toFixed(2)
-  }, [lastEpoch, shapeShiftRevenue, runeUsdPrice, stakingAssetId, poolShare])
+  }, [latestEpoch, shapeShiftRevenue, runeUsdPrice, stakingAssetId, poolShare])
 
   if (!(runeAsset && stakingAsset)) return null
 

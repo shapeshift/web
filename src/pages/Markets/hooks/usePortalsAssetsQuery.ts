@@ -49,7 +49,7 @@ export const usePortalsAssetsQuery = ({
       enabled && portalsPlatformsData
         ? () =>
             fetchPortalsTokens({
-              limit: 10,
+              totalLimit: 10,
               chainIds,
               sortBy: sortBy === SortOptionsKeys.Volume ? 'volumeUsd1d' : 'apy',
               minApy,

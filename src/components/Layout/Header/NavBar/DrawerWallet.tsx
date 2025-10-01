@@ -31,7 +31,7 @@ import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
-import { ModalContext } from '@/context/ModalProvider/ModalContainer'
+import { ModalContext } from '@/context/ModalProvider/ModalContext'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -147,7 +147,7 @@ const DrawerWalletInner: FC = memo(() => {
   }, [isOpen, activeTabIndex])
 
   const {
-    state: { isConnected, walletInfo, connectedType, modal: walletModalOpen },
+    state: { isConnected, walletInfo, connectedType, isLocked, modal: walletModalOpen },
     dispatch,
     disconnect,
   } = useWallet()
@@ -219,6 +219,7 @@ const DrawerWalletInner: FC = memo(() => {
                   <DrawerWalletHeader
                     walletInfo={walletInfo}
                     isConnected={isConnected}
+                    isLocked={isLocked}
                     connectedType={connectedType}
                     onDisconnect={handleDisconnect}
                     onSwitchProvider={handleSwitchProvider}

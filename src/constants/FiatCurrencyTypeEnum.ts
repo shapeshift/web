@@ -1,4 +1,4 @@
-export enum FiatTypeEnum {
+export enum FiatCurrencyTypeEnum {
   /** united-arab-emirates-dirham */
   AED = 'AED',
   /** afghan-afghani */

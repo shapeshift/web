@@ -5,32 +5,39 @@ import { useCallback, useMemo } from 'react'
 import { AssetRowLoading } from './AssetRowLoading'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
-import { getFiatFlagUrl } from '@/constants/fiatLogos'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyFlagUrlsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
+
 export type FiatMenuButtonProps = {
-  fiat: FiatTypeEnumWithoutCryptos
-  onFiatClick?: (fiat: FiatTypeEnumWithoutCryptos) => void
+  selectedFiatCurrency: FiatCurrencyItem
+  onClick?: () => void
   isDisabled?: boolean
   buttonProps?: ButtonProps
   isLoading?: boolean
 }
 
 export const FiatMenuButton = ({
-  fiat,
-  onFiatClick,
+  selectedFiatCurrency,
+  onClick,
   isDisabled,
   buttonProps,
   isLoading,
 }: FiatMenuButtonProps) => {
   const icon = useMemo(() => {
-    return <LazyLoadAvatar src={getFiatFlagUrl(fiat)} size='xs' />
-  }, [fiat])
+    return (
+      <LazyLoadAvatar
+        src={fiatCurrencyFlagUrlsByCode[selectedFiatCurrency.code]}
+        size='xs'
+        name={selectedFiatCurrency.name}
+      />
+    )
+  }, [selectedFiatCurrency])
 
   const handleAssetClick = useCallback(() => {
-    if (fiat) onFiatClick?.(fiat)
-  }, [fiat, onFiatClick])
+    onClick?.()
+  }, [onClick])
 
-  if (!fiat || isLoading) return <AssetRowLoading {...buttonProps} />
+  if (!selectedFiatCurrency || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
     <Button
@@ -44,7 +51,7 @@ export const FiatMenuButton = ({
       <Flex alignItems='center' gap={2} width='100%' overflow='visible' mx={1}>
         {icon}
         <Text as='span' textOverflow='ellipsis' overflow='hidden'>
-          {fiat}
+          {selectedFiatCurrency.code}
         </Text>
       </Flex>
     </Button>

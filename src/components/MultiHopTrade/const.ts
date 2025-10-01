@@ -11,7 +11,10 @@ export const cardstyles: CardProps = {
     base: 0,
     md: 1,
   },
-  borderRadius: '3xl',
+  borderRadius: {
+    base: '0',
+    md: '3xl',
+  },
   _dark: {
     bg: {
       base: 'background.surface.base',

@@ -39,11 +39,11 @@ import { AllChainMenu } from '@/components/ChainMenu'
 import { Text } from '@/components/Text'
 import { FiatRow } from '@/components/TradeAssetSearch/components/FiatRow'
 import { knownChainIds } from '@/constants/chains'
-import type { FiatTypeEnumWithoutCryptos } from '@/constants/fiats'
-import { FIATS } from '@/constants/fiats'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItems } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectPortfolioAssetsByChainId,
@@ -76,7 +76,7 @@ const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
-  onFiatClick?: (fiat: FiatTypeEnumWithoutCryptos) => void
+  onSelectFiatCurrency?: (fiat: FiatCurrencyItem) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
@@ -93,7 +93,7 @@ const components = { TopItemList, Footer }
 
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
-  onFiatClick,
+  onSelectFiatCurrency,
   formProps,
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
@@ -275,25 +275,26 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [searchString, handleSearchChange, translate],
   )
 
-  const searchFiats = useMemo(() => {
-    return matchSorter(FIATS, searchString, {
+  const searchFiatCurrencies = useMemo(() => {
+    return matchSorter(fiatCurrencyItems, searchString, {
+      keys: ['code', 'name', 'symbol', 'name_plural'],
       threshold: matchSorter.rankings.CONTAINS,
-    })
+    }) as FiatCurrencyItem[]
   }, [searchString])
 
   const handleFiatClick = useCallback(
-    (fiat: FiatTypeEnumWithoutCryptos) => {
-      onFiatClick?.(fiat)
+    (fiat: FiatCurrencyItem) => {
+      onSelectFiatCurrency?.(fiat)
     },
-    [onFiatClick],
+    [onSelectFiatCurrency],
   )
 
   const renferFiatItem = useCallback(
     (index: number) => {
-      const fiat = searchFiats[index]
-      return <FiatRow key={fiat} fiat={fiat} onClick={handleFiatClick} />
+      const fiat = searchFiatCurrencies[index]
+      return <FiatRow key={fiat.code} fiat={fiat} onClick={handleFiatClick} />
     },
-    [handleFiatClick, searchFiats],
+    [handleFiatClick, searchFiatCurrencies],
   )
 
   const listContent = useMemo(() => {
@@ -301,10 +302,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       return (
         <Box p={4}>
           <Text translation='common.fiat' mb={2} />
-          {searchFiats.length > 0 ? (
+          {searchFiatCurrencies.length > 0 ? (
             <Virtuoso
               className='scroll-container'
-              data={searchFiats}
+              data={searchFiatCurrencies}
               itemContent={renferFiatItem}
               style={style}
               overscan={1000}
@@ -368,10 +369,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             </TabPanel>
 
             <TabPanel px={2} py={0} height='100%' pt={2}>
-              {searchFiats.length > 0 ? (
+              {searchFiatCurrencies.length > 0 ? (
                 <Virtuoso
                   className='scroll-container'
-                  data={searchFiats}
+                  data={searchFiatCurrencies}
                   itemContent={renferFiatItem}
                   style={style}
                   overscan={1000}
@@ -427,7 +428,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     portfolioAssetsSortedByBalanceForChain,
     workerSearchState,
     renferFiatItem,
-    searchFiats,
+    searchFiatCurrencies,
     searchString,
     showFiatTab,
     showAssetTab,

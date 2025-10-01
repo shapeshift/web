@@ -43,16 +43,17 @@ export const MobileUserHeader = ({
   )
 
   useLayoutEffect(() => {
-    const body = document.body
-    const header = document.querySelector('.mobile-user-header')
     if (window.visualViewport) {
-      const vv = window.visualViewport
+      const visualViewport = window.visualViewport
       const fixPosition = () => {
+        const body = document.body
+        const header = document.querySelector('.mobile-user-header')
+
         if (body && header) {
           body.style.setProperty('--mobile-header-user-offset', `${header.clientHeight}px`)
         }
       }
-      vv.addEventListener('resize', fixPosition)
+      visualViewport.addEventListener('resize', fixPosition)
       fixPosition()
       return () => {
         window.removeEventListener('resize', fixPosition)

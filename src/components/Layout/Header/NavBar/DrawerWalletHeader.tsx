@@ -16,13 +16,13 @@ import { memo, useCallback, useMemo } from 'react'
 import { TbDots, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { DrawerWalletSelector } from './DrawerWalletSelector'
 import { WalletImage } from './WalletImage'
 
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useMipdProviders } from '@/lib/mipd'
-import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -76,10 +76,11 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
 
     return (
       <Flex align='center' justify='space-between'>
-        <Flex align='center' gap={2}>
-          <ProfileAvatar size='md' borderRadius='full' />
-          <Text fontWeight='medium'>{label}</Text>
-        </Flex>
+        <DrawerWalletSelector
+          walletInfo={walletInfo}
+          label={label}
+          onSwitchProvider={onSwitchProvider}
+        />
         <Flex gap={2}>
           <IconButton
             aria-label='Settings'

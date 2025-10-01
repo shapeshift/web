@@ -1,5 +1,5 @@
 import { Flex, Skeleton, VStack } from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { FiatRampQuoteCard } from './FiatRampQuoteCard'
 
@@ -16,8 +16,7 @@ import {
   selectSellFiatAmount,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
-import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 export type PaymentMethod = 'Card' | 'Bank Transfer' | 'Apple Pay' | 'Google Pay' | 'SEPA'
 
@@ -28,7 +27,6 @@ type RampQuotesProps = {
 }
 
 export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBack, direction }) => {
-  const dispatch = useAppDispatch()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -52,23 +50,6 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   const isQueryLoading = useMemo(() => {
     return quotesQueries.some(query => query.isLoading) || isLoading
   }, [quotesQueries, isLoading])
-
-  // Auto-select the best quote when quotes are available and no quote is selected
-  // This only happens on first load or when amount changes (not on refetch)
-  useEffect(() => {
-    if (isQueryLoading && !selectedQuote) return
-
-    if (sortedQuotes.length > 0) {
-      const bestQuote =
-        sortedQuotes.find(quote => selectedQuote && selectedQuote.provider === quote.provider) ||
-        sortedQuotes[0]
-
-      if (!bestQuote) return
-      if (bestQuote.id === selectedQuote?.id) return
-
-      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(bestQuote))
-    }
-  }, [sortedQuotes, selectedQuote, dispatch, isQueryLoading])
 
   if (isQueryLoading) {
     return (

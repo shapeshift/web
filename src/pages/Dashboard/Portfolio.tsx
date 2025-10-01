@@ -10,7 +10,6 @@ import { DashboardChartSkeleton } from './components/DashboardChartSkeleton'
 import { Display } from '@/components/Display'
 import { Text } from '@/components/Text'
 
-const cardBodyPx = { base: 4, md: 2 }
 const accountHeaderPaddingBottom = { base: 0, md: 4 }
 const accountHeaderPaddingTop = { base: 6, md: 4 }
 const stackSpacing = { base: 0, md: 6 }
@@ -49,7 +48,7 @@ export const Portfolio = memo(() => {
               </Heading>
             </CardHeader>
           </Display.Desktop>
-          <CardBody px={cardBodyPx} pt={0} pb={0}>
+          <CardBody px={2} pt={0} pb={0}>
             {shouldRenderAccountTable ? <AccountTable /> : <AccountTableSkeleton />}
           </CardBody>
         </Card>

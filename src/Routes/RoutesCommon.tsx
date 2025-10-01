@@ -239,12 +239,7 @@ export const routes: Route[] = [
     priority: 4,
     routes: [
       {
-        path: `/ramp/trade/buy`,
-        main: RampTab,
-        hide: true,
-      },
-      {
-        path: `/ramp/trade/sell`,
+        path: `trade/*`,
         main: RampTab,
         hide: true,
       },

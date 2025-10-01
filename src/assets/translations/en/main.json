@@ -390,6 +390,7 @@
       "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
+      "locked": "(Locked)",
       "reconnectWallet": "Reconnect Wallet",
       "walletNotConnected": "Your wallet is not currently connected. This will impact transactions.",
       "connecting": "Connecting..."
@@ -3126,6 +3127,7 @@
       "switchChainFailed": "Failed to switch wallet chain. Try manually switching your wallet active chain to %{chain}.",
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
+      "blindSigningRequired": "Transaction requires blind signing. Please enable 'Blind signing' in your Ledger app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",

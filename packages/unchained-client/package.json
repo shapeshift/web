@@ -21,10 +21,11 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn postbuild:esm && yarn postbuild:cjs",
+    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn postbuild",
     "clean": "rm -rf dist src/generated",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
     "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },

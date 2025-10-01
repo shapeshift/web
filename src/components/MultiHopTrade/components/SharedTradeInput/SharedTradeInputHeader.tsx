@@ -172,7 +172,7 @@ export const SharedTradeInputHeader = ({
               bg={selectedTab === TradeInputTab.Trade ? activeBgColor : 'none'}
               color={selectedTab === TradeInputTab.Trade ? activeTextColor : 'text.subtle'}
               fontWeight='bold'
-              fontSize='md'
+              fontSize='sm'
               onClick={handleClickTrade}
               type='button'
             >
@@ -187,7 +187,7 @@ export const SharedTradeInputHeader = ({
                 bg={selectedTab === TradeInputTab.LimitOrder ? activeBgColor : 'none'}
                 color={selectedTab === TradeInputTab.LimitOrder ? activeTextColor : 'text.subtle'}
                 fontWeight='bold'
-                fontSize='md'
+                fontSize='sm'
                 ml={-2}
                 onClick={handleClickLimitOrder}
                 type='button'
@@ -204,12 +204,46 @@ export const SharedTradeInputHeader = ({
                 bg={selectedTab === TradeInputTab.Claim ? activeBgColor : 'none'}
                 color={selectedTab === TradeInputTab.Claim ? activeTextColor : 'text.subtle'}
                 fontWeight='bold'
-                fontSize='md'
+                fontSize='sm'
                 ml={-2}
                 onClick={handleClickClaim}
                 type='button'
               >
                 {translate('bridge.claim')}
+              </Box>
+            )}
+            {enableSwapperFiatRamps && !isStandalone && (
+              <Box
+                as='button'
+                px={6}
+                py={2}
+                borderRadius='full'
+                bg={selectedTab === TradeInputTab.BuyFiat ? activeBgColor : 'none'}
+                color={selectedTab === TradeInputTab.BuyFiat ? activeTextColor : 'text.subtle'}
+                fontWeight='bold'
+                fontSize='sm'
+                ml={-2}
+                onClick={handleClickBuyFiat}
+                type='button'
+              >
+                {translate('fiatRamps.buy')}
+              </Box>
+            )}
+            {enableSwapperFiatRamps && !isStandalone && (
+              <Box
+                as='button'
+                px={6}
+                py={2}
+                borderRadius='full'
+                bg={selectedTab === TradeInputTab.SellFiat ? activeBgColor : 'none'}
+                color={selectedTab === TradeInputTab.SellFiat ? activeTextColor : 'text.subtle'}
+                fontWeight='bold'
+                fontSize='sm'
+                ml={-2}
+                onClick={handleClickSellFiat}
+                type='button'
+              >
+                {translate('fiatRamps.sell')}
               </Box>
             )}
           </Flex>

@@ -86,14 +86,14 @@ export const FiatCurrencies = ({ isDrawer = false }: MaybeDrawerProps) => {
 
   return (
     <SlideTransition>
-      <DialogHeader textAlign='center'>
+      <DialogHeader textAlign='center' pt={6}>
         <DialogHeaderLeft>
           <IconButton
             variant='ghost'
             icon={arrowBackIcon}
             aria-label={translate('common.back')}
             position='absolute'
-            top={2}
+            top={6}
             left={3}
             fontSize='xl'
             size='sm'
@@ -112,7 +112,9 @@ export const FiatCurrencies = ({ isDrawer = false }: MaybeDrawerProps) => {
           overflowY='auto'
           overflowX='hidden'
         >
-          {currencyButtons}
+          <Stack width='full' spacing={2} py={2}>
+            {currencyButtons}
+          </Stack>
         </DialogBody>
       </>
     </SlideTransition>

@@ -81,14 +81,14 @@ export const CurrencyFormat = ({ isDrawer = false }: MaybeDrawerProps) => {
 
   return (
     <SlideTransition>
-      <DialogHeader textAlign='center'>
+      <DialogHeader textAlign='center' pt={6}>
         <DialogHeaderLeft>
           <IconButton
             variant='ghost'
             icon={arrowBackIcon}
             aria-label={translate('common.back')}
             position='absolute'
-            top={2}
+            top={6}
             left={3}
             fontSize='xl'
             size='sm'

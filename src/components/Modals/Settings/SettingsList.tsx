@@ -43,7 +43,14 @@ export const SettingsList: FC = () => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      <DialogBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
+      <DialogBody
+        alignItems='center'
+        justifyContent='center'
+        textAlign='center'
+        pt={0}
+        px={0}
+        pb={4}
+      >
         <SettingsContent />
       </DialogBody>
     </SlideTransition>

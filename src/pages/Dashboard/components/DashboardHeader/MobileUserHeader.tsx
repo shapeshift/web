@@ -56,7 +56,7 @@ export const MobileUserHeader = ({
       visualViewport.addEventListener('resize', fixPosition)
       fixPosition()
       return () => {
-        window.removeEventListener('resize', fixPosition)
+        visualViewport.removeEventListener('resize', fixPosition)
       }
     }
   }, [])

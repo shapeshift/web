@@ -147,6 +147,7 @@ export const DownloadButton = ({
       aria-label={translate('transactionHistory.downloadCSV')}
       icon={downloadIcon}
       size='md'
+      ml={2}
       isLoading={isLoading}
       onClick={generateCSV}
     />

@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useReducer } from 'react'
 
 import { CLOSE_MODAL, OPEN_MODAL } from './constants'
-import { ModalContext, modalReducer, MODALS } from './ModalContainer'
+import { modalReducer, MODALS } from './ModalContainer'
+import { ModalContext } from './ModalContext'
 import type { ModalContextType, ModalProps, Modals, ModalState } from './types'
 
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

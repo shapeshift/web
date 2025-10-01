@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { LimitOrderRoutePaths } from './LimitOrder/types'
 
+import type { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { TradeSlideTransition } from '@/components/MultiHopTrade/TradeSlideTransition'
 import type { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { breakpoints } from '@/theme/theme'
@@ -20,7 +21,7 @@ type SlideTransitionRouteProps = {
   height: string | number
   width: string | number
   component: FC<SlideTransitionComponentProps>
-  parentRoute: TradeRoutePaths | LimitOrderRoutePaths
+  parentRoute: TradeRoutePaths | LimitOrderRoutePaths | FiatRampRoutePaths
 }
 
 export const SlideTransitionRoute = ({

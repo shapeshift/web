@@ -15,6 +15,7 @@ import type {
 
 import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { getConfig } from '@/config'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // https://docs.onramper.com/reference/get_supported
 export const getSupportedOnramperCurrencies = async () => {
@@ -60,9 +61,9 @@ const aggregatePaymentMethodSupport = (quotes: OnramperBuyQuoteResponse) => {
 
 const convertOnramperQuotesToSingleRampQuote = (
   onramperQuotes: OnramperBuyQuoteResponse,
-): RampQuote | undefined => {
+): RampQuote | null => {
   if (!onramperQuotes || onramperQuotes.length === 0) {
-    return
+    return null
   }
 
   const bestQuote = onramperQuotes.reduce<OnramperBuyQuote | null>((best, current) => {
@@ -72,7 +73,7 @@ const convertOnramperQuotesToSingleRampQuote = (
     return current.payout > best.payout ? current : best
   }, null)
 
-  if (!bestQuote) return
+  if (!bestQuote) return null
 
   const paymentMethodSupport = aggregatePaymentMethodSupport(onramperQuotes)
 
@@ -95,10 +96,15 @@ export const getOnramperQuote = async ({
   crypto,
   amount,
   direction,
-}: GetQuotesArgs): Promise<RampQuote | undefined> => {
+}: GetQuotesArgs): Promise<RampQuote | null> => {
   try {
     const baseUrl = getConfig().VITE_ONRAMPER_API_URL
     const apiKey = getConfig().VITE_ONRAMPER_API_KEY
+
+    if (bnOrZero(amount).lte(0)) {
+      console.warn(`Amount ${amount} is less than or equal to 0`)
+      return null
+    }
 
     const url =
       direction === 'buy'
@@ -115,6 +121,7 @@ export const getOnramperQuote = async ({
     return convertOnramperQuotesToSingleRampQuote(response.data)
   } catch (e) {
     console.error('Error fetching OnRamper quotes:', e)
+    return null
   }
 }
 

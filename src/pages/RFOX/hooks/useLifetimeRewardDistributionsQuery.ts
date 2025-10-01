@@ -29,7 +29,6 @@ export const useLifetimeRewardDistributionsQuery = ({
     (data: EpochWithIpfsHash[]): RewardDistributionWithMetadata[] => {
       if (!stakingAssetAccountAddresses) return []
       return data
-        .sort((a, b) => b.number - a.number)
         .flatMap(epoch =>
           stakingAssetAccountAddresses.flatMap(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)

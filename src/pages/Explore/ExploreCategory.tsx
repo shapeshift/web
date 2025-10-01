@@ -251,7 +251,7 @@ export const ExploreCategory = () => {
           flexDir='column'
           flex='1 1 auto'
           height={
-            'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 40px - 1rem)'
+            'calc(100vh - var(--mobile-nav-offset) - 80px - var(--safe-area-inset-top) - env(safe-area-inset-top))'
           }
         >
           <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>

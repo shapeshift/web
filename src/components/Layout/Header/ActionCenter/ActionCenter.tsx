@@ -215,7 +215,7 @@ export const ActionCenter = memo(() => {
       </Display.Desktop>
       <Display.Mobile>
         <Box pe={2}>
-          <Box height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - var(--mobile-nav-offset))'>
+          <Box height='calc(100vh - 90px - var(--mobile-header-user-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - var(--mobile-nav-offset))'>
             {drawerContent}
           </Box>
         </Box>

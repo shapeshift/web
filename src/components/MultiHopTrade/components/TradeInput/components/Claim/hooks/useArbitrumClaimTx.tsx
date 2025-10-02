@@ -42,7 +42,7 @@ export const useArbitrumClaimTx = (
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
   const executeTransactionDataResult = useQuery({
-    queryKey: ['executeTransactionData', { txid: claim?.tx.txid }],
+    queryKey: claim ? ['executeTransactionData', { txid: claim.tx.txid }] : [],
     queryFn: async () => {
       if (!claim) return undefined
       const { event, message } = claim

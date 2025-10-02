@@ -151,9 +151,7 @@ export const ArbitrumBridgeClaimModal = ({
   const confirmCopy = useMemo(() => {
     if (claimMutation?.isError) return translate('trade.errors.title')
 
-    if (evmFeesResult?.isError) {
-      return translate('trade.errors.networkFeeEstimateFailed')
-    }
+    if (evmFeesResult?.isError) return translate('trade.errors.networkFeeEstimateFailed')
 
     if (!hasEnoughDestinationFeeBalance)
       return translate('common.insufficientAmountForGas', {

@@ -34,7 +34,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 }: ArbitrumBridgeWithdrawActionCardProps) => {
   const translate = useTranslate()
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
-
   const handleCloseModal = useCallback(() => setIsClaimModalOpen(false), [])
 
   const sellAsset = useAppSelector(state =>
@@ -43,7 +42,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   const buyAsset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
-
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(action.arbitrumBridgeMetadata.assetId).chainId),
   )
@@ -53,7 +51,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       fromAssetId(action.arbitrumBridgeMetadata.destinationAssetId).chainId,
     ),
   )
-
   const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
 
   const isCollapsable =
@@ -64,13 +61,11 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       isCollapsable &&
       (action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Initiated),
   })
-
   const handleClaimClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsClaimModalOpen(true)
   }, [])
-
   const timeDisplay = useMemo(() => {
     const claimDetails = action.arbitrumBridgeMetadata.claimDetails
     const timeRemaining =
@@ -83,15 +78,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     action.arbitrumBridgeMetadata.claimDetails,
     action.arbitrumBridgeMetadata.timeRemainingSeconds,
   ])
-
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
     return fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
-
   const description = useMemo(() => {
     if (!sellAsset || !buyAsset) return ''
-
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
     const timeText = timeDisplay ? `in ${timeDisplay}` : 'soon'
 
@@ -103,10 +95,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       case ActionStatus.Claimed:
         return translate('actionCenter.bridge.complete', { amountAndSymbol })
       default:
-        return 'Processing...'
+        return translate('actionCenter.bridge.processing')
     }
   }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay, translate])
-
   const icon = useMemo(() => {
     if (!sellAsset) return null
     return (
@@ -115,12 +106,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       </AssetIconWithBadge>
     )
   }, [sellAsset, action.status])
-
   const footer = useMemo(() => <ActionStatusTag status={action.status} />, [action.status])
-
   const details = useMemo(() => {
     if (!(sellAsset && buyAsset && sellFeeAsset && buyFeeAsset)) return null
-
     const withdrawTxLink = getTxLink({
       txId: action.arbitrumBridgeMetadata.withdrawTxHash,
       chainId: sellAsset.chainId,
@@ -138,7 +126,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
           maybeSafeTx: undefined,
         })
       : null
-
     return (
       <Stack gap={4}>
         {action.status === ActionStatus.Initiated && (
@@ -151,7 +138,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
             </Row.Value>
           </Row>
         )}
-
         {action.status === ActionStatus.ClaimAvailable && (
           <Row fontSize='sm' alignItems='center'>
             <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
@@ -162,7 +148,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
             </Row.Value>
           </Row>
         )}
-
         {action.status === ActionStatus.Claimed && (
           <>
             <Row fontSize='sm' alignItems='center'>
@@ -198,10 +183,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     translate,
     handleClaimClick,
   ])
-
-  if (!sellAsset || !buyAsset || !action.arbitrumBridgeMetadata) {
-    return null
-  }
+  if (!sellAsset || !buyAsset || !action.arbitrumBridgeMetadata) return null
 
   return (
     <>

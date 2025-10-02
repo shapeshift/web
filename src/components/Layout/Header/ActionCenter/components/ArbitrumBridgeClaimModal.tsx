@@ -10,6 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
@@ -29,7 +30,6 @@ import { ActionStatus } from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
@@ -67,12 +67,13 @@ export const ArbitrumBridgeClaimModal = ({
     selectMarketDataByAssetIdUserCurrency(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
 
-  const destinationAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, action.arbitrumBridgeMetadata.destinationChainId),
-  )
+  const destinationAccountId = action.arbitrumBridgeMetadata.destinationAccountId
 
   const destinationFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, action.arbitrumBridgeMetadata.destinationChainId),
+    selectFeeAssetByChainId(
+      state,
+      fromAccountId(action.arbitrumBridgeMetadata.destinationAccountId).chainId,
+    ),
   )
 
   const destinationFeeAssetBalanceFilter = useMemo(
@@ -197,7 +198,9 @@ export const ArbitrumBridgeClaimModal = ({
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
                 <Row.Value>
-                  {firstFourLastFour(action.arbitrumBridgeMetadata.destinationAddress)}
+                  {firstFourLastFour(
+                    fromAccountId(action.arbitrumBridgeMetadata.destinationAccountId).account,
+                  )}
                 </Row.Value>
               </Row>
               <Row fontSize='sm' fontWeight='medium'>

@@ -79,10 +79,8 @@ type ActionArbitrumBridgeWithdrawMetadata = {
   amountCryptoBaseUnit: string
   assetId: AssetId
   destinationAssetId: AssetId
-  destinationAddress: string
   accountId: AccountId
-  chainId: ChainId
-  destinationChainId: ChainId
+  destinationAccountId: AccountId
   timeRemainingSeconds?: number
   claimDetails?: ClaimDetails
 }

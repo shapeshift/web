@@ -1,4 +1,5 @@
 import { Card, Stack } from '@chakra-ui/react'
+import { toAccountId } from '@shapeshiftoss/caip'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -63,10 +64,11 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
               amountCryptoBaseUnit: claimDetail.amountCryptoBaseUnit,
               assetId: claimDetail.assetId,
               destinationAssetId: claimDetail.destinationAssetId,
-              destinationAddress: claimDetail.destinationAddress,
               accountId: claimDetail.accountId,
-              chainId: claimDetail.tx.chainId,
-              destinationChainId: claimDetail.destinationChainId,
+              destinationAccountId: toAccountId({
+                chainId: claimDetail.destinationChainId,
+                account: claimDetail.destinationAddress,
+              }),
               timeRemainingSeconds: claimDetail.timeRemainingSeconds,
               claimDetails: claimDetail,
             },

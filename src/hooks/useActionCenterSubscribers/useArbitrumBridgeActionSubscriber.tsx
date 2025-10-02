@@ -1,4 +1,4 @@
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
 import { isSome } from '@shapeshiftoss/utils'
 import { uuidv4 } from '@walletconnect/utils'
@@ -64,10 +64,11 @@ export const useArbitrumBridgeActionSubscriber = () => {
             amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
             assetId: swap.sellAsset.assetId,
             destinationAssetId: swap.buyAsset.assetId,
-            destinationAddress: swap.receiveAddress ?? '',
             accountId: swap.sellAccountId,
-            chainId: swap.sellAsset.chainId,
-            destinationChainId: swap.buyAsset.chainId,
+            destinationAccountId: toAccountId({
+              chainId: swap.buyAsset.chainId,
+              account: swap.receiveAddress ?? '',
+            }),
           },
         }),
       )
@@ -100,10 +101,11 @@ export const useArbitrumBridgeActionSubscriber = () => {
             amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
             assetId: claim.assetId,
             destinationAssetId: claim.destinationAssetId,
-            destinationAddress: claim.destinationAddress,
             accountId: claim.accountId,
-            chainId: claim.tx.chainId,
-            destinationChainId: claim.destinationChainId,
+            destinationAccountId: toAccountId({
+              chainId: claim.destinationChainId,
+              account: claim.destinationAddress,
+            }),
           },
         }),
       )
@@ -183,11 +185,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
           }
           return true
         })
-        .map(action => ({
-          action,
-          withdrawTxHash: action.arbitrumBridgeMetadata.withdrawTxHash,
-        }))
-        .map(({ action, withdrawTxHash }) => determineActionState(action, withdrawTxHash))
+        .map(action => determineActionState(action, action.arbitrumBridgeMetadata.withdrawTxHash))
         .filter(isSome)
         .forEach(update => {
           dispatch(

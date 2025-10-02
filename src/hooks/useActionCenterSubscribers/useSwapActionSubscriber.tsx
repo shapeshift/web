@@ -53,6 +53,15 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
+  // Special handling for ArbitrumBridge swaps to ETH mainnet
+  if (
+    swap.status === SwapStatus.Success &&
+    swap.swapperName === SwapperName.ArbitrumBridge &&
+    swap.buyAsset.chainId === ethChainId
+  ) {
+    return ActionStatus.Initiated
+  }
+
   // If swap is pending/success/failed, use direct mapping
   if (swap.status !== SwapStatus.Idle) {
     return swapStatusToActionStatus[swap.status]
@@ -111,11 +120,6 @@ export const useSwapActionSubscriber = () => {
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
       if (!swap) return
-
-      // Skip ArbitrumBridge withdraws (to ETH mainnet) - these will be handled by ArbitrumBridgeActionSubscriber
-      if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
-        return
-      }
 
       const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,

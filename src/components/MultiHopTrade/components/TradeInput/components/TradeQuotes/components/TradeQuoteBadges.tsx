@@ -88,13 +88,13 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
     const TEXT_LENGTH_THRESHOLD_MD = 38
     const TEXT_LENGTH_THRESHOLD_SM = 28
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-      return totalTextLength > TEXT_LENGTH_THRESHOLD_MD
+      return badgeCount > 1
     } else {
       return isLargerThanMd
         ? totalTextLength > TEXT_LENGTH_THRESHOLD_MD
         : totalTextLength > TEXT_LENGTH_THRESHOLD_SM
     }
-  }, [totalTextLength, quoteDisplayOption, isLargerThanMd])
+  }, [totalTextLength, quoteDisplayOption, isLargerThanMd, badgeCount])
 
   if (badgeCount === 0) return null
 

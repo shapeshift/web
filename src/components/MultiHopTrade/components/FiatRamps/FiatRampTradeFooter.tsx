@@ -1,5 +1,5 @@
 import type { CardFooterProps } from '@chakra-ui/react'
-import { CardFooter, Flex } from '@chakra-ui/react'
+import { CardFooter, Flex, useMediaQuery } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
@@ -7,7 +7,6 @@ import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { Display } from '@/components/Display'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
 import { Protocol } from '@/components/MultiHopTrade/components/TradeInput/components/Protocol'
@@ -21,6 +20,7 @@ import {
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type FiatRampTradeFooterProps = {
   children?: JSX.Element
@@ -83,6 +83,8 @@ export const FiatRampTradeFooter = ({
   const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const walletReceiveAddress = useMemo(() => {
     return buyAccountId ? fromAccountId(buyAccountId).account : undefined
@@ -185,14 +187,8 @@ export const FiatRampTradeFooter = ({
           />
         )}
 
-        {selectedQuote && !isLoading && (
-          <Display.Mobile>
-            <Protocol
-              onClick={onOpenQuoteList || noop}
-              title={selectedQuote.provider}
-              icon={icon}
-            />
-          </Display.Mobile>
+        {selectedQuote && !isLoading && isSmallerThanXl && (
+          <Protocol onClick={onOpenQuoteList || noop} title={selectedQuote.provider} icon={icon} />
         )}
 
         {children}

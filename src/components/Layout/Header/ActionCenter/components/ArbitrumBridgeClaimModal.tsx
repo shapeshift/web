@@ -11,9 +11,9 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getChainShortName } from '@shapeshiftoss/utils'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -52,7 +52,6 @@ export const ArbitrumBridgeClaimModal = ({
   const [_claimTxHash, setClaimTxHash] = useState<string>('')
   const [_claimTxStatus, setClaimTxStatus] = useState<TxStatus>()
 
-  // Get claim details and check if claim is available
   const claimDetails = action.arbitrumBridgeMetadata.claimDetails
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable && !!claimDetails
 
@@ -125,80 +124,53 @@ export const ArbitrumBridgeClaimModal = ({
     [dispatch, action],
   )
 
-  const claimTxResult = useArbitrumClaimTx(
-    claimDetails || ({} as any),
+  const claimTxResult = claimDetails ? useArbitrumClaimTx(
+    claimDetails,
     destinationAccountId,
     setClaimTxHash,
     setClaimTxStatus,
     handleClaimSuccess,
-  )
+  ) : null
 
-  const evmFeesResult = useMemo(
-    () =>
-      claimTxResult?.evmFeesResult ?? {
-        data: null,
-        isLoading: false,
-        isPending: false,
-        isError: false,
-        isSuccess: false,
-      },
-    [claimTxResult?.evmFeesResult],
-  )
+  const evmFeesResult = claimTxResult?.evmFeesResult
 
-  const claimMutation = useMemo(
-    () =>
-      claimTxResult?.claimMutation ?? {
-        mutateAsync: () => {
-          throw new Error('Claim not available')
-        },
-        isError: false,
-        isPending: false,
-      },
-    [claimTxResult?.claimMutation],
-  )
+  const claimMutation = claimTxResult?.claimMutation
 
   const hasEnoughDestinationFeeBalance = useMemo(() => {
     if (!destinationFeeAsset) return true
-    if (!evmFeesResult.data?.networkFeeCryptoBaseUnit) return true
+    if (!evmFeesResult?.data?.networkFeeCryptoBaseUnit) return true
 
     return bnOrZero(evmFeesResult.data.networkFeeCryptoBaseUnit).lte(
       toBaseUnit(destinationFeeAssetBalanceCryptoPrecision, destinationFeeAsset.precision),
     )
-  }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult.data])
+  }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 
   const handleSubmit = useCallback(async () => {
-    try {
-      await claimMutation.mutateAsync()
-      onClose()
-    } catch (error) {
-      console.error('Claim failed:', error)
-    }
+    if (!claimMutation) return
+    await claimMutation.mutateAsync()
+    onClose()
   }, [claimMutation, onClose])
 
   const confirmCopy = useMemo(() => {
-    if (claimMutation.isError) {
-      return translate('trade.errors.title')
-    }
+    if (claimMutation?.isError) return translate('trade.errors.title')
 
-    if (evmFeesResult.isError) {
+    if (evmFeesResult?.isError) {
       console.error(evmFeesResult.error)
       return translate('trade.errors.networkFeeEstimateFailed')
     }
 
-    if (!hasEnoughDestinationFeeBalance) {
+    if (!hasEnoughDestinationFeeBalance)
       return translate('common.insufficientAmountForGas', {
         assetSymbol: destinationFeeAsset?.symbol,
-        chainSymbol: getChainShortName(destinationFeeAsset?.chainId as KnownChainIds),
+        chainSymbol: destinationFeeAsset?.chainId ? getChainShortName(destinationFeeAsset.chainId as KnownChainIds) : '',
       })
-    }
 
     return translate('bridge.confirmAndClaim')
   }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
 
-  if (!asset || !destinationAsset) {
-    return null
-  }
+  if (!asset || !destinationAsset) return null
 
+  // This shouldn't happen but show error if claim not available
   if (!isClaimAvailable) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} size='md'>
@@ -230,7 +202,6 @@ export const ArbitrumBridgeClaimModal = ({
         <ModalBody>
           <Stack spacing={6} align='center'>
             <AssetIcon size='lg' assetId={destinationAsset.assetId} />
-
             <Stack textAlign='center' spacing={1}>
               <Amount.Crypto
                 fontWeight='bold'
@@ -252,8 +223,8 @@ export const ArbitrumBridgeClaimModal = ({
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={!evmFeesResult.isLoading && !evmFeesResult.isPending}>
-                    <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat || '0.00'} />
+                  <Skeleton isLoaded={!evmFeesResult?.isFetching}>
+                    <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0.00'} />
                   </Skeleton>
                 </Row.Value>
               </Row>
@@ -265,19 +236,17 @@ export const ArbitrumBridgeClaimModal = ({
             width='full'
             size='lg'
             colorScheme={
-              !hasEnoughDestinationFeeBalance || claimMutation.isError || evmFeesResult.isError
+              !hasEnoughDestinationFeeBalance || claimMutation?.isError || evmFeesResult?.isError
                 ? 'red'
                 : 'blue'
             }
             isDisabled={
-              !evmFeesResult.isSuccess ||
-              evmFeesResult.isPending ||
-              claimMutation.isPending ||
+              !evmFeesResult?.isSuccess ||
+              evmFeesResult?.isPending ||
+              claimMutation?.isPending ||
               !hasEnoughDestinationFeeBalance
             }
-            isLoading={
-              evmFeesResult.isLoading || evmFeesResult.isPending || claimMutation.isPending
-            }
+            isLoading={evmFeesResult?.isFetching || claimMutation?.isPending}
             onClick={handleSubmit}
           >
             {confirmCopy}

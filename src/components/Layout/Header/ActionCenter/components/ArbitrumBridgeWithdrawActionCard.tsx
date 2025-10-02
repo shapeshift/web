@@ -54,9 +54,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
-  const formattedDate = useMemo(() => {
-    return formatSmartDate(action.updatedAt)
-  }, [action.updatedAt])
+  const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
 
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
@@ -99,10 +97,10 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     if (!sellAsset || !buyAsset) return ''
 
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
+    const timeText = timeDisplay ? `in ${timeDisplay}` : 'soon'
 
     switch (action.status) {
       case ActionStatus.Initiated:
-        const timeText = timeDisplay ? `in ${timeDisplay}` : 'soon'
         return `Your withdraw of ${amountAndSymbol} will be available ${timeText}.`
       case ActionStatus.ClaimAvailable:
         return `Your bridge of ${amountAndSymbol} is available to claim.`
@@ -115,7 +113,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
   const icon = useMemo(() => {
     if (!sellAsset) return null
-
     return (
       <AssetIconWithBadge assetId={sellAsset.assetId} size='md'>
         <ActionStatusIcon status={action.status} />
@@ -123,9 +120,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     )
   }, [sellAsset, action.status])
 
-  const footer = useMemo(() => {
-    return <ActionStatusTag status={action.status} />
-  }, [action.status])
+  const footer = useMemo(() => <ActionStatusTag status={action.status} />, [action.status])
 
   const details = useMemo(() => {
     if (!(sellAsset && buyAsset && sellFeeAsset && buyFeeAsset)) return null

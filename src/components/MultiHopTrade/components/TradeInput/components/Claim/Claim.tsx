@@ -31,11 +31,9 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
 
-  // Get existing claims to migrate to actions for validation
   const { claimsByStatus } = useArbitrumClaimsByStatus()
 
-  // Temporary poor man's migration: This tab will be removed in a follow-up.
-  // Migrate existing pending/available claims to actions when Claims tab mounts
+  // Temporary poor man's migration: This tab will be removed in a follow-up
   useEffect(() => {
     const allClaims = [...claimsByStatus.Available, ...claimsByStatus.Pending]
 
@@ -49,7 +47,6 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
           action.arbitrumBridgeMetadata.withdrawTxHash === withdrawTxHash,
       )
 
-      // If no existing action, create one for validation
       if (!existingAction) {
         const status = claimsByStatus.Available.includes(claimDetail)
           ? ActionStatus.ClaimAvailable

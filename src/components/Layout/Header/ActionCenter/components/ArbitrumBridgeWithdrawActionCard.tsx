@@ -51,15 +51,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       fromAssetId(action.arbitrumBridgeMetadata.destinationAssetId).chainId,
     ),
   )
-  const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
 
+  const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
-
   const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen:
-      isCollapsable &&
-      (action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Initiated),
+    defaultIsOpen: action.status === ActionStatus.ClaimAvailable,
   })
 
   const handleClaimClick = useCallback((e: React.MouseEvent) => {

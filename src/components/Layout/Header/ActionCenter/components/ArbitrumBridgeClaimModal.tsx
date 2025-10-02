@@ -49,7 +49,7 @@ export const ArbitrumBridgeClaimModal = ({
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const claimDetails = action.arbitrumBridgeMetadata.claimDetails
-  const isClaimAvailable = action.status === ActionStatus.ClaimAvailable && !!claimDetails
+  const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isClaimCompleted = action.status === ActionStatus.Claimed
 
   const asset = useAppSelector(state =>
@@ -142,7 +142,7 @@ export const ArbitrumBridgeClaimModal = ({
     )
   }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 
-  const handleSubmit = useCallback(async () => {
+  const onConfirm = useCallback(async () => {
     if (!claimMutation) return
     await claimMutation.mutateAsync()
     onClose()
@@ -155,10 +155,8 @@ export const ArbitrumBridgeClaimModal = ({
 
     if (!hasEnoughDestinationFeeBalance)
       return translate('common.insufficientAmountForGas', {
-        assetSymbol: destinationFeeAsset?.symbol,
-        chainSymbol: destinationFeeAsset?.chainId
-          ? getChainShortName(destinationFeeAsset.chainId as KnownChainIds)
-          : '',
+        assetSymbol: destinationFeeAsset?.symbol ?? '',
+        chainSymbol: getChainShortName(destinationFeeAsset?.chainId as KnownChainIds),
       })
 
     return translate('bridge.confirmAndClaim')
@@ -170,7 +168,7 @@ export const ArbitrumBridgeClaimModal = ({
     onClose()
   }, [isClaimCompleted, onClose])
 
-  if (!asset || !destinationAsset) return null
+  if (!asset || !destinationAsset || !destinationFeeAsset) return null
 
   // Shouldn't happen but it may for a few renders after claim - handle gracefully to avoid us crashing in a disgusting way
   if (!isClaimAvailable && !isClaimCompleted) {
@@ -206,7 +204,7 @@ export const ArbitrumBridgeClaimModal = ({
                 <Row.Label>{translate('common.gasFee')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={!evmFeesResult?.isFetching}>
-                    <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0.00'} />
+                    <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0'} />
                   </Skeleton>
                 </Row.Value>
               </Row>
@@ -229,7 +227,7 @@ export const ArbitrumBridgeClaimModal = ({
               !hasEnoughDestinationFeeBalance
             }
             isLoading={evmFeesResult?.isFetching || claimMutation?.isPending}
-            onClick={handleSubmit}
+            onClick={onConfirm}
           >
             {confirmCopy}
           </Button>

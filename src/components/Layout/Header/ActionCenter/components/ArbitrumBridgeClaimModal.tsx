@@ -9,12 +9,11 @@ import {
   ModalOverlay,
   Skeleton,
   Stack,
-  Text,
 } from '@chakra-ui/react'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useMemo, useState } from 'react'
+import { noop } from 'lodash'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -49,9 +48,6 @@ export const ArbitrumBridgeClaimModal = ({
 }: ArbitrumBridgeClaimModalProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
-  const [_claimTxHash, setClaimTxHash] = useState<string>('')
-  const [_claimTxStatus, setClaimTxStatus] = useState<TxStatus>()
-
   const claimDetails = action.arbitrumBridgeMetadata.claimDetails
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable && !!claimDetails
 
@@ -124,13 +120,13 @@ export const ArbitrumBridgeClaimModal = ({
     [dispatch, action],
   )
 
-  const claimTxResult = claimDetails ? useArbitrumClaimTx(
+  const claimTxResult = useArbitrumClaimTx(
     claimDetails,
     destinationAccountId,
-    setClaimTxHash,
-    setClaimTxStatus,
+    noop,
+    noop,
     handleClaimSuccess,
-  ) : null
+  )
 
   const evmFeesResult = claimTxResult?.evmFeesResult
 
@@ -155,14 +151,15 @@ export const ArbitrumBridgeClaimModal = ({
     if (claimMutation?.isError) return translate('trade.errors.title')
 
     if (evmFeesResult?.isError) {
-      console.error(evmFeesResult.error)
       return translate('trade.errors.networkFeeEstimateFailed')
     }
 
     if (!hasEnoughDestinationFeeBalance)
       return translate('common.insufficientAmountForGas', {
         assetSymbol: destinationFeeAsset?.symbol,
-        chainSymbol: destinationFeeAsset?.chainId ? getChainShortName(destinationFeeAsset.chainId as KnownChainIds) : '',
+        chainSymbol: destinationFeeAsset?.chainId
+          ? getChainShortName(destinationFeeAsset.chainId as KnownChainIds)
+          : '',
       })
 
     return translate('bridge.confirmAndClaim')
@@ -170,27 +167,8 @@ export const ArbitrumBridgeClaimModal = ({
 
   if (!asset || !destinationAsset) return null
 
-  // This shouldn't happen but show error if claim not available
   if (!isClaimAvailable) {
-    return (
-      <Modal isOpen={isOpen} onClose={onClose} size='md'>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{translate('common.error')}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text textAlign='center' color='text.subtle'>
-              {translate('bridge.claimNotAvailable')}
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button width='full' onClick={onClose}>
-              {translate('common.close')}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    )
+    throw new Error("This shouldn't happen but claim not available")
   }
 
   return (
@@ -219,7 +197,6 @@ export const ArbitrumBridgeClaimModal = ({
                   {firstFourLastFour(action.arbitrumBridgeMetadata.destinationAddress)}
                 </Row.Value>
               </Row>
-
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>
                 <Row.Value>

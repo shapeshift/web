@@ -40,7 +40,6 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
     allClaims.forEach(claimDetail => {
       const withdrawTxHash = claimDetail.tx.txid
 
-      // Check if we already have an action for this claim
       const existingAction = Object.values(store.getState().action.byId).find(
         action =>
           isArbitrumBridgeWithdrawAction(action) &&
@@ -55,7 +54,7 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
         dispatch(
           actionSlice.actions.upsertAction({
             id: uuidv4(),
-            createdAt: claimDetail.tx.blockTime * 1000, // Convert to milliseconds
+            createdAt: claimDetail.tx.blockTime * 1000,
             updatedAt: Date.now(),
             type: ActionType.ArbitrumBridgeWithdraw,
             status,

@@ -66,13 +66,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   })
 
   const handleClaimClick = useCallback((e: React.MouseEvent) => {
-    try {
-      e.preventDefault()
-      e.stopPropagation()
-      setIsClaimModalOpen(true)
-    } catch (error) {
-      console.error('Error opening claim modal:', error)
-    }
+    e.preventDefault()
+    e.stopPropagation()
+    setIsClaimModalOpen(true)
   }, [])
 
   const timeDisplay = useMemo(() => {
@@ -101,15 +97,15 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     switch (action.status) {
       case ActionStatus.Initiated:
-        return `Your withdraw of ${amountAndSymbol} will be available ${timeText}.`
+        return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
       case ActionStatus.ClaimAvailable:
-        return `Your bridge of ${amountAndSymbol} is available to claim.`
+        return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
       case ActionStatus.Claimed:
-        return `Your bridge of ${amountAndSymbol} is complete.`
+        return translate('actionCenter.bridge.complete', { amountAndSymbol })
       default:
         return 'Processing...'
     }
-  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay])
+  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay, translate])
 
   const icon = useMemo(() => {
     if (!sellAsset) return null

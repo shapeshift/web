@@ -24,7 +24,7 @@ import { useAppSelector } from '@/state/store'
 const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
 
 export const useArbitrumClaimTx = (
-  claim: ClaimDetails,
+  claim: ClaimDetails | undefined,
   destinationAccountId: AccountId | undefined,
   setClaimTxHash: (txHash: string) => void,
   setClaimTxStatus: (txStatus: TxStatus) => void,
@@ -42,8 +42,9 @@ export const useArbitrumClaimTx = (
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
   const executeTransactionDataResult = useQuery({
-    queryKey: ['executeTransactionData', { txid: claim.tx.txid }],
+    queryKey: ['executeTransactionData', { txid: claim?.tx.txid }],
     queryFn: async () => {
+      if (!claim) return undefined
       const { event, message } = claim
 
       const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
@@ -66,11 +67,12 @@ export const useArbitrumClaimTx = (
         ],
       })
     },
+    enabled: !!claim,
   })
 
   const evmFeesResult = useEvmFees({
     from: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
-    chainId: claim.destinationChainId,
+    chainId: claim?.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
     to: getAddress(ARBITRUM_OUTBOX),
@@ -78,8 +80,9 @@ export const useArbitrumClaimTx = (
   })
 
   const claimMutation = useMutation({
-    mutationKey: ['claim', { txid: claim.tx.txid }],
+    mutationKey: ['claim', { txid: claim?.tx.txid }],
     mutationFn: async () => {
+      if (!claim) return
       if (!wallet) return
       if (!bip44Params) return
       if (!executeTransactionDataResult.data) return
@@ -118,6 +121,7 @@ export const useArbitrumClaimTx = (
       onClaimSuccess?.(txHash)
 
       const checkStatus = async () => {
+        if (!claim) return
         const publicClient = assertGetViemClient(claim.destinationChainId)
         const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
@@ -139,7 +143,7 @@ export const useArbitrumClaimTx = (
     },
     onSettled() {
       queryClient.invalidateQueries({
-        queryKey: ['claimStatus', { txid: claim.tx.txid }],
+        queryKey: ['claimStatus', { txid: claim?.tx.txid }],
         refetchType: 'all',
       })
     },

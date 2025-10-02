@@ -22,7 +22,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
     Object.values(swapsById).forEach(swap => {
       if (!swap) return
 
-      // Only handle ArbitrumBridge withdraws (to ETH mainnet)
       if (
         swap.swapperName !== SwapperName.ArbitrumBridge ||
         swap.buyAsset.chainId !== ethChainId ||

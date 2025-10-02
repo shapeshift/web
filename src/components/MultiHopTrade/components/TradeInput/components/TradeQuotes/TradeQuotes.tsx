@@ -123,7 +123,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
 
       // Monkey patch: force all badges on first quote to verify fix works
       const isFirstQuote = index === 0
-      
+
       return (
         <MotionBox key={id} layout {...motionBoxProps}>
           <TradeQuote

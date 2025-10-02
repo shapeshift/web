@@ -68,16 +68,18 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
 
   const totalTextLength = useMemo(() => {
     const lengths = [
-      isBoost && translate('common.boost').length + 2,
+      isBoost && translate('common.boost').length,
       isStreaming &&
         translate(swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming')
-          .length + 2,
-      isBestRate && translate('trade.sort.bestRate').length + 2,
-      isFastest && translate('trade.sort.fastest').length + 2,
-      isLowestGas && translate('trade.sort.lowestGas').length + 2,
+          .length,
+      isBestRate && translate('trade.sort.bestRate').length,
+      isFastest && translate('trade.sort.fastest').length,
+      isLowestGas && translate('trade.sort.lowestGas').length,
     ].filter(Boolean) as number[]
 
-    return lengths.reduce((total, length) => total + length, 0)
+    // Add 2 chars per badge for spacing and icon visual space
+    const SPACING_AND_ICON_CHARS = 2
+    return lengths.reduce((total, length) => total + length + SPACING_AND_ICON_CHARS, 0)
   }, [isBoost, isStreaming, isBestRate, isFastest, isLowestGas, translate, swapperName])
 
   const hideLabel = useMemo(() => {

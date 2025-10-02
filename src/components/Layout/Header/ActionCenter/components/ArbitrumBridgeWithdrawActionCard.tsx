@@ -15,6 +15,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
 import { getTxLink } from '@/lib/getTxLink'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
@@ -80,12 +81,13 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
-    return fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
+    const rawAmount = fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
+    return bnOrZero(rawAmount).decimalPlaces(8).toString()
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
 
   const timeText = useMemo(() => {
     if (!timeDisplay) return translate('common.available')
-    return translate('bridge.availableIn', { time: timeDisplay })
+    return `in ${timeDisplay}`
   }, [timeDisplay, translate])
 
   const description = useMemo(() => {
@@ -95,7 +97,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     switch (action.status) {
       case ActionStatus.Initiated:
-        return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
+        return translate('actionCenter.bridge.initiated', { amountAndSymbol })
       case ActionStatus.ClaimAvailable:
         return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
       case ActionStatus.Claimed:

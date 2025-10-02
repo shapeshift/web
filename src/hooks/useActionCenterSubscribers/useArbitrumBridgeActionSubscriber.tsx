@@ -13,7 +13,6 @@ import {
   ActionType,
   isArbitrumBridgeWithdrawAction,
 } from '@/state/slices/actionSlice/types'
-import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type ActionUpdate = {
@@ -26,54 +25,9 @@ type ActionUpdate = {
 
 export const useArbitrumBridgeActionSubscriber = () => {
   const dispatch = useAppDispatch()
-  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const { claimsByStatus } = useArbitrumClaimsByStatus()
 
-  useEffect(() => {
-    Object.values(swapsById).forEach(swap => {
-      if (!swap) return
-
-      if (
-        swap.swapperName !== SwapperName.ArbitrumBridge ||
-        swap.buyAsset.chainId !== ethChainId ||
-        swap.status !== SwapStatus.Success
-      ) {
-        return
-      }
-
-      if (!swap.sellTxHash) return
-
-      const existingAction = Object.values(store.getState().action.byId).find(
-        action =>
-          isArbitrumBridgeWithdrawAction(action) &&
-          action.arbitrumBridgeMetadata.withdrawTxHash === swap.sellTxHash,
-      )
-
-      if (existingAction) return
-
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: uuidv4(),
-          createdAt: swap.createdAt,
-          updatedAt: swap.updatedAt,
-          type: ActionType.ArbitrumBridgeWithdraw,
-          status: ActionStatus.Initiated,
-          arbitrumBridgeMetadata: {
-            withdrawTxHash: swap.sellTxHash,
-            amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
-            assetId: swap.sellAsset.assetId,
-            destinationAssetId: swap.buyAsset.assetId,
-            accountId: swap.sellAccountId,
-            destinationAccountId: toAccountId({
-              chainId: swap.buyAsset.chainId,
-              account: swap.receiveAddress ?? '',
-            }),
-          },
-        }),
-      )
-    })
-  }, [dispatch, swapsById])
 
   useEffect(() => {
     const allClaims = [...claimsByStatus.Pending, ...claimsByStatus.Available]

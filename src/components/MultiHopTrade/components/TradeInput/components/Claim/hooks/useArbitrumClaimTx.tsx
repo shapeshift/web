@@ -4,7 +4,7 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address, Hash, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
@@ -42,32 +42,32 @@ export const useArbitrumClaimTx = (
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
   const executeTransactionDataResult = useQuery({
-    queryKey: claim ? ['executeTransactionData', { txid: claim.tx.txid }] : [],
-    queryFn: async () => {
-      if (!claim) return undefined
-      const { event, message } = claim
+    queryKey: ['executeTransactionData', { txid: claim?.tx.txid }],
+    queryFn: claim
+      ? async () => {
+          const { event, message } = claim
 
-      const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
+          const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
 
-      if (!('position' in event)) return
-      // nitro transaction
-      return encodeFunctionData({
-        abi: ARB_OUTBOX_ABI,
-        functionName: 'executeTransaction',
-        args: [
-          proof,
-          event.position.toBigInt(),
-          event.caller as Address,
-          event.destination as Address,
-          event.arbBlockNum.toBigInt(),
-          event.ethBlockNum.toBigInt(),
-          event.timestamp.toBigInt(),
-          event.callvalue.toBigInt(),
-          event.data as Hex,
-        ],
-      })
-    },
-    enabled: !!claim,
+          if (!('position' in event)) return
+          // nitro transaction
+          return encodeFunctionData({
+            abi: ARB_OUTBOX_ABI,
+            functionName: 'executeTransaction',
+            args: [
+              proof,
+              event.position.toBigInt(),
+              event.caller as Address,
+              event.destination as Address,
+              event.arbBlockNum.toBigInt(),
+              event.ethBlockNum.toBigInt(),
+              event.timestamp.toBigInt(),
+              event.callvalue.toBigInt(),
+              event.data as Hex,
+            ],
+          })
+        }
+      : skipToken,
   })
 
   const evmFeesResult = useEvmFees({

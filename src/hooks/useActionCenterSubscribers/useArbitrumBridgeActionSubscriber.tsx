@@ -42,10 +42,12 @@ export const useArbitrumBridgeActionSubscriber = () => {
         return
       }
 
+      if (!swap.sellTxHash) return
+
       const existingAction = Object.values(store.getState().action.byId).find(
         action =>
           isArbitrumBridgeWithdrawAction(action) &&
-          action.arbitrumBridgeMetadata.withdrawTxHash === (swap.sellTxHash ?? ''),
+          action.arbitrumBridgeMetadata.withdrawTxHash === swap.sellTxHash,
       )
 
       if (existingAction) return
@@ -58,7 +60,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
           type: ActionType.ArbitrumBridgeWithdraw,
           status: ActionStatus.Initiated,
           arbitrumBridgeMetadata: {
-            withdrawTxHash: swap.sellTxHash ?? '',
+            withdrawTxHash: swap.sellTxHash,
             amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
             assetId: swap.sellAsset.assetId,
             destinationAssetId: swap.buyAsset.assetId,
@@ -73,11 +75,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
   }, [dispatch, swapsById])
 
   useEffect(() => {
-    const allClaims = [
-      ...claimsByStatus.Pending,
-      ...claimsByStatus.Available,
-      ...claimsByStatus.Complete,
-    ]
+    const allClaims = [...claimsByStatus.Pending, ...claimsByStatus.Available]
 
     allClaims.forEach(claim => {
       const withdrawTxHash = claim.tx.txid
@@ -110,17 +108,9 @@ export const useArbitrumBridgeActionSubscriber = () => {
         }),
       )
     })
-  }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available, claimsByStatus.Complete])
+  }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available])
 
   useEffect(() => {
-    const getClaimTxHashForWithdraw = (withdrawTxHash: string): string | undefined => {
-      const knownClaimTxHashes: Record<string, string> = {
-        '0xe3439071a43723bc2d2cec5081b849e444d1d88914e8801e9d1b388aa9a91457':
-          '0xbb603b69aa6714c2612e0964d26d87d5d2eb3eadc3375f8c27cfee8a195a558a',
-      }
-      return knownClaimTxHashes[withdrawTxHash]
-    }
-
     const determineActionState = (
       action: ArbitrumBridgeWithdrawAction,
       withdrawTxHash: string,
@@ -147,10 +137,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
         newStatus = ActionStatus.Initiated
         claimDetails = pendingClaim
         timeRemainingSeconds = pendingClaim.timeRemainingSeconds
-      }
-
-      if (newStatus === ActionStatus.Claimed && !claimTxHash) {
-        claimTxHash = getClaimTxHashForWithdraw(withdrawTxHash)
       }
 
       const hasChanges =

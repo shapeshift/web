@@ -1,5 +1,5 @@
 import type { ColorProps, FlexProps } from '@chakra-ui/react'
-import { Flex, Tag, TagLeftIcon, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, Tag, TagLeftIcon, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -68,13 +68,36 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
     () => badges.reduce((acc, curr) => (curr ? acc + 1 : acc), 0),
     [badges],
   )
-  const hideLabel = useMemo(() => {
-    if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-      return badgeCount > 1
-    } else {
-      return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
+
+  const totalTextLength = useMemo(() => {
+    let length = 0
+    if (isBoost) {
+      length += translate('common.boost').length
     }
-  }, [badgeCount, badges.length, isLargerThanMd, quoteDisplayOption])
+    if (isStreaming) {
+      const streamingText = swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaminhnnnnnng'
+      length += translate(streamingText).length
+    }
+    if (isBestRate) {
+      length += translate('trade.sort.bestRate').length
+    }
+    if (isFastest) {
+      length += translate('trade.sort.fastest').length
+    }
+    if (isLowestGas) {
+      length += translate('trade.sort.lowestGas').length
+    }
+    return length
+  }, [isBoost, isStreaming, isBestRate, isFastest, isLowestGas, translate, swapperName])
+
+  const hideLabel = useMemo(() => {
+    const TEXT_LENGTH_THRESHOLD = 37
+    if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
+      return totalTextLength > TEXT_LENGTH_THRESHOLD
+    } else {
+      return totalTextLength > TEXT_LENGTH_THRESHOLD
+    }
+  }, [totalTextLength, quoteDisplayOption])
 
   if (badgeCount === 0) return null
 
@@ -94,7 +117,7 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
           color='purple.500'
           hideLabel={hideLabel}
           label={translate(
-            swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming',
+            swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaminhnnnnnng',
           )}
         />
       )}

@@ -34,7 +34,8 @@ export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) =>
   // Get existing claims to migrate to actions for validation
   const { claimsByStatus } = useArbitrumClaimsByStatus()
 
-  // VALIDATION: Migrate existing pending/available claims to actions when Claims tab mounts
+  // Temporary poor man's migration: This tab will be removed in a follow-up.
+  // Migrate existing pending/available claims to actions when Claims tab mounts
   useEffect(() => {
     const allClaims = [...claimsByStatus.Available, ...claimsByStatus.Pending]
 

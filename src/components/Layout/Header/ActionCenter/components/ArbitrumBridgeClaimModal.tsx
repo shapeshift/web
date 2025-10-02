@@ -24,6 +24,7 @@ import { Row } from '@/components/Row/Row'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { firstFourLastFour } from '@/lib/utils'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import {
@@ -33,7 +34,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ArbitrumBridgeClaimModalProps = {
   action: ArbitrumBridgeWithdrawAction
@@ -47,6 +48,7 @@ export const ArbitrumBridgeClaimModal = ({
   onClose,
 }: ArbitrumBridgeClaimModalProps) => {
   const translate = useTranslate()
+  const dispatch = useAppDispatch()
   const [_claimTxHash, setClaimTxHash] = useState<string>('')
   const [_claimTxStatus, setClaimTxStatus] = useState<TxStatus>()
 
@@ -54,7 +56,6 @@ export const ArbitrumBridgeClaimModal = ({
   const claimDetails = action.arbitrumBridgeMetadata.claimDetails
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable && !!claimDetails
 
-  // Call all hooks first before any conditional logic
   const asset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.assetId),
   )
@@ -107,12 +108,29 @@ export const ArbitrumBridgeClaimModal = ({
     amountCryptoPrecision,
   ])
 
-  // Always call hook but handle null case inside
+  const handleClaimSuccess = useCallback(
+    (claimTxHash: string) => {
+      dispatch(
+        actionSlice.actions.upsertAction({
+          ...action,
+          updatedAt: Date.now(),
+          status: ActionStatus.Claimed,
+          arbitrumBridgeMetadata: {
+            ...action.arbitrumBridgeMetadata,
+            claimTxHash,
+          },
+        }),
+      )
+    },
+    [dispatch, action],
+  )
+
   const claimTxResult = useArbitrumClaimTx(
-    claimDetails || ({} as any), // Pass empty object when null to avoid hook error
+    claimDetails || ({} as any),
     destinationAccountId,
     setClaimTxHash,
     setClaimTxStatus,
+    handleClaimSuccess,
   )
 
   const evmFeesResult = useMemo(
@@ -177,12 +195,10 @@ export const ArbitrumBridgeClaimModal = ({
     return translate('bridge.confirmAndClaim')
   }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
 
-  // Don't render if no assets
   if (!asset || !destinationAsset) {
     return null
   }
 
-  // Show error state if claim is not available
   if (!isClaimAvailable) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} size='md'>
@@ -190,13 +206,11 @@ export const ArbitrumBridgeClaimModal = ({
         <ModalContent>
           <ModalHeader>{translate('common.error')}</ModalHeader>
           <ModalCloseButton />
-
           <ModalBody>
             <Text textAlign='center' color='text.subtle'>
               {translate('bridge.claimNotAvailable')}
             </Text>
           </ModalBody>
-
           <ModalFooter>
             <Button width='full' onClick={onClose}>
               {translate('common.close')}
@@ -213,7 +227,6 @@ export const ArbitrumBridgeClaimModal = ({
       <ModalContent>
         <ModalHeader>{translate('common.confirm')}</ModalHeader>
         <ModalCloseButton />
-
         <ModalBody>
           <Stack spacing={6} align='center'>
             <AssetIcon size='lg' assetId={destinationAsset.assetId} />
@@ -247,7 +260,6 @@ export const ArbitrumBridgeClaimModal = ({
             </Stack>
           </Stack>
         </ModalBody>
-
         <ModalFooter>
           <Button
             width='full'

@@ -1,4 +1,4 @@
-import { Button, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Button, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -58,7 +58,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
-  // Only expandable if claim is available (has something actionable to show)
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
 
@@ -79,14 +78,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   }, [])
 
   const timeDisplay = useMemo(() => {
-    // Use time from claim details if available, otherwise fallback to action metadata
     const claimDetails = action.arbitrumBridgeMetadata.claimDetails
     const timeRemaining =
       claimDetails?.timeRemainingSeconds ?? action.arbitrumBridgeMetadata.timeRemainingSeconds
 
     if (!timeRemaining || timeRemaining <= 0) return null
 
-    // Use same formatting as Claims tab for consistency
     return formatSecondsToDuration(timeRemaining)
   }, [
     action.arbitrumBridgeMetadata.claimDetails,
@@ -95,14 +92,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
-    // For bridge operations, the amount should be the same on both sides
     return fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
 
   const description = useMemo(() => {
     if (!sellAsset || !buyAsset) return ''
 
-    // Use amount format consistent with Claims tab
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
 
     switch (action.status) {
@@ -116,7 +111,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       default:
         return 'Processing...'
     }
-  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay, translate])
+  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay])
 
   const icon = useMemo(() => {
     if (!sellAsset) return null
@@ -155,7 +150,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     return (
       <Stack gap={4}>
-        {/* Show Transaction Initiated for pending/initiated status */}
         {action.status === ActionStatus.Initiated && (
           <Row fontSize='sm' alignItems='center'>
             <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
@@ -167,27 +161,38 @@ export const ArbitrumBridgeWithdrawActionCard = ({
           </Row>
         )}
 
-        {/* Show Claim Withdraw for claimable/claimed status */}
-        {(action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed) && (
+        {action.status === ActionStatus.ClaimAvailable && (
           <Row fontSize='sm' alignItems='center'>
-            <Row.Label>
-              {action.status === ActionStatus.ClaimAvailable 
-                ? translate('actionCenter.bridge.claimWithdraw')
-                : translate('actionCenter.bridge.withdrawTx')
-              }
-            </Row.Label>
+            <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
             <Row.Value>
-              {action.status === ActionStatus.ClaimAvailable ? (
-                <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
-                  {translate('common.claim')}
-                </Button>
-              ) : (
+              <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
+                {translate('common.claim')}
+              </Button>
+            </Row.Value>
+          </Row>
+        )}
+
+        {action.status === ActionStatus.Claimed && (
+          <>
+            <Row fontSize='sm' alignItems='center'>
+              <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
+              <Row.Value>
                 <Link isExternal href={withdrawTxLink} color='text.link'>
                   <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
                 </Link>
-              )}
-            </Row.Value>
-          </Row>
+              </Row.Value>
+            </Row>
+            {action.arbitrumBridgeMetadata.claimTxHash && claimTxLink && (
+              <Row fontSize='sm' alignItems='center'>
+                <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
+                <Row.Value>
+                  <Link isExternal href={claimTxLink} color='text.link'>
+                    <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
+                  </Link>
+                </Row.Value>
+              </Row>
+            )}
+          </>
         )}
       </Stack>
     )
@@ -199,18 +204,11 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     action.arbitrumBridgeMetadata.withdrawTxHash,
     action.arbitrumBridgeMetadata.claimTxHash,
     action.status,
-    timeDisplay,
     translate,
     handleClaimClick,
   ])
 
-  // Safety checks - don't render if critical data is missing
   if (!sellAsset || !buyAsset || !action.arbitrumBridgeMetadata) {
-    console.warn('ArbitrumBridgeWithdrawActionCard: Missing critical data', {
-      sellAsset: !!sellAsset,
-      buyAsset: !!buyAsset,
-      metadata: !!action.arbitrumBridgeMetadata,
-    })
     return null
   }
 
@@ -229,7 +227,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       >
         {details}
       </ActionCard>
-
       {isClaimModalOpen && (
         <ArbitrumBridgeClaimModal
           action={action}

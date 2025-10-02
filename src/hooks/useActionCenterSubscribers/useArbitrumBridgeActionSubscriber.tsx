@@ -92,7 +92,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
           createdAt: claim.tx.blockTime * 1000, // Convert to milliseconds
           updatedAt: Date.now(),
           type: ActionType.ArbitrumBridgeWithdraw,
-          status: ActionStatus.Initiated, // Will be updated in the next effect
+          status: ActionStatus.Initiated,
           arbitrumBridgeMetadata: {
             withdrawTxHash,
             amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
@@ -109,7 +109,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
   }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available, claimsByStatus.Complete])
 
   // Update bridge action statuses based on claim availability
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     try {
       const allBridgeActions = Object.values(store.getState().action.byId).filter(
@@ -126,7 +125,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
 
       allBridgeActions.forEach(action => {
         const withdrawTxHash = action.arbitrumBridgeMetadata.withdrawTxHash
-        const shortTxHash = withdrawTxHash.slice(0, 10)
 
         // Find corresponding claim details
         const availableClaim = claimsByStatus.Available.find(
@@ -160,8 +158,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
           claimDetails !== action.arbitrumBridgeMetadata.claimDetails ||
           timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds
         ) {
-          const oldTime = action.arbitrumBridgeMetadata.timeRemainingSeconds
-          const newTime = timeRemainingSeconds
           updates.push({ action, newStatus, claimDetails, timeRemainingSeconds })
         }
       })
@@ -184,7 +180,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-    // Note: Using .length instead of full arrays to prevent infinite loops
+    // Using .length instead of full arrays to prevent infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dispatch,

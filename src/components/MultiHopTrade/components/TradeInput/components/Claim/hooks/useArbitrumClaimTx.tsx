@@ -28,6 +28,7 @@ export const useArbitrumClaimTx = (
   destinationAccountId: AccountId | undefined,
   setClaimTxHash: (txHash: string) => void,
   setClaimTxStatus: (txStatus: TxStatus) => void,
+  onClaimSuccess?: (claimTxHash: string) => void,
 ) => {
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
@@ -114,6 +115,7 @@ export const useArbitrumClaimTx = (
       }
 
       setClaimTxHash(txHash)
+      onClaimSuccess?.(txHash)
 
       const checkStatus = async () => {
         const publicClient = assertGetViemClient(claim.destinationChainId)

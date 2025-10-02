@@ -88,7 +88,7 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
             const remainingBlocks = block - latestBlock.number
             return remainingBlocks * averageBlockTimeSeconds
           })()
-          
+
           return {
             event,
             message,

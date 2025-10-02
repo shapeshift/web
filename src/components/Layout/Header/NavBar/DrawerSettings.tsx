@@ -40,7 +40,7 @@ export const DrawerSettings: FC<DrawerSettingsProps> = ({ onBack, onClose }) => 
   }, [location.pathname, navigate, onBack])
 
   /**
-   * clicking 5 times on the settings header will close this modal and take you to the flags page
+   * clicking 5 times on the settings header will close this view and take you to the flags page
    * useful for QA team and unlikely to be triggered by a regular user
    */
   const handleHeaderClick = useCallback(() => {

@@ -1,6 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
+import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -24,6 +25,7 @@ export enum ActionType {
   Approve = 'Approve',
   ChangeAddress = 'ChangeAddress',
   RewardDistribution = 'RewardDistribution',
+  ArbitrumBridgeWithdraw = 'ArbitrumBridgeWithdraw',
 }
 
 export enum ActionStatus {
@@ -69,6 +71,20 @@ type ActionLimitOrderMetadata = {
 
 type ActionAppUpdateMetadata = {
   currentVersion: string
+}
+
+type ActionArbitrumBridgeWithdrawMetadata = {
+  withdrawTxHash: string
+  claimTxHash?: string
+  amountCryptoBaseUnit: string
+  assetId: AssetId
+  destinationAssetId: AssetId
+  destinationAddress: string
+  accountId: AccountId
+  chainId: ChainId
+  destinationChainId: ChainId
+  timeRemainingSeconds?: number
+  claimDetails?: ClaimDetails
 }
 
 export enum GenericTransactionDisplayType {
@@ -164,6 +180,11 @@ export type RewardDistributionAction = BaseAction & {
   }
 }
 
+export type ArbitrumBridgeWithdrawAction = BaseAction & {
+  type: ActionType.ArbitrumBridgeWithdraw
+  arbitrumBridgeMetadata: ActionArbitrumBridgeWithdrawMetadata
+}
+
 export type Action =
   | SwapAction
   | LimitOrderAction
@@ -172,6 +193,7 @@ export type Action =
   | RfoxClaimAction
   | TcyClaimAction
   | RewardDistributionAction
+  | ArbitrumBridgeWithdrawAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -224,4 +246,10 @@ export const isThorchainLpAction = (action: Action): action is GenericTransactio
 
 export const isPendingSendAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(isSendAction(action) && action.status === ActionStatus.Pending)
+}
+
+export const isArbitrumBridgeWithdrawAction = (
+  action: Action,
+): action is ArbitrumBridgeWithdrawAction => {
+  return Boolean(action.type === ActionType.ArbitrumBridgeWithdraw && action.arbitrumBridgeMetadata)
 }

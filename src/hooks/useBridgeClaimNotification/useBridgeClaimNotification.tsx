@@ -12,11 +12,10 @@ import type { Property } from 'csstype'
 import { useEffect, useRef, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { IconCircle } from '@/components/IconCircle'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
-import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -24,8 +23,8 @@ const flexAlignItems = { base: 'flex-start', md: 'center' }
 
 export const useBridgeClaimNotification = () => {
   const toast = useToast()
-  const navigate = useNavigate()
   const translate = useTranslate()
+  const { openActionCenter } = useActionCenterContext()
   const [isDisabled, setIsDisabled] = useState(false)
   const toastIdRef = useRef<ToastId | undefined>(undefined)
 
@@ -63,7 +62,7 @@ export const useBridgeClaimNotification = () => {
     const _toastIdRef = toast({
       render: ({ onClose }) => {
         const handleCtaClick = () => {
-          navigate(`/${TradeInputTab.Claim}`)
+          openActionCenter()
           onClose()
         }
 
@@ -84,7 +83,7 @@ export const useBridgeClaimNotification = () => {
                 // eslint-disable-next-line react-memo/require-usememo
                 onClick={handleCtaClick}
               >
-                {translate('bridge.viewClaims')}
+                {translate('actionCenter.title')}
               </Button>
             </Flex>
             <CloseButton onClick={onClose} size='sm' />
@@ -101,5 +100,5 @@ export const useBridgeClaimNotification = () => {
 
     // don't spam user
     setIsDisabled(true)
-  }, [claimsByStatus.Available.length, navigate, isDisabled, isLoading, toast, translate])
+  }, [claimsByStatus.Available.length, isDisabled, isLoading, toast, translate, openActionCenter])
 }

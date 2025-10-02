@@ -1,0 +1,251 @@
+import { Button, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import { useActionCenterContext } from '../ActionCenterContext'
+import { ActionCard } from './ActionCard'
+import { ActionStatusIcon } from './ActionStatusIcon'
+import { ActionStatusTag } from './ActionStatusTag'
+import { ArbitrumBridgeClaimModal } from './ArbitrumBridgeClaimModal'
+
+import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { Row } from '@/components/Row/Row'
+import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
+import { formatSmartDate } from '@/lib/utils/time'
+import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+dayjs.extend(relativeTime)
+dayjs.extend(duration)
+
+type ArbitrumBridgeWithdrawActionCardProps = {
+  action: ArbitrumBridgeWithdrawAction
+}
+
+export const ArbitrumBridgeWithdrawActionCard = ({
+  action,
+}: ArbitrumBridgeWithdrawActionCardProps) => {
+  const { closeDrawer } = useActionCenterContext()
+  const translate = useTranslate()
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
+
+  const handleCloseModal = useCallback(() => setIsClaimModalOpen(false), [])
+
+  const sellAsset = useAppSelector(state =>
+    selectAssetById(state, action.arbitrumBridgeMetadata.assetId),
+  )
+  const buyAsset = useAppSelector(state =>
+    selectAssetById(state, action.arbitrumBridgeMetadata.destinationAssetId),
+  )
+
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(action.arbitrumBridgeMetadata.assetId).chainId),
+  )
+  const buyFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(
+      state,
+      fromAssetId(action.arbitrumBridgeMetadata.destinationAssetId).chainId,
+    ),
+  )
+
+  const formattedDate = useMemo(() => {
+    return formatSmartDate(action.updatedAt)
+  }, [action.updatedAt])
+
+  // Only expandable if we have transaction details to show
+  const isCollapsable = !!(
+    sellFeeAsset &&
+    buyFeeAsset &&
+    action.arbitrumBridgeMetadata.withdrawTxHash
+  )
+
+  const { isOpen, onToggle } = useDisclosure({
+    defaultIsOpen:
+      isCollapsable &&
+      (action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Initiated),
+  })
+
+  const handleClaimClick = useCallback(
+    (e: React.MouseEvent) => {
+      try {
+        e.stopPropagation()
+        closeDrawer()
+        setIsClaimModalOpen(true)
+      } catch (error) {
+        console.error('Error opening claim modal:', error)
+      }
+    },
+    [closeDrawer],
+  )
+
+  const timeDisplay = useMemo(() => {
+    // Use time from claim details if available, otherwise fallback to action metadata
+    const claimDetails = action.arbitrumBridgeMetadata.claimDetails
+    const timeRemaining =
+      claimDetails?.timeRemainingSeconds ?? action.arbitrumBridgeMetadata.timeRemainingSeconds
+
+    if (!timeRemaining || timeRemaining <= 0) return null
+
+    const days = Math.ceil(timeRemaining / (24 * 60 * 60))
+    return days > 1 ? `~${days} days` : '< 1 day'
+  }, [
+    action.arbitrumBridgeMetadata.claimDetails,
+    action.arbitrumBridgeMetadata.timeRemainingSeconds,
+  ])
+
+  const buyAmountCryptoPrecision = useMemo(() => {
+    if (!buyAsset) return '0'
+    // For bridge operations, the amount should be the same on both sides
+    return fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
+  }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
+
+  const description = useMemo(() => {
+    if (!sellAsset || !buyAsset) return ''
+
+    // Use amount format consistent with Claims tab
+    const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
+
+    switch (action.status) {
+      case ActionStatus.Initiated:
+        // Format: "Your withdraw of X ETH will be available in ~6 days"
+        const timeText = timeDisplay ? `in ${timeDisplay}` : 'soon'
+        return translate('actionCenter.bridge.pendingWithdraw', {
+          amountAndSymbol,
+          timeText,
+        })
+      case ActionStatus.ClaimAvailable:
+        return translate('actionCenter.bridge.claimAvailable', {
+          amountAndSymbol,
+        })
+      case ActionStatus.Claimed:
+        return translate('actionCenter.bridge.complete', {
+          amountAndSymbol,
+        })
+      default:
+        return translate('actionCenter.bridge.processing')
+    }
+  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay, translate])
+
+  const icon = useMemo(() => {
+    if (!sellAsset) return null
+
+    return (
+      <AssetIconWithBadge assetId={sellAsset.assetId} size='md'>
+        <ActionStatusIcon status={action.status} />
+      </AssetIconWithBadge>
+    )
+  }, [sellAsset, action.status])
+
+  const footer = useMemo(() => {
+    return <ActionStatusTag status={action.status} />
+  }, [action.status])
+
+  const details = useMemo(() => {
+    if (!(sellAsset && buyAsset && sellFeeAsset && buyFeeAsset)) return null
+
+    const withdrawTxLink = getTxLink({
+      txId: action.arbitrumBridgeMetadata.withdrawTxHash,
+      chainId: sellAsset.chainId,
+      defaultExplorerBaseUrl: sellFeeAsset.explorerTxLink,
+      address: undefined,
+      maybeSafeTx: undefined,
+    })
+
+    const claimTxLink = action.arbitrumBridgeMetadata.claimTxHash
+      ? getTxLink({
+          txId: action.arbitrumBridgeMetadata.claimTxHash,
+          chainId: buyAsset.chainId,
+          defaultExplorerBaseUrl: buyFeeAsset.explorerTxLink,
+          address: undefined,
+          maybeSafeTx: undefined,
+        })
+      : null
+
+    return (
+      <Stack gap={4}>
+        {/* Transaction Initiated */}
+        <Row fontSize='sm' alignItems='center'>
+          <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
+          <Row.Value>
+            <Link isExternal href={withdrawTxLink} color='text.link'>
+              <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+            </Link>
+          </Row.Value>
+        </Row>
+
+        {/* Claim Withdraw */}
+        <Row fontSize='sm' alignItems='center'>
+          <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
+          <Row.Value>
+            {action.status === ActionStatus.ClaimAvailable ? (
+              <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
+                {translate('common.claim')}
+              </Button>
+            ) : action.status === ActionStatus.Claimed && claimTxLink ? (
+              <Link isExternal href={claimTxLink} color='text.link'>
+                <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash || ''} />
+              </Link>
+            ) : (
+              <Text fontSize='sm' color='yellow.500'>
+                {timeDisplay || translate('actionCenter.bridge.processing')}
+              </Text>
+            )}
+          </Row.Value>
+        </Row>
+      </Stack>
+    )
+  }, [
+    sellAsset,
+    buyAsset,
+    sellFeeAsset,
+    buyFeeAsset,
+    action.arbitrumBridgeMetadata.withdrawTxHash,
+    action.arbitrumBridgeMetadata.claimTxHash,
+    action.status,
+    timeDisplay,
+    translate,
+    handleClaimClick,
+  ])
+
+  // Safety checks - don't render if critical data is missing
+  if (!sellAsset || !buyAsset || !action.arbitrumBridgeMetadata) {
+    console.warn('ArbitrumBridgeWithdrawActionCard: Missing critical data', {
+      sellAsset: !!sellAsset,
+      buyAsset: !!buyAsset,
+      metadata: !!action.arbitrumBridgeMetadata,
+    })
+    return null
+  }
+
+  return (
+    <>
+      <ActionCard
+        type={action.type}
+        displayType={GenericTransactionDisplayType.Bridge}
+        formattedDate={formattedDate}
+        isCollapsable={isCollapsable}
+        isOpen={isOpen}
+        onToggle={onToggle}
+        description={description}
+        icon={icon}
+        footer={footer}
+      >
+        {details}
+      </ActionCard>
+
+      <ArbitrumBridgeClaimModal
+        action={action}
+        isOpen={isClaimModalOpen}
+        onClose={handleCloseModal}
+      />
+    </>
+  )
+}

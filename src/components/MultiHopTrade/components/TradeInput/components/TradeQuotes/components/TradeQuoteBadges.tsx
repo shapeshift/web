@@ -1,5 +1,5 @@
 import type { ColorProps, FlexProps } from '@chakra-ui/react'
-import { Box, Flex, Tag, TagLeftIcon, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Tag, TagLeftIcon, useColorModeValue } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -15,7 +15,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { breakpoints } from '@/theme/theme'
 
 type QuoteBadgeProps = {
   icon: IconType
@@ -57,8 +56,6 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-
   const badges = useMemo(
     () => [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
     [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
@@ -70,28 +67,21 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
   )
 
   const totalTextLength = useMemo(() => {
-    let length = 0
-    if (isBoost) {
-      length += translate('common.boost').length
-    }
-    if (isStreaming) {
-      const streamingText = swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaminhnnnnnng'
-      length += translate(streamingText).length
-    }
-    if (isBestRate) {
-      length += translate('trade.sort.bestRate').length
-    }
-    if (isFastest) {
-      length += translate('trade.sort.fastest').length
-    }
-    if (isLowestGas) {
-      length += translate('trade.sort.lowestGas').length
-    }
-    return length
+    const lengths = [
+      isBoost && translate('common.boost').length + 2,
+      isStreaming &&
+        translate(swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming')
+          .length + 2,
+      isBestRate && translate('trade.sort.bestRate').length + 2,
+      isFastest && translate('trade.sort.fastest').length + 2,
+      isLowestGas && translate('trade.sort.lowestGas').length + 2,
+    ].filter(Boolean) as number[]
+
+    return lengths.reduce((total, length) => total + length, 0)
   }, [isBoost, isStreaming, isBestRate, isFastest, isLowestGas, translate, swapperName])
 
   const hideLabel = useMemo(() => {
-    const TEXT_LENGTH_THRESHOLD = 37
+    const TEXT_LENGTH_THRESHOLD = 38
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
       return totalTextLength > TEXT_LENGTH_THRESHOLD
     } else {
@@ -117,7 +107,7 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
           color='purple.500'
           hideLabel={hideLabel}
           label={translate(
-            swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaminhnnnnnng',
+            swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming',
           )}
         />
       )}

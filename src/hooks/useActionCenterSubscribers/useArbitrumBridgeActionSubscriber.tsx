@@ -115,12 +115,19 @@ export const useArbitrumBridgeActionSubscriber = () => {
         isArbitrumBridgeWithdrawAction,
       )
 
+      // Known claim transaction hashes for backfill (remove after migration)
+      const knownClaimTxHashes: Record<string, string> = {
+        '0xe3439071a43723bc2d2cec5081b849e444d1d88914e8801e9d1b388aa9a91457':
+          '0xbb603b69aa6714c2612e0964d26d87d5d2eb3eadc3375f8c27cfee8a195a558a',
+      }
+
       // Batch updates to avoid excessive dispatches
       const updates: {
         action: any
         newStatus: ActionStatus
         claimDetails?: any
         timeRemainingSeconds?: number
+        claimTxHash?: string
       }[] = []
 
       allBridgeActions.forEach(action => {
@@ -138,6 +145,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
         let newStatus = action.status
         let claimDetails = action.arbitrumBridgeMetadata.claimDetails
         let timeRemainingSeconds = action.arbitrumBridgeMetadata.timeRemainingSeconds
+        let claimTxHash = action.arbitrumBridgeMetadata.claimTxHash
 
         if (completedClaim) {
           newStatus = ActionStatus.Claimed
@@ -152,18 +160,28 @@ export const useArbitrumBridgeActionSubscriber = () => {
           timeRemainingSeconds = pendingClaim.timeRemainingSeconds
         }
 
-        // Queue update if status or details changed
+        // Backfill known claim transaction hashes for claimed actions
+        if (
+          newStatus === ActionStatus.Claimed &&
+          !claimTxHash &&
+          knownClaimTxHashes[withdrawTxHash]
+        ) {
+          claimTxHash = knownClaimTxHashes[withdrawTxHash]
+        }
+
+        // Queue update if status, details, or claimTxHash changed
         if (
           newStatus !== action.status ||
           claimDetails !== action.arbitrumBridgeMetadata.claimDetails ||
-          timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds
+          timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds ||
+          claimTxHash !== action.arbitrumBridgeMetadata.claimTxHash
         ) {
-          updates.push({ action, newStatus, claimDetails, timeRemainingSeconds })
+          updates.push({ action, newStatus, claimDetails, timeRemainingSeconds, claimTxHash })
         }
       })
 
       // Batch dispatch updates
-      updates.forEach(({ action, newStatus, claimDetails, timeRemainingSeconds }) => {
+      updates.forEach(({ action, newStatus, claimDetails, timeRemainingSeconds, claimTxHash }) => {
         dispatch(
           actionSlice.actions.upsertAction({
             ...action,
@@ -173,6 +191,8 @@ export const useArbitrumBridgeActionSubscriber = () => {
               ...action.arbitrumBridgeMetadata,
               claimDetails,
               timeRemainingSeconds,
+              // Use the updated claimTxHash (could be backfilled or preserved)
+              claimTxHash: claimTxHash || action.arbitrumBridgeMetadata.claimTxHash,
             },
           }),
         )

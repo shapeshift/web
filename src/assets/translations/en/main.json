@@ -3213,6 +3213,7 @@
       "transactionInitiated": "Transaction Initiated",
       "claimWithdraw": "Claim Withdraw",
       "withdrawTx": "Withdraw Tx",
+      "claimTx": "Claim Tx",
       "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
     },
     "limitOrder": {

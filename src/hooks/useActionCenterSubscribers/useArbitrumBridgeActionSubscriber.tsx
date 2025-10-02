@@ -2,7 +2,7 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
 import { isSome } from '@shapeshiftoss/utils'
 import { uuidv4 } from '@walletconnect/utils'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
@@ -110,50 +110,79 @@ export const useArbitrumBridgeActionSubscriber = () => {
     })
   }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available])
 
-  useEffect(() => {
-    const determineActionState = (
-      action: ArbitrumBridgeWithdrawAction,
-      withdrawTxHash: string,
-    ): ActionUpdate | null => {
+  const determineActionState = useCallback(
+    (action: ArbitrumBridgeWithdrawAction, withdrawTxHash: string): ActionUpdate | null => {
       const availableClaim = claimsByStatus.Available.find(
         claim => claim.tx.txid === withdrawTxHash,
       )
       const completedClaim = claimsByStatus.Complete.find(claim => claim.tx.txid === withdrawTxHash)
       const pendingClaim = claimsByStatus.Pending.find(claim => claim.tx.txid === withdrawTxHash)
 
-      let newStatus = action.status
-      let claimDetails = action.arbitrumBridgeMetadata.claimDetails
-      let timeRemainingSeconds = action.arbitrumBridgeMetadata.timeRemainingSeconds
-      let claimTxHash = action.arbitrumBridgeMetadata.claimTxHash
+      const currentMetadata = action.arbitrumBridgeMetadata
 
-      if (completedClaim) {
-        newStatus = ActionStatus.Claimed
-        claimDetails = completedClaim
-      } else if (availableClaim) {
-        newStatus = ActionStatus.ClaimAvailable
-        claimDetails = availableClaim
-        timeRemainingSeconds = availableClaim.timeRemainingSeconds
-      } else if (pendingClaim) {
-        newStatus = ActionStatus.Initiated
-        claimDetails = pendingClaim
-        timeRemainingSeconds = pendingClaim.timeRemainingSeconds
+      const getNewState = () => {
+        if (completedClaim) {
+          return {
+            newStatus: ActionStatus.Claimed,
+            claimDetails: completedClaim,
+            timeRemainingSeconds: currentMetadata.timeRemainingSeconds,
+            claimTxHash: currentMetadata.claimTxHash,
+          }
+        }
+
+        if (availableClaim) {
+          return {
+            newStatus: ActionStatus.ClaimAvailable,
+            claimDetails: availableClaim,
+            timeRemainingSeconds: availableClaim.timeRemainingSeconds,
+            claimTxHash: currentMetadata.claimTxHash,
+          }
+        }
+
+        if (pendingClaim) {
+          return {
+            newStatus: ActionStatus.Initiated,
+            claimDetails: pendingClaim,
+            timeRemainingSeconds: pendingClaim.timeRemainingSeconds,
+            claimTxHash: currentMetadata.claimTxHash,
+          }
+        }
+
+        return {
+          newStatus: action.status,
+          claimDetails: currentMetadata.claimDetails,
+          timeRemainingSeconds: currentMetadata.timeRemainingSeconds,
+          claimTxHash: currentMetadata.claimTxHash,
+        }
       }
 
+      const newState = getNewState()
+
       const hasChanges =
-        newStatus !== action.status ||
-        claimDetails !== action.arbitrumBridgeMetadata.claimDetails ||
-        timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds ||
-        claimTxHash !== action.arbitrumBridgeMetadata.claimTxHash
+        newState.newStatus !== action.status ||
+        newState.claimDetails !== currentMetadata.claimDetails ||
+        newState.timeRemainingSeconds !== currentMetadata.timeRemainingSeconds ||
+        newState.claimTxHash !== currentMetadata.claimTxHash
 
-      return hasChanges
-        ? { action, newStatus, claimDetails, timeRemainingSeconds, claimTxHash }
-        : null
-    }
+      return hasChanges ? { action, ...newState } : null
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // claimsByStatus object is recreated on every render despite useMemo, causing infinite loops
+    // We depend on the individual arrays which are more stable references
+    [claimsByStatus.Available, claimsByStatus.Complete, claimsByStatus.Pending],
+  )
 
+  useEffect(() => {
     try {
       Object.values(actionsById)
         .filter(isArbitrumBridgeWithdrawAction)
-        .filter(action => action.status !== ActionStatus.Claimed)
+        .filter(action => {
+          // Early bailout: if action is already in terminal state, don't process
+          if (action.status === ActionStatus.Claimed || action.status === ActionStatus.Failed) {
+            return false
+          }
+          return true
+        })
         .map(action => ({
           action,
           withdrawTxHash: action.arbitrumBridgeMetadata.withdrawTxHash,
@@ -178,11 +207,5 @@ export const useArbitrumBridgeActionSubscriber = () => {
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-  }, [
-    dispatch,
-    actionsById,
-    claimsByStatus.Available,
-    claimsByStatus.Complete,
-    claimsByStatus.Pending,
-  ])
+  }, [dispatch, actionsById, determineActionState])
 }

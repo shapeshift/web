@@ -3,8 +3,10 @@ import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
 import { uuidv4 } from '@walletconnect/utils'
 import { useEffect } from 'react'
 
+import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
   ActionStatus,
   ActionType,
@@ -101,68 +103,77 @@ export const useArbitrumBridgeActionSubscriber = () => {
   }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available, claimsByStatus.Complete])
 
   useEffect(() => {
+    type ActionUpdate = {
+      action: ArbitrumBridgeWithdrawAction
+      newStatus: ActionStatus
+      claimDetails?: ClaimDetails
+      timeRemainingSeconds?: number
+      claimTxHash?: string
+    }
+
+    const getClaimTxHashForWithdraw = (withdrawTxHash: string): string | undefined => {
+      const knownClaimTxHashes: Record<string, string> = {
+        '0xe3439071a43723bc2d2cec5081b849e444d1d88914e8801e9d1b388aa9a91457':
+          '0xbb603b69aa6714c2612e0964d26d87d5d2eb3eadc3375f8c27cfee8a195a558a',
+      }
+      return knownClaimTxHashes[withdrawTxHash]
+    }
+
+    const determineActionState = (
+      action: ArbitrumBridgeWithdrawAction,
+      withdrawTxHash: string,
+    ): ActionUpdate | null => {
+      const availableClaim = claimsByStatus.Available.find(
+        claim => claim.tx.txid === withdrawTxHash,
+      )
+      const completedClaim = claimsByStatus.Complete.find(claim => claim.tx.txid === withdrawTxHash)
+      const pendingClaim = claimsByStatus.Pending.find(claim => claim.tx.txid === withdrawTxHash)
+
+      let newStatus = action.status
+      let claimDetails = action.arbitrumBridgeMetadata.claimDetails
+      let timeRemainingSeconds = action.arbitrumBridgeMetadata.timeRemainingSeconds
+      let claimTxHash = action.arbitrumBridgeMetadata.claimTxHash
+
+      if (completedClaim) {
+        newStatus = ActionStatus.Claimed
+        claimDetails = completedClaim
+      } else if (availableClaim) {
+        newStatus = ActionStatus.ClaimAvailable
+        claimDetails = availableClaim
+        timeRemainingSeconds = availableClaim.timeRemainingSeconds
+      } else if (pendingClaim) {
+        newStatus = ActionStatus.Initiated
+        claimDetails = pendingClaim
+        timeRemainingSeconds = pendingClaim.timeRemainingSeconds
+      }
+
+      if (newStatus === ActionStatus.Claimed && !claimTxHash) {
+        claimTxHash = getClaimTxHashForWithdraw(withdrawTxHash)
+      }
+
+      const hasChanges =
+        newStatus !== action.status ||
+        claimDetails !== action.arbitrumBridgeMetadata.claimDetails ||
+        timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds ||
+        claimTxHash !== action.arbitrumBridgeMetadata.claimTxHash
+
+      return hasChanges
+        ? { action, newStatus, claimDetails, timeRemainingSeconds, claimTxHash }
+        : null
+    }
+
     try {
       const allBridgeActions = Object.values(store.getState().action.byId).filter(
         isArbitrumBridgeWithdrawAction,
       )
 
-      const knownClaimTxHashes: Record<string, string> = {
-        '0xe3439071a43723bc2d2cec5081b849e444d1d88914e8801e9d1b388aa9a91457':
-          '0xbb603b69aa6714c2612e0964d26d87d5d2eb3eadc3375f8c27cfee8a195a558a',
-      }
-
-      const updates: {
-        action: any
-        newStatus: ActionStatus
-        claimDetails?: any
-        timeRemainingSeconds?: number
-        claimTxHash?: string
-      }[] = []
+      const updates: ActionUpdate[] = []
 
       allBridgeActions.forEach(action => {
         const withdrawTxHash = action.arbitrumBridgeMetadata.withdrawTxHash
-
-        const availableClaim = claimsByStatus.Available.find(
-          claim => claim.tx.txid === withdrawTxHash,
-        )
-        const completedClaim = claimsByStatus.Complete.find(
-          claim => claim.tx.txid === withdrawTxHash,
-        )
-        const pendingClaim = claimsByStatus.Pending.find(claim => claim.tx.txid === withdrawTxHash)
-
-        let newStatus = action.status
-        let claimDetails = action.arbitrumBridgeMetadata.claimDetails
-        let timeRemainingSeconds = action.arbitrumBridgeMetadata.timeRemainingSeconds
-        let claimTxHash = action.arbitrumBridgeMetadata.claimTxHash
-
-        if (completedClaim) {
-          newStatus = ActionStatus.Claimed
-          claimDetails = completedClaim
-        } else if (availableClaim) {
-          newStatus = ActionStatus.ClaimAvailable
-          claimDetails = availableClaim
-          timeRemainingSeconds = availableClaim.timeRemainingSeconds
-        } else if (pendingClaim) {
-          newStatus = ActionStatus.Initiated
-          claimDetails = pendingClaim
-          timeRemainingSeconds = pendingClaim.timeRemainingSeconds
-        }
-
-        if (
-          newStatus === ActionStatus.Claimed &&
-          !claimTxHash &&
-          knownClaimTxHashes[withdrawTxHash]
-        ) {
-          claimTxHash = knownClaimTxHashes[withdrawTxHash]
-        }
-
-        if (
-          newStatus !== action.status ||
-          claimDetails !== action.arbitrumBridgeMetadata.claimDetails ||
-          timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds ||
-          claimTxHash !== action.arbitrumBridgeMetadata.claimTxHash
-        ) {
-          updates.push({ action, newStatus, claimDetails, timeRemainingSeconds, claimTxHash })
+        const update = determineActionState(action, withdrawTxHash)
+        if (update) {
+          updates.push(update)
         }
       })
 
@@ -184,11 +195,5 @@ export const useArbitrumBridgeActionSubscriber = () => {
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    dispatch,
-    claimsByStatus.Available.length,
-    claimsByStatus.Complete.length,
-    claimsByStatus.Pending.length,
-  ])
+  }, [dispatch, claimsByStatus.Available, claimsByStatus.Complete, claimsByStatus.Pending])
 }

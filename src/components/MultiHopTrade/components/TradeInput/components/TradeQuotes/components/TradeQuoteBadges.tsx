@@ -1,5 +1,5 @@
 import type { ColorProps, FlexProps } from '@chakra-ui/react'
-import { Flex, Tag, TagLeftIcon, useColorModeValue } from '@chakra-ui/react'
+import { Flex, Tag, TagLeftIcon, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -15,6 +15,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { breakpoints } from '@/theme/theme'
 
 type QuoteBadgeProps = {
   icon: IconType
@@ -56,6 +57,8 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
 }) => {
   const translate = useTranslate()
 
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
   const badges = useMemo(
     () => [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
     [isBestRate, isFastest, isLowestGas, isStreaming, isBoost],
@@ -82,13 +85,16 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
   }, [isBoost, isStreaming, isBestRate, isFastest, isLowestGas, translate, swapperName])
 
   const hideLabel = useMemo(() => {
-    const TEXT_LENGTH_THRESHOLD = 38
+    const TEXT_LENGTH_THRESHOLD_MD = 38
+    const TEXT_LENGTH_THRESHOLD_SM = 28
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-      return totalTextLength > TEXT_LENGTH_THRESHOLD
+      return totalTextLength > TEXT_LENGTH_THRESHOLD_MD
     } else {
-      return totalTextLength > TEXT_LENGTH_THRESHOLD
+      return isLargerThanMd
+        ? totalTextLength > TEXT_LENGTH_THRESHOLD_MD
+        : totalTextLength > TEXT_LENGTH_THRESHOLD_SM
     }
-  }, [totalTextLength, quoteDisplayOption])
+  }, [totalTextLength, quoteDisplayOption, isLargerThanMd])
 
   if (badgeCount === 0) return null
 

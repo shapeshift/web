@@ -117,7 +117,8 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
         }
       },
       onAssetClick: () => {},
-      title: direction === FiatRampAction.Buy ? 'modals.ramp.payWith' : 'modals.ramp.sellAsset',
+      title:
+        direction === FiatRampAction.Buy ? 'modals.ramp.payWith' : 'modals.ramp.currencyReceived',
       assetFilterPredicate: sellAssetFilterPredicate,
       chainIdFilterPredicate,
       showFiatTab: true,

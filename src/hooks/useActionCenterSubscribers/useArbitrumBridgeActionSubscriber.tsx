@@ -169,9 +169,8 @@ export const useArbitrumBridgeActionSubscriber = () => {
       return hasChanges ? { action, ...newState } : null
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // claimsByStatus object is recreated on every render despite useMemo, causing infinite loops
-    // We depend on the individual arrays which are more stable references
-    [claimsByStatus.Available, claimsByStatus.Complete, claimsByStatus.Pending],
+    // claimsByStatus arrays are recreated on every render, use length for stable references
+    [claimsByStatus.Available.length, claimsByStatus.Complete.length, claimsByStatus.Pending.length],
   )
 
   useEffect(() => {

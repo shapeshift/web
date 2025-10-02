@@ -12,6 +12,7 @@ import {
 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { COMPACT_BADGES_THRESHOLD } from '@/components/MultiHopTrade/components/TradeInput/components/TradeQuotes/components/TradeQuoteBadges'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { breakpoints } from '@/theme/theme'
@@ -69,9 +70,9 @@ export const FiatRampBadges: React.FC<FiatRampBadgesProps> = ({
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
       return badgeCount > 1
     } else {
-      return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
+      return isLargerThanMd ? badgeCount > COMPACT_BADGES_THRESHOLD : badgeCount > 2
     }
-  }, [badgeCount, badges.length, isLargerThanMd, quoteDisplayOption])
+  }, [badgeCount, isLargerThanMd, quoteDisplayOption])
 
   if (badgeCount === 0) return null
 

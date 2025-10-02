@@ -36,6 +36,8 @@ const QuoteBadge: FC<QuoteBadgeProps> = ({ icon, label, hideLabel = false, color
   )
 }
 
+export const COMPACT_BADGES_THRESHOLD = 3
+
 export type TradeQuoteBadgesProps = FlexProps & {
   isBestRate?: boolean
   isFastest?: boolean
@@ -72,9 +74,9 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
       return badgeCount > 1
     } else {
-      return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
+      return isLargerThanMd ? badgeCount > COMPACT_BADGES_THRESHOLD : badgeCount > 2
     }
-  }, [badgeCount, badges.length, isLargerThanMd, quoteDisplayOption])
+  }, [badgeCount, isLargerThanMd, quoteDisplayOption])
 
   if (badgeCount === 0) return null
 

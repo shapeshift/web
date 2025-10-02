@@ -1,5 +1,5 @@
 import type { ColorProps, FlexProps } from '@chakra-ui/react'
-import { Flex, Tag, TagLeftIcon, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Tag, TagLeftIcon, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import type { IconType } from 'react-icons'
@@ -12,10 +12,8 @@ import {
 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { COMPACT_BADGES_THRESHOLD } from '@/components/MultiHopTrade/components/TradeInput/components/TradeQuotes/components/TradeQuoteBadges'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
-import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { breakpoints } from '@/theme/theme'
+import type { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 
 type FiatRampBadgeProps = {
   icon: IconType
@@ -35,6 +33,7 @@ const FiatRampBadge: FC<FiatRampBadgeProps> = ({ icon, label, hideLabel = false,
     </TooltipWithTouch>
   )
 }
+export const COMPACT_FIAT_BADGES_CHARACTERS_THRESHOLD = 36
 
 export type FiatRampBadgesProps = FlexProps & {
   isCreditCard?: boolean
@@ -55,69 +54,61 @@ export const FiatRampBadges: React.FC<FiatRampBadgesProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-
-  const badges = useMemo(
-    () => [isCreditCard, isBankTransfer, isApplePay, isGooglePay, isSepa],
+  const badgeConfigs = useMemo(
+    () => [
+      {
+        isVisible: isCreditCard,
+        icon: TbCreditCard,
+        color: 'blue.500',
+        translationKey: 'common.creditCard',
+      },
+      {
+        isVisible: isBankTransfer,
+        icon: TbBuildingBank,
+        color: 'yellow.500',
+        translationKey: 'common.bankTransfer',
+      },
+      {
+        isVisible: isApplePay,
+        icon: TbBrandApple,
+        color: 'text.primary',
+        translationKey: 'common.applePay',
+      },
+      {
+        isVisible: isGooglePay,
+        icon: TbBrandGoogle,
+        color: 'text.primary',
+        translationKey: 'common.googlePay',
+      },
+      { isVisible: isSepa, icon: TbCoinEuro, color: 'pink.500', translationKey: 'common.sepa' },
+    ],
     [isCreditCard, isBankTransfer, isApplePay, isGooglePay, isSepa],
   )
 
-  const badgeCount = useMemo(
-    () => badges.reduce((acc, curr) => (curr ? acc + 1 : acc), 0),
-    [badges],
-  )
-  const hideLabel = useMemo(() => {
-    if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-      return badgeCount > 1
-    } else {
-      return isLargerThanMd ? badgeCount > COMPACT_BADGES_THRESHOLD : badgeCount > 2
-    }
-  }, [badgeCount, isLargerThanMd, quoteDisplayOption])
+  const visibleBadges = useMemo(() => badgeConfigs.filter(badge => badge.isVisible), [badgeConfigs])
 
-  if (badgeCount === 0) return null
+  const totalCharacterCount = useMemo(
+    () => visibleBadges.reduce((total, badge) => total + translate(badge.translationKey).length, 0),
+    [visibleBadges, translate],
+  )
+
+  const hideLabel = useMemo(() => {
+    return totalCharacterCount > COMPACT_FIAT_BADGES_CHARACTERS_THRESHOLD
+  }, [totalCharacterCount])
+
+  if (visibleBadges.length === 0) return null
 
   return (
     <Flex alignItems='center' gap={2} {...rest}>
-      {isCreditCard && (
+      {visibleBadges.map(({ icon, color, translationKey }) => (
         <FiatRampBadge
-          icon={TbCreditCard}
-          color='blue.500'
+          key={translationKey}
+          icon={icon}
+          color={color}
           hideLabel={hideLabel}
-          label={translate('common.creditCard')}
+          label={translate(translationKey)}
         />
-      )}
-      {isBankTransfer && (
-        <FiatRampBadge
-          icon={TbBuildingBank}
-          color='yellow.500'
-          hideLabel={hideLabel}
-          label={translate('common.bankTransfer')}
-        />
-      )}
-      {isApplePay && (
-        <FiatRampBadge
-          color='text.primary'
-          icon={TbBrandApple}
-          hideLabel={hideLabel}
-          label={translate('common.applePay')}
-        />
-      )}
-      {isGooglePay && (
-        <FiatRampBadge
-          color='text.primary'
-          icon={TbBrandGoogle}
-          hideLabel={hideLabel}
-          label={translate('common.googlePay')}
-        />
-      )}
-      {isSepa && (
-        <FiatRampBadge
-          icon={TbCoinEuro}
-          hideLabel={hideLabel}
-          label={translate('common.sepa')}
-          color='pink.500'
-        />
-      )}
+      ))}
     </Flex>
   )
 }

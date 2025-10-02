@@ -64,6 +64,50 @@ export const useArbitrumBridgeActionSubscriber = () => {
     })
   }, [dispatch, swapsById])
 
+  // Create bridge actions for existing claims (migration from Claims tab)
+  useEffect(() => {
+    // Create actions for all claims that don't have corresponding actions yet
+    const allClaims = [
+      ...claimsByStatus.Pending,
+      ...claimsByStatus.Available,
+      ...claimsByStatus.Complete,
+    ]
+
+    allClaims.forEach(claim => {
+      const withdrawTxHash = claim.tx.txid
+
+      // Check if we already have an action for this claim
+      const existingAction = Object.values(store.getState().action.byId).find(
+        action =>
+          isArbitrumBridgeWithdrawAction(action) &&
+          action.arbitrumBridgeMetadata.withdrawTxHash === withdrawTxHash,
+      )
+
+      if (existingAction) return
+
+      // Create ArbitrumBridge withdraw action from claim
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: uuidv4(),
+          createdAt: claim.tx.blockTime * 1000, // Convert to milliseconds
+          updatedAt: Date.now(),
+          type: ActionType.ArbitrumBridgeWithdraw,
+          status: ActionStatus.Initiated, // Will be updated in the next effect
+          arbitrumBridgeMetadata: {
+            withdrawTxHash,
+            amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
+            assetId: claim.assetId,
+            destinationAssetId: claim.destinationAssetId,
+            destinationAddress: claim.destinationAddress,
+            accountId: claim.accountId,
+            chainId: claim.tx.chainId,
+            destinationChainId: claim.destinationChainId,
+          },
+        }),
+      )
+    })
+  }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available, claimsByStatus.Complete])
+
   // Update bridge action statuses based on claim availability
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -82,6 +126,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
 
       allBridgeActions.forEach(action => {
         const withdrawTxHash = action.arbitrumBridgeMetadata.withdrawTxHash
+        const shortTxHash = withdrawTxHash.slice(0, 10)
 
         // Find corresponding claim details
         const availableClaim = claimsByStatus.Available.find(
@@ -115,6 +160,8 @@ export const useArbitrumBridgeActionSubscriber = () => {
           claimDetails !== action.arbitrumBridgeMetadata.claimDetails ||
           timeRemainingSeconds !== action.arbitrumBridgeMetadata.timeRemainingSeconds
         ) {
+          const oldTime = action.arbitrumBridgeMetadata.timeRemainingSeconds
+          const newTime = timeRemainingSeconds
           updates.push({ action, newStatus, claimDetails, timeRemainingSeconds })
         }
       })

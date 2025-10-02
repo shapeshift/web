@@ -88,6 +88,7 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
             const remainingBlocks = block - latestBlock.number
             return remainingBlocks * averageBlockTimeSeconds
           })()
+          
           return {
             event,
             message,
@@ -117,8 +118,10 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
           }
         },
         // Periodically refetch until the status is known to be ChildToParentMessageStatus.EXECUTED
-        refetchInterval: (latestData: Query<ClaimStatusResult>) =>
-          latestData?.state?.data?.status === ChildToParentMessageStatus.EXECUTED ? false : 60_000,
+        refetchInterval: (latestData: Query<ClaimStatusResult>) => {
+          const isExecuted = latestData?.state?.data?.status === ChildToParentMessageStatus.EXECUTED
+          return isExecuted ? false : 60_000
+        },
         enabled: !skip,
         staleTime: Infinity,
         gcTime: Infinity,

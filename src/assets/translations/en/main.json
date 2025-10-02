@@ -3212,6 +3212,7 @@
       "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed.",
       "transactionInitiated": "Transaction Initiated",
       "claimWithdraw": "Claim Withdraw",
+      "withdrawTx": "Withdraw Tx",
       "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
     },
     "limitOrder": {

@@ -107,22 +107,14 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     switch (action.status) {
       case ActionStatus.Initiated:
-        // Format: "Your withdraw of X ETH will be available in ~6 days"
         const timeText = timeDisplay ? `in ${timeDisplay}` : 'soon'
-        return translate('actionCenter.bridge.pendingWithdraw', {
-          amountAndSymbol,
-          timeText,
-        })
+        return `Your withdraw of ${amountAndSymbol} will be available ${timeText}.`
       case ActionStatus.ClaimAvailable:
-        return translate('actionCenter.bridge.claimAvailable', {
-          amountAndSymbol,
-        })
+        return `Your bridge of ${amountAndSymbol} is available to claim.`
       case ActionStatus.Claimed:
-        return translate('actionCenter.bridge.complete', {
-          amountAndSymbol,
-        })
+        return `Your bridge of ${amountAndSymbol} is complete.`
       default:
-        return translate('actionCenter.bridge.processing')
+        return 'Processing...'
     }
   }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay, translate])
 
@@ -163,35 +155,40 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     return (
       <Stack gap={4}>
-        {/* Transaction Initiated */}
-        <Row fontSize='sm' alignItems='center'>
-          <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
-          <Row.Value>
-            <Link isExternal href={withdrawTxLink} color='text.link'>
-              <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
-            </Link>
-          </Row.Value>
-        </Row>
-
-        {/* Claim Withdraw */}
-        <Row fontSize='sm' alignItems='center'>
-          <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
-          <Row.Value>
-            {action.status === ActionStatus.ClaimAvailable ? (
-              <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
-                {translate('common.claim')}
-              </Button>
-            ) : action.status === ActionStatus.Claimed && claimTxLink ? (
-              <Link isExternal href={claimTxLink} color='text.link'>
-                <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash || ''} />
+        {/* Show Transaction Initiated for pending/initiated status */}
+        {action.status === ActionStatus.Initiated && (
+          <Row fontSize='sm' alignItems='center'>
+            <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
+            <Row.Value>
+              <Link isExternal href={withdrawTxLink} color='text.link'>
+                <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
               </Link>
-            ) : (
-              <Text fontSize='sm' color='yellow.500'>
-                {timeDisplay || translate('actionCenter.bridge.processing')}
-              </Text>
-            )}
-          </Row.Value>
-        </Row>
+            </Row.Value>
+          </Row>
+        )}
+
+        {/* Show Claim Withdraw for claimable/claimed status */}
+        {(action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed) && (
+          <Row fontSize='sm' alignItems='center'>
+            <Row.Label>
+              {action.status === ActionStatus.ClaimAvailable 
+                ? translate('actionCenter.bridge.claimWithdraw')
+                : translate('actionCenter.bridge.withdrawTx')
+              }
+            </Row.Label>
+            <Row.Value>
+              {action.status === ActionStatus.ClaimAvailable ? (
+                <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
+                  {translate('common.claim')}
+                </Button>
+              ) : (
+                <Link isExternal href={withdrawTxLink} color='text.link'>
+                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+                </Link>
+              )}
+            </Row.Value>
+          </Row>
+        )}
       </Stack>
     )
   }, [
@@ -233,11 +230,13 @@ export const ArbitrumBridgeWithdrawActionCard = ({
         {details}
       </ActionCard>
 
-      <ArbitrumBridgeClaimModal
-        action={action}
-        isOpen={isClaimModalOpen}
-        onClose={handleCloseModal}
-      />
+      {isClaimModalOpen && (
+        <ArbitrumBridgeClaimModal
+          action={action}
+          isOpen={isClaimModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   )
 }

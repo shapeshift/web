@@ -13,7 +13,7 @@ import {
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -50,6 +50,7 @@ export const ArbitrumBridgeClaimModal = ({
   const dispatch = useAppDispatch()
   const claimDetails = action.arbitrumBridgeMetadata.claimDetails
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable && !!claimDetails
+  const isClaimCompleted = action.status === ActionStatus.Claimed
 
   const asset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.assetId),
@@ -165,10 +166,18 @@ export const ArbitrumBridgeClaimModal = ({
     return translate('bridge.confirmAndClaim')
   }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
 
+  // Auto-close modal when claim is completed
+  useEffect(() => {
+    if (isClaimCompleted) {
+      onClose()
+    }
+  }, [isClaimCompleted, onClose])
+
   if (!asset || !destinationAsset) return null
 
-  if (!isClaimAvailable) {
-    throw new Error("This shouldn't happen but claim not available")
+  // If claim is not available and not completed, shouldn't happen but gracefully close
+  if (!isClaimAvailable && !isClaimCompleted) {
+    return null
   }
 
   return (

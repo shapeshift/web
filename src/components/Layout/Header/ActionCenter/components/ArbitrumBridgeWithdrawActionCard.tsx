@@ -45,7 +45,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(action.arbitrumBridgeMetadata.assetId).chainId),
   )
-  const buyFeeAsset = useAppSelector(state =>
+  const destinationFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(
       state,
       fromAssetId(action.arbitrumBridgeMetadata.destinationAssetId).chainId,
@@ -61,11 +61,13 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       isCollapsable &&
       (action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Initiated),
   })
+
   const handleClaimClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsClaimModalOpen(true)
   }, [])
+
   const timeDisplay = useMemo(() => {
     const claimDetails = action.arbitrumBridgeMetadata.claimDetails
     const timeRemaining =
@@ -78,14 +80,21 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     action.arbitrumBridgeMetadata.claimDetails,
     action.arbitrumBridgeMetadata.timeRemainingSeconds,
   ])
+
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
     return fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
+
+  const timeText = useMemo(() => {
+    if (!timeDisplay) return translate('common.available')
+    return translate('bridge.availableIn', { time: timeDisplay })
+  }, [timeDisplay, translate])
+
   const description = useMemo(() => {
-    if (!sellAsset || !buyAsset) return ''
+    if (!sellAsset || !buyAsset) return null
+
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
-    const timeText = timeDisplay ? `in ${timeDisplay}` : 'soon'
 
     switch (action.status) {
       case ActionStatus.Initiated:
@@ -97,7 +106,8 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       default:
         return translate('actionCenter.bridge.processing')
     }
-  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeDisplay, translate])
+  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeText, translate])
+
   const icon = useMemo(() => {
     if (!sellAsset) return null
     return (
@@ -106,9 +116,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       </AssetIconWithBadge>
     )
   }, [sellAsset, action.status])
+
   const footer = useMemo(() => <ActionStatusTag status={action.status} />, [action.status])
+
   const details = useMemo(() => {
-    if (!(sellAsset && buyAsset && sellFeeAsset && buyFeeAsset)) return null
+    if (!(sellAsset && buyAsset && sellFeeAsset && destinationFeeAsset)) return null
+
     const withdrawTxLink = getTxLink({
       txId: action.arbitrumBridgeMetadata.withdrawTxHash,
       chainId: sellAsset.chainId,
@@ -121,11 +134,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       ? getTxLink({
           txId: action.arbitrumBridgeMetadata.claimTxHash,
           chainId: buyAsset.chainId,
-          defaultExplorerBaseUrl: buyFeeAsset.explorerTxLink,
+          defaultExplorerBaseUrl: destinationFeeAsset.explorerTxLink,
           address: undefined,
           maybeSafeTx: undefined,
         })
       : null
+
     return (
       <Stack gap={4}>
         {action.status === ActionStatus.Initiated && (
@@ -176,13 +190,14 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     sellAsset,
     buyAsset,
     sellFeeAsset,
-    buyFeeAsset,
+    destinationFeeAsset,
     action.arbitrumBridgeMetadata.withdrawTxHash,
     action.arbitrumBridgeMetadata.claimTxHash,
     action.status,
     translate,
     handleClaimClick,
   ])
+
   if (!sellAsset || !buyAsset || !action.arbitrumBridgeMetadata) return null
 
   return (

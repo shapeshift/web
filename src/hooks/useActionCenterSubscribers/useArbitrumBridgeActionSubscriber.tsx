@@ -1,5 +1,6 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
+import { isSome } from '@shapeshiftoss/utils'
 import { uuidv4 } from '@walletconnect/utils'
 import { useEffect } from 'react'
 
@@ -15,9 +16,18 @@ import {
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
+type ActionUpdate = {
+  action: ArbitrumBridgeWithdrawAction
+  newStatus: ActionStatus
+  claimDetails?: ClaimDetails
+  timeRemainingSeconds?: number
+  claimTxHash?: string
+}
+
 export const useArbitrumBridgeActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
+  const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const { claimsByStatus } = useArbitrumClaimsByStatus()
 
   useEffect(() => {
@@ -83,7 +93,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
       dispatch(
         actionSlice.actions.upsertAction({
           id: uuidv4(),
-          createdAt: claim.tx.blockTime * 1000, // Convert to milliseconds
+          createdAt: claim.tx.blockTime * 1000,
           updatedAt: Date.now(),
           type: ActionType.ArbitrumBridgeWithdraw,
           status: ActionStatus.Initiated,
@@ -103,14 +113,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
   }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available, claimsByStatus.Complete])
 
   useEffect(() => {
-    type ActionUpdate = {
-      action: ArbitrumBridgeWithdrawAction
-      newStatus: ActionStatus
-      claimDetails?: ClaimDetails
-      timeRemainingSeconds?: number
-      claimTxHash?: string
-    }
-
     const getClaimTxHashForWithdraw = (withdrawTxHash: string): string | undefined => {
       const knownClaimTxHashes: Record<string, string> = {
         '0xe3439071a43723bc2d2cec5081b849e444d1d88914e8801e9d1b388aa9a91457':
@@ -163,37 +165,39 @@ export const useArbitrumBridgeActionSubscriber = () => {
     }
 
     try {
-      const allBridgeActions = Object.values(store.getState().action.byId).filter(
-        isArbitrumBridgeWithdrawAction,
-      )
-
-      const updates: ActionUpdate[] = []
-
-      allBridgeActions.forEach(action => {
-        const withdrawTxHash = action.arbitrumBridgeMetadata.withdrawTxHash
-        const update = determineActionState(action, withdrawTxHash)
-        if (update) {
-          updates.push(update)
-        }
-      })
-
-      updates.forEach(({ action, newStatus, claimDetails, timeRemainingSeconds, claimTxHash }) => {
-        dispatch(
-          actionSlice.actions.upsertAction({
-            ...action,
-            updatedAt: Date.now(),
-            status: newStatus,
-            arbitrumBridgeMetadata: {
-              ...action.arbitrumBridgeMetadata,
-              claimDetails,
-              timeRemainingSeconds,
-              claimTxHash: claimTxHash ?? action.arbitrumBridgeMetadata.claimTxHash,
-            },
-          }),
-        )
-      })
+      Object.values(actionsById)
+        .filter(isArbitrumBridgeWithdrawAction)
+        .filter(action => action.status !== ActionStatus.Claimed)
+        .map(action => ({
+          action,
+          withdrawTxHash: action.arbitrumBridgeMetadata.withdrawTxHash,
+        }))
+        .map(({ action, withdrawTxHash }) => determineActionState(action, withdrawTxHash))
+        .filter(isSome)
+        .forEach(update => {
+          dispatch(
+            actionSlice.actions.upsertAction({
+              ...update.action,
+              updatedAt: Date.now(),
+              status: update.newStatus,
+              arbitrumBridgeMetadata: {
+                ...update.action.arbitrumBridgeMetadata,
+                claimDetails: update.claimDetails,
+                timeRemainingSeconds: update.timeRemainingSeconds,
+                claimTxHash: update.claimTxHash ?? update.action.arbitrumBridgeMetadata.claimTxHash,
+              },
+            }),
+          )
+        })
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-  }, [dispatch, claimsByStatus.Available, claimsByStatus.Complete, claimsByStatus.Pending])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    dispatch,
+    actionsById,
+    claimsByStatus.Available.length,
+    claimsByStatus.Complete.length,
+    claimsByStatus.Pending.length,
+  ])
 }

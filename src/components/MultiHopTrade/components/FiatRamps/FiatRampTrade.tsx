@@ -225,6 +225,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   // Auto-select the best quote when quotes are available and no quote is selected
   // This only happens on first load or when amount changes (not on refetch)
   useEffect(() => {
+    // Wait for all quotes to be fetched to select the best quote
+    if (isFetchingQuotes) return
     if (pathname.includes('quotes')) return
 
     if (sortedQuotes.length > 0) {

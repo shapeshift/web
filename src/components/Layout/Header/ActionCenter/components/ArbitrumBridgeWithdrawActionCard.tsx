@@ -6,7 +6,6 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useActionCenterContext } from '../ActionCenterContext'
 import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
@@ -17,7 +16,7 @@ import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
 import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
-import { formatSmartDate } from '@/lib/utils/time'
+import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
@@ -33,7 +32,6 @@ type ArbitrumBridgeWithdrawActionCardProps = {
 export const ArbitrumBridgeWithdrawActionCard = ({
   action,
 }: ArbitrumBridgeWithdrawActionCardProps) => {
-  const { closeDrawer } = useActionCenterContext()
   const translate = useTranslate()
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
 
@@ -60,12 +58,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     return formatSmartDate(action.updatedAt)
   }, [action.updatedAt])
 
-  // Only expandable if we have transaction details to show
-  const isCollapsable = !!(
-    sellFeeAsset &&
-    buyFeeAsset &&
-    action.arbitrumBridgeMetadata.withdrawTxHash
-  )
+  // Only expandable if claim is available (has something actionable to show)
+  const isCollapsable =
+    action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -73,18 +68,15 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       (action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Initiated),
   })
 
-  const handleClaimClick = useCallback(
-    (e: React.MouseEvent) => {
-      try {
-        e.stopPropagation()
-        closeDrawer()
-        setIsClaimModalOpen(true)
-      } catch (error) {
-        console.error('Error opening claim modal:', error)
-      }
-    },
-    [closeDrawer],
-  )
+  const handleClaimClick = useCallback((e: React.MouseEvent) => {
+    try {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsClaimModalOpen(true)
+    } catch (error) {
+      console.error('Error opening claim modal:', error)
+    }
+  }, [])
 
   const timeDisplay = useMemo(() => {
     // Use time from claim details if available, otherwise fallback to action metadata
@@ -94,8 +86,8 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     if (!timeRemaining || timeRemaining <= 0) return null
 
-    const days = Math.ceil(timeRemaining / (24 * 60 * 60))
-    return days > 1 ? `~${days} days` : '< 1 day'
+    // Use same formatting as Claims tab for consistency
+    return formatSecondsToDuration(timeRemaining)
   }, [
     action.arbitrumBridgeMetadata.claimDetails,
     action.arbitrumBridgeMetadata.timeRemainingSeconds,

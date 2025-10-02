@@ -65,6 +65,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
   }, [dispatch, swapsById])
 
   // Update bridge action statuses based on claim availability
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     try {
       const allBridgeActions = Object.values(store.getState().action.byId).filter(
@@ -136,5 +137,12 @@ export const useArbitrumBridgeActionSubscriber = () => {
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-  }, [dispatch, claimsByStatus.Available, claimsByStatus.Complete, claimsByStatus.Pending])
+    // Note: Using .length instead of full arrays to prevent infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    dispatch,
+    claimsByStatus.Available.length,
+    claimsByStatus.Complete.length,
+    claimsByStatus.Pending.length,
+  ])
 }

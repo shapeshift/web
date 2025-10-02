@@ -166,16 +166,15 @@ export const ArbitrumBridgeClaimModal = ({
     return translate('bridge.confirmAndClaim')
   }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
 
-  // Auto-close modal when claim is completed
   useEffect(() => {
-    if (isClaimCompleted) {
-      onClose()
-    }
+    if (!isClaimCompleted) return
+
+    onClose()
   }, [isClaimCompleted, onClose])
 
   if (!asset || !destinationAsset) return null
 
-  // If claim is not available and not completed, shouldn't happen but gracefully close
+  // Shouldn't happen but it may for a few renders after claim - handle gracefully to avoid us crashing in a disgusting way
   if (!isClaimAvailable && !isClaimCompleted) {
     return null
   }
@@ -198,7 +197,6 @@ export const ArbitrumBridgeClaimModal = ({
               />
               <Amount.Fiat fontSize='md' color='text.subtle' value={amountUserCurrency} />
             </Stack>
-
             <Stack spacing={4} width='full'>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>

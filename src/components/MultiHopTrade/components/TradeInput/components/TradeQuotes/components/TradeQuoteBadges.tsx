@@ -70,8 +70,7 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
     const lengths = [
       isBoost && translate('common.boost').length,
       isStreaming &&
-        translate(swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming')
-          .length,
+        translate(swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming').length,
       isBestRate && translate('trade.sort.bestRate').length,
       isFastest && translate('trade.sort.fastest').length,
       isLowestGas && translate('trade.sort.lowestGas').length,

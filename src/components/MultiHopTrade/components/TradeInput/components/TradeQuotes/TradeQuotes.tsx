@@ -116,22 +116,19 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ onBack }) => {
       return []
     }
 
-    return availableTradeQuotesDisplayCache.map((quoteData, index) => {
+    return availableTradeQuotesDisplayCache.map(quoteData => {
       const { id } = quoteData
 
       const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
-
-      // Monkey patch: force all badges on first quote to verify fix works
-      const isFirstQuote = index === 0
 
       return (
         <MotionBox key={id} layout {...motionBoxProps}>
           <TradeQuote
             isActive={isActive}
             isLoading={isQuoteLoading(quoteData)}
-            isBestRate={isFirstQuote || bestQuotesByCategory.bestRate === quoteData.id}
-            isFastest={isFirstQuote || bestQuotesByCategory.fastest === quoteData.id}
-            isLowestGas={isFirstQuote || bestQuotesByCategory.lowestGas === quoteData.id}
+            isBestRate={bestQuotesByCategory.bestRate === quoteData.id}
+            isFastest={bestQuotesByCategory.fastest === quoteData.id}
+            isLowestGas={bestQuotesByCategory.lowestGas === quoteData.id}
             key={id}
             quoteData={quoteData}
             onBack={onBack}

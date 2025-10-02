@@ -192,12 +192,11 @@ export const useArbitrumBridgeActionSubscriber = () => {
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dispatch,
     actionsById,
-    claimsByStatus.Available.length,
-    claimsByStatus.Complete.length,
-    claimsByStatus.Pending.length,
+    claimsByStatus.Available,
+    claimsByStatus.Complete,
+    claimsByStatus.Pending,
   ])
 }

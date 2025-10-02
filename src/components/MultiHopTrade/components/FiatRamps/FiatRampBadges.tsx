@@ -1,5 +1,5 @@
 import type { ColorProps, FlexProps } from '@chakra-ui/react'
-import { Flex, Tag, TagLeftIcon, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Tag, TagLeftIcon, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import type { IconType } from 'react-icons'
@@ -13,8 +13,6 @@ import {
 import { useTranslate } from 'react-polyglot'
 
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
-import { QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { breakpoints } from '@/theme/theme'
 
 type FiatRampBadgeProps = {
   icon: IconType
@@ -41,7 +39,6 @@ export type FiatRampBadgesProps = FlexProps & {
   isApplePay?: boolean
   isGooglePay?: boolean
   isSepa?: boolean
-  quoteDisplayOption: QuoteDisplayOption
 }
 export const FiatRampBadges: React.FC<FiatRampBadgesProps> = ({
   isCreditCard,
@@ -49,12 +46,9 @@ export const FiatRampBadges: React.FC<FiatRampBadgesProps> = ({
   isApplePay,
   isGooglePay,
   isSepa,
-  quoteDisplayOption,
   ...rest
 }) => {
   const translate = useTranslate()
-
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const badges = useMemo(
     () => [isCreditCard, isBankTransfer, isApplePay, isGooglePay, isSepa],
@@ -65,13 +59,26 @@ export const FiatRampBadges: React.FC<FiatRampBadgesProps> = ({
     () => badges.reduce((acc, curr) => (curr ? acc + 1 : acc), 0),
     [badges],
   )
+
+  const totalTextLength = useMemo(() => {
+    const lengths = [
+      isCreditCard && translate('common.creditCard').length,
+      isBankTransfer && translate('common.bankTransfer').length,
+      isApplePay && translate('common.applePay').length,
+      isGooglePay && translate('common.googlePay').length,
+      isSepa && translate('common.sepa').length,
+    ].filter(Boolean) as number[]
+
+    // Add 2 chars per badge for spacing and icon visual space
+    const SPACING_AND_ICON_CHARS = 2
+
+    return lengths.reduce((total, length) => total + length + SPACING_AND_ICON_CHARS, 0)
+  }, [isCreditCard, isBankTransfer, isApplePay, isGooglePay, isSepa, translate])
+
   const hideLabel = useMemo(() => {
-    if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
-      return badgeCount > 1
-    } else {
-      return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
-    }
-  }, [badgeCount, badges.length, isLargerThanMd, quoteDisplayOption])
+    const TEXT_LENGTH_THRESHOLD = 50
+    return totalTextLength > TEXT_LENGTH_THRESHOLD
+  }, [totalTextLength])
 
   if (badgeCount === 0) return null
 

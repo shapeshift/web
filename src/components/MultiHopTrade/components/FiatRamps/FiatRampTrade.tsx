@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -239,53 +240,58 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     }
   }, [sortedQuotes, selectedQuote, dispatch, isFetchingQuotes, pathname])
 
-  const handleSubmit = useCallback(async () => {
-    if (!selectedQuote?.provider) return
-    if (!isConnected) return
+  const handleSubmit = useCallback(
+    async (e: FormEvent<unknown>) => {
+      e.preventDefault()
+      if (!selectedQuote?.provider) return
+      if (!isConnected) return
 
-    const ramp = supportedFiatRamps[selectedQuote.provider]
-    const mpData = {
-      action: direction,
-      assetId: getMaybeCompositeAssetSymbol(
-        direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
-        assets,
-      ),
-      ramp: ramp.id,
-    }
-    getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
-    const url = await ramp.onSubmit({
-      action: direction,
-      assetId:
-        direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
-      address: manualReceiveAddress ?? walletReceiveAddress ?? '',
-      fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
-      fiatAmount: direction === FiatRampAction.Buy ? sellFiatAmount : undefined,
-      amountCryptoPrecision:
-        direction === FiatRampAction.Sell ? sellAmountCryptoPrecision : undefined,
-      options: {
-        language: selectedLocale,
-        mode: colorMode,
-        currentUrl: window.location.href,
-      },
-    })
-    if (url) popup.open({ url, title: direction === FiatRampAction.Buy ? 'Buy' : 'Sell' })
-  }, [
-    assets,
-    buyAsset?.assetId,
-    buyFiatCurrency,
-    colorMode,
-    popup,
-    selectedLocale,
-    sellAsset?.assetId,
-    sellFiatCurrency,
-    direction,
-    manualReceiveAddress,
-    walletReceiveAddress,
-    selectedQuote?.provider,
-    sellAmountCryptoPrecision,
-    sellFiatAmount,
-    isConnected,
-  ])
+      const ramp = supportedFiatRamps[selectedQuote.provider]
+      const mpData = {
+        action: direction,
+        assetId: getMaybeCompositeAssetSymbol(
+          direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
+          assets,
+        ),
+        ramp: ramp.id,
+      }
+      getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
+      const url = await ramp.onSubmit({
+        action: direction,
+        assetId:
+          direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
+        address: manualReceiveAddress ?? walletReceiveAddress ?? '',
+        fiatCurrency:
+          direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
+        fiatAmount: direction === FiatRampAction.Buy ? sellFiatAmount : undefined,
+        amountCryptoPrecision:
+          direction === FiatRampAction.Sell ? sellAmountCryptoPrecision : undefined,
+        options: {
+          language: selectedLocale,
+          mode: colorMode,
+          currentUrl: window.location.href,
+        },
+      })
+      if (url) popup.open({ url, title: direction === FiatRampAction.Buy ? 'Buy' : 'Sell' })
+    },
+    [
+      assets,
+      buyAsset?.assetId,
+      buyFiatCurrency,
+      colorMode,
+      popup,
+      selectedLocale,
+      sellAsset?.assetId,
+      sellFiatCurrency,
+      direction,
+      manualReceiveAddress,
+      walletReceiveAddress,
+      selectedQuote?.provider,
+      sellAmountCryptoPrecision,
+      sellFiatAmount,
+      isConnected,
+    ],
+  )
 
   const bodyContent = useMemo(
     () => (

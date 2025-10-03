@@ -9,6 +9,7 @@ import {
   MenuItem,
   MenuList,
   Stack,
+  Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, isNft } from '@shapeshiftoss/caip'
@@ -34,6 +35,7 @@ import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectRelatedAssetIdsInclusive } from '@/state/slices/related-assets-selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -96,6 +98,20 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
+  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
+  const isSpamMarked = useMemo(
+    () => spamMarkedAssetIds.includes(assetId),
+    [assetId, spamMarkedAssetIds],
+  )
+
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const relatedAssetIds = useAppSelector(s => selectRelatedAssetIdsInclusive(s, filter))
+  const relatedAssetCount = relatedAssetIds?.length ?? 0
+  const isPrimaryWithRelatedVariants = Boolean(asset?.isPrimary) && relatedAssetCount > 1
+  const canHideAsset = !isPrimaryWithRelatedVariants
+  const canToggleSpam = canHideAsset || isSpamMarked
+  const hideTooltipLabel = isPrimaryWithRelatedVariants && !isSpamMarked
+
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const walletType = useAppSelector(selectWalletType)
   const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
@@ -106,16 +122,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     [isConnected, isLedgerReadOnly],
   )
 
-  const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
-
-  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
-
-  const isSpamMarked = useMemo(
-    () => spamMarkedAssetIds.includes(assetId),
-    [assetId, spamMarkedAssetIds],
-  )
 
   const isWatchlistMarked = useMemo(
     () => watchlistAssetIds.includes(assetId),
@@ -345,17 +353,24 @@ export const AssetActions: React.FC<AssetActionProps> = ({
                 {translate('common.viewOnExplorer')}
               </MenuItem>
             )}
-            <MenuItem
-              as='a'
-              icon={flagIcon}
-              onClick={handleToggleSpam}
-              color={isSpamMarked ? 'inherit' : 'red.400'}
-              cursor='pointer'
+            <Tooltip
+              label={hideTooltipLabel ? translate('assets.cannotHidePrimary') : ''}
+              hasArrow
+              isDisabled={!hideTooltipLabel}
+              shouldWrapChildren
             >
-              {isSpamMarked
-                ? translate('assets.spam.reportAsNotSpam')
-                : translate('assets.spam.reportAsSpam')}
-            </MenuItem>
+              <MenuItem
+                as='a'
+                icon={flagIcon}
+                onClick={canToggleSpam ? handleToggleSpam : undefined}
+                color={isSpamMarked ? 'inherit' : 'red.400'}
+                cursor={canToggleSpam ? 'pointer' : 'not-allowed'}
+                isDisabled={!canToggleSpam}
+                opacity={canToggleSpam ? 1 : 0.6}
+              >
+                {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
+              </MenuItem>
+            </Tooltip>
           </MenuList>
         </Menu>
       </Flex>

@@ -54,21 +54,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
 
   const assets = useAppSelector(selectAssets)
 
-  const getExplorerHref = (assetId: AssetId) => {
-    const asset = assets[assetId]
-    if (!asset) return
-
-    const { assetReference } = fromAssetId(assetId)
-
-    if (isNft(assetId)) {
-      const [token] = assetReference.split('/')
-      return `${asset.explorer}/token/${token}?a=${asset.id}`
-    }
-
-    if (isToken(assetId)) return `${asset?.explorerAddressLink}${assetReference}`
-
-    return asset.explorer
-  }
 
   const AssetRow: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
     const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -77,7 +62,21 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
       selectPortfolioCryptoPrecisionBalanceByFilter(state, assetBalanceFilter),
     )
 
-    const explorerHref = useMemo(() => getExplorerHref(assetId), [assetId])
+    const explorerHref = useMemo(() => {
+      const asset = assets[assetId]
+      if (!asset) return
+
+      const { assetReference } = fromAssetId(assetId)
+
+      if (isNft(assetId)) {
+        const [token] = assetReference.split('/')
+        return `${asset.explorer}/token/${token}?a=${asset.id}`
+      }
+
+      if (isToken(assetId)) return `${asset?.explorerAddressLink}${assetReference}`
+
+      return asset.explorer
+    }, [assets, assetId])
 
     const handleViewDetailsClick = useCallback(() => {
       navigate(`/assets/${assetId}`)

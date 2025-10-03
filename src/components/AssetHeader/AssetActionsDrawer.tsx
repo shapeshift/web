@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Link, Stack } from '@chakra-ui/react'
+import { Box, Button, Divider, Link, Stack, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
@@ -17,6 +17,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isNativeHDWallet } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectRelatedAssetIdsInclusive } from '@/state/slices/related-assets-selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -42,13 +43,20 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
-  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
-  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
-
   const isSpamMarked = useMemo(
     () => spamMarkedAssetIds.includes(assetId),
     [assetId, spamMarkedAssetIds],
   )
+
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const relatedAssetIds = useAppSelector(s => selectRelatedAssetIdsInclusive(s, filter))
+  const relatedAssetCount = relatedAssetIds?.length ?? 0
+  const isPrimaryWithRelatedVariants = Boolean(asset?.isPrimary) && relatedAssetCount > 1
+  const canHideAsset = !isPrimaryWithRelatedVariants
+  const canToggleSpam = canHideAsset || isSpamMarked
+  const hideTooltipLabel = isPrimaryWithRelatedVariants && !isSpamMarked
+  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
+  const featureFlags = useAppSelector(preferences.selectors.selectFeatureFlags)
 
   const isWatchlistMarked = useMemo(
     () => watchlistAssetIds.includes(assetId),
@@ -147,22 +155,30 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
                   </Button>
                 </Link>
               )}
-              <Button
-                variant='ghost'
-                px={6}
-                width='full'
-                height={14}
-                color='red.400'
-                leftIcon={flagIcon}
-                onClick={handleToggleSpam}
-                justifyContent='flex-start'
-                size='lg'
-                fontSize='md'
+              <Tooltip
+                label={hideTooltipLabel ? translate('assets.cannotHidePrimary') : ''}
+                hasArrow
+                isDisabled={!hideTooltipLabel}
+                shouldWrapChildren
               >
-                {isSpamMarked
-                  ? translate('assets.spam.reportAsNotSpam')
-                  : translate('assets.spam.reportAsSpam')}
-              </Button>
+                <Button
+                  variant='ghost'
+                  px={6}
+                  width='full'
+                  height={14}
+                  color={isSpamMarked ? 'inherit' : 'red.400'}
+                  leftIcon={flagIcon}
+                  onClick={canToggleSpam ? handleToggleSpam : undefined}
+                  justifyContent='flex-start'
+                  size='lg'
+                  fontSize='md'
+                  isDisabled={!canToggleSpam}
+                  opacity={canToggleSpam ? 1 : 0.6}
+                  cursor={canToggleSpam ? 'pointer' : 'not-allowed'}
+                >
+                  {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
+                </Button>
+              </Tooltip>
             </Stack>
           )}
         </DialogBody>

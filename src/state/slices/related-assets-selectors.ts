@@ -9,6 +9,7 @@ import {
   selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from './common-selectors'
+import { preferences } from './preferencesSlice/preferencesSlice'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from '@/state/reducer'
@@ -19,6 +20,7 @@ import { selectOnlyConnectedChainsParamFromFilter } from '@/state/selectors'
  *
  * Excludes assetIds on chains that are not connected on the wallet.
  * Excludes assetIds that are not in the assets slice.
+ * Excludes assetIds that are marked as spam.
  */
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
   assets.selectors.selectRelatedAssetIndex,
@@ -26,7 +28,15 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
   selectWalletConnectedChainIds,
   selectOnlyConnectedChainsParamFromFilter,
   selectAssets,
-  (relatedAssetIndex, asset, walletConnectedChainIds, onlyConnectedChains, assets): AssetId[] => {
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (
+    relatedAssetIndex,
+    asset,
+    walletConnectedChainIds,
+    onlyConnectedChains,
+    assets,
+    spamMarkedAssetIds,
+  ): AssetId[] => {
     if (!asset) return []
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
@@ -37,7 +47,13 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
       .filter(assetId => assets?.[assetId])
 
     // `asset.assetId` may be the same as `relatedAssetKey`, so dedupe
-    const relatedAssetIdsInclusive = Array.from(new Set(relatedAssetIdsInclusiveWithDuplicates))
+    const relatedAssetIdsInclusive = Array.from(
+      new Set(relatedAssetIdsInclusiveWithDuplicates),
+    ).filter(assetId => {
+      const isPrimaryAsset = assetId === asset.assetId
+      const hasRelatedAssets = relatedAssetIdsInclusiveWithDuplicates.length > 1
+      return (isPrimaryAsset && hasRelatedAssets) || !spamMarkedAssetIds.includes(assetId)
+    })
 
     if (!onlyConnectedChains) return relatedAssetIdsInclusive
 

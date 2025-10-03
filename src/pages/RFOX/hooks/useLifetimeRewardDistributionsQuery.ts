@@ -12,6 +12,7 @@ type UseLifetimeRewardDistributionsQueryProps = {
 
 export type RewardDistributionWithMetadata = RewardDistribution & {
   epoch: number
+  distributionTimestamp: number
   status: Epoch['distributionStatus']
   stakingAddress: string
   stakingContract: string
@@ -46,6 +47,7 @@ export const useLifetimeRewardDistributionsQuery = ({
 
               return {
                 epoch: epoch.number,
+                distributionTimestamp: epoch.distributionTimestamp,
                 status: epoch.distributionStatus,
                 stakingAddress,
                 stakingContract,

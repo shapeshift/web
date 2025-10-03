@@ -3,6 +3,8 @@
     "amount": "Miktar",
     "ascending": "Yükselen",
     "descending": "Azalan",
+    "selectAll": "Tümünü Seç",
+    "unselectAll": "Tümünü Kaldır",
     "free": "Uygun",
     "trade": "Takas",
     "trades": "İşlemler",
@@ -40,6 +42,7 @@
     "activity": "Aktivite",
     "reject": "İptal",
     "goBack": "Geri git",
+    "fiat": "Fiyat",
     "connected": "Bağlandı",
     "allocation": "Dağılım",
     "trendingTokens": "Trend Tokenlar",
@@ -65,6 +68,7 @@
     "pairing": "Eşleştirme",
     "connectWalletToGetStartedWith": "%{feature} ile başlamak için bir cüzdan bağlayın",
     "connectedWallet": "Cüzdan Bağlandı",
+    "crypto": "Kripto",
     "walletActions": "Cüzdan Hareketleri",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
@@ -130,6 +134,11 @@
     "enterAmount": "Miktarı Girin",
     "enterAddress": "Adresi Girin",
     "pageNotFound": "Aradığınız sayfa bulunamadı",
+    "creditCard": "Kredi Kartı",
+    "bankTransfer": "Banka Transferi",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Al/Sat",
     "all": "Hepsi",
     "viewAll": "Hepsini Gör",
@@ -259,18 +268,25 @@
       "body": "İşlem arayüzünde bir hata oluştu. Tekrar deneyebilir veya sayfayı yenileyebilirsiniz.",
       "retry": "Tekrar deneyin"
     },
+    "ramp": {
+      "title": "Ramp Hatası",
+      "body": "Rampa arayüzünde bir hata oluştu. Tekrar deneyebilir veya sayfayı yenileyebilirsiniz.",
+      "retry": "Tekrar Dene"
+    },
     "suspense": {
       "title": "Yükleme başarısız oldu",
       "body": "Bu içerik düzgün şekilde yüklenemedi.",
       "retry": "Tekrar dene"
     }
   },
-  "buyPage": {
-    "title": "Saniyeler içinde <span>Kripto Satın Alın</span>",
-    "body": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer en iyi kripto para birimlerini satın alın. KYC gerekmeyen sağlayıcılar mevcuttur.",
-    "disclaimer": "*Ayrıca kriptonuzu banka hesabınıza doğrudan nakit olarak satabilirsiniz.",
-    "ctaTitle": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve <span>Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz</span>",
-    "availableAssets": "Kullanılabilir Varlıklar"
+  "rampPage": {
+    "buyTitle": "Kriptoyu <span>Saniyeler İçinde</span> Satın Alın",
+    "sellTitle": "Kripto Paranızı <span>Saniyeler İçinde</span> Satın",
+    "buyBody": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer popüler kripto para birimlerini satın alın. KYC dışı sağlayıcılar mevcuttur.",
+    "sellBody": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer popüler kripto para birimlerini satın. KYC dışı sağlayıcılar mevcuttur.",
+    "disclaimer": "*Kripto paranızı doğrudan banka hesabınıza nakit olarak da satabilirsiniz.",
+    "ctaTitle": "ShapeShift'i tüm en iyi cüzdanlarla kullanarak ticaret yapabilir, getiri elde edebilir ve <span>kripto paranızı %{chainCount} zincirde takip edebilirsiniz</span>",
+    "availableAssets": "Mevcut Varlıklar"
   },
   "updateToast": {
     "body": "Uygulama güncellemesi mevcut!",
@@ -374,6 +390,8 @@
       "switchWallet": "Cüzdanı Değiştir",
       "disconnect": "Bağlantıyı kes",
       "disconnected": "(Bağlantı kesildi)",
+      "reconnectWallet": "Cüzdanı Tekrar Bağla",
+      "walletNotConnected": "Cüzdanınız şu anda bağlı değil. Bu durum işlemlerinizi etkileyecektir.",
       "connecting": "Bağlanıyor..."
     }
   },
@@ -412,8 +430,6 @@
       },
       "cosmosOverview": {
         "rewards": "Kazandığınız ödüller otomatik olarak tahakkuk edecektir.",
-        "cta": "Stake Etmeye Başlayın",
-        "learnMore": "Daha fazla bilgi edin",
         "withdrawals": "Stake'ten Çık",
         "emptyWithdraws": "Bekleyen staking istekleri burada gösterilir.",
         "availableDate": "kullanılabilir %{date}"
@@ -665,7 +681,6 @@
     "market": "Market",
     "limitOrder": "Limit Emirleri",
     "claims": "Toplanacaklar",
-    "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "lending": "Borç Verme",
@@ -674,6 +689,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX Ekosistem",
     "markets": "Piyasalar",
+    "tokens": "Tokenlar",
+    "swap": "Takas",
     "actionMenu": {
       "send": {
         "title": "Gönder",
@@ -695,6 +712,34 @@
         "title": "QR Kodunu Tara",
         "body": "Kripto göndermek veya almak için kolayca tarayın"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "Ürünler",
+    "mobileApp": {
+      "title": "Mobil App",
+      "subtitle": "Kripto ticareti yapın ve yönetin"
+    },
+    "foxToken": {
+      "title": "FOX Token",
+      "subtitle": "Yönetim Tokenımız"
+    },
+    "classic": {
+      "title": "Klasik",
+      "subtitle": "OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift Cüzdanı",
+      "subtitle": "Cüzdanımız hakkında bilgi edinin"
+    },
+    "footer": {
+      "governance": "Yönetim",
+      "support": "Destek",
+      "blog": "Blog",
+      "faq": "SSS",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
     }
   },
   "transactionRow": {
@@ -952,7 +997,7 @@
     "viewTransaction": "İşlemi Görüntüle",
     "noQuotesAvailable": "Teklif Yok",
     "noQuotesAvailableDescription": "Şu anda kullanılabilir teklif bulunamadı. Başka bir çift seçmeyi deneyin.",
-    "availableSwappers": "Mevcut Fiyat Teklifleri",
+    "availableQuotes": "Mevcut Teklifler",
     "unavailableSwappers": "Kullanılamayan Swapper'lar",
     "unlimited": "Limitsiz",
     "streamStatus": "Yayın Durumu",
@@ -1445,7 +1490,8 @@
       "verified": "Doğrulandı",
       "notVerified": "Adres Uyuşmazlığı",
       "blockExplorer": "Tarayıcı",
-      "supportedNetworks": "Desteklenen Ağlar"
+      "supportedNetworks": "Desteklenen Ağlar",
+      "amountNote": "Talep etmek istediğiniz tutarı girin. Bu, ödemeyi kolaylaştırmak için tutarın yazılı olduğu bir QR kodu oluşturacaktır."
     },
     "deposit": {
       "allocation": {
@@ -1609,6 +1655,26 @@
         "ILS": "İsrail Şekeli",
         "IDR": "Endonezya Rupiahı"
       }
+    },
+    "ramp": {
+      "payWith": "İle Öde",
+      "youGet": "Alacaksın",
+      "sellAmount": "Satış Miktarı",
+      "receiveAmount": "Alınan Tutar",
+      "buyAsset": "Varlık Satın Al",
+      "sellAsset": "Varlık Sat",
+      "receiveAsset": "Varlık Al",
+      "previewOrder": "Siparişi Önizleme",
+      "processingTime": "İşlem Süresi: 1-3 iş günü",
+      "buyInfo": "Kripto parayı itibari para birimiyle satın alın",
+      "sellInfo": "Kripto paraları itibari para birimi karşılığında sat",
+      "availableQuotes": "Mevcut Teklifler",
+      "bestRate": "En İyi Fiyat",
+      "fastest": "En hızlı",
+      "rate": "Oran",
+      "amount": "Miktar",
+      "paymentMethods": "Ödeme Yöntemleri",
+      "selectFiat": "Fiat Para Birimini Seçin"
     },
     "mobileWelcome": {
       "success": {
@@ -1778,7 +1844,11 @@
         "pairExistingDeviceBody": "Farklı bir Ledger cihazı mı bağlanıyorsunuz? Yeni bir başlangıç ​​yapmak için 'Yeni cihazı eşleştir'e tıklayın."
       },
       "failure": {
-        "body": "Ledger cüzdanına bağlanılamıyor"
+        "header": "Ledger'a bağlanılamıyor",
+        "body": "Ledger'ınızı tespit edemedik ancak salt okunur modda bağlanabilirsiniz."
+      },
+      "readOnly": {
+        "button": "Salt Okunur Olarak Bağlan"
       },
       "gettingChangeAddress": "Adres değişikliği alınıyor...",
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
@@ -1824,6 +1894,7 @@
       "active": "Aktif",
       "notActive": "Aktif değil",
       "addSnap": "Snap Ekle",
+      "installError": "MetaMask'a Multichain Snap yüklenirken bir hata oluştu",
       "uninstall": {
         "title": "Multichain desteğini MetaMask'tan kaldırdınız!",
         "subtitle": "Aşağıdaki zincirlerle göndermek, almak, takip etmek, ticaret yapmak ve kazanmak için Multichain Snap'i MetaMask'a yeniden ekleyin:"
@@ -2367,6 +2438,13 @@
         "transactionData": "İşlem Verileri",
         "method": "Yöntem",
         "signingWith": "İle İmzala",
+        "connectWith": "İle Bağlan",
+        "chooseAccount": "Hesap Seçin",
+        "chooseNetwork": "Ağ Seçin",
+        "required": "Gerekli",
+        "noAccount": "Bu adres için %{chainName} üzerinde bir hesabınız yok",
+        "connectionRequest": "Bağlantı Talebi",
+        "connectionRequestTooltip": "Bağlantı, bu dApp'in işlem onayları talep etmesine olanak tanır",
         "sendingTo": "Gönderilecek",
         "signMessage": {
           "signingFrom": "İmzalayan",
@@ -2421,7 +2499,6 @@
         },
         "connect": {
           "title": "Cüzdanınızı WalletConnect aracılığıyla bir dApp'e bağlayın ve işlemleri tetikleyin",
-          "howTo": "Bir dApp'e nasıl bağlanılır?",
           "linkPlaceholder": "QR kod veya bağlantı link'i",
           "connect": "Bağlan",
           "connectionError": "Sağlanan URI'ye bağlanılamıyor.",

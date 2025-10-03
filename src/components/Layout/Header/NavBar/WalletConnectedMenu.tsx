@@ -9,6 +9,7 @@ import {
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
+import { TbPlugConnected } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
@@ -21,17 +22,20 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import type { WalletConnectedProps } from '@/components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import type { WalletProviderRouteProps } from '@/context/WalletProvider/config'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
 const repeatIcon = <RepeatIcon />
+const reconnectIcon = <TbPlugConnected />
 const settingsIcon = <SettingsIcon />
 const viewIcon = <ViewIcon />
 
@@ -53,6 +57,8 @@ const ConnectedMenu = memo(
     const manageHiddenAssets = useModal('manageHiddenAssets')
     const walletType = useAppSelector(selectWalletType)
     const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+    const { dispatch, state } = useWallet()
+    const { isLocked } = state
     const ConnectMenuComponent = useMemo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
@@ -75,6 +81,30 @@ const ConnectedMenu = memo(
       onClose && onClose()
       manageHiddenAssets.open({})
     }, [onClose, manageHiddenAssets])
+
+    const handleReconnectWallet = useCallback(() => {
+      const route = (() => {
+        switch (walletType) {
+          case KeyManager.KeepKey:
+            return '/keepkey/connect'
+          case KeyManager.Ledger:
+            return '/ledger/connect'
+          case KeyManager.MetaMask:
+          case KeyManager.Coinbase:
+          case KeyManager.Phantom:
+            return '/metamask/connect'
+          default:
+            throw new Error(`Unsupported wallet type for reconnect: ${walletType}`)
+        }
+      })()
+
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: route,
+      })
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      onClose?.()
+    }, [dispatch, onClose, walletType])
 
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
     const isLedger = walletType === KeyManager.Ledger
@@ -115,6 +145,13 @@ const ConnectedMenu = memo(
                     color='yellow.500'
                   />
                 )}
+                {isLocked && (
+                  <Text
+                    translation={'connectWallet.menu.locked'}
+                    fontSize='sm'
+                    color='yellow.500'
+                  />
+                )}
               </Flex>
             </MenuItem>
           ) : (
@@ -126,6 +163,11 @@ const ConnectedMenu = memo(
         <MenuDivider />
         <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
           {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
+          {(!isConnected || isLocked) && (
+            <MenuItem icon={reconnectIcon} onClick={handleReconnectWallet} color='green.500'>
+              {translate('connectWallet.menu.reconnectWallet')}
+            </MenuItem>
+          )}
           <MenuDivider />
           <MenuItem icon={viewIcon} onClick={handleManageHiddenAssetsClick}>
             {translate('manageHiddenAssets.title')}

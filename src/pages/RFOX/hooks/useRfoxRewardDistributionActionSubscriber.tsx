@@ -110,11 +110,11 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         const actionId = `reward-distribution-${distribution.epoch}-${distribution.stakingContract}-${distribution.rewardAddress}`
 
         const existingAction = actions[actionId]
-        if (!existingAction) return
 
-        if (existingAction.status === ActionStatus.Complete) {
+        if (existingAction?.status === ActionStatus.Complete) {
           return
         }
+
         dispatch(
           actionSlice.actions.upsertAction({
             id: actionId,
@@ -129,7 +129,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
           }),
         )
 
-        if (!toast.isActive(actionId)) {
+        if (!toast.isActive(actionId) && existingAction) {
           toast({
             id: actionId,
             status: 'success',

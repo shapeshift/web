@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -336,6 +338,12 @@ export const Details = () => {
       </DialogBody>
       <DialogFooter>
         <Stack flex={1}>
+          {amountFieldError && (
+            <Alert status='error' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <Text translation={amountFieldError} fontSize='sm' />
+            </Alert>
+          )}
           <Button
             width='full'
             isDisabled={
@@ -344,13 +352,13 @@ export const Details = () => {
               isLoading ||
               Boolean(memoFieldError)
             }
-            colorScheme={amountFieldError ? 'red' : 'blue'}
+            colorScheme='blue'
             size='lg'
             onClick={handleNextClick}
             isLoading={isLoading}
             data-test='send-modal-next-button'
           >
-            <Text translation={amountFieldError || 'common.next'} />
+            <Text translation='common.next' />
           </Button>
           <Button width='full' variant='ghost' size='lg' mr={3} onClick={handleClose}>
             <Text translation='common.cancel' />

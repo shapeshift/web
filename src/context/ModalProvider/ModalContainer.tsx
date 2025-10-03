@@ -1,7 +1,7 @@
-import { createContext, lazy } from 'react'
+import { lazy } from 'react'
 
 import { CLOSE_MODAL, OPEN_MODAL } from './constants'
-import type { ModalActions, ModalContextType, Modals, ModalState } from './types'
+import type { ModalActions, Modals, ModalState } from './types'
 
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -277,5 +277,3 @@ export const modalReducer = (state: ModalState, action: ModalActions<keyof Modal
       return state
   }
 }
-
-export const ModalContext = createContext<ModalContextType | undefined>(undefined)

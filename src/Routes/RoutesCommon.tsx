@@ -17,7 +17,6 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
@@ -29,7 +28,6 @@ import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
-import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
@@ -189,7 +187,7 @@ export const routes: Route[] = [
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit', '/claim'],
+    relatedPaths: ['/trade', '/limit'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -397,26 +395,6 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
-        hide: true,
-      },
-    ],
-  },
-  {
-    path: '/claim/*',
-    label: '',
-    hideDesktop: true,
-    mobileNav: false,
-    priority: 4,
-    main: ClaimTab,
-    routes: [
-      {
-        path: ClaimRoutePaths.Confirm,
-        main: ClaimTab,
-        hide: true,
-      },
-      {
-        path: ClaimRoutePaths.Status,
-        main: ClaimTab,
         hide: true,
       },
     ],

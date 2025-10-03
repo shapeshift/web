@@ -1,5 +1,6 @@
 import { useAppUpdateActionSubscriber } from './useAppUpdateActionSubscriber'
 import { useArbitrumBridgeActionSubscriber } from './useArbitrumBridgeActionSubscriber'
+import { useArbitrumBridgeTransactionHistorySubscriber } from './useArbitrumBridgeTransactionHistorySubscriber'
 import { useGenericTransactionSubscriber } from './useGenericTransactionSubscriber'
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
 import { useSendActionSubscriber } from './useSendActionSubscriber'
@@ -12,6 +13,7 @@ import { useTcyClaimActionSubscriber } from '@/pages/TCY/hooks/useTcyClaimAction
 
 export const useActionCenterSubscribers = () => {
   useSwapActionSubscriber()
+  useArbitrumBridgeTransactionHistorySubscriber()
   useArbitrumBridgeActionSubscriber()
   useLimitOrderActionSubscriber()
   useAppUpdateActionSubscriber()

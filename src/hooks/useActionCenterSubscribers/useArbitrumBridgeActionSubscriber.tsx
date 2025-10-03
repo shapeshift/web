@@ -1,7 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { toAccountId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
-import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect } from 'react'
 
 import { useNotificationToast } from '../useNotificationToast'
@@ -11,12 +9,8 @@ import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeIn
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import {
-  ActionStatus,
-  ActionType,
-  isArbitrumBridgeWithdrawAction,
-} from '@/state/slices/actionSlice/types'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type ActionUpdate = {
   action: ArbitrumBridgeWithdrawAction
@@ -47,59 +41,14 @@ export const useArbitrumBridgeActionSubscriber = () => {
 
       toast({
         status,
-        title: status === 'success' ? 'Bridge withdrawal ready to claim' : 'Bridge withdrawal failed',
+        title:
+          status === 'success' ? 'Bridge withdrawal ready to claim' : 'Bridge withdrawal failed',
         description: 'Check Action Center for details',
         position: 'bottom-right',
       })
     },
     [toast],
   )
-
-  useEffect(() => {
-    const allClaims = [...claimsByStatus.Pending, ...claimsByStatus.Available]
-
-    allClaims.forEach(claim => {
-      const withdrawTxHash = claim.tx.txid
-
-      const existingAction = Object.values(store.getState().action.byId).find(
-        action =>
-          isArbitrumBridgeWithdrawAction(action) &&
-          action.arbitrumBridgeMetadata.withdrawTxHash === withdrawTxHash,
-      )
-
-      if (existingAction) return
-
-      const actionId = uuidv4()
-      console.log('🔵 Creating ArbitrumBridge action from claim tab:', {
-        actionId,
-        withdrawTxHash,
-        assetId: claim.assetId,
-        destinationAssetId: claim.destinationAssetId,
-        amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
-      })
-
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: actionId,
-          createdAt: claim.tx.blockTime * 1000,
-          updatedAt: Date.now(),
-          type: ActionType.ArbitrumBridgeWithdraw,
-          status: ActionStatus.Initiated,
-          arbitrumBridgeMetadata: {
-            withdrawTxHash,
-            amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
-            assetId: claim.assetId,
-            destinationAssetId: claim.destinationAssetId,
-            accountId: claim.accountId,
-            destinationAccountId: toAccountId({
-              chainId: claim.destinationChainId,
-              account: claim.destinationAddress,
-            }),
-          },
-        }),
-      )
-    })
-  }, [dispatch, claimsByStatus.Pending, claimsByStatus.Available])
 
   const determineActionState = useCallback(
     (action: ArbitrumBridgeWithdrawAction, withdrawTxHash: string): ActionUpdate | null => {
@@ -197,7 +146,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
             }),
           )
 
-          // Show notifications for status changes to ClaimAvailable or Claimed
+          // Show notification only for ClaimAvailable status (not for Claimed)
           if (previousStatus !== newStatus) {
             console.log('🟡 ArbitrumBridge action status changed:', {
               actionId: update.action.id,
@@ -206,8 +155,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
               withdrawTxHash: update.action.arbitrumBridgeMetadata.withdrawTxHash,
             })
             if (newStatus === ActionStatus.ClaimAvailable) {
-              showNotification(update.action.id, 'success')
-            } else if (newStatus === ActionStatus.Claimed) {
               showNotification(update.action.id, 'success')
             }
           }

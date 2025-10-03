@@ -254,3 +254,15 @@ export const selectArbitrumBridgeWithdrawActionById = createDeepEqualOutputSelec
     return isArbitrumBridgeWithdrawAction(action) ? action : undefined
   },
 )
+
+export const selectArbitrumBridgeWithdrawActionByWithdrawTxHash = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  (_state: any, withdrawTxHash: string) => withdrawTxHash,
+  (actionsById, withdrawTxHash) => {
+    return Object.values(actionsById).find(
+      action =>
+        isArbitrumBridgeWithdrawAction(action) &&
+        action.arbitrumBridgeMetadata?.withdrawTxHash === withdrawTxHash,
+    )
+  },
+)

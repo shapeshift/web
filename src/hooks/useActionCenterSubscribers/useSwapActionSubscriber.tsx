@@ -268,9 +268,12 @@ export const useSwapActionSubscriber = () => {
 
         if (toast.isActive(swap.id)) return
 
-        // Use ArbitrumBridge notification for ArbitrumBridge swaps
+        // ArbitrumBridge swaps don't create swap actions - they create ArbitrumBridge withdraw actions instead.
+        // We need to find the corresponding ArbitrumBridge action by matching the swap's sellTxHash
+        // to the action's withdrawTxHash, then show the notification using ArbitrumBridge-specific logic.
+        // This prevents duplicate notifications since ArbitrumBridge subscriber handles action lifecycle.
         if (swap.swapperName === SwapperName.ArbitrumBridge) {
-          // Find the corresponding ArbitrumBridge action
+          // Find the corresponding ArbitrumBridge action by matching sellTxHash to withdrawTxHash
           const arbitrumAction = Object.values(store.getState().action.byId).find(
             action =>
               action.type === ActionType.ArbitrumBridgeWithdraw &&
@@ -360,9 +363,12 @@ export const useSwapActionSubscriber = () => {
 
         if (toast.isActive(swap.id)) return
 
-        // Use ArbitrumBridge notification for ArbitrumBridge swaps
+        // ArbitrumBridge swaps don't create swap actions - they create ArbitrumBridge withdraw actions instead.
+        // We need to find the corresponding ArbitrumBridge action by matching the swap's sellTxHash
+        // to the action's withdrawTxHash, then show the notification using ArbitrumBridge-specific logic.
+        // This prevents duplicate notifications since ArbitrumBridge subscriber handles action lifecycle.
         if (swap.swapperName === SwapperName.ArbitrumBridge) {
-          // Find the corresponding ArbitrumBridge action
+          // Find the corresponding ArbitrumBridge action by matching sellTxHash to withdrawTxHash
           const arbitrumAction = Object.values(store.getState().action.byId).find(
             action =>
               action.type === ActionType.ArbitrumBridgeWithdraw &&

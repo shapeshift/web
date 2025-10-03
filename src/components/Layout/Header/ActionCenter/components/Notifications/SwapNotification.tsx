@@ -15,7 +15,11 @@ import { Text } from '@/components/Text/Text'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatSecondsToDuration } from '@/lib/utils/time'
-import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  isArbitrumBridgeWithdrawAction,
+} from '@/state/slices/actionSlice/types'
 import { selectSwapActionBySwapId, selectWalletSwapsById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -34,7 +38,20 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
   const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swapId)
 
-  const action = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
+  const swapAction = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
+
+  // For ArbitrumBridge swaps, also look for ArbitrumBridge actions since we don't create swap actions for those
+  const arbitrumAction = useAppSelector(state => {
+    if (swap?.swapperName !== SwapperName.ArbitrumBridge) return undefined
+    return Object.values(state.action.byId).find(
+      action =>
+        action.type === ActionType.ArbitrumBridgeWithdraw &&
+        action.arbitrumBridgeMetadata?.withdrawTxHash === swap?.sellTxHash,
+    )
+  })
+
+  // Use ArbitrumBridge action for ArbitrumBridge swaps, otherwise use swap action
+  const action = swap?.swapperName === SwapperName.ArbitrumBridge ? arbitrumAction : swapAction
 
   const swapNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!swap) return

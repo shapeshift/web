@@ -116,10 +116,13 @@ export const useSwapActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Sync swap status with action status
+  // Sync swap status with action status (excluding ArbitrumBridge swaps - handled by transaction history subscriber)
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
       if (!swap) return
+
+      // Skip ArbitrumBridge swaps - they're handled by useArbitrumBridgeTransactionHistorySubscriber
+      if (swap.swapperName === SwapperName.ArbitrumBridge) return
 
       const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,
@@ -303,7 +306,7 @@ export const useSwapActionSubscriber = () => {
               position: 'bottom-right',
             })
           } else {
-            console.log('❌ No ArbitrumBridge action found, falling back to SwapNotification')
+            console.log('❌ No ArbitrumBridge action found, skipping notification for now')
           }
           return
         }

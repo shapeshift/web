@@ -1,6 +1,6 @@
 import { usePrevious } from '@chakra-ui/react'
 import { isSome } from '@shapeshiftoss/utils'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useNotificationToast } from '../useNotificationToast'
@@ -23,7 +23,8 @@ export const useArbitrumBridgeActionSubscriber = () => {
   const translate = useTranslate()
 
   const { isDrawerOpen } = useActionCenterContext()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
+  const toastOptions = useMemo(() => ({ duration: isDrawerOpen ? 5000 : null }), [isDrawerOpen])
+  const toast = useNotificationToast(toastOptions)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
 
   useEffect(() => {
@@ -32,17 +33,22 @@ export const useArbitrumBridgeActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
+  const pendingArbitrumBridgeActions = useMemo(() => {
+    return Object.values(actionsById)
+      .filter(isArbitrumBridgeWithdrawAction)
+      .filter(action => {
+        // Early bailout: if action is already in terminal state, don't process
+        // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
+        if (action.status === ActionStatus.Claimed || action.status === ActionStatus.Failed) {
+          return false
+        }
+        return true
+      })
+  }, [actionsById])
+
   useEffect(() => {
     try {
-      Object.values(actionsById)
-        .filter(isArbitrumBridgeWithdrawAction)
-        .filter(action => {
-          // Early bailout: if action is already in terminal state, don't process
-          if (action.status === ActionStatus.Claimed || action.status === ActionStatus.Failed) {
-            return false
-          }
-          return true
-        })
+      pendingArbitrumBridgeActions
         .map(action => {
           const withdrawTxHash = action.arbitrumBridgeMetadata.withdrawTxHash
 
@@ -97,10 +103,13 @@ export const useArbitrumBridgeActionSubscriber = () => {
             }
           })()
 
-          // Check if action state changed
+          // Check if action state changed - use deep comparison for objects
+          // once again, paranoia against this bad boi https://github.com/shapeshift/web/pull/10556
+
           const hasChanges =
             newState.newStatus !== action.status ||
-            newState.claimDetails !== currentMetadata.claimDetails ||
+            JSON.stringify(newState.claimDetails) !==
+              JSON.stringify(currentMetadata.claimDetails) ||
             newState.timeRemainingSeconds !== currentMetadata.timeRemainingSeconds ||
             newState.claimTxHash !== currentMetadata.claimTxHash
 
@@ -144,9 +153,9 @@ export const useArbitrumBridgeActionSubscriber = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dispatch,
-    actionsById,
     toast,
     translate,
+    pendingArbitrumBridgeActions,
     claimsByStatus.Available.length,
     claimsByStatus.Complete.length,
     claimsByStatus.Pending.length,

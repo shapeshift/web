@@ -25,7 +25,6 @@ import { isSome } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
-  selectAssets,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -52,9 +51,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     spamMarkedAssetIds.map(assetId => selectAssetById(state, assetId)).filter(isSome),
   )
 
-  const assets = useAppSelector(selectAssets)
-
-
   const AssetRow: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
@@ -63,7 +59,6 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     )
 
     const explorerHref = useMemo(() => {
-      const asset = assets[assetId]
       if (!asset) return
 
       const { assetReference } = fromAssetId(assetId)
@@ -76,7 +71,7 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
       if (isToken(assetId)) return `${asset?.explorerAddressLink}${assetReference}`
 
       return asset.explorer
-    }, [assets, assetId])
+    }, [asset, assetId])
 
     const handleViewDetailsClick = useCallback(() => {
       navigate(`/assets/${assetId}`)

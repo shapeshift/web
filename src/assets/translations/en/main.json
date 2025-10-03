@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
+    "viewAssetDetails": "View Asset Details",
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
@@ -2180,11 +2181,12 @@
   },
   "assets": {
     "more": "More",
+    "hideAsset": "Hide Asset",
+    "showAsset": "Show Asset",
+    "cannotHidePrimary": "Cannot hide primary assets that have related variants",
     "spam": {
-      "warning": "This asset will be hidden because you've marked it as spam.",
-      "marked": "This asset is marked as spam.",
-      "reportAsSpam": "Report as spam",
-      "reportAsNotSpam": "Mark as not spam"
+      "warning": "This asset can be shown again by opening the wallet dropdown and clicking 'Manage Hidden Assets'.",
+      "marked": "This asset is currently hidden."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2798,6 +2800,13 @@
       "cta": "Explore more assets"
     },
     "title": "Watchlist"
+  },
+  "manageHiddenAssets": {
+    "title": "Manage Hidden Assets",
+    "empty": {
+      "title": "No hidden assets",
+      "body": "Assets you hide will appear here, making it easy to show them again later."
+    }
   },
   "explore": {
     "pools": {

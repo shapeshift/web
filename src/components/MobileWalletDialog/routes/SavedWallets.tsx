@@ -1,4 +1,4 @@
-import { ChatIcon, CloseIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons'
+import { ChatIcon, CloseIcon, EditIcon, SettingsIcon, ViewIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { TbCircleArrowDown, TbCirclePlus, TbDownload } from 'react-icons/tb'
@@ -33,6 +33,7 @@ const downloadIcon = <TbDownload />
 const settingsIcon = <SettingsIcon />
 const chatIcon = <ChatIcon />
 const editIcon = <EditIcon />
+const viewIcon = <ViewIcon />
 const closeIcon = <CloseIcon />
 
 const disconnectButtonSx = {
@@ -50,6 +51,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const translate = useTranslate()
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
+  const manageHiddenAssets = useModal('manageHiddenAssets')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const { disconnect, state } = useWallet()
   const [isEditing, toggleEditing] = useToggle()
@@ -83,6 +85,12 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     accountManagementPopover.open({ onBack: mobileWalletDialog.open })
     onClose()
   }, [accountManagementPopover, onClose, mobileWalletDialog])
+
+  const handleManageHiddenAssetsClick = useCallback(() => {
+    vibrate('heavy')
+    manageHiddenAssets.open({})
+    onClose()
+  }, [manageHiddenAssets, onClose])
 
   const handleClickSupport = useCallback(() => {
     vibrate('heavy')
@@ -142,6 +150,15 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
         <Button
           variant='ghost'
           colorScheme='blue'
+          leftIcon={viewIcon}
+          onClick={handleManageHiddenAssetsClick}
+          justifyContent='flex-start'
+        >
+          {translate('manageHiddenAssets.title')}
+        </Button>
+        <Button
+          variant='ghost'
+          colorScheme='blue'
           leftIcon={downloadIcon}
           onClick={handleBackupMenuItemClick}
           justifyContent='flex-start'
@@ -153,6 +170,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   }, [
     handleImportClick,
     handleManageAccountsMenuItemClick,
+    handleManageHiddenAssetsClick,
     handleBackupMenuItemClick,
     isAccountManagementEnabled,
     translate,

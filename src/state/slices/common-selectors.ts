@@ -12,6 +12,7 @@ import {
   selectAssets,
   selectPrimaryAssets,
   selectPrimaryAssetsSortedByMarketCap,
+  selectPrimaryAssetsSortedByMarketCapNoSpam,
 } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { marketData } from './marketDataSlice/marketDataSlice'
@@ -492,7 +493,7 @@ export const selectIsAssetWithoutMarketData = createSelector(
 )
 
 export const selectAssetsBySearchQuery = createCachedSelector(
-  selectPrimaryAssetsSortedByMarketCap,
+  selectPrimaryAssetsSortedByMarketCapNoSpam,
   marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,

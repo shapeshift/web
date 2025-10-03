@@ -49,7 +49,11 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
     // `asset.assetId` may be the same as `relatedAssetKey`, so dedupe
     const relatedAssetIdsInclusive = Array.from(
       new Set(relatedAssetIdsInclusiveWithDuplicates),
-    ).filter(assetId => assetId === asset.assetId || !spamMarkedAssetIds.includes(assetId))
+    ).filter(assetId => {
+      const isPrimaryAsset = assetId === asset.assetId
+      const hasRelatedAssets = relatedAssetIdsInclusiveWithDuplicates.length > 1
+      return (isPrimaryAsset && hasRelatedAssets) || !spamMarkedAssetIds.includes(assetId)
+    })
 
     if (!onlyConnectedChains) return relatedAssetIdsInclusive
 

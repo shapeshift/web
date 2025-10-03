@@ -264,6 +264,50 @@ export const useSwapActionSubscriber = () => {
         )
 
         if (toast.isActive(swap.id)) return
+
+        // Use ArbitrumBridge notification for ArbitrumBridge swaps
+        if (swap.swapperName === SwapperName.ArbitrumBridge) {
+          console.log('🟠 ArbitrumBridge swap success, looking for action:', {
+            swapId: swap.id,
+            sellTxHash: swap.sellTxHash,
+          })
+
+          // Find the corresponding ArbitrumBridge action
+          const arbitrumAction = Object.values(store.getState().action.byId).find(
+            action =>
+              action.type === ActionType.ArbitrumBridgeWithdraw &&
+              action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
+          )
+
+          console.log('🟠 Found ArbitrumBridge action:', !!arbitrumAction, arbitrumAction?.id)
+
+          if (arbitrumAction) {
+            toast({
+              status: 'success',
+              render: ({ onClose, ...props }) => {
+                const handleClick = () => {
+                  onClose()
+                  openActionCenter()
+                }
+
+                return (
+                  <SwapNotification
+                    // eslint-disable-next-line react-memo/require-usememo
+                    handleClick={handleClick}
+                    swapId={swap.id}
+                    onClose={onClose}
+                    {...props}
+                  />
+                )
+              },
+              position: 'bottom-right',
+            })
+          } else {
+            console.log('❌ No ArbitrumBridge action found, falling back to SwapNotification')
+          }
+          return
+        }
+
         toast({
           status: 'success',
           render: ({ title, status, description, onClose, ...props }) => {
@@ -321,6 +365,40 @@ export const useSwapActionSubscriber = () => {
         )
 
         if (toast.isActive(swap.id)) return
+
+        // Use ArbitrumBridge notification for ArbitrumBridge swaps
+        if (swap.swapperName === SwapperName.ArbitrumBridge) {
+          // Find the corresponding ArbitrumBridge action
+          const arbitrumAction = Object.values(store.getState().action.byId).find(
+            action =>
+              action.type === ActionType.ArbitrumBridgeWithdraw &&
+              action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
+          )
+
+          if (arbitrumAction) {
+            toast({
+              status: 'error',
+              render: ({ onClose, ...props }) => {
+                const handleClick = () => {
+                  onClose()
+                  openActionCenter()
+                }
+
+                return (
+                  <SwapNotification
+                    // eslint-disable-next-line react-memo/require-usememo
+                    handleClick={handleClick}
+                    swapId={swap.id}
+                    onClose={onClose}
+                    {...props}
+                  />
+                )
+              },
+              position: 'bottom-right',
+            })
+          }
+          return
+        }
 
         toast({
           status: 'error',

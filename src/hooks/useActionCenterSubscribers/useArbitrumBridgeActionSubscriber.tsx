@@ -1,9 +1,12 @@
-import { ethChainId, toAccountId } from '@shapeshiftoss/caip'
-import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
+import { usePrevious } from '@chakra-ui/react'
+import { toAccountId } from '@shapeshiftoss/caip'
 import { isSome } from '@shapeshiftoss/utils'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect } from 'react'
 
+import { useNotificationToast } from '../useNotificationToast'
+
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -28,6 +31,29 @@ export const useArbitrumBridgeActionSubscriber = () => {
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const { claimsByStatus } = useArbitrumClaimsByStatus()
 
+  const { isDrawerOpen } = useActionCenterContext()
+  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
+  const previousIsDrawerOpen = usePrevious(isDrawerOpen)
+
+  useEffect(() => {
+    if (isDrawerOpen && !previousIsDrawerOpen) {
+      toast.closeAll()
+    }
+  }, [isDrawerOpen, toast, previousIsDrawerOpen])
+
+  const showNotification = useCallback(
+    (actionId: string, status: 'success' | 'error') => {
+      if (toast.isActive(actionId)) return
+
+      toast({
+        status,
+        title: status === 'success' ? 'Bridge withdrawal ready to claim' : 'Bridge withdrawal failed',
+        description: 'Check Action Center for details',
+        position: 'bottom-right',
+      })
+    },
+    [toast],
+  )
 
   useEffect(() => {
     const allClaims = [...claimsByStatus.Pending, ...claimsByStatus.Available]
@@ -43,9 +69,18 @@ export const useArbitrumBridgeActionSubscriber = () => {
 
       if (existingAction) return
 
+      const actionId = uuidv4()
+      console.log('🔵 Creating ArbitrumBridge action from claim tab:', {
+        actionId,
+        withdrawTxHash,
+        assetId: claim.assetId,
+        destinationAssetId: claim.destinationAssetId,
+        amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
+      })
+
       dispatch(
         actionSlice.actions.upsertAction({
-          id: uuidv4(),
+          id: actionId,
           createdAt: claim.tx.blockTime * 1000,
           updatedAt: Date.now(),
           type: ActionType.ArbitrumBridgeWithdraw,
@@ -122,9 +157,13 @@ export const useArbitrumBridgeActionSubscriber = () => {
 
       return hasChanges ? { action, ...newState } : null
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     // claimsByStatus arrays are recreated on every render, use length for stable references
-    [claimsByStatus.Available.length, claimsByStatus.Complete.length, claimsByStatus.Pending.length],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      claimsByStatus.Available.length,
+      claimsByStatus.Complete.length,
+      claimsByStatus.Pending.length,
+    ],
   )
 
   useEffect(() => {
@@ -141,6 +180,9 @@ export const useArbitrumBridgeActionSubscriber = () => {
         .map(action => determineActionState(action, action.arbitrumBridgeMetadata.withdrawTxHash))
         .filter(isSome)
         .forEach(update => {
+          const previousStatus = update.action.status
+          const newStatus = update.newStatus
+
           dispatch(
             actionSlice.actions.upsertAction({
               ...update.action,
@@ -154,9 +196,24 @@ export const useArbitrumBridgeActionSubscriber = () => {
               },
             }),
           )
+
+          // Show notifications for status changes to ClaimAvailable or Claimed
+          if (previousStatus !== newStatus) {
+            console.log('🟡 ArbitrumBridge action status changed:', {
+              actionId: update.action.id,
+              previousStatus,
+              newStatus,
+              withdrawTxHash: update.action.arbitrumBridgeMetadata.withdrawTxHash,
+            })
+            if (newStatus === ActionStatus.ClaimAvailable) {
+              showNotification(update.action.id, 'success')
+            } else if (newStatus === ActionStatus.Claimed) {
+              showNotification(update.action.id, 'success')
+            }
+          }
         })
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-  }, [dispatch, actionsById, determineActionState])
+  }, [dispatch, actionsById, determineActionState, showNotification])
 }

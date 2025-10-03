@@ -12,6 +12,7 @@ import type {
 import {
   ActionStatus,
   ActionType,
+  isArbitrumBridgeWithdrawAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -242,5 +243,14 @@ export const selectPendingThorchainLpActions = createDeepEqualOutputSelector(
         isGenericTransactionAction(action) &&
         isThorchainLpAction(action),
     )
+  },
+)
+
+export const selectArbitrumBridgeWithdrawActionById = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  (_state: any, actionId: string) => actionId,
+  (actionsById, actionId) => {
+    const action = actionsById[actionId]
+    return isArbitrumBridgeWithdrawAction(action) ? action : undefined
   },
 )

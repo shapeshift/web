@@ -14,8 +14,8 @@ import { ArbitrumBridgeClaimModal } from './ArbitrumBridgeClaimModal'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
-import { getTxLink } from '@/lib/getTxLink'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getTxLink } from '@/lib/getTxLink'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
@@ -66,38 +66,31 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     setIsClaimModalOpen(true)
   }, [])
 
-  const timeDisplay = useMemo(() => {
-    const claimDetails = action.arbitrumBridgeMetadata.claimDetails
-    const timeRemaining =
-      claimDetails?.timeRemainingSeconds ?? action.arbitrumBridgeMetadata.timeRemainingSeconds
-
-    if (!timeRemaining || timeRemaining <= 0) return null
-
-    return formatSecondsToDuration(timeRemaining)
-  }, [
-    action.arbitrumBridgeMetadata.claimDetails,
-    action.arbitrumBridgeMetadata.timeRemainingSeconds,
-  ])
-
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
-    const rawAmount = fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
+    const rawAmount = fromBaseUnit(
+      action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
+      buyAsset.precision,
+    )
     return bnOrZero(rawAmount).decimalPlaces(8).toString()
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
-
-  const timeText = useMemo(() => {
-    if (!timeDisplay) return translate('common.available')
-    return `in ${timeDisplay}`
-  }, [timeDisplay, translate])
 
   const description = useMemo(() => {
     if (!sellAsset || !buyAsset) return null
 
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
 
+    // Calculate time remaining for initiated status
+    const timeRemaining =
+      action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
+      action.arbitrumBridgeMetadata.timeRemainingSeconds
+    const timeDisplay =
+      timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
+    const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
+
     switch (action.status) {
       case ActionStatus.Initiated:
-        return translate('actionCenter.bridge.initiated', { amountAndSymbol })
+        return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
       case ActionStatus.ClaimAvailable:
         return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
       case ActionStatus.Claimed:
@@ -105,7 +98,14 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       default:
         return translate('actionCenter.bridge.processing')
     }
-  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeText, translate])
+  }, [
+    action.status,
+    buyAmountCryptoPrecision,
+    buyAsset,
+    sellAsset,
+    translate,
+    action.arbitrumBridgeMetadata,
+  ])
 
   const icon = useMemo(() => {
     if (!sellAsset) return null

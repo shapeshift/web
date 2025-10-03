@@ -924,7 +924,10 @@
     "confirmAndClaim": "Confirm & Claim",
     "viewClaims": "View Claims",
     "viewClaimStatus": "View Claim Status",
-    "availableClaimsNotification": "You have bridge claims ready!"
+    "availableClaimsNotification": "You have bridge claims ready!",
+    "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
+    "bridgeWithdrawalFailedNotification": "Bridge withdrawal failed",
+    "checkActionCenterNotification": "Check Action Center for details"
   },
   "trade": {
     "trade": "Trade",

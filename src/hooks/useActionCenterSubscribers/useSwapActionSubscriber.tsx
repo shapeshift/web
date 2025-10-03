@@ -270,19 +270,12 @@ export const useSwapActionSubscriber = () => {
 
         // Use ArbitrumBridge notification for ArbitrumBridge swaps
         if (swap.swapperName === SwapperName.ArbitrumBridge) {
-          console.log('🟠 ArbitrumBridge swap success, looking for action:', {
-            swapId: swap.id,
-            sellTxHash: swap.sellTxHash,
-          })
-
           // Find the corresponding ArbitrumBridge action
           const arbitrumAction = Object.values(store.getState().action.byId).find(
             action =>
               action.type === ActionType.ArbitrumBridgeWithdraw &&
               action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
           )
-
-          console.log('🟠 Found ArbitrumBridge action:', !!arbitrumAction, arbitrumAction?.id)
 
           if (arbitrumAction) {
             toast({
@@ -305,8 +298,6 @@ export const useSwapActionSubscriber = () => {
               },
               position: 'bottom-right',
             })
-          } else {
-            console.log('❌ No ArbitrumBridge action found, skipping notification for now')
           }
           return
         }

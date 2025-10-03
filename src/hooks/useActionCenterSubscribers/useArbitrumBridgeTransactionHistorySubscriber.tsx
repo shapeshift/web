@@ -24,6 +24,8 @@ type ClaimStatusResult = {
   timeRemainingSeconds: number | undefined
 }
 
+// Helper hook to detect ArbitrumBridge withdrawals from transaction history and create initial actions
+// TODO: Remove this in next PR when claim tab is removed - this replaces "poor man's migration"
 export const useArbitrumBridgeTransactionHistorySubscriber = () => {
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
@@ -124,15 +126,6 @@ export const useArbitrumBridgeTransactionHistorySubscriber = () => {
       )
 
       if (existingAction) return
-
-      console.log('🟢 Creating ArbitrumBridge action from transaction history:', {
-        withdrawTxHash,
-        assetId: data.tx.transfers[0]?.assetId,
-        destinationAssetId: arbitrumData.destinationAssetId,
-        amountCryptoBaseUnit: arbitrumData.value,
-        status: data.status,
-        timeRemainingSeconds: data.timeRemainingSeconds,
-      })
 
       const actionId = uuidv4()
       dispatch(

@@ -1,8 +1,10 @@
 import { usePrevious } from '@chakra-ui/react'
 import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { useNotificationToast } from '../useNotificationToast'
+import { useArbitrumBridgeTransactionHistorySubscriber } from './useArbitrumBridgeTransactionHistorySubscriber'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
@@ -21,9 +23,14 @@ type ActionUpdate = {
 }
 
 export const useArbitrumBridgeActionSubscriber = () => {
+  // Use transaction history subscriber to detect and create initial actions from historical withdrawals
+  // TODO: Remove this in next PR when claim tab is removed - this replaces "poor man's migration"
+  useArbitrumBridgeTransactionHistorySubscriber()
+
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const { claimsByStatus } = useArbitrumClaimsByStatus()
+  const translate = useTranslate()
 
   const { isDrawerOpen } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
@@ -42,12 +49,14 @@ export const useArbitrumBridgeActionSubscriber = () => {
       toast({
         status,
         title:
-          status === 'success' ? 'Bridge withdrawal ready to claim' : 'Bridge withdrawal failed',
-        description: 'Check Action Center for details',
+          status === 'success'
+            ? translate('bridge.bridgeWithdrawalReadyNotification')
+            : translate('bridge.bridgeWithdrawalFailedNotification'),
+        description: translate('bridge.checkActionCenterNotification'),
         position: 'bottom-right',
       })
     },
-    [toast],
+    [toast, translate],
   )
 
   const determineActionState = useCallback(
@@ -148,12 +157,6 @@ export const useArbitrumBridgeActionSubscriber = () => {
 
           // Show notification only for ClaimAvailable status (not for Claimed)
           if (previousStatus !== newStatus) {
-            console.log('🟡 ArbitrumBridge action status changed:', {
-              actionId: update.action.id,
-              previousStatus,
-              newStatus,
-              withdrawTxHash: update.action.arbitrumBridgeMetadata.withdrawTxHash,
-            })
             if (newStatus === ActionStatus.ClaimAvailable) {
               showNotification(update.action.id, 'success')
             }

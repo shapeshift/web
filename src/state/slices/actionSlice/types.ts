@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
-import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
+import type { ClaimDetails } from '@/components/Layout/Header/ActionCenter/hooks/useArbitrumClaimsByStatus'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,

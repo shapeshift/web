@@ -46,7 +46,9 @@ export const useGetRampQuotes = ({
   const supportedRamps = useMemo(() => {
     if (!ramps?.byAssetId[assetId]?.[direction]) return []
 
-    return ramps?.byAssetId[assetId]?.[direction].map(fiatRampId => supportedFiatRamps[fiatRampId])
+    return ramps?.byAssetId[assetId]?.[direction]
+      .map(fiatRampId => supportedFiatRamps[fiatRampId])
+      .filter(ramp => ramp.getQuotes)
   }, [ramps, assetId, direction])
 
   const queries = useMemo(

@@ -187,8 +187,13 @@ export const FiatRampTradeFooter = ({
           />
         )}
 
-        {selectedQuote && !isLoading && isSmallerThanXl && (
-          <Protocol onClick={onOpenQuoteList || noop} title={selectedQuote.provider} icon={icon} />
+        {isSmallerThanXl && (
+          <Protocol
+            onClick={onOpenQuoteList || noop}
+            isLoading={isParentLoading}
+            title={selectedQuote?.provider}
+            icon={icon}
+          />
         )}
 
         {children}

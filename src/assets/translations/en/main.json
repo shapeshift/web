@@ -77,6 +77,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
     "or": "or",
@@ -1472,7 +1473,13 @@
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "enterAmount": "Enter Amount"
+        "enterAmount": "Enter Amount",
+        "scanQrCode": "Scan QR Code",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses",
+        "to": "To",
+        "from": "From",
+        "availableBalance": "%{balance} available"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"

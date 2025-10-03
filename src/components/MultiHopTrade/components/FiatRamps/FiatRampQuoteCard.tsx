@@ -175,7 +175,6 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
 
           <HStack spacing={2} wrap='wrap'>
             <FiatRampBadges
-              quoteDisplayOption={QuoteDisplayOption.Basic}
               isCreditCard={quote.isCreditCard}
               isBankTransfer={quote.isBankTransfer}
               isApplePay={quote.isApplePay}

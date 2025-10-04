@@ -12,6 +12,7 @@ import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
 import { maybeFetchChangeAddress } from './utils'
 import { Address } from './views/Address'
+import { Amount } from './views/Amount'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { Status } from './views/Status'
@@ -31,9 +32,9 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
+    ActionStatus,
+    ActionType,
+    GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -42,6 +43,7 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 const status = <Status />
 const confirm = <Confirm />
 const details = <Details />
+const amount = <Amount />
 const address = <Address />
 
 export type SendInput<T extends ChainId = ChainId> = {
@@ -307,6 +309,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             <Switch location={location.pathname}>
               <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
               <Route path={SendRoutes.Address}>{address}</Route>
+              <Route path={SendRoutes.Amount}>{amount}</Route>
               <Route path={SendRoutes.Details}> {details}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
               <Route path={SendRoutes.Confirm}>{confirm}</Route>

@@ -279,6 +279,8 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
             : 'calc(100vh - var(--mobile-header-offset) - var(--mobile-nav-offset) - 54px)'
         }
         showRelatedAssets
+        showWatchAssetButton={false}
+        useWindowScroll={!isLargerThanMd}
       />
     )
   }

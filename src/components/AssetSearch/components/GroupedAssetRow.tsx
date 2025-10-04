@@ -31,6 +31,7 @@ type GroupedAssetRowProps = {
   hideZeroBalanceAmounts?: boolean
   showPrice?: boolean
   onLongPress?: (asset: Asset) => void
+  showWatchAssetButton?: boolean
 }
 
 export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
@@ -40,6 +41,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   hideZeroBalanceAmounts,
   showPrice,
   onLongPress,
+  showWatchAssetButton = true,
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
@@ -128,6 +130,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           py={8}
           showChainName
           borderRadius='none'
+          showWatchAssetButton={showWatchAssetButton}
           // eslint-disable-next-line react-memo/require-usememo
           _last={{ borderBottomRadius: 'lg' }}
           // eslint-disable-next-line react-memo/require-usememo
@@ -142,10 +145,11 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
       )
     })
   }, [
-    assets,
-    disableUnsupported,
     relatedAssetIds,
+    assets,
+    showWatchAssetButton,
     handleAssetClick,
+    disableUnsupported,
     hideZeroBalanceAmounts,
     onLongPress,
   ])
@@ -234,23 +238,13 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   lineHeight={1}
                   value={groupedAssetBalances?.primaryAsset.fiatAmount.toString()}
                 />
-                <Flex>
-                  {networksIcons}
-                  <Center
-                    bg='background.button.secondary.base'
-                    borderRightRadius='full'
-                    pl={2}
-                    ml={-2}
-                  >
-                    {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                  </Center>
-                </Flex>
+                <Flex>{networksIcons}</Flex>
               </Flex>
             )}
         </Flex>
-        <Flex mx='auto'>
-          <Center boxSize={8}>{isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}</Center>
-        </Flex>
+        <Center ml='auto' boxSize={8}>
+          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        </Center>
       </Button>
 
       <Collapse in={isOpen} unmountOnExit>

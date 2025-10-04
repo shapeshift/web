@@ -106,7 +106,7 @@ const MobileHome = memo(() => {
               <Route path='accounts/*' element={accounts} />
             </Routes>
           </TabPanel>
-          <TabPanel p={0} pt={2}>
+          <TabPanel py={0} px={2} pt={2}>
             <WatchlistTable />
           </TabPanel>
         </TabPanels>

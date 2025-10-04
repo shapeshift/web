@@ -48,6 +48,7 @@ export type AssetRowData = {
   showChainName?: boolean
   onImportClick?: (asset: Asset) => void
   showRelatedAssets?: boolean
+  showWatchAssetButton?: boolean
 }
 
 const contractAddressHoverProps = {
@@ -66,6 +67,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     onImportClick,
     showRelatedAssets = false,
     showChainName = false,
+    showWatchAssetButton = true,
     ...props
   }) => {
     const translate = useTranslate()
@@ -219,6 +221,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           hideZeroBalanceAmounts={hideZeroBalanceAmounts}
           showPrice={showPrice}
           onLongPress={handleLongPress}
+          showWatchAssetButton={showWatchAssetButton}
         />
       )
     }
@@ -288,7 +291,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           </Flex>
         </Flex>
         {rightContent}
-        <WatchAssetButton assetId={asset.assetId} bg='transparent' />
+        {showWatchAssetButton && <WatchAssetButton assetId={asset.assetId} bg='transparent' />}
       </Button>
     )
   },

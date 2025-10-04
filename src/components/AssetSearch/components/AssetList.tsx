@@ -25,6 +25,9 @@ export type AssetData = {
   showPrice?: boolean
   onImportClick?: (asset: Asset) => void
   showRelatedAssets?: boolean
+  useWindowScroll?: boolean
+  showWatchAssetButton?: boolean
+  overflow?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
@@ -44,6 +47,8 @@ export const AssetList: FC<AssetListProps> = ({
   height = '50vh',
   onImportClick,
   showRelatedAssets = false,
+  useWindowScroll = false,
+  showWatchAssetButton = true,
 }) => {
   const virtuosoStyle = useMemo(
     () => ({
@@ -88,10 +93,19 @@ export const AssetList: FC<AssetListProps> = ({
           showPrice={showPrice}
           onImportClick={onImportClick}
           showRelatedAssets={showRelatedAssets}
+          showWatchAssetButton={showWatchAssetButton}
         />
       )
     },
-    [assets, itemData, rowComponent, showPrice, onImportClick, showRelatedAssets],
+    [
+      assets,
+      rowComponent,
+      itemData,
+      showPrice,
+      onImportClick,
+      showRelatedAssets,
+      showWatchAssetButton,
+    ],
   )
 
   // Handle wheel events to ensure scrolling works in nested modal context
@@ -156,6 +170,7 @@ export const AssetList: FC<AssetListProps> = ({
       itemContent={renderRow}
       style={virtuosoStyle}
       overscan={1000}
+      useWindowScroll={useWindowScroll}
       increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )

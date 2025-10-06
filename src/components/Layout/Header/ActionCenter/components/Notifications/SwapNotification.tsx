@@ -40,7 +40,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swapId)
 
   const swapAction = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
-
   // For ArbitrumBridge swaps, look up the corresponding ArbitrumBridge action by withdrawTxHash
   const withdrawTxHash = useMemo(() => {
     return swap?.swapperName === SwapperName.ArbitrumBridge ? swap?.sellTxHash : undefined
@@ -146,7 +145,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
     const { status } = action
 
-    // Only use ArbitrumBridge logic for withdrawals, let deposits use normal swap logic
     if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
       if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'

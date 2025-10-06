@@ -17,7 +17,7 @@ import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { useArbitrumClaimTx } from '../hooks/useArbitrumClaimTx'
+import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'

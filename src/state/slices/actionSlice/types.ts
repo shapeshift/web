@@ -10,9 +10,7 @@ import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifet
 import type { Claim } from '@/pages/TCY/components/Claim/types'
 import type { LimitPriceByDirection } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
-
-// TODO: ClaimDetails type from deleted Claims tab - define locally if needed
-type ClaimDetails = any
+import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 
 export enum ActionType {
   Deposit = 'Deposit',

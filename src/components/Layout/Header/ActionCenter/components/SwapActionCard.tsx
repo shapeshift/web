@@ -98,8 +98,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     const { status } = action
     if (isArbitrumBridge) {
       if (status === ActionStatus.Complete) {
-        // For withdrawals (ARB -> ETH), "Complete" means withdrawal initiated and in challenge period
-        // For deposits (ETH -> ARB), "Complete" means deposit actually completed
+        // Complete is not really complete for withdrawals
         const isWithdrawal = swap?.buyAsset.chainId === ethChainId
         return isWithdrawal ? 'actionCenter.bridge.initiated' : 'actionCenter.bridge.complete'
       }

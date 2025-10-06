@@ -146,7 +146,12 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     const { status } = action
 
     if (swap.swapperName === SwapperName.ArbitrumBridge) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+      if (status === ActionStatus.Complete) {
+        // For withdrawals (ARB -> ETH), "Complete" means withdrawal initiated and in challenge period
+        // For deposits (ETH -> ARB), "Complete" means deposit actually completed
+        const isWithdrawal = swap.buyAsset.chainId === ethChainId
+        return isWithdrawal ? 'actionCenter.bridge.initiated' : 'actionCenter.bridge.complete'
+      }
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (status === ActionStatus.Initiated) {
         return isArbitrumBridgeWithdrawAction(action)

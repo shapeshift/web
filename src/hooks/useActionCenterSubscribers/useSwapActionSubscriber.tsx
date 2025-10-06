@@ -53,13 +53,14 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
-  // Special handling for ArbitrumBridge - Success means withdrawal initiated, not complete
+  // Special handling for ArbitrumBridge - Success means withdrawal complete (like normal swaps)
+  // ArbitrumBridge subscriber will handle additional lifecycle management
   if (
     swap.status === SwapStatus.Success &&
     swap.swapperName === SwapperName.ArbitrumBridge &&
     swap.buyAsset.chainId === ethChainId
   ) {
-    return ActionStatus.Initiated
+    return ActionStatus.Complete
   }
 
   // If swap is pending/success/failed, use direct mapping
@@ -116,13 +117,10 @@ export const useSwapActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Sync swap status with action status (excluding ArbitrumBridge swaps - handled by transaction history subscriber)
+  // Sync swap status with action status
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
       if (!swap) return
-
-      // Skip ArbitrumBridge swaps - they're handled by useArbitrumBridgeTransactionHistorySubscriber
-      if (swap.swapperName === SwapperName.ArbitrumBridge) return
 
       const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,
@@ -268,43 +266,6 @@ export const useSwapActionSubscriber = () => {
 
         if (toast.isActive(swap.id)) return
 
-        // ArbitrumBridge swaps don't create swap actions - they create ArbitrumBridge withdraw actions instead.
-        // We need to find the corresponding ArbitrumBridge action by matching the swap's sellTxHash
-        // to the action's withdrawTxHash, then show the notification using ArbitrumBridge-specific logic.
-        // This prevents duplicate notifications since ArbitrumBridge subscriber handles action lifecycle.
-        if (swap.swapperName === SwapperName.ArbitrumBridge) {
-          // Find the corresponding ArbitrumBridge action by matching sellTxHash to withdrawTxHash
-          const arbitrumAction = Object.values(store.getState().action.byId).find(
-            action =>
-              action.type === ActionType.ArbitrumBridgeWithdraw &&
-              action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
-          )
-
-          if (arbitrumAction) {
-            toast({
-              status: 'success',
-              render: ({ onClose, ...props }) => {
-                const handleClick = () => {
-                  onClose()
-                  openActionCenter()
-                }
-
-                return (
-                  <SwapNotification
-                    // eslint-disable-next-line react-memo/require-usememo
-                    handleClick={handleClick}
-                    swapId={swap.id}
-                    onClose={onClose}
-                    {...props}
-                  />
-                )
-              },
-              position: 'bottom-right',
-            })
-          }
-          return
-        }
-
         toast({
           status: 'success',
           render: ({ title, status, description, onClose, ...props }) => {
@@ -362,43 +323,6 @@ export const useSwapActionSubscriber = () => {
         )
 
         if (toast.isActive(swap.id)) return
-
-        // ArbitrumBridge swaps don't create swap actions - they create ArbitrumBridge withdraw actions instead.
-        // We need to find the corresponding ArbitrumBridge action by matching the swap's sellTxHash
-        // to the action's withdrawTxHash, then show the notification using ArbitrumBridge-specific logic.
-        // This prevents duplicate notifications since ArbitrumBridge subscriber handles action lifecycle.
-        if (swap.swapperName === SwapperName.ArbitrumBridge) {
-          // Find the corresponding ArbitrumBridge action by matching sellTxHash to withdrawTxHash
-          const arbitrumAction = Object.values(store.getState().action.byId).find(
-            action =>
-              action.type === ActionType.ArbitrumBridgeWithdraw &&
-              action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
-          )
-
-          if (arbitrumAction) {
-            toast({
-              status: 'error',
-              render: ({ onClose, ...props }) => {
-                const handleClick = () => {
-                  onClose()
-                  openActionCenter()
-                }
-
-                return (
-                  <SwapNotification
-                    // eslint-disable-next-line react-memo/require-usememo
-                    handleClick={handleClick}
-                    swapId={swap.id}
-                    onClose={onClose}
-                    {...props}
-                  />
-                )
-              },
-              position: 'bottom-right',
-            })
-          }
-          return
-        }
 
         toast({
           status: 'error',

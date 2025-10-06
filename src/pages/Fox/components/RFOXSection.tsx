@@ -38,6 +38,7 @@ import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButto
 import { RFOXSimulator } from '@/pages/Fox/components/RFOXSimulator'
 import { useFoxPageContext } from '@/pages/Fox/hooks/useFoxPageContext'
 import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
+import { Stats } from '@/pages/RFOX/components/Overview/Stats'
 import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
@@ -429,6 +430,9 @@ export const RFOXSection = () => {
           </Stack>
         </SimpleGrid>
         <RFOXSimulator stakingAssetId={stakingAssetId} />
+        <Box py={4}>
+          <Stats />
+        </Box>
       </Box>
       <StakeModal isOpen={isStakeModalOpen} onClose={handleCloseStakeModal} />
       <UnstakeModal isOpen={isUnstakeModalOpen} onClose={handleCloseUnstakeModal} />

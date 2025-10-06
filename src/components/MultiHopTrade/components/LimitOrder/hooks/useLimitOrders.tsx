@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Link, Text as CText, usePrevious, useToast } from '@chakra-ui/react'
+import { Box, Link, Text as CText, usePrevious } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import type { Order } from '@shapeshiftoss/types'
@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import {
@@ -40,7 +41,7 @@ export const useLimitOrdersQuery = () => {
 
 export const useLimitOrders = () => {
   const limitOrdersQuery = useLimitOrdersQuery()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
   const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
   const actions = useAppSelector(selectLimitOrderActionsByWallet)
@@ -105,7 +106,6 @@ export const useLimitOrders = () => {
           status: 'success',
           duration: 5000,
           isClosable: true,
-          position: 'top-right',
         })
       }
     })

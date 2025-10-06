@@ -1,8 +1,8 @@
-import { useToast } from '@chakra-ui/react'
 import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'
 
 import { parseIntToEntropy } from '@/context/WalletProvider/KeepKey/helpers'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const useKeepKeyRecover = () => {
@@ -13,7 +13,7 @@ export const useKeepKeyRecover = () => {
       wallet,
     },
   } = useWallet()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
 
   const recoverKeepKey = async (label: string | undefined) => {

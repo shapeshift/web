@@ -102,7 +102,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const translate = useTranslate()
-  const toast = useNotificationToast({})
+  const toast = useNotificationToast()
   const assets = useAppSelector(selectAssets)
   const {
     state: { wallet, isConnected, walletInfo },

@@ -10,7 +10,7 @@ export const useArbitrumClaimTx = (
 ) => {
   // Placeholder implementation
   // The real implementation should use the Arbitrum SDK to execute claim transactions
-  
+
   const evmFeesResult = {
     data: {
       networkFeeCryptoBaseUnit: '0',
@@ -23,7 +23,7 @@ export const useArbitrumClaimTx = (
   }
 
   const claimMutation = {
-    mutateAsync: async () => {
+    mutateAsync: () => {
       throw new Error('ArbitrumBridge claim functionality not yet implemented')
     },
     isError: false,

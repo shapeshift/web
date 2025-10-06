@@ -928,7 +928,6 @@
     "availableClaimsNotification": "You have bridge claims ready!",
     "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
     "bridgeWithdrawalFailedNotification": "Bridge withdrawal failed",
-    "bridgeWithdrawalInitiated": "Bridge withdrawal initiated",
     "checkActionCenterNotification": "Check Action Center for details"
   },
   "trade": {

@@ -1,4 +1,4 @@
-import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
+import { Button, Link, Skeleton, SkeletonText, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
@@ -21,6 +21,7 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
@@ -80,7 +81,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const { handleStakingAction } = useStakingAction()
 
@@ -146,7 +147,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

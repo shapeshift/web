@@ -153,7 +153,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   }, [accountType, asset.chainId, bip44Params, chainAdapter, receiveAddress, wallet])
 
   const translate = useTranslate()
-  const toast = useNotificationToast({})
+  const toast = useNotificationToast()
 
   const bg = useColorModeValue('gray.100', 'gray.700')
 

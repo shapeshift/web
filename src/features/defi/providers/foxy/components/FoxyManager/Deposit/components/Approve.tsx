@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -16,6 +15,7 @@ import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
 import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from '@/features/defi/helpers/utils'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -34,7 +34,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
   const navigate = useNavigate()
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const {
     stakingAssetReference: assetReference,
     feeMarketData,
@@ -81,7 +81,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       } catch (error) {
         console.error(error)
         toast({
-          position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
           title: translate('common.somethingWentWrong'),
           status: 'error',
@@ -149,7 +148,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

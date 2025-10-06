@@ -266,3 +266,15 @@ export const selectArbitrumBridgeWithdrawActionByWithdrawTxHash = createDeepEqua
     )
   },
 )
+
+export const selectPendingArbitrumBridgeWithdrawActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(
+      action =>
+        isArbitrumBridgeWithdrawAction(action) &&
+        action.status !== ActionStatus.Claimed &&
+        action.status !== ActionStatus.Failed,
+    )
+  },
+)

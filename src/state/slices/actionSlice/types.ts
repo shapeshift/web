@@ -1,7 +1,8 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
-import type { ClaimDetails } from '@/components/Layout/Header/ActionCenter/hooks/useArbitrumClaimsByStatus'
+// TODO: ClaimDetails type from deleted Claims tab - define locally if needed
+type ClaimDetails = any
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,

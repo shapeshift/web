@@ -14,7 +14,6 @@ import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 
-import { isMobile } from '../../lib/globals'
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
 import { MobileFeature, useMobileFeaturesCompatibility } from '../useMobileFeaturesCompatibility'
@@ -286,12 +285,6 @@ export const useSwapActionSubscriber = () => {
               />
             )
           },
-          position:
-            isMobile &&
-            !hasSeenRatingModal &&
-            mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible
-              ? 'top'
-              : 'bottom-right',
         })
 
         if (

@@ -49,8 +49,6 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
   }, [lifetimeRewardDistributionsQuery.data])
 
   useEffect(() => {
-    const now = Date.now()
-
     Object.entries(rewardDistributionsByTxId).forEach(([_, distribution]) => {
       if (!distribution) return
 
@@ -64,8 +62,8 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
             id: actionId,
             type: ActionType.RewardDistribution,
             status: ActionStatus.Initiated,
-            createdAt: now,
-            updatedAt: now,
+            createdAt: distribution.distributionTimestamp,
+            updatedAt: distribution.distributionTimestamp,
             rewardDistributionMetadata: {
               distribution,
               txHash: distribution.txId || undefined,
@@ -101,8 +99,6 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
   }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
 
   useEffect(() => {
-    const now = Date.now()
-
     Object.entries(rewardDistributionsByTxId).forEach(([_, distribution]) => {
       if (!distribution) return
 
@@ -120,8 +116,8 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
             id: actionId,
             type: ActionType.RewardDistribution,
             status: ActionStatus.Complete,
-            createdAt: now,
-            updatedAt: now,
+            createdAt: distribution.distributionTimestamp,
+            updatedAt: distribution.distributionTimestamp,
             rewardDistributionMetadata: {
               distribution,
               txHash: distribution.txId,

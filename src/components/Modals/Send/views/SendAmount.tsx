@@ -1,20 +1,20 @@
 import {
-	Box,
-	Button,
-	Flex,
-	FormControl,
-	FormLabel,
-	HStack,
-	Icon,
-	Input,
-	Skeleton,
-	Stack,
-	Text,
-	VStack,
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  HStack,
+  Icon,
+  Input,
+  Skeleton,
+  Stack,
+  Text,
+  VStack,
 } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
-import { FaArrowDown } from 'react-icons/fa'
+import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -24,7 +24,8 @@ import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
-import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { AccountSelectorDialog } from '@/components/AccountSelectorDialog/AccountSelectorDialog'
+import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -34,14 +35,13 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const accountDropdownBoxProps = { px: 0, my: 0 }
-const accountDropdownButtonProps = { px: 0 }
+const accountDropdownButtonProps = { px: 2 }
 
 // Custom input component for the amount input
 const AmountInput = (props: any) => {
@@ -62,7 +62,7 @@ const AmountInput = (props: any) => {
   )
 }
 
-export const Amount = () => {
+export const SendAmount = () => {
   const { control, setValue } = useFormContext<SendInput>()
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -70,24 +70,14 @@ export const Amount = () => {
     number: { localeParts },
   } = useLocaleFormatter()
 
-  const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, fiatSymbol } = useWatch({
+  const { accountId, assetId, to, amountCryptoPrecision, fiatAmount } = useWatch({
     control,
   }) as Partial<SendInput>
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const send = useModal('send')
-  const qrCode = useModal('qrCode')
 
-  const {
-    balancesLoading,
-    fieldName,
-    cryptoHumanBalance,
-    fiatBalance,
-    handleSendMax,
-    handleInputChange,
-    isLoading,
-    toggleIsFiat,
-  } = useSendDetails()
+  const { balancesLoading, fieldName, handleSendMax, handleInputChange, isLoading, toggleIsFiat } =
+    useSendDetails()
 
   const handleNextClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
   const handleBackClick = useCallback(() => navigate(SendRoutes.Address), [navigate])
@@ -106,20 +96,7 @@ export const Amount = () => {
   const currentValue = fieldName === SendFormFields.FiatAmount ? fiatAmount : amountCryptoPrecision
   const isFiat = fieldName === SendFormFields.FiatAmount
 
-  const displayPlaceholder = isFiat ? `${fiatSymbol}0.00` : `0.00 ${asset?.symbol}`
-
-  const handleToggleCurrency = useCallback(() => {
-    // Get the current input value
-    const currentInputValue = currentValue || ''
-
-    // Toggle the field name first
-    toggleIsFiat()
-
-    // Then trigger the input change to convert the value
-    if (currentInputValue) {
-      handleInputChange(currentInputValue)
-    }
-  }, [toggleIsFiat, currentValue, handleInputChange])
+  const displayPlaceholder = isFiat ? `${localeParts.prefix}0.00` : `0.00 ${asset?.symbol}`
 
   const renderController = useCallback(
     ({ field: { onChange, value } }: { field: any }) => {
@@ -134,6 +111,9 @@ export const Amount = () => {
           allowedDecimalSeparators={allowedDecimalSeparators}
           value={value}
           placeholder={displayPlaceholder}
+          prefix={isFiat ? localeParts.prefix : ''}
+          // this is already within a useCallback
+          // eslint-disable-next-line react-memo/require-usememo
           onValueChange={(values: NumberFormatValues) => {
             onChange(values.value)
             if (values.value !== value) handleInputChange(values.value)
@@ -146,6 +126,7 @@ export const Amount = () => {
       isFiat,
       localeParts.decimal,
       localeParts.group,
+      localeParts.prefix,
       displayPlaceholder,
       handleInputChange,
     ],
@@ -167,7 +148,7 @@ export const Amount = () => {
           <Box>
             <Flex
               p={4}
-              borderRadius='lg'
+              borderRadius='2xl'
               bg='background.surface.raised.base'
               border='1px solid'
               borderColor='border.base'
@@ -187,16 +168,31 @@ export const Amount = () => {
               <Skeleton height='80px' width='100%' maxWidth='240px' mx='auto' />
             ) : (
               <FormControl>
-                <Controller name={fieldName} control={control} render={renderController} />
+                {fieldName === SendFormFields.AmountCryptoPrecision && (
+                  <Controller
+                    name={SendFormFields.AmountCryptoPrecision}
+                    control={control}
+                    render={renderController}
+                  />
+                )}
+                {fieldName === SendFormFields.FiatAmount && (
+                  <Controller
+                    name={SendFormFields.FiatAmount}
+                    control={control}
+                    render={renderController}
+                  />
+                )}
 
-                <HStack justify='center' mt={2} spacing={2} onClick={handleToggleCurrency}>
+                <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
                   <Text fontSize='sm' color='text.subtle'>
-                    {isFiat
-                      ? `${amountCryptoPrecision} ${asset.symbol}`
-                      : `${fiatSymbol}${fiatAmount}`}
+                    {isFiat ? (
+                      <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
+                    ) : (
+                      <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
+                    )}
                   </Text>
                   <Button variant='ghost' size='sm' p={1} minW='auto' h='auto'>
-                    <Icon as={FaArrowDown} fontSize='xs' color='text.subtle' />
+                    <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
                   </Button>
                 </HStack>
               </FormControl>
@@ -205,7 +201,16 @@ export const Amount = () => {
         </VStack>
       </DialogBody>
 
-      <DialogFooter>
+      <DialogFooter
+        borderTop='1px solid'
+        borderColor='border.base'
+        borderRight='1px solid'
+        borderLeft='1px solid'
+        borderRightColor='border.base'
+        borderLeftColor='border.base'
+        borderTopRadius='20'
+        pt={4}
+      >
         <Stack flex={1}>
           <Flex alignItems='center' justifyContent='space-between' mb={4}>
             <Flex alignItems='center'>
@@ -213,22 +218,13 @@ export const Amount = () => {
                 {translate('modals.send.sendForm.from')}
               </FormLabel>
               <Box>
-                <AccountDropdown
+                <AccountSelectorDialog
                   assetId={asset.assetId}
                   defaultAccountId={accountId}
                   onChange={handleAccountChange}
                   boxProps={accountDropdownBoxProps}
                   buttonProps={accountDropdownButtonProps}
                 />
-                {balancesLoading ? (
-                  <Skeleton fontSize='sm' color='text.subtle' />
-                ) : (
-                  <Text fontSize='sm' color='text.subtle'>
-                    {translate('modals.send.sendForm.availableBalance', {
-                      balance: `${localeParts.prefix}${fiatBalance.toFixed(2)}`,
-                    })}
-                  </Text>
-                )}
               </Box>
             </Flex>
 

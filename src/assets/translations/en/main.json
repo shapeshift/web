@@ -232,6 +232,9 @@
     "network": "Network",
     "feeEstimate": "Fee Estimate"
   },
+  "accountSelector": {
+    "chooseAccount": "Choose Account"
+  },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
     "nativeNotAvailable": "Quick Buy not available on native assets",

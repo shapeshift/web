@@ -1,28 +1,154 @@
-export const useArbitrumClaimTx = (
-  _claimDetails: any,
-  _destinationAccountId: string,
-  _onError: () => void,
-  _onMutate: () => void,
-  _onSuccess: (txHash: string) => void,
-) => {
-  const evmFeesResult = {
-    data: {
-      networkFeeCryptoBaseUnit: '0',
-      txFeeFiat: '0',
-    },
-    isSuccess: true,
-    isFetching: false,
-    isError: false,
-    isPending: false,
-  }
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import type { Address, Hash, Hex } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 
-  const claimMutation = {
-    mutateAsync: () => {
-      throw new Error('ArbitrumBridge claim functionality not yet implemented')
+import type { ClaimDetails } from './useArbitrumClaimsByStatus'
+
+import { useEvmFees } from '@/hooks/queries/useEvmFees'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from '@/lib/utils/evm'
+import { selectBip44ParamsByAccountId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
+
+export const useArbitrumClaimTx = (
+  claim: ClaimDetails | undefined,
+  destinationAccountId: AccountId | undefined,
+  onError: () => void,
+  onMutate: () => void,
+  onSuccess: (txHash: string) => void,
+) => {
+  const wallet = useWallet().state.wallet
+  const queryClient = useQueryClient()
+
+  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+
+  const accountIdFilter = useMemo(() => {
+    return { accountId: destinationAccountId }
+  }, [destinationAccountId])
+
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
+
+  const executeTransactionDataResult = useQuery({
+    queryKey: ['executeTransactionData', { txid: claim?.tx.txid }],
+    queryFn: claim
+      ? async () => {
+          const { event, message } = claim
+
+          const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
+
+          if (!('position' in event)) return
+          // nitro transaction
+          return encodeFunctionData({
+            abi: ARB_OUTBOX_ABI,
+            functionName: 'executeTransaction',
+            args: [
+              proof,
+              event.position.toBigInt(),
+              event.caller as Address,
+              event.destination as Address,
+              event.arbBlockNum.toBigInt(),
+              event.ethBlockNum.toBigInt(),
+              event.timestamp.toBigInt(),
+              event.callvalue.toBigInt(),
+              event.data as Hex,
+            ],
+          })
+        }
+      : undefined,
+    enabled: !!claim,
+  })
+
+  const evmFeesResult = useEvmFees({
+    from: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
+    chainId: claim?.destinationChainId,
+    data: executeTransactionDataResult.data,
+    refetchInterval: 15_000,
+    to: getAddress(ARBITRUM_OUTBOX),
+    value: '0',
+    enabled: !!claim && !!executeTransactionDataResult.data,
+  })
+
+  const claimMutation = useMutation({
+    mutationKey: ['claim', { txid: claim?.tx.txid }],
+    mutationFn: async () => {
+      if (!claim) return
+      if (!wallet) return
+      if (!bip44Params) return
+      if (!executeTransactionDataResult.data) return
+      if (!destinationAccountId) return
+
+      const adapter = assertGetEvmChainAdapter(claim.destinationChainId)
+
+      const buildCustomTxInput = await createBuildCustomTxInput({
+        accountNumber: bip44Params.accountNumber,
+        from: fromAccountId(destinationAccountId).account,
+        adapter,
+        data: executeTransactionDataResult.data,
+        to: ARBITRUM_OUTBOX,
+        value: '0',
+        wallet,
+      })
+
+      const txHash = await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: CONTRACT_INTERACTION,
+      })
+
+      return txHash
     },
-    isError: false,
-    isPending: false,
-  }
+    onMutate() {
+      onMutate()
+    },
+    onSuccess(txHash) {
+      if (!txHash) {
+        onError()
+        return
+      }
+
+      onSuccess(txHash)
+
+      const checkStatus = async () => {
+        if (!claim) return
+        const publicClient = assertGetViemClient(claim.destinationChainId)
+        const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+
+        switch (status) {
+          case 'success': {
+            queryClient.setQueryData(['claimStatus', { txid: claim.tx.txid }], () => null)
+            // Transaction confirmed - success callback already called with txHash
+            break
+          }
+          case 'reverted':
+          default:
+            onError()
+        }
+      }
+
+      checkStatus()
+    },
+    onError() {
+      onError()
+    },
+    onSettled() {
+      queryClient.invalidateQueries({
+        queryKey: ['claimStatus', { txid: claim?.tx.txid }],
+        refetchType: 'all',
+      })
+    },
+  })
 
   return {
     evmFeesResult,

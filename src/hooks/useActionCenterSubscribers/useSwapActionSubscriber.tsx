@@ -59,7 +59,7 @@ const getActionStatusFromSwap = (
     swap.swapperName === SwapperName.ArbitrumBridge &&
     swap.buyAsset.chainId === ethChainId
   ) {
-    return ActionStatus.Complete
+    return ActionStatus.Initiated
   }
 
   // If swap is pending/success/failed, use direct mapping

@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { SolanaLogsError } from '@shapeshiftoss/swapper'
 import camelCase from 'lodash/camelCase'
@@ -6,13 +5,12 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { InlineCopyButton } from '@/components/InlineCopyButton'
-import { RawText } from '@/components/Text'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 
 const defaultErrorMsgTranslation = 'common.generalError'
 
 export const useErrorToast = () => {
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
 
   const showErrorToast = useCallback(
@@ -42,16 +40,11 @@ export const useErrorToast = () => {
       console.error(error)
 
       toast({
-        title: translate('trade.errors.title'),
-        description: (
-          <InlineCopyButton value={description}>
-            <RawText>{description}</RawText>
-          </InlineCopyButton>
-        ),
+        title: description,
+        description: translate('trade.errors.title'),
         status: 'error',
         duration: 9000,
         isClosable: true,
-        position: 'top-right',
       })
     },
     [toast, translate],

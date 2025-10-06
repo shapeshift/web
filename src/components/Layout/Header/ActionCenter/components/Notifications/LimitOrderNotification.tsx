@@ -1,20 +1,17 @@
-import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import type { CowSwapQuoteId } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
-import { ActionStatusIcon } from '../ActionStatusIcon'
-import { NotificationWrapper } from './NotificationWrapper'
+import { ActionIcon } from '../ActionIcon'
 
-import { Amount } from '@/components/Amount/Amount'
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import type { TextPropTypes } from '@/components/Text/Text'
-import { Text } from '@/components/Text/Text'
+import { StandardToast } from '@/components/Toast/StandardToast'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectWalletLimitOrderActionByCowSwapQuoteId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type SwapNotificationProps = {
+type LimitOrderNotificationProps = {
   handleClick: () => void
   cowSwapQuoteId: CowSwapQuoteId
 } & RenderProps
@@ -23,67 +20,14 @@ export const LimitOrderNotification = ({
   handleClick,
   cowSwapQuoteId,
   onClose,
-}: SwapNotificationProps) => {
+}: LimitOrderNotificationProps) => {
+  const translate = useTranslate()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
   const action = useAppSelector(state =>
     selectWalletLimitOrderActionByCowSwapQuoteId(state, { cowSwapQuoteId }),
   )
-
-  const limitOrderNotificationTranslationComponents: TextPropTypes['components'] | undefined =
-    useMemo(() => {
-      if (!action) return
-
-      if (action.status === ActionStatus.Complete) {
-        return {
-          sellAmountAndSymbol: (
-            <Amount.Crypto
-              value={action.limitOrderMetadata.executedSellAmountCryptoPrecision}
-              symbol={action.limitOrderMetadata.sellAsset.symbol}
-              fontSize='sm'
-              fontWeight='bold'
-              maximumFractionDigits={6}
-              omitDecimalTrailingZeros
-              display='inline'
-            />
-          ),
-          buyAmountAndSymbol: (
-            <Amount.Crypto
-              value={action.limitOrderMetadata.executedBuyAmountCryptoPrecision}
-              symbol={action.limitOrderMetadata.buyAsset.symbol}
-              fontSize='sm'
-              fontWeight='bold'
-              maximumFractionDigits={6}
-              omitDecimalTrailingZeros
-              display='inline'
-            />
-          ),
-        }
-      }
-
-      return {
-        sellAmountAndSymbol: (
-          <Amount.Crypto
-            value={action.limitOrderMetadata.sellAmountCryptoPrecision}
-            symbol={action.limitOrderMetadata.sellAsset.symbol}
-            fontSize='sm'
-            fontWeight='bold'
-            maximumFractionDigits={6}
-            omitDecimalTrailingZeros
-            display='inline'
-          />
-        ),
-        buyAmountAndSymbol: (
-          <Amount.Crypto
-            value={action.limitOrderMetadata.buyAmountCryptoPrecision}
-            symbol={action.limitOrderMetadata.buyAsset.symbol}
-            fontSize='sm'
-            fontWeight='bold'
-            maximumFractionDigits={6}
-            omitDecimalTrailingZeros
-            display='inline'
-          />
-        ),
-      }
-    }, [action])
 
   const limitOrderTitleTranslation = useMemo(() => {
     if (!action) return 'actionCenter.limitOrder.processing'
@@ -95,33 +39,53 @@ export const LimitOrderNotification = ({
     return 'actionCenter.limitOrder.placed'
   }, [action])
 
-  if (!action) return null
+  const icon = useMemo(() => {
+    if (!action) return undefined
+    return (
+      <ActionIcon
+        assetId={action.limitOrderMetadata.sellAsset.assetId}
+        secondaryAssetId={action.limitOrderMetadata.buyAsset.assetId}
+        status={action.status}
+      />
+    )
+  }, [action])
 
-  return (
-    <NotificationWrapper handleClick={handleClick} onClose={onClose}>
-      <Stack spacing={3}>
-        <Flex alignItems='center' justifyContent='space-between' pe={6}>
-          <HStack spacing={2}>
-            <AssetIconWithBadge
-              assetId={action.limitOrderMetadata.sellAsset.assetId}
-              secondaryAssetId={action.limitOrderMetadata.buyAsset.assetId}
-              size='md'
-            >
-              <ActionStatusIcon status={action?.status} />
-            </AssetIconWithBadge>
+  const title = useMemo(() => {
+    if (!action) return undefined
 
-            <Box ml={2}>
-              <Text
-                flex={1}
-                fontSize='sm'
-                letterSpacing='0.02em'
-                translation={limitOrderTitleTranslation}
-                components={limitOrderNotificationTranslationComponents}
-              />
-            </Box>
-          </HStack>
-        </Flex>
-      </Stack>
-    </NotificationWrapper>
-  )
+    const isComplete = action.status === ActionStatus.Complete
+
+    const sellAmountAndSymbol = toCrypto(
+      isComplete
+        ? action.limitOrderMetadata.executedSellAmountCryptoPrecision ??
+            action.limitOrderMetadata.sellAmountCryptoPrecision
+        : action.limitOrderMetadata.sellAmountCryptoPrecision,
+      action.limitOrderMetadata.sellAsset.symbol,
+      {
+        maximumFractionDigits: 6,
+        omitDecimalTrailingZeros: true,
+      },
+    )
+
+    const buyAmountAndSymbol = toCrypto(
+      isComplete
+        ? action.limitOrderMetadata.executedBuyAmountCryptoPrecision ??
+            action.limitOrderMetadata.buyAmountCryptoPrecision
+        : action.limitOrderMetadata.buyAmountCryptoPrecision,
+      action.limitOrderMetadata.buyAsset.symbol,
+      {
+        maximumFractionDigits: 6,
+        omitDecimalTrailingZeros: true,
+      },
+    )
+
+    return translate(limitOrderTitleTranslation, {
+      sellAmountAndSymbol,
+      buyAmountAndSymbol,
+    })
+  }, [action, limitOrderTitleTranslation, toCrypto, translate])
+
+  if (!action || !icon || !title) return null
+
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

@@ -3,7 +3,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address, Hash, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
@@ -25,9 +26,9 @@ const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
 export const useArbitrumClaimTx = (
   claim: ClaimDetails | undefined,
   destinationAccountId: AccountId | undefined,
-  onError: () => void,
-  onMutate: () => void,
-  onSuccess: (txHash: string) => void,
+  setClaimTxHash: (txHash: string) => void,
+  setClaimTxStatus: (txStatus: TxStatus) => void,
+  onClaimSuccess?: (claimTxHash: string) => void,
 ) => {
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
@@ -66,8 +67,7 @@ export const useArbitrumClaimTx = (
             ],
           })
         }
-      : undefined,
-    enabled: !!claim,
+      : skipToken,
   })
 
   const evmFeesResult = useEvmFees({
@@ -77,7 +77,6 @@ export const useArbitrumClaimTx = (
     refetchInterval: 15_000,
     to: getAddress(ARBITRUM_OUTBOX),
     value: '0',
-    enabled: !!claim && !!executeTransactionDataResult.data,
   })
 
   const claimMutation = useMutation({
@@ -110,15 +109,15 @@ export const useArbitrumClaimTx = (
       return txHash
     },
     onMutate() {
-      onMutate()
+      setClaimTxStatus(TxStatus.Pending)
     },
     onSuccess(txHash) {
       if (!txHash) {
-        onError()
+        setClaimTxStatus(TxStatus.Failed)
         return
       }
 
-      onSuccess(txHash)
+      setClaimTxHash(txHash)
 
       const checkStatus = async () => {
         if (!claim) return
@@ -128,19 +127,20 @@ export const useArbitrumClaimTx = (
         switch (status) {
           case 'success': {
             queryClient.setQueryData(['claimStatus', { txid: claim.tx.txid }], () => null)
-            // Transaction confirmed - success callback already called with txHash
+            setClaimTxStatus(TxStatus.Confirmed)
+            if (onClaimSuccess) onClaimSuccess(txHash)
             break
           }
           case 'reverted':
           default:
-            onError()
+            setClaimTxStatus(TxStatus.Failed)
         }
       }
 
       checkStatus()
     },
     onError() {
-      onError()
+      setClaimTxStatus(TxStatus.Failed)
     },
     onSettled() {
       queryClient.invalidateQueries({

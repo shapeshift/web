@@ -3217,7 +3217,7 @@
     },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
-      "complete": "Your bridge of %{amountAndSymbol} is complete.",
+      "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
       "initiated": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has been initiated.",
       "pendingWithdraw": "Your withdraw of %{amountAndSymbol} will be available %{timeText}.",
       "claimAvailable": "Your bridge of %{amountAndSymbol} is available to claim.",

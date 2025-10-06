@@ -46,7 +46,6 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
       ...claimsByStatus.Complete,
     ]
 
-
     Object.values(actionsById)
       .filter(isSwapAction)
       .filter(action => action.status === ActionStatus.Initiated)
@@ -71,7 +70,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         // Get real-time ETA from claims hook - use fallback if not available yet
         // Chicken and egg: we need an ETA to upsert the action, but we need an action to check the ETA
         const claimDetails = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
-        
+
         dispatch(
           actionSlice.actions.upsertAction({
             id: uuidv4(),

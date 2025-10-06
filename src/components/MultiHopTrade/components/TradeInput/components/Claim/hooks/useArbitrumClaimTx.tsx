@@ -118,6 +118,7 @@ export const useArbitrumClaimTx = (
       }
 
       setClaimTxHash(txHash)
+      onClaimSuccess?.(txHash)
 
       const checkStatus = async () => {
         if (!claim) return
@@ -127,13 +128,11 @@ export const useArbitrumClaimTx = (
         switch (status) {
           case 'success': {
             queryClient.setQueryData(['claimStatus', { txid: claim.tx.txid }], () => null)
-            setClaimTxStatus(TxStatus.Confirmed)
-            if (onClaimSuccess) onClaimSuccess(txHash)
-            break
+            return setClaimTxStatus(TxStatus.Confirmed)
           }
           case 'reverted':
           default:
-            setClaimTxStatus(TxStatus.Failed)
+            return setClaimTxStatus(TxStatus.Failed)
         }
       }
 

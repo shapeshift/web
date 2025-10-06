@@ -20,7 +20,7 @@ import {
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const useArbitrumBridgeActionSubscriber = () => {
+export const useArbitrumWithdrawalActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
@@ -51,7 +51,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
   useEffect(() => {
     Object.values(actionsById)
       .filter(isSwapAction)
-      .filter(action => action.status === ActionStatus.Complete)
+      .filter(action => action.status === ActionStatus.Initiated)
       .forEach(swapAction => {
         const swap = swapsById[swapAction.swapMetadata.swapId]
         if (
@@ -135,6 +135,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
                 newStatus: ActionStatus.Claimed,
                 timeRemainingSeconds: claimData.timeRemainingSeconds,
                 claimTxHash: currentMetadata.claimTxHash,
+                claimData,
               }
             }
 
@@ -143,6 +144,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
                 newStatus: ActionStatus.ClaimAvailable,
                 timeRemainingSeconds: claimData.timeRemainingSeconds,
                 claimTxHash: currentMetadata.claimTxHash,
+                claimData,
               }
             }
 
@@ -151,6 +153,7 @@ export const useArbitrumBridgeActionSubscriber = () => {
                 newStatus: ActionStatus.Initiated,
                 timeRemainingSeconds: claimData.timeRemainingSeconds,
                 claimTxHash: currentMetadata.claimTxHash,
+                claimData,
               }
             }
 

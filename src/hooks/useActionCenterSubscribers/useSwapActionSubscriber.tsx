@@ -53,7 +53,7 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
-  // Special handling for ArbitrumBridge - Success means withdrawal complete (like normal swaps)
+  // Special handling for ArbitrumBridge - Success means withdrawal initiated, not complete
   if (
     swap.status === SwapStatus.Success &&
     swap.swapperName === SwapperName.ArbitrumBridge &&

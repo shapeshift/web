@@ -1,6 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
+import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -10,7 +11,6 @@ import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifet
 import type { Claim } from '@/pages/TCY/components/Claim/types'
 import type { LimitPriceByDirection } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
-import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 
 export enum ActionType {
   Deposit = 'Deposit',

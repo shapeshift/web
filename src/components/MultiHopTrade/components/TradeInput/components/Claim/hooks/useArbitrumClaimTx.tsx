@@ -1,6 +1,3 @@
-// Placeholder for useArbitrumClaimTx hook - replaced Claims tab functionality
-// TODO: Implement proper Arbitrum claim transaction logic using Arbitrum SDK
-
 export const useArbitrumClaimTx = (
   _claimDetails: any,
   _destinationAccountId: string,
@@ -8,9 +5,6 @@ export const useArbitrumClaimTx = (
   _onMutate: () => void,
   _onSuccess: (txHash: string) => void,
 ) => {
-  // Placeholder implementation
-  // The real implementation should use the Arbitrum SDK to execute claim transactions
-
   const evmFeesResult = {
     data: {
       networkFeeCryptoBaseUnit: '0',

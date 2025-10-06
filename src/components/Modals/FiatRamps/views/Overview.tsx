@@ -14,7 +14,6 @@ import {
   Stack,
   Text as RawText,
   useColorMode,
-  useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
@@ -39,6 +38,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
@@ -102,7 +102,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast({})
   const assets = useAppSelector(selectAssets)
   const {
     state: { wallet, isConnected, walletInfo },
@@ -152,20 +152,18 @@ export const Overview: React.FC<OverviewProps> = ({
   )
 
   const handleCopyClick = useCallback(async () => {
-    const duration = 2500
-    const isClosable = true
-    const toastPayload = { duration, isClosable }
     try {
       await navigator.clipboard.writeText(address)
-      const title = translate('common.copied')
-      const status = 'success'
-      const description = address
-      toast({ description, title, status, ...toastPayload })
+      toast({
+        title: translate('common.copied'),
+        description: address,
+        duration: 2500,
+      })
     } catch (e) {
-      const title = translate('common.copyFailed')
-      const status = 'error'
-      const description = translate('common.copyFailedDescription')
-      toast({ description, title, status })
+      toast({
+        title: translate('common.copyFailed'),
+        description: translate('common.copyFailedDescription'),
+      })
     }
   }, [address, toast, translate])
 

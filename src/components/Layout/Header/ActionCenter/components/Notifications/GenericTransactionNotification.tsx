@@ -1,15 +1,15 @@
-import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { ActionStatusIcon } from '../ActionStatusIcon'
-import { NotificationWrapper } from './NotificationWrapper'
+import { ActionIcon } from '../ActionIcon'
 
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { StandardToast } from '@/components/Toast/StandardToast'
 import { firstFourLastFour } from '@/lib/utils'
-import { selectWalletGenericTransactionActionsSorted } from '@/state/slices/actionSlice/selectors'
-import { selectAssetById } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectWalletGenericTransactionActionsSorted,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type GenericTransactionNotificationProps = {
@@ -30,35 +30,21 @@ export const GenericTransactionNotification = ({
   )
 
   const icon = useMemo(() => {
-    if (!action) return
-    return (
-      <AssetIconWithBadge assetId={action.transactionMetadata.assetId} size='md'>
-        <ActionStatusIcon status={action.status} />
-      </AssetIconWithBadge>
-    )
+    if (!action) return undefined
+    return <ActionIcon assetId={action.transactionMetadata.assetId} status={action.status} />
   }, [action])
 
-  if (!action) return null
+  const title = useMemo(() => {
+    if (!action) return undefined
+    return translate(action.transactionMetadata.message, {
+      ...action.transactionMetadata,
+      amount: action.transactionMetadata.amountCryptoPrecision,
+      symbol: asset?.symbol,
+      newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
+    })
+  }, [action, asset, translate])
 
-  return (
-    <NotificationWrapper handleClick={handleClick} onClose={onClose}>
-      <Stack spacing={3}>
-        <Flex alignItems='center' justifyContent='space-between' pe={6}>
-          <HStack spacing={2}>
-            {icon}
-            <Box ml={2}>
-              <Box fontSize='sm' letterSpacing='0.02em'>
-                {translate(action.transactionMetadata.message, {
-                  ...action.transactionMetadata,
-                  amount: action.transactionMetadata.amountCryptoPrecision,
-                  symbol: asset?.symbol,
-                  newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
-                })}
-              </Box>
-            </Box>
-          </HStack>
-        </Flex>
-      </Stack>
-    </NotificationWrapper>
-  )
+  if (!action || !icon || !title) return null
+
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

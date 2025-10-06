@@ -3,20 +3,17 @@ import type { PropsWithChildren } from 'react'
 
 import { ToastCloseButton } from './ToastCloseButton'
 
-type NotificationWrapperProps = {
+type ToastWrapperProps = {
   handleClick: () => void
   onClose: () => void
+  bg?: string
 } & PropsWithChildren
 
 const toastHoverProps = {
   transform: 'translateY(-2px)',
 }
 
-export const NotificationWrapper = ({
-  children,
-  handleClick,
-  onClose,
-}: NotificationWrapperProps) => {
+export const ToastWrapper = ({ children, handleClick, onClose, bg }: ToastWrapperProps) => {
   return (
     <Box position='relative' _hover={toastHoverProps} transition='all 0.2s'>
       <Flex
@@ -26,7 +23,7 @@ export const NotificationWrapper = ({
         alignItems='center'
         boxShadow='lg'
         width='100%'
-        bg='background.surface.overlay.base'
+        bg={bg ?? 'background.surface.overlay.base'}
         borderRadius='20'
         position='relative'
       >

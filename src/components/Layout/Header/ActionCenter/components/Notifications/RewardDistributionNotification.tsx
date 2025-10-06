@@ -1,16 +1,13 @@
-import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
-import { NotificationWrapper } from './NotificationWrapper'
+import { ActionIcon } from '../ActionIcon'
 
-import { Amount } from '@/components/Amount/Amount'
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { ActionStatusIcon } from '@/components/Layout/Header/ActionCenter/components/ActionStatusIcon'
-import type { TextPropTypes } from '@/components/Text/Text'
-import { Text } from '@/components/Text/Text'
+import { StandardToast } from '@/components/Toast/StandardToast'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -30,57 +27,43 @@ export const RewardDistributionNotification = ({
   handleClick,
   onClose,
 }: RewardDistributionNotificationProps) => {
+  const translate = useTranslate()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const action = actions[actionId]
   const isComplete = action?.status === ActionStatus.Complete
-
-  const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
-    if (!runeAsset) return
-
-    return {
-      amountAndSymbol: (
-        <Amount.Crypto
-          value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
-          symbol={runeAsset?.symbol}
-          fontSize='sm'
-          fontWeight='bold'
-          maximumFractionDigits={6}
-          omitDecimalTrailingZeros
-          display='inline'
-        />
-      ),
-    }
-  }, [distribution.amount, runeAsset])
 
   const rewardDistributionTitleTranslation = useMemo(() => {
     if (isComplete) return 'actionCenter.rewardDistribution.complete.description'
     return 'actionCenter.rewardDistribution.pending.description'
   }, [isComplete])
 
-  if (!distribution) return null
+  const icon = useMemo(() => {
+    if (!action) return undefined
+    return <ActionIcon assetId={thorchainAssetId} status={action.status} />
+  }, [action])
 
-  return (
-    <NotificationWrapper handleClick={handleClick} onClose={onClose}>
-      <Stack spacing={3}>
-        <Flex alignItems='center' justifyContent='space-between' pe={6}>
-          <HStack spacing={2}>
-            <AssetIconWithBadge assetId={thorchainAssetId} size='md'>
-              <ActionStatusIcon status={action.status} />
-            </AssetIconWithBadge>
+  const title = useMemo(() => {
+    if (!runeAsset) return undefined
 
-            <Box ml={2}>
-              <Text
-                flex={1}
-                fontSize='sm'
-                letterSpacing='0.02em'
-                translation={rewardDistributionTitleTranslation}
-                components={rewardDistributionTranslationComponents}
-              />
-            </Box>
-          </HStack>
-        </Flex>
-      </Stack>
-    </NotificationWrapper>
-  )
+    const amountAndSymbol = toCrypto(
+      fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0),
+      runeAsset.symbol,
+      {
+        maximumFractionDigits: 6,
+        omitDecimalTrailingZeros: true,
+      },
+    )
+
+    return translate(rewardDistributionTitleTranslation, {
+      amountAndSymbol,
+    })
+  }, [distribution.amount, runeAsset, rewardDistributionTitleTranslation, toCrypto, translate])
+
+  if (!distribution || !icon || !title) return null
+
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

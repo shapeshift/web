@@ -11,7 +11,12 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType, isArbitrumBridgeWithdrawAction, isSwapAction } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  isArbitrumBridgeWithdrawAction,
+  isSwapAction,
+} from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -33,43 +38,55 @@ export const useArbitrumBridgeActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Create ArbitrumBridge withdraw actions from completed swap actions  
+  // Create ArbitrumBridge withdraw actions from completed swap actions
   useEffect(() => {
     Object.values(actionsById)
       .filter(isSwapAction)
       .filter(action => action.status === ActionStatus.Complete)
       .forEach(swapAction => {
         const swap = swapsById[swapAction.swapMetadata.swapId]
-        if (!swap?.sellTxHash || swap.swapperName !== SwapperName.ArbitrumBridge || swap.buyAsset.chainId !== ethChainId) return
+        if (
+          !swap?.sellTxHash ||
+          swap.swapperName !== SwapperName.ArbitrumBridge ||
+          swap.buyAsset.chainId !== ethChainId
+        )
+          return
 
         // Check if ArbitrumBridge withdraw action already exists
         const existingAction = Object.values(actionsById).find(
-          action => action.type === ActionType.ArbitrumBridgeWithdraw && 
-                   action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash
+          action =>
+            action.type === ActionType.ArbitrumBridgeWithdraw &&
+            action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
         )
         if (existingAction) return
 
         // Get real-time ETA from claims hook
-        const allClaims = [...claimsByStatus.Pending, ...claimsByStatus.Available, ...claimsByStatus.Complete]
+        const allClaims = [
+          ...claimsByStatus.Pending,
+          ...claimsByStatus.Available,
+          ...claimsByStatus.Complete,
+        ]
         const claimDetails = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
 
-        dispatch(actionSlice.actions.upsertAction({
-          id: uuidv4(),
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          type: ActionType.ArbitrumBridgeWithdraw as const,
-          status: ActionStatus.Initiated,
-          arbitrumBridgeMetadata: {
-            withdrawTxHash: swap.sellTxHash,
-            amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
-            assetId: swap.sellAsset.assetId,
-            destinationAssetId: swap.buyAsset.assetId,
-            accountId: swap.sellAccountId ?? '',
-            destinationAccountId: swap.buyAccountId ?? '',
-            timeRemainingSeconds: claimDetails?.timeRemainingSeconds ?? 6.4 * 24 * 60 * 60,
-            claimDetails,
-          },
-        }))
+        dispatch(
+          actionSlice.actions.upsertAction({
+            id: uuidv4(),
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            type: ActionType.ArbitrumBridgeWithdraw as const,
+            status: ActionStatus.Initiated,
+            arbitrumBridgeMetadata: {
+              withdrawTxHash: swap.sellTxHash,
+              amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
+              assetId: swap.sellAsset.assetId,
+              destinationAssetId: swap.buyAsset.assetId,
+              accountId: swap.sellAccountId ?? '',
+              destinationAccountId: swap.buyAccountId ?? '',
+              timeRemainingSeconds: claimDetails?.timeRemainingSeconds ?? 6.4 * 24 * 60 * 60,
+              claimDetails,
+            },
+          }),
+        )
       })
   }, [actionsById, swapsById, dispatch, claimsByStatus])
 

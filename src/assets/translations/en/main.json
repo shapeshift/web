@@ -3227,8 +3227,7 @@
       "claimWithdraw": "Claim Withdraw",
       "withdrawTx": "Withdraw Tx",
       "claimTx": "Claim Tx",
-      "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete.",
-      "processing": "Processing..."
+      "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",

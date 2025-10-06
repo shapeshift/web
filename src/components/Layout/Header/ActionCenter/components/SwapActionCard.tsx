@@ -116,7 +116,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     if (status === ActionStatus.AwaitingSwap) return 'actionCenter.swap.awaitingSwap'
 
     return 'actionCenter.swap.processing'
-  }, [action, isArbitrumBridge, swap?.isStreaming])
+  }, [action, isArbitrumBridge, swap?.isStreaming, swap?.buyAsset.chainId])
 
   const icon = useMemo(() => {
     return (

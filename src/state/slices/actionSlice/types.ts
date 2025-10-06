@@ -1,8 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
-// TODO: ClaimDetails type from deleted Claims tab - define locally if needed
-type ClaimDetails = any
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -12,6 +10,9 @@ import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifet
 import type { Claim } from '@/pages/TCY/components/Claim/types'
 import type { LimitPriceByDirection } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import type { ApprovalExecutionMetadata } from '@/state/slices/tradeQuoteSlice/types'
+
+// TODO: ClaimDetails type from deleted Claims tab - define locally if needed
+type ClaimDetails = any
 
 export enum ActionType {
   Deposit = 'Deposit',

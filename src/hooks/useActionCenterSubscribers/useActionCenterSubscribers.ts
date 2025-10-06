@@ -12,13 +12,13 @@ import { useTcyClaimActionSubscriber } from '@/pages/TCY/hooks/useTcyClaimAction
 
 export const useActionCenterSubscribers = () => {
   console.log('🔧 Action Center Subscribers - initializing all subscribers')
-  
+
   useSwapActionSubscriber()
   console.log('🔧 Action Center Subscribers - SwapActionSubscriber called')
-  
+
   useArbitrumBridgeActionSubscriber()
   console.log('🔧 Action Center Subscribers - ArbitrumBridgeActionSubscriber called')
-  
+
   useLimitOrderActionSubscriber()
   useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()
@@ -27,6 +27,6 @@ export const useActionCenterSubscribers = () => {
   useGenericTransactionSubscriber()
   useSendActionSubscriber()
   useThorchainLpActionSubscriber()
-  
+
   console.log('🔧 Action Center Subscribers - all subscribers initialized')
 }

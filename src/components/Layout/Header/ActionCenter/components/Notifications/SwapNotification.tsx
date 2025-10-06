@@ -1,5 +1,6 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
@@ -145,13 +146,9 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
     const { status } = action
 
-    if (swap.swapperName === SwapperName.ArbitrumBridge) {
-      if (status === ActionStatus.Complete) {
-        // For withdrawals (ARB -> ETH), "Complete" means withdrawal initiated and in challenge period
-        // For deposits (ETH -> ARB), "Complete" means deposit actually completed
-        const isWithdrawal = swap.buyAsset.chainId === ethChainId
-        return isWithdrawal ? 'actionCenter.bridge.initiated' : 'actionCenter.bridge.complete'
-      }
+    // Only use ArbitrumBridge logic for withdrawals, let deposits use normal swap logic
+    if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (status === ActionStatus.Initiated) {
         return isArbitrumBridgeWithdrawAction(action)

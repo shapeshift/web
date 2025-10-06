@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { Events } from '@shapeshiftoss/hdwallet-core'
 import type { Dispatch } from 'react'
@@ -12,6 +11,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import type { DeviceState, InitialState } from '@/context/WalletProvider/WalletProvider'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 
 export const useKeepKeyEventHandler = (
@@ -27,7 +27,7 @@ export const useKeepKeyEventHandler = (
   } = state
   const localWallet = useLocalWallet()
 
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
   const { poll } = usePoll()
 

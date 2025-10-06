@@ -12,7 +12,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const useBridgeClaimNotification = () => {
-  const toast = useNotificationToast({ desktopPosition: 'bottom-right' })
+  const toast = useNotificationToast()
   const navigate = useNavigate()
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)

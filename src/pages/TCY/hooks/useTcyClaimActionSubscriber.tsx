@@ -1,10 +1,10 @@
-import { useToast } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 
 import { useTCYClaims } from '../queries/useTcyClaims'
 
 import { TcyClaimSaversNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/TcyClaimSaversNotification'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType, isTcyClaimAction } from '@/state/slices/actionSlice/types'
@@ -15,7 +15,7 @@ const TCY_TOAST_ID = 'tcyClaimAlert'
 
 export const useTcyClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const navigate = useNavigate()
   const {
     state: { walletInfo },

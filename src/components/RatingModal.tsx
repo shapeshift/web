@@ -1,4 +1,4 @@
-import { Box, Button, Flex, ModalCloseButton, Textarea, useToast } from '@chakra-ui/react'
+import { Box, Button, Flex, ModalCloseButton, Textarea } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -13,6 +13,8 @@ import { FoxIcon } from './Icons/FoxIcon'
 import { Dialog } from './Modal/components/Dialog'
 import { StarRating } from './StarRating/StarRating'
 import { Text } from './Text'
+
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 
 const FEEDBACK_DISCORD_CHANNEL_URI =
   'https://discord.com/api/webhooks/1405155259898265620/AvtQbvanqdqjjf-DFq0tn_qfwFUiwLxkF7YeUqWKf-tpuittEeStLgxPMXrbOaPtItWk'
@@ -63,7 +65,7 @@ export const RatingModal = () => {
 
   const isFiveStarRating = useMemo(() => rating === 5, [rating])
   const showFeedbackForm = useMemo(() => rating > 0 && rating < 5, [rating])
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const handleRatingChange = useCallback(
     async (newRating: number) => {

@@ -1,4 +1,4 @@
-import { Button, Input, ModalBody, ModalHeader, useToast } from '@chakra-ui/react'
+import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
 
 import { Text } from '@/components/Text'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const KeepKeyLabel = () => {
@@ -17,7 +18,7 @@ export const KeepKeyLabel = () => {
       wallet,
     },
   } = useWallet()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
   const [label, setLabel] = useState('')
   const recoverKeepKey = useKeepKeyRecover()

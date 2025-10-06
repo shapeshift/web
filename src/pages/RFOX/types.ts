@@ -44,6 +44,8 @@ export type Epoch = {
   startTimestamp: number
   /** The end timestamp for this epoch */
   endTimestamp: number
+  /** The timestamp of the pending or complete reward distribution */
+  distributionTimestamp: number
   /** The start block for this epoch */
   startBlock: number
   /** The end block for this epoch */

@@ -62,7 +62,7 @@ export const Stats: React.FC = () => {
   return (
     <Box>
       <Flex alignItems='center' gap={2} mb={6} mt={2}>
-        <Text translation='RFOX.totals' />
+        <Text translation='RFOX.totals' fontWeight='bold' fontSize='xl' />
       </Flex>
       <SimpleGrid spacing={6} columns={gridColumns}>
         {Staked}

@@ -12,7 +12,8 @@ import { lazy } from 'react'
 import type { RouteProps as _RouteProps } from 'react-router-dom'
 
 import { CoinbaseConfig } from './Coinbase/config'
-import { GridPlusConfig, GridPlusAdapter } from './GridPlus/config'
+import type { GridPlusAdapter } from './GridPlus/config'
+import { GridPlusConfig } from './GridPlus/config'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
@@ -451,9 +452,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
   [KeyManager.GridPlus]: {
     ...GridPlusConfig,
-    routes: [
-      { path: '/gridplus/connect', component: GridPlusConnect },
-    ],
+    routes: [{ path: '/gridplus/connect', component: GridPlusConnect }],
   },
 }
 

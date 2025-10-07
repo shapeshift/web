@@ -1,18 +1,18 @@
 import {
   Alert,
   AlertIcon,
-  VStack,
-  Text,
   Box,
+  Button,
   FormControl,
   FormLabel,
   Input,
-  Button,
-  ModalHeader,
   ModalBody,
+  ModalHeader,
   Spinner,
+  Text,
+  VStack,
 } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GridPlusConfig } from '../config'
@@ -22,8 +22,8 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
-  selectWalletDeviceId,
   selectGridPlusPrivKey,
+  selectWalletDeviceId,
 } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -37,12 +37,6 @@ export const GridPlusConnect = () => {
   const existingPrivKey = useAppSelector(selectGridPlusPrivKey)
   // Only check privKey - walletType/deviceId get cleared on disconnect but privKey persists
   const hasExistingConnection = !!existingPrivKey
-
-  console.log('[GridPlus Connect] State check:', {
-    existingDeviceId,
-    existingPrivKey: existingPrivKey ? `${existingPrivKey.substring(0, 10)}...` : null,
-    hasExistingConnection
-  })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -58,7 +52,6 @@ export const GridPlusConnect = () => {
     setIsLoading(false)
   }, [])
 
-
   const resetPairingFlow = useCallback(() => {
     setShowPairingCode(false)
     setPairingCode('')
@@ -66,17 +59,7 @@ export const GridPlusConnect = () => {
     setIsLoading(false)
   }, [])
 
-
   const handleConnect = useCallback(async () => {
-    console.log('[GridPlus] ========== handleConnect START ==========')
-    console.log('[GridPlus] Initial state:', {
-      deviceId: activeDeviceId.trim(),
-      showPairingCode,
-      pairingCode,
-      hasExistingPrivKey: !!existingPrivKey,
-      existingPrivKeyPreview: existingPrivKey ? `${existingPrivKey.substring(0, 10)}...` : null
-    })
-
     setIsLoading(true)
     setError(null)
 
@@ -86,32 +69,20 @@ export const GridPlusConnect = () => {
       }
 
       // Get the GridPlus adapter with keyring
-      console.log('[GridPlus] Getting adapter...')
-      const adapterWithKeyring = await getAdapter(KeyManager.GridPlus) as any
+      const adapterWithKeyring = (await getAdapter(KeyManager.GridPlus)) as any
       if (!adapterWithKeyring) {
         throw new Error('GridPlus adapter not available')
       }
-      console.log('[GridPlus] Adapter loaded successfully')
 
       // Check device pairing status
       if (!showPairingCode) {
-        console.log('[GridPlus] Step 1: Connecting to device...', {
-          hasExistingPrivKey: !!existingPrivKey,
-          deviceId: activeDeviceId.trim()
-        })
         const { isPaired, privKey } = await adapterWithKeyring.connectDevice(
           activeDeviceId.trim(),
           undefined,
-          existingPrivKey || undefined
+          existingPrivKey || undefined,
         )
-        console.log('[GridPlus] connectDevice result:', {
-          isPaired,
-          privKeyReceived: !!privKey,
-          privKeyPreview: privKey ? `${privKey.substring(0, 10)}...` : null
-        })
 
         if (!isPaired) {
-          console.log('[GridPlus] Device connected but NOT paired - showing pairing UI')
           setIsLoading(false)
           setShowPairingCode(true)
           setError(null)
@@ -119,56 +90,30 @@ export const GridPlusConnect = () => {
         }
 
         // If already paired, continue to create wallet...
-        console.log('[GridPlus] Device ALREADY paired - proceeding to create wallet')
-        console.log('[GridPlus] Saving privKey to Redux...', {
-          privKeyToSave: privKey ? `${privKey.substring(0, 10)}...` : null
-        })
         localWallet.setGridPlusPrivKey(privKey)
-        console.log('[GridPlus] privKey saved to Redux')
       }
 
       // Step 2: Either device was already paired, or user entered pairing code
-      console.log('[GridPlus] Step 2: Creating wallet...', {
-        showPairingCode,
-        hasPairingCode: !!pairingCode
-      })
       let wallet
       if (showPairingCode && pairingCode) {
-        console.log('[GridPlus] Using pairConnectedDevice with pairing code');
         wallet = await adapterWithKeyring.pairConnectedDevice(activeDeviceId.trim(), pairingCode)
-        console.log('[GridPlus] pairConnectedDevice completed')
       } else {
-        console.log('[GridPlus] Using pairDevice (already paired flow)');
         wallet = await adapterWithKeyring.pairDevice(
           activeDeviceId.trim(),
           undefined,
           undefined,
-          existingPrivKey || undefined
+          existingPrivKey || undefined,
         )
-        console.log('[GridPlus] pairDevice completed')
       }
 
       // Save privKey after successful pairing
-      console.log('[GridPlus] Getting privKey from wallet...')
       const walletPrivKey = wallet.getPrivKey()
-      console.log('[GridPlus] wallet.getPrivKey() result:', {
-        hasPrivKey: !!walletPrivKey,
-        privKeyPreview: walletPrivKey ? `${walletPrivKey.substring(0, 10)}...` : null
-      })
       if (walletPrivKey) {
-        console.log('[GridPlus] Saving privKey to Redux...', {
-          privKeyToSave: `${walletPrivKey.substring(0, 10)}...`
-        })
         localWallet.setGridPlusPrivKey(walletPrivKey)
-        console.log('[GridPlus] privKey saved to Redux')
-      } else {
-        console.warn('[GridPlus] WARNING: wallet.getPrivKey() returned null/undefined!')
       }
 
       // Set wallet in ShapeShift context
-      console.log('[GridPlus] Setting wallet in ShapeShift context...')
       const walletDeviceId = await wallet.getDeviceID()
-      console.log('[GridPlus] Wallet deviceId:', walletDeviceId)
 
       dispatch({
         type: WalletActions.SET_WALLET,
@@ -177,34 +122,28 @@ export const GridPlusConnect = () => {
           name: GridPlusConfig.name,
           icon: GridPlusConfig.icon,
           deviceId: walletDeviceId,
-          connectedType: KeyManager.GridPlus
+          connectedType: KeyManager.GridPlus,
         },
       })
-      console.log('[GridPlus] Wallet set in context')
 
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
         payload: true,
       })
-      console.log('[GridPlus] Connection status set')
 
       // Save to local wallet storage
-      console.log('[GridPlus] Saving to localWallet slice...', {
+      localWallet.setLocalWallet({
         type: KeyManager.GridPlus,
-        deviceId: walletDeviceId
+        deviceId: walletDeviceId,
+        rdns: null,
       })
-      localWallet.setLocalWallet({ type: KeyManager.GridPlus, deviceId: walletDeviceId, rdns: null })
-      console.log('[GridPlus] Saved to localWallet slice')
 
       // Close the modal
-      console.log('[GridPlus] Closing modal and navigating...')
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
       // Navigate to main app
       navigate('/')
-      console.log('[GridPlus] ========== handleConnect SUCCESS ==========')
     } catch (e) {
-      console.error('[GridPlus] ========== handleConnect ERROR ==========', e)
       if (e instanceof Error && e.message === 'PAIRING_REQUIRED') {
         setIsLoading(false)
         setShowPairingCode(true)
@@ -213,25 +152,48 @@ export const GridPlusConnect = () => {
         setErrorLoading(e instanceof Error ? e.message : 'Connection failed')
       }
     }
-  }, [activeDeviceId, pairingCode, showPairingCode, existingPrivKey, setErrorLoading, getAdapter, dispatch, localWallet, navigate])
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isLoading) {
-      e.preventDefault()
-      handleConnect()
-    }
-  }, [handleConnect, isLoading])
-
-  console.log('[GridPlus Connect] Render:', {
+  }, [
+    activeDeviceId,
+    pairingCode,
     showPairingCode,
-    hasExistingConnection,
-    header: showPairingCode ? 'Pair GridPlus Lattice' : hasExistingConnection ? 'Reconnect to GridPlus' : 'Connect GridPlus Lattice'
-  })
+    existingPrivKey,
+    setErrorLoading,
+    getAdapter,
+    dispatch,
+    localWallet,
+    navigate,
+  ])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !isLoading) {
+        e.preventDefault()
+        handleConnect()
+      }
+    },
+    [handleConnect, isLoading],
+  )
+
+  const handleDeviceIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setDeviceId(e.target.value)
+  }, [])
+
+  const handlePairingCodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPairingCode(e.target.value.toUpperCase())
+  }, [])
+
+  const inputStyle = useMemo(() => ({ textTransform: 'uppercase' as const }), [])
+
+  const spinnerElement = useMemo(() => <Spinner color='white' />, [])
 
   return (
     <>
       <ModalHeader>
-        {showPairingCode ? 'Pair GridPlus Lattice' : hasExistingConnection ? 'Reconnect to GridPlus' : 'Connect GridPlus Lattice'}
+        {showPairingCode
+          ? 'Pair GridPlus Lattice'
+          : hasExistingConnection
+          ? 'Reconnect to GridPlus'
+          : 'Connect GridPlus Lattice'}
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='text.subtle'>
@@ -239,22 +201,21 @@ export const GridPlusConnect = () => {
             ? 'Enter the 8-character pairing code displayed on your Lattice device.'
             : hasExistingConnection
             ? 'Click below to reconnect to your GridPlus Lattice.'
-            : 'Enter your device ID to connect to your GridPlus Lattice.'
-          }
+            : 'Enter your device ID to connect to your GridPlus Lattice.'}
         </Text>
 
-        <VStack spacing={4} align="stretch">
+        <VStack spacing={4} align='stretch'>
           {!showPairingCode && !hasExistingConnection ? (
             <FormControl>
               <FormLabel>Device ID</FormLabel>
               <Input
-                placeholder="Enter your Lattice device ID"
+                placeholder='Enter your Lattice device ID'
                 value={deviceId}
-                onChange={(e) => setDeviceId(e.target.value)}
+                onChange={handleDeviceIdChange}
                 onKeyDown={handleKeyDown}
                 isDisabled={isLoading}
-                type="password"
-                autoComplete="off"
+                type='password'
+                autoComplete='off'
                 autoFocus
               />
             </FormControl>
@@ -262,15 +223,15 @@ export const GridPlusConnect = () => {
             <FormControl>
               <FormLabel>Pairing Code</FormLabel>
               <Input
-                placeholder="Enter 8-character code from Lattice"
+                placeholder='Enter 8-character code from Lattice'
                 value={pairingCode}
-                onChange={(e) => setPairingCode(e.target.value.toUpperCase())}
+                onChange={handlePairingCodeChange}
                 onKeyDown={handleKeyDown}
                 isDisabled={isLoading}
                 maxLength={8}
-                pattern="[A-Z0-9]{8}"
-                style={{ textTransform: 'uppercase' }}
-                autoComplete="off"
+                pattern='[A-Z0-9]{8}'
+                style={inputStyle}
+                autoComplete='off'
                 autoFocus
               />
             </FormControl>
@@ -278,7 +239,7 @@ export const GridPlusConnect = () => {
 
           {!showPairingCode && !hasExistingConnection && (
             <Box>
-              <Text fontSize="sm" color="text.subtle">
+              <Text fontSize='sm' color='text.subtle'>
                 You can find your device ID in your Lattice settings under Device Info.
               </Text>
             </Box>
@@ -286,14 +247,14 @@ export const GridPlusConnect = () => {
 
           {showPairingCode && (
             <Box>
-              <Text fontSize="sm" color="text.subtle">
+              <Text fontSize='sm' color='text.subtle'>
                 Look at your Lattice screen for an 8-character pairing code.
               </Text>
             </Box>
           )}
 
           {error && (
-            <Alert status="error">
+            <Alert status='error'>
               <AlertIcon />
               {error}
             </Alert>
@@ -305,30 +266,41 @@ export const GridPlusConnect = () => {
               colorScheme='blue'
               isLoading
               loadingText='Connecting...'
-              spinner={<Spinner color='white' />}
+              spinner={spinnerElement}
               isDisabled
             >
-              {showPairingCode ? 'Complete Pairing' : hasExistingConnection ? 'Reconnecting...' : 'Connect Device'}
+              {showPairingCode
+                ? 'Complete Pairing'
+                : hasExistingConnection
+                ? 'Reconnecting...'
+                : 'Connect Device'}
             </Button>
           ) : (
             <Button
               width='full'
               colorScheme='blue'
               onClick={handleConnect}
-              isDisabled={(!hasExistingConnection && !showPairingCode && !activeDeviceId.trim()) || (showPairingCode && !pairingCode.trim())}
+              isDisabled={
+                (!hasExistingConnection && !showPairingCode && !activeDeviceId.trim()) ||
+                (showPairingCode && !pairingCode.trim())
+              }
             >
-              {showPairingCode ? 'Complete Pairing' : hasExistingConnection ? 'Reconnect' : 'Connect Device'}
+              {showPairingCode
+                ? 'Complete Pairing'
+                : hasExistingConnection
+                ? 'Reconnect'
+                : 'Connect Device'}
             </Button>
           )}
 
           {showPairingCode && (
             <Box>
               <Text
-                fontSize="sm"
-                color="blue.500"
-                cursor="pointer"
+                fontSize='sm'
+                color='blue.500'
+                cursor='pointer'
                 onClick={resetPairingFlow}
-                textDecoration="underline"
+                textDecoration='underline'
               >
                 ← Back to Device ID
               </Text>

@@ -6,12 +6,14 @@ export class GridPlusAdapter {
   static useKeyring(keyring: any) {
     // Cache the hdwallet adapter instance to maintain state across calls
     let cachedHdWalletAdapter: any = null
-    
+
     return {
       // Frame-style connection check first
       connectDevice: async (deviceId: string, password?: string, existingPrivKey?: string) => {
         if (!cachedHdWalletAdapter) {
-          const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import('@shapeshiftoss/hdwallet-gridplus')
+          const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import(
+            '@shapeshiftoss/hdwallet-gridplus'
+          )
           cachedHdWalletAdapter = new HdWalletGridPlusAdapter(keyring)
         }
         return await cachedHdWalletAdapter.connectDevice(deviceId, password, existingPrivKey)
@@ -28,15 +30,27 @@ export class GridPlusAdapter {
       },
 
       // Legacy method for backward compatibility
-      pairDevice: async (deviceId: string, password?: string, pairingCode?: string, existingPrivKey?: string) => {
+      pairDevice: async (
+        deviceId: string,
+        password?: string,
+        pairingCode?: string,
+        existingPrivKey?: string,
+      ) => {
         if (!cachedHdWalletAdapter) {
-          const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import('@shapeshiftoss/hdwallet-gridplus')
+          const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import(
+            '@shapeshiftoss/hdwallet-gridplus'
+          )
           cachedHdWalletAdapter = new HdWalletGridPlusAdapter(keyring)
         }
 
-        const wallet = await cachedHdWalletAdapter.pairDevice(deviceId, password, pairingCode, existingPrivKey)
+        const wallet = await cachedHdWalletAdapter.pairDevice(
+          deviceId,
+          password,
+          pairingCode,
+          existingPrivKey,
+        )
         return wallet
-      }
+      },
     }
   }
 }

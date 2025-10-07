@@ -36,10 +36,9 @@ export const localWalletSlice = createSlice({
     ),
     clearLocalWallet: create.reducer(state => {
       state.walletType = null
-      state.walletDeviceId = null
       state.nativeWalletName = null
       state.rdns = null
-      state.gridplusPrivKey = null
+      // Don't clear walletDeviceId and gridplusPrivKey - they should persist across disconnects for reconnection
     }),
     setNativeWalletName: create.reducer((state, action: PayloadAction<string>) => {
       state.nativeWalletName = action.payload

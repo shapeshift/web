@@ -315,7 +315,7 @@ export const GridPlusConnect = () => {
               width='full'
               colorScheme='blue'
               onClick={handleConnect}
-              isDisabled={(!showPairingCode && !hasExistingConnection && !activeDeviceId.trim()) || (showPairingCode && !pairingCode.trim())}
+              isDisabled={(!hasExistingConnection && !showPairingCode && !activeDeviceId.trim()) || (showPairingCode && !pairingCode.trim())}
             >
               {showPairingCode ? 'Complete Pairing' : hasExistingConnection ? 'Reconnect' : 'Connect Device'}
             </Button>

@@ -71,7 +71,7 @@ export const GridPlusConnect = () => {
       }
 
       // Get the GridPlus adapter with keyring
-      const adapterWithKeyring = await getAdapter(KeyManager.GridPlus)
+      const adapterWithKeyring = await getAdapter(KeyManager.GridPlus) as any
       if (!adapterWithKeyring) {
         throw new Error('GridPlus adapter not available')
       }

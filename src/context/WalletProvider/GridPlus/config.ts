@@ -9,32 +9,32 @@ export class GridPlusAdapter {
     
     return {
       // Frame-style connection check first
-      connectDevice: async (deviceId: string, password?: string) => {
+      connectDevice: async (deviceId: string, password?: string, existingPrivKey?: string) => {
         if (!cachedHdWalletAdapter) {
           const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import('@shapeshiftoss/hdwallet-gridplus')
           cachedHdWalletAdapter = new HdWalletGridPlusAdapter(keyring)
         }
-        return await cachedHdWalletAdapter.connectDevice(deviceId, password)
+        return await cachedHdWalletAdapter.connectDevice(deviceId, password, existingPrivKey)
       },
-      
+
       // Frame-style pairing of already connected device
       pairConnectedDevice: async (deviceId: string, pairingCode: string) => {
         if (!cachedHdWalletAdapter) {
           throw new Error('Device not connected. Call connectDevice first.')
         }
-        
+
         const wallet = await cachedHdWalletAdapter.pairConnectedDevice(deviceId, pairingCode)
         return wallet
       },
-      
+
       // Legacy method for backward compatibility
-      pairDevice: async (deviceId: string, password?: string, pairingCode?: string) => {
+      pairDevice: async (deviceId: string, password?: string, pairingCode?: string, existingPrivKey?: string) => {
         if (!cachedHdWalletAdapter) {
           const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import('@shapeshiftoss/hdwallet-gridplus')
           cachedHdWalletAdapter = new HdWalletGridPlusAdapter(keyring)
         }
-        
-        const wallet = await cachedHdWalletAdapter.pairDevice(deviceId, password, pairingCode)
+
+        const wallet = await cachedHdWalletAdapter.pairDevice(deviceId, password, pairingCode, existingPrivKey)
         return wallet
       }
     }

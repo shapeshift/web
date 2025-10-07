@@ -13,7 +13,6 @@ import { SendFormFields, SendRoutes } from './SendCommon'
 import { maybeFetchChangeAddress } from './utils'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
-import { Details } from './views/Details'
 import { SendAmount } from './views/SendAmount'
 import { Status } from './views/Status'
 
@@ -42,7 +41,6 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const status = <Status />
 const confirm = <Confirm />
-const details = <Details />
 const sendAmount = <SendAmount />
 const address = <Address />
 
@@ -310,7 +308,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
               <Route path={SendRoutes.Address}>{address}</Route>
               <Route path={SendRoutes.Amount}>{sendAmount}</Route>
-              <Route path={SendRoutes.Details}> {details}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
               <Route path={SendRoutes.Confirm}>{confirm}</Route>
               <Route path={SendRoutes.Status}>{status}</Route>

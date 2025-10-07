@@ -1427,6 +1427,7 @@
       }
     },
     "send": {
+      "confirmTransaction": "Confirm transaction to %{address}",
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
@@ -1470,6 +1471,7 @@
         "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
+        "chain": "Chain",
         "sendAmount": "Send Amount",
         "max": "Max",
         "transactionFee": "Transaction Fee",

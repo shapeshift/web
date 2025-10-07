@@ -1,13 +1,13 @@
 import type { BoxProps, ButtonProps } from '@chakra-ui/react'
 import {
-  Box,
-  Button,
-  HStack,
-  Icon,
-  Text,
-  useDisclosure,
-  usePrevious,
-  VStack,
+	Box,
+	Button,
+	HStack,
+	Icon,
+	Text,
+	useDisclosure,
+	usePrevious,
+	VStack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
@@ -31,9 +31,9 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
-  DialogHeader,
-  DialogHeaderLeft,
-  DialogHeaderMiddle,
+	DialogHeader,
+	DialogHeaderLeft,
+	DialogHeaderMiddle,
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -43,12 +43,12 @@ import { isValidAccountNumber } from '@/lib/utils/accounts'
 import type { ReduxState } from '@/state/reducer'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
-  selectAssetById,
-  selectHighestUserCurrencyBalanceAccountByAssetId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioAccountMetadata,
+	selectAssetById,
+	selectHighestUserCurrencyBalanceAccountByAssetId,
+	selectMarketDataByAssetIdUserCurrency,
+	selectPortfolioAccountBalancesBaseUnit,
+	selectPortfolioAccountIdsByAssetIdFilter,
+	selectPortfolioAccountMetadata,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

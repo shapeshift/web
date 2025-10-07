@@ -1,6 +1,5 @@
 export enum SendRoutes {
   Amount = '/send/amount',
-  Details = '/send/details',
   Confirm = '/send/confirm',
   Status = '/send/status',
   Scan = '/send/scan',

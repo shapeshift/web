@@ -50,7 +50,7 @@ const AmountInput = (props: any) => {
       size='lg'
       fontSize='65px'
       lineHeight='65px'
-      fontWeight='bold'
+      fontWeight='normal'
       textAlign='center'
       border='none'
       borderRadius='lg'
@@ -79,7 +79,7 @@ export const SendAmount = () => {
   const { balancesLoading, fieldName, handleSendMax, handleInputChange, isLoading, toggleIsFiat } =
     useSendDetails()
 
-  const handleNextClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
+  const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [navigate])
   const handleBackClick = useCallback(() => navigate(SendRoutes.Address), [navigate])
 
   const handleMaxClick = useCallback(async () => {

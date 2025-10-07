@@ -194,7 +194,7 @@ export const GridPlusConnect = () => {
                 onKeyDown={handleKeyDown}
                 isDisabled={isLoading}
                 type="password"
-                autoComplete="current-password"
+                autoComplete="off"
                 autoFocus
               />
             </FormControl>
@@ -210,6 +210,7 @@ export const GridPlusConnect = () => {
                 maxLength={8}
                 pattern="[A-Z0-9]{8}"
                 style={{ textTransform: 'uppercase' }}
+                autoComplete="off"
                 autoFocus
               />
             </FormControl>

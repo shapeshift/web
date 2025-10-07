@@ -40,7 +40,6 @@ import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const status = <Status />
-const confirm = <Confirm />
 const sendAmount = <SendAmount />
 const address = <Address />
 
@@ -290,6 +289,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   )
 
   const location = useLocation()
+
+  const confirm = useMemo(
+    () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
+    [handleSubmit, methods],
+  )
 
   return (
     <FormProvider {...methods}>

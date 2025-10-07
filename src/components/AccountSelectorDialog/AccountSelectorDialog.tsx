@@ -148,7 +148,7 @@ const AccountSelectionDialog = ({
           <DialogTitle>{translate('accountSelector.chooseAccount')}</DialogTitle>
         </DialogHeaderMiddle>
       </DialogHeader>
-      <DialogBody>
+      <DialogBody maxH='80vh' overflowY='auto'>
         <VStack spacing={0} align='stretch'>
           {Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
             const sortedAccountIds = autoSelectHighestBalance

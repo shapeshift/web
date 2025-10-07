@@ -1462,7 +1462,8 @@
         "amount": "Amount",
         "transactionFee": "Transaction Fee",
         "fees": "Fees %{feeType}",
-        "pendingConfirmation": "Pending confirmation"
+        "pendingConfirmation": "Pending confirmation",
+        "holdToSend": "Hold to send"
       },
       "sendForm": {
         "optionalAssetMemo": "Optional %{assetSymbol} Memo",

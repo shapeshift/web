@@ -1,11 +1,11 @@
 import {
   Button,
+  Text as CText,
   Flex,
   FormControl,
   FormLabel,
   Icon,
   Stack,
-  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -175,7 +175,8 @@ export const Address = () => {
             justifyContent='flex-start'
             height='auto'
             background='transparent'
-            px={0}
+            m={-2}
+            p={2}
           >
             <VStack align='start' spacing={0}>
               <CText fontSize='md' fontWeight='medium' color='text.primary'>

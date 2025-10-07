@@ -12,18 +12,20 @@ import {
   Skeleton,
   Stack,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react'
-import { keyframes } from '@emotion/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { ChangeEvent } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TbArrowsSplit2 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import { useLongPress } from 'use-long-press'
 
+import { SendGasSelection } from '../components/SendGasSelection'
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendFormFields, SendRoutes } from '../SendCommon'
@@ -40,20 +42,23 @@ import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButt
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader, DialogHeaderRight } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { AnimatedDots } from '@/components/Modals/Send/components/AnimatedDots'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { getConfig } from '@/config'
+import { defaultLongPressConfig } from '@/constants/longPress'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
+import { vibrate } from '@/lib/vibrate'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
-import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { GasSelectionMenu } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/GasSelectionMenu'
+import { breakpoints } from '@/theme/theme'
 
 export type FeePrice = {
   [key in FeeDataKey]: {
@@ -65,75 +70,13 @@ export type FeePrice = {
 
 const accountDropdownButtonProps = { variant: 'ghost', height: 'auto', p: 0, size: 'md' }
 
-// Infinite scroll animation that moves dots down continuously
-const infiniteScroll = keyframes`
-  0% {
-    transform: translateY(10px);
-  }
-  100% {
-    transform: translateY(90px);
-  }
-`
+const LONG_PRESS_SECONDS_THRESHOLD = 2000
 
-const AnimatedDots = () => {
-  const shadowColor = useColorModeValue('#f8fafc', '#1e2024')
-  const dotPositions = [-75, -55, -35, -15, 5, 25, 45, 65]
-
-  return (
-    <Box
-      position='relative'
-      height='60px'
-      width='20px'
-      overflow='hidden'
-      display='flex'
-      flexDirection='column'
-      alignItems='center'
-      justifyContent='center'
-      zIndex={0}
-    >
-      <Box
-        position='absolute'
-        top='-10px'
-        left='0'
-        right='0'
-        height='30px'
-        background={`linear-gradient(to bottom, ${shadowColor} 0%, ${shadowColor}80 70%, transparent 100%)`}
-        zIndex={2}
-        pointerEvents='none'
-      />
-
-      <Box
-        position='absolute'
-        bottom='-10px'
-        left='0'
-        right='0'
-        height='30px'
-        background={`linear-gradient(to top, ${shadowColor} 0%, ${shadowColor}80 70%, transparent 100%)`}
-        zIndex={2}
-        pointerEvents='none'
-      />
-      {dotPositions.map((topPosition, index) => {
-        return (
-          <Box
-            key={index}
-            position='absolute'
-            width='6px'
-            height='6px'
-            bg='text.subtle'
-            borderRadius='full'
-            zIndex={1}
-            left='50%'
-            marginLeft='-3px'
-            top={`${topPosition}px`}
-            animation={`${infiniteScroll} 5s infinite linear`}
-          />
-        )
-      })}
-    </Box>
-  )
+export type ConfirmProps = {
+  handleSubmit: () => void
 }
 
-export const Confirm = () => {
+export const Confirm = ({ handleSubmit }: ConfirmProps) => {
   const {
     control,
     formState: { isSubmitting },
@@ -157,8 +100,8 @@ export const Confirm = () => {
   const { fees } = useSendFees()
   const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
   const toBg = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const {
     state: { wallet },
@@ -179,16 +122,6 @@ export const Confirm = () => {
       ),
     [assetId, wallet],
   )
-
-  const feeAmountUserCurrency = useMemo(() => {
-    const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
-    return fiatFee
-  }, [fees, feeType])
-
-  const cryptoAmountFee = useMemo(() => {
-    const { txFee } = fees ? fees[feeType as FeeDataKey] : { txFee: 0 }
-    return txFee.toString()
-  }, [fees, feeType])
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
@@ -225,6 +158,48 @@ export const Confirm = () => {
     const chainName = chainAdapterManager.get(asset?.chainId ?? '')?.getDisplayName()
     return chainName
   }, [asset?.chainId])
+
+  const [isLongPressing, setIsLongPressing] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    if (!isLongPressing) return
+
+    const startTime = Date.now()
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime
+      const progressPercent = Math.min((elapsed / LONG_PRESS_SECONDS_THRESHOLD) * 100, 100)
+      setProgress(progressPercent)
+
+      if (progressPercent < 100) {
+        requestAnimationFrame(updateProgress)
+      }
+    }
+
+    requestAnimationFrame(updateProgress)
+  }, [isLongPressing])
+
+  const longPressHandlers = useLongPress(() => {}, {
+    ...defaultLongPressConfig,
+    threshold: LONG_PRESS_SECONDS_THRESHOLD,
+    cancelOnMovement: 25,
+    onFinish: () => {
+      vibrate('heavy')
+      setIsLongPressing(false)
+      setProgress(0)
+      handleSubmit()
+    },
+    onCancel: () => {
+      setIsLongPressing(false)
+      setProgress(0)
+    },
+    onStart: () => {
+      vibrate('light')
+      setIsLongPressing(true)
+      setProgress(0)
+    },
+  })
 
   if (!(to && asset?.name && amountCryptoPrecision && fiatAmount && feeType)) return null
 
@@ -410,16 +385,6 @@ export const Confirm = () => {
               </Row.Value>
             </Row>
           )}
-          {/* <FormControl mt={4}>
-            <Row variant='vertical'>
-              <Row.Label>
-                <FormLabel color='text.subtle' htmlFor='tx-fee'>
-                  {translate('modals.send.sendForm.transactionFee')}
-                </FormLabel>
-              </Row.Label>
-              <TxFeeRadioGroup fees={fees} />
-            </Row>
-          </FormControl> */}
         </Stack>
       </DialogBody>
       <DialogFooter
@@ -433,16 +398,7 @@ export const Confirm = () => {
         borderLeftColor='border.base'
         borderTopRadius='20'
       >
-        <Flex>
-          <Box>
-            <Flex fontWeight='bold' color='text.primary'>
-              <Amount.Crypto me={2} value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />
-              (<Amount.Fiat value={feeAmountUserCurrency} />)
-            </Flex>
-            <Text color='text.subtle' translation='common.feeEstimate' />
-          </Box>
-          <GasSelectionMenu />
-        </Flex>
+        <SendGasSelection />
         <Button
           colorScheme='blue'
           isDisabled={!fees || isSubmitting}
@@ -450,10 +406,30 @@ export const Confirm = () => {
           loadingText={translate('modals.send.broadcastingTransaction')}
           size='lg'
           mt={6}
-          type='submit'
+          type={isSmallerThanMd ? 'button' : 'submit'}
           width='full'
+          position='relative'
+          overflow='hidden'
+          {...(isSmallerThanMd ? longPressHandlers() : {})}
         >
-          <Text translation='common.confirm' />
+          {isLongPressing && (
+            <Box
+              position='absolute'
+              top='0'
+              left='0'
+              height='100%'
+              width={`${progress}%`}
+              bg='whiteAlpha.200'
+              transition='width 0.1s ease-out'
+              zIndex={1}
+            />
+          )}
+
+          <Box position='relative' zIndex={2}>
+            <Text
+              translation={isSmallerThanMd ? 'modals.send.confirm.holdToSend' : 'common.confirm'}
+            />
+          </Box>
         </Button>
       </DialogFooter>
     </SlideTransition>

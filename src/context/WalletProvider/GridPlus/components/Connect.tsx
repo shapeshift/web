@@ -12,7 +12,7 @@ import {
   ModalBody,
   Spinner,
 } from '@chakra-ui/react'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GridPlusConfig } from '../config'
@@ -50,17 +50,8 @@ export const GridPlusConnect = () => {
   const [showPairingCode, setShowPairingCode] = useState(false)
   const [pairingCode, setPairingCode] = useState('')
 
-  // Pre-fill deviceId if reconnecting
-  useEffect(() => {
-    console.log('[GridPlus Connect] useEffect check:', {
-      hasExistingConnection,
-      existingDeviceId,
-      willPrefillDeviceId: hasExistingConnection && existingDeviceId
-    })
-    if (hasExistingConnection && existingDeviceId) {
-      setDeviceId(existingDeviceId)
-    }
-  }, [hasExistingConnection, existingDeviceId])
+  // Use existingDeviceId if reconnecting, otherwise use input value
+  const activeDeviceId = existingDeviceId || deviceId
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -79,7 +70,7 @@ export const GridPlusConnect = () => {
   const handleConnect = useCallback(async () => {
     console.log('[GridPlus] ========== handleConnect START ==========')
     console.log('[GridPlus] Initial state:', {
-      deviceId: deviceId.trim(),
+      deviceId: activeDeviceId.trim(),
       showPairingCode,
       pairingCode,
       hasExistingPrivKey: !!existingPrivKey,
@@ -90,7 +81,7 @@ export const GridPlusConnect = () => {
     setError(null)
 
     try {
-      if (!deviceId.trim()) {
+      if (!activeDeviceId.trim()) {
         throw new Error('Device ID is required')
       }
 
@@ -106,10 +97,10 @@ export const GridPlusConnect = () => {
       if (!showPairingCode) {
         console.log('[GridPlus] Step 1: Connecting to device...', {
           hasExistingPrivKey: !!existingPrivKey,
-          deviceId: deviceId.trim()
+          deviceId: activeDeviceId.trim()
         })
         const { isPaired, privKey } = await adapterWithKeyring.connectDevice(
-          deviceId.trim(),
+          activeDeviceId.trim(),
           undefined,
           existingPrivKey || undefined
         )
@@ -144,12 +135,12 @@ export const GridPlusConnect = () => {
       let wallet
       if (showPairingCode && pairingCode) {
         console.log('[GridPlus] Using pairConnectedDevice with pairing code');
-        wallet = await adapterWithKeyring.pairConnectedDevice(deviceId.trim(), pairingCode)
+        wallet = await adapterWithKeyring.pairConnectedDevice(activeDeviceId.trim(), pairingCode)
         console.log('[GridPlus] pairConnectedDevice completed')
       } else {
         console.log('[GridPlus] Using pairDevice (already paired flow)');
         wallet = await adapterWithKeyring.pairDevice(
-          deviceId.trim(),
+          activeDeviceId.trim(),
           undefined,
           undefined,
           existingPrivKey || undefined
@@ -222,7 +213,7 @@ export const GridPlusConnect = () => {
         setErrorLoading(e instanceof Error ? e.message : 'Connection failed')
       }
     }
-  }, [deviceId, pairingCode, showPairingCode, setErrorLoading, getAdapter, dispatch, localWallet, navigate])
+  }, [activeDeviceId, pairingCode, showPairingCode, existingPrivKey, setErrorLoading, getAdapter, dispatch, localWallet, navigate])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
@@ -324,7 +315,7 @@ export const GridPlusConnect = () => {
               width='full'
               colorScheme='blue'
               onClick={handleConnect}
-              isDisabled={(!showPairingCode && !hasExistingConnection && !deviceId.trim()) || (showPairingCode && !pairingCode.trim())}
+              isDisabled={(!showPairingCode && !hasExistingConnection && !activeDeviceId.trim()) || (showPairingCode && !pairingCode.trim())}
             >
               {showPairingCode ? 'Complete Pairing' : hasExistingConnection ? 'Reconnect' : 'Connect Device'}
             </Button>

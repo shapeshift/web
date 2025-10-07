@@ -925,6 +925,8 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
   ): GroupedAssetBalance | null => {
     const spamAssetIdsSet = new Set(spamMarkedAssetIds)
     const primaryAsset = assetsById[primaryAssetId]
+    // Normalize to use the relatedAssetKey if it exists, since market data is only stored on primary assets
+    const normalizedPrimaryAssetId = primaryAsset?.relatedAssetKey ?? primaryAssetId
     const primaryRow = accountRows.find(row => row.assetId === primaryAssetId) ?? {
       assetId: primaryAssetId,
       name: primaryAsset?.name ?? '',
@@ -933,14 +935,14 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
       fiatAmount: '0',
       cryptoAmount: '0',
       allocation: 0,
-      price: marketData[primaryAssetId]?.price ?? '0',
-      priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
+      price: marketData[normalizedPrimaryAssetId]?.price ?? '0',
+      priceChange: marketData[normalizedPrimaryAssetId]?.changePercent24Hr ?? 0,
       relatedAssetKey: assetsById[primaryAssetId]?.relatedAssetKey ?? null,
       isChainSpecific: primaryAsset?.isChainSpecific ?? false,
       isPrimary: primaryAsset?.isPrimary ?? false,
     }
 
-    const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId] || []
+    const allRelatedAssetIds = relatedAssetIdsByAssetId[normalizedPrimaryAssetId] || []
     const relatedAssets = allRelatedAssetIds
       .map(assetId => {
         if (spamAssetIdsSet.has(assetId)) return null

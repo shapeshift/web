@@ -128,7 +128,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     select: selectRuneAddress,
   })
 
-  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
+  // const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
+  const isDiscoveringAccounts = false // Commented out for dev testing
 
   const isBridgeRequired = selectedStakingAssetId === l1AssetId
 

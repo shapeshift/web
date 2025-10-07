@@ -7,11 +7,14 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Button,
+  ModalHeader,
+  ModalBody,
+  Spinner,
 } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { ConnectModal } from '../../components/ConnectModal'
 import { GridPlusConfig } from '../config'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -124,74 +127,111 @@ export const GridPlusConnect = () => {
     }
   }, [deviceId, pairingCode, showPairingCode, setErrorLoading, getAdapter, dispatch, localWallet, navigate])
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isLoading) {
+      e.preventDefault()
+      handleConnect()
+    }
+  }, [handleConnect, isLoading])
+
   return (
-    <ConnectModal
-      headerText={'Connect GridPlus Lattice'}
-      bodyText={showPairingCode ? 'Enter the 6-digit pairing code displayed on your Lattice device.' : 'Enter your device ID to connect to your GridPlus Lattice.'}
-      buttonText={showPairingCode ? 'Complete Pairing' : 'Connect Device'}
-      onPairDeviceClick={handleConnect}
-      loading={isLoading}
-      error={error}
-    >
-      <VStack spacing={4} align="stretch">
-        {!showPairingCode ? (
-          <FormControl>
-            <FormLabel>Device ID</FormLabel>
-            <Input
-              placeholder="Enter your Lattice device ID"
-              value={deviceId}
-              onChange={(e) => setDeviceId(e.target.value)}
-              isDisabled={isLoading}
-              type="password"
-              autoComplete="current-password"
-            />
-          </FormControl>
-        ) : (
-          <FormControl>
-            <FormLabel>Pairing Code</FormLabel>
-            <Input
-              placeholder="Enter 8-character code from Lattice"
-              value={pairingCode}
-              onChange={(e) => setPairingCode(e.target.value.toUpperCase())}
-              isDisabled={isLoading}
-              maxLength={8}
-              pattern="[A-Z0-9]{8}"
-              style={{ textTransform: 'uppercase' }}
-            />
-          </FormControl>
-        )}
-        
+    <>
+      <ModalHeader>
+        {showPairingCode ? 'Pair GridPlus Lattice' : 'Connect GridPlus Lattice'}
+      </ModalHeader>
+      <ModalBody>
+        <Text mb={4} color='text.subtle'>
+          {showPairingCode
+            ? 'Enter the 8-character pairing code displayed on your Lattice device.'
+            : 'Enter your device ID to connect to your GridPlus Lattice.'
+          }
+        </Text>
 
-        <Box>
-          <Text fontSize="sm" color="text.subtle">
-            {showPairingCode 
-              ? 'Look at your Lattice screen for an 8-character pairing code.'
-              : 'You can find your device ID in your Lattice settings under Device Info.'
-            }
-          </Text>
-        </Box>
+        <VStack spacing={4} align="stretch">
+          {!showPairingCode ? (
+            <FormControl>
+              <FormLabel>Device ID</FormLabel>
+              <Input
+                placeholder="Enter your Lattice device ID"
+                value={deviceId}
+                onChange={(e) => setDeviceId(e.target.value)}
+                onKeyDown={handleKeyDown}
+                isDisabled={isLoading}
+                type="password"
+                autoComplete="current-password"
+                autoFocus
+              />
+            </FormControl>
+          ) : (
+            <FormControl>
+              <FormLabel>Pairing Code</FormLabel>
+              <Input
+                placeholder="Enter 8-character code from Lattice"
+                value={pairingCode}
+                onChange={(e) => setPairingCode(e.target.value.toUpperCase())}
+                onKeyDown={handleKeyDown}
+                isDisabled={isLoading}
+                maxLength={8}
+                pattern="[A-Z0-9]{8}"
+                style={{ textTransform: 'uppercase' }}
+                autoFocus
+              />
+            </FormControl>
+          )}
 
-        {error && (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
-
-        {showPairingCode && (
           <Box>
-            <Text 
-              fontSize="sm" 
-              color="blue.500" 
-              cursor="pointer" 
-              onClick={resetPairingFlow}
-              textDecoration="underline"
-            >
-              ← Back to Device ID
+            <Text fontSize="sm" color="text.subtle">
+              {showPairingCode
+                ? 'Look at your Lattice screen for an 8-character pairing code.'
+                : 'You can find your device ID in your Lattice settings under Device Info.'
+              }
             </Text>
           </Box>
-        )}
-      </VStack>
-    </ConnectModal>
+
+          {error && (
+            <Alert status="error">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+
+          {isLoading ? (
+            <Button
+              width='full'
+              colorScheme='blue'
+              isLoading
+              loadingText='Connecting...'
+              spinner={<Spinner color='white' />}
+              isDisabled
+            >
+              {showPairingCode ? 'Complete Pairing' : 'Connect Device'}
+            </Button>
+          ) : (
+            <Button
+              width='full'
+              colorScheme='blue'
+              onClick={handleConnect}
+              isDisabled={(!showPairingCode && !deviceId.trim()) || (showPairingCode && !pairingCode.trim())}
+            >
+              {showPairingCode ? 'Complete Pairing' : 'Connect Device'}
+            </Button>
+          )}
+
+          {showPairingCode && (
+            <Box>
+              <Text
+                fontSize="sm"
+                color="blue.500"
+                cursor="pointer"
+                onClick={resetPairingFlow}
+                textDecoration="underline"
+              >
+                ← Back to Device ID
+              </Text>
+            </Box>
+          )}
+        </VStack>
+      </ModalBody>
+    </>
   )
 }

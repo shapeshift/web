@@ -12,6 +12,7 @@ import { lazy } from 'react'
 import type { RouteProps as _RouteProps } from 'react-router-dom'
 
 import { CoinbaseConfig } from './Coinbase/config'
+import { GridPlusConfig, GridPlusAdapter } from './GridPlus/config'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
@@ -37,6 +38,12 @@ export type WalletProviderRouteProps = _RouteProps & {
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
     default: WalletConnectV2Connect,
+  })),
+)
+
+const GridPlusConnect = lazy(() =>
+  import('./GridPlus/components/Connect').then(({ GridPlusConnect }) => ({
+    default: GridPlusConnect,
   })),
 )
 
@@ -334,6 +341,7 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
   [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
+  [KeyManager.GridPlus]: SupportedWalletInfo<typeof GridPlusAdapter>
 }
 
 export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
@@ -440,6 +448,12 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,
     routes: [{ path: '/walletconnectv2/connect', component: WalletConnectV2Connect }],
+  },
+  [KeyManager.GridPlus]: {
+    ...GridPlusConfig,
+    routes: [
+      { path: '/gridplus/connect', component: GridPlusConnect },
+    ],
   },
 }
 

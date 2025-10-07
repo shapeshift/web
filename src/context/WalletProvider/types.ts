@@ -8,6 +8,7 @@ import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 
+import type { GridPlusAdapter } from './GridPlus/config'
 import type { KeyManager } from './KeyManager'
 
 export type AdaptersByKeyManager = {
@@ -20,6 +21,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.MetaMask]: MetaMaskAdapter
   [KeyManager.Phantom]: PhantomAdapter
   [KeyManager.Coinbase]: CoinbaseAdapter
+  [KeyManager.GridPlus]: GridPlusAdapter
 }
 
 export enum NativeWalletRoutes {

@@ -16,11 +16,12 @@ import { isToken } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { TbDots, TbExternalLink, TbEye, TbFileText } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { isSome } from '@/lib/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -42,8 +43,9 @@ type ManageHiddenAssetsListProps = {
 
 export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ onClose }) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
   const appDispatch = useAppDispatch()
+  const walletDrawer = useModal('walletDrawer')
 
   const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
 
@@ -74,8 +76,11 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
     }, [asset, assetId])
 
     const handleViewDetailsClick = useCallback(() => {
-      navigate(`/assets/${assetId}`)
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
       onClose?.()
+      navigate(`/assets/${assetId}`)
     }, [assetId])
 
     const handleShowClick = useCallback(() => {

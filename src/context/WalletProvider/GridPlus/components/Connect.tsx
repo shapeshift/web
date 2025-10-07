@@ -34,6 +34,12 @@ export const GridPlusConnect = () => {
   // Only check privKey - walletType/deviceId get cleared on disconnect but privKey persists
   const hasExistingConnection = !!existingPrivKey
 
+  console.log('[GridPlus Connect] State check:', {
+    existingDeviceId,
+    existingPrivKey: existingPrivKey ? `${existingPrivKey.substring(0, 10)}...` : null,
+    hasExistingConnection
+  })
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deviceId, setDeviceId] = useState('')
@@ -42,6 +48,11 @@ export const GridPlusConnect = () => {
 
   // Pre-fill deviceId if reconnecting
   useEffect(() => {
+    console.log('[GridPlus Connect] useEffect check:', {
+      hasExistingConnection,
+      existingDeviceId,
+      willPrefillDeviceId: hasExistingConnection && existingDeviceId
+    })
     if (hasExistingConnection && existingDeviceId) {
       setDeviceId(existingDeviceId)
     }
@@ -167,6 +178,12 @@ export const GridPlusConnect = () => {
       handleConnect()
     }
   }, [handleConnect, isLoading])
+
+  console.log('[GridPlus Connect] Render:', {
+    showPairingCode,
+    hasExistingConnection,
+    header: showPairingCode ? 'Pair GridPlus Lattice' : hasExistingConnection ? 'Reconnect to GridPlus' : 'Connect GridPlus Lattice'
+  })
 
   return (
     <>

@@ -31,8 +31,8 @@ export const GridPlusConnect = () => {
   // Check for existing GridPlus connection
   const existingDeviceId = useAppSelector(state => state.localWallet.walletDeviceId)
   const existingPrivKey = useAppSelector(state => state.localWallet.gridplusPrivKey)
-  const existingWalletType = useAppSelector(state => state.localWallet.walletType)
-  const hasExistingConnection = existingWalletType === KeyManager.GridPlus && existingDeviceId && existingPrivKey
+  // Only check privKey - walletType/deviceId get cleared on disconnect but privKey persists
+  const hasExistingConnection = !!existingPrivKey
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

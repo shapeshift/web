@@ -8,6 +8,7 @@ export type LocalWalletState = {
   walletDeviceId: string | null
   nativeWalletName: string | null
   rdns: string | null
+  gridplusPrivKey: string | null
 }
 
 export const initialState: LocalWalletState = {
@@ -15,6 +16,7 @@ export const initialState: LocalWalletState = {
   walletDeviceId: null,
   nativeWalletName: null,
   rdns: null,
+  gridplusPrivKey: null,
 }
 
 export const localWalletSlice = createSlice({
@@ -37,9 +39,13 @@ export const localWalletSlice = createSlice({
       state.walletDeviceId = null
       state.nativeWalletName = null
       state.rdns = null
+      state.gridplusPrivKey = null
     }),
     setNativeWalletName: create.reducer((state, action: PayloadAction<string>) => {
       state.nativeWalletName = action.payload
+    }),
+    setGridPlusPrivKey: create.reducer((state, action: PayloadAction<string>) => {
+      state.gridplusPrivKey = action.payload
     }),
   }),
 })

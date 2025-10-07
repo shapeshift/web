@@ -1,5 +1,6 @@
 import type { MigrationManifest } from 'redux-persist'
 
+import { addGridPlusPrivKey } from './addGridPlusPrivKey'
 import { clearAction } from './clearAction'
 import { clearAssets } from './clearAssets'
 import { clearLocalWallet } from './clearLocalWallet'
@@ -37,6 +38,7 @@ export const clearPortfolioMigrations = {
 export const localWalletMigrations = {
   0: clearLocalWallet,
   1: clearLocalWallet,
+  2: addGridPlusPrivKey,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAssetsMigrations = {

@@ -29,6 +29,7 @@ import { DrawerWalletHeader } from './DrawerWalletHeader'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
+import { ManageHiddenAssetsContent } from '@/components/ManageHiddenAssets/ManageHiddenAssetsContent'
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { ModalContext } from '@/context/ModalProvider/ModalContext'
@@ -206,6 +207,8 @@ const DrawerWalletInner: FC = memo(() => {
     [handleBackToMain, onClose],
   )
 
+  const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
+
   return (
     <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
       <DrawerOverlay />
@@ -308,6 +311,7 @@ const DrawerWalletInner: FC = memo(() => {
                 </>
               }
             />
+            <Route path='/manage-hidden-assets' element={manageHiddenAssetsElement} />
             <Route path='/settings/*' element={drawerSettingsElement} />
           </Routes>
         </DrawerBody>

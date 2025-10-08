@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
@@ -27,6 +27,7 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -106,7 +107,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   )
 
   // notify
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
@@ -205,7 +206,6 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

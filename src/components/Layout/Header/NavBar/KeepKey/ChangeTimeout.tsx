@@ -1,4 +1,4 @@
-import { useColorModeValue, useToast } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -11,6 +11,7 @@ import { LastDeviceInteractionStatus } from '@/components/Layout/Header/NavBar/K
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio } from '@/components/Radio/Radio'
 import { DeviceTimeout, timeoutOptions, useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const radioProps = { width: 'full', justifyContent: 'flex-start' }
@@ -33,7 +34,7 @@ export const ChangeTimeout = () => {
       deviceState: { awaitingDeviceInteraction },
     },
   } = useWallet()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
   const handleChange = useCallback(

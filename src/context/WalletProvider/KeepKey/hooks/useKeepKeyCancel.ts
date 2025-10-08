@@ -1,14 +1,14 @@
-import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const useKeepKeyCancel = () => {
   const navigate = useNavigate()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
   const {
     state: { wallet },

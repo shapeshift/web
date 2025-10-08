@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -20,6 +20,7 @@ import { Confirm as ReusableConfirm } from '@/features/defi/components/Confirm/C
 import { Summary } from '@/features/defi/components/Summary'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -56,7 +57,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state: walletState } = useWallet()
 
   // notify
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
@@ -118,7 +119,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

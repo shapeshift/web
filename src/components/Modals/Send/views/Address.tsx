@@ -152,7 +152,7 @@ export const Address = () => {
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
       </DialogHeader>
-      <DialogBody>
+      <DialogBody height='100%'>
         <VStack spacing={4} align='stretch'>
           <FormControl>
             <AddressInput

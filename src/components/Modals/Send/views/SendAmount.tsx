@@ -33,7 +33,7 @@ import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
-import { AccountSelectorDialog } from '@/components/AccountSelectorDialog/AccountSelectorDialog'
+import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -473,7 +473,7 @@ export const SendAmount = () => {
                 {translate('modals.send.sendForm.from')}
               </FormLabel>
               <Box>
-                <AccountSelectorDialog
+                <AccountSelector
                   assetId={asset.assetId}
                   defaultAccountId={accountId}
                   onChange={handleAccountChange}

@@ -29,6 +29,7 @@ type RateGasRowProps = {
   isOpen?: boolean
   hideGasAmount?: boolean
   sx?: StackProps['sx']
+  flexProps?: FlexProps
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -54,6 +55,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     noExpand,
     invertRate,
     sx,
+    flexProps,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
@@ -181,6 +183,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
               px={4}
               py={4}
               width='full'
+              {...flexProps}
             >
               <Row fontSize='sm' flex={1} maxW='65%'>
                 <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>

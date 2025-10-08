@@ -24,12 +24,15 @@ import { httpClientIntegration } from './utils/sentry/httpclient'
 
 const enableReactScan = false
 
+// TODO: Re-enable Sentry after implementing proper error filtering and sampling
+const SENTRY_ENABLED = false
+
 scan({
   enabled: window.location.hostname === 'localhost' && enableReactScan,
 })
 
 // Remove this condition to test sentry locally
-if (window.location.hostname !== 'localhost') {
+if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
   const VALID_ENVS = [
     'localhost',
     'develop',

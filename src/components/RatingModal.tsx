@@ -65,7 +65,7 @@ export const RatingModal = () => {
 
   const isFiveStarRating = useMemo(() => rating === 5, [rating])
   const showFeedbackForm = useMemo(() => rating > 0 && rating < 5, [rating])
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
 
   const handleRatingChange = useCallback(
     async (newRating: number) => {

@@ -15,7 +15,7 @@ const TCY_TOAST_ID = 'tcyClaimAlert'
 
 export const useTcyClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const navigate = useNavigate()
   const {
     state: { walletInfo },
@@ -63,7 +63,6 @@ export const useTcyClaimActionSubscriber = () => {
             id: TCY_TOAST_ID,
             duration: null,
             isClosable: true,
-            position: 'bottom-right',
           })
         }
         return

@@ -18,7 +18,7 @@ export const KeepKeyLabel = () => {
       wallet,
     },
   } = useWallet()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const translate = useTranslate()
   const [label, setLabel] = useState('')
   const recoverKeepKey = useKeepKeyRecover()

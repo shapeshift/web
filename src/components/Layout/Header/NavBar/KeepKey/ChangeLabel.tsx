@@ -15,7 +15,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const ChangeLabel = () => {
   const translate = useTranslate()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const { state } = useWallet()
   const { walletInfo } = state
   const {

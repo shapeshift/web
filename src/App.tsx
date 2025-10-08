@@ -22,7 +22,7 @@ import { AppRoutes } from '@/Routes/Routes'
 export const App = () => {
   const navigate = useNavigate()
   const { hasUpdated } = useHasAppUpdated()
-  const updateToast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
@@ -35,8 +35,8 @@ export const App = () => {
   useLedgerAccountGuard()
 
   useEffect(() => {
-    if (hasUpdated && !updateToast.isActive(updateId) && !isActionCenterEnabled) {
-      const toastId = updateToast({
+    if (hasUpdated && !toast.isActive(updateId) && !isActionCenterEnabled) {
+      const toastId = toast({
         icon: (
           <IconCircle boxSize={8} color='text.subtle'>
             <FaSync />
@@ -51,7 +51,7 @@ export const App = () => {
       if (!toastId) return
       toastIdRef.current = toastId
     }
-  }, [hasUpdated, updateToast, translate, isActionCenterEnabled])
+  }, [hasUpdated, toast, translate, isActionCenterEnabled])
 
   useEffect(() => {
     if (showWelcomeModal && !isNativeOnboardOpen) {

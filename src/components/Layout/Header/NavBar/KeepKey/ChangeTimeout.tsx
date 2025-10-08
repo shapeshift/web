@@ -34,7 +34,7 @@ export const ChangeTimeout = () => {
       deviceState: { awaitingDeviceInteraction },
     },
   } = useWallet()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
   const handleChange = useCallback(

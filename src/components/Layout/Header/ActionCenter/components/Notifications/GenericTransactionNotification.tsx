@@ -37,7 +37,6 @@ export const GenericTransactionNotification = ({
   const title = useMemo(() => {
     if (!action) return undefined
     return translate(action.transactionMetadata.message, {
-      ...action.transactionMetadata,
       amount: action.transactionMetadata.amountCryptoPrecision,
       symbol: asset?.symbol,
       newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),

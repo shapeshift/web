@@ -2,7 +2,6 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
-  Text as CText,
   Divider,
   Flex,
   HStack,
@@ -11,6 +10,7 @@ import {
   Link,
   Skeleton,
   Stack,
+  Text as CText,
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'

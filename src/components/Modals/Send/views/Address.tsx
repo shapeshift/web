@@ -1,11 +1,10 @@
 import {
   Button,
-  Text as CText,
   Flex,
   FormControl,
-  FormLabel,
   Icon,
   Stack,
+  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -156,9 +155,6 @@ export const Address = () => {
       <DialogBody>
         <VStack spacing={4} align='stretch'>
           <FormControl>
-            <FormLabel color='text.subtle' w='full'>
-              {translate('modals.send.sendForm.sendTo')}
-            </FormLabel>
             <AddressInput
               pe={16}
               rules={addressInputRules}

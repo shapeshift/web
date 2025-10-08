@@ -32,6 +32,7 @@ export const clearPortfolioMigrations = {
   1: clearPortfolio,
   2: clearPortfolio,
   3: clearPortfolio,
+  4: clearPortfolio, // Clear AccountIds for GridPlus Cosmos/THOR address fixes
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const localWalletMigrations = {

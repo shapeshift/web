@@ -1,15 +1,17 @@
+import { Box } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { ActionIcon } from '../ActionIcon'
 
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectSwapActionBySwapId, selectWalletSwapsById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -20,10 +22,6 @@ type SwapNotificationProps = {
 } & RenderProps
 
 export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificationProps) => {
-  const translate = useTranslate()
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
   const swapsById = useAppSelector(selectWalletSwapsById)
 
   const swap = useMemo(() => {
@@ -66,33 +64,57 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     )
   }, [swap, action])
 
+  const swapNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
+    if (!swap) return
+
+    return {
+      sellAmountAndSymbol: (
+        <Amount.Crypto
+          value={swap.sellAmountCryptoPrecision}
+          symbol={swap.sellAsset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={6}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+      sellChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.sellAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
+      buyAmountAndSymbol: (
+        <Amount.Crypto
+          value={actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
+          symbol={swap.buyAsset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={6}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+      buyChainShortName: (
+        <Box display='inline' fontWeight='bold'>
+          {getChainShortName(swap.buyAsset.chainId as KnownChainIds)}
+        </Box>
+      ),
+    }
+  }, [swap, actualBuyAmountCryptoPrecision])
+
   const title = useMemo(() => {
     if (!swap) return undefined
 
-    const sellAmountAndSymbol = toCrypto(swap.sellAmountCryptoPrecision, swap.sellAsset.symbol, {
-      maximumFractionDigits: 6,
-      omitDecimalTrailingZeros: true,
-    })
-
-    const buyAmountAndSymbol = toCrypto(
-      actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision,
-      swap.buyAsset.symbol,
-      {
-        maximumFractionDigits: 6,
-        omitDecimalTrailingZeros: true,
-      },
+    return (
+      <Text
+        fontSize='sm'
+        letterSpacing='0.02em'
+        translation={swapTitleTranslation}
+        components={swapNotificationTranslationComponents}
+      />
     )
-
-    const sellChainShortName = getChainShortName(swap.sellAsset.chainId as KnownChainIds)
-    const buyChainShortName = getChainShortName(swap.buyAsset.chainId as KnownChainIds)
-
-    return translate(swapTitleTranslation, {
-      sellAmountAndSymbol,
-      sellChainShortName,
-      buyAmountAndSymbol,
-      buyChainShortName,
-    })
-  }, [swap, swapTitleTranslation, actualBuyAmountCryptoPrecision, toCrypto, translate])
+  }, [swap, swapTitleTranslation, swapNotificationTranslationComponents])
 
   if (!swap || !icon || !title) return null
 

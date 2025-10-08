@@ -38,7 +38,7 @@ export const ChangePin = () => {
     },
     setDeviceState,
   } = useWallet()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const pinButtonBackground = useColorModeValue('gray.200', 'gray.600')
   const pinButtonBackgroundHover = useColorModeValue('gray.100', 'text.subtle')
 

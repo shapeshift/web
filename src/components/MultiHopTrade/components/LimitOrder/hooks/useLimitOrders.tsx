@@ -41,7 +41,7 @@ export const useLimitOrdersQuery = () => {
 
 export const useLimitOrders = () => {
   const limitOrdersQuery = useLimitOrdersQuery()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const translate = useTranslate()
   const prevLimitOrdersData = usePrevious(limitOrdersQuery.currentData)
   const actions = useAppSelector(selectLimitOrderActionsByWallet)

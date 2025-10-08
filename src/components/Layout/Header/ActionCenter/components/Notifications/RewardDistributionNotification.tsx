@@ -2,12 +2,13 @@ import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { ActionIcon } from '../ActionIcon'
 
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -27,10 +28,6 @@ export const RewardDistributionNotification = ({
   handleClick,
   onClose,
 }: RewardDistributionNotificationProps) => {
-  const translate = useTranslate()
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const action = actions[actionId]
@@ -46,22 +43,36 @@ export const RewardDistributionNotification = ({
     return <ActionIcon assetId={thorchainAssetId} status={action.status} />
   }, [action])
 
+  const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
+    if (!runeAsset) return
+
+    return {
+      amountAndSymbol: (
+        <Amount.Crypto
+          value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
+          symbol={runeAsset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={6}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+    }
+  }, [distribution.amount, runeAsset])
+
   const title = useMemo(() => {
     if (!runeAsset) return undefined
 
-    const amountAndSymbol = toCrypto(
-      fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0),
-      runeAsset.symbol,
-      {
-        maximumFractionDigits: 6,
-        omitDecimalTrailingZeros: true,
-      },
+    return (
+      <Text
+        fontSize='sm'
+        letterSpacing='0.02em'
+        translation={rewardDistributionTitleTranslation}
+        components={rewardDistributionTranslationComponents}
+      />
     )
-
-    return translate(rewardDistributionTitleTranslation, {
-      amountAndSymbol,
-    })
-  }, [distribution.amount, runeAsset, rewardDistributionTitleTranslation, toCrypto, translate])
+  }, [runeAsset, rewardDistributionTitleTranslation, rewardDistributionTranslationComponents])
 
   if (!distribution || !icon || !title) return null
 

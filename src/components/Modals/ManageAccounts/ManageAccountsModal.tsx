@@ -1,10 +1,13 @@
-import { Box, Button, Flex, HStack, Tag, useDisclosure, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Tag, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import type { ImportAccountsRef } from './components/ImportAccounts'
+import { ImportAccounts } from './components/ImportAccounts'
+import { SelectChain } from './components/SelectChain'
+
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
-import { ManageAccountsDrawer } from '@/components/ManageAccountsDrawer/ManageAccountsDrawer'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -28,16 +31,58 @@ import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
+  selectFeeAssetByChainId,
   selectWalletConnectedChainIdsSorted,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const modalProps = { size: 'lg' }
 
 const chainListMaxHeight = {
   base: '220px',
   md: '400px',
 }
+
+type ManageAccountsState =
+  | { step: 'list' }
+  | { step: 'selectChain' }
+  | { step: 'importAccounts'; chainId: ChainId }
+
+type StepHeaderProps = {
+  title: string
+  onBack?: () => void
+  disableClose?: boolean
+}
+
+const StepHeader = ({ title, onBack, disableClose }: StepHeaderProps) => (
+  <DialogHeader>
+    {onBack && (
+      <DialogHeaderLeft>
+        <DialogBackButton onClick={onBack} />
+      </DialogHeaderLeft>
+    )}
+    <DialogHeaderMiddle>
+      <DialogTitle>{title}</DialogTitle>
+    </DialogHeaderMiddle>
+    <DialogHeaderRight>
+      <DialogCloseButton isDisabled={disableClose} />
+    </DialogHeaderRight>
+  </DialogHeader>
+)
+
+type StepDescriptionProps = {
+  children: string
+}
+
+const StepDescription = ({ children }: StepDescriptionProps) => (
+  <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
+    <RawText color='text.subtle' fontSize='md' fontWeight='normal' textAlign='center' w='full'>
+      {children}
+    </RawText>
+  </VStack>
+)
+
 const ConnectedChain = ({
   chainId,
   onClick,
@@ -70,21 +115,152 @@ const ConnectedChain = ({
   )
 }
 
+type ListStepProps = {
+  onAddChain: () => void
+  onClickChain: (chainId: ChainId) => void
+  onClose: () => void
+  onGoBack?: () => void
+  connectedChains: React.ReactNode[]
+  disableAddChain: boolean
+  disableClose: boolean
+  walletConnectedChainIdsSorted: ChainId[]
+}
+
+const ListStep = ({
+  onAddChain,
+  onClose,
+  onGoBack,
+  connectedChains,
+  disableAddChain,
+  disableClose,
+  walletConnectedChainIdsSorted,
+}: ListStepProps) => {
+  const translate = useTranslate()
+  return (
+    <>
+      <StepHeader
+        title={translate('accountManagement.manageAccounts.title')}
+        onBack={onGoBack}
+        disableClose={disableClose}
+      />
+      <StepDescription>
+        {walletConnectedChainIdsSorted.length === 0
+          ? translate('accountManagement.manageAccounts.emptyList')
+          : translate('accountManagement.manageAccounts.description')}
+      </StepDescription>
+      {walletConnectedChainIdsSorted.length > 0 && (
+        <DialogBody maxHeight={chainListMaxHeight} overflowY='auto'>
+          <Box mx={-4} px={4}>
+            <VStack spacing={2} width='full'>
+              {connectedChains}
+            </VStack>
+          </Box>
+        </DialogBody>
+      )}
+      <DialogFooter>
+        <VStack spacing={2} width='full' py={2} pt={4}>
+          <Button
+            colorScheme='blue'
+            onClick={onAddChain}
+            width='full'
+            size='lg'
+            isDisabled={disableAddChain}
+            _disabled={disabledProp}
+          >
+            {walletConnectedChainIdsSorted.length === 0
+              ? translate('accountManagement.manageAccounts.addChain')
+              : translate('accountManagement.manageAccounts.addAnotherChain')}
+          </Button>
+          <Button
+            size='lg'
+            colorScheme='gray'
+            onClick={onClose}
+            isDisabled={disableClose}
+            width='full'
+          >
+            {translate('common.done')}
+          </Button>
+        </VStack>
+      </DialogFooter>
+    </>
+  )
+}
+
+type SelectChainStepProps = {
+  onSelectChain: (chainId: ChainId) => void
+  onBack: () => void
+  onCancel: () => void
+}
+
+const SelectChainStep = ({ onSelectChain, onBack, onCancel }: SelectChainStepProps) => {
+  const translate = useTranslate()
+  return (
+    <>
+      <StepHeader title={translate('accountManagement.selectChain.title')} onBack={onBack} />
+      <StepDescription>{translate('accountManagement.selectChain.description')}</StepDescription>
+      <DialogBody>
+        <SelectChain onSelectChainId={onSelectChain} />
+      </DialogBody>
+      <DialogFooter>
+        <Flex width='full' justifyContent='flex-end'>
+          <Button colorScheme='gray' onClick={onCancel}>
+            {translate('common.cancel')}
+          </Button>
+        </Flex>
+      </DialogFooter>
+    </>
+  )
+}
+
+type ImportAccountsStepProps = {
+  chainId: ChainId
+  chainNamespaceDisplayName: string
+  importAccountsRef: React.RefObject<ImportAccountsRef | null>
+  onBack: () => void
+  onCommit: () => void
+  onClose: () => void
+}
+
+const ImportAccountsStep = ({
+  chainId,
+  chainNamespaceDisplayName,
+  importAccountsRef,
+  onBack,
+  onCommit,
+  onClose,
+}: ImportAccountsStepProps) => {
+  const translate = useTranslate()
+  return (
+    <>
+      <StepHeader
+        title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
+        onBack={onBack}
+      />
+      <StepDescription>{translate('accountManagement.importAccounts.description')}</StepDescription>
+      <DialogBody>
+        <ImportAccounts ref={importAccountsRef} chainId={chainId} onClose={onClose} />
+      </DialogBody>
+      <DialogFooter>
+        <Flex width='full' justifyContent='flex-end'>
+          <Button colorScheme='blue' onClick={onCommit}>
+            {translate('common.done')}
+          </Button>
+        </Flex>
+      </DialogFooter>
+    </>
+  )
+}
+
 type ManageAccountsModalProps = {
   onBack?: () => void
 }
 
 export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
-  const translate = useTranslate()
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
+  const [state, setState] = useState<ManageAccountsState>({ step: 'list' })
+  const importAccountsRef = useRef<ImportAccountsRef>(null)
   const { close, isOpen } = useModal('manageAccounts')
-  const {
-    isOpen: isDrawerOpen,
-    onOpen: handleDrawerOpen,
-    onClose: handleDrawerClose,
-  } = useDisclosure()
-  const { state } = useWallet()
-  const { wallet, connectedType } = state
+  const { state: walletState } = useWallet()
+  const { wallet, connectedType } = walletState
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
@@ -93,24 +269,39 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
     return connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
   }, [connectedType, walletSupportedChainIds])
 
-  const drawerContent = ManageAccountsDrawer({
-    isOpen: isDrawerOpen,
-    onClose: handleDrawerClose,
-    chainId: selectedChainId,
-  })
-
-  const handleClickChain = useCallback(
-    (chainId: ChainId) => {
-      setSelectedChainId(chainId)
-      handleDrawerOpen()
-    },
-    [handleDrawerOpen],
+  const selectedChainId = state.step === 'importAccounts' ? state.chainId : undefined
+  const asset = useAppSelector(appState =>
+    selectedChainId ? selectFeeAssetByChainId(appState, selectedChainId) : undefined,
   )
+  const chainNamespaceDisplayName = asset?.networkName ?? ''
+
+  const handleClickChain = useCallback((chainId: ChainId) => {
+    setState({ step: 'importAccounts', chainId })
+  }, [])
 
   const handleClickAddChain = useCallback(() => {
-    setSelectedChainId(null)
-    handleDrawerOpen()
-  }, [handleDrawerOpen])
+    setState({ step: 'selectChain' })
+  }, [])
+
+  const handleBack = useCallback(() => {
+    setState({ step: 'list' })
+  }, [])
+
+  const handleClose = useCallback(() => {
+    setState({ step: 'list' })
+    close()
+  }, [close])
+
+  const handleImportClose = useCallback(() => {
+    setState({ step: 'list' })
+  }, [])
+
+  const handleCommit = useCallback(() => {
+    if (importAccountsRef.current) {
+      importAccountsRef.current.commit()
+    }
+    setState({ step: 'list' })
+  }, [])
 
   const connectedChains = useMemo(() => {
     return walletConnectedChainIdsSorted.map(chainId => {
@@ -135,116 +326,54 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
     }
   }, [isLedgerReadOnlyEnabled, wallet, isOpen, close])
 
-  const modalProps = useMemo(() => ({ size: 'lg' }), [])
-
-  if (drawerContent) {
-    return (
-      <Dialog
-        isOpen={isOpen}
-        onClose={close}
-        isFullScreen={false}
-        height='auto'
-        modalProps={modalProps}
-      >
-        <DialogHeader>
-          {drawerContent.headerLeftContent ? (
-            <DialogHeaderLeft>{drawerContent.headerLeftContent}</DialogHeaderLeft>
-          ) : null}
-          <DialogHeaderMiddle>
-            <DialogTitle>{drawerContent.title}</DialogTitle>
-          </DialogHeaderMiddle>
-          <DialogHeaderRight>
-            <DialogCloseButton isDisabled={disableClose} />
-          </DialogHeaderRight>
-        </DialogHeader>
-
-        {drawerContent.description && (
-          <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
-            <RawText
-              color='text.subtle'
-              fontSize='md'
-              fontWeight='normal'
-              textAlign='center'
-              w='full'
-            >
-              {drawerContent.description}
-            </RawText>
-          </VStack>
-        )}
-
-        <DialogBody>{drawerContent.body}</DialogBody>
-
-        <DialogFooter>{drawerContent.footer}</DialogFooter>
-      </Dialog>
-    )
-  }
+  const stepContent = (() => {
+    switch (state.step) {
+      case 'list':
+        return (
+          <ListStep
+            onAddChain={handleClickAddChain}
+            onClickChain={handleClickChain}
+            onClose={close}
+            onGoBack={onBack ? handleGoBack : undefined}
+            connectedChains={connectedChains}
+            disableAddChain={disableAddChain}
+            disableClose={disableClose}
+            walletConnectedChainIdsSorted={walletConnectedChainIdsSorted}
+          />
+        )
+      case 'selectChain':
+        return (
+          <SelectChainStep
+            onSelectChain={handleClickChain}
+            onBack={handleBack}
+            onCancel={handleClose}
+          />
+        )
+      case 'importAccounts':
+        return (
+          <ImportAccountsStep
+            chainId={state.chainId}
+            chainNamespaceDisplayName={chainNamespaceDisplayName}
+            importAccountsRef={importAccountsRef}
+            onBack={handleBack}
+            onCommit={handleCommit}
+            onClose={handleImportClose}
+          />
+        )
+      default:
+        return null
+    }
+  })()
 
   return (
     <Dialog
       isOpen={isOpen}
-      onClose={close}
+      onClose={handleClose}
       isFullScreen={false}
       height='auto'
       modalProps={modalProps}
     >
-      <DialogHeader>
-        {onBack ? (
-          <DialogHeaderLeft>
-            <DialogBackButton onClick={handleGoBack} />
-          </DialogHeaderLeft>
-        ) : null}
-        <DialogHeaderMiddle>
-          <DialogTitle>{translate('accountManagement.manageAccounts.title')}</DialogTitle>
-        </DialogHeaderMiddle>
-        <DialogHeaderRight>
-          <DialogCloseButton isDisabled={disableClose} />
-        </DialogHeaderRight>
-      </DialogHeader>
-
-      <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
-        <RawText color='text.subtle' fontSize='md' fontWeight='normal' textAlign='center' w='full'>
-          {walletConnectedChainIdsSorted.length === 0
-            ? translate('accountManagement.manageAccounts.emptyList')
-            : translate('accountManagement.manageAccounts.description')}
-        </RawText>
-      </VStack>
-
-      {walletConnectedChainIdsSorted.length > 0 && (
-        <DialogBody maxHeight={chainListMaxHeight} overflowY='auto'>
-          <Box mx={-4} px={4}>
-            <VStack spacing={2} width='full'>
-              {connectedChains}
-            </VStack>
-          </Box>
-        </DialogBody>
-      )}
-
-      <DialogFooter>
-        <VStack spacing={2} width='full' py={2} pt={4}>
-          <Button
-            colorScheme='blue'
-            onClick={handleClickAddChain}
-            width='full'
-            size='lg'
-            isLoading={isDrawerOpen}
-            isDisabled={disableAddChain}
-            _disabled={disabledProp}
-          >
-            {walletConnectedChainIdsSorted.length === 0
-              ? translate('accountManagement.manageAccounts.addChain')
-              : translate('accountManagement.manageAccounts.addAnotherChain')}
-          </Button>
-          <Button
-            size='lg'
-            colorScheme='gray'
-            onClick={close}
-            isDisabled={isDrawerOpen || disableClose}
-            width='full'
-          >
-            {translate('common.done')}
-          </Button>
-        </VStack>
-      </DialogFooter>
+      {stepContent}
     </Dialog>
   )
 }

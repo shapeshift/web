@@ -23,7 +23,7 @@ export const useSnapStatusHandler = () => {
   const queryClient = useQueryClient()
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const connectedRdns = useAppSelector(selectWalletRdns)
   const previousConnectedRdns = usePrevious(connectedRdns)
   const currentWalletId = useAppSelector(selectWalletId)
@@ -58,7 +58,6 @@ export const useSnapStatusHandler = () => {
       toast({
         status: 'success',
         title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
-        position: 'bottom',
       })
       appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
 
@@ -85,7 +84,6 @@ export const useSnapStatusHandler = () => {
       toast({
         status: 'success',
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
-        position: 'bottom',
       })
       return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }

@@ -5,6 +5,8 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { RawText } from '@/components/Text'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 
 const defaultErrorMsgTranslation = 'common.generalError'
@@ -40,8 +42,12 @@ export const useErrorToast = () => {
       console.error(error)
 
       toast({
-        title: description,
-        description: translate('trade.errors.title'),
+        title: translate('trade.errors.title'),
+        description: (
+          <InlineCopyButton value={description}>
+            <RawText>{description}</RawText>
+          </InlineCopyButton>
+        ),
         status: 'error',
         duration: 9000,
         isClosable: true,

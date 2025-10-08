@@ -8,7 +8,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const useKeepKeyCancel = () => {
   const navigate = useNavigate()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const translate = useTranslate()
   const {
     state: { wallet },

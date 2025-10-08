@@ -13,7 +13,7 @@ export const useKeepKeyRecover = () => {
       wallet,
     },
   } = useWallet()
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const translate = useTranslate()
 
   const recoverKeepKey = async (label: string | undefined) => {

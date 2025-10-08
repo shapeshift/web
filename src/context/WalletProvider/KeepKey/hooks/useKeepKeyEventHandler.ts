@@ -27,7 +27,7 @@ export const useKeepKeyEventHandler = (
   } = state
   const localWallet = useLocalWallet()
 
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const translate = useTranslate()
   const { poll } = usePoll()
 

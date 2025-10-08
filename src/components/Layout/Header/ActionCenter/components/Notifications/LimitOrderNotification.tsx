@@ -1,12 +1,13 @@
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import type { CowSwapQuoteId } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { ActionIcon } from '../ActionIcon'
 
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectWalletLimitOrderActionByCowSwapQuoteId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -21,10 +22,6 @@ export const LimitOrderNotification = ({
   cowSwapQuoteId,
   onClose,
 }: LimitOrderNotificationProps) => {
-  const translate = useTranslate()
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
   const action = useAppSelector(state =>
     selectWalletLimitOrderActionByCowSwapQuoteId(state, { cowSwapQuoteId }),
   )
@@ -50,40 +47,60 @@ export const LimitOrderNotification = ({
     )
   }, [action])
 
+  const limitOrderNotificationTranslationComponents: TextPropTypes['components'] | undefined =
+    useMemo(() => {
+      if (!action) return
+
+      const isComplete = action.status === ActionStatus.Complete
+
+      return {
+        sellAmountAndSymbol: (
+          <Amount.Crypto
+            value={
+              isComplete
+                ? action.limitOrderMetadata.executedSellAmountCryptoPrecision ??
+                  action.limitOrderMetadata.sellAmountCryptoPrecision
+                : action.limitOrderMetadata.sellAmountCryptoPrecision
+            }
+            symbol={action.limitOrderMetadata.sellAsset.symbol}
+            fontSize='sm'
+            fontWeight='bold'
+            maximumFractionDigits={6}
+            omitDecimalTrailingZeros
+            display='inline'
+          />
+        ),
+        buyAmountAndSymbol: (
+          <Amount.Crypto
+            value={
+              isComplete
+                ? action.limitOrderMetadata.executedBuyAmountCryptoPrecision ??
+                  action.limitOrderMetadata.buyAmountCryptoPrecision
+                : action.limitOrderMetadata.buyAmountCryptoPrecision
+            }
+            symbol={action.limitOrderMetadata.buyAsset.symbol}
+            fontSize='sm'
+            fontWeight='bold'
+            maximumFractionDigits={6}
+            omitDecimalTrailingZeros
+            display='inline'
+          />
+        ),
+      }
+    }, [action])
+
   const title = useMemo(() => {
     if (!action) return undefined
 
-    const isComplete = action.status === ActionStatus.Complete
-
-    const sellAmountAndSymbol = toCrypto(
-      isComplete
-        ? action.limitOrderMetadata.executedSellAmountCryptoPrecision ??
-            action.limitOrderMetadata.sellAmountCryptoPrecision
-        : action.limitOrderMetadata.sellAmountCryptoPrecision,
-      action.limitOrderMetadata.sellAsset.symbol,
-      {
-        maximumFractionDigits: 6,
-        omitDecimalTrailingZeros: true,
-      },
+    return (
+      <Text
+        fontSize='sm'
+        letterSpacing='0.02em'
+        translation={limitOrderTitleTranslation}
+        components={limitOrderNotificationTranslationComponents}
+      />
     )
-
-    const buyAmountAndSymbol = toCrypto(
-      isComplete
-        ? action.limitOrderMetadata.executedBuyAmountCryptoPrecision ??
-            action.limitOrderMetadata.buyAmountCryptoPrecision
-        : action.limitOrderMetadata.buyAmountCryptoPrecision,
-      action.limitOrderMetadata.buyAsset.symbol,
-      {
-        maximumFractionDigits: 6,
-        omitDecimalTrailingZeros: true,
-      },
-    )
-
-    return translate(limitOrderTitleTranslation, {
-      sellAmountAndSymbol,
-      buyAmountAndSymbol,
-    })
-  }, [action, limitOrderTitleTranslation, toCrypto, translate])
+  }, [action, limitOrderTitleTranslation, limitOrderNotificationTranslationComponents])
 
   if (!action || !icon || !title) return null
 

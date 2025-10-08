@@ -1,8 +1,12 @@
+import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Button,
+  Checkbox,
+  Flex,
   forwardRef,
+  IconButton,
   Skeleton,
-  Switch,
   Table,
   TableContainer,
   Tbody,
@@ -20,12 +24,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'
-import { DrawerContentWrapper } from './DrawerContent'
-import { DrawerWrapper } from './DrawerWrapper'
 
 import { Amount } from '@/components/Amount/Amount'
-import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
@@ -52,10 +54,16 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
+export type ImportAccountsFooterState = {
+  isSubmitting: boolean
+  canCommit: boolean
+  handleCommit: () => void
+}
+
 export type ImportAccountsProps = {
   chainId: ChainId
   onClose: () => void
-  isOpen: boolean
+  setFooterState?: (state: ImportAccountsFooterState) => void
 }
 
 type TableRowProps = {
@@ -72,10 +80,15 @@ type TableRowAccountProps = {
 
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
+const copyIcon = <CopyIcon />
+const checkIcon = <CheckIcon />
+
 const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
+  const translate = useTranslate()
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+  const { isCopied, isCopying, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
 
   const { data: account } = useQuery({
     ...accountManagement.getAccount(accountId),
@@ -91,16 +104,42 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
     return fromBaseUnit(account.balance, asset.precision)
   }, [account, asset.precision])
 
+  const handleCopyClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      copyToClipboard(pubkey)
+    },
+    [copyToClipboard, pubkey],
+  )
+
+  const buttonProps = useMemo(
+    () => ({
+      icon: isCopied ? checkIcon : copyIcon,
+      colorScheme: isCopied ? 'green' : 'gray',
+      size: 'xs' as const,
+      variant: 'ghost' as const,
+      fontSize: 'sm',
+      'aria-label': 'Copy value',
+      onClick: handleCopyClick,
+    }),
+    [handleCopyClick, isCopied],
+  )
+
   return (
     <>
-      <Td fontWeight='bold'>
-        <InlineCopyButton value={pubkey} isDisabled={isUtxoAccount}>
+      <Td fontWeight='bold' width='170px'>
+        <Flex alignItems='center' justifyContent='space-between'>
           <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
             <div ref={ref}>
               <RawText>{accountLabel}</RawText>
             </div>
           </Tooltip>
-        </InlineCopyButton>
+          {isUtxoAccount ? null : (
+            <Tooltip isOpen={isCopying} label={translate('common.copied')}>
+              <IconButton {...buttonProps} />
+            </Tooltip>
+          )}
+        </Flex>
       </Td>
       <Td textAlign='right'>
         <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
@@ -124,33 +163,23 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
     const otherAccountIds = useMemo(() => accountIds.slice(1), [accountIds])
     const otherAccounts = useMemo(() => {
       return otherAccountIds.map(accountId => (
-        <Tr key={accountId} opacity={isAccountActive ? '1' : '0.5'}>
+        <Tr key={accountId} opacity={isAccountActive ? 1 : 0.5}>
           <Td colSpan={2} bg='background.surface.raised.base'></Td>
           <TableRowAccount ref={ref} asset={asset} accountId={accountId} />
         </Tr>
       ))
     }, [asset, isAccountActive, otherAccountIds, ref])
 
-    const toggleSize = useMemo(
-      () => ({
-        base: 'md',
-        md: 'lg',
-      }),
-      [],
-    )
-
     return (
       <>
-        <Tr opacity={isAccountActive ? '1' : '0.5'}>
-          <Td>
-            <Switch
-              size={toggleSize}
-              isChecked={isAccountActive}
-              onChange={handleToggleIsAccountActive}
-            />
+        <Tr opacity={isAccountActive ? 1 : 0.5}>
+          <Td width='50px'>
+            <Box opacity={1}>
+              <Checkbox isChecked={isAccountActive} onChange={handleToggleIsAccountActive} />
+            </Box>
           </Td>
-          <Td>
-            <RawText color='text.subtle'>{accountNumber}</RawText>
+          <Td width='60px'>
+            <RawText>{accountNumber}</RawText>
           </Td>
 
           <TableRowAccount ref={ref} asset={asset} accountId={firstAccount} />
@@ -168,17 +197,22 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
         .fill(null)
         .map((_, i) => (
           <Tr key={i}>
-            <Td>
-              <Skeleton height='24px' width='100%' />
+            <Td width='50px'>
+              <Box opacity={1}>
+                <Skeleton height='20px' width='20px' my={0} />
+              </Box>
             </Td>
-            <Td>
-              <Skeleton height='24px' width='100%' />
+            <Td width='60px'>
+              <Skeleton height='20px' width='20px' my={0} startColor='transparent' />
             </Td>
-            <Td>
-              <Skeleton height='24px' width='100%' />
+            <Td width='170px'>
+              <Flex alignItems='center' justifyContent='space-between'>
+                <Skeleton height='20px' width='120px' my={0} startColor='transparent' />
+                <Skeleton height='20px' width='20px' my={0} startColor='transparent' />
+              </Flex>
             </Td>
-            <Td>
-              <Skeleton height='24px' width='100%' />
+            <Td textAlign='right'>
+              <Skeleton height='20px' width='80px' ml='auto' my={0} startColor='transparent' />
             </Td>
           </Tr>
         ))}
@@ -186,7 +220,7 @@ const LoadingRow = ({ numRows }: { numRows: number }) => {
   )
 }
 
-export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps) => {
+export const ImportAccounts = ({ chainId, onClose, setFooterState }: ImportAccountsProps) => {
   const [isAutoDiscovering, setIsAutoDiscovering] = useState(true)
   const [queryEnabled, setQueryEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -207,8 +241,6 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
 
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
 
-  // Prefetch Portals account data, ish. At this point, we already have querydata for all *enabled* AccountIds,
-  // so this will really fetch it for the newly toggled ones
   useQueries({
     queries: Array.from(toggledAccountIds).map(accountId => {
       const { chainId, account: pubkey } = fromAccountId(accountId)
@@ -226,8 +258,6 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
       }
     }),
   })
-
-  const chainNamespaceDisplayName = asset?.networkName ?? ''
 
   // reset component state when chainId changes
   useEffect(() => {
@@ -432,6 +462,17 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     onClose()
   }, [handleUpdateAccounts, onClose])
 
+  // Expose footer state to parent
+  useEffect(() => {
+    if (setFooterState) {
+      setFooterState({
+        isSubmitting,
+        canCommit: Boolean(accounts),
+        handleCommit,
+      })
+    }
+  }, [setFooterState, isSubmitting, accounts, handleCommit])
+
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null
     return accounts.pages.map(({ accountIdWithActivityAndMetadata }, accountNumber) => {
@@ -458,72 +499,54 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
     [],
   )
 
+  const tableSx = useMemo(() => ({ 'td, th': { px: 3 } }), [])
+
+  const initialLoadingRows = useMemo(() => {
+    // Show skeleton rows when we haven't loaded any accounts yet
+    if (!accounts && (isAutoDiscovering || isAccountsFetching)) {
+      return <LoadingRow numRows={2} />
+    }
+    return null
+  }, [accounts, isAutoDiscovering, isAccountsFetching])
+
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
     return null
   }
 
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={handleCommit}>
-      <DrawerContentWrapper
-        title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
-        description={translate('accountManagement.importAccounts.description')}
-        footer={
-          <>
-            <Button
-              colorScheme='gray'
-              mr={3}
-              onClick={onClose}
-              isDisabled={isSubmitting}
-              _disabled={disabledProps}
-            >
-              {translate('common.cancel')}
-            </Button>
-            <Button
-              colorScheme='blue'
-              onClick={handleCommit}
-              isDisabled={isSubmitting || !accounts}
-              _disabled={disabledProps}
-            >
-              {translate('common.done')}
-            </Button>
-          </>
-        }
-        body={
-          <>
-            <TableContainer mb={4}>
-              <Table variant='simple' size={tableSize}>
-                <Tbody>
-                  {accountRows}
-                  {(isAccountsFetching || isAutoDiscovering) && (
-                    <LoadingRow
-                      numRows={
-                        accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
-                          .length ?? 0
-                      }
-                    />
-                  )}
-                </Tbody>
-              </Table>
-            </TableContainer>
-            <Tooltip
-              label={translate('accountManagement.importAccounts.loadMoreDisabled')}
-              isDisabled={supportsMultiAccount}
-            >
-              <Button
-                colorScheme='gray'
-                onClick={handleLoadMore}
-                isDisabled={
-                  isAccountsFetching || isAutoDiscovering || isSubmitting || !supportsMultiAccount
+    <>
+      <TableContainer mb={4}>
+        <Table variant='simple' size={tableSize} sx={tableSx}>
+          <Tbody>
+            {initialLoadingRows}
+            {accountRows}
+            {accounts && (isAccountsFetching || isAutoDiscovering) && (
+              <LoadingRow
+                numRows={
+                  accounts.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
+                    .length ?? 0
                 }
-                _disabled={disabledProps}
-              >
-                {translate('common.loadMore')}
-              </Button>
-            </Tooltip>
-          </>
-        }
-      />
-    </DrawerWrapper>
+              />
+            )}
+          </Tbody>
+        </Table>
+      </TableContainer>
+      <Tooltip
+        label={translate('accountManagement.importAccounts.loadMoreDisabled')}
+        isDisabled={supportsMultiAccount}
+      >
+        <Button
+          variant='ghost'
+          onClick={handleLoadMore}
+          isDisabled={
+            isAccountsFetching || isAutoDiscovering || isSubmitting || !supportsMultiAccount
+          }
+          _disabled={disabledProps}
+        >
+          {translate('common.loadMore')}
+        </Button>
+      </Tooltip>
+    </>
   )
 }

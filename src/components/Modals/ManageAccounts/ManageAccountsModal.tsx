@@ -16,6 +16,7 @@ import {
   DialogHeaderMiddle,
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
@@ -92,6 +93,12 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
     return connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
   }, [connectedType, walletSupportedChainIds])
 
+  const drawerContent = ManageAccountsDrawer({
+    isOpen: isDrawerOpen,
+    onClose: handleDrawerClose,
+    chainId: selectedChainId,
+  })
+
   const handleClickChain = useCallback(
     (chainId: ChainId) => {
       setSelectedChainId(chainId)
@@ -128,77 +135,116 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
     }
   }, [isLedgerReadOnlyEnabled, wallet, isOpen, close])
 
-  return (
-    <>
-      <Dialog isOpen={isOpen} onClose={close} isFullScreen={false} height='auto'>
-        <ManageAccountsDrawer
-          isOpen={isDrawerOpen}
-          onClose={handleDrawerClose}
-          chainId={selectedChainId}
-        />
+  const modalProps = useMemo(() => ({ size: 'lg' }), [])
+
+  if (drawerContent) {
+    return (
+      <Dialog
+        isOpen={isOpen}
+        onClose={close}
+        isFullScreen={false}
+        height='auto'
+        modalProps={modalProps}
+      >
         <DialogHeader>
-          {onBack ? (
-            <DialogHeaderLeft>
-              <DialogBackButton onClick={handleGoBack} />
-            </DialogHeaderLeft>
+          {drawerContent.headerLeftContent ? (
+            <DialogHeaderLeft>{drawerContent.headerLeftContent}</DialogHeaderLeft>
           ) : null}
           <DialogHeaderMiddle>
-            <Box minWidth='50px'>
-              <RawText as='h3' fontWeight='semibold' textAlign='center'>
-                {translate('accountManagement.manageAccounts.title')}
-              </RawText>
-            </Box>
+            <DialogTitle>{drawerContent.title}</DialogTitle>
           </DialogHeaderMiddle>
           <DialogHeaderRight>
             <DialogCloseButton isDisabled={disableClose} />
           </DialogHeaderRight>
         </DialogHeader>
 
-        <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
-          <RawText color='text.subtle' fontSize='md' fontWeight='normal' textAlign='center'>
-            {walletConnectedChainIdsSorted.length === 0
-              ? translate('accountManagement.manageAccounts.emptyList')
-              : translate('accountManagement.manageAccounts.description')}
-          </RawText>
-        </VStack>
-
-        {walletConnectedChainIdsSorted.length > 0 && (
-          <DialogBody maxHeight={chainListMaxHeight} overflowY='auto'>
-            <Box mx={-4} px={4}>
-              <VStack spacing={2} width='full'>
-                {connectedChains}
-              </VStack>
-            </Box>
-          </DialogBody>
+        {drawerContent.description && (
+          <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
+            <RawText
+              color='text.subtle'
+              fontSize='md'
+              fontWeight='normal'
+              textAlign='center'
+              w='full'
+            >
+              {drawerContent.description}
+            </RawText>
+          </VStack>
         )}
 
-        <DialogFooter>
-          <VStack spacing={2} width='full' py={2} pt={4}>
-            <Button
-              colorScheme='blue'
-              onClick={handleClickAddChain}
-              width='full'
-              size='lg'
-              isLoading={isDrawerOpen}
-              isDisabled={disableAddChain}
-              _disabled={disabledProp}
-            >
-              {walletConnectedChainIdsSorted.length === 0
-                ? translate('accountManagement.manageAccounts.addChain')
-                : translate('accountManagement.manageAccounts.addAnotherChain')}
-            </Button>
-            <Button
-              size='lg'
-              colorScheme='gray'
-              onClick={close}
-              isDisabled={isDrawerOpen || disableClose}
-              width='full'
-            >
-              {translate('common.done')}
-            </Button>
-          </VStack>
-        </DialogFooter>
+        <DialogBody>{drawerContent.body}</DialogBody>
+
+        <DialogFooter>{drawerContent.footer}</DialogFooter>
       </Dialog>
-    </>
+    )
+  }
+
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onClose={close}
+      isFullScreen={false}
+      height='auto'
+      modalProps={modalProps}
+    >
+      <DialogHeader>
+        {onBack ? (
+          <DialogHeaderLeft>
+            <DialogBackButton onClick={handleGoBack} />
+          </DialogHeaderLeft>
+        ) : null}
+        <DialogHeaderMiddle>
+          <DialogTitle>{translate('accountManagement.manageAccounts.title')}</DialogTitle>
+        </DialogHeaderMiddle>
+        <DialogHeaderRight>
+          <DialogCloseButton isDisabled={disableClose} />
+        </DialogHeaderRight>
+      </DialogHeader>
+
+      <VStack spacing={2} alignItems='flex-start' px={2} pb={4}>
+        <RawText color='text.subtle' fontSize='md' fontWeight='normal' textAlign='center' w='full'>
+          {walletConnectedChainIdsSorted.length === 0
+            ? translate('accountManagement.manageAccounts.emptyList')
+            : translate('accountManagement.manageAccounts.description')}
+        </RawText>
+      </VStack>
+
+      {walletConnectedChainIdsSorted.length > 0 && (
+        <DialogBody maxHeight={chainListMaxHeight} overflowY='auto'>
+          <Box mx={-4} px={4}>
+            <VStack spacing={2} width='full'>
+              {connectedChains}
+            </VStack>
+          </Box>
+        </DialogBody>
+      )}
+
+      <DialogFooter>
+        <VStack spacing={2} width='full' py={2} pt={4}>
+          <Button
+            colorScheme='blue'
+            onClick={handleClickAddChain}
+            width='full'
+            size='lg'
+            isLoading={isDrawerOpen}
+            isDisabled={disableAddChain}
+            _disabled={disabledProp}
+          >
+            {walletConnectedChainIdsSorted.length === 0
+              ? translate('accountManagement.manageAccounts.addChain')
+              : translate('accountManagement.manageAccounts.addAnotherChain')}
+          </Button>
+          <Button
+            size='lg'
+            colorScheme='gray'
+            onClick={close}
+            isDisabled={isDrawerOpen || disableClose}
+            width='full'
+          >
+            {translate('common.done')}
+          </Button>
+        </VStack>
+      </DialogFooter>
+    </Dialog>
   )
 }

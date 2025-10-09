@@ -38,12 +38,6 @@ export const GridPlusConnect = () => {
   // Only check privKey - walletType/deviceId get cleared on disconnect but privKey persists
   const hasExistingConnection = !!existingPrivKey
 
-  console.log('[GridPlus Connect] Initial State:', {
-    existingDeviceId,
-    existingPrivKey: existingPrivKey ? `${existingPrivKey.slice(0, 8)}...` : null,
-    hasExistingConnection,
-  })
-
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deviceId, setDeviceId] = useState('')
@@ -69,13 +63,6 @@ export const GridPlusConnect = () => {
     setIsLoading(true)
     setError(null)
 
-    console.log('[GridPlus Connect] handleConnect called with:', {
-      activeDeviceId: activeDeviceId.trim(),
-      showPairingCode,
-      hasExistingConnection,
-      existingPrivKey: existingPrivKey ? `${existingPrivKey.slice(0, 8)}...` : null,
-    })
-
     try {
       if (!activeDeviceId.trim()) {
         throw new Error('Device ID is required')
@@ -90,12 +77,6 @@ export const GridPlusConnect = () => {
       // Check device pairing status
       // Only check for NEW connections (no existing privKey)
       // When reconnecting, skip this check and go straight to pairDevice with privKey
-      console.log('[GridPlus Connect] Pairing check decision:', {
-        showPairingCode,
-        hasExistingConnection,
-        willCheckPairingStatus: !showPairingCode && !hasExistingConnection,
-      })
-
       if (!showPairingCode && !hasExistingConnection) {
         const { isPaired, privKey } = await adapterWithKeyring.connectDevice(
           activeDeviceId.trim(),
@@ -115,23 +96,10 @@ export const GridPlusConnect = () => {
       }
 
       // Step 2: Either device was already paired, or user entered pairing code
-      console.log('[GridPlus Connect] Pairing method selection:', {
-        showPairingCode,
-        hasPairingCode: !!pairingCode,
-        willUsePairConnectedDevice: showPairingCode && !!pairingCode,
-        willUsePairDevice: !showPairingCode || !pairingCode,
-        existingPrivKey: existingPrivKey ? `${existingPrivKey.slice(0, 8)}...` : null,
-      })
-
       let wallet
       if (showPairingCode && pairingCode) {
-        console.log('[GridPlus Connect] Calling pairConnectedDevice')
         wallet = await adapterWithKeyring.pairConnectedDevice(activeDeviceId.trim(), pairingCode)
       } else {
-        console.log('[GridPlus Connect] Calling pairDevice with:', {
-          deviceId: activeDeviceId.trim(),
-          hasExistingPrivKey: !!existingPrivKey,
-        })
         wallet = await adapterWithKeyring.pairDevice(
           activeDeviceId.trim(),
           undefined,
@@ -149,12 +117,6 @@ export const GridPlusConnect = () => {
       // Set wallet in ShapeShift context
       const walletDeviceId = await wallet.getDeviceID()
 
-      console.log('[GridPlus Connect] Wallet created successfully:', {
-        walletPrivKey: walletPrivKey ? `${walletPrivKey.slice(0, 8)}...` : null,
-        walletDeviceId,
-      })
-
-      console.log('[GridPlus Connect] Dispatching SET_WALLET')
       dispatch({
         type: WalletActions.SET_WALLET,
         payload: {
@@ -166,13 +128,11 @@ export const GridPlusConnect = () => {
         },
       })
 
-      console.log('[GridPlus Connect] Dispatching SET_IS_CONNECTED: true')
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
         payload: true,
       })
 
-      console.log('[GridPlus Connect] Saving to local wallet storage')
       // Save to local wallet storage
       localWallet.setLocalWallet({
         type: KeyManager.GridPlus,
@@ -180,7 +140,6 @@ export const GridPlusConnect = () => {
         rdns: null,
       })
 
-      console.log('[GridPlus Connect] Dispatching SET_WALLET_MODAL: false')
       // Close the modal
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 

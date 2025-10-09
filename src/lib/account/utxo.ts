@@ -9,7 +9,6 @@ import { UtxoAccountType } from '@shapeshiftoss/types'
 import type { DeriveAccountIdsAndMetadata } from './account'
 
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
 export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
@@ -33,21 +32,26 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       }
       for (const accountType of supportedAccountTypes) {
         const pubkey = await (async () => {
-          // Check if account already exists in store
+          // Check ALL cached metadata (including inactive accounts) to avoid re-deriving from device
           const state = store.getState()
-          const accountIdsByNumberAndChain = selectAccountIdsByAccountNumberAndChainId(state)
-          const existingAccountIds = accountIdsByNumberAndChain[accountNumber]?.[chainId] ?? []
+          const allAccountMetadata = state.portfolio.accountMetadata.byId
 
-          // Look for existing account with matching accountType
-          for (const accountId of existingAccountIds) {
-            const metadata = state.portfolio.accountMetadata.byId[accountId]
-            if (metadata?.accountType === accountType) {
-              // Found it - extract xpub from accountId (format: "chainId:xpub")
-              return fromAccountId(accountId).account
+          // Search through all cached metadata for matching account
+          for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
+            const { chainId: metadataChainId, account } = fromAccountId(accountId)
+            const metadataAccountNumber = metadata.bip44Params.accountNumber
+
+            if (
+              metadataChainId === chainId &&
+              metadataAccountNumber === accountNumber &&
+              metadata.accountType === accountType
+            ) {
+              // Found cached xpub - use it instead of re-deriving from device
+              return account
             }
           }
 
-          // Not in store - fetch from device
+          // Not in cache - fetch from device
           const result = await adapter.getPublicKey(wallet, accountNumber, accountType)
           return result.xpub
         })()

@@ -1,3 +1,38 @@
+// Process.nextTick polyfill for GridPlus SDK and other Node.js dependencies
+// GridPlus SDK uses cbor.encode() which relies on Node.js streams that call process.nextTick
+// This polyfill must run before any code that uses process.nextTick
+// Uses queueMicrotask for proper microtask scheduling (better than setTimeout)
+;(function() {
+  // Ensure global exists
+  if (typeof globalThis !== 'undefined' && typeof global === 'undefined') {
+    (globalThis as any).global = globalThis
+  }
+
+  // Preserve existing process.env from vite's define config
+  const existingEnv = (typeof process !== 'undefined' && process.env) ? process.env : {}
+
+  // Create process object if it doesn't exist
+  if (typeof process === 'undefined') {
+    (globalThis as any).process = { env: existingEnv, versions: {} }
+  }
+
+  // Add nextTick if missing
+  if (!process.nextTick) {
+    // Modern approach: direct queueMicrotask or Promise fallback
+    // This provides proper microtask timing that Node.js code expects
+    process.nextTick = function(callback: Function, ...args: any[]) {
+      const fn = () => callback(...args)
+
+      if (typeof queueMicrotask === 'function') {
+        queueMicrotask(fn)
+      } else {
+        // Fallback for older browsers
+        Promise.resolve().then(fn)
+      }
+    }
+  }
+})()
+
 import '@formatjs/intl-getcanonicallocales/polyfill'
 import '@formatjs/intl-locale/polyfill'
 import '@formatjs/intl-numberformat/polyfill'

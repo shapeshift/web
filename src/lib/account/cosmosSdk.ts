@@ -7,7 +7,6 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
 export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
@@ -36,17 +35,22 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
       const bip44Params = adapter.getBip44Params({ accountNumber })
 
       const pubkey = await (async () => {
-        // Check if account already exists in store
+        // Check ALL cached metadata (including inactive accounts) to avoid re-deriving from device
         const state = store.getState()
-        const accountIdsByNumberAndChain = selectAccountIdsByAccountNumberAndChainId(state)
-        const existingAccountIds = accountIdsByNumberAndChain[accountNumber]?.[chainId] ?? []
+        const allAccountMetadata = state.portfolio.accountMetadata.byId
 
-        if (existingAccountIds.length > 0) {
-          // Found it - extract address from accountId
-          return fromAccountId(existingAccountIds[0]).account
+        // Search through all cached metadata for matching account
+        for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
+          const { chainId: metadataChainId, account } = fromAccountId(accountId)
+          const metadataAccountNumber = metadata.bip44Params.accountNumber
+
+          if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
+            // Found cached address - use it instead of re-deriving from device
+            return account
+          }
         }
 
-        // Not in store - fetch from device
+        // Not in cache - fetch from device
         return adapter.getAddress({ accountNumber, wallet })
       })()
 

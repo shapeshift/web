@@ -8,7 +8,6 @@ export class GridPlusAdapter {
     let cachedHdWalletAdapter: any = null
 
     return {
-      // Frame-style connection check first
       connectDevice: async (deviceId: string, password?: string, existingPrivKey?: string) => {
         if (!cachedHdWalletAdapter) {
           const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import(
@@ -19,7 +18,6 @@ export class GridPlusAdapter {
         return await cachedHdWalletAdapter.connectDevice(deviceId, password, existingPrivKey)
       },
 
-      // Frame-style pairing of already connected device
       pairConnectedDevice: async (deviceId: string, pairingCode: string) => {
         if (!cachedHdWalletAdapter) {
           throw new Error('Device not connected. Call connectDevice first.')

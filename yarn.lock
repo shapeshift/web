@@ -11745,7 +11745,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:^1.62.4-alpha.104, @shapeshiftoss/hdwallet-core@npm:^1.62.4-alpha.105, @shapeshiftoss/hdwallet-core@npm:^1.62.5":
+"@shapeshiftoss/hdwallet-core@npm:^1.62.4-alpha.104, @shapeshiftoss/hdwallet-core@npm:^1.62.4-alpha.105, @shapeshiftoss/hdwallet-core@npm:^1.62.4-alpha.106, @shapeshiftoss/hdwallet-core@npm:^1.62.5":
   version: 1.62.5
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.5"
   dependencies:
@@ -11762,21 +11762,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.4-alpha.105":
-  version: 1.62.4-alpha.105
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.4-alpha.105"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.4-alpha.106":
+  version: 1.62.4-alpha.106
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.4-alpha.106"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": ^2.4.0
     "@ethereumjs/tx": ^3.3.0
     "@metamask/eth-sig-util": ^7.0.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.4-alpha.105
+    "@shapeshiftoss/hdwallet-core": ^1.62.4-alpha.106
     bech32: ^1.1.4
     bs58: ^5.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: 708b0d5e60389d90f81ee3eae2d42e02868a14974f353a2903a1c6e82700612226d9ba72c8240433fcfb24946c2182361854cac855cb898d872216fc60623d28
+  checksum: 10be3def7b7ad22cca1d64dbc1a4bbfe662a155e5dcc5a367c0d9d694abbb072f0a713bf2772c171e0c1627244521d68d015ff8543b2696772d5259d27e82818
   languageName: node
   linkType: hard
 
@@ -12360,7 +12360,7 @@ __metadata:
     "@shapeshiftoss/errors": "workspace:^"
     "@shapeshiftoss/hdwallet-coinbase": 1.62.4-alpha.105
     "@shapeshiftoss/hdwallet-core": 1.62.4-alpha.105
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.4-alpha.105
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.4-alpha.106
     "@shapeshiftoss/hdwallet-keepkey": 1.62.4-alpha.105
     "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.4-alpha.105
     "@shapeshiftoss/hdwallet-keplr": 1.62.4-alpha.105

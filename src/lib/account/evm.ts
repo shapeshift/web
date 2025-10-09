@@ -31,7 +31,6 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
@@ -64,17 +63,22 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     address =
       address ||
       (await (async () => {
-        // Check if account already exists in store for this specific chainId
+        // Check ALL cached metadata (including inactive accounts) to avoid re-deriving from device
         const state = store.getState()
-        const accountIdsByNumberAndChain = selectAccountIdsByAccountNumberAndChainId(state)
-        const existingAccountIds = accountIdsByNumberAndChain[accountNumber]?.[chainId] ?? []
+        const allAccountMetadata = state.portfolio.accountMetadata.byId
 
-        if (existingAccountIds.length > 0) {
-          // Found it - extract address from accountId
-          return fromAccountId(existingAccountIds[0]).account
+        // Search through all cached metadata for matching account
+        for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
+          const { chainId: metadataChainId, account } = fromAccountId(accountId)
+          const metadataAccountNumber = metadata.bip44Params.accountNumber
+
+          if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
+            // Found cached address - use it instead of re-deriving from device
+            return account
+          }
         }
 
-        // Not in store - fetch from device
+        // Not in cache - fetch from device
         return adapter.getAddress({ accountNumber, wallet })
       })())
     if (!address) continue

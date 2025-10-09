@@ -36,7 +36,6 @@ import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletC
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 import {
-  selectGridPlusPrivKey,
   selectWalletDeviceId,
   selectWalletRdns,
   selectWalletType,

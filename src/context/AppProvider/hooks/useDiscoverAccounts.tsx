@@ -58,6 +58,7 @@ export const useDiscoverAccounts = () => {
           let hasActivity = true
           let isDegraded = false
           const chainAccountMetadata: AccountMetadataById = {}
+          const accountIdsWithActivity = new Set<string>() // Track which accounts have activity
 
           while (hasActivity) {
             if (accountNumber > 0) {
@@ -75,11 +76,15 @@ export const useDiscoverAccounts = () => {
 
               hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
-              if (hasActivity || accountNumber === 0) {
-                accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata }) => {
-                  chainAccountMetadata[accountId] = accountMetadata
-                })
-              }
+              // Always cache metadata to prevent re-deriving xpubs (even for inactive accounts)
+              // This fixes excessive re-derivation of the "next unused" account on every refresh
+              accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata, hasActivity: accountHasActivity }) => {
+                chainAccountMetadata[accountId] = accountMetadata
+                // Track which accounts have activity (or are account 0 which we always enable)
+                if (accountHasActivity || accountNumber === 0) {
+                  accountIdsWithActivity.add(accountId)
+                }
+              })
 
               accountNumber++
             } catch (error) {
@@ -98,6 +103,10 @@ export const useDiscoverAccounts = () => {
             )
 
             Object.keys(chainAccountMetadata).forEach(accountId => {
+              // CRITICAL: Only enable accounts with activity (prevents enabling inactive accounts)
+              // We cache metadata for all accounts to prevent re-deriving, but only enable active ones
+              if (!accountIdsWithActivity.has(accountId)) return
+
               // Don't enable accounts that are already in the portfolio so we keep it disabled if user manually disabled it
               if (
                 currentPortfolio.accountMetadata.byId[accountId] &&

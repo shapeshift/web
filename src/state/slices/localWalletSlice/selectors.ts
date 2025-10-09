@@ -6,10 +6,7 @@ import type { KeyManager } from '@/context/WalletProvider/KeyManager'
 
 export const selectWalletType = createSelector(
   localWalletSlice.selectSlice,
-  (localWalletState): KeyManager | null => {
-    console.log('[localWalletSlice] selectWalletType:', { localWalletState })
-    return localWalletState.walletType
-  },
+  (localWalletState): KeyManager | null => localWalletState.walletType,
 )
 
 export const selectWalletDeviceId = createSelector(

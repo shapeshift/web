@@ -98,7 +98,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
   useLayoutEffect(() => {
-    if (isLargerThanMd || isHighestModal) return
+    if (isHighestModal) return
 
     document.addEventListener('focusin', e => e.stopImmediatePropagation())
     document.addEventListener('focusout', e => e.stopImmediatePropagation())
@@ -128,7 +128,7 @@ const DialogWindow: React.FC<DialogProps> = ({
     )
   }
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered {...modalProps}>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered {...modalProps} trapFocus={isHighestModal}>
       <ModalOverlay {...overlayStyle} />
       <ModalContent height={height} containerProps={modalStyle}>
         {children}

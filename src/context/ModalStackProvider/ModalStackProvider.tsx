@@ -7,19 +7,22 @@ const ModalStackContext = createContext<ModalStackContextType | undefined>(undef
 export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [modals, setModals] = useState<ModalStackItem[]>([])
 
-  const registerModal = useCallback(
-    (id: string): number => {
-      setModals(prev => {
-        const existingIndex = prev.findIndex(modal => modal.id === id)
-        if (existingIndex !== -1) {
-          return prev
-        }
-        return [...prev, { id }]
-      })
-      return modals.length + 1
-    },
-    [modals.length],
-  )
+  const registerModal = useCallback((id: string): number => {
+    let updatedZIndex = 0
+
+    setModals(prev => {
+      const existingIndex = prev.findIndex(modal => modal.id === id)
+      if (existingIndex !== -1) {
+        updatedZIndex = existingIndex + 1
+        return prev
+      }
+      const updated = [...prev, { id }]
+      updatedZIndex = updated.length
+      return updated
+    })
+
+    return updatedZIndex
+  }, [])
 
   const unregisterModal = useCallback((id: string) => {
     setModals(prev => prev.filter(modal => modal.id !== id))

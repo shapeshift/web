@@ -70,7 +70,7 @@ export const Acknowledgement = ({
   return (
     <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel}>
       <ModalOverlay {...overlayStyle} />
-      <ModalContent pointerEvents='all' containerProps={modalStyle}>
+      <ModalContent containerProps={modalStyle}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>
           {CustomIcon ? (
             <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />

@@ -51,7 +51,7 @@ export const GlobalSearchModal = memo(
     const assetResults = results
     const resultsCount = results.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
-    const { modalStyle, overlayStyle } = useModalRegistration({
+    const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
       isOpen,
       modalId: 'global-search-modal',
     })
@@ -209,7 +209,13 @@ export const GlobalSearchModal = memo(
     )
 
     return (
-      <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>
+      <Modal
+        scrollBehavior='inside'
+        isOpen={isOpen}
+        onClose={handleClose}
+        size='lg'
+        trapFocus={isHighestModal}
+      >
         <ModalOverlay {...overlayStyle} />
         <ModalContent overflow='hidden' containerProps={modalStyle}>
           <ModalHeader

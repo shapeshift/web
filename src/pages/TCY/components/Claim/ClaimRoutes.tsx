@@ -153,13 +153,13 @@ type ClaimModalProps = {
 }
 
 export const ClaimModal = ({ isOpen, onClose, claim }: ClaimModalProps) => {
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'claim-modal',
   })
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} trapFocus={isHighestModal}>
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ClaimContent claim={claim} />

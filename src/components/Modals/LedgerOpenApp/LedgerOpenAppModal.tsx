@@ -35,7 +35,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'ledger-open-app-modal',
   })
@@ -57,7 +57,14 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   }, [closeModal, onCancel])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} isCentered size='md' closeOnOverlayClick={false}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      isCentered
+      size='md'
+      closeOnOverlayClick={false}
+      trapFocus={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalHeader textAlign='left' pt={14}>

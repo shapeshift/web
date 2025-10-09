@@ -51,7 +51,7 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen: orderToCancel !== undefined,
     modalId: 'cancel-limit-order-modal',
   })
@@ -146,7 +146,7 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   }, [orderToCancel])
 
   return (
-    <Modal isOpen={orderToCancel !== undefined} onClose={handleClose}>
+    <Modal isOpen={orderToCancel !== undefined} onClose={handleClose} trapFocus={isHighestModal}>
       <ModalOverlay {...overlayStyle} />
       <ModalContent pointerEvents='all' containerProps={modalStyle}>
         <ModalHeader px={6} pt={4} borderWidth={0}>

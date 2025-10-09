@@ -33,7 +33,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'native-onboarding-modal',
   })
@@ -52,7 +52,12 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   }, [closeModal])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size={isLargerThanMd ? undefined : 'full'}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size={isLargerThanMd ? undefined : 'full'}
+      trapFocus={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalHeader display='flex' alignItems='center' justifyContent='space-between'>

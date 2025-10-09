@@ -46,7 +46,7 @@ export const Acknowledgement = ({
 }: AcknowledgementProps) => {
   const translate = useTranslate()
 
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen: shouldShowAcknowledgement,
     modalId: 'acknowledgement-modal',
   })
@@ -68,7 +68,7 @@ export const Acknowledgement = ({
   }, [setShouldShowAcknowledgement])
 
   return (
-    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel}>
+    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel} trapFocus={isHighestModal}>
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>

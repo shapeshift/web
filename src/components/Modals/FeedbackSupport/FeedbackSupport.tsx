@@ -27,7 +27,7 @@ export const FeedbackAndSupport = () => {
   const { close, isOpen } = useModal('feedbackSupport')
   const translate = useTranslate()
   const isChatwootEnabled = import.meta.env.VITE_FEATURE_CHATWOOT === 'true'
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'feedback-support-modal',
   })
@@ -39,7 +39,7 @@ export const FeedbackAndSupport = () => {
   }, [close])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
+    <Modal isOpen={isOpen} onClose={close} isCentered size='sm' trapFocus={isHighestModal}>
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalCloseButton />

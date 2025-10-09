@@ -226,7 +226,7 @@ export const ReceiveAmount = ({
   onConfirm,
   isModal = false,
 }: ReceiveAmountProps) => {
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen: isModal,
     modalId: 'receive-amount-modal',
   })
@@ -246,7 +246,7 @@ export const ReceiveAmount = ({
 
   if (isModal) {
     return (
-      <Modal isOpen onClose={onClose} isCentered>
+      <Modal isOpen onClose={onClose} isCentered trapFocus={isHighestModal}>
         <ModalOverlay {...overlayStyle} />
         <ModalContent containerProps={modalStyle}>{content}</ModalContent>
       </Modal>

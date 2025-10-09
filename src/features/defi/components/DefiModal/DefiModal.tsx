@@ -20,7 +20,7 @@ const modalMaxWidth = { base: 'full', md: '500px' }
 export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }) => {
   const navigate = useNavigate()
   const { location } = useBrowserRouter()
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'defi-modal',
   })
@@ -32,7 +32,7 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
   }, [navigate, location.pathname])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav'>
+    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav' trapFocus={isHighestModal}>
       <ModalOverlay {...overlayStyle} />
       <ModalContent
         width='full'

@@ -45,8 +45,9 @@ export const useNotificationToast = (options?: NotificationToastOptions) => {
   const enhancedToast = useCallback(
     (callOptions: ToastCallOptions) => {
       if (isStandardToastOptions(callOptions)) {
-        const { icon, title, description, onClick, status } = callOptions
+        const { icon, title, description, onClick, status, ...rest } = callOptions
         return toast({
+          ...rest,
           render: ({ onClose }) => (
             <StandardToast
               icon={icon}

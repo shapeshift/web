@@ -7,6 +7,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Portal,
   Tooltip,
 } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
@@ -207,11 +208,13 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
             />
           </MenuButton>
         </Tooltip>
-        <MenuList zIndex='modal'>
-          <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
-            {renderedChains}
-          </MenuOptionGroup>
-        </MenuList>
+        <Portal>
+          <MenuList zIndex='modal'>
+            <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
+              {renderedChains}
+            </MenuOptionGroup>
+          </MenuList>
+        </Portal>
       </Menu>
     )
   },

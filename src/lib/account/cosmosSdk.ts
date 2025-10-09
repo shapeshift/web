@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, fromAccountId, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsMayachain, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
@@ -7,6 +7,8 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args
@@ -32,7 +34,22 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
       }
 
       const bip44Params = adapter.getBip44Params({ accountNumber })
-      const pubkey = await adapter.getAddress({ accountNumber, wallet })
+
+      const pubkey = await (async () => {
+        // Check if account already exists in store
+        const state = store.getState()
+        const accountIdsByNumberAndChain = selectAccountIdsByAccountNumberAndChainId(state)
+        const existingAccountIds = accountIdsByNumberAndChain[accountNumber]?.[chainId] ?? []
+
+        if (existingAccountIds.length > 0) {
+          // Found it - extract address from accountId
+          return fromAccountId(existingAccountIds[0]).account
+        }
+
+        // Not in store - fetch from device
+        return adapter.getAddress({ accountNumber, wallet })
+      })()
+
       if (!pubkey) continue
       const accountId = toAccountId({ chainId, account: pubkey })
       acc[accountId] = { bip44Params }

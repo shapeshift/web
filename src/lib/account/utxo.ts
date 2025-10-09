@@ -1,4 +1,4 @@
-import { toAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -9,6 +9,8 @@ import { UtxoAccountType } from '@shapeshiftoss/types'
 import type { DeriveAccountIdsAndMetadata } from './account'
 
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args
@@ -30,7 +32,25 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }
       for (const accountType of supportedAccountTypes) {
-        const { xpub: pubkey } = await adapter.getPublicKey(wallet, accountNumber, accountType)
+        const pubkey = await (async () => {
+          // Check if account already exists in store
+          const state = store.getState()
+          const accountIdsByNumberAndChain = selectAccountIdsByAccountNumberAndChainId(state)
+          const existingAccountIds = accountIdsByNumberAndChain[accountNumber]?.[chainId] ?? []
+
+          // Look for existing account with matching accountType
+          for (const accountId of existingAccountIds) {
+            const metadata = state.portfolio.accountMetadata.byId[accountId]
+            if (metadata?.accountType === accountType) {
+              // Found it - extract xpub from accountId (format: "chainId:xpub")
+              return fromAccountId(accountId).account
+            }
+          }
+
+          // Not in store - fetch from device
+          const result = await adapter.getPublicKey(wallet, accountNumber, accountType)
+          return result.xpub
+        })()
 
         if (!pubkey) continue
 

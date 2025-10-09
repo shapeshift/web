@@ -31,6 +31,8 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
+import { store } from '@/state/store'
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args
@@ -59,7 +61,22 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
-    address = address || (await adapter.getAddress({ accountNumber, wallet }))
+    address =
+      address ||
+      (await (async () => {
+        // Check if account already exists in store for this specific chainId
+        const state = store.getState()
+        const accountIdsByNumberAndChain = selectAccountIdsByAccountNumberAndChainId(state)
+        const existingAccountIds = accountIdsByNumberAndChain[accountNumber]?.[chainId] ?? []
+
+        if (existingAccountIds.length > 0) {
+          // Found it - extract address from accountId
+          return fromAccountId(existingAccountIds[0]).account
+        }
+
+        // Not in store - fetch from device
+        return adapter.getAddress({ accountNumber, wallet })
+      })())
     if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })

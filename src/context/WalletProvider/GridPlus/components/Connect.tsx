@@ -92,14 +92,16 @@ export const GridPlusConnect = () => {
         throw new Error('GridPlus adapter not available')
       }
 
-      // Check device pairing status (only for initial pairing, skip on reconnect)
+      // Check device pairing status
+      // Always check on first connection attempt (when not showing pairing code screen)
+      // SDK's storage will handle reconnection optimization automatically
       console.log('[GridPlus Connect] Pairing check decision:', {
         showPairingCode,
         hasExistingConnection,
-        willCheckPairingStatus: !showPairingCode && !hasExistingConnection,
+        willCheckPairingStatus: !showPairingCode,
       })
 
-      if (!showPairingCode && !hasExistingConnection) {
+      if (!showPairingCode) {
         const { isPaired, privKey } = await adapterWithKeyring.connectDevice(
           activeDeviceId.trim(),
           undefined,

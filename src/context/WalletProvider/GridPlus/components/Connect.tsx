@@ -53,11 +53,6 @@ export const GridPlusConnect = () => {
   // Use existingDeviceId if reconnecting, otherwise use input value
   const activeDeviceId = existingDeviceId || deviceId
 
-  console.log('[GridPlus Connect] Active Device ID:', {
-    activeDeviceId,
-    source: existingDeviceId ? 'existing' : 'input',
-  })
-
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
     setIsLoading(false)
@@ -93,19 +88,19 @@ export const GridPlusConnect = () => {
       }
 
       // Check device pairing status
-      // Always check on first connection attempt (when not showing pairing code screen)
-      // SDK's storage will handle reconnection optimization automatically
+      // Only check for NEW connections (no existing privKey)
+      // When reconnecting, skip this check and go straight to pairDevice with privKey
       console.log('[GridPlus Connect] Pairing check decision:', {
         showPairingCode,
         hasExistingConnection,
-        willCheckPairingStatus: !showPairingCode,
+        willCheckPairingStatus: !showPairingCode && !hasExistingConnection,
       })
 
-      if (!showPairingCode) {
+      if (!showPairingCode && !hasExistingConnection) {
         const { isPaired, privKey } = await adapterWithKeyring.connectDevice(
           activeDeviceId.trim(),
           undefined,
-          existingPrivKey || undefined,
+          undefined,
         )
 
         if (!isPaired) {
@@ -159,6 +154,7 @@ export const GridPlusConnect = () => {
         walletDeviceId,
       })
 
+      console.log('[GridPlus Connect] Dispatching SET_WALLET')
       dispatch({
         type: WalletActions.SET_WALLET,
         payload: {
@@ -170,11 +166,13 @@ export const GridPlusConnect = () => {
         },
       })
 
+      console.log('[GridPlus Connect] Dispatching SET_IS_CONNECTED: true')
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
         payload: true,
       })
 
+      console.log('[GridPlus Connect] Saving to local wallet storage')
       // Save to local wallet storage
       localWallet.setLocalWallet({
         type: KeyManager.GridPlus,
@@ -182,6 +180,7 @@ export const GridPlusConnect = () => {
         rdns: null,
       })
 
+      console.log('[GridPlus Connect] Dispatching SET_WALLET_MODAL: false')
       // Close the modal
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 

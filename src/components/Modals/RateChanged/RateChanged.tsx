@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -38,6 +39,10 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   const { close, isOpen } = rateChanged
   const translate = useTranslate()
   const lastHop = useAppSelector(selectLastHop)
+  const { modalStyle, overlayStyle } = useModalRegistration({
+    isOpen,
+    modalId: 'rate-changed-modal',
+  })
 
   // Mostly to content TS - if we end up here, we *have* a last hop
   if (!lastHop) throw new Error('No last hop found')
@@ -94,8 +99,8 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
-      <ModalOverlay />
-      <ModalContent maxW='440px'>
+      <ModalOverlay {...overlayStyle} />
+      <ModalContent maxW='440px' containerProps={modalStyle}>
         <ModalBody display='flex' alignItems='center' py={12} flexDir='column' gap={6}>
           <WarningIcon color='text.warning' boxSize={8} />
           <Stack textAlign='center' width='full' spacing={3}>

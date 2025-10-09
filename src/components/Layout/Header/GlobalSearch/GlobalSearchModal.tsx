@@ -21,6 +21,7 @@ import { AssetSearchResults } from './AssetSearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { isSome } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
@@ -50,6 +51,10 @@ export const GlobalSearchModal = memo(
     const assetResults = results
     const resultsCount = results.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
+    const { modalStyle, overlayStyle } = useModalRegistration({
+      isOpen,
+      modalId: 'global-search-modal',
+    })
 
     const customTokenSupportedChainIds = useMemo(() => {
       // Solana _is_ supported by Alchemy, but not by the SDK
@@ -205,8 +210,8 @@ export const GlobalSearchModal = memo(
 
     return (
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>
-        <ModalOverlay />
-        <ModalContent overflow='hidden'>
+        <ModalOverlay {...overlayStyle} />
+        <ModalContent overflow='hidden' containerProps={modalStyle}>
           <ModalHeader
             position='sticky'
             top={0}

@@ -97,7 +97,7 @@ export const AssetListFiltersDialog = ({
   ])
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+    <Dialog id='asset-list-filters-dialog' isOpen={isOpen} onClose={onClose} height='auto'>
       <Box height='5px' width='36px' borderRadius='full' bg='gray.500' mb={4} mx='auto' my={4} />
       <Box
         pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + var(--chakra-space-4))'

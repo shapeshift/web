@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { AssetOnLedger } from './components/AssetOnLedger'
 
 import { RawText } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -34,6 +35,10 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
+  const { modalStyle, overlayStyle } = useModalRegistration({
+    isOpen,
+    modalId: 'ledger-open-app-modal',
+  })
 
   const appName = useMemo(() => {
     return getLedgerAppName(chainId)
@@ -53,8 +58,8 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered size='md' closeOnOverlayClick={false}>
-      <ModalOverlay />
-      <ModalContent>
+      <ModalOverlay {...overlayStyle} />
+      <ModalContent containerProps={modalStyle}>
         <ModalHeader textAlign='left' pt={14}>
           <VStack spacing={2} width='full'>
             {appAsset ? <AssetOnLedger assetId={appAsset.assetId} size='lg' /> : null}

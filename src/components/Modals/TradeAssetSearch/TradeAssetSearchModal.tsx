@@ -67,7 +67,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   )
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
+    <Dialog id='trade-asset-search-modal' isOpen={isOpen} onClose={close} isFullScreen>
       <DialogHeader>
         <DialogHeaderMiddle>{translate(title)}</DialogHeaderMiddle>
         <DialogHeaderRight>

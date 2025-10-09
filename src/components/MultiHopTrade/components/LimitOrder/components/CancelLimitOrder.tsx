@@ -30,6 +30,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TransactionTypeIcon } from '@/components/TransactionHistory/TransactionTypeIcon'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -50,6 +51,10 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
+  const { modalStyle, overlayStyle } = useModalRegistration({
+    isOpen: orderToCancel !== undefined,
+    modalId: 'cancel-limit-order-modal',
+  })
 
   const [cancelLimitOrder, { error, isLoading, reset }] = useCancelLimitOrderMutation()
 
@@ -142,8 +147,8 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
 
   return (
     <Modal isOpen={orderToCancel !== undefined} onClose={handleClose}>
-      <ModalOverlay />
-      <ModalContent pointerEvents='all'>
+      <ModalOverlay {...overlayStyle} />
+      <ModalContent pointerEvents='all' containerProps={modalStyle}>
         <ModalHeader px={6} pt={4} borderWidth={0}>
           <Heading textAlign='center' fontSize='md'>
             <Text translation='limitOrder.cancel.cancelOrder' />

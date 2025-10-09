@@ -1,5 +1,7 @@
 import { Drawer, DrawerCloseButton, DrawerContent, DrawerOverlay } from '@chakra-ui/react'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
+
 export type DrawerWrapperProps = {
   children: React.ReactNode
   isOpen: boolean
@@ -11,10 +13,14 @@ export type DrawerWrapperProps = {
 const overrideStyles = { pointerEvents: 'auto' as const }
 
 export const DrawerWrapper = ({ children, isOpen, onClose, variant }: DrawerWrapperProps) => {
+  const { modalStyle, overlayStyle } = useModalRegistration({
+    isOpen,
+    modalId: 'manage-accounts-drawer',
+  })
   return (
     <Drawer isOpen={isOpen} size='lg' placement='right' onClose={onClose} variant={variant}>
-      <DrawerOverlay zIndex='modal' style={overrideStyles} />
-      <DrawerContent style={overrideStyles}>
+      <DrawerOverlay zIndex='modal' style={overrideStyles} {...overlayStyle} />
+      <DrawerContent style={overrideStyles} containerProps={modalStyle}>
         <DrawerCloseButton top='calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 1rem)' />
         {children}
       </DrawerContent>

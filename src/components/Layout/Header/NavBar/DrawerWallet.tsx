@@ -33,6 +33,7 @@ import { ManageHiddenAssetsContent } from '@/components/ManageHiddenAssets/Manag
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { ModalContext } from '@/context/ModalProvider/ModalContext'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -134,6 +135,10 @@ const DrawerWalletInner: FC = memo(() => {
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
   const navigate = useNavigate()
   const modalContext = useContext(ModalContext)
+  const { modalStyle, overlayStyle } = useModalRegistration({
+    isOpen,
+    modalId: 'wallet-drawer-modal',
+  })
 
   const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])
 
@@ -211,8 +216,8 @@ const DrawerWalletInner: FC = memo(() => {
 
   return (
     <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
-      <DrawerOverlay />
-      <DrawerContent width='full' maxWidth='512px'>
+      <DrawerOverlay {...overlayStyle} />
+      <DrawerContent width='full' maxWidth='512px' containerProps={modalStyle}>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
           <Routes>
             <Route

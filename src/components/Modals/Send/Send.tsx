@@ -19,7 +19,7 @@ export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
   const { close, isOpen } = useModal('send')
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
+    <Dialog id='send-modal' isOpen={isOpen} onClose={close} isFullScreen>
       <MemoryRouter initialEntries={entries}>
         <Form initialAssetId={assetId} accountId={accountId} input={input} />
       </MemoryRouter>

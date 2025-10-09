@@ -19,6 +19,7 @@ import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { OnboardPager } from './components/OnboardPager'
 import { OnboardingRoutes } from './config'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
@@ -32,6 +33,10 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const { modalStyle, overlayStyle } = useModalRegistration({
+    isOpen,
+    modalId: 'native-onboarding-modal',
+  })
 
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => {
@@ -48,8 +53,8 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size={isLargerThanMd ? undefined : 'full'}>
-      <ModalOverlay />
-      <ModalContent>
+      <ModalOverlay {...overlayStyle} />
+      <ModalContent containerProps={modalStyle}>
         <ModalHeader display='flex' alignItems='center' justifyContent='space-between'>
           <Tag size='sm' colorScheme='blue'>
             {translate('walletProvider.shapeShift.onboarding.shapeshiftWallet')}

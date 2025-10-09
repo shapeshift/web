@@ -101,7 +101,7 @@ export const AssetActionsDrawer: React.FC<AssetActionsDrawerProps> = ({ assetId 
 
   return (
     <Display.Mobile>
-      <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+      <Dialog id='asset-actions-drawer' isOpen={isOpen} onClose={onClose} height='auto'>
         <DialogHeader padding={0} /> {/* For grab handle */}
         <DialogBody
           pt={8}

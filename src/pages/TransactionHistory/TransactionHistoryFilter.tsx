@@ -22,8 +22,7 @@ import { IoOptionsOutline } from 'react-icons/io5'
 import { TbFilter } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { DatePicker } from './components/DatePicker/DatePicker'
-
+import { DateRangePicker } from '@/components/DateRangePicker/DateRangePicker'
 import type { Option } from '@/components/FilterGroup'
 import { FilterGroup } from '@/components/FilterGroup'
 import { Text } from '@/components/Text'
@@ -59,20 +58,9 @@ export const TransactionHistoryFilter = memo(
   }: TransactionHistoryFilterProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const popoverRef = useRef(null)
-    /**
-     * Popover default outside click detector didn't play well with
-     * react-datepicker, but making it controlled and
-     * passing a new detector to popover content,
-     * solved the problem.
-     */
     useOutsideClick({
       ref: popoverRef,
-      handler: e => {
-        const target = e.target as HTMLElement
-        if (!target?.className?.includes('react-datepicker')) {
-          setIsOpen(false)
-        }
-      },
+      handler: () => setIsOpen(false),
     })
     const translate = useTranslate()
     const { control, handleSubmit, watch, reset } = useForm({ mode: 'onChange' })
@@ -110,14 +98,24 @@ export const TransactionHistoryFilter = memo(
     const RangeCustomComponent = useCallback(() => {
       return dayRangeSelectedOption === customRangeOption ? (
         <HStack px={4} my={2} alignItems='center' mx={-4}>
-          <DatePicker name={FilterFormFields.FromDate} control={control} withPortal />
+          <DateRangePicker
+            name={FilterFormFields.FromDate}
+            control={control}
+            mode='single'
+            placeholder='MM/DD/YYYY'
+          />
           <Text
             fontWeight='300'
             px={1}
             color={'text.subtle'}
             translation='transactionHistory.filters.to'
           />
-          <DatePicker name={FilterFormFields.ToDate} control={control} withPortal />
+          <DateRangePicker
+            name={FilterFormFields.ToDate}
+            control={control}
+            mode='single'
+            placeholder='MM/DD/YYYY'
+          />
         </HStack>
       ) : null
     }, [control, dayRangeSelectedOption])

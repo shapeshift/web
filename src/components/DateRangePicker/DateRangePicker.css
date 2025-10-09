@@ -1,0 +1,120 @@
+.light-theme {
+  --rdp-accent-color: var(--chakra-colors-gray-200);
+  --rdp-accent-background-color: var(--chakra-colors-gray-100);
+  --rdp-background-color: var(--chakra-colors-white);
+  --rdp-range-start-color: var(--chakra-colors-gray-200);
+  --rdp-range-end-color: var(--chakra-colors-gray-200);
+  --rdp-range-middle-color: var(--chakra-colors-gray-50);
+  --rdp-day-font: var(--chakra-fonts-body);
+  --rdp-day-height: 2.5rem;
+  --rdp-day-width: 2.5rem;
+}
+
+.dark-theme {
+  --rdp-accent-color: var(--chakra-colors-darkNeutralAlpha-600);
+  --rdp-accent-background-color: var(--chakra-colors-darkNeutralAlpha-700);
+  --rdp-background-color: var(--chakra-colors-gray-700);
+  --rdp-range-start-color: var(--chakra-colors-darkNeutralAlpha-600);
+  --rdp-range-end-color: var(--chakra-colors-darkNeutralAlpha-600);
+  --rdp-range-middle-color: var(--chakra-colors-darkNeutralAlpha-800);
+  --rdp-day-font: var(--chakra-fonts-body);
+  --rdp-day-height: 2.5rem;
+  --rdp-day-width: 2.5rem;
+}
+
+.rdp-root {
+  font-family: var(--chakra-fonts-body);
+  padding: 1rem;
+}
+
+.rdp-month_caption {
+  font-size: var(--chakra-fontSizes-md);
+  font-weight: var(--chakra-fontWeights-semibold);
+  margin-bottom: 0.5rem;
+  color: var(--chakra-colors-chakra-body-text);
+}
+
+.rdp-weekday {
+  font-size: var(--chakra-fontSizes-xs);
+  font-weight: var(--chakra-fontWeights-medium);
+  text-transform: uppercase;
+}
+
+.light-theme .rdp-weekday {
+  color: var(--chakra-colors-gray-500);
+}
+
+.dark-theme .rdp-weekday {
+  color: var(--chakra-colors-darkNeutral-300);
+}
+
+.rdp-day {
+  border-radius: var(--chakra-radii-md);
+  transition: all 0.2s ease-in-out;
+  color: var(--chakra-colors-chakra-body-text);
+}
+
+.rdp-day_button {
+  border-radius: var(--chakra-radii-md);
+  font-weight: var(--chakra-fontWeights-normal);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.light-theme .rdp-day_button:not(.rdp-day_selected):hover {
+  background-color: var(--chakra-colors-gray-100) !important;
+}
+
+.dark-theme .rdp-day_button:not(.rdp-day_selected):hover {
+  background-color: var(--chakra-colors-darkNeutral-800) !important;
+}
+
+.light-theme .rdp-day_selected {
+  background-color: var(--chakra-colors-gray-100);
+  color: var(--chakra-colors-gray-800);
+  font-weight: var(--chakra-fontWeights-medium);
+}
+
+.dark-theme .rdp-day_selected {
+  background-color: var(--chakra-colors-darkNeutralAlpha-700);
+  color: white;
+  font-weight: var(--chakra-fontWeights-medium);
+}
+
+.light-theme .rdp-day_range_start,
+.light-theme .rdp-day_range_end {
+  color: var(--chakra-colors-gray-800);
+}
+
+.dark-theme .rdp-day_range_start,
+.dark-theme .rdp-day_range_end {
+  color: white;
+}
+
+.rdp-day_range_middle {
+  color: var(--chakra-colors-chakra-body-text);
+  background-color: var(--rdp-range-middle-color);
+  border-radius: 0;
+}
+
+.rdp-day_outside {
+  opacity: 0.4;
+}
+
+.rdp-day_disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.light-theme .rdp-day_today:not(.rdp-day_selected) {
+  border: 1px solid var(--chakra-colors-gray-200);
+}
+
+.dark-theme .rdp-day_today:not(.rdp-day_selected) {
+  border: 1px solid var(--chakra-colors-darkNeutral-700);
+}
+
+.rdp-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

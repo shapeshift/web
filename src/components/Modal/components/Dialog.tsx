@@ -1,8 +1,9 @@
 import type { ModalProps } from '@chakra-ui/react'
-import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Code, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
+import { has } from 'lodash'
 import type { PropsWithChildren } from 'react'
-import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
 
 import {
@@ -57,15 +58,30 @@ const DialogWindow: React.FC<DialogProps> = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
 
+  const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
+
+  useEffect(() => {
+    function updateViewportHeight() {
+      setViewportHeight(window.visualViewport?.height || 0)
+    }
+
+    window.visualViewport?.addEventListener('resize', updateViewportHeight)
+    return () => window.visualViewport?.removeEventListener('resize', updateViewportHeight)
+  }, [])
+
   const contentStyle = useMemo(() => {
+    const supportsDvh = CSS.supports('height', '100dvh')
+
     return {
       maxHeight: isFullScreen
         ? '100vh'
         : 'calc(100% - env(safe-area-inset-top) - var(--safe-area-inset-top))',
-      height: isFullScreen ? '100dvh' : height || '80vh',
+      height: isFullScreen
+        ? (supportsDvh ? '100dvh' : `${viewportHeight}px`)
+        : height || '80vh',
       paddingTop: isFullScreen ? 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))' : 0,
     }
-  }, [height, isFullScreen])
+  }, [height, isFullScreen, viewportHeight])
 
   useEffect(() => {
     setIsOpen(isOpen)

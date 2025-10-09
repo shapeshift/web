@@ -59,7 +59,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
-  const { modalStyle, overlayStyle } = useModalRegistration({ isOpen, modalId: id })
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({ isOpen, modalId: id })
 
   const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
 
@@ -98,7 +98,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
   useLayoutEffect(() => {
-    if (!isMobile || isLargerThanMd) return
+    if (isLargerThanMd || isHighestModal) return
 
     document.addEventListener('focusin', e => e.stopImmediatePropagation())
     document.addEventListener('focusout', e => e.stopImmediatePropagation())
@@ -107,7 +107,7 @@ const DialogWindow: React.FC<DialogProps> = ({
       document.removeEventListener('focusin', e => e.stopImmediatePropagation())
       document.removeEventListener('focusout', e => e.stopImmediatePropagation())
     }
-  }, [isLargerThanMd])
+  }, [isLargerThanMd, isHighestModal])
 
   if (isMobile || !isLargerThanMd) {
     return (
@@ -117,6 +117,8 @@ const DialogWindow: React.FC<DialogProps> = ({
         onClose={onClose}
         activeSnapPoint={snapPoint}
         modal
+        disablePreventScroll={!isHighestModal}
+        noBodyStyles={!isHighestModal}
       >
         <Drawer.Portal>
           <CustomDrawerOverlay onClick={handleClose} {...overlayStyle} />

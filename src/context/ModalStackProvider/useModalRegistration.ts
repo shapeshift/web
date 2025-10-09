@@ -32,7 +32,7 @@ export const useModalRegistration = ({ isOpen, modalId }: UseModalRegistrationPr
       ? {
           sx: {
             zIndex: `calc(var(--chakra-zIndices-modal) + ${zIndex})`,
-            pointerEvents: isHighestModal ? 'all' : 'none',
+            pointerEvents: isHighestModal ? 'auto' : 'none',
           },
         }
       : undefined
@@ -43,7 +43,7 @@ export const useModalRegistration = ({ isOpen, modalId }: UseModalRegistrationPr
       ? {
           sx: {
             zIndex: `calc(var(--chakra-zIndices-overlay) + ${zIndex})`,
-            pointerEvents: isHighestModal ? 'all' : 'none',
+            pointerEvents: isHighestModal ? 'auto' : 'none',
           },
         }
       : undefined

@@ -174,9 +174,9 @@ const TableRow = chakraForwardRef<TableRowProps, 'div'>(
     return (
       <>
         <Tr opacity={isAccountActive ? 1 : 0.5}>
-          <Td width='50px'>
+          <Td width='50px' cursor='pointer' onClick={handleToggleIsAccountActive}>
             <Box opacity={1}>
-              <Checkbox isChecked={isAccountActive} onChange={handleToggleIsAccountActive} />
+              <Checkbox isChecked={isAccountActive} pointerEvents='none' />
             </Box>
           </Td>
           <Td width='60px'>
@@ -538,7 +538,6 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
           isDisabled={supportsMultiAccount}
         >
           <Button
-            variant='ghost'
             onClick={handleLoadMore}
             isDisabled={
               isAccountsFetching || isAutoDiscovering || isSubmitting || !supportsMultiAccount

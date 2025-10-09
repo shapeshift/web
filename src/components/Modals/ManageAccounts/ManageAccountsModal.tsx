@@ -47,7 +47,7 @@ const chainListMaxHeight = {
 type ManageAccountsState =
   | { step: 'list' }
   | { step: 'selectChain' }
-  | { step: 'importAccounts'; chainId: ChainId }
+  | { step: 'importAccounts'; chainId: ChainId; cameFromSelectChain: boolean }
 
 type StepHeaderProps = {
   title: string
@@ -276,7 +276,11 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   const chainNamespaceDisplayName = asset?.networkName ?? ''
 
   const handleClickChain = useCallback((chainId: ChainId) => {
-    setState({ step: 'importAccounts', chainId })
+    setState(prevState => ({
+      step: 'importAccounts',
+      chainId,
+      cameFromSelectChain: prevState.step === 'selectChain',
+    }))
   }, [])
 
   const handleClickAddChain = useCallback(() => {
@@ -284,8 +288,12 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   }, [])
 
   const handleBack = useCallback(() => {
-    setState({ step: 'list' })
-  }, [])
+    if (state.step === 'importAccounts' && state.cameFromSelectChain) {
+      setState({ step: 'selectChain' })
+    } else {
+      setState({ step: 'list' })
+    }
+  }, [state])
 
   const handleClose = useCallback(() => {
     setState({ step: 'list' })

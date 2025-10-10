@@ -198,9 +198,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                   >
                     {icon}
                     {rateContent}
-                    <TooltipWithTouch label={feePopoverContent} placement='top'>
-                      <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
-                    </TooltipWithTouch>
+                    {enableFeeTooltip && (
+                      <TooltipWithTouch label={feePopoverContent} placement='top'>
+                        <InfoIcon color='text.subtle' boxSize='0.75rem' cursor='pointer' />
+                      </TooltipWithTouch>
+                    )}
                   </Stack>
                 </Row.Value>
               </Row>
@@ -220,10 +222,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         </Row.Label>
                         <Row.Value>
                           {!networkFeeFiatUserCurrency ? (
-                            <Tooltip
-                              label={translate('trade.tooltip.continueSwapping')}
-                              isDisabled={!enableTooltip}
-                            >
+                            <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                               <Text translation={'trade.unknownGas'} fontSize='sm' />
                             </Tooltip>
                           ) : (

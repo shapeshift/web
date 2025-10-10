@@ -14,6 +14,7 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { IoMdAdd, IoMdCreate, IoMdTrash } from 'react-icons/io'
+import { useTranslate } from 'react-polyglot'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
@@ -37,6 +38,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
   onSelectSafeCard,
   onAddNew,
 }) => {
+  const translate = useTranslate()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const dispatch = useAppDispatch()
@@ -54,19 +56,21 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
         )
         setEditingId(null)
         toast({
-          title: 'SafeCard renamed',
+          title: translate('walletProvider.gridplus.list.renamed'),
           status: 'success',
           duration: 2000,
           isClosable: true,
         })
       }
     },
-    [editName, dispatch, toast],
+    [editName, dispatch, toast, translate],
   )
 
   const handleDelete = useCallback(
     (safeCard: SafeCard) => {
-      const confirmMsg = `Delete "${safeCard.name}"? This will remove all associated portfolio data.`
+      const confirmMsg = translate('walletProvider.gridplus.list.deleteConfirm', {
+        name: safeCard.name,
+      })
 
       if (window.confirm(confirmMsg)) {
         // Clear portfolio data for this wallet
@@ -77,15 +81,15 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
         dispatch(gridplusSlice.actions.removeSafeCard(safeCard.id))
 
         toast({
-          title: 'SafeCard deleted',
-          description: 'Portfolio data has been cleared',
+          title: translate('walletProvider.gridplus.list.deleted'),
+          description: translate('walletProvider.gridplus.list.deletedDescription'),
           status: 'info',
           duration: 3000,
           isClosable: true,
         })
       }
     },
-    [dispatch, toast],
+    [dispatch, toast, translate],
   )
 
   const handleEditNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,7 +185,9 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                   <Text fontWeight='medium'>{safeCard.name}</Text>
                   {safeCard.lastConnectedAt && (
                     <Text fontSize='xs' color='text.subtle'>
-                      Last connected: {new Date(safeCard.lastConnectedAt).toLocaleDateString()}
+                      {translate('walletProvider.gridplus.list.lastConnected', {
+                        date: new Date(safeCard.lastConnectedAt).toLocaleDateString(),
+                      })}
                     </Text>
                   )}
                 </VStack>
@@ -191,14 +197,14 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                 {editingId !== safeCard.id && (
                   <IconButton
                     icon={CreateIcon}
-                    aria-label='Edit name'
+                    aria-label={translate('walletProvider.gridplus.list.editNameLabel')}
                     variant='ghost'
                     onClick={createEditClickHandler(safeCard.id, safeCard.name)}
                   />
                 )}
                 <IconButton
                   icon={TrashIcon}
-                  aria-label='Delete'
+                  aria-label={translate('walletProvider.gridplus.list.deleteLabel')}
                   variant='ghost'
                   colorScheme='red'
                   onClick={createDeleteClickHandler(safeCard)}
@@ -208,7 +214,9 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                   colorScheme='blue'
                   isDisabled={isActive}
                 >
-                  {isActive ? 'Connected' : 'Connect'}
+                  {isActive
+                    ? translate('walletProvider.gridplus.list.connected')
+                    : translate('walletProvider.gridplus.list.connect')}
                 </Button>
               </ButtonGroup>
             </HStack>
@@ -228,6 +236,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       createEditClickHandler,
       createDeleteClickHandler,
       createConnectClickHandler,
+      translate,
     ],
   )
 
@@ -235,9 +244,9 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
   if (safeCards.length === 0) {
     return (
       <VStack spacing={4} py={8}>
-        <Text color='text.subtle'>No SafeCards connected yet</Text>
+        <Text color='text.subtle'>{translate('walletProvider.gridplus.list.empty')}</Text>
         <Button leftIcon={AddIcon} onClick={onAddNew} colorScheme='blue' size='lg'>
-          Connect Your First SafeCard
+          {translate('walletProvider.gridplus.list.addFirst')}
         </Button>
       </VStack>
     )
@@ -246,21 +255,18 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
   return (
     <VStack spacing={3} align='stretch'>
       <Text fontSize='sm' color='text.subtle' mb={2}>
-        Select a SafeCard to reconnect or add a new one
+        {translate('walletProvider.gridplus.list.selectPrompt')}
       </Text>
 
       {renderCards}
 
       <Button leftIcon={AddIcon} onClick={onAddNew} variant='outline' colorScheme='blue' mt={2}>
-        Add New SafeCard
+        {translate('walletProvider.gridplus.list.addNew')}
       </Button>
 
       <Alert status='info' borderRadius='md' mt={4}>
         <AlertIcon />
-        <Text fontSize='sm'>
-          Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in
-          your device before connecting.
-        </Text>
+        <Text fontSize='sm'>{translate('walletProvider.gridplus.list.warning')}</Text>
       </Alert>
     </VStack>
   )

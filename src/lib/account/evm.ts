@@ -33,6 +33,29 @@ import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInsta
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { store } from '@/state/store'
 
+const getCachedOrDeriveEvmAddress = async (
+  chainId: string,
+  accountNumber: number,
+  wallet: any,
+  adapter: any,
+): Promise<string | undefined> => {
+  const state = store.getState()
+  const allAccountMetadata = state.portfolio.accountMetadata.byId
+
+  // Check cache for existing address to avoid re-deriving from device
+  for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
+    const { chainId: metadataChainId, account } = fromAccountId(accountId)
+    const metadataAccountNumber = metadata.bip44Params.accountNumber
+
+    if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
+      return account
+    }
+  }
+
+  // Not in cache - fetch from device
+  return await adapter.getAddress({ accountNumber, wallet })
+}
+
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args
   if (!supportsETH(wallet)) return {}
@@ -61,26 +84,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
     address =
-      address ||
-      (await (async () => {
-        // Check ALL cached metadata (including inactive accounts) to avoid re-deriving from device
-        const state = store.getState()
-        const allAccountMetadata = state.portfolio.accountMetadata.byId
-
-        // Search through all cached metadata for matching account
-        for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
-          const { chainId: metadataChainId, account } = fromAccountId(accountId)
-          const metadataAccountNumber = metadata.bip44Params.accountNumber
-
-          if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
-            // Found cached address - use it instead of re-deriving from device
-            return account
-          }
-        }
-
-        // Not in cache - fetch from device
-        return adapter.getAddress({ accountNumber, wallet })
-      })())
+      address || (await getCachedOrDeriveEvmAddress(chainId, accountNumber, wallet, adapter)) || ''
     if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })

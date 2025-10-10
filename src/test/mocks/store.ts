@@ -365,7 +365,7 @@ export const mockStore: ReduxState = {
     },
     connection: {
       physicalDeviceId: null,
-      privKey: null,
+      sessionId: null,
     },
     safecards: {
       byId: {},

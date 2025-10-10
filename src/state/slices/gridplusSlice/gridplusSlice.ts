@@ -39,14 +39,12 @@ export const gridplusSlice = createSlice({
         action: PayloadAction<{
           id?: string
           name: string
-          verificationAddress?: string
         }>,
       ) => {
         const id = action.payload.id || uuidv4()
         const safeCard: SafeCard = {
           id,
           name: action.payload.name,
-          verificationAddress: action.payload.verificationAddress,
           createdAt: Date.now(),
         }
         state.safecards.byId[id] = safeCard

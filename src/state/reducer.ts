@@ -19,7 +19,6 @@ import {
   clearSnapshotMigrations,
   clearSwapsMigrations,
   clearTxHistoryMigrations,
-  gridplusMigrations,
   localWalletMigrations,
 } from './migrations'
 import { actionSlice } from './slices/actionSlice/actionSlice'
@@ -144,8 +143,7 @@ const swapPersistConfig = {
 const gridplusPersistConfig = {
   key: 'gridplus',
   storage: localforage,
-  version: Math.max(...Object.keys(gridplusMigrations).map(Number)),
-  migrate: createMigrate(gridplusMigrations, { debug: false }),
+  version: 0,
 }
 
 export const sliceReducers = {

@@ -1,7 +1,6 @@
 export type SafeCard = {
   id: string
   name: string
-  verificationAddress?: string
   createdAt: number
   lastConnectedAt?: number
 }

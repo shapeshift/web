@@ -7,6 +7,29 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { store } from '@/state/store'
 
+const getCachedOrDeriveAddress = async (
+  chainId: string,
+  accountNumber: number,
+  wallet: any,
+  adapter: any,
+): Promise<string | undefined> => {
+  const state = store.getState()
+  const allAccountMetadata = state.portfolio.accountMetadata.byId
+
+  // Check cache for existing address to avoid re-deriving from device
+  for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
+    const { chainId: metadataChainId, account } = fromAccountId(accountId)
+    const metadataAccountNumber = metadata.bip44Params.accountNumber
+
+    if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
+      return account
+    }
+  }
+
+  // Not in cache - fetch from device
+  return await adapter.getAddress({ accountNumber, wallet })
+}
+
 export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args
 
@@ -19,25 +42,8 @@ export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = as
     const adapter = assertGetSolanaChainAdapter(chainId)
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
-    const address = await (async () => {
-      // Check ALL cached metadata (including inactive accounts) to avoid re-deriving from device
-      const state = store.getState()
-      const allAccountMetadata = state.portfolio.accountMetadata.byId
-
-      // Search through all cached metadata for matching account
-      for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
-        const { chainId: metadataChainId, account } = fromAccountId(accountId)
-        const metadataAccountNumber = metadata.bip44Params.accountNumber
-
-        if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
-          // Found cached address - use it instead of re-deriving from device
-          return account
-        }
-      }
-
-      // Not in cache - fetch from device
-      return adapter.getAddress({ accountNumber, wallet })
-    })()
+    const address = (await getCachedOrDeriveAddress(chainId, accountNumber, wallet, adapter)) || ''
+    if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })
     result[accountId] = { bip44Params }

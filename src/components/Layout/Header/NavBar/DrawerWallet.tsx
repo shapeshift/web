@@ -125,8 +125,6 @@ const AccountTableSkeleton: FC = memo(() => (
   </Stack>
 ))
 
-const manageHiddenAssetsElement = <ManageHiddenAssetsContent />
-
 const DrawerWalletInner: FC = memo(() => {
   const translate = useTranslate()
   const send = useModal('send')
@@ -208,6 +206,8 @@ const DrawerWalletInner: FC = memo(() => {
     () => <DrawerSettings onBack={handleBackToMain} onClose={onClose} />,
     [handleBackToMain, onClose],
   )
+
+  const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
 
   return (
     <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>

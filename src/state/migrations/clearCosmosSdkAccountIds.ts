@@ -9,11 +9,7 @@ import type { PersistPartial } from 'redux-persist/es/persistReducer'
 import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 
 // Cosmos SDK chains that need to be cleared due to GridPlus derivation path fix
-const COSMOS_SDK_CHAIN_IDS = [
-  cosmosChainId,
-  thorchainChainId,
-  mayachainChainId,
-]
+const COSMOS_SDK_CHAIN_IDS = [cosmosChainId, thorchainChainId, mayachainChainId]
 
 /**
  * Migration to clear AccountIds for Cosmos SDK chains due to GridPlus derivation path fix.

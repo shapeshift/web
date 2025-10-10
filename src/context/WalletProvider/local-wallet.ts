@@ -31,10 +31,6 @@ export const useLocalWallet = () => {
     dispatch(localWalletSlice.actions.setNativeWalletName(name))
   }
 
-  const setGridPlusPrivKey = (privKey: string) => {
-    dispatch(localWalletSlice.actions.setGridPlusPrivKey(privKey))
-  }
-
   const nativeLocalWalletName = useAppSelector(selectNativeWalletName)
   const localWalletType = useAppSelector(selectWalletType)
   const localWalletDeviceId = useAppSelector(selectWalletDeviceId)
@@ -44,7 +40,6 @@ export const useLocalWallet = () => {
     setLocalWallet,
     clearLocalWallet,
     setLocalNativeWalletName,
-    setGridPlusPrivKey,
     nativeLocalWalletName,
     localWalletType,
     localWalletDeviceId,

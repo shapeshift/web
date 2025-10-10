@@ -109,7 +109,8 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
         wallet,
         accountMetadata,
         pubKey:
-          (walletType === KeyManager.Ledger || walletType === KeyManager.GridPlus) && selectedAccountId
+          (walletType === KeyManager.Ledger || walletType === KeyManager.GridPlus) &&
+          selectedAccountId
             ? fromAccountId(selectedAccountId as AccountId).account
             : undefined,
       })

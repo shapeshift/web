@@ -22,8 +22,3 @@ export const selectWalletRdns = createSelector(
   localWalletSlice.selectSlice,
   (localWalletState): string | null => localWalletState.rdns,
 )
-
-export const selectGridPlusPrivKey = createSelector(
-  localWalletSlice.selectSlice,
-  (localWalletState): string | null => localWalletState.gridplusPrivKey,
-)

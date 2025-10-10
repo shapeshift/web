@@ -2,7 +2,6 @@ import type { MigrationManifest } from 'redux-persist'
 
 import { clearAction } from './clearAction'
 import { clearAssets } from './clearAssets'
-import { clearCosmosSdkAccountIds } from './clearCosmosSdkAccountIds'
 import { clearLocalWallet } from './clearLocalWallet'
 import { clearMarketData } from './clearMarketData'
 import { clearOpportunities } from './clearOpportunities'
@@ -10,7 +9,6 @@ import { clearPortfolio } from './clearPortfolio'
 import { clearSnapshot } from './clearSnapshot'
 import { clearSwaps } from './clearSwaps'
 import { clearTxHistory } from './clearTxHistory'
-import { migrateGridplusPrivKeyToSessionId } from './migrateGridplusPrivKeyToSessionId'
 export const clearTxHistoryMigrations = {
   0: clearTxHistory,
   1: clearTxHistory,
@@ -34,11 +32,6 @@ export const clearPortfolioMigrations = {
   1: clearPortfolio,
   2: clearPortfolio,
   3: clearPortfolio,
-  4: clearPortfolio, // Clear AccountIds for GridPlus Cosmos/THOR address fixes
-  5: clearCosmosSdkAccountIds, // Clear Cosmos SDK AccountIds for GridPlus BIP44 derivation path fix
-  6: clearCosmosSdkAccountIds, // Clear Cosmos SDK AccountIds for GridPlus pubkey compression fix
-  7: clearCosmosSdkAccountIds, // Clear Cosmos SDK AccountIds for GridPlus Solana caching fix
-  8: clearCosmosSdkAccountIds, // Clear Cosmos SDK AccountIds for GridPlus THORChain/MAYAChain cache collision fix
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const localWalletMigrations = {
@@ -261,8 +254,4 @@ export const clearActionMigrations = {
 
 export const clearSwapsMigrations = {
   0: clearSwaps,
-} as unknown as Omit<MigrationManifest, '_persist'>
-
-export const gridplusMigrations = {
-  0: migrateGridplusPrivKeyToSessionId,
 } as unknown as Omit<MigrationManifest, '_persist'>

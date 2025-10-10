@@ -198,6 +198,8 @@ export const useTradeExecution = (
             },
           })
         }
+
+        navigate(TradeRoutePaths.Input)
       })
       execution.on(
         TradeExecutionEvent.RelayerTxHash,
@@ -260,11 +262,6 @@ export const useTradeExecution = (
           // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex, id: confirmedTradeId }))
-
-        // TODO: This navigation was moved from SellTxHash handler to fix race condition where
-        // clearTradeQuotes() clears swapperName while trade execution is still running.
-        // This is a race condition present in develop - consider extracting to separate PR.
-        navigate(TradeRoutePaths.Input)
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {

@@ -263,30 +263,8 @@ export const GridPlusConnect = () => {
   }, [])
 
   const handleNameSubmit = useCallback(async () => {
-    if (showPairingCode) {
-      await handleConnect()
-    } else {
-      if (pendingSafeCardUuid && safeCardName.trim()) {
-        appDispatch(
-          gridplusSlice.actions.updateSafeCardName({
-            id: pendingSafeCardUuid,
-            name: safeCardName.trim(),
-          }),
-        )
-      }
-      setPendingSafeCardUuid(null)
-      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      navigate('/')
-    }
-  }, [
-    showPairingCode,
-    handleConnect,
-    pendingSafeCardUuid,
-    safeCardName,
-    appDispatch,
-    walletDispatch,
-    navigate,
-  ])
+    await handleConnect()
+  }, [handleConnect])
 
   const spinnerElement = useMemo(() => <Spinner color='white' />, [])
 
@@ -416,10 +394,28 @@ export const GridPlusConnect = () => {
       }
     }
 
+    const defaultName = generateUniqueName()
+    const newUuid = uuidv4()
+
     setIsAddingNew(true)
-    setSafeCardName(generateUniqueName())
+    setPendingSafeCardUuid(newUuid)
+    setSafeCardName(defaultName)
     setShowSafeCardList(false)
-  }, [safeCards])
+
+    // Create the SafeCard immediately with default name
+    appDispatch(
+      gridplusSlice.actions.addSafeCard({
+        id: newUuid,
+        name: defaultName,
+      }),
+    )
+
+    // If already connected, show name screen directly
+    // Otherwise, show device ID entry screen first
+    if (physicalDeviceId && sessionId) {
+      setShowNameScreen(true)
+    }
+  }, [safeCards, physicalDeviceId, sessionId, appDispatch])
 
   // Handler for back to list button
   const handleBackToList = useCallback(() => {

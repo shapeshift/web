@@ -72,7 +72,7 @@
 ### Repositories Structure (i.e this repo and related hdwallet repo)
 - **Web repo**: This repository (shapeshiftWeb)
 - **HDWallet repo**: `../shapeshiftHdWallet` (sibling directory, may be in a different path for other users though)
-- **Note**: If hdwallet path differs, ask user for their specific path. All <shapeshiftHdWallet> instructions to be replaced with <shapeshiftHdWallet>
+- **Note**: If hdwallet path differs, ask user for their specific path. All shapeshiftHdWallet instructions to be replaced with <correctPathForUser> if differs.
 - **Claude usage**: Assume users ran `claude` with `--add-dir` from web (this) repo, with hdwallet as second directory
 
 ### Web + HDWallet Development Workflow

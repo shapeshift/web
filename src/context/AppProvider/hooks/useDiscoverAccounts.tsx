@@ -171,7 +171,6 @@ export const useDiscoverAccounts = () => {
   const { isLoading, isFetching } = useMemo(() => {
     const loading = accountsDiscoveryQueries.some(query => query.isLoading)
     const fetching = accountsDiscoveryQueries.some(query => query.isFetching)
-    console.log(`[AccountDiscovery] 📡 Status: isLoading=${loading}, isFetching=${fetching}`)
     return {
       isLoading: loading,
       isFetching: fetching,

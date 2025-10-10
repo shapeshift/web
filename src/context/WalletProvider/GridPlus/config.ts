@@ -8,31 +8,49 @@ export class GridPlusAdapter {
     let cachedHdWalletAdapter: any = null
 
     return {
-      connectDevice: async (deviceId: string, password?: string, existingPrivKey?: string) => {
+      connectDevice: async (
+        safecardId: string,
+        physicalDeviceId: string,
+        password?: string,
+        existingSessionId?: string,
+      ) => {
         if (!cachedHdWalletAdapter) {
           const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import(
             '@shapeshiftoss/hdwallet-gridplus'
           )
           cachedHdWalletAdapter = new HdWalletGridPlusAdapter(keyring)
         }
-        return await cachedHdWalletAdapter.connectDevice(deviceId, password, existingPrivKey)
+        return await cachedHdWalletAdapter.connectDevice({
+          safecardId,
+          physicalDeviceId,
+          password,
+          existingSessionId,
+        })
       },
 
-      pairConnectedDevice: async (deviceId: string, pairingCode: string) => {
+      pairConnectedDevice: async (
+        safecardId: string,
+        physicalDeviceId: string,
+        pairingCode: string,
+      ) => {
         if (!cachedHdWalletAdapter) {
           throw new Error('Device not connected. Call connectDevice first.')
         }
 
-        const wallet = await cachedHdWalletAdapter.pairConnectedDevice(deviceId, pairingCode)
+        const wallet = await cachedHdWalletAdapter.pairConnectedDevice({
+          safecardId,
+          physicalDeviceId,
+          pairingCode,
+        })
         return wallet
       },
 
-      // Legacy method for backward compatibility
       pairDevice: async (
-        deviceId: string,
+        safecardId: string,
+        physicalDeviceId: string,
         password?: string,
         pairingCode?: string,
-        existingPrivKey?: string,
+        existingSessionId?: string,
       ) => {
         if (!cachedHdWalletAdapter) {
           const { GridPlusAdapter: HdWalletGridPlusAdapter } = await import(
@@ -41,12 +59,13 @@ export class GridPlusAdapter {
           cachedHdWalletAdapter = new HdWalletGridPlusAdapter(keyring)
         }
 
-        const wallet = await cachedHdWalletAdapter.pairDevice(
-          deviceId,
+        const wallet = await cachedHdWalletAdapter.pairDevice({
+          safecardId,
+          physicalDeviceId,
           password,
           pairingCode,
-          existingPrivKey,
-        )
+          existingSessionId,
+        })
         return wallet
       },
     }

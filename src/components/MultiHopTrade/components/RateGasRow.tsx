@@ -30,7 +30,7 @@ type RateGasRowProps = {
   hideGasAmount?: boolean
   sx?: StackProps['sx']
   flexProps?: FlexProps
-  enableTooltip?: boolean
+  enableFeeTooltip?: boolean
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -57,7 +57,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     invertRate,
     sx,
     flexProps,
-    enableTooltip = true,
+    enableFeeTooltip = true,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
@@ -212,7 +212,6 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         ? 'trade.quote.gas'
                         : 'trade.tooltip.continueSwapping',
                     )}
-                    isDisabled={!enableTooltip}
                   >
                     <Box>
                       <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
@@ -221,7 +220,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         </Row.Label>
                         <Row.Value>
                           {!networkFeeFiatUserCurrency ? (
-                            <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                            <Tooltip
+                              label={translate('trade.tooltip.continueSwapping')}
+                              isDisabled={!enableTooltip}
+                            >
                               <Text translation={'trade.unknownGas'} fontSize='sm' />
                             </Tooltip>
                           ) : (

@@ -30,6 +30,7 @@ type RateGasRowProps = {
   hideGasAmount?: boolean
   sx?: StackProps['sx']
   flexProps?: FlexProps
+  enableTooltip?: boolean
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -56,6 +57,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     invertRate,
     sx,
     flexProps,
+    enableTooltip = true,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
@@ -210,6 +212,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         ? 'trade.quote.gas'
                         : 'trade.tooltip.continueSwapping',
                     )}
+                    isDisabled={!enableTooltip}
                   >
                     <Box>
                       <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>

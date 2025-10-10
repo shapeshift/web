@@ -203,6 +203,7 @@ export const FiatRampTradeFooter = ({
           noExpand={noExpand}
           hideGasAmount
           flexProps={rateGasRowSx}
+          enableTooltip={false}
         />
       )}
       <Flex

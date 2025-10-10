@@ -34,7 +34,7 @@ export const GridPlusConnect = () => {
   // Get GridPlus state from new slice
   const safeCards = useAppSelector(gridplusSlice.selectors.selectSafeCards)
   const physicalDeviceId = useAppSelector(gridplusSlice.selectors.selectPhysicalDeviceId)
-  const privKey = useAppSelector(gridplusSlice.selectors.selectPrivKey)
+  const sessionId = useAppSelector(gridplusSlice.selectors.selectSessionId)
 
   // UI state
   const [showSafeCardList, setShowSafeCardList] = useState(safeCards.length > 0)
@@ -95,9 +95,9 @@ export const GridPlusConnect = () => {
         throw new Error('GridPlus adapter not available')
       }
 
-      // Step 4: Check pairing status if no existing privKey
-      if (!privKey && !showPairingCode) {
-        const { isPaired, privKey: newPrivKey } = await adapterWithKeyring.connectDevice(
+      // Step 4: Check pairing status if no existing sessionId
+      if (!sessionId && !showPairingCode) {
+        const { isPaired, sessionId: newSessionId } = await adapterWithKeyring.connectDevice(
           connectionDeviceId,
           undefined,
           undefined,
@@ -110,11 +110,11 @@ export const GridPlusConnect = () => {
           return // Wait for pairing code
         }
 
-        // Device was already paired, save the privKey
+        // Device was already paired, save the sessionId
         appDispatch(
           gridplusSlice.actions.setConnection({
             physicalDeviceId: connectionDeviceId,
-            privKey: newPrivKey,
+            sessionId: newSessionId,
           }),
         )
       }
@@ -130,17 +130,18 @@ export const GridPlusConnect = () => {
           connectionDeviceId,
           undefined,
           undefined,
-          privKey || undefined,
+          sessionId || undefined,
         )
       }
 
       // Step 6: Save connection info if new pairing
-      if (!privKey && wallet.getPrivKey) {
-        const walletPrivKey = wallet.getPrivKey()
+      // sessionId is used for fast reconnection without device communication
+      if (!sessionId && wallet.getSessionId) {
+        const walletSessionId = wallet.getSessionId()
         appDispatch(
           gridplusSlice.actions.setConnection({
             physicalDeviceId: connectionDeviceId,
-            privKey: walletPrivKey,
+            sessionId: walletSessionId,
           }),
         )
       }
@@ -191,7 +192,7 @@ export const GridPlusConnect = () => {
     pairingCode,
     showPairingCode,
     physicalDeviceId,
-    privKey,
+    sessionId,
     safeCards.length,
     setErrorLoading,
     getAdapter,

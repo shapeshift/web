@@ -7,7 +7,7 @@ import type { GridPlusState, SafeCard } from './types'
 const initialState: GridPlusState = {
   connection: {
     physicalDeviceId: null,
-    privKey: null,
+    sessionId: null,
   },
   safecards: {
     byId: {},
@@ -25,11 +25,11 @@ export const gridplusSlice = createSlice({
         state,
         action: PayloadAction<{
           physicalDeviceId: string
-          privKey: string
+          sessionId: string
         }>,
       ) => {
         state.connection.physicalDeviceId = action.payload.physicalDeviceId
-        state.connection.privKey = action.payload.privKey
+        state.connection.sessionId = action.payload.sessionId
       },
     ),
 
@@ -91,7 +91,7 @@ export const gridplusSlice = createSlice({
   selectors: {
     selectConnection: state => state.connection,
     selectPhysicalDeviceId: state => state.connection.physicalDeviceId,
-    selectPrivKey: state => state.connection.privKey,
+    selectSessionId: state => state.connection.sessionId,
     selectSafeCards: state => state.safecards.ids.map(id => state.safecards.byId[id]),
     selectActiveSafeCardId: state => state.safecards.activeId,
     selectActiveSafeCard: state =>

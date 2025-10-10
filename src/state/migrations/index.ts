@@ -10,6 +10,7 @@ import { clearPortfolio } from './clearPortfolio'
 import { clearSnapshot } from './clearSnapshot'
 import { clearSwaps } from './clearSwaps'
 import { clearTxHistory } from './clearTxHistory'
+import { migrateGridplusPrivKeyToSessionId } from './migrateGridplusPrivKeyToSessionId'
 export const clearTxHistoryMigrations = {
   0: clearTxHistory,
   1: clearTxHistory,
@@ -260,4 +261,8 @@ export const clearActionMigrations = {
 
 export const clearSwapsMigrations = {
   0: clearSwaps,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const gridplusMigrations = {
+  0: migrateGridplusPrivKeyToSessionId,
 } as unknown as Omit<MigrationManifest, '_persist'>

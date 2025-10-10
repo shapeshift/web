@@ -8,7 +8,13 @@ export type SafeCard = {
 
 export type GridPlusConnection = {
   physicalDeviceId: string | null
-  privKey: string | null
+  /**
+   * Session identifier used to optimize reconnection.
+   * When present, GridPlus SDK setup() is called without deviceId/password,
+   * loading from localStorage instead. This avoids triggering the pairing
+   * screen on the device and enables faster offline reconnection.
+   */
+  sessionId: string | null
 }
 
 export type GridPlusState = {

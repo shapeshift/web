@@ -113,7 +113,7 @@ if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
     ],
     beforeSend(event, hint) {
       const error = hint?.originalException
-      const errorMessage = (error as Error)?.message ?? event.message ?? ''
+      const errorMessage = error instanceof Error ? error.message : event.message ?? ''
 
       // Filter browser extension errors
       if (

@@ -9,6 +9,7 @@ import {
   init as initSentry,
   setUser,
 } from '@sentry/react'
+import { TradeQuoteError } from '@shapeshiftoss/swapper'
 import { isAxiosError } from 'axios'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
@@ -85,9 +86,9 @@ if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
       'transactionRejected',
 
       // Common business logic errors that are user-facing
-      'UnsupportedTradePair',
-      'NoRouteFound',
-      'RateLimitExceeded',
+      TradeQuoteError.UnsupportedTradePair,
+      TradeQuoteError.NoRouteFound,
+      TradeQuoteError.RateLimitExceeded,
     ],
     integrations: [
       // Sentry.browserTracingIntegration(),
@@ -126,8 +127,8 @@ if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
       // Filter expected trade errors (defense-in-depth with ignoreErrors)
       if (
         errorMessage.includes('TradeQuoteError') ||
-        errorMessage.includes('UnsupportedTradePair') ||
-        errorMessage.includes('NoRouteFound')
+        errorMessage.includes(TradeQuoteError.UnsupportedTradePair) ||
+        errorMessage.includes(TradeQuoteError.NoRouteFound)
       ) {
         return null
       }

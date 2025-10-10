@@ -68,7 +68,12 @@ export const Acknowledgement = ({
   }, [setShouldShowAcknowledgement])
 
   return (
-    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel} trapFocus={isHighestModal}>
+    <Modal
+      isOpen={shouldShowAcknowledgement}
+      onClose={handleCancel}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>

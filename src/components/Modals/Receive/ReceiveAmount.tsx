@@ -246,7 +246,13 @@ export const ReceiveAmount = ({
 
   if (isModal) {
     return (
-      <Modal isOpen onClose={onClose} isCentered trapFocus={isHighestModal}>
+      <Modal
+        isOpen
+        onClose={onClose}
+        isCentered
+        trapFocus={isHighestModal}
+        blockScrollOnMount={isHighestModal}
+      >
         <ModalOverlay {...overlayStyle} />
         <ModalContent containerProps={modalStyle}>{content}</ModalContent>
       </Modal>

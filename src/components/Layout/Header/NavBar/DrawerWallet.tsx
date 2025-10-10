@@ -19,7 +19,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
@@ -32,7 +32,6 @@ import { SendIcon } from '@/components/Icons/SendIcon'
 import { ManageHiddenAssetsContent } from '@/components/ManageHiddenAssets/ManageHiddenAssetsContent'
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
-import { ModalContext } from '@/context/ModalProvider/ModalContext'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -134,8 +133,7 @@ const DrawerWalletInner: FC = memo(() => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
   const navigate = useNavigate()
-  const modalContext = useContext(ModalContext)
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'wallet-drawer-modal',
   })
@@ -153,25 +151,10 @@ const DrawerWalletInner: FC = memo(() => {
   }, [isOpen, activeTabIndex])
 
   const {
-    state: { isConnected, walletInfo, connectedType, isLocked, modal: walletModalOpen },
+    state: { isConnected, walletInfo, connectedType, isLocked },
     dispatch,
     disconnect,
   } = useWallet()
-
-  useEffect(() => {
-    if (!modalContext) return
-    const hasOpenModal = Object.entries(modalContext.state).some(
-      ([key, modal]) => key !== 'walletDrawer' && modal.isOpen,
-    )
-    if (hasOpenModal && isOpen) {
-      // Give the lazy modals some time to open
-      setTimeout(onClose, 250)
-    }
-
-    if (walletModalOpen && isOpen) {
-      onClose()
-    }
-  }, [modalContext, walletModalOpen, isOpen, onClose])
 
   const handleSendClick = useCallback(() => {
     send.open({})
@@ -215,7 +198,14 @@ const DrawerWalletInner: FC = memo(() => {
   const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
+    <Drawer
+      isOpen={isOpen}
+      placement='right'
+      onClose={onClose}
+      size='sm'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <DrawerOverlay {...overlayStyle} />
       <DrawerContent width='full' maxWidth='512px' containerProps={modalStyle}>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>

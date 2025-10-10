@@ -127,7 +127,7 @@ export const NewWalletViewsSwitch = () => {
     disconnect,
   } = useWallet()
 
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen: modal,
     modalId: 'new-wallet-views-switch-modal',
   })
@@ -342,9 +342,10 @@ export const NewWalletViewsSwitch = () => {
         isOpen={modal}
         onClose={onClose}
         isCentered
-        trapFocus={false}
         closeOnOverlayClick={true}
         size={!isLargerThanMd ? modalSize : undefined}
+        trapFocus={isHighestModal}
+        blockScrollOnMount={isHighestModal}
       >
         <ModalOverlay {...overlayStyle} />
         <ModalContent

@@ -150,7 +150,13 @@ export const AddAccountModal = () => {
   ])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={close}
+      isCentered
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalHeader textAlign='center'>{translate('accounts.addAccount')}</ModalHeader>

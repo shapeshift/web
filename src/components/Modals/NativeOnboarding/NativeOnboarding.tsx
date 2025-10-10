@@ -57,6 +57,7 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
       onClose={handleClose}
       size={isLargerThanMd ? undefined : 'full'}
       trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
     >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>

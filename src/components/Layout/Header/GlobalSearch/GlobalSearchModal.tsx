@@ -215,6 +215,7 @@ export const GlobalSearchModal = memo(
         onClose={handleClose}
         size='lg'
         trapFocus={isHighestModal}
+        blockScrollOnMount={isHighestModal}
       >
         <ModalOverlay {...overlayStyle} />
         <ModalContent overflow='hidden' containerProps={modalStyle}>

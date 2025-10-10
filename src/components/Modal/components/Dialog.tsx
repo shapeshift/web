@@ -128,7 +128,14 @@ const DialogWindow: React.FC<DialogProps> = ({
     )
   }
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered {...modalProps} trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isCentered
+      {...modalProps}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent height={height} containerProps={modalStyle}>
         {children}

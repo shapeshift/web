@@ -13,12 +13,20 @@ export type DrawerWrapperProps = {
 const overrideStyles = { pointerEvents: 'auto' as const }
 
 export const DrawerWrapper = ({ children, isOpen, onClose, variant }: DrawerWrapperProps) => {
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'manage-accounts-drawer',
   })
   return (
-    <Drawer isOpen={isOpen} size='lg' placement='right' onClose={onClose} variant={variant}>
+    <Drawer
+      isOpen={isOpen}
+      size='lg'
+      placement='right'
+      onClose={onClose}
+      variant={variant}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <DrawerOverlay zIndex='modal' style={overrideStyles} {...overlayStyle} />
       <DrawerContent style={overrideStyles} containerProps={modalStyle}>
         <DrawerCloseButton top='calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 1rem)' />

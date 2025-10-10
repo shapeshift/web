@@ -39,7 +39,14 @@ export const FeedbackAndSupport = () => {
   }, [close])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='sm' trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={close}
+      isCentered
+      size='sm'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ModalCloseButton />

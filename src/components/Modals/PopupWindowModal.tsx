@@ -83,7 +83,13 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   }, [popup, isOpen, title, url, width, height, popupWindow])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='full' trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size='full'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay
         backdropFilter='blur(10px)'
         bgColor='blackAlpha.100'

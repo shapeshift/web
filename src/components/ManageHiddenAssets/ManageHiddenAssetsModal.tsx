@@ -33,6 +33,7 @@ export const ManageHiddenAssetsModal = () => {
       isCentered
       size={isLargerThanMd ? 'xl' : 'full'}
       trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
     >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>

@@ -32,7 +32,13 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
   }, [navigate, location.pathname])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav' trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      variant='header-nav'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent
         width='full'

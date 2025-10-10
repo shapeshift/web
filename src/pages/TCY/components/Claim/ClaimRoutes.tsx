@@ -159,7 +159,12 @@ export const ClaimModal = ({ isOpen, onClose, claim }: ClaimModalProps) => {
   })
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>
         <ClaimContent claim={claim} />

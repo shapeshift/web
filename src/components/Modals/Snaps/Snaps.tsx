@@ -33,7 +33,14 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   if (isCorrectVersion === null) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='sm' trapFocus={isHighestModal}>
+    <Modal
+      isOpen={isOpen}
+      onClose={close}
+      isCentered
+      size='sm'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle} minW='450px'>
         <ModalCloseButton />

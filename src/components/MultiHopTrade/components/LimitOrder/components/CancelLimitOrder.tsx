@@ -146,7 +146,12 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   }, [orderToCancel])
 
   return (
-    <Modal isOpen={orderToCancel !== undefined} onClose={handleClose} trapFocus={isHighestModal}>
+    <Modal
+      isOpen={orderToCancel !== undefined}
+      onClose={handleClose}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay {...overlayStyle} />
       <ModalContent pointerEvents='all' containerProps={modalStyle}>
         <ModalHeader px={6} pt={4} borderWidth={0}>

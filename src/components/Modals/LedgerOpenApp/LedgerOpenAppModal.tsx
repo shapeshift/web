@@ -64,6 +64,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
       size='md'
       closeOnOverlayClick={false}
       trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
     >
       <ModalOverlay {...overlayStyle} />
       <ModalContent containerProps={modalStyle}>

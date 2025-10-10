@@ -10,12 +10,18 @@ type DashboardDrawerProps = {
 }
 
 export const DashboardDrawer: React.FC<DashboardDrawerProps> = memo(({ isOpen, onClose }) => {
-  const { modalStyle, overlayStyle } = useModalRegistration({
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
     isOpen,
     modalId: 'dashboard-drawer',
   })
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} blockScrollOnMount={false} placement='left'>
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      blockScrollOnMount={false}
+      placement='left'
+      trapFocus={isHighestModal}
+    >
       <DrawerOverlay {...overlayStyle} />
       <DrawerContent
         paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'

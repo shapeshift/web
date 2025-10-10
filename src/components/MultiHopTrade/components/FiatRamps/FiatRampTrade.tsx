@@ -1,7 +1,8 @@
-import { useColorMode } from '@chakra-ui/react'
+import { useColorMode, usePrevious } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
@@ -28,7 +29,6 @@ import { SlideTransitionRoute } from '@/components/MultiHopTrade/components/Slid
 import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -48,7 +48,8 @@ import {
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectManualReceiveAddress,
-  selectSelectedFiatRampQuote,
+  selectSelectedBuyFiatRampQuote,
+  selectSelectedSellFiatRampQuote,
   selectSellFiatAmount,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
@@ -94,14 +95,21 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
-  const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
+  const selectedBuyQuote = useAppSelector(selectSelectedBuyFiatRampQuote)
+  const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
+
+  const selectedQuote = useMemo(
+    () => (direction === FiatRampAction.Buy ? selectedBuyQuote : selectedSellQuote),
+    [direction, selectedBuyQuote, selectedSellQuote],
+  )
 
   const assets = useAppSelector(selectAssets)
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const { colorMode } = useColorMode()
   const popup = useModal('popup')
   const { pathname } = useLocation()
+  const queryClient = useQueryClient()
 
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
@@ -199,10 +207,11 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     return quotesQueries.some(query => query.isLoading)
   }, [quotesQueries])
 
-  const debouncedSellAmount = useDebounce(
-    direction === FiatRampAction.Buy ? sellFiatAmount : sellAmountCryptoPrecision,
-    1000,
-  )
+  const debouncedBuyDirectionSellAmount = useDebounce(sellFiatAmount, 1000)
+  const debouncedSellDirectionSellAmount = useDebounce(sellAmountCryptoPrecision, 1000)
+
+  const previousDebouncedSellDirectionSellAmount = usePrevious(debouncedSellDirectionSellAmount)
+  const previousDebouncedBuyDirectionSellAmount = usePrevious(debouncedBuyDirectionSellAmount)
 
   useEffect(() => {
     if (!fiatMarketData[buyFiatCurrency?.code]) {
@@ -216,12 +225,33 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
 
   // Unselect quote when amount changes (but not on refetch)
   useEffect(() => {
-    // Only clear quotes when the form data actually changes, not when navigating
-    if (debouncedSellAmount && (sellFiatCurrency || sellAsset || buyFiatCurrency || buyAsset)) {
-      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(null))
+    if (!(sellFiatCurrency || sellAsset || buyFiatCurrency || buyAsset)) return
+    if (
+      direction === FiatRampAction.Buy &&
+      previousDebouncedBuyDirectionSellAmount !== debouncedBuyDirectionSellAmount
+    ) {
       queryClient.invalidateQueries({ queryKey: ['rampQuote'] })
     }
-  }, [debouncedSellAmount, dispatch, sellFiatCurrency, sellAsset, buyFiatCurrency, buyAsset])
+
+    if (
+      direction === FiatRampAction.Sell &&
+      previousDebouncedSellDirectionSellAmount !== debouncedSellDirectionSellAmount
+    ) {
+      queryClient.invalidateQueries({ queryKey: ['rampQuote'] })
+    }
+  }, [
+    debouncedBuyDirectionSellAmount,
+    debouncedSellDirectionSellAmount,
+    dispatch,
+    sellFiatCurrency,
+    sellAsset,
+    buyFiatCurrency,
+    buyAsset,
+    queryClient,
+    direction,
+    previousDebouncedBuyDirectionSellAmount,
+    previousDebouncedSellDirectionSellAmount,
+  ])
 
   // Auto-select the best quote when quotes are available and no quote is selected
   // This only happens on first load or when amount changes (not on refetch)
@@ -238,9 +268,13 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       if (!bestQuote) return
       if (bestQuote.id === selectedQuote?.id) return
 
-      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(bestQuote))
+      if (direction === FiatRampAction.Buy) {
+        dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(bestQuote))
+      } else {
+        dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(bestQuote))
+      }
     }
-  }, [sortedQuotes, selectedQuote, dispatch, isFetchingQuotes, pathname])
+  }, [sortedQuotes, selectedQuote, dispatch, isFetchingQuotes, pathname, direction])
 
   const handleSubmit = useCallback(
     async (e: FormEvent<unknown>) => {

@@ -16,7 +16,8 @@ import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectBuyAccountId,
   selectManualReceiveAddress,
-  selectSelectedFiatRampQuote,
+  selectSelectedBuyFiatRampQuote,
+  selectSelectedSellFiatRampQuote,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -80,11 +81,17 @@ export const FiatRampTradeFooter = ({
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
   const dispatch = useAppDispatch()
-  const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
+  const selectedBuyQuote = useAppSelector(selectSelectedBuyFiatRampQuote)
+  const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+
+  const selectedQuote = useMemo(
+    () => (direction === FiatRampAction.Buy ? selectedBuyQuote : selectedSellQuote),
+    [direction, selectedBuyQuote, selectedSellQuote],
+  )
 
   const walletReceiveAddress = useMemo(() => {
     return buyAccountId ? fromAccountId(buyAccountId).account : undefined

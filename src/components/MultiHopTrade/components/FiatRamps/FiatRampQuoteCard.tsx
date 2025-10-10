@@ -86,10 +86,14 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     ])
 
     const handleQuoteSelection = useCallback(() => {
-      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(quote))
+      if (direction === FiatRampAction.Buy) {
+        dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(quote))
+      } else {
+        dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(quote))
+      }
 
       onBack && onBack()
-    }, [quote, onBack, dispatch])
+    }, [quote, onBack, dispatch, direction])
 
     const providerIcon = useMemo(() => {
       return <AssetIcon src={quote.providerLogo} />

@@ -39,6 +39,7 @@ export const useDiscoverAccounts = () => {
           chainId,
         ],
         queryFn: async () => {
+          console.log(`[AccountDiscovery] 🔍 Starting discovery for chainId: ${chainId}`)
           const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
           if (
@@ -47,18 +48,23 @@ export const useDiscoverAccounts = () => {
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
+            console.log(`[AccountDiscovery] ⏭️  Skipping chainId ${chainId} - wallet check failed`)
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
-          const walletId = await wallet.getDeviceID()
+          const connectedWalletId = portfolio.selectors.selectWalletId(store.getState())
+          const walletId = connectedWalletId ?? (await wallet.getDeviceID())
+          console.log(
+            `[AccountDiscovery] 💼 WalletId: ${walletId} (connectedWalletId: ${connectedWalletId}, deviceId: ${await wallet.getDeviceID()})`,
+          )
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
+          console.log(`[AccountDiscovery] 🔢 Multi-account wallet: ${isMultiAccountWallet}`)
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
           let accountNumber = 0
           let hasActivity = true
           let isDegraded = false
           const chainAccountMetadata: AccountMetadataById = {}
-          const accountIdsWithActivity = new Set<string>() // Track which accounts have activity
 
           while (hasActivity) {
             if (accountNumber > 0) {
@@ -66,6 +72,9 @@ export const useDiscoverAccounts = () => {
               if (isMetaMaskMultichainWallet && !isSnapInstalled) break
             }
 
+            console.log(
+              `[AccountDiscovery] 🔄 Deriving account #${accountNumber} for chainId ${chainId}`,
+            )
             try {
               const accountIdWithActivityAndMetadata = await getAccountIdsWithActivityAndMetadata(
                 accountNumber,
@@ -74,27 +83,48 @@ export const useDiscoverAccounts = () => {
                 Boolean(isSnapInstalled),
               )
 
-              hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
+              console.log(
+                `[AccountDiscovery] 📊 Account #${accountNumber} results:`,
+                accountIdWithActivityAndMetadata.map(a => ({
+                  accountId: a.accountId,
+                  hasActivity: a.hasActivity,
+                })),
+              )
 
-              // Always cache metadata to prevent re-deriving xpubs (even for inactive accounts)
-              // This fixes excessive re-derivation of the "next unused" account on every refresh
-              accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata, hasActivity: accountHasActivity }) => {
-                chainAccountMetadata[accountId] = accountMetadata
-                // Track which accounts have activity (or are account 0 which we always enable)
-                if (accountHasActivity || accountNumber === 0) {
-                  accountIdsWithActivity.add(accountId)
-                }
-              })
+              hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
+              console.log(
+                `[AccountDiscovery] ${
+                  hasActivity ? '✅' : '⏹️'
+                } Has activity for account #${accountNumber}: ${hasActivity}`,
+              )
+
+              if (hasActivity || accountNumber === 0) {
+                accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata }) => {
+                  console.log(`[AccountDiscovery] 💾 Caching metadata for ${accountId}`)
+                  chainAccountMetadata[accountId] = accountMetadata
+                })
+              }
 
               accountNumber++
             } catch (error) {
-              console.error(`Error discovering accounts for chain ${chainId}:`, error)
+              console.error(
+                `[AccountDiscovery] ❌ Error discovering accounts for chain ${chainId}:`,
+                error,
+              )
               isDegraded = true
               break
             }
           }
 
+          console.log(
+            `[AccountDiscovery] 📦 Total accounts cached for chainId ${chainId}:`,
+            Object.keys(chainAccountMetadata).length,
+          )
+
           if (Object.keys(chainAccountMetadata).length > 0) {
+            console.log(
+              `[AccountDiscovery] 💾 Upserting account metadata for walletId: ${walletId}`,
+            )
             dispatch(
               portfolio.actions.upsertAccountMetadata({
                 accountMetadataByAccountId: chainAccountMetadata,
@@ -103,21 +133,23 @@ export const useDiscoverAccounts = () => {
             )
 
             Object.keys(chainAccountMetadata).forEach(accountId => {
-              // CRITICAL: Only enable accounts with activity (prevents enabling inactive accounts)
-              // We cache metadata for all accounts to prevent re-deriving, but only enable active ones
-              if (!accountIdsWithActivity.has(accountId)) return
-
-              // Don't enable accounts that are already in the portfolio so we keep it disabled if user manually disabled it
-              if (
+              const alreadyInPortfolio =
                 currentPortfolio.accountMetadata.byId[accountId] &&
                 currentPortfolio.wallet.byId[walletId]?.includes(accountId)
-              )
-                return
 
+              if (alreadyInPortfolio) {
+                console.log(
+                  `[AccountDiscovery] ⏭️  Skipping enable for ${accountId} (already in portfolio)`,
+                )
+                return
+              }
+
+              console.log(`[AccountDiscovery] ✅ Enabling accountId: ${accountId}`)
               dispatch(portfolio.actions.enableAccountId(accountId))
             })
           }
 
+          console.log(`[AccountDiscovery] ✅ Discovery complete for chainId ${chainId}`)
           return {
             accountMetadataByAccountId: chainAccountMetadata,
             hasActivity,
@@ -137,9 +169,12 @@ export const useDiscoverAccounts = () => {
   })
 
   const { isLoading, isFetching } = useMemo(() => {
+    const loading = accountsDiscoveryQueries.some(query => query.isLoading)
+    const fetching = accountsDiscoveryQueries.some(query => query.isFetching)
+    console.log(`[AccountDiscovery] 📡 Status: isLoading=${loading}, isFetching=${fetching}`)
     return {
-      isLoading: accountsDiscoveryQueries.some(query => query.isLoading),
-      isFetching: accountsDiscoveryQueries.some(query => query.isFetching),
+      isLoading: loading,
+      isFetching: fetching,
     }
   }, [accountsDiscoveryQueries])
 

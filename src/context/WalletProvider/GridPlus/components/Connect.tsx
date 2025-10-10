@@ -1,51 +1,51 @@
 import {
   Alert,
   AlertIcon,
-  Box,
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
   Input,
   ModalBody,
   ModalHeader,
   Spinner,
-  Text,
   VStack,
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 
 import { GridPlusConfig } from '../config'
+import { SafeCardList } from './SafeCardList'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import {
-  selectGridPlusPrivKey,
-  selectWalletDeviceId,
-} from '@/state/slices/localWalletSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const GridPlusConnect = () => {
   const navigate = useNavigate()
-  const { getAdapter, dispatch } = useWallet()
+  const { getAdapter, dispatch: walletDispatch } = useWallet()
   const localWallet = useLocalWallet()
+  const appDispatch = useAppDispatch()
 
-  // Check for existing GridPlus connection using selectors
-  const existingDeviceId = useAppSelector(selectWalletDeviceId)
-  const existingPrivKey = useAppSelector(selectGridPlusPrivKey)
-  // Only check privKey - walletType/deviceId get cleared on disconnect but privKey persists
-  const hasExistingConnection = !!existingPrivKey
+  // Get GridPlus state from new slice
+  const safeCards = useAppSelector(gridplusSlice.selectors.selectSafeCards)
+  const physicalDeviceId = useAppSelector(gridplusSlice.selectors.selectPhysicalDeviceId)
+  const privKey = useAppSelector(gridplusSlice.selectors.selectPrivKey)
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // UI state
+  const [showSafeCardList, setShowSafeCardList] = useState(safeCards.length > 0)
+  const [isAddingNew, setIsAddingNew] = useState(false)
+  const [selectedSafeCardId, setSelectedSafeCardId] = useState<string | null>(null)
+  const [safeCardName, setSafeCardName] = useState('')
   const [deviceId, setDeviceId] = useState('')
   const [showPairingCode, setShowPairingCode] = useState(false)
   const [pairingCode, setPairingCode] = useState('')
-
-  // Use existingDeviceId if reconnecting, otherwise use input value
-  const activeDeviceId = existingDeviceId || deviceId
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -64,22 +64,41 @@ export const GridPlusConnect = () => {
     setError(null)
 
     try {
-      if (!activeDeviceId.trim()) {
+      // Step 1: Determine or create SafeCard UUID
+      let safeCardUuid: string
+
+      if (selectedSafeCardId) {
+        // Reconnecting to existing SafeCard
+        safeCardUuid = selectedSafeCardId
+        appDispatch(gridplusSlice.actions.setActiveSafeCard(safeCardUuid))
+      } else {
+        // Creating new SafeCard with specific UUID
+        safeCardUuid = uuidv4()
+        appDispatch(
+          gridplusSlice.actions.addSafeCard({
+            id: safeCardUuid,
+            name: safeCardName || `SafeCard ${safeCards.length + 1}`,
+          }),
+        )
+      }
+
+      // Step 2: Determine device ID to use for connection
+      const connectionDeviceId = physicalDeviceId || deviceId.trim()
+
+      if (!connectionDeviceId) {
         throw new Error('Device ID is required')
       }
 
-      // Get the GridPlus adapter with keyring
+      // Step 3: Get adapter
       const adapterWithKeyring = (await getAdapter(KeyManager.GridPlus)) as any
       if (!adapterWithKeyring) {
         throw new Error('GridPlus adapter not available')
       }
 
-      // Check device pairing status
-      // Only check for NEW connections (no existing privKey)
-      // When reconnecting, skip this check and go straight to pairDevice with privKey
-      if (!showPairingCode && !hasExistingConnection) {
-        const { isPaired, privKey } = await adapterWithKeyring.connectDevice(
-          activeDeviceId.trim(),
+      // Step 4: Check pairing status if no existing privKey
+      if (!privKey && !showPairingCode) {
+        const { isPaired, privKey: newPrivKey } = await adapterWithKeyring.connectDevice(
+          connectionDeviceId,
           undefined,
           undefined,
         )
@@ -88,62 +107,73 @@ export const GridPlusConnect = () => {
           setIsLoading(false)
           setShowPairingCode(true)
           setError(null)
-          return // Exit here and wait for pairing code
+          return // Wait for pairing code
         }
 
-        // If already paired, continue to create wallet...
-        localWallet.setGridPlusPrivKey(privKey)
-      }
-
-      // Step 2: Either device was already paired, or user entered pairing code
-      let wallet
-      if (showPairingCode && pairingCode) {
-        wallet = await adapterWithKeyring.pairConnectedDevice(activeDeviceId.trim(), pairingCode)
-      } else {
-        wallet = await adapterWithKeyring.pairDevice(
-          activeDeviceId.trim(),
-          undefined,
-          undefined,
-          existingPrivKey || undefined,
+        // Device was already paired, save the privKey
+        appDispatch(
+          gridplusSlice.actions.setConnection({
+            physicalDeviceId: connectionDeviceId,
+            privKey: newPrivKey,
+          }),
         )
       }
 
-      // Save privKey after successful pairing
-      const walletPrivKey = wallet.getPrivKey()
-      if (walletPrivKey) {
-        localWallet.setGridPlusPrivKey(walletPrivKey)
+      // Step 5: Pair/connect the device
+      let wallet
+      if (showPairingCode && pairingCode) {
+        // New pairing with code
+        wallet = await adapterWithKeyring.pairConnectedDevice(connectionDeviceId, pairingCode)
+      } else {
+        // Connect with existing pairing
+        wallet = await adapterWithKeyring.pairDevice(
+          connectionDeviceId,
+          undefined,
+          undefined,
+          privKey || undefined,
+        )
       }
 
-      // Set wallet in ShapeShift context
-      const walletDeviceId = await wallet.getDeviceID()
+      // Step 6: Save connection info if new pairing
+      if (!privKey && wallet.getPrivKey) {
+        const walletPrivKey = wallet.getPrivKey()
+        appDispatch(
+          gridplusSlice.actions.setConnection({
+            physicalDeviceId: connectionDeviceId,
+            privKey: walletPrivKey,
+          }),
+        )
+      }
 
-      dispatch({
+      // Step 7: HERE'S THE KEY - Use SafeCard-specific walletId!
+      const safeCardWalletId = `gridplus:${safeCardUuid}`
+
+      // The wallet gets stored in keyring with this ID
+      walletDispatch({
         type: WalletActions.SET_WALLET,
         payload: {
           wallet,
           name: GridPlusConfig.name,
           icon: GridPlusConfig.icon,
-          deviceId: walletDeviceId,
+          deviceId: safeCardWalletId, // This is what makes each SafeCard unique!
           connectedType: KeyManager.GridPlus,
         },
       })
 
-      dispatch({
+      walletDispatch({
         type: WalletActions.SET_IS_CONNECTED,
         payload: true,
       })
 
-      // Save to local wallet storage
+      // Save to local wallet for persistence
       localWallet.setLocalWallet({
         type: KeyManager.GridPlus,
-        deviceId: walletDeviceId,
+        deviceId: safeCardWalletId, // Same ID here
         rdns: null,
       })
 
-      // Close the modal
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-
-      // Navigate to main app
+      // Close modal and navigate
+      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       navigate('/')
     } catch (e) {
       if (e instanceof Error && e.message === 'PAIRING_REQUIRED') {
@@ -155,13 +185,18 @@ export const GridPlusConnect = () => {
       }
     }
   }, [
-    activeDeviceId,
+    selectedSafeCardId,
+    safeCardName,
+    deviceId,
     pairingCode,
     showPairingCode,
-    existingPrivKey,
+    physicalDeviceId,
+    privKey,
+    safeCards.length,
     setErrorLoading,
     getAdapter,
-    dispatch,
+    walletDispatch,
+    appDispatch,
     localWallet,
     navigate,
   ])
@@ -176,6 +211,10 @@ export const GridPlusConnect = () => {
     [handleConnect, isLoading],
   )
 
+  const handleSafeCardNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSafeCardName(e.target.value)
+  }, [])
+
   const handleDeviceIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setDeviceId(e.target.value)
   }, [])
@@ -188,26 +227,83 @@ export const GridPlusConnect = () => {
 
   const spinnerElement = useMemo(() => <Spinner color='white' />, [])
 
+  // Handler for SafeCard selection from list
+  const handleSelectSafeCard = useCallback((id: string) => {
+    setSelectedSafeCardId(id)
+    setShowSafeCardList(false)
+  }, [])
+
+  // Handler for adding new SafeCard
+  const handleAddNew = useCallback(() => {
+    // Start with length + 1, then increment until we find an unused name
+    const generateUniqueName = () => {
+      let nextNum = safeCards.length + 1
+      // eslint-disable-next-line no-loop-func
+      while (safeCards.some(card => card.name === `SafeCard ${nextNum}`)) {
+        nextNum++
+      }
+      return `SafeCard ${nextNum}`
+    }
+
+    setIsAddingNew(true)
+    setSafeCardName(generateUniqueName())
+    setShowSafeCardList(false)
+  }, [safeCards])
+
+  // Handler for back to list button
+  const handleBackToList = useCallback(() => {
+    setShowSafeCardList(true)
+    setIsAddingNew(false)
+    setSelectedSafeCardId(null)
+    setSafeCardName('')
+  }, [])
+
+  // Render SafeCard list if we have existing SafeCards and not adding new
+  if (showSafeCardList && !isAddingNew) {
+    return (
+      <>
+        <ModalHeader>Your GridPlus SafeCards</ModalHeader>
+        <ModalBody>
+          <SafeCardList
+            safeCards={safeCards}
+            onSelectSafeCard={handleSelectSafeCard}
+            onAddNew={handleAddNew}
+          />
+        </ModalBody>
+      </>
+    )
+  }
+
+  // Render connection form
   return (
     <>
       <ModalHeader>
         {showPairingCode
           ? 'Pair GridPlus Lattice'
-          : hasExistingConnection
-          ? 'Reconnect to GridPlus'
-          : 'Connect GridPlus Lattice'}
+          : selectedSafeCardId
+          ? 'Reconnect SafeCard'
+          : 'Connect New SafeCard'}
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='text.subtle'>
-          {showPairingCode
-            ? 'Enter the 8-character pairing code displayed on your Lattice device.'
-            : hasExistingConnection
-            ? 'Click below to reconnect to your GridPlus Lattice.'
-            : 'Enter your device ID to connect to your GridPlus Lattice.'}
-        </Text>
-
         <VStack spacing={4} align='stretch'>
-          {!showPairingCode && !hasExistingConnection ? (
+          {/* SafeCard name input for new connections */}
+          {!selectedSafeCardId && !showPairingCode && (
+            <FormControl>
+              <FormLabel>SafeCard Name</FormLabel>
+              <Input
+                placeholder='Enter a name for this SafeCard'
+                value={safeCardName}
+                onChange={handleSafeCardNameChange}
+                autoFocus
+              />
+              <FormHelperText>
+                Give this SafeCard a memorable name (e.g., "Main Wallet", "Trading", "DeFi")
+              </FormHelperText>
+            </FormControl>
+          )}
+
+          {/* Device ID input only if we don't have one saved */}
+          {!physicalDeviceId && !showPairingCode && (
             <FormControl>
               <FormLabel>Device ID</FormLabel>
               <Input
@@ -218,10 +314,15 @@ export const GridPlusConnect = () => {
                 isDisabled={isLoading}
                 type='password'
                 autoComplete='off'
-                autoFocus
               />
+              <FormHelperText>
+                You can find your device ID in your Lattice settings under Device Info.
+              </FormHelperText>
             </FormControl>
-          ) : showPairingCode ? (
+          )}
+
+          {/* Pairing code input */}
+          {showPairingCode && (
             <FormControl>
               <FormLabel>Pairing Code</FormLabel>
               <Input
@@ -236,25 +337,13 @@ export const GridPlusConnect = () => {
                 autoComplete='off'
                 autoFocus
               />
-            </FormControl>
-          ) : null}
-
-          {!showPairingCode && !hasExistingConnection && (
-            <Box>
-              <Text fontSize='sm' color='text.subtle'>
-                You can find your device ID in your Lattice settings under Device Info.
-              </Text>
-            </Box>
-          )}
-
-          {showPairingCode && (
-            <Box>
-              <Text fontSize='sm' color='text.subtle'>
+              <FormHelperText>
                 Look at your Lattice screen for an 8-character pairing code.
-              </Text>
-            </Box>
+              </FormHelperText>
+            </FormControl>
           )}
 
+          {/* Error display */}
           {error && (
             <Alert status='error'>
               <AlertIcon />
@@ -262,6 +351,7 @@ export const GridPlusConnect = () => {
             </Alert>
           )}
 
+          {/* Action buttons */}
           {isLoading ? (
             <Button
               width='full'
@@ -271,11 +361,7 @@ export const GridPlusConnect = () => {
               spinner={spinnerElement}
               isDisabled
             >
-              {showPairingCode
-                ? 'Complete Pairing'
-                : hasExistingConnection
-                ? 'Reconnecting...'
-                : 'Connect Device'}
+              {showPairingCode ? 'Complete Pairing' : 'Connecting...'}
             </Button>
           ) : (
             <Button
@@ -283,30 +369,28 @@ export const GridPlusConnect = () => {
               colorScheme='blue'
               onClick={handleConnect}
               isDisabled={
-                (!hasExistingConnection && !showPairingCode && !activeDeviceId.trim()) ||
-                (showPairingCode && !pairingCode.trim())
+                (!physicalDeviceId && !deviceId) || (showPairingCode && pairingCode.length !== 8)
               }
             >
               {showPairingCode
                 ? 'Complete Pairing'
-                : hasExistingConnection
+                : selectedSafeCardId
                 ? 'Reconnect'
-                : 'Connect Device'}
+                : 'Connect SafeCard'}
+            </Button>
+          )}
+
+          {/* Back button */}
+          {(isAddingNew || selectedSafeCardId) && !showPairingCode && (
+            <Button variant='ghost' onClick={handleBackToList}>
+              ← Back to SafeCard List
             </Button>
           )}
 
           {showPairingCode && (
-            <Box>
-              <Text
-                fontSize='sm'
-                color='blue.500'
-                cursor='pointer'
-                onClick={resetPairingFlow}
-                textDecoration='underline'
-              >
-                ← Back to Device ID
-              </Text>
-            </Box>
+            <Button variant='ghost' onClick={resetPairingFlow}>
+              ← Back to Device ID
+            </Button>
           )}
         </VStack>
       </ModalBody>

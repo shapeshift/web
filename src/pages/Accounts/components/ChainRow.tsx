@@ -52,20 +52,36 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, isSimpleMenu = fals
     isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : undefined,
   )
 
+  console.log(
+    `[ChainRow] 🔗 ChainId: ${chainId}, isOpen: ${isOpen}, chainUserCurrencyBalance: ${chainUserCurrencyBalance}`,
+  )
+  console.log(`[ChainRow] 📦 accountIdsByAccountNumber:`, accountIdsByAccountNumber)
+
   const accountRows = useMemo(() => {
     if (!isOpen) return null
     if (!accountIdsByAccountNumber) return null
 
-    return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
-      <AccountNumberRow
-        key={accountNumber}
-        accountNumber={Number(accountNumber)}
-        accountIds={accountIds}
-        chainId={chainId}
-        isSimpleMenu={isSimpleMenu}
-        onClose={onClose}
-      />
-    ))
+    console.log(
+      `[ChainRow] 🎨 Rendering ${
+        Object.keys(accountIdsByAccountNumber).length
+      } account number rows for chainId ${chainId}`,
+    )
+    return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => {
+      console.log(
+        `[ChainRow] 📊 Account #${accountNumber} has ${accountIds.length} accountIds:`,
+        accountIds,
+      )
+      return (
+        <AccountNumberRow
+          key={accountNumber}
+          accountNumber={Number(accountNumber)}
+          accountIds={accountIds}
+          chainId={chainId}
+          isSimpleMenu={isSimpleMenu}
+          onClose={onClose}
+        />
+      )
+    })
   }, [accountIdsByAccountNumber, chainId, isOpen, isSimpleMenu, onClose])
 
   return asset ? (

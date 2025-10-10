@@ -357,6 +357,20 @@ export const mockStore: ReduxState = {
     walletDeviceId: null,
     nativeWalletName: null,
     rdns: null,
-    gridplusPrivKey: null,
+  },
+  gridplus: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    connection: {
+      physicalDeviceId: null,
+      privKey: null,
+    },
+    safecards: {
+      byId: {},
+      ids: [],
+      activeId: null,
+    },
   },
 }

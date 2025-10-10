@@ -89,18 +89,34 @@ export const portfolio = createSlice({
         // WARNING: don't use the current state.connectedWallet.id here because it's updated async
         // to this and results in account data corruption
         const { accountMetadataByAccountId, walletId } = payload
+        console.log(`[Portfolio] 💾 upsertAccountMetadata called for walletId: ${walletId}`)
+        console.log(
+          `[Portfolio] 📦 Upserting ${Object.keys(accountMetadataByAccountId).length} accounts:`,
+          Object.keys(accountMetadataByAccountId),
+        )
+
         draftState.accountMetadata.byId = merge(
           draftState.accountMetadata.byId,
           accountMetadataByAccountId,
         )
         draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
+        console.log(
+          `[Portfolio] 📊 Total accountMetadata.ids after upsert:`,
+          draftState.accountMetadata.ids.length,
+        )
 
-        if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
+        if (!draftState.connectedWallet) {
+          console.log(`[Portfolio] ⚠️  No connectedWallet set!`)
+          return // realistically, at this point, we should have a wallet set
+        }
         const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
         const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
         // keep an index of what account ids belong to this wallet
         draftState.wallet.byId[walletId] = uniq(
           existingWalletAccountIds.concat(newWalletAccountIds),
+        )
+        console.log(
+          `[Portfolio] 🔗 Wallet ${walletId} now has ${draftState.wallet.byId[walletId].length} accountIds`,
         )
       },
     ),
@@ -154,12 +170,22 @@ export const portfolio = createSlice({
     enableAccountId: create.reducer(
       (draftState, { payload: accountId }: { payload: AccountId }) => {
         const walletId = draftState.connectedWallet?.id
+        console.log(
+          `[Portfolio] ✅ enableAccountId called for accountId: ${accountId}, walletId: ${walletId}`,
+        )
 
-        if (!walletId) return
+        if (!walletId) {
+          console.log(`[Portfolio] ⚠️  Cannot enable account - no connectedWallet!`)
+          return
+        }
 
         const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
         enabledAccountIdsSet.add(accountId)
         draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
+        console.log(
+          `[Portfolio] 📊 Wallet ${walletId} now has ${draftState.enabledAccountIds[walletId].length} enabled accounts:`,
+          draftState.enabledAccountIds[walletId],
+        )
       },
     ),
     toggleAccountIdEnabled: create.reducer(

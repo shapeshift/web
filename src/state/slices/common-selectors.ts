@@ -54,7 +54,17 @@ export const selectEnabledWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletEnabledAccountIds,
   (walletId, walletById, enabledAccountIds): AccountId[] => {
     const walletAccountIds = (walletId && walletById[walletId]) ?? []
-    return walletAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
+    const result = walletAccountIds.filter(accountId =>
+      (enabledAccountIds ?? []).includes(accountId),
+    )
+    console.log(`[Selectors] 🔍 selectEnabledWalletAccountIds - walletId: ${walletId}`)
+    console.log(
+      `[Selectors] 📦 Total wallet accounts: ${walletAccountIds.length}`,
+      walletAccountIds,
+    )
+    console.log(`[Selectors] ✅ Enabled accounts: ${enabledAccountIds.length}`, enabledAccountIds)
+    console.log(`[Selectors] 🎯 Result (enabled wallet accounts): ${result.length}`, result)
+    return result
   },
 )
 
@@ -80,6 +90,10 @@ export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
       if (!acc.includes(chainId)) acc.push(chainId)
       return acc
     }, [])
+    console.log(
+      `[Selectors] 🔗 selectWalletConnectedChainIds - input accountIds: ${accountIds.length}`,
+    )
+    console.log(`[Selectors] 🌐 Resulting chainIds: ${chainIds.length}`, chainIds)
     return chainIds
   },
 )

@@ -271,7 +271,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   if (modalContent === null) return null
 
   return (
-    <Dialog isOpen={!!activeModal} onClose={handleRejectRequestAndClose} modalProps={modalProps}>
+    <Dialog
+      id='wallet-connect-modal'
+      isOpen={!!activeModal}
+      onClose={handleRejectRequestAndClose}
+      modalProps={modalProps}
+    >
       {modalContent}
     </Dialog>
   )

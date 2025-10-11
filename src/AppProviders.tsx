@@ -16,6 +16,7 @@ import { AppProvider } from '@/context/AppProvider/AppContext'
 import { BrowserRouterProvider } from '@/context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from '@/context/I18nProvider/I18nProvider'
 import { ModalProvider } from '@/context/ModalProvider/ModalProvider'
+import { ModalStackProvider } from '@/context/ModalStackProvider'
 import { PluginProvider } from '@/context/PluginProvider/PluginProvider'
 import { QueryClientProvider } from '@/context/QueryClientProvider/QueryClientProvider'
 import { KeepKeyProvider } from '@/context/WalletProvider/KeepKeyProvider'
@@ -65,24 +66,26 @@ export function AppProviders({ children }: ProvidersProps) {
                     <HashRouter basename='/'>
                       <ScrollToTop />
                       <BrowserRouterProvider>
-                        <WalletProvider>
-                          <KeepKeyProvider>
-                            <WalletConnectV2Provider>
-                              <ActionCenterProvider>
-                                <ModalProvider>
-                                  <ErrorBoundary
-                                    FallbackComponent={ErrorPage}
-                                    onError={handleError}
-                                  >
-                                    <AppProvider>
-                                      <DefiManagerProvider>{children}</DefiManagerProvider>
-                                    </AppProvider>
-                                  </ErrorBoundary>
-                                </ModalProvider>
-                              </ActionCenterProvider>
-                            </WalletConnectV2Provider>
-                          </KeepKeyProvider>
-                        </WalletProvider>
+                        <ModalStackProvider>
+                          <WalletProvider>
+                            <KeepKeyProvider>
+                              <WalletConnectV2Provider>
+                                <ActionCenterProvider>
+                                  <ModalProvider>
+                                    <ErrorBoundary
+                                      FallbackComponent={ErrorPage}
+                                      onError={handleError}
+                                    >
+                                      <AppProvider>
+                                        <DefiManagerProvider>{children}</DefiManagerProvider>
+                                      </AppProvider>
+                                    </ErrorBoundary>
+                                  </ModalProvider>
+                                </ActionCenterProvider>
+                              </WalletConnectV2Provider>
+                            </KeepKeyProvider>
+                          </WalletProvider>
+                        </ModalStackProvider>
                       </BrowserRouterProvider>
                     </HashRouter>
                   </PersistGate>

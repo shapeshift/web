@@ -18,6 +18,7 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { TxHistoryIcon } from '@/components/Icons/TxHistory'
 import { RawText } from '@/components/Text'
 import { TransactionsGroupByDate } from '@/components/TransactionHistory/TransactionsGroupByDate'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import {
   selectIsAnyTxHistoryApiQueryPending,
   selectTxIdsByFilter,
@@ -72,6 +73,10 @@ export const TxWindow = memo(() => {
     (e: React.ChangeEvent<HTMLSelectElement>) => setLimit(e.target.value),
     [],
   )
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    isOpen,
+    modalId: 'tx-window-modal',
+  })
   return (
     <>
       <Box position='relative'>
@@ -96,13 +101,20 @@ export const TxWindow = memo(() => {
           {pendingTxIds.length}
         </Circle>
       </Box>
-      <Drawer isOpen={isOpen} onClose={handleClose} size='sm'>
-        <DrawerOverlay backdropBlur='10px' />
+      <Drawer
+        isOpen={isOpen}
+        onClose={handleClose}
+        size='sm'
+        trapFocus={isHighestModal}
+        blockScrollOnMount={isHighestModal}
+      >
+        <DrawerOverlay backdropBlur='10px' {...overlayStyle} />
 
         <DrawerContent
           minHeight='100vh'
           maxHeight='100vh'
           paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
+          containerProps={modalStyle}
         >
           <DrawerCloseButton top='calc(18px + env(safe-area-inset-top) + var(--safe-area-inset-top))' />
           <DrawerHeader

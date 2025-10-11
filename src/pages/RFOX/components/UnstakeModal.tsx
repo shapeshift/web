@@ -22,7 +22,7 @@ export const UnstakeModal: React.FC<UnstakeModalProps> = ({ isOpen, onClose }) =
   const translate = useTranslate()
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+    <Dialog id='unstake-modal' isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader pl={6} pe={0}>
         <DialogHeaderLeft>
           <DialogTitle>{translate('defi.unstake')}</DialogTitle>

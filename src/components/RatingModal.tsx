@@ -164,7 +164,7 @@ export const RatingModal = () => {
   }, [isFiveStarRating, showFeedbackForm, feedback])
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} height='auto'>
+    <Dialog id='rating-modal' isOpen={isOpen} onClose={close} height='auto'>
       <Box p={4} pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + 16px)'>
         {!isMobile && <ModalCloseButton />}
         <Flex justify='center' align='center' h='100%' flexDir='column' mb={4}>

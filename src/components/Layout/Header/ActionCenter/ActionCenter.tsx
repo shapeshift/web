@@ -31,6 +31,7 @@ import { RfoxInitiatedActionCard } from '@/components/Layout/Header/ActionCenter
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
@@ -54,6 +55,10 @@ const INCREASE_VIEWPORT_BY = {
 
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    isOpen: isDrawerOpen,
+    modalId: 'action-center-modal',
+  })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -187,9 +192,20 @@ export const ActionCenter = memo(() => {
     <>
       <Display.Desktop>
         <Box position='relative'>{actionCenterButton}</Box>
-        <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} size='sm'>
-          <DrawerOverlay backdropBlur='10px' />
-          <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
+        <Drawer
+          isOpen={isDrawerOpen}
+          onClose={closeDrawer}
+          size='sm'
+          trapFocus={isHighestModal}
+          blockScrollOnMount={isHighestModal}
+        >
+          <DrawerOverlay backdropBlur='10px' {...overlayStyle} />
+          <DrawerContent
+            minHeight='100vh'
+            maxHeight='100vh'
+            paddingTop='env(safe-area-inset-top)'
+            containerProps={modalStyle}
+          >
             <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
             <DrawerHeader
               px={paddingProp}

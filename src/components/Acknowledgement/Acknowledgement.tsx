@@ -15,6 +15,7 @@ import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 
 import { RawText, Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 
 export type AcknowledgementProps = {
   content?: JSX.Element
@@ -45,6 +46,11 @@ export const Acknowledgement = ({
 }: AcknowledgementProps) => {
   const translate = useTranslate()
 
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    isOpen: shouldShowAcknowledgement,
+    modalId: 'acknowledgement-modal',
+  })
+
   const understandHoverProps = useMemo(
     () => ({ bg: `${buttonColorScheme}.600` }),
     [buttonColorScheme],
@@ -62,9 +68,14 @@ export const Acknowledgement = ({
   }, [setShouldShowAcknowledgement])
 
   return (
-    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel}>
-      <ModalOverlay />
-      <ModalContent pointerEvents='all'>
+    <Modal
+      isOpen={shouldShowAcknowledgement}
+      onClose={handleCancel}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
+      <ModalOverlay {...overlayStyle} />
+      <ModalContent containerProps={modalStyle}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>
           {CustomIcon ? (
             <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />

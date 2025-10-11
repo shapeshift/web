@@ -12,6 +12,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
@@ -48,6 +49,10 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    isOpen,
+    modalId: 'popup-window-modal',
+  })
 
   const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])
 
@@ -78,13 +83,25 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   }, [popup, isOpen, title, url, width, height, popupWindow])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='full'>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size='full'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
       <ModalOverlay
         backdropFilter='blur(10px)'
         bgColor='blackAlpha.100'
         bgImage={`radial-gradient(ellipse at center, ${overlayBgOne} 0%,${overlayBgOne} 1%,${overlayBgTwo} 100%);`}
+        {...overlayStyle}
       />
-      <ModalContent alignItems='center' justifyContent='center' bg='transparent'>
+      <ModalContent
+        alignItems='center'
+        justifyContent='center'
+        bg='transparent'
+        containerProps={modalStyle}
+      >
         <Center
           width={centerWidth}
           height={height}

@@ -18,7 +18,7 @@ export const QrCodeModal = ({ assetId, accountId }: QrCodeModalProps) => {
   const { close, isOpen } = useModal('qrCode')
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
+    <Dialog id='qr-code-modal' isOpen={isOpen} onClose={close} isFullScreen>
       <MemoryRouter initialEntries={entries}>
         <Form assetId={assetId} accountId={accountId} />
       </MemoryRouter>

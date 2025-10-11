@@ -14,6 +14,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -34,6 +35,10 @@ export const WipeModal = () => {
   } = useWallet()
   const toast = useToast()
   const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    isOpen,
+    modalId: 'keep-key-wipe-modal',
+  })
 
   const handleClose = useCallback(() => {
     keepKeyWallet?.cancel().catch(e => {
@@ -78,9 +83,11 @@ export const WipeModal = () => {
       closeOnEsc
       isOpen={isOpen}
       onClose={handleClose}
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
     >
-      <ModalOverlay />
-      <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
+      <ModalOverlay {...overlayStyle} />
+      <ModalContent justifyContent='center' px={3} pt={3} pb={6} containerProps={modalStyle}>
         <ModalHeader>
           <Text translation={'walletProvider.keepKey.modals.headings.wipeKeepKey'} />
         </ModalHeader>

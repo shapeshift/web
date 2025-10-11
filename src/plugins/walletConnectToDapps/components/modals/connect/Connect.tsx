@@ -57,7 +57,7 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   )
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} isFullScreen={true}>
+    <Dialog id='connect-modal' isOpen={isOpen} onClose={onClose} isFullScreen={true}>
       <DialogBody
         width='full'
         textAlign='center'

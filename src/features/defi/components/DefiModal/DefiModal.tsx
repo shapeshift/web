@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 type EarnModalProps = {
@@ -19,6 +20,10 @@ const modalMaxWidth = { base: 'full', md: '500px' }
 export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }) => {
   const navigate = useNavigate()
   const { location } = useBrowserRouter()
+  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    isOpen,
+    modalId: 'defi-modal',
+  })
 
   const handleClose = useCallback(() => {
     navigate(location.pathname, {
@@ -27,13 +32,20 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
   }, [navigate, location.pathname])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav'>
-      <ModalOverlay />
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      variant='header-nav'
+      trapFocus={isHighestModal}
+      blockScrollOnMount={isHighestModal}
+    >
+      <ModalOverlay {...overlayStyle} />
       <ModalContent
         width='full'
         borderRadius={modalBorderRadius}
         minWidth={modalMinWidth}
         maxWidth={modalMaxWidth}
+        containerProps={modalStyle}
       >
         {children}
       </ModalContent>

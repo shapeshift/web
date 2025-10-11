@@ -27,7 +27,8 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const GridPlusConnect = () => {
   const translate = useTranslate()
@@ -112,15 +113,24 @@ export const GridPlusConnect = () => {
       // Step 2: Create SafeCard-specific walletId for keyring isolation
       const safeCardWalletId = `gridplus:${safeCardUuid}`
 
+      // Step 2.5: Clear ALL GridPlus accounts (handles redux-persist cache from previous sessions)
+      const portfolioState = store.getState().portfolio
+      const allGridPlusWalletIds = Object.keys(portfolioState.wallet.byId).filter(id =>
+        id.startsWith('gridplus:'),
+      )
+
+      console.log('[Portfolio Clear] Clearing all GridPlus wallets', {
+        count: allGridPlusWalletIds.length,
+        walletIds: allGridPlusWalletIds,
+        newWalletId: safeCardWalletId,
+      })
+
+      allGridPlusWalletIds.forEach(walletId => {
+        appDispatch(portfolio.actions.clearWalletPortfolioState(walletId))
+      })
+
       // Step 3: Determine device ID to use for connection
       const connectionDeviceId = physicalDeviceId || deviceId.trim()
-
-      console.log('[Web Connect] handleConnect - IDs determined', {
-        safeCardUuid,
-        safeCardWalletId,
-        connectionDeviceId,
-        source: selectedSafeCardId ? 'existing' : pendingSafeCardUuid ? 'pending' : 'new',
-      })
 
       if (!connectionDeviceId) {
         throw new Error(translate('walletProvider.gridplus.errors.deviceIdRequired'))
@@ -134,30 +144,28 @@ export const GridPlusConnect = () => {
 
       // Step 4: Check pairing status if no existing sessionId
       if (!sessionId && !showPairingCode) {
-        console.log('[Web Connect] Calling connectDevice', {
+        const {
+          isPaired,
+          sessionId: newSessionId,
+          activeWalletUid,
+        } = await adapterWithKeyring.connectDevice(
           safeCardWalletId,
           connectionDeviceId,
-        })
-
-        const { isPaired, sessionId: newSessionId, activeWalletUid } =
-          await adapterWithKeyring.connectDevice(
-            safeCardWalletId,
-            connectionDeviceId,
-            undefined,
-            undefined,
-          )
-
-        console.log('[Web Connect] connectDevice result', {
-          isPaired,
-          hasSessionId: !!newSessionId,
-          activeWalletUid,
-          expectedSafeCardUuid: safeCardUuid,
-        })
+          undefined,
+          undefined,
+        )
 
         // Verify the active wallet matches expected SafeCard
         if (activeWalletUid && activeWalletUid !== safeCardUuid) {
+          console.error('[GridPlus] SafeCard mismatch', {
+            expected: safeCardUuid,
+            actual: activeWalletUid,
+          })
           throw new Error(
-            `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(0, 8)}..., got ${activeWalletUid.slice(0, 8)}...`,
+            `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(
+              0,
+              8,
+            )}..., got ${activeWalletUid.slice(0, 8)}...`,
           )
         }
 
@@ -189,12 +197,6 @@ export const GridPlusConnect = () => {
       let wallet
       if (showPairingCode && pairingCode) {
         // New pairing with code
-        console.log('[Web Connect] Calling pairConnectedDevice', {
-          safeCardWalletId,
-          connectionDeviceId,
-          pairingCodeLength: pairingCode.length,
-        })
-
         wallet = await adapterWithKeyring.pairConnectedDevice(
           safeCardWalletId,
           connectionDeviceId,
@@ -202,12 +204,6 @@ export const GridPlusConnect = () => {
         )
       } else {
         // Connect with existing pairing
-        console.log('[Web Connect] Calling pairDevice', {
-          safeCardWalletId,
-          connectionDeviceId,
-          hasSessionId: !!sessionId,
-        })
-
         wallet = await adapterWithKeyring.pairDevice(
           safeCardWalletId,
           connectionDeviceId,
@@ -216,11 +212,6 @@ export const GridPlusConnect = () => {
           sessionId || undefined,
         )
       }
-
-      console.log('[Web Connect] Wallet obtained', {
-        walletExists: !!wallet,
-        hasGetSessionId: !!(wallet && wallet.getSessionId),
-      })
 
       // Step 7: Save connection info if new pairing
       // sessionId is used for fast reconnection without device communication
@@ -235,11 +226,6 @@ export const GridPlusConnect = () => {
       }
 
       // Step 8: Store wallet with SafeCard-specific ID for isolation
-      console.log('[Web Connect] Dispatching SET_WALLET with deviceId', {
-        safeCardWalletId,
-        safeCardUuid,
-      })
-
       walletDispatch({
         type: WalletActions.SET_WALLET,
         payload: {
@@ -257,10 +243,6 @@ export const GridPlusConnect = () => {
       })
 
       // Save to local wallet for persistence
-      console.log('[Web Connect] Saving to localStorage with deviceId', {
-        safeCardWalletId,
-      })
-
       localWallet.setLocalWallet({
         type: KeyManager.GridPlus,
         deviceId: safeCardWalletId, // Same ID here
@@ -340,13 +322,24 @@ export const GridPlusConnect = () => {
         appDispatch(gridplusSlice.actions.setActiveSafeCard(safeCardUuid))
 
         const safeCardWalletId = `gridplus:${safeCardUuid}`
-        const connectionDeviceId = physicalDeviceId || deviceId.trim()
 
-        console.log('[Web Connect] handleSelectSafeCard - IDs determined', {
-          safeCardUuid,
-          safeCardWalletId,
-          connectionDeviceId,
+        // Clear ALL GridPlus accounts (handles redux-persist cache from previous sessions)
+        const portfolioState = store.getState().portfolio
+        const allGridPlusWalletIds = Object.keys(portfolioState.wallet.byId).filter(id =>
+          id.startsWith('gridplus:'),
+        )
+
+        console.log('[Portfolio Clear] Clearing all GridPlus wallets (from select)', {
+          count: allGridPlusWalletIds.length,
+          walletIds: allGridPlusWalletIds,
+          newWalletId: safeCardWalletId,
         })
+
+        allGridPlusWalletIds.forEach(walletId => {
+          appDispatch(portfolio.actions.clearWalletPortfolioState(walletId))
+        })
+
+        const connectionDeviceId = physicalDeviceId || deviceId.trim()
 
         if (!connectionDeviceId) {
           throw new Error(translate('walletProvider.gridplus.errors.deviceIdRequired'))
@@ -358,30 +351,28 @@ export const GridPlusConnect = () => {
         }
 
         if (!sessionId) {
-          console.log('[Web Connect] handleSelectSafeCard - Calling connectDevice', {
+          const {
+            isPaired,
+            sessionId: newSessionId,
+            activeWalletUid,
+          } = await adapterWithKeyring.connectDevice(
             safeCardWalletId,
             connectionDeviceId,
-          })
-
-          const { isPaired, sessionId: newSessionId, activeWalletUid } =
-            await adapterWithKeyring.connectDevice(
-              safeCardWalletId,
-              connectionDeviceId,
-              undefined,
-              undefined,
-            )
-
-          console.log('[Web Connect] handleSelectSafeCard - connectDevice result', {
-            isPaired,
-            hasSessionId: !!newSessionId,
-            activeWalletUid,
-            expectedSafeCardUuid: safeCardUuid,
-          })
+            undefined,
+            undefined,
+          )
 
           // Verify the active wallet matches expected SafeCard
           if (activeWalletUid && activeWalletUid !== safeCardUuid) {
+            console.error('[GridPlus] SafeCard mismatch in selection', {
+              expected: safeCardUuid,
+              actual: activeWalletUid,
+            })
             throw new Error(
-              `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(0, 8)}..., got ${activeWalletUid.slice(0, 8)}...`,
+              `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(
+                0,
+                8,
+              )}..., got ${activeWalletUid.slice(0, 8)}...`,
             )
           }
 
@@ -400,12 +391,6 @@ export const GridPlusConnect = () => {
           )
         }
 
-        console.log('[Web Connect] handleSelectSafeCard - Calling pairDevice', {
-          safeCardWalletId,
-          connectionDeviceId,
-          hasSessionId: !!sessionId,
-        })
-
         const wallet = await adapterWithKeyring.pairDevice(
           safeCardWalletId,
           connectionDeviceId,
@@ -413,11 +398,6 @@ export const GridPlusConnect = () => {
           undefined,
           sessionId || undefined,
         )
-
-        console.log('[Web Connect] handleSelectSafeCard - Wallet obtained', {
-          walletExists: !!wallet,
-          hasGetSessionId: !!(wallet && wallet.getSessionId),
-        })
 
         if (!sessionId && wallet.getSessionId) {
           const walletSessionId = wallet.getSessionId()
@@ -428,11 +408,6 @@ export const GridPlusConnect = () => {
             }),
           )
         }
-
-        console.log('[Web Connect] handleSelectSafeCard - Dispatching SET_WALLET with deviceId', {
-          safeCardWalletId,
-          safeCardUuid,
-        })
 
         walletDispatch({
           type: WalletActions.SET_WALLET,
@@ -448,10 +423,6 @@ export const GridPlusConnect = () => {
         walletDispatch({
           type: WalletActions.SET_IS_CONNECTED,
           payload: true,
-        })
-
-        console.log('[Web Connect] handleSelectSafeCard - Saving to localStorage with deviceId', {
-          safeCardWalletId,
         })
 
         localWallet.setLocalWallet({

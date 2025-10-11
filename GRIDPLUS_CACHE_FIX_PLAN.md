@@ -220,6 +220,55 @@ yarn dev
 2. **Testing:** Test with multiple SafeCards before merging
 3. **Rollback Plan:** Git commits are clean, can revert if issues found
 
+## Testing & Validation Results
+
+### 2025-10-11 Testing Session
+
+#### Test 1: Cache Disabling Experiment ⚠️ NEEDS RETESTING
+**Hypothesis:** The `addressCache` Map in `gridplus.ts` is the root cause of SafeCard address collision.
+
+**Implementation:**
+- Commented out cache reads in `ethGetAddress()` (lines 520-525)
+- Left cache writes active (to maintain performance for same-card requests)
+- Published hdwallet v1.62.4-alpha.123 with disabled cache reads
+- Updated web to use new version
+
+**Status:**
+- ⚠️ Test was performed late at night (2am) - results inconclusive
+- Need to retest with fresh brain and proper test procedure
+- Current setup ready for testing (cache disabled, dev server running)
+
+**Test Procedure for Fresh Testing:**
+1. Clear browser state completely (localStorage, indexedDB, or use incognito)
+2. Hard refresh (Cmd+Shift+R)
+3. Connect SafeCard A - note addresses
+4. Disconnect completely
+5. Connect SafeCard B - verify addresses are DIFFERENT from SafeCard A
+6. If same = cache wasn't the issue
+7. If different = cache WAS the issue
+
+**Current Blocker:**
+- Need to verify if addresses shown are correct for each SafeCard
+- Late night testing unreliable - retest required
+
+#### Observations:
+1. **Portfolio clearing works correctly:**
+   - `clearWalletPortfolioState` properly deletes account metadata
+   - Redux-persist cache is being cleared successfully
+   - Logs show `existingAccountCount: 0` before discovery
+
+2. **Cache invalidation is the actual problem:**
+   - The `initialize()` method calls `addressCache.clear()` (line 281)
+   - But addresses from previous SafeCards still appear
+   - This suggests `initialize()` isn't being called, OR the cache is being repopulated before clearing
+
+3. **Potential root cause of cache invalidation failure:**
+   - Adapter retrieves wallet from keyring by `deviceId`
+   - All SafeCards share same `deviceId` (physical Lattice device)
+   - When switching SafeCards, adapter returns SAME wallet instance
+   - The wallet instance's `addressCache` was never cleared
+   - Solution: Need per-SafeCard cache isolation (walletId-based cache)
+
 ## Current Status
 
 ### Completed:
@@ -227,14 +276,29 @@ yarn dev
 - ✅ Solution designed
 - ✅ All uncommitted changes committed in both repos
 - ✅ Comprehensive plan documented
+- ✅ **Cache disabling test CONFIRMS addressCache is the culprit**
+- ✅ **Validated that portfolio clearing works correctly**
+- ✅ **Identified that cache invalidation in initialize() is not working**
 
 ### Next Steps:
-1. Implement cache structure changes in hdwallet
-2. Update all address methods
-3. Update adapter to set walletId
-4. Build and publish hdwallet
+
+**⚠️ GOMES GET SOME SLEEP YOU ROBOT KUNT, TBD MORE TESTING WITH CACHE DISABLED**
+
+Testing notes:
+- Currently running with cache reads disabled (hdwallet v1.62.4-alpha.123)
+- Saw addresses ending in ...5406 when expecting ...06
+- Need to verify with fresh brain if cache disabling actually fixes the issue
+- Test with clean browser state (clear localStorage, hard refresh)
+- Compare addresses between SafeCards properly
+
+If cache disabling actually works:
+1. **Implement walletId-based nested cache structure** (Phase 1 from plan above)
+   - Will provide true SafeCard isolation without disabling caching
+2. Update all address derivation methods to use wallet-specific cache
+3. Update adapter to set activeWalletId when retrieving wallets
+4. Build and publish hdwallet alpha
 5. Update web dependencies
-6. Test multi-SafeCard functionality
+6. Test multi-SafeCard functionality with caching ENABLED
 
 ## File Locations Reference
 

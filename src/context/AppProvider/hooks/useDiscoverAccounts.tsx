@@ -39,7 +39,6 @@ export const useDiscoverAccounts = () => {
           chainId,
         ],
         queryFn: async () => {
-          console.log(`[AccountDiscovery] 🔍 Starting discovery for chainId: ${chainId}`)
           const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
           if (
@@ -48,18 +47,21 @@ export const useDiscoverAccounts = () => {
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
-            console.log(`[AccountDiscovery] ⏭️  Skipping chainId ${chainId} - wallet check failed`)
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
           const connectedWalletId = portfolio.selectors.selectWalletId(store.getState())
           const walletId = connectedWalletId ?? (await wallet.getDeviceID())
-          console.log(
-            `[AccountDiscovery] 💼 WalletId: ${walletId} (connectedWalletId: ${connectedWalletId}, deviceId: ${await wallet.getDeviceID()})`,
-          )
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
-          console.log(`[AccountDiscovery] 🔢 Multi-account wallet: ${isMultiAccountWallet}`)
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
+
+          const currentAccountIds = Object.keys(currentPortfolio.accountMetadata.byId)
+          console.log('[Discovery Start]', {
+            chainId,
+            walletId,
+            existingAccountCount: currentAccountIds.length,
+            existingAccounts: currentAccountIds.slice(0, 3),
+          })
 
           let accountNumber = 0
           let hasActivity = true
@@ -72,9 +74,6 @@ export const useDiscoverAccounts = () => {
               if (isMetaMaskMultichainWallet && !isSnapInstalled) break
             }
 
-            console.log(
-              `[AccountDiscovery] 🔄 Deriving account #${accountNumber} for chainId ${chainId}`,
-            )
             try {
               const accountIdWithActivityAndMetadata = await getAccountIdsWithActivityAndMetadata(
                 accountNumber,
@@ -83,24 +82,10 @@ export const useDiscoverAccounts = () => {
                 Boolean(isSnapInstalled),
               )
 
-              console.log(
-                `[AccountDiscovery] 📊 Account #${accountNumber} results:`,
-                accountIdWithActivityAndMetadata.map(a => ({
-                  accountId: a.accountId,
-                  hasActivity: a.hasActivity,
-                })),
-              )
-
               hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
-              console.log(
-                `[AccountDiscovery] ${
-                  hasActivity ? '✅' : '⏹️'
-                } Has activity for account #${accountNumber}: ${hasActivity}`,
-              )
 
               if (hasActivity || accountNumber === 0) {
                 accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata }) => {
-                  console.log(`[AccountDiscovery] 💾 Caching metadata for ${accountId}`)
                   chainAccountMetadata[accountId] = accountMetadata
                 })
               }
@@ -116,15 +101,7 @@ export const useDiscoverAccounts = () => {
             }
           }
 
-          console.log(
-            `[AccountDiscovery] 📦 Total accounts cached for chainId ${chainId}:`,
-            Object.keys(chainAccountMetadata).length,
-          )
-
           if (Object.keys(chainAccountMetadata).length > 0) {
-            console.log(
-              `[AccountDiscovery] 💾 Upserting account metadata for walletId: ${walletId}`,
-            )
             dispatch(
               portfolio.actions.upsertAccountMetadata({
                 accountMetadataByAccountId: chainAccountMetadata,
@@ -138,18 +115,13 @@ export const useDiscoverAccounts = () => {
                 currentPortfolio.wallet.byId[walletId]?.includes(accountId)
 
               if (alreadyInPortfolio) {
-                console.log(
-                  `[AccountDiscovery] ⏭️  Skipping enable for ${accountId} (already in portfolio)`,
-                )
                 return
               }
 
-              console.log(`[AccountDiscovery] ✅ Enabling accountId: ${accountId}`)
               dispatch(portfolio.actions.enableAccountId(accountId))
             })
           }
 
-          console.log(`[AccountDiscovery] ✅ Discovery complete for chainId ${chainId}`)
           return {
             accountMetadataByAccountId: chainAccountMetadata,
             hasActivity,

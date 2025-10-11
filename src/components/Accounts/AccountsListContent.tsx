@@ -26,10 +26,6 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
 
-  console.log(
-    `[AccountsList] 📊 State: loading=${loading}, isDiscoveringAccounts=${isDiscoveringAccounts}, isAnyMarketDataLoading=${isAnyMarketDataLoading}`,
-  )
-
   // Don't use user-currency sorting until we're fully loaded - else this will keep on re-rendering forever and will
   // both look janky (lots of reordering) and most importantly, barely usable
   const portfolioChainIdsSortedUserCurrency = useAppSelector(state =>
@@ -38,15 +34,7 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
       : selectWalletConnectedChainIdsSorted(state),
   )
 
-  console.log(
-    `[AccountsList] 🔗 portfolioChainIdsSortedUserCurrency (${portfolioChainIdsSortedUserCurrency.length}):`,
-    portfolioChainIdsSortedUserCurrency,
-  )
-
   const chainRows = useMemo(() => {
-    console.log(
-      `[AccountsList] 🎨 Rendering ${portfolioChainIdsSortedUserCurrency.length} chain rows`,
-    )
     return portfolioChainIdsSortedUserCurrency.map(chainId => (
       <ChainRow key={chainId} chainId={chainId} isSimpleMenu={isSimpleMenu} onClose={onClose} />
     ))
@@ -61,7 +49,6 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
 
   const renderRows = useMemo(() => {
     const rows = loading ? blankRows : chainRows
-    console.log(`[AccountsList] 🎯 Rendering ${rows.length} ${loading ? 'blank' : 'chain'} rows`)
     return rows
   }, [blankRows, chainRows, loading])
 

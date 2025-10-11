@@ -1,6 +1,7 @@
 import type { ModalProps } from '@chakra-ui/react'
-import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Code, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
+import { has } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
@@ -69,11 +70,15 @@ const DialogWindow: React.FC<DialogProps> = ({
   }, [])
 
   const contentStyle = useMemo(() => {
+    const supportsDvh = CSS.supports('height', '100dvh')
+
     return {
       maxHeight: isFullScreen
         ? '100vh'
         : 'calc(100% - env(safe-area-inset-top) - var(--safe-area-inset-top))',
-      height: isFullScreen ? viewportHeight : height || '80vh',
+      height: isFullScreen
+        ? (supportsDvh ? '100dvh' : `${viewportHeight}px`)
+        : height || '80vh',
       paddingTop: isFullScreen ? 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))' : 0,
     }
   }, [height, isFullScreen, viewportHeight])
@@ -107,10 +112,10 @@ const DialogWindow: React.FC<DialogProps> = ({
   if (isMobile || !isLargerThanMd) {
     return (
       <Drawer.Root
-        repositionInputs={isFullScreen ? true : false}
+        repositionInputs={false}
         open={isDialogOpen}
         onClose={onClose}
-        activeSnapPoint={snapPoint}
+        activeSnapPoint={!isFullScreen ? snapPoint : undefined}
         modal
       >
         <Drawer.Portal>

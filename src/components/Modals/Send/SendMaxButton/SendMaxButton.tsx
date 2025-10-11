@@ -8,14 +8,7 @@ type SendMaxButtonProps = {
 
 export const SendMaxButton = ({ onClick }: SendMaxButtonProps) => {
   return (
-    <Button
-      colorScheme='blue'
-      h='1.75rem'
-      onClick={onClick}
-      size='sm'
-      type='button'
-      variant='ghost'
-    >
+    <Button size='sm' h='1.75rem' onClick={onClick} type='button'>
       <Text translation='modals.send.sendForm.max' />
     </Button>
   )

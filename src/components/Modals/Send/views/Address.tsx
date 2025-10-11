@@ -1,8 +1,18 @@
-import { Button, FormControl, FormLabel, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  FormControl,
+  Icon,
+  Stack,
+  Text as CText,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { TbScan } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,6 +33,13 @@ import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const qrCodeSx = {
+  svg: {
+    width: '24px',
+    height: '24px',
+  },
+}
+
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
   const navigate = useNavigate()
@@ -37,6 +54,24 @@ export const Address = () => {
   const send = useModal('send')
   const qrCode = useModal('qrCode')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
+  const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
+
+  const qrCodeIcon = useMemo(
+    () => (
+      <Flex
+        bg={qrBackground}
+        borderRadius='full'
+        color='text.primary'
+        boxSize='44px'
+        alignItems='center'
+        justifyContent='center'
+        sx={qrCodeSx}
+      >
+        <Icon as={TbScan} />
+      </Flex>
+    ),
+    [qrBackground],
+  )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -47,7 +82,7 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => navigate(SendRoutes.Details), [navigate])
+  const handleNext = useCallback(() => navigate(SendRoutes.Amount), [navigate])
 
   const handleBackClick = useCallback(() => {
     setValue(SendFormFields.AssetId, '')
@@ -103,6 +138,10 @@ export const Address = () => {
     qrCode.close?.()
   }, [send, qrCode])
 
+  const handleScanQrCode = useCallback(() => {
+    qrCode.open({ assetId })
+  }, [qrCode, assetId])
+
   if (!asset) return null
 
   return (
@@ -113,22 +152,40 @@ export const Address = () => {
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
       </DialogHeader>
-      <DialogBody>
-        <FormControl>
-          <FormLabel color='text.subtle' w='full'>
-            {translate('modals.send.sendForm.sendTo')}
-          </FormLabel>
-          <AddressInput
-            pe={16}
-            rules={addressInputRules}
-            enableQr={true}
-            placeholder={translate(
-              supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
-            )}
-          />
-        </FormControl>
+      <DialogBody height='100%'>
+        <VStack spacing={4} align='stretch'>
+          <FormControl>
+            <AddressInput
+              pe={16}
+              rules={addressInputRules}
+              placeholder={translate(
+                supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+              )}
+            />
+          </FormControl>
+
+          <Button
+            size='lg'
+            leftIcon={qrCodeIcon}
+            onClick={handleScanQrCode}
+            justifyContent='flex-start'
+            height='auto'
+            background='transparent'
+            m={-2}
+            p={2}
+          >
+            <VStack align='start' spacing={0}>
+              <CText fontSize='md' fontWeight='medium' color='text.primary'>
+                {translate('modals.send.scanQrCode')}
+              </CText>
+              <CText fontSize='sm' color='text.subtle'>
+                {translate('modals.send.sendForm.scanQrCodeDescription')}
+              </CText>
+            </VStack>
+          </Button>
+        </VStack>
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter pt={2}>
         <Stack flex={1}>
           <Button
             width='full'

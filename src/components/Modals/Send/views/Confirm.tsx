@@ -2,54 +2,63 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Divider,
   Flex,
-  FormControl,
-  FormLabel,
   HStack,
   Icon,
   Input,
   Link,
   Skeleton,
   Stack,
+  Text as CText,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { ChangeEvent } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TbArrowsSplit2 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import { useLongPress } from 'use-long-press'
 
+import { SendGasSelection } from '../components/SendGasSelection'
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendFormFields, SendRoutes } from '../SendCommon'
-import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogHeader, DialogHeaderRight } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { AnimatedDots } from '@/components/Modals/Send/components/AnimatedDots'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { getConfig } from '@/config'
+import { defaultLongPressConfig } from '@/constants/longPress'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
-import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
+import { vibrate } from '@/lib/vibrate'
+import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 export type FeePrice = {
   [key in FeeDataKey]: {
@@ -61,7 +70,13 @@ export type FeePrice = {
 
 const accountDropdownButtonProps = { variant: 'ghost', height: 'auto', p: 0, size: 'md' }
 
-export const Confirm = () => {
+const LONG_PRESS_SECONDS_THRESHOLD = 2000
+
+export type ConfirmProps = {
+  handleSubmit: () => void
+}
+
+export const Confirm = ({ handleSubmit }: ConfirmProps) => {
   const {
     control,
     formState: { isSubmitting },
@@ -84,8 +99,9 @@ export const Confirm = () => {
   }) as Partial<SendInput>
   const { fees } = useSendFees()
   const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
+  const toBg = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const {
     state: { wallet },
@@ -107,16 +123,6 @@ export const Confirm = () => {
     [assetId, wallet],
   )
 
-  const amountWithFees = useMemo(() => {
-    const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
-    return bnOrZero(fiatAmount).plus(fiatFee).toString()
-  }, [fiatAmount, fees, feeType])
-
-  const cryptoAmountFee = useMemo(() => {
-    const { txFee } = fees ? fees[feeType as FeeDataKey] : { txFee: 0 }
-    return txFee.toString()
-  }, [fees, feeType])
-
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const handleNonceChange = useCallback(
@@ -127,7 +133,7 @@ export const Confirm = () => {
     [setValue],
   )
 
-  const handleClick = useCallback(() => navigate(SendRoutes.Details), [navigate])
+  const handleBack = useCallback(() => navigate(SendRoutes.Amount), [navigate])
 
   // We don't want this firing -- but need it for typing
   const handleAccountChange = useCallback(() => {}, [])
@@ -142,32 +148,169 @@ export const Confirm = () => {
     [asset],
   )
 
+  const confirmTransactionTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.send.confirmTransaction', { address: middleEllipsis(to ?? '') }],
+    [to],
+  )
+
+  const chainName = useMemo(() => {
+    const chainAdapterManager = getChainAdapterManager()
+    const chainName = chainAdapterManager.get(asset?.chainId ?? '')?.getDisplayName()
+    return chainName
+  }, [asset?.chainId])
+
+  const [isLongPressing, setIsLongPressing] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    if (!isLongPressing) return
+
+    const startTime = Date.now()
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime
+      const progressPercent = Math.min((elapsed / LONG_PRESS_SECONDS_THRESHOLD) * 100, 100)
+      setProgress(progressPercent)
+
+      if (progressPercent < 100) {
+        requestAnimationFrame(updateProgress)
+      }
+    }
+
+    requestAnimationFrame(updateProgress)
+  }, [isLongPressing])
+
+  const longPressHandlers = useLongPress(() => {}, {
+    ...defaultLongPressConfig,
+    threshold: LONG_PRESS_SECONDS_THRESHOLD,
+    cancelOnMovement: 25,
+    onFinish: () => {
+      vibrate('heavy')
+      setIsLongPressing(false)
+      setProgress(0)
+      handleSubmit()
+    },
+    onCancel: () => {
+      setIsLongPressing(false)
+      setProgress(0)
+    },
+    onStart: () => {
+      vibrate('light')
+      setIsLongPressing(true)
+      setProgress(0)
+    },
+  })
+
   if (!(to && asset?.name && amountCryptoPrecision && fiatAmount && feeType)) return null
 
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <DialogBackButton onClick={handleClick} />
+        <DialogBackButton onClick={handleBack} />
         <DialogTitle textAlign='center'>
           <Text translation={sendAssetTranslation} />
         </DialogTitle>
+        <DialogHeaderRight>
+          <DialogCloseButton />
+        </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
         <Flex flexDirection='column' alignItems='center' mb={8}>
-          <Amount.Crypto
-            fontSize='4xl'
-            fontWeight='bold'
-            lineHeight='shorter'
-            textTransform='uppercase'
-            symbol={asset.symbol}
-            value={amountCryptoPrecision}
+          <Text
+            translation={confirmTransactionTranslation}
+            fontSize='2xl'
+            fontWeight='normal'
+            textAlign='center'
+            maxWidth='300px'
           />
-          <Amount.Fiat color='text.subtle' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
-        <Stack spacing={4} mb={4}>
+        <Flex
+          width='full'
+          bg='background.surface.raised.base'
+          py={4}
+          pb={6}
+          px={6}
+          borderRadius='2xl'
+          border='1px solid'
+          borderColor='border.base'
+          mb={6}
+          alignItems='stretch'
+        >
+          <Box width='full' flex={1}>
+            <Amount.Fiat
+              fontSize='2xl'
+              fontWeight='bold'
+              lineHeight='shorter'
+              textTransform='uppercase'
+              value={fiatAmount}
+            />
+            <Amount.Crypto
+              symbol={asset.symbol}
+              value={amountCryptoPrecision}
+              color='text.subtle'
+              fontSize='sm'
+              lineHeight='short'
+            />
+            <Flex alignItems='center' gap={2} width='100%' my={4}>
+              <Text
+                translation='modals.send.sendForm.to'
+                fontSize='sm'
+                backgroundColor={toBg}
+                px={1}
+                py={0}
+                borderRadius='md'
+                me={0}
+                textTransform='lowercase'
+              />
+              <Divider width='100%' height='1px' backgroundColor='border.base' />
+            </Flex>
+            <Box fontSize='2xl' fontWeight='bold' pb={4}>
+              <InlineCopyButton value={to}>
+                {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
+              </InlineCopyButton>
+            </Box>
+          </Box>
+
+          <Flex
+            flexDirection='column'
+            gap={4}
+            bg={'background.surface.raised.base'}
+            border='1px solid'
+            borderColor='border.base'
+            borderRadius='full'
+            justifyContent='space-between'
+            position='relative'
+          >
+            <AssetIcon assetId={asset.assetId} position='relative' zIndex={2} size='md' />
+
+            <Box
+              position='absolute'
+              left={'50%'}
+              top='50%'
+              transform='translate(-50%, -50%)'
+              zIndex={1}
+              height='55px'
+            >
+              <AnimatedDots />
+            </Box>
+
+            {/* @TODO: Use custom receive address avatar */}
+            <ProfileAvatar borderRadius='full' position='relative' zIndex={2} size='md' />
+          </Flex>
+        </Flex>
+        <Stack spacing={4} mb={6} px={4}>
+          <Row flexWrap='wrap'>
+            <Row.Label>
+              <Text translation={'modals.send.sendForm.chain'} />
+            </Row.Label>
+            <Row.Value fontSize={'md'} display='flex' alignItems='center'>
+              <CText>{chainName}</CText>
+              <AssetIcon assetId={asset.assetId} showNetworkIcon size='xs' ml={2} />
+            </Row.Value>
+          </Row>
           <Row alignItems='center'>
             <Row.Label>
-              <Text translation='modals.send.confirm.sendFrom' />
+              <Text translation='modals.send.sendForm.from' />
             </Row.Label>
             <Row.Value display='flex' alignItems='center'>
               <InlineCopyButton
@@ -184,18 +327,8 @@ export const Confirm = () => {
               </InlineCopyButton>
             </Row.Value>
           </Row>
-          <Row flexWrap='wrap'>
-            <Row.Label>
-              <Text translation={'modals.send.confirm.sendTo'} />
-            </Row.Label>
-            <Row.Value fontSize={vanityAddress ? 'sm' : 'md'}>
-              <InlineCopyButton value={to}>
-                {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
-              </InlineCopyButton>
-            </Row.Value>
-          </Row>
           {shouldShowChangeAddress && (
-            <Row>
+            <Row alignItems='center'>
               <Row.Label>
                 <HelperTooltip label={translate('trade.changeAddressExplainer')}>
                   <HStack spacing={2}>
@@ -252,50 +385,20 @@ export const Confirm = () => {
               </Row.Value>
             </Row>
           )}
-          <FormControl mt={4}>
-            <Row variant='vertical'>
-              <Row.Label>
-                <FormLabel color='text.subtle' htmlFor='tx-fee'>
-                  {translate('modals.send.sendForm.transactionFee')}
-                </FormLabel>
-              </Row.Label>
-              <TxFeeRadioGroup fees={fees} />
-            </Row>
-          </FormControl>
         </Stack>
       </DialogBody>
-      <DialogFooter flexDirection='column' borderTopWidth={1} borderColor={borderColor}>
-        <Row gap={2}>
-          <Box flex={1}>
-            <Row.Label color='inherit' fontWeight='bold'>
-              <Text translation='modals.send.confirm.total' />
-            </Row.Label>
-            <Row.Label
-              flexDirection='row'
-              display='flex'
-              flexWrap='wrap'
-              justifyContent='flex-start'
-            >
-              <Text translation='modals.send.confirm.amount' />
-              <RawText mx={1}>+</RawText>
-              <Text translation='modals.send.confirm.transactionFee' />
-            </Row.Label>
-          </Box>
-          <Box textAlign='right' flex={1}>
-            <Row.Value flex={1}>
-              <Amount.Fiat value={amountWithFees} fontWeight='bold' />
-            </Row.Value>
-            <Row.Label display='flex' gap={1} flexWrap='wrap' justifyContent='flex-end'>
-              <Amount.Crypto
-                textTransform='uppercase'
-                maximumFractionDigits={6}
-                symbol={asset.symbol}
-                value={amountCryptoPrecision}
-              />
-              <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />
-            </Row.Label>
-          </Box>
-        </Row>
+      <DialogFooter
+        flexDirection='column'
+        borderTopWidth={1}
+        borderColor={borderColor}
+        pt={4}
+        borderRight='1px solid'
+        borderRightColor='border.base'
+        borderLeft='1px solid'
+        borderLeftColor='border.base'
+        borderTopRadius='20'
+      >
+        <SendGasSelection />
         <Button
           colorScheme='blue'
           isDisabled={!fees || isSubmitting}
@@ -303,10 +406,30 @@ export const Confirm = () => {
           loadingText={translate('modals.send.broadcastingTransaction')}
           size='lg'
           mt={6}
-          type='submit'
+          type={isSmallerThanMd ? 'button' : 'submit'}
           width='full'
+          position='relative'
+          overflow='hidden'
+          {...(isSmallerThanMd ? longPressHandlers() : {})}
         >
-          <Text translation='common.confirm' />
+          {isLongPressing && (
+            <Box
+              position='absolute'
+              top='0'
+              left='0'
+              height='100%'
+              width={`${progress}%`}
+              bg='whiteAlpha.200'
+              transition='width 0.1s ease-out'
+              zIndex={1}
+            />
+          )}
+
+          <Box position='relative' zIndex={2}>
+            <Text
+              translation={isSmallerThanMd ? 'modals.send.confirm.holdToSend' : 'common.confirm'}
+            />
+          </Box>
         </Button>
       </DialogFooter>
     </SlideTransition>

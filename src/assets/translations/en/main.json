@@ -77,6 +77,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
     "or": "or",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
     "feeEstimate": "Fee Estimate"
+  },
+  "accountSelector": {
+    "chooseAccount": "Choose Account"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -1424,6 +1428,7 @@
       }
     },
     "send": {
+      "confirmTransaction": "Confirm transaction to %{address}",
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
@@ -1458,7 +1463,8 @@
         "amount": "Amount",
         "transactionFee": "Transaction Fee",
         "fees": "Fees %{feeType}",
-        "pendingConfirmation": "Pending confirmation"
+        "pendingConfirmation": "Pending confirmation",
+        "holdToSend": "Hold to send"
       },
       "sendForm": {
         "optionalAssetMemo": "Optional %{assetSymbol} Memo",
@@ -1467,13 +1473,20 @@
         "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
+        "chain": "Chain",
         "sendAmount": "Send Amount",
         "max": "Max",
         "transactionFee": "Transaction Fee",
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "enterAmount": "Enter Amount"
+        "enterAmount": "Enter Amount",
+        "scanQrCode": "Scan QR Code",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses",
+        "to": "To",
+        "from": "From",
+        "availableBalance": "%{balance} available"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"

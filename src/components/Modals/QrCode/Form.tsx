@@ -12,9 +12,9 @@ import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
-import { Details } from '../Send/views/Details'
 import { Status } from '../Send/views/Status'
 
+import { SendAmount } from '@/components/Modals/Send/views/SendAmount'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -176,7 +176,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (isAmbiguousTransfer) {
             return navigate(SendRoutes.Select)
           }
-          return navigate(SendRoutes.Details)
+          return navigate(SendRoutes.Amount)
         } catch (e: any) {
           setAddressError(e.message)
         }
@@ -191,14 +191,17 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   )
 
   const addressElement = useMemo(() => <Address />, [])
-  const detailsElement = useMemo(() => <Details />, [])
+  const detailsElement = useMemo(() => <SendAmount />, [])
   const qrCodeScannerElement = useMemo(
     () => (
       <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleClose} addressError={addressError} />
     ),
     [handleClose, handleQrSuccess, addressError],
   )
-  const confirmElement = useMemo(() => <Confirm />, [])
+  const confirmElement = useMemo(
+    () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
+    [methods, handleSubmit],
+  )
   const statusElement = useMemo(() => <Status />, [])
 
   if (walletConnectDappUrl)
@@ -216,7 +219,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           <Routes>
             <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />
             <Route path={SendRoutes.Address} element={addressElement} />
-            <Route path={SendRoutes.Details} element={detailsElement} />
+            <Route path={SendRoutes.Amount} element={detailsElement} />
             <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />
             <Route path={SendRoutes.Confirm} element={confirmElement} />
             <Route path={SendRoutes.Status} element={statusElement} />

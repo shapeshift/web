@@ -10832,7 +10832,7 @@ __metadata:
     framer-motion: ^12.6.5
     friendly-challenge: 0.9.2
     grapheme-splitter: ^1.0.4
-    happy-dom: ^15.10.2
+    happy-dom: ^20.0.0
     html-react-parser: ^5.2.3
     html5-qrcode: ^2.3.8
     http-proxy-middleware: ^2.0.9
@@ -12356,6 +12356,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^20.0.0":
+  version: 20.19.20
+  resolution: "@types/node@npm:20.19.20"
+  dependencies:
+    undici-types: ~6.21.0
+  checksum: 64753aa9bf736a0fb6c979a506babbce34a33dd8dd96b8a5387cffffb2098b0a39df435e376a44b6eb99518faecdafd7c48db0a087b8e3c51e1c9a1b653e7ae5
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^20.17.9":
   version: 20.17.30
   resolution: "@types/node@npm:20.17.30"
@@ -12629,6 +12638,13 @@ __metadata:
   version: 1.0.8
   resolution: "@types/w3c-web-usb@npm:1.0.8"
   checksum: 5b3206c5d646118e1b87fb74dcbdf99b991f42fa25042e63b98875662950213504325a53e1e5eddc29d7faaa7572f87a55141576a64e829f37eda19de00e30e1
+  languageName: node
+  linkType: hard
+
+"@types/whatwg-mimetype@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@types/whatwg-mimetype@npm:3.0.2"
+  checksum: 30e2599ae02c539a6dd08b58de255aad24a41cdabeebc0293814884f1301f1328443b9915f2e990e4f484fa7f226ca8718991b63d2d387287f898c36390ef856
   languageName: node
   linkType: hard
 
@@ -19046,7 +19062,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.2.0, entities@npm:^4.5.0":
+"entities@npm:^4.2.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 853f8ebd5b425d350bffa97dd6958143179a5938352ccae092c62d1267c4e392a039be1bae7d51b6e4ffad25f51f9617531fedf5237f15df302ccfb452cbf2d7
@@ -22008,14 +22024,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:^15.10.2":
-  version: 15.10.2
-  resolution: "happy-dom@npm:15.10.2"
+"happy-dom@npm:^20.0.0":
+  version: 20.0.0
+  resolution: "happy-dom@npm:20.0.0"
   dependencies:
-    entities: ^4.5.0
-    webidl-conversions: ^7.0.0
+    "@types/node": ^20.0.0
+    "@types/whatwg-mimetype": ^3.0.2
     whatwg-mimetype: ^3.0.0
-  checksum: 37ef0875565fe94e3fc47c8ddba422268966ffabc4efd84bc79db692d63b28478090e41a58f68b3e66f1b6dc510a9390fc45a1ceb2b64e9cc1a3c66dd088592f
+  checksum: 0a814c4ca052e3695ae016f0a09243a25a1e372ecf1ebf12b405f282529618068d0bbd406980f8e82704f67640b78b24dc13e728a393232932c421c7fc6574a1
   languageName: node
   linkType: hard
 
@@ -32745,13 +32761,6 @@ pvutils@latest:
   version: 4.0.2
   resolution: "webidl-conversions@npm:4.0.2"
   checksum: c93d8dfe908a0140a4ae9c0ebc87a33805b416a33ee638a605b551523eec94a9632165e54632f6d57a39c5f948c4bab10e0e066525e9a4b87a79f0d04fbca374
-  languageName: node
-  linkType: hard
-
-"webidl-conversions@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "webidl-conversions@npm:7.0.0"
-  checksum: f05588567a2a76428515333eff87200fae6c83c3948a7482ebb109562971e77ef6dc49749afa58abb993391227c5697b3ecca52018793e0cb4620a48f10bd21b
   languageName: node
   linkType: hard
 

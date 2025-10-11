@@ -278,6 +278,11 @@ const LedgerMenu = lazy(() =>
     default: LedgerMenu,
   })),
 )
+const GridPlusMenu = lazy(() =>
+  import('./GridPlus/components/GridPlusMenu').then(({ GridPlusMenu }) => ({
+    default: GridPlusMenu,
+  })),
+)
 
 const MobileCreate = lazy(() =>
   import('./MobileWallet/components/MobileCreate').then(({ MobileCreate }) => ({
@@ -453,6 +458,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.GridPlus]: {
     ...GridPlusConfig,
     routes: [{ path: '/gridplus/connect', component: GridPlusConnect }],
+    connectedMenuComponent: GridPlusMenu,
   },
 }
 

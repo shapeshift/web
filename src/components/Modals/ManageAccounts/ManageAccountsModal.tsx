@@ -18,6 +18,7 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { RawText } from '@/components/Text'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { availableGridPlusChainIds } from '@/context/WalletProvider/GridPlus/constants'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -89,7 +90,9 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
   const availableChainIds = useMemo(() => {
-    return connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
+    if (connectedType === KeyManager.Ledger) return availableLedgerChainIds
+    if (connectedType === KeyManager.GridPlus) return availableGridPlusChainIds
+    return walletSupportedChainIds
   }, [connectedType, walletSupportedChainIds])
 
   const handleClickChain = useCallback(

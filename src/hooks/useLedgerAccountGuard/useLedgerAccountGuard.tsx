@@ -28,7 +28,7 @@ export const useLedgerAccountGuard = () => {
   useEffect(() => {
     if (!isConnected || !wallet || hasCheckedRef.current) return
 
-    if (walletType !== KeyManager.Ledger) return
+    if (walletType !== KeyManager.Ledger && walletType !== KeyManager.GridPlus) return
 
     // Only open if we don't already have accounts connected
     const accountIds = Object.keys(portfolioAccounts)

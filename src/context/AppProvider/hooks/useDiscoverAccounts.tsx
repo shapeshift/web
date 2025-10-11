@@ -1,3 +1,4 @@
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
@@ -44,6 +45,7 @@ export const useDiscoverAccounts = () => {
           if (
             !wallet ||
             isLedger(wallet) ||
+            isGridPlus(wallet) ||
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
@@ -56,11 +58,10 @@ export const useDiscoverAccounts = () => {
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
           const currentAccountIds = Object.keys(currentPortfolio.accountMetadata.byId)
-          console.log('[Discovery Start]', {
+          console.log('[Discovery]', {
             chainId,
             walletId,
-            existingAccountCount: currentAccountIds.length,
-            existingAccounts: currentAccountIds.slice(0, 3),
+            existingCount: currentAccountIds.length,
           })
 
           let accountNumber = 0

@@ -499,7 +499,7 @@ export const ImportAccounts = ({ chainId, onClose, isOpen }: ImportAccountsProps
                     <LoadingRow
                       numRows={
                         accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
-                          .length ?? 0
+                          .length || 3
                       }
                     />
                   )}

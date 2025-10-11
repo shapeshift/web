@@ -4,7 +4,7 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { getAccountIdsWithActivityAndMetadata } from '@/components/ManageAccountsDrawer/helpers'
+import { getAccountIdsWithActivityAndMetadata } from '@/components/Modals/ManageAccounts/helpers'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'

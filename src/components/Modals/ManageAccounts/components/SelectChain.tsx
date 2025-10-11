@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { filterChainIdsBySearchTerm } from '../helpers'
-import { DrawerContentWrapper } from './DrawerContent'
-import { DrawerWrapper } from './DrawerWrapper'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
@@ -22,8 +20,6 @@ const inputGroupProps = { size: 'lg' }
 
 export type SelectChainProps = {
   onSelectChainId: (chainId: ChainId) => void
-  onClose: () => void
-  isOpen: boolean
 }
 
 const buttonsStackColumns = {
@@ -58,7 +54,7 @@ const ChainButton = ({
   )
 }
 
-export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainProps) => {
+export const SelectChain = ({ onSelectChainId }: SelectChainProps) => {
   const translate = useTranslate()
   const [searchTermChainIds, setSearchTermChainIds] = useState<ChainId[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -90,40 +86,17 @@ export const SelectChain = ({ onSelectChainId, onClose, isOpen }: SelectChainPro
     })
   }, [onSelectChainId, searchTermChainIds, isSearching, availableChainIds])
 
-  const footer = useMemo(() => {
-    return (
-      <>
-        <Button colorScheme='gray' mr={3} onClick={onClose}>
-          {translate('common.cancel')}
-        </Button>
-      </>
-    )
-  }, [onClose, translate])
-
-  const body = useMemo(() => {
-    return (
-      <Stack spacing={4}>
-        <GlobalFilter
-          setSearchQuery={setSearchQuery}
-          searchQuery={searchQuery}
-          placeholder={translate('accountManagement.selectChain.searchChains')}
-          inputGroupProps={inputGroupProps}
-        />
-        <SimpleGrid columns={buttonsStackColumns} spacing={4}>
-          {chainButtons}
-        </SimpleGrid>
-      </Stack>
-    )
-  }, [chainButtons, searchQuery, translate])
-
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={onClose}>
-      <DrawerContentWrapper
-        title={translate('accountManagement.selectChain.title')}
-        description={translate('accountManagement.selectChain.description')}
-        footer={footer}
-        body={body}
+    <Stack spacing={4}>
+      <GlobalFilter
+        setSearchQuery={setSearchQuery}
+        searchQuery={searchQuery}
+        placeholder={translate('accountManagement.selectChain.searchChains')}
+        inputGroupProps={inputGroupProps}
       />
-    </DrawerWrapper>
+      <SimpleGrid columns={buttonsStackColumns} spacing={4}>
+        {chainButtons}
+      </SimpleGrid>
+    </Stack>
   )
 }

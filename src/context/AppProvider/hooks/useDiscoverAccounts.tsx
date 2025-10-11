@@ -50,9 +50,18 @@ export const useDiscoverAccounts = () => {
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
-          const walletId = await wallet.getDeviceID()
+          const connectedWalletId = portfolio.selectors.selectWalletId(store.getState())
+          const walletId = connectedWalletId ?? (await wallet.getDeviceID())
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
+
+          const currentAccountIds = Object.keys(currentPortfolio.accountMetadata.byId)
+          console.log('[Discovery Start]', {
+            chainId,
+            walletId,
+            existingAccountCount: currentAccountIds.length,
+            existingAccounts: currentAccountIds.slice(0, 3),
+          })
 
           let accountNumber = 0
           let hasActivity = true
@@ -83,7 +92,10 @@ export const useDiscoverAccounts = () => {
 
               accountNumber++
             } catch (error) {
-              console.error(`Error discovering accounts for chain ${chainId}:`, error)
+              console.error(
+                `[AccountDiscovery] ❌ Error discovering accounts for chain ${chainId}:`,
+                error,
+              )
               isDegraded = true
               break
             }
@@ -98,12 +110,13 @@ export const useDiscoverAccounts = () => {
             )
 
             Object.keys(chainAccountMetadata).forEach(accountId => {
-              // Don't enable accounts that are already in the portfolio so we keep it disabled if user manually disabled it
-              if (
+              const alreadyInPortfolio =
                 currentPortfolio.accountMetadata.byId[accountId] &&
                 currentPortfolio.wallet.byId[walletId]?.includes(accountId)
-              )
+
+              if (alreadyInPortfolio) {
                 return
+              }
 
               dispatch(portfolio.actions.enableAccountId(accountId))
             })
@@ -128,9 +141,11 @@ export const useDiscoverAccounts = () => {
   })
 
   const { isLoading, isFetching } = useMemo(() => {
+    const loading = accountsDiscoveryQueries.some(query => query.isLoading)
+    const fetching = accountsDiscoveryQueries.some(query => query.isFetching)
     return {
-      isLoading: accountsDiscoveryQueries.some(query => query.isLoading),
-      isFetching: accountsDiscoveryQueries.some(query => query.isFetching),
+      isLoading: loading,
+      isFetching: fetching,
     }
   }, [accountsDiscoveryQueries])
 

@@ -48,6 +48,12 @@ export const portfolio = createSlice({
         // don't fire and rerender with same action
         if (state.connectedWallet?.id === payload?.walletId) return
 
+        console.log('[Portfolio Meta] Setting wallet meta', {
+          walletId: payload?.walletId,
+          walletName: payload?.walletName,
+          oldWalletId: state.connectedWallet?.id,
+        })
+
         // note this function can unset the walletId to undefined
         if (payload !== undefined) {
           const { walletId, walletName } = payload
@@ -89,19 +95,27 @@ export const portfolio = createSlice({
         // WARNING: don't use the current state.connectedWallet.id here because it's updated async
         // to this and results in account data corruption
         const { accountMetadataByAccountId, walletId } = payload
+
+        console.log('[Portfolio Upsert] Upserting account metadata', {
+          walletId,
+          newAccountIds: Object.keys(accountMetadataByAccountId).slice(0, 3),
+          accountCount: Object.keys(accountMetadataByAccountId).length,
+        })
+
         draftState.accountMetadata.byId = merge(
           draftState.accountMetadata.byId,
           accountMetadataByAccountId,
         )
         draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-        if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
+        if (!draftState.connectedWallet) {
+          return // realistically, at this point, we should have a wallet set
+        }
         const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
         const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
         // keep an index of what account ids belong to this wallet
-        draftState.wallet.byId[walletId] = uniq(
-          existingWalletAccountIds.concat(newWalletAccountIds),
-        )
+        const updatedAccountIds = uniq(existingWalletAccountIds.concat(newWalletAccountIds))
+        draftState.wallet.byId[walletId] = updatedAccountIds
       },
     ),
     clearWalletMetadata: create.reducer((draftState, { payload }: { payload: WalletId }) => {
@@ -118,12 +132,33 @@ export const portfolio = createSlice({
     clearWalletPortfolioState: create.reducer((draftState, { payload }: { payload: string }) => {
       const walletId = payload
 
+      // Get all account IDs for this wallet before clearing
+      const accountIds = draftState.wallet.byId[walletId] ?? []
+      console.log('[Portfolio Clear] Executing clear', {
+        walletId,
+        accountIds: accountIds.slice(0, 3),
+        accountCount: accountIds.length,
+      })
+
+      // Delete each account's metadata and balances
+      accountIds.forEach(accountId => {
+        delete draftState.accountMetadata.byId[accountId]
+        delete draftState.accountBalances.byId[accountId]
+        delete draftState.accounts.byId[accountId]
+      })
+
+      // Update the IDs arrays to remove deleted accounts
+      draftState.accountMetadata.ids = draftState.accountMetadata.ids.filter(
+        id => !accountIds.includes(id),
+      )
+      draftState.accountBalances.ids = draftState.accountBalances.ids.filter(
+        id => !accountIds.includes(id),
+      )
+      draftState.accounts.ids = draftState.accounts.ids.filter(id => !accountIds.includes(id))
+
+      // Clear the wallet mapping
       delete draftState.wallet.byId[walletId]
       draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
-      delete draftState.accountMetadata.byId[walletId]
-      draftState.accountMetadata.ids = draftState.accountMetadata.ids.filter(id => id !== walletId)
-      delete draftState.accountBalances.byId[walletId]
-      draftState.accountBalances.ids = draftState.accountBalances.ids.filter(id => id !== walletId)
       delete draftState.enabledAccountIds[walletId]
     }),
     upsertPortfolio: create.reducer(
@@ -155,11 +190,14 @@ export const portfolio = createSlice({
       (draftState, { payload: accountId }: { payload: AccountId }) => {
         const walletId = draftState.connectedWallet?.id
 
-        if (!walletId) return
+        if (!walletId) {
+          return
+        }
 
         const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
         enabledAccountIdsSet.add(accountId)
-        draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
+        const updatedEnabledAccountIds = Array.from(enabledAccountIdsSet)
+        draftState.enabledAccountIds[walletId] = updatedEnabledAccountIds
       },
     ),
     toggleAccountIdEnabled: create.reducer(

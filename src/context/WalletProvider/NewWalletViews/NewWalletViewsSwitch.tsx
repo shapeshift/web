@@ -20,6 +20,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import type { KeyManager } from '../KeyManager'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
+import { GridPlusRoutes } from './routes/GridPlusRoutes'
 import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
 import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
@@ -80,6 +81,7 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
   if (location.pathname.startsWith('/ledger')) return <LedgerRoutes />
   if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
+  if (location.pathname.startsWith('/gridplus')) return <GridPlusRoutes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 

@@ -24,6 +24,7 @@ import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useMipdProviders } from '@/lib/mipd'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
+import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -57,16 +58,21 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     const navigate = useNavigate()
 
     const maybeRdns = useAppSelector(selectWalletRdns)
+    const activeSafeCard = useAppSelector(gridplusSlice.selectors.selectActiveSafeCard)
     const mipdProviders = useMipdProviders()
     const maybeMipdProvider = useMemo(
       () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
       [mipdProviders, maybeRdns],
     )
 
-    const label = useMemo(
-      () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,
-      [walletInfo, maybeMipdProvider?.info?.name],
-    )
+    const label = useMemo(() => {
+      const baseName = maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name
+      // For GridPlus wallets, show "GridPlus - <SafeCardName>"
+      if (baseName === 'GridPlus' && activeSafeCard) {
+        return `GridPlus - ${activeSafeCard.name}`
+      }
+      return baseName
+    }, [walletInfo, maybeMipdProvider?.info?.name, activeSafeCard])
 
     const handleSettingsClick = useCallback(() => {
       if (onSettingsClick) return onSettingsClick()

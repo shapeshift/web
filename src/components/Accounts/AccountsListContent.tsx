@@ -34,22 +34,22 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
       : selectWalletConnectedChainIdsSorted(state),
   )
 
-  const chainRows = useMemo(
-    () =>
-      portfolioChainIdsSortedUserCurrency.map(chainId => (
-        <ChainRow key={chainId} chainId={chainId} isSimpleMenu={isSimpleMenu} onClose={onClose} />
-      )),
-    [portfolioChainIdsSortedUserCurrency, isSimpleMenu, onClose],
-  )
+  const chainRows = useMemo(() => {
+    return portfolioChainIdsSortedUserCurrency.map(chainId => (
+      <ChainRow key={chainId} chainId={chainId} isSimpleMenu={isSimpleMenu} onClose={onClose} />
+    ))
+  }, [portfolioChainIdsSortedUserCurrency, isSimpleMenu, onClose])
 
   const blankRows = useMemo(() => {
-    return blanks.map(index => (
+    // FIX: Use the index (second parameter) instead of the value (first parameter)
+    return blanks.map((_, index) => (
       <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
     ))
   }, [blanks])
 
   const renderRows = useMemo(() => {
-    return loading ? blankRows : chainRows
+    const rows = loading ? blankRows : chainRows
+    return rows
   }, [blankRows, chainRows, loading])
 
   return (

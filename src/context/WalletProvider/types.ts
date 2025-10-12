@@ -1,5 +1,6 @@
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
+import type { GridPlusAdapter } from '@shapeshiftoss/hdwallet-gridplus'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
@@ -8,7 +9,6 @@ import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 
-import type { GridPlusAdapter } from './GridPlus/config'
 import type { KeyManager } from './KeyManager'
 
 export type AdaptersByKeyManager = {

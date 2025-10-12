@@ -7,6 +7,7 @@ import { GridPlusConfig } from '@/context/WalletProvider/GridPlus/config'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const LedgerIcon = LedgerConfig.icon
@@ -76,6 +77,8 @@ export const HardwareWalletsSection = ({
     connect(KeyManager.GridPlus, false)
   }, [connect, onWalletSelect])
 
+  const isGridPlusWalletEnabled = useFeatureFlag('GridPlusWallet')
+
   return (
     <Stack spacing={2} my={6}>
       <Text
@@ -98,13 +101,15 @@ export const HardwareWalletsSection = ({
         icon={KeepKeyIcon}
         name={KeepKeyConfig.name}
       />
-      <WalletOption
-        connect={handleConnectGridPlus}
-        isSelected={selectedWalletId === KeyManager.GridPlus}
-        isDisabled={isLoading && selectedWalletId !== KeyManager.GridPlus}
-        icon={GridPlusIcon}
-        name={GridPlusConfig.name}
-      />
+      {isGridPlusWalletEnabled && (
+        <WalletOption
+          connect={handleConnectGridPlus}
+          isSelected={selectedWalletId === KeyManager.GridPlus}
+          isDisabled={isLoading && selectedWalletId !== KeyManager.GridPlus}
+          icon={GridPlusIcon}
+          name={GridPlusConfig.name}
+        />
+      )}
     </Stack>
   )
 }

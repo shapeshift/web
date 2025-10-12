@@ -52,6 +52,7 @@ export type FeatureFlags = {
   ThorchainLpDeposit: boolean
   ThorchainLpWithdraw: boolean
   LedgerWallet: boolean
+  GridPlusWallet: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
   AccountManagement: boolean
@@ -177,6 +178,7 @@ const initialState: Preferences = {
     ThorchainLpDeposit: getConfig().VITE_FEATURE_THORCHAIN_LP_DEPOSIT,
     ThorchainLpWithdraw: getConfig().VITE_FEATURE_THORCHAIN_LP_WITHDRAW,
     LedgerWallet: getConfig().VITE_FEATURE_LEDGER_WALLET,
+    GridPlusWallet: getConfig().VITE_FEATURE_GRIDPLUS_WALLET,
     ThorchainSwapLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
     AccountManagement: getConfig().VITE_FEATURE_ACCOUNT_MANAGEMENT,

@@ -89,21 +89,19 @@ export const portfolio = createSlice({
         // WARNING: don't use the current state.connectedWallet.id here because it's updated async
         // to this and results in account data corruption
         const { accountMetadataByAccountId, walletId } = payload
-
         draftState.accountMetadata.byId = merge(
           draftState.accountMetadata.byId,
           accountMetadataByAccountId,
         )
         draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-        if (!draftState.connectedWallet) {
-          return // realistically, at this point, we should have a wallet set
-        }
+        if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
         const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
         const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
         // keep an index of what account ids belong to this wallet
-        const updatedAccountIds = uniq(existingWalletAccountIds.concat(newWalletAccountIds))
-        draftState.wallet.byId[walletId] = updatedAccountIds
+        draftState.wallet.byId[walletId] = uniq(
+          existingWalletAccountIds.concat(newWalletAccountIds),
+        )
       },
     ),
     clearWalletMetadata: create.reducer((draftState, { payload }: { payload: WalletId }) => {
@@ -173,14 +171,11 @@ export const portfolio = createSlice({
       (draftState, { payload: accountId }: { payload: AccountId }) => {
         const walletId = draftState.connectedWallet?.id
 
-        if (!walletId) {
-          return
-        }
+        if (!walletId) return
 
         const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
         enabledAccountIdsSet.add(accountId)
-        const updatedEnabledAccountIds = Array.from(enabledAccountIdsSet)
-        draftState.enabledAccountIds[walletId] = updatedEnabledAccountIds
+        draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
       },
     ),
     toggleAccountIdEnabled: create.reducer(

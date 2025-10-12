@@ -57,8 +57,6 @@ export const useDiscoverAccounts = () => {
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
-          const currentAccountIds = Object.keys(currentPortfolio.accountMetadata.byId)
-
           let accountNumber = 0
           let hasActivity = true
           let isDegraded = false

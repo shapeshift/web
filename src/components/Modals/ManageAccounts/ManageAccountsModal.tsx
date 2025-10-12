@@ -17,8 +17,8 @@ import {
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
 import { RawText } from '@/components/Text'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableGridPlusChainIds } from '@/context/WalletProvider/GridPlus/constants'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'

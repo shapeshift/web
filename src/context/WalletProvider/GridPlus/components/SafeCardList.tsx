@@ -97,7 +97,6 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     setEditName(e.target.value)
   }, [])
 
-  // Curried callback creators for use inside map
   const createEditClickHandler = useCallback(
     (id: string, name: string) => () => {
       setEditingId(id)
@@ -132,10 +131,8 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     [onSelectSafeCard],
   )
 
-  // Memoized style objects
   const hoverStyle = useMemo(() => ({ borderColor: 'border.focused' }), [])
 
-  // Sort SafeCards by last connected, then by created date
   const sortedSafeCards = useMemo(
     () =>
       [...safeCards].sort((a, b) => {
@@ -149,7 +146,6 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     [safeCards],
   )
 
-  // Memoized card renderers
   const renderCards = useMemo(
     () =>
       sortedSafeCards.map(safeCard => {
@@ -241,7 +237,6 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     ],
   )
 
-  // Early return for empty state - need to reposition it after hooks
   if (safeCards.length === 0) {
     return (
       <VStack spacing={4} py={8}>

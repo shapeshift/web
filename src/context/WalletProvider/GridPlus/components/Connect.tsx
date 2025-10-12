@@ -131,12 +131,7 @@ export const GridPlusConnect = () => {
           isPaired,
           sessionId: newSessionId,
           activeWalletUid,
-        } = await adapterWithKeyring.connectDevice(
-          safeCardWalletId,
-          connectionDeviceId,
-          undefined,
-          undefined,
-        )
+        } = await adapterWithKeyring.connectDevice(connectionDeviceId, undefined, undefined)
 
         // Verify the active wallet matches expected SafeCard
         if (activeWalletUid && activeWalletUid !== safeCardUuid) {
@@ -176,15 +171,10 @@ export const GridPlusConnect = () => {
       let wallet
       if (showPairingCode && pairingCode) {
         // New pairing with code
-        wallet = await adapterWithKeyring.pairConnectedDevice(
-          safeCardWalletId,
-          connectionDeviceId,
-          pairingCode,
-        )
+        wallet = await adapterWithKeyring.pairConnectedDevice(connectionDeviceId, pairingCode)
       } else {
         // Connect with existing pairing
         wallet = await adapterWithKeyring.pairDevice(
-          safeCardWalletId,
           connectionDeviceId,
           undefined,
           undefined,
@@ -318,12 +308,7 @@ export const GridPlusConnect = () => {
             isPaired,
             sessionId: newSessionId,
             activeWalletUid,
-          } = await adapterWithKeyring.connectDevice(
-            safeCardWalletId,
-            connectionDeviceId,
-            undefined,
-            undefined,
-          )
+          } = await adapterWithKeyring.connectDevice(connectionDeviceId, undefined, undefined)
 
           // Verify the active wallet matches expected SafeCard
           if (activeWalletUid && activeWalletUid !== safeCardUuid) {
@@ -351,7 +336,6 @@ export const GridPlusConnect = () => {
         }
 
         const wallet = await adapterWithKeyring.pairDevice(
-          safeCardWalletId,
           connectionDeviceId,
           undefined,
           undefined,

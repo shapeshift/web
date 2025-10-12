@@ -22,6 +22,10 @@ export const useDiscoverAccounts = () => {
   const { supportedChains } = usePlugins()
   const connectedRdns = useAppSelector(selectWalletRdns)
 
+  const shouldSkipAutoDiscovery = useMemo(() => {
+    return wallet && (isLedger(wallet) || isGridPlus(wallet))
+  }, [wallet])
+
   const supportedChainIds = useMemo(() => {
     return supportedChains.filter(chainId =>
       walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: false }),
@@ -44,8 +48,7 @@ export const useDiscoverAccounts = () => {
 
           if (
             !wallet ||
-            isLedger(wallet) ||
-            isGridPlus(wallet) ||
+            shouldSkipAutoDiscovery ||
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
@@ -123,7 +126,15 @@ export const useDiscoverAccounts = () => {
         gcTime: Infinity,
         enabled: Boolean(wallet && deviceId),
       })),
-    [dispatch, isSnapInstalled, wallet, deviceId, supportedChainIds, connectedRdns],
+    [
+      dispatch,
+      isSnapInstalled,
+      wallet,
+      deviceId,
+      supportedChainIds,
+      connectedRdns,
+      shouldSkipAutoDiscovery,
+    ],
   )
 
   const accountsDiscoveryQueries = useQueries({

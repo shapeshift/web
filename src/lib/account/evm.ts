@@ -31,30 +31,6 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { store } from '@/state/store'
-
-const getCachedOrDeriveEvmAddress = async (
-  chainId: string,
-  accountNumber: number,
-  wallet: any,
-  adapter: any,
-): Promise<string | undefined> => {
-  const state = store.getState()
-  const allAccountMetadata = state.portfolio.accountMetadata.byId
-
-  // Check cache for existing address to avoid re-deriving from device
-  for (const [accountId, metadata] of Object.entries(allAccountMetadata)) {
-    const { chainId: metadataChainId, account } = fromAccountId(accountId)
-    const metadataAccountNumber = metadata.bip44Params.accountNumber
-
-    if (metadataChainId === chainId && metadataAccountNumber === accountNumber) {
-      return account
-    }
-  }
-
-  // Not in cache - fetch from device
-  return await adapter.getAddress({ accountNumber, wallet })
-}
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args
@@ -83,8 +59,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
-    address =
-      address || (await getCachedOrDeriveEvmAddress(chainId, accountNumber, wallet, adapter)) || ''
+    address = address || (await adapter.getAddress({ accountNumber, wallet }))
     if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })

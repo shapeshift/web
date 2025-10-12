@@ -27,8 +27,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
-import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const GridPlusConnect = () => {
   const translate = useTranslate()
@@ -112,22 +111,6 @@ export const GridPlusConnect = () => {
 
       // Step 2: Create SafeCard-specific walletId for keyring isolation
       const safeCardWalletId = `gridplus:${safeCardUuid}`
-
-      // Step 2.5: Clear ALL GridPlus accounts (handles redux-persist cache from previous sessions)
-      const portfolioState = store.getState().portfolio
-      const allGridPlusWalletIds = Object.keys(portfolioState.wallet.byId).filter(id =>
-        id.startsWith('gridplus:'),
-      )
-
-      console.log('[Portfolio Clear] Clearing all GridPlus wallets', {
-        count: allGridPlusWalletIds.length,
-        walletIds: allGridPlusWalletIds,
-        newWalletId: safeCardWalletId,
-      })
-
-      allGridPlusWalletIds.forEach(walletId => {
-        appDispatch(portfolio.actions.clearWalletPortfolioState(walletId))
-      })
 
       // Step 3: Determine device ID to use for connection
       const connectionDeviceId = physicalDeviceId || deviceId.trim()
@@ -322,22 +305,6 @@ export const GridPlusConnect = () => {
         appDispatch(gridplusSlice.actions.setActiveSafeCard(safeCardUuid))
 
         const safeCardWalletId = `gridplus:${safeCardUuid}`
-
-        // Clear ALL GridPlus accounts (handles redux-persist cache from previous sessions)
-        const portfolioState = store.getState().portfolio
-        const allGridPlusWalletIds = Object.keys(portfolioState.wallet.byId).filter(id =>
-          id.startsWith('gridplus:'),
-        )
-
-        console.log('[Portfolio Clear] Clearing all GridPlus wallets (from select)', {
-          count: allGridPlusWalletIds.length,
-          walletIds: allGridPlusWalletIds,
-          newWalletId: safeCardWalletId,
-        })
-
-        allGridPlusWalletIds.forEach(walletId => {
-          appDispatch(portfolio.actions.clearWalletPortfolioState(walletId))
-        })
 
         const connectionDeviceId = physicalDeviceId || deviceId.trim()
 

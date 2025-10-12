@@ -31,12 +31,14 @@ interface SafeCardListProps {
   safeCards: SafeCard[]
   onSelectSafeCard: (id: string) => void
   onAddNew: () => void
+  error?: string | null
 }
 
 export const SafeCardList: React.FC<SafeCardListProps> = ({
   safeCards,
   onSelectSafeCard,
   onAddNew,
+  error,
 }) => {
   const translate = useTranslate()
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -257,6 +259,13 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       <Text fontSize='sm' color='text.subtle' mb={2}>
         {translate('walletProvider.gridplus.list.selectPrompt')}
       </Text>
+
+      {error && (
+        <Alert status='error' borderRadius='md'>
+          <AlertIcon />
+          <Text fontSize='sm'>{error}</Text>
+        </Alert>
+      )}
 
       {renderCards}
 

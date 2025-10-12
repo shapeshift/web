@@ -367,7 +367,6 @@ export const GridPlusConnect = () => {
             }),
           )
         }
-
         walletDispatch({
           type: WalletActions.SET_WALLET,
           payload: {
@@ -446,9 +445,8 @@ export const GridPlusConnect = () => {
       }),
     )
 
-    // If already connected, show name screen directly
-    // Otherwise, show device ID entry screen first
-    if (physicalDeviceId && sessionId) {
+    // If device is already paired (has connection info), skip device ID entry
+    if (physicalDeviceId) {
       setShowNameScreen(true)
     }
   }, [safeCards, physicalDeviceId, sessionId, appDispatch])
@@ -472,6 +470,7 @@ export const GridPlusConnect = () => {
             safeCards={safeCards}
             onSelectSafeCard={handleSelectSafeCard}
             onAddNew={handleAddNew}
+            error={error}
           />
         </ModalBody>
       </>

@@ -32,7 +32,7 @@ type AssetDetailsProps = {
 }
 
 const direction: StackDirection = { base: 'column', xl: 'row' }
-const maxWidth = { base: 'full', xl: 'sm' }
+const maxWidth = { base: 'full', xl: 'md' }
 const display = { base: 'none', md: 'block' }
 const contentPaddingY = { base: 0, md: 8 }
 

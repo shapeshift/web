@@ -86,10 +86,7 @@ export const useDiscoverAccounts = () => {
 
               accountNumber++
             } catch (error) {
-              console.error(
-                `[AccountDiscovery] ❌ Error discovering accounts for chain ${chainId}:`,
-                error,
-              )
+              console.error(`Error discovering accounts for chain ${chainId}:`, error)
               isDegraded = true
               break
             }
@@ -104,13 +101,12 @@ export const useDiscoverAccounts = () => {
             )
 
             Object.keys(chainAccountMetadata).forEach(accountId => {
-              const alreadyInPortfolio =
+              // Don't enable accounts that are already in the portfolio so we keep it disabled if user manually disabled it
+              if (
                 currentPortfolio.accountMetadata.byId[accountId] &&
                 currentPortfolio.wallet.byId[walletId]?.includes(accountId)
-
-              if (alreadyInPortfolio) {
+              )
                 return
-              }
 
               dispatch(portfolio.actions.enableAccountId(accountId))
             })
@@ -135,11 +131,9 @@ export const useDiscoverAccounts = () => {
   })
 
   const { isLoading, isFetching } = useMemo(() => {
-    const loading = accountsDiscoveryQueries.some(query => query.isLoading)
-    const fetching = accountsDiscoveryQueries.some(query => query.isFetching)
     return {
-      isLoading: loading,
-      isFetching: fetching,
+      isLoading: accountsDiscoveryQueries.some(query => query.isLoading),
+      isFetching: accountsDiscoveryQueries.some(query => query.isFetching),
     }
   }, [accountsDiscoveryQueries])
 

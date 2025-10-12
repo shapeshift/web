@@ -22,7 +22,6 @@ import type { SafeCard } from '@/state/slices/gridplusSlice/types'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch } from '@/state/store'
 
-// Static icon elements defined outside component to avoid re-renders
 const AddIcon = <IoMdAdd />
 const CreateIcon = <IoMdCreate />
 const TrashIcon = <IoMdTrash />

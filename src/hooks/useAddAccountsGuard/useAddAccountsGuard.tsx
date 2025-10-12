@@ -8,7 +8,7 @@ import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectIsPortfolioLoading, selectPortfolioAccounts } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const useLedgerAccountGuard = () => {
+export const useAddAccountsGuard = () => {
   const {
     state: { wallet, isConnected },
   } = useWallet()

@@ -3,7 +3,6 @@ import { GridPlusAdapter as HdWalletGridPlusAdapter } from '@shapeshiftoss/hdwal
 import { GridPlusIcon } from '@/components/Icons/GridPlusIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
-// GridPlus adapter that uses the hdwallet adapter
 export class GridPlusAdapter {
   static useKeyring(keyring: any) {
     // Cache the hdwallet adapter instance to maintain state across calls

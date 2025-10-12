@@ -449,7 +449,7 @@ export const GridPlusConnect = () => {
     if (physicalDeviceId) {
       setShowNameScreen(true)
     }
-  }, [safeCards, physicalDeviceId, sessionId, appDispatch])
+  }, [safeCards, physicalDeviceId, appDispatch])
 
   // Handler for back to list button
   const handleBackToList = useCallback(() => {
@@ -505,14 +505,12 @@ export const GridPlusConnect = () => {
                 <FormControl>
                   <FormLabel>{translate('walletProvider.gridplus.pair.pairingCode')}</FormLabel>
                   <HStack spacing={2}>
-                    {/* TODO: Dev only - remove mask prop before shipping */}
                     <PinInput
                       type='alphanumeric'
                       value={pairingCode}
                       onChange={handlePairingCodeChange}
                       isDisabled={isLoading}
                       otp
-                      mask
                       placeholder='_'
                       autoFocus
                     >
@@ -603,7 +601,7 @@ export const GridPlusConnect = () => {
                   value={deviceId}
                   onChange={handleDeviceIdChange}
                   isDisabled={isLoading}
-                  type='password'
+                  type='text'
                   autoComplete='off'
                   autoFocus
                 />

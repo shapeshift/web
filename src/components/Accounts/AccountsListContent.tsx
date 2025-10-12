@@ -41,7 +41,6 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
   }, [portfolioChainIdsSortedUserCurrency, isSimpleMenu, onClose])
 
   const blankRows = useMemo(() => {
-    // FIX: Use the index (second parameter) instead of the value (first parameter)
     return blanks.map((_, index) => (
       <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
     ))

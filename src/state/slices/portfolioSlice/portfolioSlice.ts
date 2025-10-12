@@ -48,12 +48,6 @@ export const portfolio = createSlice({
         // don't fire and rerender with same action
         if (state.connectedWallet?.id === payload?.walletId) return
 
-        console.log('[Portfolio Meta] Setting wallet meta', {
-          walletId: payload?.walletId,
-          walletName: payload?.walletName,
-          oldWalletId: state.connectedWallet?.id,
-        })
-
         // note this function can unset the walletId to undefined
         if (payload !== undefined) {
           const { walletId, walletName } = payload
@@ -96,12 +90,6 @@ export const portfolio = createSlice({
         // to this and results in account data corruption
         const { accountMetadataByAccountId, walletId } = payload
 
-        console.log('[Portfolio Upsert] Upserting account metadata', {
-          walletId,
-          newAccountIds: Object.keys(accountMetadataByAccountId).slice(0, 3),
-          accountCount: Object.keys(accountMetadataByAccountId).length,
-        })
-
         draftState.accountMetadata.byId = merge(
           draftState.accountMetadata.byId,
           accountMetadataByAccountId,
@@ -134,11 +122,6 @@ export const portfolio = createSlice({
 
       // Get all account IDs for this wallet before clearing
       const accountIds = draftState.wallet.byId[walletId] ?? []
-      console.log('[Portfolio Clear] Executing clear', {
-        walletId,
-        accountIds: accountIds.slice(0, 3),
-        accountCount: accountIds.length,
-      })
 
       // Delete each account's metadata and balances
       accountIds.forEach(accountId => {

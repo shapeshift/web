@@ -58,11 +58,6 @@ export const useDiscoverAccounts = () => {
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
           const currentAccountIds = Object.keys(currentPortfolio.accountMetadata.byId)
-          console.log('[Discovery]', {
-            chainId,
-            walletId,
-            existingCount: currentAccountIds.length,
-          })
 
           let accountNumber = 0
           let hasActivity = true

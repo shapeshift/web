@@ -140,10 +140,6 @@ export const GridPlusConnect = () => {
 
         // Verify the active wallet matches expected SafeCard
         if (activeWalletUid && activeWalletUid !== safeCardUuid) {
-          console.error('[GridPlus] SafeCard mismatch', {
-            expected: safeCardUuid,
-            actual: activeWalletUid,
-          })
           throw new Error(
             `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(
               0,
@@ -331,10 +327,6 @@ export const GridPlusConnect = () => {
 
           // Verify the active wallet matches expected SafeCard
           if (activeWalletUid && activeWalletUid !== safeCardUuid) {
-            console.error('[GridPlus] SafeCard mismatch in selection', {
-              expected: safeCardUuid,
-              actual: activeWalletUid,
-            })
             throw new Error(
               `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(
                 0,

@@ -917,9 +917,42 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
         bnOrZero(row.fiatAmount).gte(bnOrZero(balanceThresholdUserCurrency)),
     )
 
+    const secondaryAssetsPrimaryAccountRows = standaloneSecondaryAssets.reduce<AccountRowData[]>(
+      (acc, asset) => {
+        if (!asset.relatedAssetKey) {
+          acc.push(asset)
+          return acc
+        }
+
+        const primaryAsset = assets[asset.relatedAssetKey]
+
+        if (!primaryAsset) return acc
+
+        const primaryAccountRow: AccountRowData = {
+          assetId: primaryAsset?.assetId,
+          name: primaryAsset?.name ?? '',
+          icon: primaryAsset?.icon ?? '',
+          symbol: primaryAsset?.symbol ?? '',
+          fiatAmount: asset.fiatAmount,
+          cryptoAmount: asset.cryptoAmount,
+          allocation: asset.allocation,
+          price: marketData[primaryAsset?.assetId]?.price ?? '0',
+          priceChange: marketData[primaryAsset?.assetId]?.changePercent24Hr ?? 0,
+          relatedAssetKey: primaryAsset?.relatedAssetKey,
+          isChainSpecific: primaryAsset?.isChainSpecific ?? false,
+          isPrimary: primaryAsset?.isPrimary ?? false,
+        }
+
+        acc.push(primaryAccountRow)
+
+        return acc
+      },
+      [],
+    )
+
     const allAccountRows = [
       ...primaryAccountRowsWithAggregatedBalances,
-      ...standaloneSecondaryAssets,
+      ...secondaryAssetsPrimaryAccountRows,
     ]
 
     return allAccountRows.sort((a, b) =>

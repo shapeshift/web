@@ -164,8 +164,9 @@ if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
 
       // Add error classification tags
       event.tags = {
-        ...event.tags,
+        ...(event.tags ?? {}),
         errorType: error instanceof Error ? error.constructor.name : 'unknown',
+      }
       }
 
       // Leave other errors untouched to leverage Sentry's default grouping

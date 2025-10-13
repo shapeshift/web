@@ -131,7 +131,6 @@ export const mockStore: ReduxState = {
       RFOX: false,
       RFOX_LP: false,
       CustomTokenImport: false,
-      ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,
       RunePool: false,
       RunePoolDeposit: false,
@@ -322,7 +321,8 @@ export const mockStore: ReduxState = {
     sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
     sellFiatAmount: '0',
     slippagePreferencePercentage: undefined,
-    selectedFiatRampQuote: null,
+    selectedBuyFiatRampQuote: null,
+    selectedSellFiatRampQuote: null,
   },
   tradeQuote: {
     activeQuoteMeta: undefined,

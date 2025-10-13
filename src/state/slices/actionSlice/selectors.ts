@@ -12,6 +12,7 @@ import type {
 import {
   ActionStatus,
   ActionType,
+  isArbitrumBridgeWithdrawAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -241,6 +242,39 @@ export const selectPendingThorchainLpActions = createDeepEqualOutputSelector(
         action.status === ActionStatus.Pending &&
         isGenericTransactionAction(action) &&
         isThorchainLpAction(action),
+    )
+  },
+)
+
+export const selectArbitrumBridgeWithdrawActionById = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  (_state: any, actionId: string) => actionId,
+  (actionsById, actionId) => {
+    const action = actionsById[actionId]
+    return isArbitrumBridgeWithdrawAction(action) ? action : undefined
+  },
+)
+
+export const selectArbitrumBridgeWithdrawActionByWithdrawTxHash = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  (_state: any, withdrawTxHash: string) => withdrawTxHash,
+  (actionsById, withdrawTxHash) => {
+    return Object.values(actionsById).find(
+      action =>
+        isArbitrumBridgeWithdrawAction(action) &&
+        action.arbitrumBridgeMetadata?.withdrawTxHash === withdrawTxHash,
+    )
+  },
+)
+
+export const selectPendingArbitrumBridgeWithdrawActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(
+      action =>
+        isArbitrumBridgeWithdrawAction(action) &&
+        action.status !== ActionStatus.Claimed &&
+        action.status !== ActionStatus.Failed,
     )
   },
 )

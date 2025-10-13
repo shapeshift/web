@@ -9,7 +9,7 @@ import { getStakingContract } from './helpers'
 export const stakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Stake' })
 export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 
-export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
+export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
 export const CURRENT_EPOCH_IPFS_HASH = 'bafkreic5txrt6qngyqvmpglslaw6xlcec565xf3h3nmp7znuyfkfwo6d3e'
 

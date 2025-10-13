@@ -37,7 +37,7 @@ import {
 import { useAppSelector } from '@/state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
-const modalProps = { size: 'lg' }
+const modalProps = { size: 'xl' }
 
 const chainListMaxHeight = {
   base: '220px',

@@ -24,7 +24,6 @@ import {
   selectEnabledWalletAccountIds,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances,
   selectPortfolioUserCurrencyBalances,
   selectPortfolioUserCurrencyBalancesByAccountId,
   selectRelatedAssetIdsByAssetIdInclusive,
@@ -460,7 +459,13 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
   selectAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAccountBalancesBaseUnit,
-  (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (
+    assets,
+    marketData,
+    portfolioAccountsCryptoBalances,
+    spamMarkedAssetIds,
+  ): PortfolioAccountBalancesById => {
     const userCurrencyAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
       [k: AccountId]: { [k: AssetId]: string }
     }>((acc, [accountId, account]) => {
@@ -468,6 +473,7 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
         (acc: [AssetId, BigNumber][], [assetId, cryptoBalance]) => {
           const asset = assets?.[assetId]
           if (!asset) return acc
+          if (spamMarkedAssetIds.includes(assetId)) return acc
 
           const { precision } = asset
           const price = marketData[assetId]?.price ?? 0
@@ -756,13 +762,22 @@ export type GroupedAssetBalance = {
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
-  selectPortfolioAssetBalancesBaseUnitIncludingZeroBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalUserCurrencyBalance,
-  (assetsById, marketData, balances, totalPortfolioUserCurrencyBalance): AccountRowData[] => {
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (
+    assetsById,
+    marketData,
+    balances,
+    totalPortfolioUserCurrencyBalance,
+    spamMarkedAssetIds,
+  ): AccountRowData[] => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
     const assetRows = Object.entries(balances).reduce<AccountRowData[]>(
       (acc, [assetId, baseUnitBalance]) => {
         const asset = assetsById[assetId]
         if (!asset) return acc
+        if (spamAssetIdsSet.has(assetId)) return acc
         const { name, icon, symbol, precision } = asset
         const price = marketData[assetId]?.price ?? '0'
         const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
@@ -898,15 +913,20 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
   selectRelatedAssetIdsByAssetIdInclusive,
   selectAssets,
   selectMarketDataUserCurrency,
+  preferences.selectors.selectSpamMarkedAssetIds,
   (_state: ReduxState, primaryAssetId: AssetId) => primaryAssetId,
   (
     accountRows,
     relatedAssetIdsByAssetId,
     assetsById,
     marketData,
+    spamMarkedAssetIds,
     primaryAssetId,
   ): GroupedAssetBalance | null => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
     const primaryAsset = assetsById[primaryAssetId]
+    // Normalize to use the relatedAssetKey if it exists, since market data is only stored on primary assets
+    const normalizedPrimaryAssetId = primaryAsset?.relatedAssetKey ?? primaryAssetId
     const primaryRow = accountRows.find(row => row.assetId === primaryAssetId) ?? {
       assetId: primaryAssetId,
       name: primaryAsset?.name ?? '',
@@ -915,16 +935,18 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
       fiatAmount: '0',
       cryptoAmount: '0',
       allocation: 0,
-      price: marketData[primaryAssetId]?.price ?? '0',
-      priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
+      price: marketData[normalizedPrimaryAssetId]?.price ?? '0',
+      priceChange: marketData[normalizedPrimaryAssetId]?.changePercent24Hr ?? 0,
       relatedAssetKey: assetsById[primaryAssetId]?.relatedAssetKey ?? null,
       isChainSpecific: primaryAsset?.isChainSpecific ?? false,
       isPrimary: primaryAsset?.isPrimary ?? false,
     }
 
-    const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId] || []
+    const allRelatedAssetIds = relatedAssetIdsByAssetId[normalizedPrimaryAssetId] || []
     const relatedAssets = allRelatedAssetIds
       .map(assetId => {
+        if (spamAssetIdsSet.has(assetId)) return null
+
         const row = accountRows.find(row => row.assetId === assetId)
         const asset = assetsById[assetId]
 
@@ -951,8 +973,11 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
       .filter(isSome)
       .sort((a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber())
 
+    if (relatedAssets.length === 0) return null
+
     const totalFiatBalance = allRelatedAssetIds
       .reduce((sum, assetId) => {
+        if (spamAssetIdsSet.has(assetId)) return sum
         const row = accountRows.find(row => row.assetId === assetId)
         return sum.plus(row?.fiatAmount ?? '0')
       }, bnOrZero(0))
@@ -960,6 +985,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
 
     const totalCryptoBalance = allRelatedAssetIds
       .reduce((sum, assetId) => {
+        if (spamAssetIdsSet.has(assetId)) return sum
         const row = accountRows.find(row => row.assetId === assetId)
         return sum.plus(row?.cryptoAmount ?? '0')
       }, bnOrZero(0))

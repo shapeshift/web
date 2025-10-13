@@ -831,7 +831,7 @@ const selectTotalBalancesByAssetId = createDeepEqualOutputSelector(
   },
 )
 
-// Optimized selector that uses precomputed balances
+// Optimized selector that aggregates primary assets with their related assets and includes standalone secondary assets
 export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioAccountRows,
   selectTotalBalancesByAssetId,
@@ -850,6 +850,16 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
     totalPortfolioUserCurrencyBalance,
   ): AccountRowData[] => {
     const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
+    const secondaryAccountRows = portfolioAccountRows.filter(row => !row.isPrimary)
+
+    const primaryGroupAssetIds = new Set<string>()
+
+    primaryAccountRows.forEach(({ assetId: primaryAssetId }) => {
+      const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId]
+      allRelatedAssetIds.forEach(relatedAssetId => {
+        primaryGroupAssetIds.add(relatedAssetId)
+      })
+    })
 
     const primaryAccountRowsWithAggregatedBalances = primaryAccountRows.reduce<AccountRowData[]>(
       (acc, { assetId: primaryAssetId }) => {
@@ -896,13 +906,23 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
         }
 
         acc.push(primaryAccountRow)
-
         return acc
       },
       [],
     )
 
-    return primaryAccountRowsWithAggregatedBalances.sort((a, b) =>
+    const standaloneSecondaryAssets = secondaryAccountRows.filter(
+      row =>
+        !primaryGroupAssetIds.has(row.assetId) &&
+        bnOrZero(row.fiatAmount).gte(bnOrZero(balanceThresholdUserCurrency)),
+    )
+
+    const allAccountRows = [
+      ...primaryAccountRowsWithAggregatedBalances,
+      ...standaloneSecondaryAssets,
+    ]
+
+    return allAccountRows.sort((a, b) =>
       bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber(),
     )
   },

@@ -4,9 +4,9 @@ import { useMemo } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { Form } from './Form'
+import { desktopSendRoutes, mobileSendRoutes } from './SendCommon'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
-import { desktopSendRoutes, mobileSendRoutes } from '@/components/Modals/Send/SendCommon'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 

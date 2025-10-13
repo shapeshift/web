@@ -45,6 +45,7 @@ export type Modals = {
   rating: FC
   walletDrawer: FC
   addAddress: FC<AddAddressModalProps>
+  manageHiddenAssets: FC
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

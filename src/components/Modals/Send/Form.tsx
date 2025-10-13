@@ -276,13 +276,17 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               .toString(),
           )
         }
+        if (isUnderMd) {
+          navigate(SendRoutes.Address)
+          return
+        }
 
-        navigate(SendRoutes.Address)
+        navigate(SendRoutes.Amount)
       } catch (e: any) {
         setAddressError(e.message)
       }
     },
-    [navigate, methods],
+    [navigate, methods, isUnderMd],
   )
 
   const qrCodeScanner = useMemo(

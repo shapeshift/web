@@ -47,7 +47,6 @@ import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -98,8 +97,6 @@ export const SendAmount = () => {
   } = useLocaleFormatter()
 
   const [isValidating, setIsValidating] = useState(false)
-  const qrCode = useModal('qrCode')
-  const sendModal = useModal('send')
   const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, memo, input } = useWatch({
@@ -142,9 +139,8 @@ export const SendAmount = () => {
   )
 
   const handleScanQrCode = useCallback(() => {
-    qrCode.open({ assetId })
-    sendModal.close()
-  }, [qrCode, assetId, sendModal])
+    navigate(SendRoutes.Scan)
+  }, [navigate])
 
   const currentValue = fieldName === SendFormFields.FiatAmount ? fiatAmount : amountCryptoPrecision
   const isFiat = fieldName === SendFormFields.FiatAmount

@@ -156,8 +156,8 @@ export const Address = () => {
   }, [send, qrCode])
 
   const handleScanQrCode = useCallback(() => {
-    qrCode.open({ assetId })
-  }, [qrCode, assetId])
+    navigate(SendRoutes.Scan)
+  }, [navigate])
 
   const handleSelectAddressBookEntry = useCallback(
     (entryAddress: string) => {

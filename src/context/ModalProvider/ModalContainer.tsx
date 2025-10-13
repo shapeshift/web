@@ -229,6 +229,16 @@ const AddAddressModal = makeSuspenseful(
   ),
 )
 
+const ManageHiddenAssetsModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/ManageHiddenAssets/ManageHiddenAssetsModal').then(
+      ({ ManageHiddenAssetsModal }) => ({
+        default: ManageHiddenAssetsModal,
+      }),
+    ),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -257,6 +267,7 @@ export const MODALS: Modals = {
   rating: RatingModal,
   walletDrawer: WalletDrawer,
   addAddress: AddAddressModal,
+  manageHiddenAssets: ManageHiddenAssetsModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

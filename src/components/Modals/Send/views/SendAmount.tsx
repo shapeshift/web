@@ -1,6 +1,8 @@
 import {
   Box,
   Button,
+  Text as ChakraText,
+  Text as CText,
   Flex,
   FormControl,
   FormHelperText,
@@ -10,8 +12,6 @@ import {
   Input,
   Skeleton,
   Stack,
-  Text as ChakraText,
-  Text as CText,
   Tooltip,
   useMediaQuery,
   VStack,
@@ -261,6 +261,13 @@ export const SendAmount = () => {
     [asset?.symbol, translate, handleMemoChange],
   )
 
+  const handleSelectAddressBookEntry = useCallback(
+    (entryAddress: string) => {
+      setValue(SendFormFields.Input, entryAddress, { shouldValidate: true })
+    },
+    [setValue],
+  )
+
   if (!asset) return null
 
   return (
@@ -379,6 +386,9 @@ export const SendAmount = () => {
                 supportsENS={supportsENS}
                 translate={translate}
                 onScanQRCode={handleScanQrCode}
+                onSelectEntry={handleSelectAddressBookEntry}
+                chainId={asset.chainId}
+                resolvedAddress={to}
               />
             </Box>
 

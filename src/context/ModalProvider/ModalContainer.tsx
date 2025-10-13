@@ -221,6 +221,14 @@ const WalletDrawer = makeSuspenseful(
   ),
 )
 
+const AddAddressModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/Modals/Send/AddAddressModal').then(({ AddAddressModal }) => ({
+      default: AddAddressModal,
+    })),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -248,6 +256,7 @@ export const MODALS: Modals = {
   assetActionsDrawer: AssetActionsDrawer,
   rating: RatingModal,
   walletDrawer: WalletDrawer,
+  addAddress: AddAddressModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

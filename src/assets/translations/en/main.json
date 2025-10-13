@@ -26,6 +26,7 @@
     "closed": "Closed",
     "loadMore": "Load More",
     "volumeShort": "VOL",
+    "save": "Save",
     "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
@@ -1440,6 +1441,14 @@
       "addressInput": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
+      "addressBook": "Address Book",
+      "noEntries": "No address yet.",
+      "addNewAddress": "Add New Address",
+      "addContact": {
+        "nameRequired": "Name is required",
+        "namePlaceholder": "Name",
+        "title": "Add Contact"
+      },
       "permissionsButton": "Try again",
       "transactionSent": "Transaction sent",
       "sent": "%{asset} sent",

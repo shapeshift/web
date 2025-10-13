@@ -13,6 +13,7 @@ import type { PopupWindowModalProps } from '@/components/Modals/PopupWindowModal
 import type { QrCodeModalProps } from '@/components/Modals/QrCode/QrCode'
 import type { RateChangedModalProps } from '@/components/Modals/RateChanged/RateChanged'
 import type { ReceivePropsType } from '@/components/Modals/Receive/Receive'
+import type { AddAddressModalProps } from '@/components/Modals/Send/AddAddressModal'
 import type { SendModalProps } from '@/components/Modals/Send/Send'
 import type { SnapsModalProps } from '@/components/Modals/Snaps/Snaps'
 import type { TradeAssetSearchModalProps } from '@/components/Modals/TradeAssetSearch/TradeAssetSearchModal'
@@ -43,6 +44,7 @@ export type Modals = {
   assetActionsDrawer: FC<AssetActionsDrawerProps>
   rating: FC
   walletDrawer: FC
+  addAddress: FC<AddAddressModalProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

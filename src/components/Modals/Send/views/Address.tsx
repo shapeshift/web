@@ -1,10 +1,10 @@
 import {
   Button,
+  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
-  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -16,6 +16,7 @@ import { TbScan } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { AddressBook } from '../AddressBook/AddressBook'
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
@@ -30,6 +31,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
+import { selectAddressBookEntriesByChainId } from '@/state/slices/addressBookSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -42,6 +44,7 @@ const qrCodeSx = {
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
+  const [showSaveButton, setShowSaveButton] = useState(false)
   const navigate = useNavigate()
   const translate = useTranslate()
   const {
@@ -55,6 +58,7 @@ export const Address = () => {
   const qrCode = useModal('qrCode')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
+  const addAddress = useModal('addAddress')
 
   const qrCodeIcon = useMemo(
     () => (
@@ -74,9 +78,22 @@ export const Address = () => {
   )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const addressBookEntries = useAppSelector(state =>
+    asset?.chainId ? selectAddressBookEntriesByChainId(state, asset.chainId) : [],
+  )
 
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+
+  const isCustomAddress = useMemo(() => {
+    if (!input || !address || !asset?.chainId) return false
+    const existsInAddressBook = addressBookEntries.some(entry => entry.address === address)
+    return !existsInAddressBook
+  }, [input, address, addressBookEntries, asset?.chainId])
+
+  useEffect(() => {
+    setShowSaveButton(isCustomAddress && !!address && !addressError)
+  }, [isCustomAddress, address, addressError])
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -142,6 +159,25 @@ export const Address = () => {
     qrCode.open({ assetId })
   }, [qrCode, assetId])
 
+  const handleSelectAddressBookEntry = useCallback(
+    (entryAddress: string) => {
+      setValue(SendFormFields.Input, entryAddress, { shouldValidate: true })
+    },
+    [setValue],
+  )
+
+  const handleSaveContact = useCallback(() => {
+    if (address && asset?.chainId) {
+      addAddress.open({ address, chainId: asset.chainId })
+    }
+  }, [address, asset?.chainId, addAddress])
+
+  const handleEmptyChange = useCallback(() => {
+    setValue(SendFormFields.Input, '', { shouldValidate: true })
+    setValue(SendFormFields.To, '')
+    setValue(SendFormFields.VanityAddress, '')
+  }, [setValue])
+
   if (!asset) return null
 
   return (
@@ -156,11 +192,14 @@ export const Address = () => {
         <VStack spacing={4} align='stretch'>
           <FormControl>
             <AddressInput
-              pe={16}
               rules={addressInputRules}
               placeholder={translate(
                 supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
               )}
+              resolvedAddress={address}
+              chainId={asset?.chainId}
+              onSaveContact={showSaveButton ? handleSaveContact : undefined}
+              onEmptied={handleEmptyChange}
             />
           </FormControl>
 
@@ -183,8 +222,11 @@ export const Address = () => {
               </CText>
             </VStack>
           </Button>
+
+          <AddressBook chainId={asset?.chainId} onSelectEntry={handleSelectAddressBookEntry} />
         </VStack>
       </DialogBody>
+
       <DialogFooter pt={2}>
         <Stack flex={1}>
           <Button

@@ -1,13 +1,14 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { Form } from './Form'
-import { SendRoutes } from './SendCommon'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
+import { desktopSendRoutes, mobileSendRoutes } from '@/components/Modals/Send/SendCommon'
 import { useModal } from '@/hooks/useModal/useModal'
-
-export const entries = Object.values(SendRoutes)
+import { breakpoints } from '@/theme/theme'
 
 export type SendModalProps = {
   assetId?: AssetId
@@ -17,10 +18,15 @@ export type SendModalProps = {
 
 export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
   const { close, isOpen } = useModal('send')
+  const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+
+  const initialEntries = useMemo(() => {
+    return isUnderMd ? mobileSendRoutes : desktopSendRoutes
+  }, [isUnderMd])
 
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <MemoryRouter initialEntries={entries}>
+      <MemoryRouter initialEntries={initialEntries}>
         <Form initialAssetId={assetId} accountId={accountId} input={input} />
       </MemoryRouter>
     </Dialog>

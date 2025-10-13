@@ -1,25 +1,34 @@
 import {
   Box,
   Button,
+  Text as ChakraText,
   FormControl,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Text as ChakraText,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useRef } from 'react'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import { QRCodeIcon } from './QRCodeIcon'
+
+import { AddressBook } from '@/components/Modals/Send/AddressBook/AddressBook'
 
 interface AddressInputWithDropdownProps {
   addressInputRules: any
   supportsENS: boolean
   translate: (key: string) => string
   onScanQRCode: () => void
+  chainId?: ChainId
+  resolvedAddress?: string
+  onSelectEntry: (address: string) => void
+  showSaveButton?: boolean
+  onSaveContact?: () => void
+  onEmptied?: () => void
 }
 
 const qrCodeIcon = <QRCodeIcon />
@@ -29,6 +38,12 @@ export const AddressInputWithDropdown = ({
   supportsENS,
   translate,
   onScanQRCode,
+  resolvedAddress,
+  onSelectEntry,
+  showSaveButton,
+  onSaveContact,
+  onEmptied,
+  chainId,
 }: AddressInputWithDropdownProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -48,6 +63,14 @@ export const AddressInputWithDropdown = ({
     onClose()
   }, [onScanQRCode, onClose])
 
+  const handleSelectEntry = useCallback(
+    (address: string) => {
+      onSelectEntry(address)
+      onClose()
+    },
+    [onSelectEntry, onClose],
+  )
+
   return (
     <FormControl>
       <Popover
@@ -60,29 +83,32 @@ export const AddressInputWithDropdown = ({
         <PopoverTrigger>
           <Box ref={triggerRef}>
             <AddressInput
-              pe={16}
               rules={addressInputRules}
               placeholder={translate(
                 supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
               )}
+              resolvedAddress={resolvedAddress}
+              onSaveContact={showSaveButton ? onSaveContact : undefined}
+              onEmptied={onEmptied}
               onFocus={handleFocus}
               onBlur={handleBlur}
               onPaste={onClose}
+              chainId={chainId}
             />
           </Box>
         </PopoverTrigger>
         <PopoverContent width='full'>
-          <PopoverBody px={2}>
-            <VStack align='stretch' spacing={0}>
+          <PopoverBody px={4} py={3}>
+            <VStack align='stretch' spacing={3}>
               <Button
                 size='lg'
                 leftIcon={qrCodeIcon}
                 onClick={handleQRClick}
                 justifyContent='flex-start'
                 height='auto'
-                background='transparent'
-                m={-2}
-                p={2}
+                variant='ghost'
+                px={2}
+                py={2}
               >
                 <VStack align='start' spacing={0}>
                   <ChakraText fontSize='md' fontWeight='medium' color='text.primary'>
@@ -93,6 +119,8 @@ export const AddressInputWithDropdown = ({
                   </ChakraText>
                 </VStack>
               </Button>
+
+              <AddressBook onSelectEntry={handleSelectEntry} chainId={chainId} />
             </VStack>
           </PopoverBody>
         </PopoverContent>

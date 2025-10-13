@@ -54,6 +54,7 @@ export const clearState = () => {
   store.dispatch(slices.localWallet.actions.clear())
   store.dispatch(slices.limitOrderInput.actions.clear())
   store.dispatch(slices.limitOrder.actions.clear())
+  store.dispatch(slices.addressBook.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

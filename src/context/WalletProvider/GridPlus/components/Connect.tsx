@@ -36,12 +36,10 @@ export const GridPlusConnect = () => {
   const localWallet = useLocalWallet()
   const appDispatch = useAppDispatch()
 
-  // Get GridPlus state from new slice
   const safeCards = useAppSelector(gridplusSlice.selectors.selectSafeCards)
   const physicalDeviceId = useAppSelector(gridplusSlice.selectors.selectPhysicalDeviceId)
   const sessionId = useAppSelector(gridplusSlice.selectors.selectSessionId)
 
-  // UI state
   const [showSafeCardList, setShowSafeCardList] = useState(safeCards.length > 0)
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [selectedSafeCardId, setSelectedSafeCardId] = useState<string | null>(null)
@@ -76,30 +74,17 @@ export const GridPlusConnect = () => {
     setError(null)
 
     try {
-      // Step 1: Determine or create SafeCard UUID
       let safeCardUuid: string
 
       if (selectedSafeCardId) {
-        // Reconnecting to existing SafeCard
         safeCardUuid = selectedSafeCardId
         appDispatch(gridplusSlice.actions.setActiveSafeCard(safeCardUuid))
       } else if (pendingSafeCardUuid) {
-        // Reuse pending SafeCard from pairing flow (prevents duplicates)
         safeCardUuid = pendingSafeCardUuid
       } else {
-        // Creating new SafeCard with default name
         safeCardUuid = uuidv4()
         setPendingSafeCardUuid(safeCardUuid)
-        const defaultName = (() => {
-          let nextNum = safeCards.length + 1
-          while (true) {
-            const candidateName = `SafeCard ${nextNum}`
-            if (!safeCards.some(card => card.name === candidateName)) {
-              return candidateName
-            }
-            nextNum++
-          }
-        })()
+        const defaultName = `GridPlus ${safeCards.length + 1}`
         setSafeCardName(defaultName)
         appDispatch(
           gridplusSlice.actions.addSafeCard({
@@ -109,23 +94,19 @@ export const GridPlusConnect = () => {
         )
       }
 
-      // Step 2: Create SafeCard-specific walletId for keyring isolation
       const safeCardWalletId = `gridplus:${safeCardUuid}`
 
-      // Step 3: Determine device ID to use for connection
       const connectionDeviceId = physicalDeviceId || deviceId.trim()
 
       if (!connectionDeviceId) {
         throw new Error(translate('walletProvider.gridplus.errors.deviceIdRequired'))
       }
 
-      // Step 4: Get adapter
       const adapterWithKeyring = (await getAdapter(KeyManager.GridPlus)) as any
       if (!adapterWithKeyring) {
         throw new Error(translate('walletProvider.gridplus.errors.adapterNotAvailable'))
       }
 
-      // Step 4: Check pairing status if no existing sessionId
       if (!sessionId && !showPairingCode) {
         const {
           isPaired,
@@ -133,7 +114,6 @@ export const GridPlusConnect = () => {
           activeWalletUid,
         } = await adapterWithKeyring.connectDevice(connectionDeviceId, undefined, undefined)
 
-        // Verify the active wallet matches expected SafeCard
         if (activeWalletUid && activeWalletUid !== safeCardUuid) {
           throw new Error(
             `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(
@@ -151,7 +131,6 @@ export const GridPlusConnect = () => {
           return
         }
 
-        // Device was already paired, save the sessionId
         appDispatch(
           gridplusSlice.actions.setConnection({
             physicalDeviceId: connectionDeviceId,
@@ -159,7 +138,6 @@ export const GridPlusConnect = () => {
           }),
         )
 
-        // Show name screen for already-paired devices
         if (!selectedSafeCardId) {
           setShowNameScreen(true)
           setIsLoading(false)
@@ -167,13 +145,10 @@ export const GridPlusConnect = () => {
         }
       }
 
-      // Step 6: Pair/connect the device
       let wallet
       if (showPairingCode && pairingCode) {
-        // New pairing with code
         wallet = await adapterWithKeyring.pairConnectedDevice(connectionDeviceId, pairingCode)
       } else {
-        // Connect with existing pairing
         wallet = await adapterWithKeyring.pairDevice(
           connectionDeviceId,
           undefined,
@@ -182,8 +157,6 @@ export const GridPlusConnect = () => {
         )
       }
 
-      // Step 7: Save connection info if new pairing
-      // sessionId is used for fast reconnection without device communication
       if (!sessionId && wallet.getSessionId) {
         const walletSessionId = wallet.getSessionId()
         appDispatch(
@@ -194,14 +167,13 @@ export const GridPlusConnect = () => {
         )
       }
 
-      // Step 8: Store wallet with SafeCard-specific ID for isolation
       walletDispatch({
         type: WalletActions.SET_WALLET,
         payload: {
           wallet,
           name: GridPlusConfig.name,
           icon: GridPlusConfig.icon,
-          deviceId: safeCardWalletId, // This is what makes each SafeCard unique!
+          deviceId: safeCardWalletId,
           connectedType: KeyManager.GridPlus,
         },
       })
@@ -211,14 +183,12 @@ export const GridPlusConnect = () => {
         payload: true,
       })
 
-      // Save to local wallet for persistence
       localWallet.setLocalWallet({
         type: KeyManager.GridPlus,
-        deviceId: safeCardWalletId, // Same ID here
+        deviceId: safeCardWalletId,
         rdns: null,
       })
 
-      // Update SafeCard name if it was changed
       if (pendingSafeCardUuid && safeCardName.trim()) {
         appDispatch(
           gridplusSlice.actions.updateSafeCardName({
@@ -228,7 +198,6 @@ export const GridPlusConnect = () => {
         )
       }
 
-      // Close modal and navigate after successful connection
       setPendingSafeCardUuid(null)
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       navigate('/')
@@ -278,7 +247,6 @@ export const GridPlusConnect = () => {
 
   const spinnerElement = useMemo(() => <Spinner color='white' />, [])
 
-  // Handler for SafeCard selection from list
   const handleSelectSafeCard = useCallback(
     async (id: string) => {
       setSelectedSafeCardId(id)
@@ -310,7 +278,6 @@ export const GridPlusConnect = () => {
             activeWalletUid,
           } = await adapterWithKeyring.connectDevice(connectionDeviceId, undefined, undefined)
 
-          // Verify the active wallet matches expected SafeCard
           if (activeWalletUid && activeWalletUid !== safeCardUuid) {
             throw new Error(
               `Wrong SafeCard inserted. Expected ${safeCardUuid.slice(
@@ -400,20 +367,8 @@ export const GridPlusConnect = () => {
     ],
   )
 
-  // Handler for adding new SafeCard
   const handleAddNew = useCallback(() => {
-    const generateUniqueName = () => {
-      let nextNum = safeCards.length + 1
-      while (true) {
-        const candidateName = `SafeCard ${nextNum}`
-        if (!safeCards.some(card => card.name === candidateName)) {
-          return candidateName
-        }
-        nextNum++
-      }
-    }
-
-    const defaultName = generateUniqueName()
+    const defaultName = `GridPlus ${safeCards.length + 1}`
     const newUuid = uuidv4()
 
     setIsAddingNew(true)
@@ -421,7 +376,6 @@ export const GridPlusConnect = () => {
     setSafeCardName(defaultName)
     setShowSafeCardList(false)
 
-    // Create the SafeCard immediately with default name
     appDispatch(
       gridplusSlice.actions.addSafeCard({
         id: newUuid,
@@ -429,13 +383,11 @@ export const GridPlusConnect = () => {
       }),
     )
 
-    // If device is already paired (has connection info), skip device ID entry
     if (physicalDeviceId) {
       setShowNameScreen(true)
     }
   }, [safeCards, physicalDeviceId, appDispatch])
 
-  // Handler for back to list button
   const handleBackToList = useCallback(() => {
     setShowSafeCardList(true)
     setIsAddingNew(false)
@@ -444,7 +396,6 @@ export const GridPlusConnect = () => {
     setSafeCardName('')
   }, [])
 
-  // Render SafeCard list if we have existing SafeCards and not adding new
   if (showSafeCardList && !isAddingNew) {
     return (
       <>
@@ -453,7 +404,7 @@ export const GridPlusConnect = () => {
           <SafeCardList
             safeCards={safeCards}
             onSelectSafeCard={handleSelectSafeCard}
-            onAddNew={handleAddNew}
+            onAddNewSafeCard={handleAddNew}
             error={error}
           />
         </ModalBody>
@@ -461,7 +412,6 @@ export const GridPlusConnect = () => {
     )
   }
 
-  // Render naming/pairing screen after device ID entry
   if (showNameScreen) {
     const buttonLabel = showPairingCode
       ? translate('walletProvider.gridplus.pair.button')
@@ -563,7 +513,6 @@ export const GridPlusConnect = () => {
     )
   }
 
-  // Render new SafeCard connection form
   return (
     <>
       <ModalHeader>{translate('walletProvider.gridplus.connect.header')}</ModalHeader>

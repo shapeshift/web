@@ -34,11 +34,13 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
       : selectWalletConnectedChainIdsSorted(state),
   )
 
-  const chainRows = useMemo(() => {
-    return portfolioChainIdsSortedUserCurrency.map(chainId => (
-      <ChainRow key={chainId} chainId={chainId} isSimpleMenu={isSimpleMenu} onClose={onClose} />
-    ))
-  }, [portfolioChainIdsSortedUserCurrency, isSimpleMenu, onClose])
+  const chainRows = useMemo(
+    () =>
+      portfolioChainIdsSortedUserCurrency.map(chainId => (
+        <ChainRow key={chainId} chainId={chainId} isSimpleMenu={isSimpleMenu} onClose={onClose} />
+      )),
+    [portfolioChainIdsSortedUserCurrency, isSimpleMenu, onClose],
+  )
 
   const blankRows = useMemo(() => {
     return blanks.map((_, index) => (
@@ -47,8 +49,7 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
   }, [blanks])
 
   const renderRows = useMemo(() => {
-    const rows = loading ? blankRows : chainRows
-    return rows
+    return loading ? blankRows : chainRows
   }, [blankRows, chainRows, loading])
 
   return (

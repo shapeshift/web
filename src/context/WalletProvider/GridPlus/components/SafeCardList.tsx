@@ -1,5 +1,11 @@
 import {
   Alert,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   AlertIcon,
   Box,
   Button,
@@ -8,10 +14,11 @@ import {
   IconButton,
   Input,
   Text,
+  useDisclosure,
   useToast,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { IoMdAdd, IoMdCreate, IoMdTrash } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
@@ -26,22 +33,25 @@ const AddIcon = <IoMdAdd />
 const CreateIcon = <IoMdCreate />
 const TrashIcon = <IoMdTrash />
 
-interface SafeCardListProps {
+type SafeCardListProps = {
   safeCards: SafeCard[]
   onSelectSafeCard: (id: string) => void
-  onAddNew: () => void
+  onAddNewSafeCard: () => void
   error?: string | null
 }
 
 export const SafeCardList: React.FC<SafeCardListProps> = ({
   safeCards,
   onSelectSafeCard,
-  onAddNew,
+  onAddNewSafeCard,
   error,
 }) => {
   const translate = useTranslate()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [safeCardToDelete, setSafeCardToDelete] = useState<SafeCard | null>(null)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const cancelRef = useRef<HTMLButtonElement>(null)
   const dispatch = useAppDispatch()
   const toast = useToast()
   const { state: walletState } = useWallet()
@@ -56,42 +66,37 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
           }),
         )
         setEditingId(null)
-        toast({
-          title: translate('walletProvider.gridplus.list.renamed'),
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        })
       }
     },
-    [editName, dispatch, toast, translate],
+    [editName, dispatch],
   )
 
-  const handleDelete = useCallback(
+  const handleDeleteClick = useCallback(
     (safeCard: SafeCard) => {
-      const confirmMsg = translate('walletProvider.gridplus.list.deleteConfirm', {
-        name: safeCard.name,
-      })
-
-      if (window.confirm(confirmMsg)) {
-        // Clear portfolio data for this wallet
-        const walletId = `gridplus:${safeCard.id}`
-        dispatch(portfolio.actions.clearWalletPortfolioState(walletId))
-
-        // Remove SafeCard
-        dispatch(gridplusSlice.actions.removeSafeCard(safeCard.id))
-
-        toast({
-          title: translate('walletProvider.gridplus.list.deleted'),
-          description: translate('walletProvider.gridplus.list.deletedDescription'),
-          status: 'info',
-          duration: 3000,
-          isClosable: true,
-        })
-      }
+      setSafeCardToDelete(safeCard)
+      onOpen()
     },
-    [dispatch, toast, translate],
+    [onOpen],
   )
+
+  const handleDeleteConfirm = useCallback(() => {
+    if (!safeCardToDelete) return
+
+    const walletId = `gridplus:${safeCardToDelete.id}`
+    dispatch(portfolio.actions.clearWalletPortfolioState(walletId))
+    dispatch(gridplusSlice.actions.removeSafeCard(safeCardToDelete.id))
+
+    toast({
+      title: translate('walletProvider.gridplus.list.deleted'),
+      description: translate('walletProvider.gridplus.list.deletedDescription'),
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    })
+
+    onClose()
+    setSafeCardToDelete(null)
+  }, [safeCardToDelete, dispatch, toast, translate, onClose])
 
   const handleEditNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setEditName(e.target.value)
@@ -122,8 +127,8 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
   )
 
   const createDeleteClickHandler = useCallback(
-    (safeCard: SafeCard) => () => handleDelete(safeCard),
-    [handleDelete],
+    (safeCard: SafeCard) => () => handleDeleteClick(safeCard),
+    [handleDeleteClick],
   )
 
   const createConnectClickHandler = useCallback(
@@ -241,7 +246,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     return (
       <VStack spacing={4} py={8}>
         <Text color='text.subtle'>{translate('walletProvider.gridplus.list.empty')}</Text>
-        <Button leftIcon={AddIcon} onClick={onAddNew} colorScheme='blue' size='lg'>
+        <Button leftIcon={AddIcon} onClick={onAddNewSafeCard} colorScheme='blue' size='lg'>
           {translate('walletProvider.gridplus.list.addFirst')}
         </Button>
       </VStack>
@@ -253,24 +258,49 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       <Text fontSize='sm' color='text.subtle' mb={2}>
         {translate('walletProvider.gridplus.list.selectPrompt')}
       </Text>
-
       {error && (
         <Alert status='error' borderRadius='md'>
           <AlertIcon />
           <Text fontSize='sm'>{error}</Text>
         </Alert>
       )}
-
       {renderCards}
-
-      <Button leftIcon={AddIcon} onClick={onAddNew} variant='outline' colorScheme='blue' mt={2}>
+      <Button
+        leftIcon={AddIcon}
+        onClick={onAddNewSafeCard}
+        variant='outline'
+        colorScheme='blue'
+        mt={2}
+      >
         {translate('walletProvider.gridplus.list.addNew')}
       </Button>
-
       <Alert status='info' borderRadius='md' mt={4}>
         <AlertIcon />
         <Text fontSize='sm'>{translate('walletProvider.gridplus.list.warning')}</Text>
       </Alert>
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              {translate('walletProvider.gridplus.list.deleteTitle')}
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              {safeCardToDelete &&
+                translate('walletProvider.gridplus.list.deleteConfirm', {
+                  name: safeCardToDelete.name,
+                })}
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                {translate('common.cancel')}
+              </Button>
+              <Button colorScheme='red' onClick={handleDeleteConfirm} ml={3}>
+                {translate('common.delete')}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </VStack>
   )
 }

@@ -104,15 +104,16 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     ;(async () => {
       if (!accountMetadata) return
       setIsAddressLoading(true)
+      const skipDeviceDerivation =
+        (walletType === KeyManager.Ledger || walletType === KeyManager.GridPlus) &&
+        selectedAccountId
       const selectedAccountAddress = await getReceiveAddress({
         asset,
         wallet,
         accountMetadata,
-        pubKey:
-          (walletType === KeyManager.Ledger || walletType === KeyManager.GridPlus) &&
-          selectedAccountId
-            ? fromAccountId(selectedAccountId as AccountId).account
-            : undefined,
+        pubKey: skipDeviceDerivation
+          ? fromAccountId(selectedAccountId as AccountId).account
+          : undefined,
       })
       setReceiveAddress(selectedAccountAddress)
       setIsAddressLoading(false)

@@ -1,10 +1,8 @@
-import { Box, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
+import { useCallback } from 'react'
 
-import { ToastWrapper } from './ToastWrapper'
-
-import { RawText } from '@/components/Text'
+import { ToastCloseButton } from './ToastCloseButton'
 
 export type StandardToastProps = {
   icon?: ReactNode
@@ -15,30 +13,8 @@ export type StandardToastProps = {
   status?: 'success' | 'error' | 'warning' | 'info'
 }
 
-type ToastContentProps = {
-  children: string | ReactNode
-}
-
-const ToastTitle = ({ children }: ToastContentProps) => {
-  if (typeof children === 'string') {
-    return (
-      <RawText fontSize='sm' letterSpacing='0.02em' fontWeight='semibold'>
-        {children}
-      </RawText>
-    )
-  }
-  return <>{children}</>
-}
-
-const ToastDescription = ({ children }: ToastContentProps) => {
-  if (typeof children === 'string') {
-    return (
-      <RawText fontSize='xs' mt={1} opacity={0.9}>
-        {children}
-      </RawText>
-    )
-  }
-  return <Box mt={1}>{children}</Box>
+const hoverProps = {
+  transform: 'translateY(-2px)',
 }
 
 export const StandardToast = ({
@@ -51,34 +27,52 @@ export const StandardToast = ({
 }: StandardToastProps) => {
   const handleClick = onClick ?? (() => {})
 
-  const statusBgColors = useColorModeValue(
-    {
-      error: 'red.500',
-      success: 'green.500',
-      warning: 'orange.500',
-      info: 'blue.500',
-    },
-    {
-      error: 'red.600',
-      success: 'green.600',
-      warning: 'orange.600',
-      info: 'blue.600',
-    },
-  )
+  // Use standard surface background for info and non-status toasts, undefined (default) for others
+  const bg = !status || status === 'info' ? 'background.surface.overlay.base' : undefined
 
-  const bg = useMemo(() => (status ? statusBgColors[status] : undefined), [status, statusBgColors])
+  // Use solid variant for error/warning/success, subtle (default) for info and non-status
+  const variant = status && status !== 'info' ? 'solid' : 'subtle'
+
+  // Determine which icon to show
+  const showIcon = icon || status
+
+  // Memoize custom icon component
+  const CustomIconComponent = useCallback(() => icon, [icon])
 
   return (
-    <ToastWrapper handleClick={handleClick} onClose={onClose} bg={bg}>
-      <Flex alignItems='center' justifyContent='space-between' pe={6} width='100%'>
-        <HStack spacing={2} flex={1}>
-          {icon}
-          <Box flex={1}>
-            <ToastTitle>{title}</ToastTitle>
-            {description && <ToastDescription>{description}</ToastDescription>}
-          </Box>
-        </HStack>
-      </Flex>
-    </ToastWrapper>
+    <Box
+      onClick={handleClick}
+      cursor='pointer'
+      position='relative'
+      _hover={hoverProps}
+      transition='all 0.2s'
+    >
+      <Alert
+        status={status}
+        borderRadius='20'
+        boxShadow='lg'
+        bg={bg}
+        p={4}
+        pr={8}
+        gap={2}
+        overflow='visible'
+        variant={variant}
+      >
+        {showIcon && (icon ? <AlertIcon as={CustomIconComponent} /> : <AlertIcon />)}
+
+        <Box flex='1'>
+          {typeof title === 'string' ? <AlertTitle>{title}</AlertTitle> : <Box>{title}</Box>}
+
+          {description &&
+            (typeof description === 'string' ? (
+              <AlertDescription>{description}</AlertDescription>
+            ) : (
+              <Box>{description}</Box>
+            ))}
+        </Box>
+
+        <ToastCloseButton onClose={onClose} />
+      </Alert>
+    </Box>
   )
 }

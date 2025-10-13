@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "Еще",
     "spam": {
-      "warning": "Этот актив будет скрыт, поскольку вы пометили его как спам.",
-      "marked": "Этот актив помечен как спам.",
       "reportAsSpam": "Пометить как спам",
       "reportAsNotSpam": "Пометить как не спам"
     },
@@ -3202,9 +3200,6 @@
       "complete": "Ваше требование на %{amount} %{symbol} выполнено."
     },
     "bridge": {
-      "processing": "Ваш мост %{sellAmountAndSymbol}.%{sellChainShortName} на %{buyAmountAndSymbol}.%{buyChainShortName} находится в обработке.",
-      "complete": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} завершен.",
-      "initiated": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} был инициирован.",
       "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу."
     },
     "limitOrder": {

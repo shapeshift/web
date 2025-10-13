@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "もっと",
     "spam": {
-      "warning": "このアセットはスパムとしてマークされているため非表示になります。",
-      "marked": "このアセットはスパムとしてマークされています。",
       "reportAsSpam": "スパムとして報告",
       "reportAsNotSpam": "スパムではないとマークする"
     },
@@ -3202,9 +3200,6 @@
       "complete": "%{amount} %{symbol} の請求が完了しました。"
     },
     "bridge": {
-      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
-      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが完了しました。",
-      "initiated": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが開始されました。",
       "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。"
     },
     "limitOrder": {

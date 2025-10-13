@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "Більше",
     "spam": {
-      "warning": "Цей актив буде прихований, оскільки ви позначили його як спам.",
-      "marked": "Цей актив позначений як спам.",
       "reportAsSpam": "Повідомити про спам",
       "reportAsNotSpam": "Позначити як не спам"
     },
@@ -3202,9 +3200,6 @@
       "complete": "Ваша вимога на суму %{amount} %{symbol} виконана."
     },
     "bridge": {
-      "processing": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} обробляється.",
-      "complete": "Ваш міст від %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} завершено.",
-      "initiated": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} було ініційовано.",
       "failed": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} не вдався."
     },
     "limitOrder": {

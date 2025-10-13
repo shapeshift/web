@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "Daha fazla",
     "spam": {
-      "warning": "Bu varlık gizlenecek çünkü onu spam olarak işaretlediniz.",
-      "marked": "Bu varlık spam olarak işaretlendi.",
       "reportAsSpam": "Spam olarak bildir",
       "reportAsNotSpam": "Spam değil olarak işaretle"
     },
@@ -3202,9 +3200,6 @@
       "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
     },
     "bridge": {
-      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
-      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz tamamlandı.",
-      "initiated": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başlatıldı.",
       "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu."
     },
     "limitOrder": {

@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "展开",
     "spam": {
-      "warning": "由于您已将其标记为垃圾邮件，该资产将被隐藏。",
-      "marked": "该资产被标记为垃圾邮件。",
       "reportAsSpam": "报告垃圾邮件",
       "reportAsNotSpam": "标记为非垃圾邮件"
     },
@@ -3202,9 +3200,6 @@
       "complete": "您领取的 %{amount} %{symbol} 已完成。"
     },
     "bridge": {
-      "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在进行中。",
-      "complete": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已完成。",
-      "initiated": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已发起。",
       "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。"
     },
     "limitOrder": {

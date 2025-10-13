@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "Mehr",
     "spam": {
-      "warning": "Dieses Asset wird ausgeblendet, da Sie es als Spam markiert haben.",
-      "marked": "Dieses Asset ist als Spam markiert.",
       "reportAsSpam": "Als Spam melden",
       "reportAsNotSpam": "Als „Kein Spam“ markieren"
     },
@@ -3202,9 +3200,6 @@
       "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
     },
     "bridge": {
-      "processing": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wird verarbeitet.",
-      "complete": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist abgeschlossen.",
-      "initiated": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wurde initiiert.",
       "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen."
     },
     "limitOrder": {

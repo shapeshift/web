@@ -2177,8 +2177,6 @@
   "assets": {
     "more": "Más",
     "spam": {
-      "warning": "Este activo quedará oculto porque lo has marcado como spam.",
-      "marked": "Este activo está marcado como spam.",
       "reportAsSpam": "Reportar como spam",
       "reportAsNotSpam": "Marcar como no spam"
     },
@@ -3202,9 +3200,6 @@
       "complete": "Su reclamo de %{amount} %{symbol} está completo."
     },
     "bridge": {
-      "processing": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
-      "complete": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} está completo.",
-      "initiated": "Bridge iniciado de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName}.",
       "failed": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} ha fallado."
     },
     "limitOrder": {

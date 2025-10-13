@@ -150,7 +150,6 @@ const validators = {
   VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   VITE_FEATURE_RFOX: bool({ default: false }),
   VITE_FEATURE_RFOX_LP: bool({ default: false }),
-  VITE_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   VITE_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   VITE_FEATURE_RUNEPOOL: bool({ default: false }),
   VITE_FEATURE_RUNEPOOL_DEPOSIT: bool({ default: false }),

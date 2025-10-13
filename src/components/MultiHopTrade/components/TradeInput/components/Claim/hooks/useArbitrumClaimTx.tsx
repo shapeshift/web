@@ -4,7 +4,7 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address, Hash, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
@@ -24,10 +24,11 @@ import { useAppSelector } from '@/state/store'
 const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
 
 export const useArbitrumClaimTx = (
-  claim: ClaimDetails,
+  claim: ClaimDetails | undefined,
   destinationAccountId: AccountId | undefined,
   setClaimTxHash: (txHash: string) => void,
   setClaimTxStatus: (txStatus: TxStatus) => void,
+  onClaimSuccess?: (claimTxHash: string) => void,
 ) => {
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
@@ -41,35 +42,37 @@ export const useArbitrumClaimTx = (
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
   const executeTransactionDataResult = useQuery({
-    queryKey: ['executeTransactionData', { txid: claim.tx.txid }],
-    queryFn: async () => {
-      const { event, message } = claim
+    queryKey: ['executeTransactionData', { txid: claim?.tx.txid }],
+    queryFn: claim
+      ? async () => {
+          const { event, message } = claim
 
-      const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
+          const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
 
-      if (!('position' in event)) return
-      // nitro transaction
-      return encodeFunctionData({
-        abi: ARB_OUTBOX_ABI,
-        functionName: 'executeTransaction',
-        args: [
-          proof,
-          event.position.toBigInt(),
-          event.caller as Address,
-          event.destination as Address,
-          event.arbBlockNum.toBigInt(),
-          event.ethBlockNum.toBigInt(),
-          event.timestamp.toBigInt(),
-          event.callvalue.toBigInt(),
-          event.data as Hex,
-        ],
-      })
-    },
+          if (!('position' in event)) return
+          // nitro transaction
+          return encodeFunctionData({
+            abi: ARB_OUTBOX_ABI,
+            functionName: 'executeTransaction',
+            args: [
+              proof,
+              event.position.toBigInt(),
+              event.caller as Address,
+              event.destination as Address,
+              event.arbBlockNum.toBigInt(),
+              event.ethBlockNum.toBigInt(),
+              event.timestamp.toBigInt(),
+              event.callvalue.toBigInt(),
+              event.data as Hex,
+            ],
+          })
+        }
+      : skipToken,
   })
 
   const evmFeesResult = useEvmFees({
     from: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
-    chainId: claim.destinationChainId,
+    chainId: claim?.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
     to: getAddress(ARBITRUM_OUTBOX),
@@ -77,8 +80,9 @@ export const useArbitrumClaimTx = (
   })
 
   const claimMutation = useMutation({
-    mutationKey: ['claim', { txid: claim.tx.txid }],
+    mutationKey: ['claim', { txid: claim?.tx.txid }],
     mutationFn: async () => {
+      if (!claim) return
       if (!wallet) return
       if (!bip44Params) return
       if (!executeTransactionDataResult.data) return
@@ -114,8 +118,10 @@ export const useArbitrumClaimTx = (
       }
 
       setClaimTxHash(txHash)
+      onClaimSuccess?.(txHash)
 
       const checkStatus = async () => {
+        if (!claim) return
         const publicClient = assertGetViemClient(claim.destinationChainId)
         const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
@@ -137,7 +143,7 @@ export const useArbitrumClaimTx = (
     },
     onSettled() {
       queryClient.invalidateQueries({
-        queryKey: ['claimStatus', { txid: claim.tx.txid }],
+        queryKey: ['claimStatus', { txid: claim?.tx.txid }],
         refetchType: 'all',
       })
     },

@@ -167,7 +167,6 @@ if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
         ...(event.tags ?? {}),
         errorType: error instanceof Error ? error.constructor.name : 'unknown',
       }
-      }
 
       // Leave other errors untouched to leverage Sentry's default grouping
       return event

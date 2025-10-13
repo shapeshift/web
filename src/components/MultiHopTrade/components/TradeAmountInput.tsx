@@ -422,7 +422,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   <Button
                     onClick={toggleIsFiat}
                     size='sm'
-                    disabled={showFiatSkeleton}
+                    disabled={showFiatSkeleton || !handleIsInputtingFiatSellAmountChange}
                     fontWeight='medium'
                     variant='link'
                     color='text.subtle'
@@ -450,7 +450,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 <Button
                   onClick={toggleIsFiat}
                   size='sm'
-                  disabled={showFiatSkeleton}
+                  disabled={showFiatSkeleton || !handleIsInputtingFiatSellAmountChange}
                   fontWeight='medium'
                   variant='link'
                   color='text.subtle'

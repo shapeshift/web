@@ -12,7 +12,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 const defaultErrorMsgTranslation = 'common.generalError'
 
 export const useErrorToast = () => {
-  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+  const toast = useNotificationToast()
   const translate = useTranslate()
 
   const showErrorToast = useCallback(
@@ -26,12 +26,10 @@ export const useErrorToast = () => {
           return translate(`trade.errors.${camelCase(error.name)}`)
         }
 
-        // Chain adapter errors take priority
         if (error instanceof ChainAdapterError) {
           return translate(error.metadata.translation, error.metadata.options)
         }
 
-        // If we specified an error translation, use it
         if (errorMsgTranslation) {
           return translate(errorMsgTranslation, errorMsgTranslationOptions)
         }

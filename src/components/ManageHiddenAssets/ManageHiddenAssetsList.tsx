@@ -4,6 +4,7 @@ import {
   IconButton,
   Menu,
   MenuButton,
+  MenuGroup,
   MenuItem,
   MenuList,
   Stack,
@@ -13,16 +14,17 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
-import { TbDots, TbExternalLink, TbEye, TbFileText } from 'react-icons/tb'
+import { memo, useCallback, useMemo } from 'react'
+import { TbDots, TbExternalLink, TbEye } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
-import { isSome } from '@/lib/utils'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectHiddenAssets } from '@/state/slices/preferencesSlice/selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -32,95 +34,97 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const dotsIcon = <TbDots />
 const eyeIcon = <TbEye />
 const externalLinkIcon = <TbExternalLink />
-const fileTextIcon = <TbFileText />
 
 const hoverStylesSx = { _hover: { bg: 'gray.50', _dark: { bg: 'gray.700' } } }
 
-type ManageHiddenAssetsListProps = {
+type AssetRowProps = {
+  assetId: AssetId
   onClose?: () => void
+  onToggleSpam: (assetId: AssetId) => void
+  onNavigate: (assetId: AssetId) => void
 }
 
-export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ onClose }) => {
+const AssetRow = memo<AssetRowProps>(({ assetId, onClose, onToggleSpam, onNavigate }) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
-  const appDispatch = useAppDispatch()
-
-  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
-
-  const hiddenAssets = useAppSelector(state =>
-    spamMarkedAssetIds.map(assetId => selectAssetById(state, assetId)).filter(isSome),
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, assetBalanceFilter),
   )
 
-  const AssetRow: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
-    const asset = useAppSelector(state => selectAssetById(state, assetId))
-    const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
-    const cryptoBalance = useAppSelector(state =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(state, assetBalanceFilter),
-    )
+  const explorerHref = useMemo(() => {
+    if (!asset) return
 
-    const explorerHref = useMemo(() => {
-      if (!asset) return
+    const { assetReference } = fromAssetId(assetId)
 
-      const { assetReference } = fromAssetId(assetId)
+    if (isNft(assetId)) {
+      const [token] = assetReference.split('/')
+      return `${asset.explorer}/token/${token}?a=${asset.id}`
+    }
 
-      if (isNft(assetId)) {
-        const [token] = assetReference.split('/')
-        return `${asset.explorer}/token/${token}?a=${asset.id}`
-      }
+    if (isToken(assetId)) return `${asset?.explorerAddressLink}${assetReference}`
 
-      if (isToken(assetId)) return `${asset?.explorerAddressLink}${assetReference}`
+    return asset.explorer
+  }, [asset, assetId])
 
-      return asset.explorer
-    }, [asset, assetId])
+  const handleViewDetailsClick = useCallback(() => {
+    onClose?.()
+    onNavigate(assetId)
+  }, [assetId, onClose, onNavigate])
 
-    const handleViewDetailsClick = useCallback(() => {
-      navigate(`/assets/${assetId}`)
-      onClose?.()
-    }, [assetId])
+  const handleShowClick = useCallback(() => {
+    onToggleSpam(assetId)
+  }, [assetId, onToggleSpam])
 
-    const handleShowClick = useCallback(() => {
-      appDispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
-    }, [assetId])
+  const handleStopPropagation = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+  }, [])
 
-    if (!asset) return null
+  if (!asset) return null
 
-    return (
-      <Flex align='center' justify='space-between' p={4} borderRadius='md' sx={hoverStylesSx}>
-        <Flex align='center' gap={3} flex={1}>
-          <AssetIcon assetId={assetId} size='sm' />
-          <Box>
-            <RawText fontSize='md' fontWeight='medium'>
-              {asset.name}
-            </RawText>
-            <Text fontSize='sm' color='text.subtle'>
-              {asset.symbol}
-            </Text>
-          </Box>
-        </Flex>
-        <Flex align='center' gap={3}>
-          <Stack spacing={0} fontWeight='medium' textAlign='right'>
-            <Amount.Crypto
-              fontWeight='semibold'
-              lineHeight='shorter'
-              height='20px'
-              value={cryptoBalance}
-              symbol={asset.symbol}
-              truncateLargeNumbers={true}
-            />
-          </Stack>
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label={translate('common.moreOptions')}
-              icon={dotsIcon}
-              variant='ghost'
-              size='sm'
-              isRound
-            />
-            <MenuList>
-              <MenuItem icon={fileTextIcon} onClick={handleViewDetailsClick}>
-                {translate('common.viewAssetDetails')}
-              </MenuItem>
+  return (
+    <Flex
+      align='center'
+      justify='space-between'
+      p={4}
+      borderRadius='md'
+      sx={hoverStylesSx}
+      cursor='pointer'
+      onClick={handleViewDetailsClick}
+    >
+      <Flex align='center' gap={3} flex={1}>
+        <AssetIcon assetId={assetId} size='sm' />
+        <Box>
+          <RawText fontSize='md' fontWeight='medium'>
+            {asset.name}
+          </RawText>
+          <Text fontSize='sm' color='text.subtle'>
+            {asset.symbol}
+          </Text>
+        </Box>
+      </Flex>
+      <Flex align='center' gap={3} onClick={handleStopPropagation}>
+        <Stack spacing={0} fontWeight='medium' textAlign='right'>
+          <Amount.Crypto
+            fontWeight='semibold'
+            lineHeight='shorter'
+            height='20px'
+            value={cryptoBalance}
+            symbol={asset.symbol}
+            truncateLargeNumbers={true}
+          />
+        </Stack>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            aria-label={translate('common.moreOptions')}
+            icon={dotsIcon}
+            variant='ghost'
+            size='sm'
+            isRound
+          />
+          <MenuList>
+            <MenuGroup>
               {explorerHref && (
                 <MenuItem
                   icon={externalLinkIcon}
@@ -135,12 +139,42 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
               <MenuItem icon={eyeIcon} onClick={handleShowClick} color='red.500'>
                 {translate('assets.showAsset')}
               </MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
+            </MenuGroup>
+          </MenuList>
+        </Menu>
       </Flex>
-    )
-  }
+    </Flex>
+  )
+})
+
+type ManageHiddenAssetsListProps = {
+  onClose?: () => void
+}
+
+export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ onClose }) => {
+  const translate = useTranslate()
+  const { navigate } = useBrowserRouter()
+  const appDispatch = useAppDispatch()
+  const walletDrawer = useModal('walletDrawer')
+
+  const hiddenAssets = useAppSelector(selectHiddenAssets)
+
+  const handleNavigate = useCallback(
+    (assetId: AssetId) => {
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
+      navigate(`/assets/${assetId}`)
+    },
+    [navigate, walletDrawer],
+  )
+
+  const handleToggleSpam = useCallback(
+    (assetId: AssetId) => {
+      appDispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
+    },
+    [appDispatch],
+  )
 
   if (hiddenAssets.length === 0) {
     return (
@@ -158,7 +192,13 @@ export const ManageHiddenAssetsList: React.FC<ManageHiddenAssetsListProps> = ({ 
   return (
     <Stack spacing={1}>
       {hiddenAssets.map(asset => (
-        <AssetRow key={asset.assetId} assetId={asset.assetId} />
+        <AssetRow
+          key={asset.assetId}
+          assetId={asset.assetId}
+          onClose={onClose}
+          onToggleSpam={handleToggleSpam}
+          onNavigate={handleNavigate}
+        />
       ))}
     </Stack>
   )

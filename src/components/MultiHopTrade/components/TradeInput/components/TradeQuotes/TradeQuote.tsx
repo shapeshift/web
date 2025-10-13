@@ -278,7 +278,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     return showSwapper ? (
       <TradeQuoteCard
         icon={swapperIcon}
-        title={quote?.steps[0].source ?? quoteData.swapperName}
+        title={!quote ? quoteData.swapperName : undefined}
         headerContent={headerContent}
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}

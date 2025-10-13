@@ -1,5 +1,5 @@
 import type { CardFooterProps, FlexProps } from '@chakra-ui/react'
-import { CardFooter, Flex } from '@chakra-ui/react'
+import { CardFooter, Flex, useMediaQuery } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
@@ -7,7 +7,6 @@ import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { Display } from '@/components/Display'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
@@ -25,6 +24,7 @@ import {
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const rateGasRowSx: FlexProps = {
   pb: 0,
@@ -94,6 +94,8 @@ export const FiatRampTradeFooter = ({
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
+
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const walletReceiveAddress = useMemo(() => {
     return buyAccountId ? fromAccountId(buyAccountId).account : undefined
@@ -231,14 +233,13 @@ export const FiatRampTradeFooter = ({
           />
         )}
 
-        {selectedQuote && !isLoading && (
-          <Display.Mobile>
-            <Protocol
-              onClick={onOpenQuoteList || noop}
-              title={selectedQuote.provider}
-              icon={icon}
-            />
-          </Display.Mobile>
+        {isSmallerThanXl && (
+          <Protocol
+            onClick={onOpenQuoteList || noop}
+            isLoading={isParentLoading}
+            title={selectedQuote?.provider}
+            icon={icon}
+          />
         )}
 
         {children}

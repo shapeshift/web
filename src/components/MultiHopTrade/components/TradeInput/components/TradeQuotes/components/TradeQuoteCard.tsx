@@ -1,4 +1,4 @@
-import { Box, Card, CardHeader, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { Box, Card, CardHeader, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
@@ -62,7 +62,14 @@ export const TradeQuoteCard = ({
       <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4} pb={2}>
         <Flex alignItems='center' gap={2}>
           <Tooltip label={title}>
-            <Box>{icon}</Box>
+            <Flex alignItems='center' gap={2}>
+              <Box>{icon}</Box>
+              {title && (
+                <Text fontSize='sm' fontWeight='medium'>
+                  {title}
+                </Text>
+              )}
+            </Flex>
           </Tooltip>
           {headerContent}
         </Flex>

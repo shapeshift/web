@@ -12,7 +12,6 @@ import { useAppSelector } from './state/store'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { useAddAccountsGuard } from '@/hooks/useAddAccountsGuard/useAddAccountsGuard'
-import { useBridgeClaimNotification } from '@/hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -32,7 +31,6 @@ export const App = () => {
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
-  useBridgeClaimNotification()
   useAddAccountsGuard()
 
   useEffect(() => {

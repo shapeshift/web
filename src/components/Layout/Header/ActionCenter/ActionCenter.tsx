@@ -18,6 +18,7 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
+import { ArbitrumBridgeWithdrawActionCard } from './components/ArbitrumBridgeWithdrawActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
@@ -121,6 +122,9 @@ export const ActionCenter = memo(() => {
           }
           case ActionType.RewardDistribution: {
             return <RewardDistributionActionCard key={action.id} action={action} />
+          }
+          case ActionType.ArbitrumBridgeWithdraw: {
+            return <ArbitrumBridgeWithdrawActionCard key={action.id} action={action} />
           }
           default:
             return null

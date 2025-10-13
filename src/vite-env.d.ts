@@ -34,7 +34,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_RFOX_LP: string
   readonly VITE_FEATURE_ARBITRUM_BRIDGE: string
   readonly VITE_FEATURE_CUSTOM_TOKEN_IMPORT: string
-  readonly VITE_FEATURE_ARBITRUM_BRIDGE_CLAIMS: string
   readonly VITE_FEATURE_USDT_APPROVAL_RESET: string
   readonly VITE_FEATURE_PORTALS_SWAPPER: string
   readonly VITE_FEATURE_RUNEPOOL: string

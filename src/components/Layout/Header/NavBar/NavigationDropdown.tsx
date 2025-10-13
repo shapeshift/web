@@ -70,7 +70,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       return (
         currentPath.startsWith('/trade') ||
         currentPath.startsWith('/limit') ||
-        currentPath.startsWith('/claim') ||
         currentPath.startsWith('/ramp')
       )
     }

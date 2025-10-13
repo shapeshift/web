@@ -1,4 +1,4 @@
-import type { CardFooterProps } from '@chakra-ui/react'
+import type { CardFooterProps, FlexProps } from '@chakra-ui/react'
 import { CardFooter, Flex, useMediaQuery } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -8,20 +8,28 @@ import { useCallback, useMemo } from 'react'
 
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
 import { Protocol } from '@/components/MultiHopTrade/components/TradeInput/components/Protocol'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectBuyAccountId,
+  selectBuyFiatCurrency,
   selectManualReceiveAddress,
   selectSelectedBuyFiatRampQuote,
   selectSelectedSellFiatRampQuote,
+  selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
+
+const rateGasRowSx: FlexProps = {
+  pb: 0,
+}
 
 type FiatRampTradeFooterProps = {
   children?: JSX.Element
@@ -76,6 +84,7 @@ export const FiatRampTradeFooter = ({
   ...props
 }: FiatRampTradeFooterProps) => {
   const buyAsset = 'buyAsset' in props ? props.buyAsset : undefined
+  const sellAsset = 'sellAsset' in props ? props.sellAsset : undefined
   const sellAccountId = 'sellAccountId' in props ? props.sellAccountId : undefined
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
@@ -85,6 +94,8 @@ export const FiatRampTradeFooter = ({
   const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+  const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
+  const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
@@ -113,6 +124,16 @@ export const FiatRampTradeFooter = ({
       isLoading
     )
   }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, sellAccountId, isError, isLoading])
+
+  const deltaPercentage = useMemo(() => {
+    if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null
+
+    const percentDifference = bnOrZero(rate).minus(marketRate).div(marketRate).times(100)
+
+    if (percentDifference.isZero()) return null
+
+    return percentDifference
+  }, [rate, marketRate])
 
   const buttonText = useMemo(() => {
     return <Text translation={quoteStatusTranslation} />
@@ -169,6 +190,31 @@ export const FiatRampTradeFooter = ({
       borderTopWidth={1}
       borderColor={'border.subtle'}
     >
+      {hasUserEnteredAmount && selectedQuote && !isLoading && (
+        <RateGasRow
+          affiliateBps={'0'}
+          buyAssetSymbol={
+            direction === FiatRampAction.Buy && buyAsset
+              ? buyAsset.symbol
+              : buyFiatCurrency?.code ?? 'USD'
+          }
+          sellAssetSymbol={
+            direction === FiatRampAction.Buy && sellFiatCurrency
+              ? sellFiatCurrency.code
+              : sellAsset?.symbol ?? 'USD'
+          }
+          rate={rate}
+          deltaPercentage={deltaPercentage?.toString()}
+          isLoading={isLoading && !rate}
+          networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
+          invertRate={invertRate}
+          icon={icon}
+          noExpand={noExpand}
+          hideGasAmount
+          flexProps={rateGasRowSx}
+          enableFeeTooltip={false}
+        />
+      )}
       <Flex
         flexDir='column'
         gap={4}

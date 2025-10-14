@@ -45,6 +45,7 @@ import {
   selectActiveSwapperName,
   selectHopExecutionMetadata,
   selectHopSellAccountId,
+  selectIsQuickBuy,
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -97,6 +98,7 @@ export const useTradeExecution = (
   const tradeQuote = useAppSelector(selectActiveQuote)
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
+  const isQuickBuy = useAppSelector(selectIsQuickBuy)
 
   // This is ugly, but we need to use refs to get around the fact that the
   // poll fn effectively creates a closure and will hold stale variables forever
@@ -203,7 +205,10 @@ export const useTradeExecution = (
           })
         }
 
-        navigate(TradeRoutePaths.Input)
+        // Don't navigate away during QuickBuy - let the QuickBuy component handle the success state
+        if (!isQuickBuy) {
+          navigate(TradeRoutePaths.Input)
+        }
       })
       execution.on(
         TradeExecutionEvent.RelayerTxHash,
@@ -460,6 +465,7 @@ export const useTradeExecution = (
     openActionCenter,
     swapsById,
     toast,
+    isQuickBuy,
   ])
 
   return executeTrade

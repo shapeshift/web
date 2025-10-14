@@ -328,6 +328,7 @@ export const mockStore: ReduxState = {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
+    isQuickBuy: false,
     tradeExecution: {},
     tradeQuotes: {},
     tradeQuoteDisplayCache: [],

@@ -22,6 +22,7 @@ import { useMixpanel } from './useMixpanel'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
+import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
@@ -127,6 +128,9 @@ export const useTradeExecution = (
     return new Promise<void>(async resolve => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
 
+      // Capture event data once at the start, before any state changes
+      const eventDataSnapshot = getMixpanelEventData()
+
       const onFail = (e: unknown) => {
         const message = (() => {
           if (e instanceof SolanaLogsError) {
@@ -146,7 +150,7 @@ export const useTradeExecution = (
         showErrorToast(e)
 
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
-          trackMixpanelEvent(MixPanelEvent.TradeFailed)
+          trackMixpanelEvent(MixPanelEvent.TradeFailed, eventDataSnapshot)
           hasMixpanelSuccessOrFailFiredRef.current = true
         }
 
@@ -158,7 +162,7 @@ export const useTradeExecution = (
       const trackMixpanelEventOnExecute = () => {
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
-        trackMixpanelEvent(event)
+        trackMixpanelEvent(event, eventDataSnapshot)
       }
 
       const execution = new TradeExecution()
@@ -265,7 +269,7 @@ export const useTradeExecution = (
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
-          trackMixpanelEvent(MixPanelEvent.TradeSuccess)
+          trackMixpanelEvent(MixPanelEvent.TradeSuccess, eventDataSnapshot)
           hasMixpanelSuccessOrFailFiredRef.current = true
         }
 

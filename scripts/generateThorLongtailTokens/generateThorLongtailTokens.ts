@@ -73,26 +73,38 @@ export const generateThorLongtailTokens = async () => {
 
   const erc20Tokens = [...ethData.tokens, ...avaxData.tokens]
   const bep20Tokens = bscData.tokens
+
   const erc20AssetIds = erc20Tokens
     .filter(token => VALID_CHAIN_IDS.eip155.includes(String(token.chainId) as ChainReference))
-    .map(token =>
-      toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: String(token.chainId) as ChainReference,
-        assetNamespace: ASSET_NAMESPACE.erc20,
-        assetReference: token.address,
-      }),
-    )
+    .map(token => {
+      try {
+        return toAssetId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: String(token.chainId) as ChainReference,
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          assetReference: token.address,
+        })
+      } catch {
+        return undefined
+      }
+    })
+    .filter(Boolean)
+
   const bep20AssetIds = bep20Tokens
     .filter(token => VALID_CHAIN_IDS.eip155.includes(String(token.chainId) as ChainReference))
-    .map(token =>
-      toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: String(token.chainId) as ChainReference,
-        assetNamespace: ASSET_NAMESPACE.bep20,
-        assetReference: token.address,
-      }),
-    )
+    .map(token => {
+      try {
+        return toAssetId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: String(token.chainId) as ChainReference,
+          assetNamespace: ASSET_NAMESPACE.bep20,
+          assetReference: token.address,
+        })
+      } catch {
+        return undefined
+      }
+    })
+    .filter(Boolean)
 
   const assetIds = [...erc20AssetIds, ...bep20AssetIds]
 

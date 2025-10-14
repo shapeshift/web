@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { KeyManager } from '../KeyManager'
+import { MobileWebSelect } from '../MobileWebSelect'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
@@ -36,6 +37,7 @@ import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
 import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
@@ -329,6 +331,10 @@ export const NewWalletViewsSwitch = () => {
   ])
 
   const body = useMemo(() => <Body />, [Body])
+
+  if (!isLargerThanMd && !isMobile) {
+    return <MobileWebSelect isOpen={modal} onClose={onClose} />
+  }
 
   return (
     <>

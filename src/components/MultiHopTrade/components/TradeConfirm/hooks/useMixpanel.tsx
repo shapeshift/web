@@ -16,9 +16,7 @@ export const useMixpanel = () => {
       // Use provided data, or fetch fresh if not provided
       const eventData = customEventData ?? getMixpanelEventData()
       // mixpanel is undefined when the feature is disabled
-      if (eventData && mixpanel) {
-        mixpanel.track(event, { ...eventData, connectedType })
-      }
+      if (eventData && mixpanel) mixpanel.track(event, { ...eventData, connectedType })
     },
     [mixpanel, connectedType],
   )

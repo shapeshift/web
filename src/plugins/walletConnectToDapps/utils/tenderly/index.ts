@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
+import type * as adapters from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import type { Address } from 'viem'
 import { getAddress, isAddress, isAddressEqual, zeroAddress } from 'viem'
@@ -202,11 +203,7 @@ export const simulateTransaction = async ({
   to: string
   data: string
   value?: string
-  feeData: {
-    gasPrice?: string
-    maxFeePerGas?: string
-    maxPriorityFeePerGas?: string
-  }
+  feeData: adapters.evm.GasFeeData
 }): Promise<TenderlySimulationResponse | null> => {
   try {
     const { chainReference } = fromChainId(chainId)

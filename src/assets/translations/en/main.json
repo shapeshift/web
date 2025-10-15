@@ -28,6 +28,7 @@
     "volumeShort": "VOL",
     "save": "Save",
     "saveChanges": "Save Changes",
+    "delete": "Delete",
     "new": "New",
     "continue": "Continue",
     "reward": "Reward",
@@ -1449,6 +1450,10 @@
         "nameRequired": "Name is required",
         "namePlaceholder": "Name",
         "title": "Add Contact"
+      },
+      "confirmDelete": {
+        "title": "Delete Address",
+        "message": "Are you sure you want to delete %{name} from your address book?"
       },
       "permissionsButton": "Try again",
       "transactionSent": "Transaction sent",

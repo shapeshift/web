@@ -1,17 +1,16 @@
 import {
   Box,
   Button,
-  Text as ChakraText,
   FormControl,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  useDisclosure,
+  Text as ChakraText,
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import { QRCodeIcon } from './QRCodeIcon'
@@ -26,8 +25,7 @@ interface AddressInputWithDropdownProps {
   chainId?: ChainId
   resolvedAddress?: string
   onSelectEntry: (address: string) => void
-  showSaveButton?: boolean
-  onSaveContact?: () => void
+  onSaveContact: (e: React.MouseEvent<HTMLButtonElement>) => void
   onEmptied?: () => void
 }
 
@@ -40,59 +38,34 @@ export const AddressInputWithDropdown = ({
   onScanQRCode,
   resolvedAddress,
   onSelectEntry,
-  showSaveButton,
   onSaveContact,
   onEmptied,
   chainId,
 }: AddressInputWithDropdownProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const triggerRef = useRef<HTMLDivElement>(null)
-
-  const handleFocus = useCallback(() => {
-    if (!isOpen) {
-      onOpen()
-    }
-  }, [onOpen, isOpen])
-
-  const handleBlur = useCallback(() => {
-    onClose()
-  }, [onClose])
-
   const handleQRClick = useCallback(() => {
     onScanQRCode()
-    onClose()
-  }, [onScanQRCode, onClose])
+  }, [onScanQRCode])
 
   const handleSelectEntry = useCallback(
     (address: string) => {
       onSelectEntry(address)
-      onClose()
     },
-    [onSelectEntry, onClose],
+    [onSelectEntry],
   )
 
   return (
     <FormControl>
-      <Popover
-        isOpen={isOpen}
-        placement='bottom-start'
-        closeOnBlur={true}
-        autoFocus={false}
-        matchWidth
-      >
+      <Popover placement='bottom-start' matchWidth trigger='hover' gutter={0}>
         <PopoverTrigger>
-          <Box ref={triggerRef}>
+          <Box>
             <AddressInput
               rules={addressInputRules}
               placeholder={translate(
                 supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
               )}
               resolvedAddress={resolvedAddress}
-              onSaveContact={showSaveButton ? onSaveContact : undefined}
+              onSaveContact={onSaveContact}
               onEmptied={onEmptied}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              onPaste={onClose}
               chainId={chainId}
             />
           </Box>

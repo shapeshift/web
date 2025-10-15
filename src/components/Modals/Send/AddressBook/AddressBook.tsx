@@ -1,21 +1,24 @@
 import {
-	Avatar,
-	Box,
-	Text as CText,
-	HStack,
-	Icon,
-	useColorModeValue,
-	VStack,
+  Avatar,
+  Box,
+  Button,
+  HStack,
+  Icon,
+  Text as CText,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
-import { FaRegAddressBook } from 'react-icons/fa'
+import { useCallback, useMemo, useState } from 'react'
+import { FaRegAddressBook, FaTrash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
+import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { selectAddressBookEntriesByChainId } from '@/state/slices/addressBookSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
+import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type AddressBookEntry = {
   id: string
@@ -26,31 +29,56 @@ export type AddressBookEntry = {
 type AddressBookEntryButtonProps = {
   entry: AddressBookEntry
   onSelect: (address: string) => void
+  onDelete: (id: string) => void
 }
 
-const AddressBookEntryButton = ({ entry, onSelect }: AddressBookEntryButtonProps) => {
+const addressSx = {
+  _hover: {
+    background: 'background.surface.raised.base',
+  },
+}
+
+const deleteButtonSx = {
+  svg: {
+    width: '12px',
+    height: '12px',
+  },
+}
+
+const AddressBookEntryButton = ({ entry, onSelect, onDelete }: AddressBookEntryButtonProps) => {
   const avatarUrl = useMemo(() => makeBlockiesUrl(entry.address), [entry.address])
   const handleClick = useCallback(() => onSelect(entry.address), [onSelect, entry.address])
   const shortAddress = useMemo(
     () => `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`,
     [entry.address],
   )
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
+
+  const handleDelete = useCallback(
+    (id: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      e.preventDefault()
+      onDelete(id)
+    },
+    [onDelete],
+  )
 
   return (
-    <Box
-      borderWidth={1}
-      borderColor={borderColor}
-      borderRadius='lg'
-      p={3}
-      cursor='pointer'
-      onClick={handleClick}
-      transition='all 0.2s'
-    >
-      <HStack spacing={3} align='center' width='full'>
-        <Avatar src={avatarUrl} size='md' />
+    <Box cursor='pointer' alignItems='center' justifyContent='space-between' display='flex'>
+      <HStack
+        px={2}
+        py={1}
+        borderRadius='lg'
+        spacing={3}
+        align='center'
+        width='full'
+        onClick={handleClick}
+        transition='all 0.2s'
+        sx={addressSx}
+        me={2}
+      >
+        <Avatar src={avatarUrl} size='sm' />
         <VStack align='start' spacing={0} flex={1}>
-          <CText fontSize='md' fontWeight='semibold' color='text.primary'>
+          <CText fontSize='md' fontWeight='semibold' color='text.primary' lineHeight={1}>
             {entry.name}
           </CText>
           <CText fontSize='sm' color='text.subtle' noOfLines={1}>
@@ -58,6 +86,9 @@ const AddressBookEntryButton = ({ entry, onSelect }: AddressBookEntryButtonProps
           </CText>
         </VStack>
       </HStack>
+      <Button size='sm' onClick={handleDelete(entry.id)} sx={deleteButtonSx}>
+        <Icon as={FaTrash} boxSize={4} />
+      </Button>
     </Box>
   )
 }
@@ -74,9 +105,29 @@ export const AddressBook = ({
   emptyMessage = 'modals.send.noEntries',
 }: AddressBookProps) => {
   const translate = useTranslate()
+  const dispatch = useAppDispatch()
+  const { isOpen, onClose, onOpen } = useDisclosure({
+    defaultIsOpen: false,
+  })
+  const [selectedDeleteEntry, setSelectedDeleteEntry] = useState<AddressBookEntry | null>(null)
 
   const addressBookEntries = useAppSelector(state =>
-    chainId ? selectAddressBookEntriesByChainId(state, chainId) : [],
+    chainId ? selectAddressBookEntriesByChainNamespace(state, chainId) : [],
+  )
+
+  const handleDelete = useCallback(
+    (id: string) => () => {
+      dispatch(addressBookSlice.actions.deleteAddress(id))
+    },
+    [dispatch],
+  )
+
+  const handleDeleteConfirm = useCallback(
+    (selectedEntry: AddressBookEntry) => () => {
+      setSelectedDeleteEntry(selectedEntry)
+      onOpen()
+    },
+    [onOpen],
   )
 
   return (
@@ -93,10 +144,23 @@ export const AddressBook = ({
           <Text translation={emptyMessage} size='xs' color='text.subtle' />
         ) : (
           addressBookEntries.map(entry => (
-            <AddressBookEntryButton key={entry.id} entry={entry} onSelect={onSelectEntry} />
+            <AddressBookEntryButton
+              key={entry.id}
+              entry={entry}
+              onSelect={onSelectEntry}
+              onDelete={handleDeleteConfirm(entry)}
+            />
           ))
         )}
       </VStack>
+      {selectedDeleteEntry && (
+        <ConfirmDelete
+          isOpen={isOpen}
+          onDelete={handleDelete(selectedDeleteEntry?.id)}
+          onClose={onClose}
+          entryName={selectedDeleteEntry?.name}
+        />
+      )}
     </Box>
   )
 }

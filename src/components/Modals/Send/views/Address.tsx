@@ -31,7 +31,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
-import { selectAddressBookEntriesByChainId } from '@/state/slices/addressBookSlice/selectors'
+import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -79,7 +79,7 @@ export const Address = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const addressBookEntries = useAppSelector(state =>
-    asset?.chainId ? selectAddressBookEntriesByChainId(state, asset.chainId) : [],
+    selectAddressBookEntriesByChainNamespace(state, asset?.chainId ?? ''),
   )
 
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
@@ -166,11 +166,16 @@ export const Address = () => {
     [setValue],
   )
 
-  const handleSaveContact = useCallback(() => {
-    if (address && asset?.chainId) {
-      addAddress.open({ address, chainId: asset.chainId })
-    }
-  }, [address, asset?.chainId, addAddress])
+  const handleSaveContact = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+
+      if (address && asset?.chainId) {
+        addAddress.open({ address, chainId: asset.chainId })
+      }
+    },
+    [address, asset?.chainId, addAddress],
+  )
 
   const handleEmptyChange = useCallback(() => {
     setValue(SendFormFields.Input, '', { shouldValidate: true })

@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   Button,
-  Text as CText,
   Flex,
   HStack,
   IconButton,
@@ -11,12 +10,13 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Text as CText,
   Text,
   useMediaQuery,
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +29,7 @@ import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import type { SendInput } from '@/components/Modals/Send/Form'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { selectAddressBookEntriesByChainId } from '@/state/slices/addressBookSlice/selectors'
+import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -40,7 +40,7 @@ type AddressInputProps = {
   pe?: SpaceProps['pe']
   resolvedAddress?: string
   chainId?: ChainId
-  onSaveContact?: () => void
+  onSaveContact?: (e: React.MouseEvent<HTMLButtonElement>) => void
   onEmptied?: () => void
 } & InputProps
 
@@ -71,9 +71,10 @@ export const AddressInput = ({
   const isValidating = useFormContext<SendInput>().formState.isValidating
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const addressBookEntries = useAppSelector(state =>
-    chainId ? selectAddressBookEntriesByChainId(state, chainId) : [],
+    chainId ? selectAddressBookEntriesByChainNamespace(state, chainId) : [],
   )
 
   const isInvalid = useMemo(() => {
@@ -95,9 +96,25 @@ export const AddressInput = ({
     [resolvedAddress],
   )
 
-  const handleFocus = useCallback(() => {
-    setIsFocused(true)
-  }, [])
+  useEffect(() => {
+    if (addressBookEntry) {
+      setIsFocused(false)
+    }
+  }, [addressBookEntry])
+
+  useEffect(() => {
+    if (isFocused) {
+      inputRef.current?.focus()
+    }
+  }, [isFocused])
+
+  const handleFocus = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      props.onFocus?.(e)
+      setIsFocused(true)
+    },
+    [props],
+  )
 
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
@@ -138,6 +155,7 @@ export const AddressInput = ({
               </Text>
             </InputLeftElement>
             <Input
+              ref={inputRef}
               spellCheck={false}
               placeholder={placeholder}
               as={ResizeTextarea}
@@ -145,11 +163,11 @@ export const AddressInput = ({
               variant='filled'
               minHeight='auto'
               minRows={1}
-              autoFocus={isUnderMd}
               borderRadius='10px'
               py={3}
               data-test='send-address-input'
               data-1p-ignore
+              autoFocus={isUnderMd}
               pe={pe}
               isInvalid={isInvalid && isDirty}
               onFocus={handleFocus}
@@ -190,11 +208,6 @@ export const AddressInput = ({
                 </VStack>
               </HStack>
             </HStack>
-            {onSaveContact && (
-              <Button size='sm' variant='ghost' onClick={onSaveContact}>
-                {translate('common.save')}
-              </Button>
-            )}
           </Flex>
         )
       }
@@ -209,19 +222,14 @@ export const AddressInput = ({
           w='full'
           px={4}
           sx={addressInputSx}
+          onClick={handleDisplayClick}
+          cursor='pointer'
         >
           <HStack spacing={3}>
             <Text color='text.subtle' fontSize='sm' minW='20px'>
               {translate('modals.send.sendForm.to')}
             </Text>
-            <Box
-              bg={'background.input.base'}
-              px={3}
-              py={2}
-              borderRadius='full'
-              cursor='pointer'
-              onClick={handleDisplayClick}
-            >
+            <Box bg={'background.surface.raised.base'} px={3} py={2} borderRadius='full'>
               <MiddleEllipsis fontSize='sm' color='text.subtle' value={resolvedAddress} />
             </Box>
           </HStack>

@@ -118,23 +118,17 @@ export const Setup = ({
             {pairingCodeSection}
             {safeCardNameInput}
             {errorAlert}
-            {isLoading ? (
-              <Button
-                width='full'
-                colorScheme='blue'
-                isLoading
-                loadingText={translate('walletProvider.gridplus.connect.connecting')}
-                spinner={SPINNER_ELEMENT}
-                isDisabled
-                type='submit'
-              >
-                {buttonLabel}
-              </Button>
-            ) : (
-              <Button width='full' colorScheme='blue' type='submit' isDisabled={isSubmitDisabled}>
-                {buttonLabel}
-              </Button>
-            )}
+            <Button
+              width='full'
+              colorScheme='blue'
+              type='submit'
+              isLoading={isLoading}
+              loadingText={translate('walletProvider.gridplus.connect.connecting')}
+              spinner={SPINNER_ELEMENT}
+              isDisabled={isLoading || isSubmitDisabled}
+            >
+              {buttonLabel}
+            </Button>
 
             {showPairingCode && (
               <Button variant='ghost' type='button' onClick={onCancel}>

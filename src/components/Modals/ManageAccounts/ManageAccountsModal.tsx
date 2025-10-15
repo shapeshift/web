@@ -21,7 +21,6 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
-import { availableGridPlusChainIds } from '@/context/WalletProvider/GridPlus/constants'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -268,7 +267,6 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
   const availableChainIds = useMemo(() => {
     if (connectedType === KeyManager.Ledger) return availableLedgerChainIds
-    if (connectedType === KeyManager.GridPlus) return availableGridPlusChainIds
     return walletSupportedChainIds
   }, [connectedType, walletSupportedChainIds])
 

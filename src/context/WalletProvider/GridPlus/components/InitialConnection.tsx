@@ -80,28 +80,17 @@ export const InitialConnection = ({
           <VStack spacing={4} align='stretch'>
             {deviceIdInput}
             {errorAlert}
-            {isLoading ? (
-              <Button
-                width='full'
-                colorScheme='blue'
-                isLoading
-                loadingText={translate('walletProvider.gridplus.connect.connecting')}
-                spinner={SPINNER_ELEMENT}
-                isDisabled
-                type='submit'
-              >
-                {translate('walletProvider.gridplus.connect.connecting')}
-              </Button>
-            ) : (
-              <Button
-                width='full'
-                colorScheme='blue'
-                type='submit'
-                isDisabled={!physicalDeviceId && !deviceId}
-              >
-                {translate('walletProvider.gridplus.connect.button')}
-              </Button>
-            )}
+            <Button
+              width='full'
+              colorScheme='blue'
+              type='submit'
+              isLoading={isLoading}
+              loadingText={translate('walletProvider.gridplus.connect.connecting')}
+              spinner={SPINNER_ELEMENT}
+              isDisabled={isLoading || (!physicalDeviceId && !deviceId)}
+            >
+              {translate('walletProvider.gridplus.connect.button')}
+            </Button>
             {isAddingNew && (
               <Button variant='ghost' type='button' onClick={onBackToList}>
                 {translate('walletProvider.gridplus.connect.backToList')}

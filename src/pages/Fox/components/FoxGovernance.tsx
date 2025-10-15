@@ -112,7 +112,7 @@ export const FoxGovernance = () => {
   return (
     <>
       <Divider mb={4} />
-      <Box py={4} px={containerPaddingX}>
+      <Box py={4} px={containerPaddingX} id='governance' scrollMarginTop={100}>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>

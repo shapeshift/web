@@ -106,6 +106,8 @@ export const GridPlusConnect = () => {
 
   const finalizeWalletSetup = useCallback(
     (wallet: GridPlusHDWallet, safeCardWalletId: string) => {
+      const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
+
       walletDispatch({
         type: WalletActions.SET_WALLET,
         payload: {
@@ -128,10 +130,12 @@ export const GridPlusConnect = () => {
         rdns: null,
       })
 
+      appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
+
       walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       navigate('/')
     },
-    [walletDispatch, localWallet, navigate],
+    [walletDispatch, localWallet, navigate, appDispatch],
   )
 
   const handleDeviceConnectionError = useCallback(
@@ -241,7 +245,7 @@ export const GridPlusConnect = () => {
 
       if (pendingSafeCardUuid && safeCardName.trim()) {
         appDispatch(
-          gridplusSlice.actions.updateSafeCardName({
+          gridplusSlice.actions.setSafeCardName({
             id: pendingSafeCardUuid,
             name: safeCardName.trim(),
           }),

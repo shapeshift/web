@@ -64,7 +64,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     (id: string) => {
       if (editName.trim()) {
         dispatch(
-          gridplusSlice.actions.updateSafeCardName({
+          gridplusSlice.actions.setSafeCardName({
             id,
             name: editName.trim(),
           }),

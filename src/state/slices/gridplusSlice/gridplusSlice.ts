@@ -56,6 +56,11 @@ export const gridplusSlice = createSlice({
     setActiveSafeCard: create.reducer((state, action: PayloadAction<string>) => {
       if (state.safecards.byId[action.payload]) {
         state.safecards.activeId = action.payload
+      }
+    }),
+
+    setLastConnectedAt: create.reducer((state, action: PayloadAction<string>) => {
+      if (state.safecards.byId[action.payload]) {
         state.safecards.byId[action.payload].lastConnectedAt = Date.now()
       }
     }),
@@ -69,7 +74,7 @@ export const gridplusSlice = createSlice({
       }
     }),
 
-    updateSafeCardName: create.reducer(
+    setSafeCardName: create.reducer(
       (
         state,
         action: PayloadAction<{

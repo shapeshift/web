@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "加速",
     "viewOnExplorer": "在区块浏览器上查看",
+    "viewAssetDetails": "查看资产详情",
     "approval": "批准",
     "permit2Approval": "Permit2 授权",
     "network": "网络",
@@ -390,6 +391,7 @@
       "switchWallet": "切换钱包",
       "disconnect": "断开",
       "disconnected": "(已断开)",
+      "locked": "(已锁定)",
       "reconnectWallet": "重新连接钱包",
       "walletNotConnected": "您的钱包目前未连接，这将影响交易。",
       "connecting": "正在连接..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "确认并认领",
     "viewClaims": "查看领取",
     "viewClaimStatus": "查看领取状态",
-    "availableClaimsNotification": "您有桥接领取可用！"
+    "availableClaimsNotification": "您有桥接领取可用！",
+    "bridgeWithdrawalReadyNotification": "链桥提现已可领取",
+    "bridgeWithdrawalFailedNotification": "链桥提现失败",
+    "checkActionCenterNotification": "进入操作中心以查看详情"
   },
   "trade": {
     "trade": "交易",
@@ -2176,9 +2181,12 @@
   },
   "assets": {
     "more": "展开",
+    "hideAsset": "隐藏资产",
+    "showAsset": "显示资产",
+    "cannotHidePrimary": "无法隐藏具有相关变体的主要资产",
     "spam": {
-      "reportAsSpam": "报告垃圾邮件",
-      "reportAsNotSpam": "标记为非垃圾邮件"
+      "warning": "您可以在钱包下拉菜单中点击 '管理隐藏资产' 来重新显示该资产。",
+      "marked": "该资产已被隐藏。"
     },
     "assetDetails": {
       "assetHeader": {
@@ -2793,6 +2801,13 @@
     },
     "title": "关注列表"
   },
+  "manageHiddenAssets": {
+    "title": "管理隐藏资产",
+    "empty": {
+      "title": "没有隐藏资产",
+      "body": "您隐藏的资产会在这里展示，以便重新显示它们。"
+    }
+  },
   "explore": {
     "pools": {
       "title": "池",
@@ -3124,6 +3139,7 @@
       "switchChainFailed": "无法切换钱包链。请尝试手动将您钱包的活跃链切换为 %{chain}。",
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
+      "blindSigningRequired": "交易需要盲签，请在您的 Ledger 应用设置中启用 'Blind signing' 并重试。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",
       "signMessage": "消息签名失败。",
       "broadcastTransaction": "广播交易失败。",
@@ -3200,7 +3216,17 @@
       "complete": "您领取的 %{amount} %{symbol} 已完成。"
     },
     "bridge": {
-      "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。"
+      "processing": "正在处理中...",
+      "complete": "您桥接的 %{amountAndSymbol} 已完成。",
+      "initiated": "您将 %{sellAmountAndSymbol} 桥接到 %{buyAmountAndSymbol} 的操作已发起。",
+      "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
+      "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",
+      "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。",
+      "transactionInitiated": "交易已发起",
+      "claimWithdraw": "领取提现",
+      "withdrawTx": "提现交易",
+      "claimTx": "领取交易",
+      "claimNotAvailable": "领取暂时不可用，请等待提现期完成。"
     },
     "limitOrder": {
       "placed": "使用 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单已下单",

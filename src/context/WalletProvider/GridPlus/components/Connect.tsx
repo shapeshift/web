@@ -129,13 +129,13 @@ export const GridPlusConnect = () => {
   )
 
   const handleDeviceConnectionError = useCallback(
-    (error: unknown, onOtherError?: () => void) => {
-      if (error instanceof Error && error.message === 'PAIRING_REQUIRED') {
+    (error: Error, onOtherError?: () => void) => {
+      if (error.message === 'PAIRING_REQUIRED') {
         setIsLoading(false)
         setShowPairingCode(true)
         setError(null)
       } else {
-        setErrorLoading(error instanceof Error ? error.message : 'Connection failed')
+        setErrorLoading(error.message)
         onOtherError?.()
       }
     },
@@ -152,7 +152,15 @@ export const GridPlusConnect = () => {
 
   const defaultSafeCardName = useMemo(() => `GridPlus ${safeCards.length + 1}`, [safeCards.length])
 
-  const handleConnect = useCallback(async () => {
+  const handleConnect = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (isLoading) return
+
+    if (!showPairingCode && !showSetupForm && !physicalDeviceId && !deviceId) return
+
+    if (showPairingCode && pairingCode.length !== 8) return
+
     setIsLoading(true)
     setError(null)
 
@@ -237,14 +245,18 @@ export const GridPlusConnect = () => {
       setPendingSafeCardUuid(null)
       finalizeWalletSetup(wallet, safeCardWalletId)
     } catch (e) {
-      handleDeviceConnectionError(e)
+      handleDeviceConnectionError(e as Error)
     }
   }, [
+    isLoading,
+    showPairingCode,
+    showSetupForm,
+    physicalDeviceId,
+    deviceId,
+    pairingCode,
     selectedSafeCardId,
     pendingSafeCardUuid,
     safeCardName,
-    pairingCode,
-    showPairingCode,
     sessionId,
     defaultSafeCardName,
     getConnectionDeviceId,
@@ -306,7 +318,7 @@ export const GridPlusConnect = () => {
         finalizeWalletSetup(wallet, safeCardWalletId)
       } catch (e) {
         setConnectingCardId(null)
-        handleDeviceConnectionError(e)
+        handleDeviceConnectionError(e as Error)
       }
     },
     [

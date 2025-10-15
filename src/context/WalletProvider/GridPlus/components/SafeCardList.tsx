@@ -33,6 +33,8 @@ const AddIcon = <IoMdAdd />
 const CreateIcon = <IoMdCreate />
 const TrashIcon = <IoMdTrash />
 
+const hoverSx = { borderColor: 'border.focused' }
+
 type SafeCardListProps = {
   safeCards: SafeCard[]
   onSelectSafeCard: (id: string) => void
@@ -104,42 +106,6 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     setEditName(e.target.value)
   }, [])
 
-  const createEditClickHandler = useCallback(
-    (id: string, name: string) => () => {
-      setEditingId(id)
-      setEditName(name)
-    },
-    [],
-  )
-
-  const createRenameBlurHandler = useCallback(
-    (id: string) => () => handleRename(id),
-    [handleRename],
-  )
-
-  const createKeyDownHandler = useCallback(
-    (id: string) => (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') handleRename(id)
-      if (e.key === 'Escape') {
-        setEditingId(null)
-        setEditName('')
-      }
-    },
-    [handleRename],
-  )
-
-  const createDeleteClickHandler = useCallback(
-    (safeCard: SafeCard) => () => handleDeleteClick(safeCard),
-    [handleDeleteClick],
-  )
-
-  const createConnectClickHandler = useCallback(
-    (id: string) => () => onSelectSafeCard(id),
-    [onSelectSafeCard],
-  )
-
-  const hoverStyle = useMemo(() => ({ borderColor: 'border.focused' }), [])
-
   const sortedSafeCards = useMemo(
     () =>
       [...safeCards].sort((a, b) => {
@@ -153,7 +119,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     [safeCards],
   )
 
-  const renderCards = useMemo(
+  const cards = useMemo(
     () =>
       sortedSafeCards.map(safeCard => {
         const isActive =
@@ -167,7 +133,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
             borderWidth={1}
             borderRadius='lg'
             borderColor='border.base'
-            _hover={hoverStyle}
+            _hover={hoverSx}
             bg='background.surface.raised.base'
           >
             <HStack spacing={3}>
@@ -180,8 +146,14 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                   size='sm'
                   value={editName}
                   onChange={handleEditNameChange}
-                  onBlur={createRenameBlurHandler(safeCard.id)}
-                  onKeyDown={createKeyDownHandler(safeCard.id)}
+                  onBlur={() => handleRename(safeCard.id)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleRename(safeCard.id)
+                    if (e.key === 'Escape') {
+                      setEditingId(null)
+                      setEditName('')
+                    }
+                  }}
                   autoFocus
                   flex={1}
                 />
@@ -204,7 +176,10 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                     icon={CreateIcon}
                     aria-label={translate('walletProvider.gridplus.list.editNameLabel')}
                     variant='ghost'
-                    onClick={createEditClickHandler(safeCard.id, safeCard.name)}
+                    onClick={() => {
+                      setEditingId(safeCard.id)
+                      setEditName(safeCard.name)
+                    }}
                   />
                 )}
                 <IconButton
@@ -212,10 +187,10 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                   aria-label={translate('walletProvider.gridplus.list.deleteLabel')}
                   variant='ghost'
                   colorScheme='red'
-                  onClick={createDeleteClickHandler(safeCard)}
+                  onClick={() => handleDeleteClick(safeCard)}
                 />
                 <Button
-                  onClick={createConnectClickHandler(safeCard.id)}
+                  onClick={() => onSelectSafeCard(safeCard.id)}
                   colorScheme='blue'
                   isDisabled={isActive || isConnecting}
                   isLoading={isConnecting}
@@ -236,18 +211,15 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       connectingCardId,
       editingId,
       editName,
-      hoverStyle,
       handleEditNameChange,
-      createRenameBlurHandler,
-      createKeyDownHandler,
-      createEditClickHandler,
-      createDeleteClickHandler,
-      createConnectClickHandler,
+      handleRename,
+      handleDeleteClick,
+      onSelectSafeCard,
       translate,
     ],
   )
 
-  if (safeCards.length === 0) {
+  if (!safeCards.length) {
     return (
       <VStack spacing={4} py={8}>
         <Text color='text.subtle'>{translate('walletProvider.gridplus.list.empty')}</Text>
@@ -269,7 +241,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
           <Text fontSize='sm'>{error}</Text>
         </Alert>
       )}
-      {renderCards}
+      {cards}
       <Button
         leftIcon={AddIcon}
         onClick={onAddNewSafeCard}

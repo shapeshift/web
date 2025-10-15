@@ -14,7 +14,7 @@ import {
   Spinner,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 const SPINNER_ELEMENT = <Spinner color='white' />
@@ -27,7 +27,7 @@ type SetupProps = {
   onSafeCardNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   error: string | null
   isLoading: boolean
-  onSubmit: () => void
+  onSubmit: (e: React.FormEvent) => void
   onCancel: () => void
 }
 
@@ -48,16 +48,6 @@ export const Setup = ({
     ? translate('walletProvider.gridplus.pair.button')
     : translate('common.done')
   const isSubmitDisabled = showPairingCode ? pairingCode.length !== 8 : false
-
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!isLoading && !isSubmitDisabled) {
-        onSubmit()
-      }
-    },
-    [isLoading, isSubmitDisabled, onSubmit],
-  )
 
   const errorAlert = useMemo(
     () =>
@@ -123,7 +113,7 @@ export const Setup = ({
           : translate('walletProvider.gridplus.name.header')}
       </ModalHeader>
       <ModalBody>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <VStack spacing={4} align='stretch'>
             {pairingCodeSection}
             {safeCardNameInput}

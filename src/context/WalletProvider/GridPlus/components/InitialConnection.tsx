@@ -11,7 +11,7 @@ import {
   Spinner,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 const SPINNER_ELEMENT = <Spinner color='white' />
@@ -23,7 +23,7 @@ type InitialConnectionProps = {
   error: string | null
   isLoading: boolean
   isAddingNew: boolean
-  onSubmit: () => void
+  onSubmit: (e: React.FormEvent) => void
   onBackToList: () => void
 }
 
@@ -38,16 +38,6 @@ export const InitialConnection = ({
   onBackToList,
 }: InitialConnectionProps) => {
   const translate = useTranslate()
-
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      if (!isLoading && (physicalDeviceId || deviceId)) {
-        onSubmit()
-      }
-    },
-    [isLoading, physicalDeviceId, deviceId, onSubmit],
-  )
 
   const errorAlert = useMemo(
     () =>
@@ -86,7 +76,7 @@ export const InitialConnection = ({
     <>
       <ModalHeader>{translate('walletProvider.gridplus.connect.header')}</ModalHeader>
       <ModalBody>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <VStack spacing={4} align='stretch'>
             {deviceIdInput}
             {errorAlert}

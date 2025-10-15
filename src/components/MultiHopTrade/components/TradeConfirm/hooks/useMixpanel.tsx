@@ -7,17 +7,18 @@ import type { MixPanelEvent } from '@/lib/mixpanel/types'
 
 export const useMixpanel = () => {
   const mixpanel = useMemo(() => getMixPanel(), [])
-  const eventData = useMemo(() => getMixpanelEventData(), [])
   const {
     state: { connectedType },
   } = useWallet()
 
   const trackMixpanelEvent = useCallback(
-    (event: MixPanelEvent) => {
+    (event: MixPanelEvent, customEventData?: ReturnType<typeof getMixpanelEventData>) => {
+      // Use provided data, or fetch fresh if not provided
+      const eventData = customEventData ?? getMixpanelEventData()
       // mixpanel is undefined when the feature is disabled
       if (eventData && mixpanel) mixpanel.track(event, { ...eventData, connectedType })
     },
-    [eventData, mixpanel, connectedType],
+    [mixpanel, connectedType],
   )
 
   return trackMixpanelEvent

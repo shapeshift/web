@@ -11,6 +11,7 @@ export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setModals(prev => {
       const existingIndex = prev.findIndex(modal => modal.id === id)
       if (existingIndex !== -1) {
+        console.warn(`Modal ${id} already registered, skipping registration.`)
         return prev
       }
       const updated = [...prev, { id }]

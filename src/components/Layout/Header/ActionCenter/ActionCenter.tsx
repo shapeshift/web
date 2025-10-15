@@ -55,8 +55,9 @@ const INCREASE_VIEWPORT_BY = {
 
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: isDrawerOpen,
+    onClose: closeDrawer,
     modalId: 'action-center-modal',
   })
 
@@ -192,19 +193,13 @@ export const ActionCenter = memo(() => {
     <>
       <Display.Desktop>
         <Box position='relative'>{actionCenterButton}</Box>
-        <Drawer
-          isOpen={isDrawerOpen}
-          onClose={closeDrawer}
-          size='sm'
-          trapFocus={isHighestModal}
-          blockScrollOnMount={isHighestModal}
-        >
-          <DrawerOverlay backdropBlur='10px' {...overlayStyle} />
+        <Drawer size='sm' {...modalProps}>
+          <DrawerOverlay backdropBlur='10px' {...overlayProps} />
           <DrawerContent
             minHeight='100vh'
             maxHeight='100vh'
             paddingTop='env(safe-area-inset-top)'
-            containerProps={modalStyle}
+            {...modalContentProps}
           >
             <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
             <DrawerHeader

@@ -34,29 +34,22 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
 }) => {
   const { close, isOpen } = useModal('fiatRamps')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
+    onClose: close,
     modalId: 'fiat-ramps-modal',
   })
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={close}
-      isCentered={isLargerThanMd}
-      variant='fluid'
-      trapFocus={isHighestModal}
-      size={modalSize}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
+    <Modal {...modalProps} isCentered={isLargerThanMd} variant='fluid' size={modalSize}>
+      <ModalOverlay {...overlayProps} />
 
       <ModalContent
         width='full'
         borderRadius={modalContentBorderRadius}
         minWidth={modalContentMinWidth}
         maxWidth={modalContentMaxWidth}
-        containerProps={modalStyle}
+        {...modalContentProps}
       >
         <ModalHeader>
           <Text translation={'fiatRamps.title'} />

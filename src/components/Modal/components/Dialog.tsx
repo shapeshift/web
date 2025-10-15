@@ -59,7 +59,16 @@ const DialogWindow: React.FC<DialogProps> = ({
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({ isOpen, modalId: id })
+  const {
+    modalContentProps,
+    overlayProps,
+    modalProps: stackedModalProps,
+    isHighestModal,
+  } = useModalRegistration({
+    isOpen,
+    modalId: id,
+    onClose,
+  })
 
   const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
 
@@ -79,9 +88,9 @@ const DialogWindow: React.FC<DialogProps> = ({
         : 'calc(100% - env(safe-area-inset-top) - var(--safe-area-inset-top))',
       height: isFullScreen ? viewportHeight : height || '80vh',
       paddingTop: isFullScreen ? 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))' : 0,
-      ...modalStyle,
+      ...modalContentProps?.containerProps?.sx,
     }
-  }, [height, isFullScreen, viewportHeight, modalStyle])
+  }, [height, isFullScreen, viewportHeight, modalContentProps])
 
   useEffect(() => {
     setIsOpen(isOpen)
@@ -96,7 +105,7 @@ const DialogWindow: React.FC<DialogProps> = ({
     [onClose, setIsOpen],
   )
 
-  // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
+  // If we stack multiple modals and drawers on mobile then we shouldn't trap focus which is a bug from vaul
   useLayoutEffect(() => {
     if (isHighestModal) return
 
@@ -121,23 +130,16 @@ const DialogWindow: React.FC<DialogProps> = ({
         noBodyStyles={!isHighestModal}
       >
         <Drawer.Portal>
-          <CustomDrawerOverlay onClick={handleClose} {...overlayStyle} />
-          <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
+          <CustomDrawerOverlay onClick={handleClose} {...overlayProps} />
+          <CustomDrawerContent {...contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
     )
   }
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      isCentered
-      {...modalProps}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent height={height} containerProps={modalStyle}>
+    <Modal isCentered {...modalProps} {...stackedModalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent height={height} {...modalContentProps}>
         {children}
       </ModalContent>
     </Modal>

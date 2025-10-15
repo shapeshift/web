@@ -49,8 +49,9 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose,
     modalId: 'popup-window-modal',
   })
 
@@ -83,24 +84,18 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   }, [popup, isOpen, title, url, width, height, popupWindow])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size='full'
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
+    <Modal {...modalProps} size='full'>
       <ModalOverlay
         backdropFilter='blur(10px)'
         bgColor='blackAlpha.100'
         bgImage={`radial-gradient(ellipse at center, ${overlayBgOne} 0%,${overlayBgOne} 1%,${overlayBgTwo} 100%);`}
-        {...overlayStyle}
+        {...overlayProps}
       />
       <ModalContent
         alignItems='center'
         justifyContent='center'
         bg='transparent'
-        containerProps={modalStyle}
+        {...modalContentProps}
       >
         <Center
           width={centerWidth}

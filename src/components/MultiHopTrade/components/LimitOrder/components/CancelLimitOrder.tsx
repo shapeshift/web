@@ -51,10 +51,6 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
-    isOpen: orderToCancel !== undefined,
-    modalId: 'cancel-limit-order-modal',
-  })
 
   const [cancelLimitOrder, { error, isLoading, reset }] = useCancelLimitOrderMutation()
 
@@ -82,6 +78,12 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
     reset()
     onSetOrderToCancel(undefined)
   }, [onSetOrderToCancel, reset])
+
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: orderToCancel !== undefined,
+    onClose: handleClose,
+    modalId: 'cancel-limit-order-modal',
+  })
 
   const handleRequestCancellation = useCallback(async () => {
     if (!orderToCancel || !wallet) {
@@ -146,14 +148,9 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   }, [orderToCancel])
 
   return (
-    <Modal
-      isOpen={orderToCancel !== undefined}
-      onClose={handleClose}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent pointerEvents='all' containerProps={modalStyle}>
+    <Modal {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent pointerEvents='all' {...modalContentProps}>
         <ModalHeader px={6} pt={4} borderWidth={0}>
           <Heading textAlign='center' fontSize='md'>
             <Text translation='limitOrder.cancel.cancelOrder' />

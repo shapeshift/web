@@ -4,8 +4,9 @@ export type ModalStackItem = {
 
 export type ModalStackContextType = {
   modals: ModalStackItem[]
-  registerModal: (id: string) => number
+  registerModal: (id: string) => void
   unregisterModal: (id: string) => void
-  isTopModal: (id: string) => boolean
-  getTopModal: () => ModalStackItem | undefined
+  getIsHighestModal: (id: string) => boolean
+  getHighestModal: () => ModalStackItem | undefined
+  getZIndex: (id: string) => number | undefined
 }

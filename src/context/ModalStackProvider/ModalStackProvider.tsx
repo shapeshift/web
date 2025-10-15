@@ -7,28 +7,22 @@ const ModalStackContext = createContext<ModalStackContextType | undefined>(undef
 export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [modals, setModals] = useState<ModalStackItem[]>([])
 
-  const registerModal = useCallback((id: string): number => {
-    let updatedZIndex = 0
-
+  const registerModal = useCallback((id: string) => {
     setModals(prev => {
       const existingIndex = prev.findIndex(modal => modal.id === id)
       if (existingIndex !== -1) {
-        updatedZIndex = existingIndex + 1
         return prev
       }
       const updated = [...prev, { id }]
-      updatedZIndex = updated.length
       return updated
     })
-
-    return updatedZIndex
   }, [])
 
   const unregisterModal = useCallback((id: string) => {
     setModals(prev => prev.filter(modal => modal.id !== id))
   }, [])
 
-  const isTopModal = useCallback(
+  const getIsHighestModal = useCallback(
     (id: string): boolean => {
       if (modals.length === 0) return false
       return modals[modals.length - 1].id === id
@@ -36,7 +30,15 @@ export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [modals],
   )
 
-  const getTopModal = useCallback((): ModalStackItem | undefined => {
+  const getZIndex = useCallback(
+    (id: string): number | undefined => {
+      const index = modals.findIndex(modal => modal.id === id)
+      return index !== -1 ? index : undefined
+    },
+    [modals],
+  )
+
+  const getHighestModal = useCallback((): ModalStackItem | undefined => {
     return modals.length > 0 ? modals[modals.length - 1] : undefined
   }, [modals])
 
@@ -45,10 +47,11 @@ export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       modals,
       registerModal,
       unregisterModal,
-      isTopModal,
-      getTopModal,
+      getIsHighestModal,
+      getHighestModal,
+      getZIndex,
     }),
-    [modals, registerModal, unregisterModal, isTopModal, getTopModal],
+    [modals, registerModal, unregisterModal, getIsHighestModal, getHighestModal, getZIndex],
   )
 
   return <ModalStackContext.Provider value={contextValue}>{children}</ModalStackContext.Provider>

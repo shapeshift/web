@@ -85,8 +85,9 @@ export const AddAccountModal = () => {
 
   const { close, isOpen } = useModal('addAccount')
 
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose: close,
     modalId: 'add-account-modal',
   })
 
@@ -150,15 +151,9 @@ export const AddAccountModal = () => {
   ])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={close}
-      isCentered
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent containerProps={modalStyle}>
+    <Modal {...modalProps} isCentered>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalHeader textAlign='center'>{translate('accounts.addAccount')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody alignItems='center' justifyContent='center'>

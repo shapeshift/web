@@ -73,8 +73,9 @@ export const TxWindow = memo(() => {
     (e: React.ChangeEvent<HTMLSelectElement>) => setLimit(e.target.value),
     [],
   )
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
+    onClose: handleClose,
     modalId: 'tx-window-modal',
   })
   return (
@@ -101,20 +102,14 @@ export const TxWindow = memo(() => {
           {pendingTxIds.length}
         </Circle>
       </Box>
-      <Drawer
-        isOpen={isOpen}
-        onClose={handleClose}
-        size='sm'
-        trapFocus={isHighestModal}
-        blockScrollOnMount={isHighestModal}
-      >
-        <DrawerOverlay backdropBlur='10px' {...overlayStyle} />
+      <Drawer size='sm' {...modalProps}>
+        <DrawerOverlay backdropBlur='10px' {...overlayProps} />
 
         <DrawerContent
           minHeight='100vh'
           maxHeight='100vh'
           paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
-          containerProps={modalStyle}
+          {...modalContentProps}
         >
           <DrawerCloseButton top='calc(18px + env(safe-area-inset-top) + var(--safe-area-inset-top))' />
           <DrawerHeader

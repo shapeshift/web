@@ -50,10 +50,6 @@ export const WalletViewsSwitch = () => {
     disconnect,
   } = useWallet()
   const queryClient = useQueryClient()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
-    isOpen: modal,
-    modalId: 'wallet-views-switch-modal',
-  })
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
@@ -90,6 +86,12 @@ export const WalletViewsSwitch = () => {
     navigate,
     wallet,
   ])
+
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: modal,
+    onClose,
+    modalId: 'wallet-views-switch-modal',
+  })
 
   const handleBack = useCallback(async () => {
     if (initialRoute === location.pathname && isMobile) {
@@ -156,16 +158,9 @@ export const WalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal
-        isOpen={modal}
-        onClose={onClose}
-        isCentered
-        trapFocus={isHighestModal}
-        blockScrollOnMount={isHighestModal}
-        closeOnOverlayClick={false}
-      >
-        <ModalOverlay {...overlayStyle} />
-        <ModalContent justifyContent='center' px={3} pt={3} pb={6} containerProps={modalStyle}>
+      <Modal {...modalProps} isCentered closeOnOverlayClick={false}>
+        <ModalOverlay {...overlayProps} />
+        <ModalContent justifyContent='center' px={3} pt={3} pb={6} {...modalContentProps}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
             {match && showBackButton && (
               <IconButton

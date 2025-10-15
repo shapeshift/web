@@ -39,8 +39,9 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   const { close, isOpen } = rateChanged
   const translate = useTranslate()
   const lastHop = useAppSelector(selectLastHop)
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose: close,
     modalId: 'rate-changed-modal',
   })
 
@@ -98,16 +99,9 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   }, [percentageDifferenceHuman])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={close}
-      isCentered
-      size='sm'
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent maxW='440px' containerProps={modalStyle}>
+    <Modal {...modalProps} isCentered size='sm'>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent maxW='440px' {...modalContentProps}>
         <ModalBody display='flex' alignItems='center' py={12} flexDir='column' gap={6}>
           <WarningIcon color='text.warning' boxSize={8} />
           <Stack textAlign='center' width='full' spacing={3}>

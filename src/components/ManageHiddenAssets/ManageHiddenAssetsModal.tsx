@@ -21,22 +21,16 @@ export const ManageHiddenAssetsModal = () => {
   const { close, isOpen } = manageHiddenAssets
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
+    onClose: close,
     modalId: 'manage-hidden-assets-modal',
   })
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={close}
-      isCentered
-      size={isLargerThanMd ? 'xl' : 'full'}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent containerProps={modalStyle}>
+    <Modal isCentered size={isLargerThanMd ? 'xl' : 'full'} {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalHeader>{translate('manageHiddenAssets.title')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>

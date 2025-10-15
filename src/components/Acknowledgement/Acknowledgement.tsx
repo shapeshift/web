@@ -46,8 +46,13 @@ export const Acknowledgement = ({
 }: AcknowledgementProps) => {
   const translate = useTranslate()
 
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const handleCancel = useCallback(() => {
+    setShouldShowAcknowledgement(false)
+  }, [setShouldShowAcknowledgement])
+
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: shouldShowAcknowledgement,
+    onClose: handleCancel,
     modalId: 'acknowledgement-modal',
   })
 
@@ -63,19 +68,10 @@ export const Acknowledgement = ({
     onAcknowledge()
   }, [onAcknowledge, setShouldShowAcknowledgement])
 
-  const handleCancel = useCallback(() => {
-    setShouldShowAcknowledgement(false)
-  }, [setShouldShowAcknowledgement])
-
   return (
-    <Modal
-      isOpen={shouldShowAcknowledgement}
-      onClose={handleCancel}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent containerProps={modalStyle}>
+    <Modal {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>
           {CustomIcon ? (
             <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />

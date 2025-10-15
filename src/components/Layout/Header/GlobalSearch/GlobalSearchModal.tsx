@@ -51,8 +51,14 @@ export const GlobalSearchModal = memo(
     const assetResults = results
     const resultsCount = results.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
-    const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+    const handleClose = useCallback(() => {
+      setSearchQuery('')
+      onClose()
+    }, [onClose])
+
+    const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
       isOpen,
+      onClose: handleClose,
       modalId: 'global-search-modal',
     })
 
@@ -194,11 +200,6 @@ export const GlobalSearchModal = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen])
 
-    const handleClose = useCallback(() => {
-      setSearchQuery('')
-      onClose()
-    }, [onClose])
-
     useUpdateEffect(() => {
       setActiveIndex(0)
     }, [searchQuery])
@@ -209,16 +210,9 @@ export const GlobalSearchModal = memo(
     )
 
     return (
-      <Modal
-        scrollBehavior='inside'
-        isOpen={isOpen}
-        onClose={handleClose}
-        size='lg'
-        trapFocus={isHighestModal}
-        blockScrollOnMount={isHighestModal}
-      >
-        <ModalOverlay {...overlayStyle} />
-        <ModalContent overflow='hidden' containerProps={modalStyle}>
+      <Modal scrollBehavior='inside' {...modalProps} size='lg'>
+        <ModalOverlay {...overlayProps} />
+        <ModalContent overflow='hidden' {...modalContentProps}>
           <ModalHeader
             position='sticky'
             top={0}

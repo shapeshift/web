@@ -127,11 +127,6 @@ export const NewWalletViewsSwitch = () => {
     disconnect,
   } = useWallet()
 
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
-    isOpen: modal,
-    modalId: 'new-wallet-views-switch-modal',
-  })
-
   const nativeVaultsQuery = useQuery({
     ...reactQueries.common.hdwalletNativeVaultsList(),
     refetchOnMount: true,
@@ -193,6 +188,12 @@ export const NewWalletViewsSwitch = () => {
     navigate,
     wallet,
   ])
+
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: modal,
+    onClose,
+    modalId: 'new-wallet-views-switch-modal',
+  })
 
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
@@ -338,23 +339,15 @@ export const NewWalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal
-        isOpen={modal}
-        onClose={onClose}
-        isCentered
-        closeOnOverlayClick={true}
-        size={!isLargerThanMd ? modalSize : undefined}
-        trapFocus={isHighestModal}
-        blockScrollOnMount={isHighestModal}
-      >
-        <ModalOverlay {...overlayStyle} />
+      <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>
+        <ModalOverlay {...overlayProps} />
         <ModalContent
           justifyContent='center'
           overflow='hidden'
           borderRadius={!isLargerThanMd ? 'none' : 'xl'}
           maxW='900px'
           bg={!isLargerThanMd ? bodyBgColor : undefined}
-          containerProps={modalStyle}
+          {...modalContentProps}
         >
           <Box position={isLargerThanMd ? 'relative' : 'initial'}>
             <Box

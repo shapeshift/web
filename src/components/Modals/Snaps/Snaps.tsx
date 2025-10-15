@@ -14,8 +14,9 @@ export type SnapsModalProps = {
 export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   const { close, isOpen } = useModal('snaps')
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose: close,
     modalId: 'snaps-modal',
   })
 
@@ -33,16 +34,9 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   if (isCorrectVersion === null) return null
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={close}
-      isCentered
-      size='sm'
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent containerProps={modalStyle} minW='450px'>
+    <Modal {...modalProps} isCentered size='sm'>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps} minW='450px'>
         <ModalCloseButton />
         <SnapContentRouter
           isRemoved={isRemoved}

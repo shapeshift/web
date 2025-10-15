@@ -10,24 +10,19 @@ type DashboardDrawerProps = {
 }
 
 export const DashboardDrawer: React.FC<DashboardDrawerProps> = memo(({ isOpen, onClose }) => {
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     modalId: 'dashboard-drawer',
+    onClose,
   })
   return (
-    <Drawer
-      isOpen={isOpen}
-      onClose={onClose}
-      blockScrollOnMount={false}
-      placement='left'
-      trapFocus={isHighestModal}
-    >
-      <DrawerOverlay {...overlayStyle} />
+    <Drawer {...modalProps} placement='left'>
+      <DrawerOverlay {...overlayProps} />
       <DrawerContent
         paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
         paddingBottom='max(1rem, calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
         overflowY='auto'
-        containerProps={modalStyle}
+        {...modalContentProps}
       >
         <SideNavContent onClose={onClose} />
       </DrawerContent>

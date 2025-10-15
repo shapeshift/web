@@ -20,10 +20,6 @@ const modalMaxWidth = { base: 'full', md: '500px' }
 export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }) => {
   const navigate = useNavigate()
   const { location } = useBrowserRouter()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
-    isOpen,
-    modalId: 'defi-modal',
-  })
 
   const handleClose = useCallback(() => {
     navigate(location.pathname, {
@@ -31,21 +27,21 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
     })
   }, [navigate, location.pathname])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose: handleClose,
+    modalId: 'defi-modal',
+  })
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      variant='header-nav'
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
+    <Modal {...modalProps} onClose={handleClose} variant='header-nav'>
+      <ModalOverlay {...overlayProps} />
       <ModalContent
         width='full'
         borderRadius={modalBorderRadius}
         minWidth={modalMinWidth}
         maxWidth={modalMaxWidth}
-        containerProps={modalStyle}
+        {...modalContentProps}
       >
         {children}
       </ModalContent>

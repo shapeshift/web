@@ -15,23 +15,16 @@ const successRedirect = <Navigate to='/success' replace />
 
 export const MobileWelcomeModal = () => {
   const { close: handleClose, isOpen } = useModal('mobileWelcomeModal')
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose: handleClose,
     modalId: 'mobile-welcome-modal',
   })
 
   return (
-    <Modal
-      isCentered
-      closeOnOverlayClick={false}
-      closeOnEsc={false}
-      isOpen={isOpen}
-      onClose={handleClose}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent justifyContent='center' px={3} pt={3} pb={6} containerProps={modalStyle}>
+    <Modal isCentered {...modalProps} closeOnOverlayClick={false} closeOnEsc={false}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent justifyContent='center' px={3} pt={3} pb={6} {...modalContentProps}>
         <MemoryRouter>
           <AnimatePresence mode='wait' initial={false}>
             <RoutesWithAnimation />

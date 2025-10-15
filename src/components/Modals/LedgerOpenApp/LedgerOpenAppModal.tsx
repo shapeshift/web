@@ -35,8 +35,15 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+
+  const handleClose = useCallback(() => {
+    closeModal()
+    onCancel()
+  }, [closeModal, onCancel])
+
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose: handleClose,
     modalId: 'ledger-open-app-modal',
   })
 
@@ -51,23 +58,10 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
     return feeAsset
   }, [feeAsset, chainId, ethAsset, thorchainAsset])
 
-  const handleClose = useCallback(() => {
-    closeModal()
-    onCancel()
-  }, [closeModal, onCancel])
-
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isCentered
-      size='md'
-      closeOnOverlayClick={false}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent containerProps={modalStyle}>
+    <Modal {...modalProps} isCentered size='md' closeOnOverlayClick={false}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalHeader textAlign='left' pt={14}>
           <VStack spacing={2} width='full'>
             {appAsset ? <AssetOnLedger assetId={appAsset.assetId} size='lg' /> : null}

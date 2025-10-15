@@ -133,8 +133,9 @@ const DrawerWalletInner: FC = memo(() => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
   const navigate = useNavigate()
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
+    onClose,
     modalId: 'wallet-drawer-modal',
   })
 
@@ -198,16 +199,9 @@ const DrawerWalletInner: FC = memo(() => {
   const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      placement='right'
-      onClose={onClose}
-      size='sm'
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <DrawerOverlay {...overlayStyle} />
-      <DrawerContent width='full' maxWidth='512px' containerProps={modalStyle}>
+    <Drawer placement='right' size='sm' {...modalProps}>
+      <DrawerOverlay {...overlayProps} />
+      <DrawerContent width='full' maxWidth='512px' {...modalContentProps}>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
           <Routes>
             <Route

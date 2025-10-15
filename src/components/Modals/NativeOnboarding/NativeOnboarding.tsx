@@ -33,8 +33,9 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { modalStyle, overlayStyle, isHighestModal } = useModalRegistration({
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
+    onClose: closeModal,
     modalId: 'native-onboarding-modal',
   })
 
@@ -52,15 +53,9 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   }, [closeModal])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      size={isLargerThanMd ? undefined : 'full'}
-      trapFocus={isHighestModal}
-      blockScrollOnMount={isHighestModal}
-    >
-      <ModalOverlay {...overlayStyle} />
-      <ModalContent containerProps={modalStyle}>
+    <Modal {...modalProps} size={isLargerThanMd ? undefined : 'full'}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalHeader display='flex' alignItems='center' justifyContent='space-between'>
           <Tag size='sm' colorScheme='blue'>
             {translate('walletProvider.shapeShift.onboarding.shapeshiftWallet')}

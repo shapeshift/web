@@ -1,23 +1,23 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useModalStack } from './ModalStackProvider'
 
 export type UseModalRegistrationProps = {
   isOpen: boolean
   modalId: string
+  onClose: () => void
 }
 
-export const useModalRegistration = ({ isOpen, modalId }: UseModalRegistrationProps) => {
-  const { registerModal, unregisterModal, isTopModal } = useModalStack()
-  const [zIndex, setZIndex] = useState<number | undefined>()
+export const useModalRegistration = ({ isOpen, modalId, onClose }: UseModalRegistrationProps) => {
+  const { registerModal, unregisterModal, getIsHighestModal, getZIndex } = useModalStack()
+
+  const zIndex = useMemo(() => getZIndex(modalId), [getZIndex, modalId])
 
   useEffect(() => {
     if (isOpen) {
-      const newZIndex = registerModal(modalId)
-      setZIndex(newZIndex)
+      registerModal(modalId)
     } else {
       unregisterModal(modalId)
-      setZIndex(undefined)
     }
 
     return () => {
@@ -25,20 +25,22 @@ export const useModalRegistration = ({ isOpen, modalId }: UseModalRegistrationPr
     }
   }, [isOpen, modalId, registerModal, unregisterModal])
 
-  const isHighestModal = useMemo(() => isTopModal(modalId), [isTopModal, modalId])
+  const isHighestModal = useMemo(() => getIsHighestModal(modalId), [getIsHighestModal, modalId])
 
-  const modalStyle = useMemo(() => {
+  const modalContentProps = useMemo(() => {
     return zIndex
       ? {
-          sx: {
-            zIndex: `calc(var(--chakra-zIndices-modal) + ${zIndex})`,
-            pointerEvents: isHighestModal ? 'auto' : 'none',
+          containerProps: {
+            sx: {
+              zIndex: `calc(var(--chakra-zIndices-modal) + ${zIndex})`,
+              pointerEvents: isHighestModal ? 'auto' : 'none',
+            },
           },
         }
       : undefined
   }, [zIndex, isHighestModal])
 
-  const overlayStyle = useMemo(() => {
+  const overlayProps = useMemo(() => {
     return zIndex
       ? {
           sx: {
@@ -49,10 +51,22 @@ export const useModalRegistration = ({ isOpen, modalId }: UseModalRegistrationPr
       : undefined
   }, [zIndex, isHighestModal])
 
+  const modalProps = useMemo(() => {
+    return {
+      trapFocus: isHighestModal,
+      blockScrollOnMount: isHighestModal,
+      closeOnEsc: isHighestModal,
+      closeOnOverlayClick: isHighestModal,
+      isOpen,
+      onClose,
+    }
+  }, [isHighestModal, isOpen, onClose])
+
   return {
     zIndex,
-    modalStyle,
-    overlayStyle,
+    modalContentProps,
+    overlayProps,
+    modalProps,
     isHighestModal,
   }
 }

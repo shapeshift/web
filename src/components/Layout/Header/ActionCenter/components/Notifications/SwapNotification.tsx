@@ -1,5 +1,6 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
@@ -39,7 +40,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swapId)
 
   const swapAction = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
-
   // For ArbitrumBridge swaps, look up the corresponding ArbitrumBridge action by withdrawTxHash
   const withdrawTxHash = useMemo(() => {
     return swap?.swapperName === SwapperName.ArbitrumBridge ? swap?.sellTxHash : undefined
@@ -145,8 +145,8 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
     const { status } = action
 
-    if (swap.swapperName === SwapperName.ArbitrumBridge) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+    if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (status === ActionStatus.Initiated) {
         return isArbitrumBridgeWithdrawAction(action)

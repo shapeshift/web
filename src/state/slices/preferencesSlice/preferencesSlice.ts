@@ -60,7 +60,6 @@ export type FeatureFlags = {
   RFOX: boolean
   RFOX_LP: boolean
   CustomTokenImport: boolean
-  ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
   RunePool: boolean
   RunePoolDeposit: boolean
@@ -186,7 +185,6 @@ const initialState: Preferences = {
     RFOX: getConfig().VITE_FEATURE_RFOX,
     RFOX_LP: getConfig().VITE_FEATURE_RFOX_LP,
     CustomTokenImport: getConfig().VITE_FEATURE_CUSTOM_TOKEN_IMPORT,
-    ArbitrumBridgeClaims: getConfig().VITE_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().VITE_FEATURE_USDT_APPROVAL_RESET,
     RunePool: getConfig().VITE_FEATURE_RUNEPOOL,
     RunePoolDeposit: getConfig().VITE_FEATURE_RUNEPOOL_DEPOSIT,

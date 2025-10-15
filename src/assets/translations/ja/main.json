@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "ブースト",
     "viewOnExplorer": "エクスプローラーで表示",
+    "viewAssetDetails": "資産の詳細を表示",
     "approval": "承認",
     "permit2Approval": "Permit2の承認",
     "network": "ネットワーク",
@@ -390,6 +391,7 @@
       "switchWallet": "ウォレットを切り替える",
       "disconnect": "切断する",
       "disconnected": "(切断済み)",
+      "locked": "（ロックされています）",
       "reconnectWallet": "ウォレットを再接続する",
       "walletNotConnected": "現在、ウォレットが接続されていません。取引に影響します。",
       "connecting": "接続中..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "確認と請求",
     "viewClaims": "請求を表示",
     "viewClaimStatus": "請求ステータスの表示",
-    "availableClaimsNotification": "ブリッジクレームの準備ができました!"
+    "availableClaimsNotification": "ブリッジクレームの準備ができました!",
+    "bridgeWithdrawalReadyNotification": "ブリッジした資産の受け取り準備ができました",
+    "bridgeWithdrawalFailedNotification": "ブリッジによる出金に失敗しました",
+    "checkActionCenterNotification": "詳細についてはアクションセンターを確認してください"
   },
   "trade": {
     "trade": "取引",
@@ -2176,9 +2181,12 @@
   },
   "assets": {
     "more": "もっと",
+    "hideAsset": "アセットを非表示",
+    "showAsset": "アセットを表示",
+    "cannotHidePrimary": "関連するバリアントを持つプライマリアセットを非表示にすることはできません",
     "spam": {
-      "reportAsSpam": "スパムとして報告",
-      "reportAsNotSpam": "スパムではないとマークする"
+      "warning": "この資産は、ウォレットのドロップダウンを開いて「非表示の資産の管理」をクリックすると再度表示されます。",
+      "marked": "このアセットは現在非表示になっています。"
     },
     "assetDetails": {
       "assetHeader": {
@@ -2793,6 +2801,13 @@
     },
     "title": "ウォッチリスト"
   },
+  "manageHiddenAssets": {
+    "title": "非表示のアセットを管理",
+    "empty": {
+      "title": "非表示のアセットはありません",
+      "body": "非表示にしたアセットはここに表示されるので、後で簡単に再度表示できます。"
+    }
+  },
   "explore": {
     "pools": {
       "title": "プール",
@@ -3124,6 +3139,7 @@
       "switchChainFailed": "ウォレット チェーンの切り替えに失敗しました。ウォレットのアクティブ チェーンを手動で %{chain} に切り替えてみてください。",
       "buildTransaction": "トランザクションの構築に失敗しました。",
       "signTransaction": "トランザクションの署名に失敗しました。",
+      "blindSigningRequired": "取引にはブラインド署名が必要です。Ledgerアプリの設定で 'Blind signing' を有効にして、もう一度お試しください。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",
       "signMessage": "メッセージの署名に失敗しました。",
       "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",
@@ -3200,7 +3216,17 @@
       "complete": "%{amount} %{symbol} の請求が完了しました。"
     },
     "bridge": {
-      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。"
+      "processing": "処理中...",
+      "complete": "%{amountAndSymbol} のブリッジが完成しました。",
+      "initiated": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのブリッジが開始されました。",
+      "pendingWithdraw": "%{amountAndSymbol} の出金は %{timeText} から可能になります。",
+      "claimAvailable": "ブリッジした %{amountAndSymbol} を受け取れます",
+      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。",
+      "transactionInitiated": "取引開始",
+      "claimWithdraw": "引き出しを請求",
+      "withdrawTx": "出金トランザクション",
+      "claimTx": "請求トランザクション",
+      "claimNotAvailable": "請求はまだご利用いただけません。出金期間が完了するまでお待ちください。"
     },
     "limitOrder": {
       "placed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} への指値注文が出されました",

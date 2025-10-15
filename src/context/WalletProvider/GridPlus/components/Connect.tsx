@@ -59,6 +59,9 @@ export const GridPlusConnect = () => {
   }, [])
 
   const resetPairingFlow = useCallback(() => {
+    if (pendingSafeCardUuid) {
+      appDispatch(gridplusSlice.actions.removeSafeCard(pendingSafeCardUuid))
+    }
     setShowPairingCode(false)
     setPairingCode('')
     setPendingSafeCardUuid(null)
@@ -68,15 +71,18 @@ export const GridPlusConnect = () => {
     if (safeCards.length > 0) {
       setShowSafeCardList(true)
     }
-  }, [safeCards.length])
+  }, [pendingSafeCardUuid, safeCards.length, appDispatch])
 
   const handleBackToList = useCallback(() => {
+    if (pendingSafeCardUuid) {
+      appDispatch(gridplusSlice.actions.removeSafeCard(pendingSafeCardUuid))
+    }
     setShowSafeCardList(true)
     setIsAddingNew(false)
     setSelectedSafeCardId(null)
     setPendingSafeCardUuid(null)
     setSafeCardName('')
-  }, [])
+  }, [pendingSafeCardUuid, appDispatch])
 
   const getAdapterWithKeyring = useCallback(async (): Promise<GridPlusAdapter> => {
     const adapter = (await getAdapter(KeyManager.GridPlus)) as GridPlusAdapter | null

@@ -124,7 +124,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!wallet) return
-
     const walletSupportedChainIds = supportedChains.filter(chainId => {
       return walletSupportsChain({
         chainId,

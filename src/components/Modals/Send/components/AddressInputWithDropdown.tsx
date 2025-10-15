@@ -11,12 +11,14 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useCallback, useRef } from 'react'
+import type { ControllerProps } from 'react-hook-form'
 
 import { AddressInput } from '../AddressInput/AddressInput'
-import { QRCodeIcon } from './QRCodeIcon'
+
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 
 interface AddressInputWithDropdownProps {
-  addressInputRules: any
+  addressInputRules: ControllerProps['rules']
   supportsENS: boolean
   translate: (key: string) => string
   onScanQRCode: () => void
@@ -63,7 +65,7 @@ export const AddressInputWithDropdown = ({
               pe={16}
               rules={addressInputRules}
               placeholder={translate(
-                supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+                supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
               onFocus={handleFocus}
               onBlur={handleBlur}

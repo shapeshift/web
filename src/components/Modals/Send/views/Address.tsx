@@ -82,7 +82,7 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => navigate(SendRoutes.Amount), [navigate])
+  const handleNext = useCallback(() => navigate(SendRoutes.AmountDetails), [navigate])
 
   const handleBackClick = useCallback(() => {
     setValue(SendFormFields.AssetId, '')
@@ -159,11 +159,10 @@ export const Address = () => {
               pe={16}
               rules={addressInputRules}
               placeholder={translate(
-                supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+                supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
             />
           </FormControl>
-
           <Button
             size='lg'
             leftIcon={qrCodeIcon}

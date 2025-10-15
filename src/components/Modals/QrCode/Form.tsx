@@ -14,7 +14,7 @@ import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
 import { Status } from '../Send/views/Status'
 
-import { SendAmount } from '@/components/Modals/Send/views/SendAmount'
+import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -176,7 +176,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (isAmbiguousTransfer) {
             return navigate(SendRoutes.Select)
           }
-          return navigate(SendRoutes.Amount)
+          return navigate(SendRoutes.AmountDetails)
         } catch (e: any) {
           setAddressError(e.message)
         }
@@ -191,7 +191,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   )
 
   const addressElement = useMemo(() => <Address />, [])
-  const detailsElement = useMemo(() => <SendAmount />, [])
+  const detailsElement = useMemo(() => <SendAmountDetails />, [])
   const qrCodeScannerElement = useMemo(
     () => (
       <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleClose} addressError={addressError} />
@@ -219,7 +219,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           <Routes>
             <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />
             <Route path={SendRoutes.Address} element={addressElement} />
-            <Route path={SendRoutes.Amount} element={detailsElement} />
+            <Route path={SendRoutes.AmountDetails} element={detailsElement} />
             <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />
             <Route path={SendRoutes.Confirm} element={confirmElement} />
             <Route path={SendRoutes.Status} element={statusElement} />

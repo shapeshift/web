@@ -10,13 +10,18 @@ import {
   Skeleton,
   VStack,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const SPEED_OPTIONS = [
   { value: FeeDataKey.Slow, emoji: '🐌', text: 'Slow' },
@@ -30,23 +35,24 @@ const chevronIcon = <ChevronDownIcon />
 export type GasSelectionProps = {
   selectedSpeed: FeeDataKey
   onSpeedChange: (speed: FeeDataKey) => void
-  feeAmount: string
-  feeSymbol: string
+  amountCryptoPrecision: string
+  feeAssetId: AssetId | undefined
   fiatFee: string
-  isLoading?: boolean
-  showSimulationTooltip?: boolean
+  isLoading: boolean
 }
 
 export const GasSelection: FC<GasSelectionProps> = ({
   selectedSpeed,
   onSpeedChange,
-  feeAmount,
-  feeSymbol,
+  amountCryptoPrecision,
+  feeAssetId,
   fiatFee,
   isLoading = false,
-  showSimulationTooltip = false,
 }) => {
   const translate = useTranslate()
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {
@@ -54,6 +60,8 @@ export const GasSelection: FC<GasSelectionProps> = ({
     },
     [onSpeedChange],
   )
+
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
   const currentSpeedOption = useMemo(
     () => SPEED_OPTIONS.find(option => option.value === selectedSpeed),
@@ -64,6 +72,10 @@ export const GasSelection: FC<GasSelectionProps> = ({
     (speed: FeeDataKey) => () => handleSpeedChange(speed),
     [handleSpeedChange],
   )
+
+  const fiatFeeFormatted = useMemo(() => {
+    return toFiat(fiatFee)
+  }, [fiatFee, toFiat])
 
   if (isLoading) {
     return (
@@ -88,18 +100,16 @@ export const GasSelection: FC<GasSelectionProps> = ({
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
-        <RawText fontSize='sm' fontWeight='medium'>
-          {feeAmount} {feeSymbol} (${fiatFee})
-        </RawText>
+        <Amount.Crypto
+          value={amountCryptoPrecision}
+          symbol={feeAsset?.symbol ?? ''}
+          fontSize='sm'
+          fontWeight='medium'
+          suffix={` (${fiatFeeFormatted})`}
+          maximumFractionDigits={30}
+        />
         <HStack spacing={1} align='center'>
-          <HelperTooltip
-            label={
-              showSimulationTooltip
-                ? translate('modals.status.estimatedGas')
-                : translate('common.feeEstimate')
-            }
-            iconProps={tooltipIconSx}
-          />
+          <HelperTooltip label={translate('common.feeEstimate')} iconProps={tooltipIconSx} />
           <RawText fontSize='xs' color='text.subtle'>
             {translate('common.feeEstimate')}
           </RawText>

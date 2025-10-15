@@ -1428,7 +1428,7 @@
       }
     },
     "send": {
-      "confirmTransaction": "Confirm transaction to %{address}",
+      "confirmSend": "Confirm send to %{address}",
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
@@ -1437,8 +1437,8 @@
       "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "To Address",
-      "addressInput": "To Address or ENS",
+      "toAddress": "To Address",
+      "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
@@ -1481,11 +1481,8 @@
         "average": "Average",
         "fast": "Fast",
         "enterAmount": "Enter Amount",
-        "scanQrCode": "Scan QR Code",
         "scanQrCodeDescription": "Tap to scan an address",
         "yourAddresses": "Your Addresses",
-        "to": "To",
-        "from": "From",
         "availableBalance": "%{balance} available"
       },
       "status": {

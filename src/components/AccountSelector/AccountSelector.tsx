@@ -18,7 +18,7 @@ import { RiExpandUpDownLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 
-import type { AccountIdsByNumberAndType } from '@/components/AccountSelector/AccountSelectorDialog'
+import type { AccountIdsByNumberAndType } from '@/components/AccountDropdown/types'
 import { AccountSelectionDialog } from '@/components/AccountSelector/AccountSelectorDialog'
 import { AssetIcon } from '@/components/AssetIcon'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -26,6 +26,7 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
 import type { ReduxState } from '@/state/reducer'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
@@ -82,7 +83,7 @@ export const AccountSelector: FC<AccountSelectorDialogProps> = memo(
       number: { localeParts },
     } = useLocaleFormatter()
 
-    if (!asset) throw new Error(`AccountDropdown: no asset found for assetId ${assetId}!`)
+    if (!asset) throw new Error(`AccountSelector: no asset found for assetId ${assetId}!`)
 
     const accountMetadata = useSelector(selectPortfolioAccountMetadata)
     const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
@@ -232,7 +233,11 @@ export const AccountSelector: FC<AccountSelectorDialogProps> = memo(
               <AssetIcon assetId={assetId} size='sm' borderRadius='full' />
               <VStack align='start' spacing={0} flex={1}>
                 <Text fontSize='md' fontWeight='bold'>
-                  <MiddleEllipsis value={selectedAccountDetails?.accountAddress ?? ''} />
+                  {selectedAccountId && isUtxoAccountId(selectedAccountId) ? (
+                    accountIdToLabel(selectedAccountId)
+                  ) : (
+                    <MiddleEllipsis value={selectedAccountDetails?.accountAddress ?? ''} />
+                  )}
                 </Text>
                 {selectedAccountDetails && (
                   <VStack align='start' spacing={0} mt={1}>

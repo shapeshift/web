@@ -133,7 +133,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     [setValue],
   )
 
-  const handleBack = useCallback(() => navigate(SendRoutes.Amount), [navigate])
+  const handleBack = useCallback(() => navigate(SendRoutes.AmountDetails), [navigate])
 
   // We don't want this firing -- but need it for typing
   const handleAccountChange = useCallback(() => {}, [])
@@ -148,8 +148,8 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     [asset],
   )
 
-  const confirmTransactionTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['modals.send.confirmTransaction', { address: middleEllipsis(to ?? '') }],
+  const confirmSendTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.send.confirmSend', { address: middleEllipsis(to ?? '') }],
     [to],
   )
 
@@ -217,7 +217,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
       <DialogBody>
         <Flex flexDirection='column' alignItems='center' mb={8}>
           <Text
-            translation={confirmTransactionTranslation}
+            translation={confirmSendTranslation}
             fontSize='2xl'
             fontWeight='normal'
             textAlign='center'
@@ -253,7 +253,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             />
             <Flex alignItems='center' gap={2} width='100%' my={4}>
               <Text
-                translation='modals.send.sendForm.to'
+                translation='trade.to'
                 fontSize='sm'
                 backgroundColor={toBg}
                 px={1}
@@ -270,7 +270,6 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               </InlineCopyButton>
             </Box>
           </Box>
-
           <Flex
             flexDirection='column'
             gap={4}
@@ -282,7 +281,6 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             position='relative'
           >
             <AssetIcon assetId={asset.assetId} position='relative' zIndex={2} size='md' />
-
             <Box
               position='absolute'
               left={'50%'}
@@ -293,7 +291,6 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             >
               <AnimatedDots />
             </Box>
-
             {/* @TODO: Use custom receive address avatar */}
             <ProfileAvatar borderRadius='full' position='relative' zIndex={2} size='md' />
           </Flex>
@@ -310,7 +307,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </Row>
           <Row alignItems='center'>
             <Row.Label>
-              <Text translation='modals.send.sendForm.from' />
+              <Text translation='trade.from' />
             </Row.Label>
             <Row.Value display='flex' alignItems='center'>
               <InlineCopyButton

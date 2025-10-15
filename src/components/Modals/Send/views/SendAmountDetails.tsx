@@ -57,7 +57,7 @@ import { breakpoints } from '@/theme/theme'
 const accountDropdownBoxProps = { px: 0, my: 0 }
 const accountDropdownButtonProps = { px: 2 }
 
-const MAX_COSMOS_SDK_MEMO_LENGTH = 256
+const MAX_MEMO_LENGTH = 256
 
 type RenderController = ({
   field,
@@ -83,7 +83,7 @@ const AmountInput = (props: any) => {
   )
 }
 
-export const SendAmount = () => {
+export const SendAmountDetails = () => {
   const {
     control,
     setValue,
@@ -97,7 +97,7 @@ export const SendAmount = () => {
   } = useLocaleFormatter()
 
   const [isValidating, setIsValidating] = useState(false)
-  const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, memo, input } = useWatch({
     control,
@@ -152,12 +152,9 @@ export const SendAmount = () => {
     [assetId],
   )
 
-  const remainingMemoChars = useMemo(
-    () => bnOrZero(MAX_COSMOS_SDK_MEMO_LENGTH - Number(memo?.length)),
-    [memo],
-  )
+  const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
 
-  const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
+  const memoFieldError = remainingMemoChars.lt(0)
 
   const assetMemoTranslation = useMemo(
     () => ['modals.send.sendForm.assetMemo', { assetSymbol: asset?.symbol ?? '' }],
@@ -274,182 +271,108 @@ export const SendAmount = () => {
       </DialogHeader>
 
       <DialogBody height='100%'>
-        <Display.Mobile>
-          <VStack spacing={6} align='stretch' height='100%'>
-            <Box>
-              <Flex
-                p={4}
-                borderRadius='2xl'
-                bg='background.surface.raised.base'
-                border='1px solid'
-                borderColor='border.base'
-                alignItems='center'
-              >
-                <CText me={4} lineHeight='1'>
-                  {translate('modals.send.sendForm.to')}
-                </CText>
-                <CText fontSize='sm' color='text.primary' fontWeight='bold' lineHeight='1'>
-                  <MiddleEllipsis value={to || ''} />
-                </CText>
-              </Flex>
-            </Box>
-
-            <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
-              {balancesLoading ? (
-                <Skeleton height='80px' width='100%' maxWidth='240px' mx='auto' />
-              ) : (
-                <FormControl>
-                  {fieldName === SendFormFields.AmountCryptoPrecision && (
-                    <Controller
-                      name={SendFormFields.AmountCryptoPrecision}
-                      control={control}
-                      render={renderController}
-                    />
-                  )}
-                  {fieldName === SendFormFields.FiatAmount && (
-                    <Controller
-                      name={SendFormFields.FiatAmount}
-                      control={control}
-                      render={renderController}
-                    />
-                  )}
-
-                  <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
-                    <ChakraText fontSize='sm' color='text.subtle'>
-                      {isFiat ? (
-                        <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
-                      ) : (
-                        <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
-                      )}
-                    </ChakraText>
-                    <Button variant='ghost' size='sm' p={1} minW='auto' h='auto'>
-                      <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
-                    </Button>
-                  </HStack>
-                </FormControl>
-              )}
-            </Flex>
-
-            {showMemoField && (
-              <FormControl mt={6} mb={4}>
-                <Box display='flex' alignItems='center' justifyContent='space-between'>
-                  <FormLabel color='text.subtle' display='flex' alignItems='center'>
-                    <Text translation={assetMemoTranslation as [string, { assetSymbol: string }]} />
-                    <Tooltip
-                      placement='right'
-                      label={translate('modals.send.sendForm.memoExplainer', {
-                        assetSymbol: asset.symbol,
-                      })}
-                      fontSize='md'
-                      pr={4}
-                    >
-                      <Box ml='5px'>
-                        <FaInfoCircle />
-                      </Box>
-                    </Tooltip>
-                  </FormLabel>
-                  <FormHelperText
-                    mt={0}
-                    mr={3}
-                    mb={2}
-                    as='button'
-                    type='button'
-                    color={memoFieldError ? 'red.500' : 'text.subtle'}
-                  >
-                    {translate('modals.send.sendForm.charactersRemaining', {
-                      charactersRemaining: remainingMemoChars.toString(),
-                    })}
-                  </FormHelperText>
-                </Box>
-                <Controller name={SendFormFields.Memo} render={renderMemoController} />
-              </FormControl>
-            )}
-          </VStack>
-        </Display.Mobile>
-
-        <Display.Desktop>
-          <VStack spacing={6} align='stretch' height='100%'>
-            <Box>
+        <VStack spacing={6} align='stretch' height='100%'>
+          <Box>
+            <Display.Desktop>
               <AddressInputWithDropdown
                 addressInputRules={addressInputRules}
                 supportsENS={supportsENS}
                 translate={translate}
                 onScanQRCode={handleScanQrCode}
               />
-            </Box>
+            </Display.Desktop>
+            <Display.Mobile>
+              <Box>
+                <Flex
+                  p={4}
+                  borderRadius='2xl'
+                  bg='background.surface.raised.base'
+                  border='1px solid'
+                  borderColor='border.base'
+                  alignItems='center'
+                >
+                  <CText me={4} lineHeight='1'>
+                    {translate('trade.to')}
+                  </CText>
+                  <CText fontSize='sm' color='text.primary' fontWeight='bold' lineHeight='1'>
+                    <MiddleEllipsis value={to || ''} />
+                  </CText>
+                </Flex>
+              </Box>
+            </Display.Mobile>
+          </Box>
 
-            <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
-              {balancesLoading ? (
-                <Skeleton height='80px' width='100%' maxWidth='240px' mx='auto' />
-              ) : (
-                <FormControl>
-                  {fieldName === SendFormFields.AmountCryptoPrecision && (
-                    <Controller
-                      name={SendFormFields.AmountCryptoPrecision}
-                      control={control}
-                      render={renderController}
-                    />
-                  )}
-                  {fieldName === SendFormFields.FiatAmount && (
-                    <Controller
-                      name={SendFormFields.FiatAmount}
-                      control={control}
-                      render={renderController}
-                    />
-                  )}
+          <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
+            {balancesLoading ? (
+              <Skeleton height='80px' width='100%' maxWidth='240px' mx='auto' />
+            ) : (
+              <FormControl>
+                {fieldName === SendFormFields.AmountCryptoPrecision && (
+                  <Controller
+                    name={SendFormFields.AmountCryptoPrecision}
+                    control={control}
+                    render={renderController}
+                  />
+                )}
+                {fieldName === SendFormFields.FiatAmount && (
+                  <Controller
+                    name={SendFormFields.FiatAmount}
+                    control={control}
+                    render={renderController}
+                  />
+                )}
 
-                  <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
-                    <ChakraText fontSize='sm' color='text.subtle'>
-                      {isFiat ? (
-                        <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
-                      ) : (
-                        <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
-                      )}
-                    </ChakraText>
-                    <Button variant='ghost' size='sm' p={1} minW='auto' h='auto'>
-                      <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
-                    </Button>
-                  </HStack>
-                </FormControl>
-              )}
-            </Flex>
-
-            {showMemoField && (
-              <FormControl mt={6} mb={4}>
-                <Box display='flex' alignItems='center' justifyContent='space-between'>
-                  <FormLabel color='text.subtle' display='flex' alignItems='center'>
-                    <Text translation={assetMemoTranslation as [string, { assetSymbol: string }]} />
-                    <Tooltip
-                      placement='right'
-                      label={translate('modals.send.sendForm.memoExplainer', {
-                        assetSymbol: asset.symbol,
-                      })}
-                      fontSize='md'
-                      pr={4}
-                    >
-                      <Box ml='5px'>
-                        <FaInfoCircle />
-                      </Box>
-                    </Tooltip>
-                  </FormLabel>
-                  <FormHelperText
-                    mt={0}
-                    mr={3}
-                    mb={2}
-                    as='button'
-                    type='button'
-                    color={memoFieldError ? 'red.500' : 'text.subtle'}
-                  >
-                    {translate('modals.send.sendForm.charactersRemaining', {
-                      charactersRemaining: remainingMemoChars.toString(),
-                    })}
-                  </FormHelperText>
-                </Box>
-                <Controller name={SendFormFields.Memo} render={renderMemoController} />
+                <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
+                  <ChakraText fontSize='sm' color='text.subtle'>
+                    {isFiat ? (
+                      <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
+                    ) : (
+                      <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
+                    )}
+                  </ChakraText>
+                  <Button variant='ghost' size='sm' p={1} minW='auto' h='auto'>
+                    <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
+                  </Button>
+                </HStack>
               </FormControl>
             )}
-          </VStack>
-        </Display.Desktop>
+          </Flex>
+
+          {showMemoField && (
+            <FormControl mt={6} mb={4}>
+              <Box display='flex' alignItems='center' justifyContent='space-between'>
+                <FormLabel color='text.subtle' display='flex' alignItems='center'>
+                  <Text translation={assetMemoTranslation as [string, { assetSymbol: string }]} />
+                  <Tooltip
+                    placement='right'
+                    label={translate('modals.send.sendForm.memoExplainer', {
+                      assetSymbol: asset.symbol,
+                    })}
+                    fontSize='md'
+                    pr={4}
+                  >
+                    <Box ml='5px'>
+                      <FaInfoCircle />
+                    </Box>
+                  </Tooltip>
+                </FormLabel>
+                <FormHelperText
+                  mt={0}
+                  mr={3}
+                  mb={2}
+                  as='button'
+                  type='button'
+                  color={memoFieldError ? 'red.500' : 'text.subtle'}
+                >
+                  {translate('modals.send.sendForm.charactersRemaining', {
+                    charactersRemaining: remainingMemoChars.toString(),
+                  })}
+                </FormHelperText>
+              </Box>
+              <Controller name={SendFormFields.Memo} render={renderMemoController} />
+            </FormControl>
+          )}
+        </VStack>
       </DialogBody>
 
       <DialogFooter
@@ -466,7 +389,7 @@ export const SendAmount = () => {
           <Flex alignItems='center' justifyContent='space-between' mb={4}>
             <Flex alignItems='center'>
               <FormLabel color='text.subtle' mb={0}>
-                {translate('modals.send.sendForm.from')}
+                {translate('trade.from')}
               </FormLabel>
               <Box>
                 <AccountSelector
@@ -484,7 +407,7 @@ export const SendAmount = () => {
 
           <Button
             width='full'
-            colorScheme={addressError && !isValidating && !isUnderMd ? 'red' : 'blue'}
+            colorScheme={addressError && !isValidating && !isSmallerThanMd ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
             isDisabled={
@@ -498,7 +421,7 @@ export const SendAmount = () => {
             }
             isLoading={isLoading || isValidating}
           >
-            {translate(addressError ?? 'common.preview')}
+            {translate(Boolean(addressError) ? addressError : 'common.preview')}
           </Button>
         </Stack>
       </DialogFooter>

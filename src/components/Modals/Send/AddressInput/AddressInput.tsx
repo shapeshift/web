@@ -24,7 +24,7 @@ type AddressInputProps = {
   enableQr?: boolean
   placeholder?: string
   pe?: SpaceProps['pe']
-} & InputProps
+} & Omit<InputProps, 'as' | 'value' | 'onChange'>
 
 const qrCodeIcon = <QRCodeIcon />
 
@@ -33,6 +33,9 @@ export const AddressInput = ({
   placeholder,
   enableQr = false,
   pe = 10,
+  onFocus,
+  onBlur,
+  onPaste,
   ...props
 }: AddressInputProps) => {
   const navigate = useNavigate()
@@ -64,7 +67,7 @@ export const AddressInput = ({
       <InputGroup alignItems='center'>
         <InputLeftElement pointerEvents='none' height='100%'>
           <Text color='text.subtle' w='full' pl={4} fontSize='sm'>
-            {translate('modals.send.sendForm.to')}
+            {translate('trade.to')}
           </Text>
         </InputLeftElement>
         <Input
@@ -82,14 +85,17 @@ export const AddressInput = ({
           // Because the InputRightElement is hover the input, we need to let this space free
           pe={pe}
           isInvalid={isInvalid && isDirty}
-          // This is already a `useCallback()`
-          // eslint-disable-next-line react-memo/require-usememo
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onPaste={onPaste}
           {...props}
           onChange={onChange}
         />
       </InputGroup>
     ),
-    [placeholder, pe, isInvalid, isDirty, props, translate],
+    // We want only behavior-specific props to rerender the controller, not all props
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [placeholder, pe, isInvalid, isDirty, translate, onFocus, onBlur, onPaste],
   )
 
   return (

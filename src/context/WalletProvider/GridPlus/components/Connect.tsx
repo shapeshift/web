@@ -14,7 +14,7 @@ import {
   Spinner,
   VStack,
 } from '@chakra-ui/react'
-import type { GridPlusAdapter } from '@shapeshiftoss/hdwallet-gridplus'
+import type { GridPlusAdapter, GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -105,7 +105,7 @@ export const GridPlusConnect = () => {
     return adapter
   }, [getAdapter, translate])
 
-  const storeSession = useCallback(
+  const storeConnection = useCallback(
     (deviceId: string, sessionId: string) => {
       appDispatch(
         gridplusSlice.actions.setConnection({
@@ -118,7 +118,7 @@ export const GridPlusConnect = () => {
   )
 
   const finalizeWalletSetup = useCallback(
-    (wallet: any, safeCardWalletId: string) => {
+    (wallet: GridPlusHDWallet, safeCardWalletId: string) => {
       walletDispatch({
         type: WalletActions.SET_WALLET,
         payload: {
@@ -223,7 +223,7 @@ export const GridPlusConnect = () => {
           return
         }
 
-        storeSession(connectionDeviceId, newSessionId)
+        storeConnection(connectionDeviceId, newSessionId)
 
         if (!selectedSafeCardId) {
           setShowNameScreen(true)
@@ -246,7 +246,7 @@ export const GridPlusConnect = () => {
 
       if (!sessionId && wallet.getSessionId) {
         const walletSessionId = wallet.getSessionId()
-        storeSession(connectionDeviceId, walletSessionId)
+        storeConnection(connectionDeviceId, walletSessionId)
       }
 
       if (pendingSafeCardUuid && safeCardName.trim()) {
@@ -273,7 +273,7 @@ export const GridPlusConnect = () => {
     generateDefaultSafeCardName,
     getConnectionDeviceId,
     getAdapterWithKeyring,
-    storeSession,
+    storeConnection,
     finalizeWalletSetup,
     handleDeviceConnectionError,
     appDispatch,
@@ -313,7 +313,7 @@ export const GridPlusConnect = () => {
             return
           }
 
-          storeSession(connectionDeviceId, newSessionId)
+          storeConnection(connectionDeviceId, newSessionId)
         }
 
         const wallet = await adapterWithKeyring.pairDevice(
@@ -325,7 +325,7 @@ export const GridPlusConnect = () => {
 
         if (!sessionId && wallet.getSessionId) {
           const walletSessionId = wallet.getSessionId()
-          storeSession(connectionDeviceId, walletSessionId)
+          storeConnection(connectionDeviceId, walletSessionId)
         }
 
         finalizeWalletSetup(wallet, safeCardWalletId)
@@ -338,7 +338,7 @@ export const GridPlusConnect = () => {
       appDispatch,
       getConnectionDeviceId,
       getAdapterWithKeyring,
-      storeSession,
+      storeConnection,
       finalizeWalletSetup,
       handleDeviceConnectionError,
     ],

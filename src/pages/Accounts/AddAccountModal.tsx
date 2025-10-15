@@ -19,7 +19,6 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 
 import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
 import { RawText } from '@/components/Text'
@@ -34,7 +33,6 @@ import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolio
 import {
   selectFeeAssetByChainId,
   selectMaybeNextAccountNumberByChainId,
-  selectWalletConnectedChainIdsSorted,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -49,7 +47,7 @@ export const AddAccountModal = () => {
     state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
 
-  const chainIds = useSelector(selectWalletConnectedChainIdsSorted)
+  const chainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
 

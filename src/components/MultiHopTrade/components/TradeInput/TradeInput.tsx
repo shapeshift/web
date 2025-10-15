@@ -29,7 +29,7 @@ import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
 import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAcknowledgement'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
-import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
+import { useMixpanel } from '@/components/MultiHopTrade/components/TradeConfirm/hooks/useMixpanel'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
@@ -38,7 +38,6 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit } from '@/lib/math'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
@@ -105,7 +104,7 @@ export const TradeInput = ({
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
+  const trackMixpanelEvent = useMixpanel()
   const navigate = useNavigate()
   const { showErrorToast } = useErrorToast()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
@@ -285,10 +284,7 @@ export const TradeInput = ({
 
     setIsConfirmationLoading(true)
     try {
-      const eventData = getMixpanelEventData()
-      if (mixpanel && eventData) {
-        mixpanel.track(MixPanelEvent.TradePreview, eventData)
-      }
+      trackMixpanelEvent(MixPanelEvent.TradePreview)
 
       if (!wallet) throw Error('missing wallet')
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
@@ -323,7 +319,7 @@ export const TradeInput = ({
     handleConnect,
     navigate,
     isConnected,
-    mixpanel,
+    trackMixpanelEvent,
     showErrorToast,
     tradeQuoteStep,
     wallet,

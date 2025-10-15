@@ -246,7 +246,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
       setSuccessState(quickBuyState.amount ?? 0)
     }
   }, [
-    hopExecutionMetadata?.swap,
+    hopExecutionMetadata,
     quickBuyState.status,
     quickBuyState.amount,
     setErrorState,

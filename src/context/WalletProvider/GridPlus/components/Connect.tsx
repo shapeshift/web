@@ -5,12 +5,9 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  HStack,
   Input,
   ModalBody,
   ModalHeader,
-  PinInput,
-  PinInputField,
   Spinner,
   VStack,
 } from '@chakra-ui/react'
@@ -22,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { GridPlusConfig } from '../config'
 import { SafeCardList } from './SafeCardList'
+import { Setup } from './Setup'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -54,11 +52,6 @@ export const GridPlusConnect = () => {
   const [showSetupForm, setShowSetupForm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const buttonLabel = showPairingCode
-    ? translate('walletProvider.gridplus.pair.button')
-    : translate('common.done')
-  const isSubmitDisabled = showPairingCode ? pairingCode.length !== 8 : false
 
   const handleSafeCardNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSafeCardName(e.target.value)
@@ -368,51 +361,6 @@ export const GridPlusConnect = () => {
     [error],
   )
 
-  const pairingCodeSection = useMemo(
-    () =>
-      showPairingCode && (
-        <FormControl>
-          <FormLabel>{translate('walletProvider.gridplus.pair.pairingCode')}</FormLabel>
-          <HStack spacing={2}>
-            <PinInput
-              type='alphanumeric'
-              value={pairingCode}
-              onChange={handlePairingCodeChange}
-              isDisabled={isLoading}
-              otp
-              placeholder='_'
-              autoFocus
-            >
-              {Array.from({ length: 8 }).map((_, i) => (
-                <PinInputField key={i} />
-              ))}
-            </PinInput>
-          </HStack>
-          <FormHelperText>
-            {translate('walletProvider.gridplus.pair.pairingCodeHelper')}
-          </FormHelperText>
-        </FormControl>
-      ),
-    [showPairingCode, pairingCode, handlePairingCodeChange, isLoading, translate],
-  )
-
-  const safeCardNameInput = useMemo(
-    () => (
-      <FormControl>
-        <FormLabel>{translate('walletProvider.gridplus.name.label')}</FormLabel>
-        <Input
-          placeholder={translate('walletProvider.gridplus.name.placeholder')}
-          value={safeCardName}
-          onChange={handleSafeCardNameChange}
-          isDisabled={isLoading}
-          autoFocus={!showPairingCode}
-        />
-        <FormHelperText>{translate('walletProvider.gridplus.name.helper')}</FormHelperText>
-      </FormControl>
-    ),
-    [safeCardName, handleSafeCardNameChange, isLoading, showPairingCode, translate],
-  )
-
   const deviceIdInput = useMemo(
     () =>
       !physicalDeviceId && (
@@ -453,55 +401,17 @@ export const GridPlusConnect = () => {
 
   if (showSetupForm) {
     return (
-      <>
-        <ModalHeader>
-          {showPairingCode
-            ? translate('walletProvider.gridplus.pair.header')
-            : translate('walletProvider.gridplus.name.header')}
-        </ModalHeader>
-        <ModalBody>
-          <form
-            onSubmit={e => {
-              e.preventDefault()
-              if (!isLoading && !isSubmitDisabled) {
-                handleConnect()
-              }
-            }}
-          >
-            <VStack spacing={4} align='stretch'>
-              {pairingCodeSection}
-
-              {safeCardNameInput}
-
-              {errorAlert}
-
-              {isLoading ? (
-                <Button
-                  width='full'
-                  colorScheme='blue'
-                  isLoading
-                  loadingText={translate('walletProvider.gridplus.connect.connecting')}
-                  spinner={SPINNER_ELEMENT}
-                  isDisabled
-                  type='submit'
-                >
-                  {buttonLabel}
-                </Button>
-              ) : (
-                <Button width='full' colorScheme='blue' type='submit' isDisabled={isSubmitDisabled}>
-                  {buttonLabel}
-                </Button>
-              )}
-
-              {showPairingCode && (
-                <Button variant='ghost' type='button' onClick={resetPairingFlow}>
-                  {translate('walletProvider.gridplus.pair.cancel')}
-                </Button>
-              )}
-            </VStack>
-          </form>
-        </ModalBody>
-      </>
+      <Setup
+        showPairingCode={showPairingCode}
+        pairingCode={pairingCode}
+        onPairingCodeChange={handlePairingCodeChange}
+        safeCardName={safeCardName}
+        onSafeCardNameChange={handleSafeCardNameChange}
+        error={error}
+        isLoading={isLoading}
+        onSubmit={handleConnect}
+        onCancel={resetPairingFlow}
+      />
     )
   }
 

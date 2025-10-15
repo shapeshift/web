@@ -60,9 +60,10 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
   const toast = useToast()
   const { state: walletState } = useWallet()
 
-  const handleRename = useCallback(
-    (id: string) => {
-      if (editName.trim()) {
+  const handleRenameBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      const id = e.currentTarget.dataset.id
+      if (id && editName.trim()) {
         dispatch(
           gridplusSlice.actions.setSafeCardName({
             id,
@@ -75,12 +76,55 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     [editName, dispatch],
   )
 
-  const handleDeleteClick = useCallback(
-    (safeCard: SafeCard) => {
-      setSafeCardToDelete(safeCard)
-      onOpen()
+  const handleRenameKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const id = e.currentTarget.dataset.id
+      if (e.key === 'Enter' && id && editName.trim()) {
+        dispatch(
+          gridplusSlice.actions.setSafeCardName({
+            id,
+            name: editName.trim(),
+          }),
+        )
+        setEditingId(null)
+      }
+      if (e.key === 'Escape') {
+        setEditingId(null)
+        setEditName('')
+      }
     },
-    [onOpen],
+    [editName, dispatch],
+  )
+
+  const handleDeleteClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const id = e.currentTarget.dataset.id
+      const safeCard = safeCards.find(card => card.id === id)
+      if (safeCard) {
+        setSafeCardToDelete(safeCard)
+        onOpen()
+      }
+    },
+    [safeCards, onOpen],
+  )
+
+  const handleEditClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    const id = e.currentTarget.dataset.id
+    const name = e.currentTarget.dataset.name
+    if (id && name) {
+      setEditingId(id)
+      setEditName(name)
+    }
+  }, [])
+
+  const handleSelectClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const id = e.currentTarget.dataset.id
+      if (id) {
+        onSelectSafeCard(id)
+      }
+    },
+    [onSelectSafeCard],
   )
 
   const handleDeleteConfirm = useCallback(() => {
@@ -146,14 +190,9 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                   size='sm'
                   value={editName}
                   onChange={handleEditNameChange}
-                  onBlur={() => handleRename(safeCard.id)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleRename(safeCard.id)
-                    if (e.key === 'Escape') {
-                      setEditingId(null)
-                      setEditName('')
-                    }
-                  }}
+                  data-id={safeCard.id}
+                  onBlur={handleRenameBlur}
+                  onKeyDown={handleRenameKeyDown}
                   autoFocus
                   flex={1}
                 />
@@ -176,10 +215,9 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                     icon={CreateIcon}
                     aria-label={translate('walletProvider.gridplus.list.editNameLabel')}
                     variant='ghost'
-                    onClick={() => {
-                      setEditingId(safeCard.id)
-                      setEditName(safeCard.name)
-                    }}
+                    data-id={safeCard.id}
+                    data-name={safeCard.name}
+                    onClick={handleEditClick}
                   />
                 )}
                 <IconButton
@@ -187,10 +225,12 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                   aria-label={translate('walletProvider.gridplus.list.deleteLabel')}
                   variant='ghost'
                   colorScheme='red'
-                  onClick={() => handleDeleteClick(safeCard)}
+                  data-id={safeCard.id}
+                  onClick={handleDeleteClick}
                 />
                 <Button
-                  onClick={() => onSelectSafeCard(safeCard.id)}
+                  data-id={safeCard.id}
+                  onClick={handleSelectClick}
                   colorScheme='blue'
                   isDisabled={isActive || isConnecting}
                   isLoading={isConnecting}
@@ -212,9 +252,11 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       editingId,
       editName,
       handleEditNameChange,
-      handleRename,
+      handleRenameBlur,
+      handleRenameKeyDown,
+      handleEditClick,
       handleDeleteClick,
-      onSelectSafeCard,
+      handleSelectClick,
       translate,
     ],
   )

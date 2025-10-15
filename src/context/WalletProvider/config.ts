@@ -48,6 +48,18 @@ const GridPlusConnect = lazy(() =>
   })),
 )
 
+const GridPlusPair = lazy(() =>
+  import('./GridPlus/components/GridPlusPair').then(({ GridPlusPair }) => ({
+    default: GridPlusPair,
+  })),
+)
+
+const GridPlusSetup = lazy(() =>
+  import('./GridPlus/components/GridPlusSetup').then(({ GridPlusSetup }) => ({
+    default: GridPlusSetup,
+  })),
+)
+
 const NativeTestPhrase = lazy(() =>
   import('./NativeWallet/components/NativeTestPhrase').then(({ NativeTestPhrase }) => ({
     default: NativeTestPhrase,
@@ -459,7 +471,11 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
   [KeyManager.GridPlus]: {
     ...GridPlusConfig,
-    routes: [{ path: '/gridplus/connect', component: GridPlusConnect }],
+    routes: [
+      { path: '/gridplus/connect', component: GridPlusConnect },
+      { path: '/gridplus/pair', component: GridPlusPair },
+      { path: '/gridplus/setup', component: GridPlusSetup },
+    ],
     connectedMenuComponent: ManageAccountsMenuItem,
   },
 }

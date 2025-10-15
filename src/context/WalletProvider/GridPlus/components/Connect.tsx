@@ -1,4 +1,4 @@
-import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
+import { ModalBody, ModalHeader } from '@chakra-ui/react'
 import type { GridPlusAdapter, GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { GridPlusConfig } from '../config'
+import { connectAndPairDevice } from '../utils'
 import { InitialConnection } from './InitialConnection'
 import { SafeCardList } from './SafeCardList'
-import { Setup } from './Setup'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -16,8 +16,6 @@ import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-const SPINNER_ELEMENT = <Spinner color='white' />
 
 export const GridPlusConnect = () => {
   const translate = useTranslate()
@@ -32,27 +30,14 @@ export const GridPlusConnect = () => {
 
   const [showSafeCardList, setShowSafeCardList] = useState(safeCards.length > 0)
   const [isAddingNew, setIsAddingNew] = useState(false)
-  const [selectedSafeCardId, setSelectedSafeCardId] = useState<string | null>(null)
   const [connectingCardId, setConnectingCardId] = useState<string | null>(null)
   const [pendingSafeCardUuid, setPendingSafeCardUuid] = useState<string | null>(null)
-  const [safeCardName, setSafeCardName] = useState('')
   const [deviceId, setDeviceId] = useState('')
-  const [showPairingCode, setShowPairingCode] = useState(false)
-  const [pairingCode, setPairingCode] = useState('')
-  const [showSetupForm, setShowSetupForm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSafeCardNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSafeCardName(e.target.value)
-  }, [])
-
   const handleDeviceIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setDeviceId(e.target.value)
-  }, [])
-
-  const handlePairingCodeChange = useCallback((value: string) => {
-    setPairingCode(value.toUpperCase())
   }, [])
 
   const setErrorLoading = useCallback((e: string | null) => {
@@ -60,30 +45,13 @@ export const GridPlusConnect = () => {
     setIsLoading(false)
   }, [])
 
-  const resetPairingFlow = useCallback(() => {
-    if (pendingSafeCardUuid) {
-      appDispatch(gridplusSlice.actions.removeSafeCard(pendingSafeCardUuid))
-    }
-    setShowPairingCode(false)
-    setPairingCode('')
-    setPendingSafeCardUuid(null)
-    setSelectedSafeCardId(null)
-    setError(null)
-    setIsLoading(false)
-    if (safeCards.length > 0) {
-      setShowSafeCardList(true)
-    }
-  }, [pendingSafeCardUuid, safeCards.length, appDispatch])
-
   const handleBackToList = useCallback(() => {
     if (pendingSafeCardUuid) {
       appDispatch(gridplusSlice.actions.removeSafeCard(pendingSafeCardUuid))
     }
     setShowSafeCardList(true)
     setIsAddingNew(false)
-    setSelectedSafeCardId(null)
     setPendingSafeCardUuid(null)
-    setSafeCardName('')
   }, [pendingSafeCardUuid, appDispatch])
 
   const getAdapterWithKeyring = useCallback(async (): Promise<GridPlusAdapter> => {
@@ -93,18 +61,6 @@ export const GridPlusConnect = () => {
     }
     return adapter
   }, [getAdapter, translate])
-
-  const storeConnection = useCallback(
-    (deviceId: string, sessionId: string) => {
-      appDispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId,
-        }),
-      )
-    },
-    [appDispatch],
-  )
 
   const finalizeWalletSetup = useCallback(
     (wallet: GridPlusHDWallet, safeCardWalletId: string) => {
@@ -140,20 +96,6 @@ export const GridPlusConnect = () => {
     [walletDispatch, localWallet, navigate, appDispatch],
   )
 
-  const handleDeviceConnectionError = useCallback(
-    (error: Error, onOtherError?: () => void) => {
-      if (error.message === 'PAIRING_REQUIRED') {
-        setIsLoading(false)
-        setShowPairingCode(true)
-        setError(null)
-      } else {
-        setErrorLoading(error.message)
-        onOtherError?.()
-      }
-    },
-    [setErrorLoading],
-  )
-
   const getConnectionDeviceId = useCallback(() => {
     const connectionDeviceId = physicalDeviceId || deviceId.trim()
     if (!connectionDeviceId) {
@@ -164,145 +106,71 @@ export const GridPlusConnect = () => {
 
   const defaultSafeCardName = useMemo(() => `GridPlus ${safeCards.length + 1}`, [safeCards.length])
 
-  const connectAndPairDevice = useCallback(
-    async ({
-      safeCardWalletId,
-      pairingCode,
-      onPairingRequired,
-    }: {
-      safeCardWalletId: string
-      pairingCode?: string
-      onPairingRequired?: () => void
-    }) => {
-      const connectionDeviceId = getConnectionDeviceId()
-      const adapterWithKeyring = await getAdapterWithKeyring()
+  const handleConnect = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
 
-      if (!sessionId && !pairingCode) {
-        const { isPaired, sessionId: newSessionId } = await adapterWithKeyring.connectDevice(
-          connectionDeviceId,
-          undefined,
-          undefined,
-        )
+      if (isLoading || (!physicalDeviceId && !deviceId)) return
 
-        if (!isPaired) {
-          onPairingRequired?.()
-          return null
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const safeCardUuid =
+          pendingSafeCardUuid ||
+          (() => {
+            const newUuid = uuidv4()
+            setPendingSafeCardUuid(newUuid)
+            return newUuid
+          })()
+
+        const safeCardWalletId = `gridplus:${safeCardUuid}`
+        const connectionDeviceId = getConnectionDeviceId()
+        const adapter = await getAdapterWithKeyring()
+
+        const wallet = await connectAndPairDevice({
+          adapter,
+          deviceId: connectionDeviceId,
+          sessionId: sessionId ?? undefined,
+          dispatch: appDispatch,
+        })
+
+        if (!wallet) {
+          navigate('/gridplus/pair', {
+            state: { safeCardUuid, deviceId: connectionDeviceId },
+          })
+          return
         }
 
-        storeConnection(connectionDeviceId, newSessionId)
+        navigate('/gridplus/setup', {
+          state: {
+            safeCardUuid,
+            wallet,
+            safeCardWalletId,
+            defaultName: defaultSafeCardName,
+          },
+        })
+      } catch (e) {
+        setErrorLoading((e as Error).message)
       }
-
-      const wallet = await (pairingCode
-        ? adapterWithKeyring.pairConnectedDevice(connectionDeviceId, pairingCode)
-        : adapterWithKeyring.pairDevice(
-            connectionDeviceId,
-            undefined,
-            undefined,
-            sessionId || undefined,
-          ))
-
-      if (!sessionId && wallet.getSessionId) {
-        const walletSessionId = wallet.getSessionId()
-        if (walletSessionId) {
-          storeConnection(connectionDeviceId, walletSessionId)
-        }
-      }
-
-      return wallet
     },
-    [sessionId, getConnectionDeviceId, getAdapterWithKeyring, storeConnection],
+    [
+      isLoading,
+      physicalDeviceId,
+      deviceId,
+      pendingSafeCardUuid,
+      defaultSafeCardName,
+      getConnectionDeviceId,
+      getAdapterWithKeyring,
+      sessionId,
+      appDispatch,
+      navigate,
+      setErrorLoading,
+    ],
   )
-
-  const handleConnect = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (isLoading) return
-
-    if (!showPairingCode && !showSetupForm && !physicalDeviceId && !deviceId) return
-
-    if (showPairingCode && pairingCode.length !== 8) return
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const safeCardUuid = (() => {
-        if (selectedSafeCardId) {
-          appDispatch(gridplusSlice.actions.setActiveSafeCard(selectedSafeCardId))
-          return selectedSafeCardId
-        }
-
-        if (pendingSafeCardUuid) {
-          return pendingSafeCardUuid
-        }
-
-        const newUuid = uuidv4()
-        setPendingSafeCardUuid(newUuid)
-        setSafeCardName(defaultSafeCardName)
-        appDispatch(
-          gridplusSlice.actions.addSafeCard({
-            id: newUuid,
-            name: defaultSafeCardName,
-          }),
-        )
-        return newUuid
-      })()
-
-      const safeCardWalletId = `gridplus:${safeCardUuid}`
-
-      const wallet = await connectAndPairDevice({
-        safeCardWalletId,
-        pairingCode: showPairingCode && pairingCode ? pairingCode : undefined,
-        onPairingRequired: () => {
-          setIsLoading(false)
-          setShowPairingCode(true)
-          setShowSetupForm(true)
-          setError(null)
-        },
-      })
-
-      if (!wallet) {
-        if (!selectedSafeCardId) {
-          setShowSetupForm(true)
-          setIsLoading(false)
-        }
-        return
-      }
-
-      if (pendingSafeCardUuid && safeCardName.trim()) {
-        appDispatch(
-          gridplusSlice.actions.setSafeCardName({
-            id: pendingSafeCardUuid,
-            name: safeCardName.trim(),
-          }),
-        )
-      }
-
-      setPendingSafeCardUuid(null)
-      finalizeWalletSetup(wallet, safeCardWalletId)
-    } catch (e) {
-      handleDeviceConnectionError(e as Error)
-    }
-  }, [
-    isLoading,
-    showPairingCode,
-    showSetupForm,
-    physicalDeviceId,
-    deviceId,
-    pairingCode,
-    selectedSafeCardId,
-    pendingSafeCardUuid,
-    safeCardName,
-    defaultSafeCardName,
-    connectAndPairDevice,
-    finalizeWalletSetup,
-    handleDeviceConnectionError,
-    appDispatch,
-  ])
 
   const handleSelectSafeCard = useCallback(
     async (id: string) => {
-      setSelectedSafeCardId(id)
       setConnectingCardId(id)
       setError(null)
 
@@ -310,50 +178,57 @@ export const GridPlusConnect = () => {
         appDispatch(gridplusSlice.actions.setActiveSafeCard(id))
 
         const safeCardWalletId = `gridplus:${id}`
+        const connectionDeviceId = getConnectionDeviceId()
+        const adapter = await getAdapterWithKeyring()
 
         const wallet = await connectAndPairDevice({
-          safeCardWalletId,
-          onPairingRequired: () => {
-            setConnectingCardId(null)
-            setShowSafeCardList(false)
-            setShowPairingCode(true)
-            setShowSetupForm(true)
-            setError(null)
-          },
+          adapter,
+          deviceId: connectionDeviceId,
+          sessionId: sessionId ?? undefined,
+          dispatch: appDispatch,
         })
 
         if (!wallet) {
+          setConnectingCardId(null)
+          navigate('/gridplus/pair', {
+            state: { safeCardUuid: id, deviceId: connectionDeviceId },
+          })
           return
         }
 
         finalizeWalletSetup(wallet, safeCardWalletId)
       } catch (e) {
         setConnectingCardId(null)
-        handleDeviceConnectionError(e as Error)
+        setErrorLoading((e as Error).message)
       }
     },
-    [appDispatch, connectAndPairDevice, finalizeWalletSetup, handleDeviceConnectionError],
+    [
+      appDispatch,
+      getConnectionDeviceId,
+      getAdapterWithKeyring,
+      sessionId,
+      finalizeWalletSetup,
+      navigate,
+      setErrorLoading,
+    ],
   )
 
   const handleAddNew = useCallback(() => {
     const newUuid = uuidv4()
 
-    setIsAddingNew(true)
-    setPendingSafeCardUuid(newUuid)
-    setSafeCardName(defaultSafeCardName)
-    setShowSafeCardList(false)
-
-    appDispatch(
-      gridplusSlice.actions.addSafeCard({
-        id: newUuid,
-        name: defaultSafeCardName,
-      }),
-    )
-
     if (physicalDeviceId) {
-      setShowSetupForm(true)
+      navigate('/gridplus/setup', {
+        state: {
+          safeCardUuid: newUuid,
+          defaultName: defaultSafeCardName,
+        },
+      })
+    } else {
+      setIsAddingNew(true)
+      setPendingSafeCardUuid(newUuid)
+      setShowSafeCardList(false)
     }
-  }, [defaultSafeCardName, physicalDeviceId, appDispatch])
+  }, [physicalDeviceId, defaultSafeCardName, navigate])
 
   if (showSafeCardList && !isAddingNew) {
     return (
@@ -369,22 +244,6 @@ export const GridPlusConnect = () => {
           />
         </ModalBody>
       </>
-    )
-  }
-
-  if (showSetupForm) {
-    return (
-      <Setup
-        showPairingCode={showPairingCode}
-        pairingCode={pairingCode}
-        onPairingCodeChange={handlePairingCodeChange}
-        safeCardName={safeCardName}
-        onSafeCardNameChange={handleSafeCardNameChange}
-        error={error}
-        isLoading={isLoading}
-        onSubmit={handleConnect}
-        onCancel={resetPairingFlow}
-      />
     )
   }
 

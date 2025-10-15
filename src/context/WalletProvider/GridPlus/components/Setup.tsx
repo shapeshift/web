@@ -20,33 +20,28 @@ import { useTranslate } from 'react-polyglot'
 const SPINNER_ELEMENT = <Spinner color='white' />
 
 type SetupProps = {
-  showPairingCode: boolean
-  pairingCode: string
-  onPairingCodeChange: (value: string) => void
+  showPairingCode?: boolean
+  pairingCode?: string
+  onPairingCodeChange?: (value: string) => void
   safeCardName: string
   onSafeCardNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   error: string | null
   isLoading: boolean
   onSubmit: (e: React.FormEvent) => void
-  onCancel: () => void
 }
 
 export const Setup = ({
-  showPairingCode,
-  pairingCode,
+  showPairingCode = false,
+  pairingCode = '',
   onPairingCodeChange,
   safeCardName,
   onSafeCardNameChange,
   error,
   isLoading,
   onSubmit,
-  onCancel,
 }: SetupProps) => {
   const translate = useTranslate()
 
-  const buttonLabel = showPairingCode
-    ? translate('walletProvider.gridplus.pair.button')
-    : translate('common.done')
   const isSubmitDisabled = showPairingCode ? pairingCode.length !== 8 : false
 
   const errorAlert = useMemo(
@@ -73,7 +68,7 @@ export const Setup = ({
               isDisabled={isLoading}
               otp
               placeholder='_'
-              autoFocus
+              autoFocus={showPairingCode}
             >
               {Array.from({ length: 8 }).map((_, i) => (
                 <PinInputField key={i} />
@@ -88,23 +83,6 @@ export const Setup = ({
     [showPairingCode, pairingCode, onPairingCodeChange, isLoading, translate],
   )
 
-  const safeCardNameInput = useMemo(
-    () => (
-      <FormControl>
-        <FormLabel>{translate('walletProvider.gridplus.name.label')}</FormLabel>
-        <Input
-          placeholder={translate('walletProvider.gridplus.name.placeholder')}
-          value={safeCardName}
-          onChange={onSafeCardNameChange}
-          isDisabled={isLoading}
-          autoFocus={!showPairingCode}
-        />
-        <FormHelperText>{translate('walletProvider.gridplus.name.helper')}</FormHelperText>
-      </FormControl>
-    ),
-    [safeCardName, onSafeCardNameChange, isLoading, showPairingCode, translate],
-  )
-
   return (
     <>
       <ModalHeader>
@@ -116,7 +94,17 @@ export const Setup = ({
         <form onSubmit={onSubmit}>
           <VStack spacing={4} align='stretch'>
             {pairingCodeSection}
-            {safeCardNameInput}
+            <FormControl>
+              <FormLabel>{translate('walletProvider.gridplus.name.label')}</FormLabel>
+              <Input
+                placeholder={translate('walletProvider.gridplus.name.placeholder')}
+                value={safeCardName}
+                onChange={onSafeCardNameChange}
+                isDisabled={isLoading}
+                autoFocus={!showPairingCode}
+              />
+              <FormHelperText>{translate('walletProvider.gridplus.name.helper')}</FormHelperText>
+            </FormControl>
             {errorAlert}
             <Button
               width='full'
@@ -127,14 +115,10 @@ export const Setup = ({
               spinner={SPINNER_ELEMENT}
               isDisabled={isLoading || isSubmitDisabled}
             >
-              {buttonLabel}
+              {showPairingCode
+                ? translate('walletProvider.gridplus.pair.button')
+                : translate('common.done')}
             </Button>
-
-            {showPairingCode && (
-              <Button variant='ghost' type='button' onClick={onCancel}>
-                {translate('walletProvider.gridplus.pair.cancel')}
-              </Button>
-            )}
           </VStack>
         </form>
       </ModalBody>

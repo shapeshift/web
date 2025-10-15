@@ -1,10 +1,10 @@
 export enum SendRoutes {
-  Amount = '/send/amount',
   Confirm = '/send/confirm',
   Status = '/send/status',
   Scan = '/send/scan',
   Select = '/send/select',
   Address = '/send/address',
+  Amount = '/send/amount',
 }
 
 export const mobileSendRoutes = [

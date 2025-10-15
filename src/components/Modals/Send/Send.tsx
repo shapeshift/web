@@ -18,7 +18,6 @@ export type SendModalProps = {
 
 export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
   const { close, isOpen } = useModal('send')
-
   const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const initialEntries = useMemo(() => {

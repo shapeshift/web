@@ -47,6 +47,7 @@ import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -98,6 +99,7 @@ export const SendAmount = () => {
 
   const [isValidating, setIsValidating] = useState(false)
   const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const addAddress = useModal('addAddress')
 
   const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, memo, input } = useWatch({
     control,
@@ -257,6 +259,30 @@ export const SendAmount = () => {
     [asset?.symbol, translate, handleMemoChange],
   )
 
+  const handleSelectAddressBookEntry = useCallback(
+    (entryAddress: string) => {
+      setValue(SendFormFields.Input, entryAddress, { shouldValidate: true })
+    },
+    [setValue],
+  )
+
+  const handleEmptyChange = useCallback(() => {
+    setValue(SendFormFields.Input, '', { shouldValidate: true })
+    setValue(SendFormFields.To, '')
+    setValue(SendFormFields.VanityAddress, '')
+  }, [setValue])
+
+  const handleSaveContact = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+
+      if (to && asset?.chainId) {
+        addAddress.open({ address: to, chainId: asset.chainId })
+      }
+    },
+    [to, asset?.chainId, addAddress],
+  )
+
   if (!asset) return null
 
   return (
@@ -375,6 +401,11 @@ export const SendAmount = () => {
                 supportsENS={supportsENS}
                 translate={translate}
                 onScanQRCode={handleScanQrCode}
+                onSelectEntry={handleSelectAddressBookEntry}
+                onEmptied={handleEmptyChange}
+                onSaveContact={handleSaveContact}
+                chainId={asset.chainId}
+                resolvedAddress={to}
               />
             </Box>
 

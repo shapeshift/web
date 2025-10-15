@@ -266,8 +266,7 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
   const availableChainIds = useMemo(() => {
-    if (connectedType === KeyManager.Ledger) return availableLedgerChainIds
-    return walletSupportedChainIds
+    return connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
   }, [connectedType, walletSupportedChainIds])
 
   const selectedChainId = state.step === 'importAccounts' ? state.chainId : undefined

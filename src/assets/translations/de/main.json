@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "Im Explorer anzeigen",
+    "viewAssetDetails": "Vermögen Details anzeigen",
     "approval": "Genehmigung",
     "permit2Approval": "Permit2 Genehmigung",
     "network": "Netzwerk",
@@ -390,6 +391,7 @@
       "switchWallet": "Wallet wechseln",
       "disconnect": "Trennen",
       "disconnected": "(Getrennt)",
+      "locked": "(Gesperrt)",
       "reconnectWallet": "Wallet erneut verbinden",
       "walletNotConnected": "Ihr Wallet ist derzeit nicht verbunden. Dies wirkt sich auf Transaktionen aus.",
       "connecting": "Verbinde..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "Bestätigen und Beanspruchen",
     "viewClaims": "Ansprüche anzeigen",
     "viewClaimStatus": "Anspruchsstatus anzeigen",
-    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!"
+    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!",
+    "bridgeWithdrawalReadyNotification": "Bridge Abhebung bereit zur Inanspruchnahme",
+    "bridgeWithdrawalFailedNotification": "Bridge Abhebung fehlgeschlagen",
+    "checkActionCenterNotification": "Weitere Einzelheiten im Action Center"
   },
   "trade": {
     "trade": "Handeln",
@@ -2176,9 +2181,12 @@
   },
   "assets": {
     "more": "Mehr",
+    "hideAsset": "Vermögen ausblenden",
+    "showAsset": "Vermögen anzeigen",
+    "cannotHidePrimary": "Primäres Vermögen mit zugehörigen Varianten können nicht ausgeblendet werden.",
     "spam": {
-      "reportAsSpam": "Als Spam melden",
-      "reportAsNotSpam": "Als „Kein Spam“ markieren"
+      "warning": "Dieses Vermögen kann erneut angezeigt werden, indem Sie das Wallet Dropdown-Menü öffnen und auf „Versteckte Vermögen verwalten“ klicken.",
+      "marked": "Dieses Vermögen ist derzeit ausgeblendet."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2793,6 +2801,13 @@
     },
     "title": "Merkliste"
   },
+  "manageHiddenAssets": {
+    "title": "Versteckte Vermögen verwalten",
+    "empty": {
+      "title": "Keine versteckten Vermögen",
+      "body": "Ausgeblendete Vermögen werden hier gelistet, sodass sie später problemlos wieder angezeigt werden können."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -3124,6 +3139,7 @@
       "switchChainFailed": "Das Wechseln der Wallet Kette ist fehlgeschlagen. Versuchen Sie, die aktive Wallet Kette manuell auf %{chain} umzustellen.",
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
+      "blindSigningRequired": "Für die Transaktion ist eine Blindsignatur erforderlich. Aktivieren Sie die Option „Blind signing“ in den Einstellungen Ihrer Ledger-App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",
@@ -3200,7 +3216,17 @@
       "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
     },
     "bridge": {
-      "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen."
+      "processing": "Verarbeitung läuft ...",
+      "complete": "Ihre bridge von %{amountAndSymbol} ist fertig.",
+      "initiated": "Ihre bridge von %{sellAmountAndSymbol} zu %{buyAmountAndSymbol} wurde initiiert.",
+      "pendingWithdraw": "Ihre Auszahlung von %{amountAndSymbol} wird %{timeText} verfügbar sein.",
+      "claimAvailable": "Ihre bridge von %{amountAndSymbol} kann beansprucht werden.",
+      "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen.",
+      "transactionInitiated": "Transaktion eingeleitet",
+      "claimWithdraw": "Auszahlung beanspruchen",
+      "withdrawTx": "Tx abheben",
+      "claimTx": "Anspruch Tx",
+      "claimNotAvailable": "Der Anspruch ist noch nicht verfügbar. Bitte warten Sie, bis die Auszahlungsfrist abgelaufen ist."
     },
     "limitOrder": {
       "placed": "Limit Order für %{sellAmountAndSymbol} bis %{buyAmountAndSymbol} aufgegeben",

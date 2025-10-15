@@ -162,13 +162,13 @@ This allows us to:
 
 ## Testing Sentry Locally
 
-To test Sentry configuration locally:
+To test Sentry configuration locally without modifying code:
 
-1. In `src/index.tsx`, temporarily set `SENTRY_ENABLED = true`
-2. Remove the hostname check: `if (SENTRY_ENABLED) {`
+1. Add `VITE_ENABLE_SENTRY_LOCALHOST=true` to your `.env.local` file
+2. Restart your dev server
 3. Test various error scenarios
 4. Check Sentry dashboard to verify correct filtering
-5. Revert changes before committing
+5. Remove the env var when done (or just restart without it)
 
 ## Monitoring Best Practices
 

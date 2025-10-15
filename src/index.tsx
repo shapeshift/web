@@ -31,8 +31,13 @@ scan({
   enabled: window.location.hostname === 'localhost' && enableReactScan,
 })
 
-// Remove this condition to test sentry locally
-if (window.location.hostname !== 'localhost' && SENTRY_ENABLED) {
+// Sentry is disabled on localhost by default
+// To test locally, set VITE_ENABLE_SENTRY_LOCALHOST=true in your .env.local file
+const isLocalhost = window.location.hostname === 'localhost'
+const enableSentryOnLocalhost = import.meta.env.VITE_ENABLE_SENTRY_LOCALHOST === 'true'
+const shouldEnableSentry = SENTRY_ENABLED && (!isLocalhost || enableSentryOnLocalhost)
+
+if (shouldEnableSentry) {
   const VALID_ENVS = [
     'localhost',
     'develop',

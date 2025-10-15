@@ -1,16 +1,4 @@
-import {
-  Alert,
-  AlertIcon,
-  Button,
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  Input,
-  ModalBody,
-  ModalHeader,
-  Spinner,
-  VStack,
-} from '@chakra-ui/react'
+import { ModalBody, ModalHeader } from '@chakra-ui/react'
 import type { GridPlusAdapter, GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -18,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { GridPlusConfig } from '../config'
+import { InitialConnection } from './InitialConnection'
 import { SafeCardList } from './SafeCardList'
 import { Setup } from './Setup'
 
@@ -27,8 +16,6 @@ import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-const SPINNER_ELEMENT = <Spinner color='white' />
 
 export const GridPlusConnect = () => {
   const translate = useTranslate()
@@ -353,39 +340,6 @@ export const GridPlusConnect = () => {
     }
   }, [defaultSafeCardName, physicalDeviceId, appDispatch])
 
-  const errorAlert = useMemo(
-    () =>
-      error && (
-        <Alert status='error'>
-          <AlertIcon />
-          {error}
-        </Alert>
-      ),
-    [error],
-  )
-
-  const deviceIdInput = useMemo(
-    () =>
-      !physicalDeviceId && (
-        <FormControl>
-          <FormLabel>{translate('walletProvider.gridplus.connect.deviceId')}</FormLabel>
-          <Input
-            placeholder={translate('walletProvider.gridplus.connect.deviceIdPlaceholder')}
-            value={deviceId}
-            onChange={handleDeviceIdChange}
-            isDisabled={isLoading}
-            type='text'
-            autoComplete='off'
-            autoFocus
-          />
-          <FormHelperText>
-            {translate('walletProvider.gridplus.connect.deviceIdHelper')}
-          </FormHelperText>
-        </FormControl>
-      ),
-    [physicalDeviceId, deviceId, handleDeviceIdChange, isLoading, translate],
-  )
-
   if (showSafeCardList && !isAddingNew) {
     return (
       <>
@@ -420,53 +374,15 @@ export const GridPlusConnect = () => {
   }
 
   return (
-    <>
-      <ModalHeader>{translate('walletProvider.gridplus.connect.header')}</ModalHeader>
-      <ModalBody>
-        <form
-          onSubmit={e => {
-            e.preventDefault()
-            if (!isLoading && (physicalDeviceId || deviceId)) {
-              handleConnect()
-            }
-          }}
-        >
-          <VStack spacing={4} align='stretch'>
-            {deviceIdInput}
-
-            {errorAlert}
-
-            {isLoading ? (
-              <Button
-                width='full'
-                colorScheme='blue'
-                isLoading
-                loadingText={translate('walletProvider.gridplus.connect.connecting')}
-                spinner={SPINNER_ELEMENT}
-                isDisabled
-                type='submit'
-              >
-                {translate('walletProvider.gridplus.connect.connecting')}
-              </Button>
-            ) : (
-              <Button
-                width='full'
-                colorScheme='blue'
-                type='submit'
-                isDisabled={!physicalDeviceId && !deviceId}
-              >
-                {translate('walletProvider.gridplus.connect.button')}
-              </Button>
-            )}
-
-            {isAddingNew && (
-              <Button variant='ghost' type='button' onClick={handleBackToList}>
-                {translate('walletProvider.gridplus.connect.backToList')}
-              </Button>
-            )}
-          </VStack>
-        </form>
-      </ModalBody>
-    </>
+    <InitialConnection
+      physicalDeviceId={physicalDeviceId}
+      deviceId={deviceId}
+      onDeviceIdChange={handleDeviceIdChange}
+      error={error}
+      isLoading={isLoading}
+      isAddingNew={isAddingNew}
+      onSubmit={handleConnect}
+      onBackToList={handleBackToList}
+    />
   )
 }

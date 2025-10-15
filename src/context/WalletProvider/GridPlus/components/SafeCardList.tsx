@@ -37,6 +37,7 @@ type SafeCardListProps = {
   safeCards: SafeCard[]
   onSelectSafeCard: (id: string) => void
   onAddNewSafeCard: () => void
+  connectingCardId?: string | null
   error?: string | null
 }
 
@@ -44,6 +45,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
   safeCards,
   onSelectSafeCard,
   onAddNewSafeCard,
+  connectingCardId,
   error,
 }) => {
   const translate = useTranslate()
@@ -156,6 +158,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       sortedSafeCards.map(safeCard => {
         const isActive =
           walletState.isConnected && walletState.deviceId === `gridplus:${safeCard.id}`
+        const isConnecting = connectingCardId === safeCard.id
 
         return (
           <Box
@@ -214,7 +217,8 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
                 <Button
                   onClick={createConnectClickHandler(safeCard.id)}
                   colorScheme='blue'
-                  isDisabled={isActive}
+                  isDisabled={isActive || isConnecting}
+                  isLoading={isConnecting}
                 >
                   {isActive
                     ? translate('walletProvider.gridplus.list.connected')
@@ -229,6 +233,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
       sortedSafeCards,
       walletState.isConnected,
       walletState.deviceId,
+      connectingCardId,
       editingId,
       editName,
       hoverStyle,

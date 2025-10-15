@@ -44,6 +44,7 @@ export const GridPlusConnect = () => {
   const [showSafeCardList, setShowSafeCardList] = useState(safeCards.length > 0)
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [selectedSafeCardId, setSelectedSafeCardId] = useState<string | null>(null)
+  const [connectingCardId, setConnectingCardId] = useState<string | null>(null)
   const [pendingSafeCardUuid, setPendingSafeCardUuid] = useState<string | null>(null)
   const [safeCardName, setSafeCardName] = useState('')
   const [deviceId, setDeviceId] = useState('')
@@ -270,8 +271,7 @@ export const GridPlusConnect = () => {
   const handleSelectSafeCard = useCallback(
     async (id: string) => {
       setSelectedSafeCardId(id)
-      setShowSafeCardList(false)
-      setIsLoading(true)
+      setConnectingCardId(id)
       setError(null)
 
       try {
@@ -291,8 +291,10 @@ export const GridPlusConnect = () => {
           )
 
           if (!isPaired) {
-            setIsLoading(false)
+            setConnectingCardId(null)
+            setShowSafeCardList(false)
             setShowPairingCode(true)
+            setShowSetupForm(true)
             setError(null)
             return
           }
@@ -316,7 +318,8 @@ export const GridPlusConnect = () => {
 
         finalizeWalletSetup(wallet, safeCardWalletId)
       } catch (e) {
-        handleDeviceConnectionError(e, () => setShowSafeCardList(true))
+        setConnectingCardId(null)
+        handleDeviceConnectionError(e)
       }
     },
     [
@@ -392,6 +395,7 @@ export const GridPlusConnect = () => {
             safeCards={safeCards}
             onSelectSafeCard={handleSelectSafeCard}
             onAddNewSafeCard={handleAddNew}
+            connectingCardId={connectingCardId}
             error={error}
           />
         </ModalBody>

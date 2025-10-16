@@ -2,7 +2,7 @@ import type { ModalProps } from '@chakra-ui/react'
 import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import { Drawer } from 'vaul'
 
 import {
@@ -26,7 +26,7 @@ const CustomDrawerContent = styled(Drawer.Content)`
   flex-direction: column;
   border-radius: 24px 24px 0 0;
   position: fixed;
-  max-height: 95%;
+  max-height: calc(95dvh - env(safe-area-inset-top) - var(--safe-area-inset-top));
   bottom: 0;
   left: 0;
   right: 0;
@@ -44,8 +44,6 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   -webkit-touch-callout: none;
 `
 
-const snapPoint = 0.5
-
 const DialogWindow: React.FC<DialogProps> = ({
   isOpen,
   onClose,
@@ -57,26 +55,15 @@ const DialogWindow: React.FC<DialogProps> = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
 
-  const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
-
-  useEffect(() => {
-    function updateViewportHeight() {
-      setViewportHeight(window.visualViewport?.height || 0)
-    }
-
-    window.visualViewport?.addEventListener('resize', updateViewportHeight)
-    return () => window.visualViewport?.removeEventListener('resize', updateViewportHeight)
-  }, [])
-
   const contentStyle = useMemo(() => {
     return {
+      height: isFullScreen ? '100dvh' : height || 'auto',
       maxHeight: isFullScreen
-        ? '100vh'
-        : 'calc(100% - env(safe-area-inset-top) - var(--safe-area-inset-top))',
-      height: isFullScreen ? viewportHeight : height || '80vh',
+        ? '100dvh'
+        : 'calc(95dvh - env(safe-area-inset-top) - var(--safe-area-inset-top))',
       paddingTop: isFullScreen ? 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))' : 0,
     }
-  }, [height, isFullScreen, viewportHeight])
+  }, [height, isFullScreen])
 
   useEffect(() => {
     setIsOpen(isOpen)
@@ -106,13 +93,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Root
-        repositionInputs={isFullScreen ? true : false}
-        open={isDialogOpen}
-        onClose={onClose}
-        activeSnapPoint={snapPoint}
-        modal
-      >
+      <Drawer.Root repositionInputs={false} open={isDialogOpen} onClose={onClose} modal>
         <Drawer.Portal>
           <CustomDrawerOverlay onClick={handleClose} />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>

@@ -1,4 +1,4 @@
-import type { InputProps, SpaceProps } from '@chakra-ui/react'
+import type { InputProps } from '@chakra-ui/react'
 import {
   IconButton,
   Input,
@@ -12,7 +12,6 @@ import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
-import ResizeTextarea from 'react-textarea-autosize'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
@@ -23,7 +22,6 @@ type AddressInputProps = {
   rules: ControllerProps['rules']
   enableQr?: boolean
   placeholder?: string
-  pe?: SpaceProps['pe']
 } & Omit<InputProps, 'as' | 'value' | 'onChange'>
 
 const qrCodeIcon = <QRCodeIcon />
@@ -32,7 +30,6 @@ export const AddressInput = ({
   rules,
   placeholder,
   enableQr = false,
-  pe = 10,
   onFocus,
   onBlur,
   onPaste,
@@ -73,17 +70,13 @@ export const AddressInput = ({
         <Input
           spellCheck={false}
           placeholder={placeholder}
-          as={ResizeTextarea}
           value={value}
           variant='filled'
           minHeight='auto'
-          minRows={1}
           borderRadius='10px'
           py={3}
           data-test='send-address-input'
           data-1p-ignore
-          // Because the InputRightElement is hover the input, we need to let this space free
-          pe={pe}
           isInvalid={isInvalid && isDirty}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -95,7 +88,7 @@ export const AddressInput = ({
     ),
     // We want only behavior-specific props to rerender the controller, not all props
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [placeholder, pe, isInvalid, isDirty, translate, onFocus, onBlur, onPaste],
+    [placeholder, isInvalid, isDirty, translate, onFocus, onBlur, onPaste],
   )
 
   return (

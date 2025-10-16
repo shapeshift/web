@@ -88,6 +88,11 @@ export const Address = () => {
   const handleNext = useCallback(() => navigate(SendRoutes.AmountDetails), [navigate])
 
   const handleBackClick = useCallback(() => {
+    if (isFromQrCode) {
+      navigate(SendRoutes.Scan)
+      return
+    }
+
     setValue(SendFormFields.AssetId, '')
     navigate(SendRoutes.Select, {
       state: {
@@ -95,7 +100,7 @@ export const Address = () => {
         assetId: '',
       },
     })
-  }, [navigate, setValue])
+  }, [navigate, setValue, isFromQrCode])
 
   const addressInputRules = useMemo(
     () => ({
@@ -159,7 +164,6 @@ export const Address = () => {
         <VStack spacing={4} align='stretch'>
           <FormControl>
             <AddressInput
-              pe={16}
               rules={addressInputRules}
               placeholder={translate(
                 supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',

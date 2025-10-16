@@ -1,7 +1,7 @@
 import { Box, HStack, Radio, Text, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -10,7 +10,7 @@ import { fromBaseUnit } from '@/lib/math'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadata } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const radioSx = {
@@ -28,7 +28,6 @@ type AccountSelectorOptionProps = {
   symbol: string
   isSelected: boolean
   disabled?: boolean
-  accountNumber: number
   onOptionClick: (accountId: AccountId) => void
 }
 
@@ -41,7 +40,6 @@ export const AccountSelectorOption = memo(
     symbol,
     isSelected,
     disabled,
-    accountNumber,
     onOptionClick,
   }: AccountSelectorOptionProps) => {
     const translate = useTranslate()
@@ -51,8 +49,17 @@ export const AccountSelectorOption = memo(
     )
 
     const asset = useAppSelector(state => selectAssetById(state, assetId))
+    const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
 
-    const cryptoBalancePrecision = fromBaseUnit(cryptoBalance, asset?.precision ?? 0)
+    const accountNumber = useMemo(
+      () => accountMetadata[accountId]?.bip44Params?.accountNumber,
+      [accountMetadata, accountId],
+    )
+
+    const cryptoBalancePrecision = useMemo(
+      () => fromBaseUnit(cryptoBalance, asset?.precision ?? 0),
+      [cryptoBalance, asset?.precision],
+    )
 
     return (
       <Box
@@ -68,11 +75,9 @@ export const AccountSelectorOption = memo(
           <HStack spacing={3} flex={1}>
             <ProfileAvatar size='sm' borderRadius='full' />
             <VStack align='start' spacing={0} flex={1}>
-              {!isUtxoAccountId(accountId) && (
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('accounts.accountNumber', { accountNumber })}
-                </Text>
-              )}
+              <Text fontSize='sm' color='text.subtle'>
+                {translate('accounts.accountNumber', { accountNumber })}
+              </Text>
               <Text fontSize='sm' fontWeight='bold' color='text.primary'>
                 {isUtxoAccountId(accountId) ? (
                   accountIdToLabel(accountId)

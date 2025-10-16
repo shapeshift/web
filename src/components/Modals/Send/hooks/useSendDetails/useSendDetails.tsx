@@ -106,11 +106,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }): Promise<FeeDataEstimate<ChainId>> => {
       if (!asset) throw new Error('No asset found')
       if (!assetId) throw new Error('No assetId found')
-      if (!to) throw new Error('No to found')
+      if (!to) throw new Error('No destination address')
       if (!accountId) throw new Error('No accountId found')
-      if (!contractAddress) throw new Error('No contractAddress found')
-
       if (!wallet) throw new Error('No wallet connected')
+
       return estimateFees({
         amountCryptoPrecision,
         assetId,
@@ -257,6 +256,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // If the user get back and forth between the address and the amount form, we want to refetch the fees so it revalidate the form
     refetchOnMount: 'always',
     gcTime: 0,
+    refetchIntervalInBackground: true,
+    refetchInterval: 15_000,
   })
 
   const {
@@ -271,6 +272,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     staleTime: 15 * 1000,
     enabled: false,
     retry: false,
+    refetchIntervalInBackground: true,
+    refetchInterval: 15_000,
   })
 
   useEffect(() => {

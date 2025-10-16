@@ -1,13 +1,13 @@
 import type { BoxProps, ButtonProps } from '@chakra-ui/react'
-import { Box, Button, HStack, Icon, Text, useDisclosure, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Icon, Text, useDisclosure, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { RiExpandUpDownLine } from 'react-icons/ri'
-import { useTranslate } from 'react-polyglot'
 
 import { AccountSelectorDialog } from '@/components/AccountSelector/AccountSelectorDialog'
+import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -47,7 +47,6 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     buttonProps,
     boxProps,
   }) => {
-    const translate = useTranslate()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const {
       number: { localeParts },
@@ -130,13 +129,27 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
                   )}
                 </Text>
                 {selectedAccountDetails && (
-                  <Text fontSize='sm' color='text.subtle' fontWeight='normal'>
-                    {translate('modals.send.sendForm.availableBalance', {
-                      balance: `${localeParts.prefix}${selectedAccountDetails.fiatBalance.toFixed(
-                        2,
-                      )}`,
-                    })}
-                  </Text>
+                  <Flex alignItems='center' gap={1}>
+                    <Amount.Crypto
+                      value={selectedAccountDetails.cryptoBalance}
+                      symbol={asset.symbol}
+                      fontSize='sm'
+                      color='text.subtle'
+                      fontWeight='normal'
+                      maximumFractionDigits={8}
+                      noSpace
+                    />
+                    <Amount.Fiat
+                      value={selectedAccountDetails.fiatBalance.toFixed(localeParts.fraction)}
+                      fontSize='sm'
+                      color='text.subtle'
+                      fontWeight='normal'
+                      prefix='('
+                      suffix=')'
+                      noSpace
+                      textTransform='lowercase'
+                    />
+                  </Flex>
                 )}
               </VStack>
               <Box sx={chevronIconSx} fontSize='xs'>

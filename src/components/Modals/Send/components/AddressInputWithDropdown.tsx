@@ -62,7 +62,6 @@ export const AddressInputWithDropdown = ({
         <PopoverTrigger>
           <Box ref={triggerRef}>
             <AddressInput
-              pe={16}
               rules={addressInputRules}
               placeholder={translate(
                 supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',

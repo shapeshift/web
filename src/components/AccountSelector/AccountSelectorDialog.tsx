@@ -92,7 +92,7 @@ export const AccountSelectorDialog = ({
       </DialogHeader>
       <DialogBody maxH='80vh' overflowY='auto'>
         <VStack spacing={2} align='stretch'>
-          {accountsWithDetails.map(({ accountId, cryptoBalance, fiatBalance }, accountNumber) => {
+          {accountsWithDetails.map(({ accountId, cryptoBalance, fiatBalance }) => {
             const isSelected = selectedAccountId === accountId
 
             return (
@@ -104,7 +104,6 @@ export const AccountSelectorDialog = ({
                 assetId={assetId}
                 symbol={asset.symbol}
                 isSelected={isSelected}
-                accountNumber={accountNumber + 1}
                 disabled={disabled}
                 onOptionClick={onAccountSelect}
               />

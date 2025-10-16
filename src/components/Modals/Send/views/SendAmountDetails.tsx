@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -61,6 +63,20 @@ const accountDropdownButtonProps = { px: 2 }
 // Currently only Cosmos SDK chains support memos in the send flow
 const MAX_MEMO_LENGTH = 256
 
+// Thresholds for progressive font size reduction based on amount length
+const FONT_SIZE_THRESHOLDS = {
+  SMALL: 12,
+  MEDIUM: 16,
+  LARGE: 24,
+} as const
+
+const getFontSizeByLength = (length: number): string => {
+  if (length >= FONT_SIZE_THRESHOLDS.LARGE) return '24px'
+  if (length >= FONT_SIZE_THRESHOLDS.MEDIUM) return '30px'
+  if (length >= FONT_SIZE_THRESHOLDS.SMALL) return '38px'
+  return '65px'
+}
+
 type RenderController = ({
   field,
 }: {
@@ -68,11 +84,23 @@ type RenderController = ({
 }) => React.ReactElement
 
 const AmountInput = (props: any) => {
+  const valueLength = useMemo(() => {
+    return props.value ? String(props.value).length : 0
+  }, [props.value])
+
+  const fontSize = useMemo(() => {
+    return getFontSizeByLength(valueLength)
+  }, [valueLength])
+
+  const lineHeight = useMemo(() => {
+    return getFontSizeByLength(valueLength)
+  }, [valueLength])
+
   return (
     <Input
       size='lg'
-      fontSize='65px'
-      lineHeight='65px'
+      fontSize={fontSize}
+      lineHeight={lineHeight}
       fontWeight='normal'
       textAlign='center'
       border='none'
@@ -104,7 +132,16 @@ export const SendAmountDetails = () => {
 
   const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
 
-  const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, memo, input } = useWatch({
+  const {
+    accountId,
+    assetId,
+    to,
+    amountCryptoPrecision,
+    fiatAmount,
+    memo,
+    input,
+    amountFieldError,
+  } = useWatch({
     control,
   }) as Partial<SendInput>
 
@@ -220,7 +257,7 @@ export const SendAmountDetails = () => {
         <NumberFormat
           customInput={AmountInput}
           isNumericString={true}
-          decimalScale={isFiat ? undefined : asset?.precision}
+          decimalScale={isFiat ? localeParts.fraction : asset?.precision}
           inputMode='decimal'
           thousandSeparator={localeParts.group}
           decimalSeparator={localeParts.decimal}
@@ -235,6 +272,7 @@ export const SendAmountDetails = () => {
     [
       asset?.precision,
       isFiat,
+      localeParts.fraction,
       localeParts.decimal,
       localeParts.group,
       localeParts.prefix,
@@ -398,6 +436,13 @@ export const SendAmountDetails = () => {
         pt={4}
       >
         <Stack flex={1}>
+          {amountFieldError && (
+            <Alert status='error' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <Text translation={amountFieldError} fontSize='sm' />
+            </Alert>
+          )}
+
           <Flex alignItems='center' justifyContent='space-between' mb={4}>
             <Flex alignItems='center'>
               <FormLabel color='text.subtle' mb={0}>
@@ -426,6 +471,7 @@ export const SendAmountDetails = () => {
               !currentValue ||
               bnOrZero(currentValue).lte(0) ||
               isLoading ||
+              Boolean(amountFieldError) ||
               Boolean(memoFieldError) ||
               !to ||
               !input ||

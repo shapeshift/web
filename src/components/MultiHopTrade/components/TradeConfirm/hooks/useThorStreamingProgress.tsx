@@ -102,7 +102,7 @@ export const useThorStreamingProgress = ({
             if (!updatedStreamingSwapData) return
 
             // We don't have a quantity in the streaming swap data, and we never have.
-            if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
+            if (streamingSwapDataRef.current?.quantity === undefined && updatedStreamingSwapData.quantity === undefined) {
               // This is a special case where it _is_ a streaming swap, but it's one of the following cases:
               // - optimized over a single block, and so doesn't actually stream.
               // - the streaming swap metadata isn't ready yet
@@ -113,7 +113,7 @@ export const useThorStreamingProgress = ({
 
             // thornode returns a default empty response once the streaming is complete
             // set the count to the quantity so UI can display completed status
-            if (streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
+            if (streamingSwapDataRef.current?.quantity !== undefined && updatedStreamingSwapData.quantity === undefined) {
               const completedStreamingSwapData: ThornodeStreamingSwapResponseSuccess = {
                 ...streamingSwapDataRef.current,
                 count: streamingSwapDataRef.current.quantity,

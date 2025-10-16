@@ -65,7 +65,7 @@ export const getBestAggregator = async (
   const bestContractData = bestPool ? poolContractData.get(bestPool) : undefined
   const bestAggregator = bestContractData ? feeAmountToContractMap[bestContractData.fee] : undefined
 
-  if (!bestAggregator || !quotedAmountOut) {
+  if (!bestAggregator || quotedAmountOut === undefined) {
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No best aggregator contract found.`,

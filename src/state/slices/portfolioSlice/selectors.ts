@@ -544,7 +544,7 @@ export const selectPortfolioTotalChainIdBalanceUserCurrency = createDeepEqualOut
 
         const asset = assetsById[assetId]
         const precision = asset?.precision
-        if (!precision) return acc
+        if (precision === undefined) return acc
 
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)

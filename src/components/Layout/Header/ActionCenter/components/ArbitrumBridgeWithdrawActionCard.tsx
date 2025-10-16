@@ -85,7 +85,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
       action.arbitrumBridgeMetadata.timeRemainingSeconds
     const timeDisplay =
-      timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
+      timeRemaining !== undefined && timeRemaining > 0
+        ? formatSecondsToDuration(timeRemaining)
+        : null
     const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
 
     switch (action.status) {

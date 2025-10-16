@@ -162,9 +162,8 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       // always use auto stream slippage limit (0 limit = 5bps - 50bps, sometimes up to 100bps)
       // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
       slippageBps: isStreaming ? bn(0) : inputSlippageBps,
-      estimatedExecutionTimeMs: quote.total_swap_seconds
-        ? 1000 * quote.total_swap_seconds
-        : undefined,
+      estimatedExecutionTimeMs:
+        quote.total_swap_seconds !== undefined ? 1000 * quote.total_swap_seconds : undefined,
     }
   }
 

@@ -25,7 +25,7 @@ export const firstFourLastFour = (address: string): string =>
 export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
   if (!content) return ''
 
-  if (!trimmedContentLength) return content
+  if (trimmedContentLength === undefined) return content
 
   if (content.length < trimmedContentLength) return content
 
@@ -257,7 +257,7 @@ export const getTimeFrameBounds = (
 }
 
 export const getStableTimestamp = (intervalMinutes: number) => {
-  if (!intervalMinutes) return Date.now()
+  if (intervalMinutes === 0 || isNaN(intervalMinutes)) return Date.now()
   const intervalMs = intervalMinutes * 60 * 1000
   return Math.floor(Date.now() / intervalMs) * intervalMs
 }

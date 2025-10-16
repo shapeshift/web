@@ -78,7 +78,7 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
           const status = await message.status(l2Provider)
           const block = (await message.getFirstExecutableBlock(l2Provider))?.toNumber()
           const timeRemainingSeconds = await (async () => {
-            if (!block) return
+            if (block === undefined) return
             const latestBlock = await l1Provider.getBlock('latest')
             const historicalBlock = await l1Provider.getBlock(
               latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,

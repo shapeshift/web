@@ -112,7 +112,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: transactionReceipt?.status ? 'success' : 'failed',
+          txStatus: transactionReceipt?.status === 1 ? 'success' : 'failed',
           usedGasFeeCryptoBaseUnit: bnOrZero(
             // Types are drunk here, TransactionReceipt *does* implement TransactionReceiptParams but things are not narrowed down properly for some reason
             (transactionReceipt as TransactionReceiptParams | null)?.effectiveGasPrice?.toString(),

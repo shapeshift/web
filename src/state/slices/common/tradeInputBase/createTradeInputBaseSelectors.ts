@@ -142,7 +142,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
         : undefined
 
       // maybe convert account number to account id on the buy asset chain
-      const maybeMatchingBuyAccountId = maybeMatchingBuyAccountNumber
+      const maybeMatchingBuyAccountId = maybeMatchingBuyAccountNumber !== undefined
         ? accountIdByAccountNumberAndChainId[maybeMatchingBuyAccountNumber]?.[buyAsset.chainId]
         : undefined
 

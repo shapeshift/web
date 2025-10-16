@@ -287,7 +287,7 @@ export const FoxFarming = () => {
   }, [opportunity])
 
   const nextEpochHuman = useMemo(() => {
-    if (!periodFinish) return
+    if (periodFinish === undefined) return
 
     return dayjs(bnOrZero(periodFinish.toString()).times(1000).toNumber()).fromNow()
   }, [periodFinish])

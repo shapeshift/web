@@ -48,7 +48,7 @@ export const PairIcons = ({
     [icons],
   )
 
-  if (!icons?.length) return null
+  if (icons === undefined || icons.length === 0) return null
 
   // Single icon
   if (icons.length === 1) {

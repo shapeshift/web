@@ -61,7 +61,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   useEffect(() => {
     function updateViewportHeight() {
-      setViewportHeight(window.visualViewport?.height || 0)
+      setViewportHeight(window.visualViewport?.height ?? 0)
     }
 
     window.visualViewport?.addEventListener('resize', updateViewportHeight)

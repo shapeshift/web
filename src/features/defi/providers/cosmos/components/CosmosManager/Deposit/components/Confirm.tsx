@@ -147,7 +147,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({
         type: CosmosDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: broadcastTxId?.length ? 'success' : 'failed',
+          txStatus: broadcastTxId !== undefined && broadcastTxId.length > 0 ? 'success' : 'failed',
         },
       })
 

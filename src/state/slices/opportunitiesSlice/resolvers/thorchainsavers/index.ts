@@ -69,7 +69,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   const { SaversVaults } = preferences.selectors.selectFeatureFlags(state)
 
-  if (!(SaversVaults && opportunityIds?.length)) {
+  if (!(SaversVaults && opportunityIds !== undefined && opportunityIds.length > 0)) {
     return Promise.resolve({
       data: {
         byId: {},

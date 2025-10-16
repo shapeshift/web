@@ -62,7 +62,7 @@ export const GlobalSearchModal = memo(
     })
 
     const customAssets = useMemo(() => {
-      if (!customTokens?.length) return []
+      if (customTokens?.length === undefined || customTokens.length === 0) return []
 
       // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
       const assetsById = selectAssets(store.getState())
@@ -72,7 +72,7 @@ export const GlobalSearchModal = memo(
           if (!metaData) return null
           const { name, symbol, decimals, logo, chainId, contractAddress } = metaData
 
-          if (!name || !symbol || !decimals) return null
+          if (!name || !symbol || decimals === undefined) return null
 
           const assetId = toAssetId({
             chainId,

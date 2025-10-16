@@ -57,7 +57,7 @@ const StructuredFieldComponent: FC<StructuredFieldProps> = ({ field, chainId }) 
     return children?.map(child => ({ ...child, level: level + 1 })) || []
   }, [children, level])
 
-  if (children?.length) {
+  if (children !== undefined && children.length > 0) {
     return (
       <Box py={1}>
         <Button

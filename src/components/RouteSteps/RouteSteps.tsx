@@ -68,7 +68,7 @@ export const RouteSteps = ({
           translation={defiActionTranslation}
         />
       )}
-      <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
+      <VerticalStepper activeStep={activeStep?.step ?? 0} steps={steps} />
     </Box>
   )
 }

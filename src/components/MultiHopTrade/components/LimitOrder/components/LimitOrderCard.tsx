@@ -233,7 +233,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const expiryText = useMemo(
     () =>
-      validTo && status !== OrderStatus.FULFILLED
+      validTo !== undefined && status !== OrderStatus.FULFILLED
         ? translate('limitOrder.expires', {
             time: formatDistanceToNow(validTo * 1000, {
               addSuffix: true,

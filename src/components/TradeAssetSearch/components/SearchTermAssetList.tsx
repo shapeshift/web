@@ -118,7 +118,7 @@ export const SearchTermAssetList = ({
         if (!metaData) return null
         const { name, symbol, decimals, logo } = metaData
         // If we can't get all the information we need to create an Asset, don't allow the custom token
-        if (!name || !symbol || !decimals) return null
+        if (!name || !symbol || decimals === undefined) return null
         const assetId = toAssetId({
           chainId: metaData.chainId,
           assetNamespace: getAssetNamespaceFromChainId(metaData.chainId as KnownChainIds),

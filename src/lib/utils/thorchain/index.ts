@@ -46,7 +46,7 @@ export const getThorchainTransactionStatus = async ({
   expectedCompletionTime?: number
 }) => {
   const now = dayjs().unix()
-  if (expectedCompletionTime && now < expectedCompletionTime) {
+  if (expectedCompletionTime !== undefined && now < expectedCompletionTime) {
     return TxStatus.Pending
   }
 
@@ -186,7 +186,7 @@ export const getThorchainFromAddress = async ({
     return chainId === bchChainId ? `bitcoincash:${address}` : address
   } catch {
     // Re-throw if no meta, we obviously can't get an address without it
-    if (!accountMetadata) throw new Error('No account metadata found')
+    if (accountMetadata === undefined) throw new Error('No account metadata found')
     const accountType = accountMetadata.accountType
     const bip44Params = accountMetadata.bip44Params
 

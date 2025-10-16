@@ -130,7 +130,7 @@ export const getTradeQuote = async (
 
       const { data: swapResponse } = maybeSwapResponse.unwrap()
 
-      if (!swapResponse.id) throw Error('Missing Swap Id')
+      if (swapResponse.id === undefined) throw Error('Missing Swap Id')
       if (!swapResponse.address) throw Error('Missing Deposit Channel')
 
       const depositAddress = swapResponse.address

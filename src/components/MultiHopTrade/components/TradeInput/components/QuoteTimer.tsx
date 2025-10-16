@@ -18,7 +18,7 @@ export const QuoteTimer = ({ size = '6' }: QuoteTimerProps) => {
 
   useEffect(() => {
     const updateTimer = () => {
-      if (query.data?.lastExecutedTime) {
+      if (query.data?.lastExecutedTime !== undefined) {
         const remaining = Math.max(
           0,
           query.data.lastExecutedTime + TRADE_QUOTE_REFRESH_INTERVAL_MS - Date.now(),

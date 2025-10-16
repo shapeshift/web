@@ -123,7 +123,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           maxAttempts: 30,
         })
 
-        if (transactionReceipt?.status) {
+        if (transactionReceipt?.status === 1) {
           refetchFoxyBalances()
         }
 
@@ -144,7 +144,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
         setState({
           ...state,
-          txStatus: transactionReceipt?.status ? TxStatus.Confirmed : TxStatus.Failed,
+          txStatus: transactionReceipt?.status === 1 ? TxStatus.Confirmed : TxStatus.Failed,
           usedGasFeeCryptoBaseUnit: bnOrZero(
             (transactionReceipt as TransactionReceiptParams | null)?.effectiveGasPrice?.toString(),
           )

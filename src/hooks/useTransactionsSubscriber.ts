@@ -65,9 +65,9 @@ export const useTransactionsSubscriber = () => {
               Boolean(
                 opportunity?.assetId === assetId ||
                   opportunity?.underlyingAssetId === assetId ||
-                  (opportunity?.underlyingAssetIds?.length &&
+                  (opportunity?.underlyingAssetIds !== undefined && opportunity?.underlyingAssetIds.length > 0 &&
                     opportunity?.underlyingAssetIds.includes(assetId)) ||
-                  (opportunity?.rewardAssetIds?.length &&
+                  (opportunity?.rewardAssetIds !== undefined && opportunity?.rewardAssetIds.length > 0 &&
                     opportunity?.rewardAssetIds.includes(assetId)),
               ),
             ),

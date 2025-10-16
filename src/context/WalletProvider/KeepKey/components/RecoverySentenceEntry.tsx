@@ -96,7 +96,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
 
   const wordEntropyCircle = useMemo(() => {
     const size = 2.5
-    const paddedNumber = String((recoveryWordIndex || 0) + 1).padStart(2, '0')
+    const paddedNumber = String((recoveryWordIndex ?? 0) + 1).padStart(2, '0')
     return (
       <Box
         borderWidth='2px'
@@ -279,7 +279,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               width='40%'
               min={0}
               max={wordEntropy}
-              value={(recoveryWordIndex || 0) + 1}
+              value={(recoveryWordIndex ?? 0) + 1}
               background={progressBarBackgroundColor}
               borderRadius='lg'
               sx={progressStyles}
@@ -291,7 +291,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               type='submit'
               onClick={handleWordSubmit}
               mb={3}
-              isDisabled={recoveryCharacterIndex ? recoveryCharacterIndex < 3 : true}
+              isDisabled={recoveryCharacterIndex !== undefined ? recoveryCharacterIndex < 3 : true}
             >
               <Text translation={'modals.keepKey.recoverySentenceEntry.button'} />
             </Button>

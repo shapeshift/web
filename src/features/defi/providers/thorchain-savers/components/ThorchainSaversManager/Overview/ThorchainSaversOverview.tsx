@@ -158,7 +158,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   }, [handleAccountIdChange, maybeAccountId])
 
   const opportunityDataFilter = useMemo(() => {
-    if (!maybeAccountId?.length) return
+    if (maybeAccountId === undefined || maybeAccountId.length === 0) return
 
     return {
       userStakingId: serializeUserStakingId(
@@ -324,7 +324,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             return translate('defi.modals.saversVaults.disabledWithdrawTitle')
           }
 
-          if (remainingLockupTime) {
+          if (remainingLockupTime !== undefined && remainingLockupTime > 0) {
             return translate('defi.modals.saversVaults.withdrawLockedTitle', {
               timeHuman: formatSecondsToDuration(remainingLockupTime),
             })

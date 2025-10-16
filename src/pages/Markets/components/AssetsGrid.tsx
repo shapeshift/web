@@ -33,7 +33,7 @@ export const AssetsGrid: React.FC<{
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, limit && showSparkline ? limit - 1 : limit),
+      ).slice(0, limit !== undefined && showSparkline ? limit - 1 : limit),
     [assetIds, limit, selectedChainId, showSparkline],
   )
 

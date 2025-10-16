@@ -123,7 +123,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 
   const usedGasOrEstimateCryptoPrecision = useMemo(() => {
-    if (maybeSafeTx?.transaction?.gasUsed)
+    if (maybeSafeTx?.transaction?.gasUsed !== undefined)
       return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
     if (state?.deposit.usedGasFeeCryptoBaseUnit)
       return fromBaseUnit(state.deposit.usedGasFeeCryptoBaseUnit, feeAsset.precision)

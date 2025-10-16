@@ -253,7 +253,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   }
 
   const swapStepsContainsMultipleItems = swapSteps.some(
-    step => step.items?.length && step.items.length > 1,
+    step => step.items !== undefined && step.items.length > 1,
   )
 
   // It's uncommon but can happen, log it to mixpanel to ensure we will investigate if it happens too much in the future

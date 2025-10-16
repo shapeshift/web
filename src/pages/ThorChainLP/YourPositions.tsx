@@ -83,7 +83,7 @@ export const YourPositions = () => {
   const allUserLpData = useAllUserLpData()
 
   const activePositions = useMemo(() => {
-    return allUserLpData.filter(query => query.data?.positions.length)
+    return allUserLpData.filter(query => query.data?.positions !== undefined && query.data.positions.length > 0)
   }, [allUserLpData])
 
   const allLoaded = useMemo(() => {
@@ -317,7 +317,7 @@ export const YourPositions = () => {
     [navigate, pools],
   )
 
-  const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])
+  const isEmpty = useMemo(() => allLoaded && activePositions.length === 0, [allLoaded, activePositions])
   const connectWalletBody: [string, InterpolationOptions] = useMemo(
     () => ['common.connectWalletToGetStartedWith', { feature: 'THORChain LP' }],
     [],

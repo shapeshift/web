@@ -966,7 +966,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
-    if (position?.remainingLockupTime)
+    if (position?.remainingLockupTime !== undefined)
       return translate('defi.liquidityLocked', {
         time: formatSecondsToDuration(position.remainingLockupTime),
       })

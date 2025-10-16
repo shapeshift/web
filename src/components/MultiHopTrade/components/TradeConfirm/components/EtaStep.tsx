@@ -26,7 +26,7 @@ export const EtaStep = () => {
     return <ArrowDownIcon color='gray.500' boxSize={5} />
   }, [])
   const title = useMemo(() => {
-    return totalEstimatedExecutionTimeMs
+    return totalEstimatedExecutionTimeMs !== undefined
       ? translate('trade.hopTitle.swapEta', {
           swapperName,
           eta: prettyMilliseconds(totalEstimatedExecutionTimeMs),

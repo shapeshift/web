@@ -53,7 +53,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   // Ensure no failures by trusting too low gas limit e.g wc demo dApp enforces 21000 gas limit for ETH.ARB sends, but actual gas may be e.g 23322
   useEffect(() => {
     const maybeGasUsed = simulationQuery.data?.transaction?.gas_used
-    if (!maybeGasUsed) return
+    if (maybeGasUsed === undefined) return
 
     // Only update gasLimit if simulation shows we need MORE gas than currently set
     if (bnOrZero(maybeGasUsed).lte(gasLimit ?? 0)) return

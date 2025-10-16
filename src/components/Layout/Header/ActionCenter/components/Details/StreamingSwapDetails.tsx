@@ -24,7 +24,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
 
   const progress = useMemo(() => {
     if (isSwapComplete) return 100
-    if (!streamingTotalSwapCount) return 0
+    if (streamingTotalSwapCount === undefined) return 0
 
     return bnOrZero(attemptedSwapCount)
       .div(bnOrZero(streamingTotalSwapCount))
@@ -53,7 +53,7 @@ export const StreamingSwapDetails: React.FC<StreamingSwapDetailsProps> = ({ swap
           isAnimated={true}
           hasStripe={isSwapComplete ? false : true}
         />
-        {maxSwapCount ? (
+        {maxSwapCount !== undefined ? (
           <RawText>
             ({attemptedSwapCount}/{maxSwapCount})
           </RawText>

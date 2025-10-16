@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "Voir dans l'explorateur",
+    "viewAssetDetails": "Afficher les détails de l'actif",
     "approval": "Autorisation",
     "permit2Approval": "Autorisation Permit2",
     "network": "Réseau",
@@ -390,6 +391,7 @@
       "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
       "disconnected": "(Déconnecté)",
+      "locked": "(Verrouillé)",
       "reconnectWallet": "Reconnecter le porte-monnaie",
       "walletNotConnected": "Votre porte-monnaie n'est pas connecté actuellement. Cela impactera les transactions.",
       "connecting": "Connexion..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "Confirmer et réclamer",
     "viewClaims": "Voir les réclamations",
     "viewClaimStatus": "Afficher le statut de la réclamation",
-    "availableClaimsNotification": "Vos réclamations de bridge sont prêtes !"
+    "availableClaimsNotification": "Vos réclamations de bridge sont prêtes !",
+    "bridgeWithdrawalReadyNotification": "Retrait du bridge prêt à être réclamé",
+    "bridgeWithdrawalFailedNotification": "Le retrait du bridge a échoué",
+    "checkActionCenterNotification": "Consultez le centre d'actions pour plus de détails"
   },
   "trade": {
     "trade": "Échanger",
@@ -1251,7 +1256,7 @@
       "allowanceResetRequired": "Réinitialisation d'allocation requise"
     },
     "warnings": {
-      "limitPriceIsPercentLowerThanMarket": "Le prix est inférieur de %{percent}% au prix du marché.\n\nBien que CoW s'efforce toujours de vous proposer le meilleur prix disponible, cela pourrait vous faire vendre vos %{sellAssetSymbol} à perte. Envisagez plutôt de cliquer sur \"Marché\"."
+      "limitPriceIsPercentLowerThanMarket": "Le prix est inférieur de %{percent}% au prix du marché.\n\nBien que CoW s'efforce toujours de vous proposer le meilleur prix disponible, cela pourrait vous faire vendre vos %{sellAssetSymbol} à perte. Envisagez plutôt de cliquer sur « Marché »."
     },
     "usdtAllowanceReset": {
       "title": "Impossible d'approuver l'allocation d'USDT",
@@ -1841,7 +1846,7 @@
         "pairNewDeviceBody": "Cliquez sur « Appairer un nouvel appareil » pour commencer",
         "pairNewDeviceButton": "Appairer un nouvel appareil",
         "pairExistingDeviceButton": "Appairer un appareil existant",
-        "pairExistingDeviceBody": "Vous connectez un autre appareil Ledger ? Cliquez sur \"Appairer un nouvel appareil\" pour commencer à zéro."
+        "pairExistingDeviceBody": "Vous connectez un autre appareil Ledger ? Cliquez sur « Appairer un nouvel appareil » pour commencer à zéro."
       },
       "failure": {
         "header": "Impossible de se connecter au Ledger",
@@ -1901,7 +1906,7 @@
       },
       "update": {
         "title": "Le Snap Multichain doit être mis à jour",
-        "subtitle": "Cliquez sur \"Mettre à jour\" pour continuer à utiliser les fonctionnalités multichaînes de ShapeShift avec MetaMask !"
+        "subtitle": "Cliquez sur « Mettre à jour » pour continuer à utiliser les fonctionnalités multichaînes de ShapeShift avec MetaMask !"
       },
       "connectMetaMask": "Connecter MetaMask",
       "andMore": "... et plus",
@@ -1916,7 +1921,7 @@
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
       "updateTitle": "Mise à jour du Snap Multichain",
-      "warningExperimental": "Le Snap ShapeShift Multichain est une nouvelle fonctionnalité expérimentale, fournie \"telle quelle\".",
+      "warningExperimental": "Le Snap ShapeShift Multichain est une nouvelle fonctionnalité expérimentale, fournie « telle quelle ».",
       "warningBackup": "Assurez-vous d'avoir sauvegardé votre phrase de récupération MetaMask. Tous les fonds que vous envoyez sur des chaînes non-EVM à l'aide de ce Snap seront dirigés vers le compte par défaut que vous avez créé dans MetaMask.",
       "agreeIntro": "Avant de continuer, veuillez lire ce qui suit :",
       "agreeItem1": "Les porte-monnaie matériels ne sont <strong>PAS</strong> pris en charge",
@@ -2176,11 +2181,12 @@
   },
   "assets": {
     "more": "Plus",
+    "hideAsset": "Masquer l'actif",
+    "showAsset": "Afficher l'actif",
+    "cannotHidePrimary": "Impossible de masquer les actifs principaux qui ont des variantes liées",
     "spam": {
-      "warning": "Cet élément sera masqué car vous l'avez marqué comme spam.",
-      "marked": "Cet actif est marqué comme spam.",
-      "reportAsSpam": "Signaler comme spam",
-      "reportAsNotSpam": "Marquer comme non-spam"
+      "warning": "Cet actif peut être affiché à nouveau en ouvrant la liste déroulante du porte-monnaie et en cliquant sur « Gérer les actifs masqués ».",
+      "marked": "Cet actif est actuellement masqué."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2377,7 +2383,7 @@
         "FOXy": "Opportunités"
       },
       "otherOpportunitiesDescription": {
-        "FOX": "Explorez les nombreuses possibilités pour fournir des liquidités, recourir au farming de rendement, prêter et d'emprunter. Cliquez sur les liens \"Commencer\" ci-dessous pour visiter les sites externes qui vous intéressent afin d'en apprendre davantage — et mettez votre FOX à votre service.",
+        "FOX": "Explorez les nombreuses possibilités pour fournir des liquidités, recourir au farming de rendement, prêter et d'emprunter. Cliquez sur les liens « Commencer » ci-dessous pour visiter les sites externes qui vous intéressent afin d'en apprendre davantage — et mettez votre FOX à votre service.",
         "FOXy": "Achetez rapidement et facilement du FOXy, le premier jeton de rebasement DAO de l'industrie qui offre à la fois des récompenses de rendement et de profit."
       },
       "liquidityPools": "Pools de liquidité",
@@ -2713,7 +2719,7 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "withdrawTypeNotAvailable": "Ce type de retrait n'est pas disponible pour ce pool.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
-    "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
+    "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via « Ajouter des liquidités ».",
     "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "depositsDisabled": "Dépôts désactivés",
@@ -2794,6 +2800,13 @@
       "cta": "Explorez plus d'actifs"
     },
     "title": "Liste de suivi"
+  },
+  "manageHiddenAssets": {
+    "title": "Gérer les actifs masqués",
+    "empty": {
+      "title": "Aucun actif masqué",
+      "body": "Les actifs que vous masquez apparaîtront ici, ce qui vous permettra de les afficher à nouveau facilement ultérieurement."
+    }
   },
   "explore": {
     "pools": {
@@ -2908,7 +2921,7 @@
       "title": "FAQ",
       "what": {
         "title": "Qu’est-ce que rFOX ?",
-        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous misez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons \"vanilla\" FOX (sur Arbitrum) pour les émissions de mises."
+        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous misez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de mises."
       },
       "why": {
         "title": "Pourquoi miser vos FOX ?",
@@ -3126,6 +3139,7 @@
       "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie. Essayez de changer manuellement la chaîne active de votre porte-monnaie pour %{chain}.",
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
+      "blindSigningRequired": "La transaction nécessite une signature aveugle. Veuillez activer « Blind signing » dans les paramètres de votre app Ledger et réessayer.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
       "signMessage": "Échec de la signature du message.",
       "broadcastTransaction": "Échec de la diffusion de la transaction.",
@@ -3202,10 +3216,17 @@
       "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
     },
     "bridge": {
-      "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",
-      "complete": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est terminé.",
-      "initiated": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a été initié.",
-      "failed": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a échoué."
+      "processing": "En traitement...",
+      "complete": "Votre bridge de %{amountAndSymbol} est terminé.",
+      "initiated": "Votre bridge de %{sellAmountAndSymbol} ver %{buyAmountAndSymbol} a été initié.",
+      "pendingWithdraw": "Votre retrait de %{amountAndSymbol} sera disponible %{timeText}.",
+      "claimAvailable": "Votre bridge de %{amountAndSymbol} est disponible pour être réclamé.",
+      "failed": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a échoué.",
+      "transactionInitiated": "Transaction initiée",
+      "claimWithdraw": "Réclamer le retrait",
+      "withdrawTx": "Tx de retrait",
+      "claimTx": "Tx de réclamation",
+      "claimNotAvailable": "La réclamation n'est pas encore disponible. Veuillez patienter jusqu'à la fin du délai de retrait."
     },
     "limitOrder": {
       "placed": "Ordre à cours limité de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} placé",

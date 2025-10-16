@@ -50,8 +50,8 @@ export const GridPlusSetup = () => {
     setSafeCardName(e.target.value)
   }, [])
 
-  const handlePairingCodeChange = useCallback((value: string) => {
-    setPairingCode(value.toUpperCase())
+  const handlePairingCodeChange = useCallback((pairingCode: string) => {
+    setPairingCode(pairingCode.toUpperCase())
   }, [])
 
   const handleSubmit = useCallback(

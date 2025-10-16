@@ -10,13 +10,14 @@ import { useAppSelector } from '@/state/store'
 
 export const useAddAccountsGuard = () => {
   const {
-    state: { wallet, isConnected },
+    state: { wallet, isConnected, deviceId },
   } = useWallet()
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const isPortfolioLoading = useSelector(selectIsPortfolioLoading)
   const walletType = useAppSelector(selectWalletType)
   const manageAccountsModal = useModal('manageAccounts')
   const hasCheckedRef = useRef(false)
+  const prevDeviceIdRef = useRef<string | null>(null)
 
   // Reset the hasChecked flag when wallet disconnects
   useEffect(() => {
@@ -24,6 +25,14 @@ export const useAddAccountsGuard = () => {
       hasCheckedRef.current = false
     }
   }, [isConnected])
+
+  // Reset the hasChecked flag when wallet deviceId changes
+  useEffect(() => {
+    if (deviceId !== prevDeviceIdRef.current) {
+      hasCheckedRef.current = false
+      prevDeviceIdRef.current = deviceId
+    }
+  }, [deviceId])
 
   useEffect(() => {
     if (!isConnected || !wallet || hasCheckedRef.current) return

@@ -33,8 +33,8 @@ export const GridPlusPair = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handlePairingCodeChange = useCallback((value: string) => {
-    setPairingCode(value.toUpperCase())
+  const handlePairingCodeChange = useCallback((pairingCode: string) => {
+    setPairingCode(pairingCode.toUpperCase())
   }, [])
 
   const handleSubmit = useCallback(

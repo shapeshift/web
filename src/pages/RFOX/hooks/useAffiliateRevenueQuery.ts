@@ -29,7 +29,7 @@ export const getAffiliateRevenueQueryFn = ({
   startTimestamp,
   endTimestamp,
 }: UseAffiliateRevenueQueryProps) => {
-  if (startTimestamp === undefined || endTimestamp === undefined) return skipToken
+  if (!startTimestamp || !endTimestamp) return skipToken
 
   return async () => {
     const baseUrl = getConfig().VITE_UNCHAINED_THORCHAIN_HTTP_URL

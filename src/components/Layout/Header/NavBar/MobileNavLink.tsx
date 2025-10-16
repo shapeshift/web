@@ -18,7 +18,7 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
   const navigate = useNavigate()
 
   const isActive = useMemo(() => {
-    if (relatedPaths?.length === undefined || relatedPaths.length === 0) {
+    if (!relatedPaths?.length) {
       const match = matchPath(
         {
           path,

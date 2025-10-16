@@ -92,7 +92,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 
   const currentEpochRewardsUserCurrency = useMemo(() => {
     if (!runeAsset) return
-    if (currentEpochRewardsCryptoBaseUnitQuery.data === undefined) return
+    if (!currentEpochRewardsCryptoBaseUnitQuery.data) return
 
     const currentEpochRewardsCryptoBaseUnit = currentEpochRewardsCryptoBaseUnitQuery.data.toString()
 

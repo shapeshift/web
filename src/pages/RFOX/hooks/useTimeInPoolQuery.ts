@@ -78,7 +78,7 @@ export const getTimeInPoolSeconds = async (sortedLogs: RFOXAccountLog[]) => {
   }
 
   // If the staking balance never got set, the user has never staked
-  if (earliestNonZeroStakingBalanceBlockNumber === undefined) return 0n
+  if (!earliestNonZeroStakingBalanceBlockNumber) return 0n
 
   // Get the block timestamp of the earliest non-zero staking balance
   const { timestamp: earliestNonZeroStakingBalanceTimestamp } = await client.getBlock({

@@ -139,7 +139,7 @@ export class MarketServiceManager {
 
     let result: HistoryData[] | null = null
     // Loop through market providers and look for asset price history data. Once found, exit loop.
-    for (let i = 0; i < this.marketProviders.length && (result === null || result.length === 0); i++) {
+    for (let i = 0; i < this.marketProviders.length && !result?.length; i++) {
       try {
         result = await this.marketProviders[i].findPriceHistoryByAssetId({ assetId, timeframe })
       } catch (e) {

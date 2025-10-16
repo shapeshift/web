@@ -348,7 +348,7 @@ export const BorrowInput = ({
 
   const isUnsafeQuote = useMemo(
     () =>
-      quoteSlippageDecimalPercentage !== undefined &&
+      quoteSlippageDecimalPercentage &&
       quoteSlippageDecimalPercentage > UNSAFE_SLIPPAGE_DECIMAL_PERCENT,
     [quoteSlippageDecimalPercentage],
   )

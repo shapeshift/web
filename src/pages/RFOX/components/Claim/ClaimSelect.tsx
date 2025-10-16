@@ -79,7 +79,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
       return new Array(2).fill(null).map((_, index) => <Skeleton key={index} height={16} my={2} />)
     }
 
-    if (allUnstakingRequestsQuery.isError || !accountUnstakingRequests || accountUnstakingRequests.length === 0) {
+    if (allUnstakingRequestsQuery.isError || !accountUnstakingRequests?.length) {
       return (
         <NoClaimsAvailable
           isError={allUnstakingRequestsQuery.isError}

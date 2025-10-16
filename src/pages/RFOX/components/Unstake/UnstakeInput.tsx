@@ -473,7 +473,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               !hasEnteredValue ||
                 !isUnstakeFeesSuccess ||
                 Boolean(errors.amountFieldInput) ||
-                cooldownPeriodData?.cooldownPeriodSeconds === undefined,
+                !cooldownPeriodData?.cooldownPeriodSeconds,
             )}
             size='lg'
             mx={-2}

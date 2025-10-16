@@ -148,7 +148,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({
         type: CosmosWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: broadcastTxId !== undefined && broadcastTxId.length > 0 ? 'success' : 'failed',
+          txStatus: broadcastTxId?.length ? 'success' : 'failed',
         },
       })
 

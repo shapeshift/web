@@ -116,7 +116,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
           </HStack>
         </Row.Value>
       </Row>
-      {expires !== undefined ? (
+      {expires ? (
         <Row fontSize='sm'>
           <Row.Label>{translate('actionCenter.expires')}</Row.Label>
           <Row.Value>

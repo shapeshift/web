@@ -817,12 +817,12 @@ export const Deposit: React.FC<DepositProps> = ({
   const handleContinueOrAcknowledgement = useCallback(
     (formValues: DepositValues) => {
       setDepositValues(formValues)
-      if (isRunePool && thorchainMimirTimes?.runePoolDepositMaturityTime !== undefined) {
+      if (isRunePool && thorchainMimirTimes?.runePoolDepositMaturityTime) {
         setShouldShowInfoAcknowledgement(true)
         return
       }
 
-      if (!isRunePool && thorchainMimirTimes?.liquidityLockupTime !== undefined) {
+      if (!isRunePool && thorchainMimirTimes?.liquidityLockupTime) {
         setShouldShowInfoAcknowledgement(true)
         return
       }

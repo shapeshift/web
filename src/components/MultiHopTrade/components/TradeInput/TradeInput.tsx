@@ -208,9 +208,9 @@ export const TradeInput = ({
   }, [activeQuote])
 
   const isEstimatedExecutionTimeOverThreshold = useMemo(() => {
-    if (tradeQuoteStep?.estimatedExecutionTimeMs === undefined) return false
+    if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
 
-    if (tradeQuoteStep.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD)
+    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD)
       return true
 
     return false
@@ -578,7 +578,7 @@ export const TradeInput = ({
         shouldShowAcknowledgement={Boolean(walletId && shouldShowStreamingAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
         estimatedTimeMs={
-          tradeQuoteStep?.estimatedExecutionTimeMs !== undefined ? tradeQuoteStep.estimatedExecutionTimeMs : 0
+          tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
         }
       />
       <WarningAcknowledgement

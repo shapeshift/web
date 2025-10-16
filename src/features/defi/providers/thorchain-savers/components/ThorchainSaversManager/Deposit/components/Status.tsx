@@ -67,7 +67,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   )
 
   useEffect(() => {
-    if (!(contextDispatch && state?.txid !== undefined && state.txid.length > 0 && accountId)) return
+    if (!(contextDispatch && state?.txid?.length && accountId)) return
     ;(async () => {
       if (!state?.txid) return
 

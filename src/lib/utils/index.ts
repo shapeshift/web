@@ -25,7 +25,7 @@ export const firstFourLastFour = (address: string): string =>
 export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
   if (!content) return ''
 
-  if (trimmedContentLength === undefined) return content
+  if (!trimmedContentLength) return content
 
   if (content.length < trimmedContentLength) return content
 

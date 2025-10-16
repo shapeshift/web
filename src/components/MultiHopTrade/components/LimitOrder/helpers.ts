@@ -91,8 +91,8 @@ export const getMixpanelLimitOrderEventData = ({
   buyAmountCryptoPrecision: string
 }) => {
   // mixpanel paranoia seeing impossibly high values
-  if (sellAsset?.precision === undefined) return
-  if (buyAsset?.precision === undefined) return
+  if (!sellAsset?.precision) return
+  if (!buyAsset?.precision) return
 
   const state = store.getState() as ReduxState
 

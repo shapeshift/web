@@ -31,8 +31,8 @@ export const getMixpanelEventData = () => {
   const sellAssetFeeAsset = selectFeeAssetById(state, sellAsset?.assetId ?? '')
 
   // mixpanel paranoia seeing impossibly high values
-  if (sellAsset?.precision === undefined) return
-  if (buyAsset?.precision === undefined) return
+  if (!sellAsset?.precision) return
+  if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
   const shapeShiftFeeUserCurrency = selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency(state)

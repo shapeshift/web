@@ -103,8 +103,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   }, [assetId, equityRows, isLoading, totalFiatBalance])
 
   const renderUnderlyingAssets = useMemo(() => {
-    if (!underlyingAssetsWithBalancesAndIcons || underlyingAssetsWithBalancesAndIcons.length === 0)
-      return
+    if (!underlyingAssetsWithBalancesAndIcons?.length) return
     return (
       <Flex flexDir='column' mt={2}>
         {underlyingAssetsWithBalancesAndIcons.map(underlyingAsset => (

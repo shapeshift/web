@@ -425,7 +425,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         data.average?.satsPerKiloByte === undefined ||
         data.slow?.satsPerKiloByte === undefined
       ) {
-        throw new Error('error to get network fees')
+        throw new Error('error getting network fees')
       }
 
       // ensure higher confirmation speeds never have lower fees than lower confirmation speeds

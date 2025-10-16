@@ -160,7 +160,7 @@ export const ConfirmSummary = ({
       return false
     if (!shouldShowTradeQuoteOrAwaitInput) return false
     if (hasUserEnteredAmount && !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable) return true
-    return (activeQuoteErrors !== undefined && activeQuoteErrors.length > 0) || (quoteRequestErrors !== undefined && quoteRequestErrors.length > 0)
+    return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [
     activeQuoteErrors,
     shouldShowTradeQuoteOrAwaitInput,

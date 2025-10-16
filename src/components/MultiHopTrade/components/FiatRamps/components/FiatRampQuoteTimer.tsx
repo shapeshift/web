@@ -21,7 +21,7 @@ export const FiatRampQuoteTimer = ({ size = '6', direction }: FiatRampQuoteTimer
 
   useEffect(() => {
     const updateTimer = () => {
-      if (query.data?.lastExecutedTime !== undefined) {
+      if (query.data?.lastExecutedTime) {
         const remaining = Math.max(
           0,
           query.data.lastExecutedTime + FIAT_RAMP_QUOTE_REFRESH_INTERVAL_MS - Date.now(),

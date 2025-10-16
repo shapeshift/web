@@ -23,8 +23,7 @@
   "parserOptions": {
     "sourceType": "module",
     "project": [
-      "./tsconfig.json",
-      "./packages/*/tsconfig.json"
+      "./tsconfig.json"
     ]
   },
   "env": {

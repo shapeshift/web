@@ -109,7 +109,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
               </Link>
             </Stack>
 
-            {isUnstake && action.transactionMetadata.cooldownPeriodSeconds !== undefined && (
+            {isUnstake && action.transactionMetadata.cooldownPeriodSeconds && (
               <Stack direction='row' justify='space-between' align='center'>
                 <Text fontSize='sm' color='text.primary'>
                   {translate('RFOX.claimWithdraw')}

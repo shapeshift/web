@@ -52,7 +52,7 @@ export const useRepaymentLockData = ({
   const repaymentLockData = useThorchainMimir({
     chainId: thorchainChainId,
     select: mimirData => {
-      if (!mimirData || blockHeight === undefined) return null
+      if (!mimirData || !blockHeight) return null
 
       const repaymentMaturity = mimirData.LOANREPAYMENTMATURITY
 

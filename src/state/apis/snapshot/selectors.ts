@@ -27,7 +27,7 @@ export const selectVotingPowerOrZero = createSelector(
     if (isSnapshotApiQueriesRejected) return '0'
 
     const ethAccountIds = accountIdsbyChainId[ethChainId]
-    if (!ethAccountIds || ethAccountIds.length === 0) return '0'
+    if (!ethAccountIds?.length) return '0'
 
     return votingPower
   },

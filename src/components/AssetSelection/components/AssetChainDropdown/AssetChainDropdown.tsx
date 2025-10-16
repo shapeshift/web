@@ -93,7 +93,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
         const isAssetAllowed = assetFilterPredicate?.(assetId) ?? true
         return isChainAllowed && isAssetAllowed
       })
-      if (!assetIds || assetIds.length === 0) return filteredRelatedAssetIds
+      if (!assetIds?.length) return filteredRelatedAssetIds
       return filteredRelatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
     }, [assetFilterPredicate, assetIds, chainIdFilterPredicate, relatedAssetIds])
 

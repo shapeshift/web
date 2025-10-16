@@ -67,8 +67,7 @@ export const createOnRamperUrl = async ({
 
   const onRamperSymbols = (() => {
     const maybeMappingSymbols = adapters.assetIdToOnRamperTokenList(assetId)
-    if (maybeMappingSymbols !== undefined && maybeMappingSymbols.length > 0)
-      return maybeMappingSymbols
+    if (maybeMappingSymbols?.length) return maybeMappingSymbols
 
     const tokenId = findOnramperTokenIdByAssetId(assetId, supportedCurrencies)
 
@@ -77,7 +76,7 @@ export const createOnRamperUrl = async ({
     return [tokenId]
   })()
 
-  if (onRamperSymbols === undefined || onRamperSymbols.length === 0) {
+  if (!onRamperSymbols?.length) {
     throw new Error('Asset not supported by OnRamper')
   }
 

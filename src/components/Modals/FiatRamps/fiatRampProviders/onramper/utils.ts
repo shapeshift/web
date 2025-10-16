@@ -67,8 +67,8 @@ const convertOnramperQuotesToSingleRampQuote = (
   }
 
   const bestQuote = onramperQuotes.reduce<OnramperBuyQuote | null>((best, current) => {
-    if (current.errors || current.payout === undefined) return best
-    if (!best || best.payout === undefined) return current
+    if (current.errors || !current.payout) return best
+    if (!best || !best.payout) return current
 
     return current.payout > best.payout ? current : best
   }, null)
@@ -181,7 +181,7 @@ export const findAssetIdByOnramperCrypto = (crypto: Crypto): AssetId | undefined
 
         if (crypto.network === 'bsc') return ASSET_NAMESPACE.bep20
 
-        if (crypto.chainId !== undefined || isAddress(crypto.address)) return ASSET_NAMESPACE.erc20
+        if (crypto.chainId || isAddress(crypto.address)) return ASSET_NAMESPACE.erc20
       })()
 
       if (!assetNamespace) return

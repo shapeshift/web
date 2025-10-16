@@ -49,7 +49,7 @@ export const SparkLine: React.FC<SparkLineProps> = ({
 
   const color = useMemo(() => {
     if (themeColor) return themeColor
-    if (percentChange !== undefined) return percentChange > 0 ? 'green.500' : 'red.500'
+    if (percentChange) return percentChange > 0 ? 'green.500' : 'red.500'
     return 'gray.500'
   }, [percentChange, themeColor])
 

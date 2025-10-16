@@ -19,7 +19,7 @@ export const Banner: React.FC<BannerProps> = props => {
 
   // Hide the banner after the campaign ends, if endingTimeMs is provided.  make a constant in  '@/lib/fees/constant' if you like.
 
-  if (endingTimeMs !== undefined && Date.now() > endingTimeMs) return null
+  if (endingTimeMs && Date.now() > endingTimeMs) return null
 
   // replace cta link with route, banner background with something pretty, title, icon, and description. then edit translations with the key.
   return (

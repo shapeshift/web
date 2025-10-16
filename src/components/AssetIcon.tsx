@@ -79,7 +79,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const iconSrc = src ?? asset.icon
   // We should only show the fallback if the asset doesn't have an icon/icons
   // Failure to check this means we would lose loading FOX icon functionality
-  const showFallback = !asset.icon && !(asset.icons && asset.icons.length > 0)
+  const showFallback = !asset.icon && !asset.icons?.length
 
   return (
     <Center>
@@ -130,7 +130,7 @@ export const AssetIcon = memo(
       return <LazyLoadAvatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
     }
 
-    if (asset.icons && asset.icons.length > 0) {
+    if (asset.icons?.length) {
       const showNetwork = feeAsset?.networkIcon || asset.assetId !== feeAsset?.assetId
 
       return (

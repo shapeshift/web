@@ -46,7 +46,7 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
 }).format
 
 const ChartDiv = styled.div<{ height?: number }>`
-  ${({ height }) => height !== undefined && `height: ${height}px`};
+  ${({ height }) => height && `height: ${height}px`};
   width: 100%;
   position: relative;
 `

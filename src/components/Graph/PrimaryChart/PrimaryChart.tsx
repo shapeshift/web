@@ -103,7 +103,7 @@ export const PrimaryChart = ({
   const priceScale = useMemo(() => {
     return scaleLinear({
       range: [yMax + margin.top - 32, margin.top + 32],
-      domain: [min(data, getStockValue) ?? 0, max(data, getStockValue) ?? 0],
+      domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
     })
   }, [yMax, margin.top, data])
 

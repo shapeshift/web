@@ -513,7 +513,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       ],
     })
 
-    return limit !== undefined ? matchedAssets.slice(0, limit) : matchedAssets
+    return limit ? matchedAssets.slice(0, limit) : matchedAssets
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 

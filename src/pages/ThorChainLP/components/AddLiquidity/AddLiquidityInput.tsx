@@ -370,7 +370,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const amountsByPosition: AmountsByPosition | undefined = useMemo(() => {
-    if (userLpData === undefined || userLpData.length === 0) return
+    if (!userLpData?.length) return
 
     return userLpData.reduce((acc, position) => {
       return {
@@ -1541,7 +1541,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [handleSubmit, isUnsafeQuote])
 
   const handleClick = useCallback(() => {
-    thorchainMimirTimes?.liquidityLockupTime !== undefined
+    thorchainMimirTimes?.liquidityLockupTime
       ? setShouldShowInfoAcknowledgement(true)
       : handleDepositSubmit()
   }, [thorchainMimirTimes, handleDepositSubmit])

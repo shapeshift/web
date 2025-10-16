@@ -77,9 +77,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
       action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
       action.arbitrumBridgeMetadata.timeRemainingSeconds
     const timeDisplay =
-      timeRemaining !== undefined && timeRemaining > 0
-        ? formatSecondsToDuration(timeRemaining)
-        : null
+      timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
     const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
 
     return {

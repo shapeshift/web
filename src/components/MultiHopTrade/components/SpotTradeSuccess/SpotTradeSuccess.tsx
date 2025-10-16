@@ -103,7 +103,7 @@ export const SpotTradeSuccess = ({
   const transfers = txTransfers || manualReceiveAddressTransfers
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
-    if (transfers?.length === undefined || transfers.length === 0 || !buyAsset) return undefined
+    if (!transfers?.length || !buyAsset) return undefined
 
     const receiveTransfer = transfers.find(
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,

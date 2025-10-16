@@ -241,12 +241,12 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createCachedSelector(
   selectDateParamFromFilter,
   selectTransactionTypesParamFromFilter,
   (txs, txIds, matchingAssets, { fromDate, toDate }, types): TxId[] => {
-    if (!matchingAssets && fromDate === null && toDate === null && !types.length) return txIds
+    if (!matchingAssets && !fromDate && !toDate && !types.length) return txIds
     const transactions = Object.entries(txs)
-    const filteredBasedOnFromDate = fromDate !== null
+    const filteredBasedOnFromDate = fromDate
       ? transactions.filter(([, tx]) => tx.blockTime > fromDate).map(([txId]) => txId)
       : txIds
-    const filteredBasedOnToDate = toDate !== null
+    const filteredBasedOnToDate = toDate
       ? transactions.filter(([, tx]) => tx.blockTime < toDate).map(([txId]) => txId)
       : txIds
     const filteredBasedOnMatchingAssets = matchingAssets
@@ -399,7 +399,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
         return true
       }
 
-      return isHydrated || (minTxBlockTime !== undefined && minTxBlockTime <= start.valueOf() / 1000)
+      return isHydrated || (minTxBlockTime && minTxBlockTime <= start.valueOf() / 1000)
     }
 
     // No account ID assumes "all" account IDs

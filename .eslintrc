@@ -21,10 +21,7 @@
     "eslint-plugin-import"
   ],
   "parserOptions": {
-    "sourceType": "module",
-    "project": [
-      "./tsconfig.json"
-    ]
+    "sourceType": "module"
   },
   "env": {
     "browser": true,
@@ -101,20 +98,7 @@
     "require-await": "error",
     "import/no-duplicates": "error",
     "react-memo/require-usememo": "error",
-    "@typescript-eslint/no-non-null-assertion": "error",
-    "@typescript-eslint/strict-boolean-expressions": [
-      "error",
-      {
-        "allowString": true,
-        "allowNumber": true,
-        "allowNullableObject": true,
-        "allowNullableBoolean": true,
-        "allowNullableString": true,
-        "allowNullableNumber": false,
-        "allowNullableEnum": true,
-        "allowAny": true
-      }
-    ]
+    "@typescript-eslint/no-non-null-assertion": "error"
   },
   "overrides": [
     {

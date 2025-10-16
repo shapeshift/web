@@ -66,7 +66,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     let butterId = butterIdCache.get(txHash)
 
     // Only fetch relayer info by source hash if we don't have the butter ID cached
-    if (butterId === undefined) {
+    if (!butterId) {
       const infoResult = await getBridgeInfoBySourceHash(txHash)
       if (infoResult.isErr()) {
         return {
@@ -76,7 +76,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
         }
       }
       const basicInfo = infoResult.unwrap()
-      if (!basicInfo || basicInfo.id === undefined) {
+      if (!basicInfo || !basicInfo.id) {
         return { status: TxStatus.Unknown, buyTxHash: undefined, message: undefined }
       }
 

@@ -257,7 +257,7 @@ export const getTimeFrameBounds = (
 }
 
 export const getStableTimestamp = (intervalMinutes: number) => {
-  if (intervalMinutes === 0 || isNaN(intervalMinutes)) return Date.now()
+  if (!intervalMinutes) return Date.now()
   const intervalMs = intervalMinutes * 60 * 1000
   return Math.floor(Date.now() / intervalMs) * intervalMs
 }

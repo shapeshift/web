@@ -22,7 +22,7 @@ export const PriceChangeTag = ({ changePercent24Hr }: PriceChangeTagProps) => {
     return 'gray'
   }, [changePercent24Hr])
 
-  if (changePercent24Hr === undefined) return null
+  if (!changePercent24Hr) return null
 
   return (
     <Tag colorScheme={changePercentTagColorsScheme} width='max-content' px={1} size='sm'>

@@ -421,11 +421,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       const data = await this.providers.http.getNetworkFees()
 
       if (
-        data.fast?.satsPerKiloByte === undefined ||
-        data.average?.satsPerKiloByte === undefined ||
-        data.slow?.satsPerKiloByte === undefined
+        !(data.fast?.satsPerKiloByte && data.average?.satsPerKiloByte && data.slow?.satsPerKiloByte)
       ) {
-        throw new Error('error getting network fees')
+        throw new Error('error to get network fees')
       }
 
       // ensure higher confirmation speeds never have lower fees than lower confirmation speeds

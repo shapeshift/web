@@ -56,7 +56,7 @@ export const getButterRoute = async ({
 }: GetButterRouteArgs): ButterSwapPromise<RouteResponse> => {
   const butterFromChainId = chainIdToButterSwapChainId(sellAsset.chainId)
   const butterToChainId = chainIdToButterSwapChainId(buyAsset.chainId)
-  if (butterFromChainId === undefined || butterToChainId === undefined) {
+  if (!butterFromChainId || !butterToChainId) {
     return Err(
       makeSwapErrorRight({
         message: '[getButterRoute] Unsupported chainId',

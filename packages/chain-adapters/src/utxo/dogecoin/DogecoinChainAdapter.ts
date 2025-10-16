@@ -72,11 +72,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.DogecoinMainnet>
 
     const { fast, average, slow } = await this.providers.http.getNetworkFees()
 
-    if (
-      fast?.satsPerKiloByte === undefined ||
-      average?.satsPerKiloByte === undefined ||
-      slow?.satsPerKiloByte === undefined
-    ) {
+    if (!(fast?.satsPerKiloByte && average?.satsPerKiloByte && slow?.satsPerKiloByte)) {
       throw new Error('UtxoBaseAdapter: failed to get fee data')
     }
 

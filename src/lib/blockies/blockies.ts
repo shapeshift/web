@@ -66,8 +66,8 @@ export const buildBlockiesOptions = (opts: { seed: string; size?: number; scale?
 
   const newOpts: BlockiesOptions = {
     seed: opts.seed,
-    size: opts.size ?? 8,
-    scale: opts.scale ?? 10,
+    size: opts.size || 8,
+    scale: opts.scale || 10,
     color: createRandomColor(),
     bgcolor: createRandomColor(),
     spotcolor: createRandomColor(),

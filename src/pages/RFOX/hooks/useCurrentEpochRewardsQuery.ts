@@ -48,7 +48,7 @@ export const useCurrentEpochRewardsQuery = ({
         const results = _results as EpochRewardsResultTuple
         const [epochHistory, currentEpochRewardUnits, affiliateRevenue] = results
 
-        if (epochHistory === undefined || currentEpochRewardUnits === undefined || affiliateRevenue === undefined || !currentEpochMetadata)
+        if (!epochHistory || !currentEpochRewardUnits || !affiliateRevenue || !currentEpochMetadata)
           return 0n
 
         const previousEpochRewardUnits = epochHistory.reduce((lastKnownEpochRewardUnits, epoch) => {

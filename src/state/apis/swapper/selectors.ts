@@ -67,7 +67,7 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
 
       const startedTimeStamp = queryInfo?.startedTimeStamp ?? 0
       const latestTimestamp = latestTimestamps[swapperName]
-      const isMostRecent = latestTimestamp === undefined || startedTimeStamp > latestTimestamp
+      const isMostRecent = !latestTimestamp || startedTimeStamp > latestTimestamp
 
       if (isMostRecent) {
         latestTimestamps[swapperName] = startedTimeStamp

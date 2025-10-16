@@ -23,6 +23,7 @@ import {
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -58,6 +59,9 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const tbArrowUp = <TbArrowUp />
+const tbArrowDown = <TbArrowDown />
 
 const hstackProps: StackProps = {
   flexWrap: {
@@ -293,7 +297,7 @@ export const RFOXSection = () => {
   const actionsButtons = useMemo(() => {
     if (!isRFOXFoxEcosystemPageEnabled) {
       return (
-        <Button onClick={handleManageClick} colorScheme='gray' size='sm'>
+        <Button onClick={handleManageClick} colorScheme='gray'>
           {translate('common.manage')}
         </Button>
       )
@@ -301,13 +305,13 @@ export const RFOXSection = () => {
 
     return (
       <Flex justifyContent='space-between'>
-        <Button onClick={handleStakeClick} colorScheme='gray' size='sm' me={2}>
+        <Button onClick={handleStakeClick} colorScheme='gray' me={2} leftIcon={tbArrowUp}>
           {translate('defi.stake')}
         </Button>
-        <Button onClick={handleUnstakeClick} colorScheme='gray' size='sm' me={2}>
+        <Button onClick={handleUnstakeClick} colorScheme='gray' me={2} leftIcon={tbArrowDown}>
           {translate('defi.unstake')}
         </Button>
-        <Button onClick={handleClaimClick} colorScheme='gray' size='sm'>
+        <Button onClick={handleClaimClick} colorScheme='green'>
           {translate('defi.claim')}
         </Button>
       </Flex>
@@ -328,7 +332,7 @@ export const RFOXSection = () => {
   return (
     <Box>
       <Divider mt={2} mb={6} />
-      <Box py={4} px={containerPaddingX}>
+      <Box py={4} px={containerPaddingX} id='rfox'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>

@@ -137,17 +137,11 @@ export const FoxTokenHeader = () => {
       </SimpleGrid>
 
       <Flex alignItems='center'>
-        <Button
-          mx={2}
-          variant='solid'
-          size='sm'
-          leftIcon={faCreditCardIcon}
-          onClick={handleBuyClick}
-        >
+        <Button mx={2} variant='solid' leftIcon={faCreditCardIcon} onClick={handleBuyClick}>
           <Text translation='assets.assetCards.assetActions.buy' />
         </Button>
 
-        <Button mx={2} variant='solid' size='sm' leftIcon={swapIcon} onClick={handleSwapClick}>
+        <Button mx={2} variant='solid' leftIcon={swapIcon} onClick={handleSwapClick}>
           <Text translation='common.trade' />
         </Button>
 
@@ -155,7 +149,6 @@ export const FoxTokenHeader = () => {
           <Button
             mx={2}
             variant='solid'
-            size='sm'
             colorScheme='blue'
             leftIcon={rewardsIcon}
             onClick={handleStakeClick}

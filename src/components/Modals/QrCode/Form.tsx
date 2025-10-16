@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -25,6 +26,7 @@ import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/c
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type QrCodeFormProps = {
   assetId?: AssetId
@@ -39,6 +41,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const [addressError, setAddressError] = useState<string | null>(null)
   const { isOpen, close: handleClose } = useModal('qrCode')
@@ -71,14 +74,20 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       if (!asset) return
       methods.setValue(SendFormFields.AssetId, asset.assetId)
 
-      navigate(SendRoutes.Address)
+      if (isSmallerThanMd) {
+        navigate(SendRoutes.Address)
+        return
+      }
+      // On desktop, go directly to AmountDetails
+      // On mobile, go to Address first
+      navigate(SendRoutes.AmountDetails)
     },
-    [methods, navigate],
+    [methods, navigate, isSmallerThanMd],
   )
 
   const handleBack = useCallback(() => {
     setAddressError(null)
-    navigate(-1)
+    navigate(SendRoutes.Scan)
   }, [navigate])
 
   const handleSubmit = useCallback(
@@ -176,7 +185,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (isAmbiguousTransfer) {
             return navigate(SendRoutes.Select)
           }
-          return navigate(SendRoutes.AmountDetails)
+          return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
         } catch (e: any) {
           setAddressError(e.message)
         }

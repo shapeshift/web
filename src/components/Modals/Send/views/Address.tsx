@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TbScan } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -55,6 +55,9 @@ export const Address = () => {
   const qrCode = useModal('qrCode')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
+
+  const location = useLocation()
+  const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
 
   const qrCodeIcon = useMemo(
     () => (

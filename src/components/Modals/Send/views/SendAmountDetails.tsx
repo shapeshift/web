@@ -26,7 +26,7 @@ import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { AddressInputWithDropdown } from '../components/AddressInputWithDropdown'
 import type { SendInput } from '../Form'
@@ -57,6 +57,8 @@ import { breakpoints } from '@/theme/theme'
 const accountDropdownBoxProps = { px: 0, my: 0 }
 const accountDropdownButtonProps = { px: 2 }
 
+// Maximum memo length for Cosmos SDK chains (256 characters)
+// Currently only Cosmos SDK chains support memos in the send flow
 const MAX_MEMO_LENGTH = 256
 
 type RenderController = ({
@@ -91,6 +93,7 @@ export const SendAmountDetails = () => {
     formState: { errors },
   } = useFormContext<SendInput>()
   const navigate = useNavigate()
+  const location = useLocation()
   const translate = useTranslate()
   const {
     number: { localeParts },
@@ -98,6 +101,8 @@ export const SendAmountDetails = () => {
 
   const [isValidating, setIsValidating] = useState(false)
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+
+  const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
 
   const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, memo, input } = useWatch({
     control,
@@ -116,8 +121,15 @@ export const SendAmountDetails = () => {
   }, [trigger])
 
   const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [navigate])
-  const handleBackClick = useCallback(() => navigate(SendRoutes.Address), [navigate])
+  const handleBackClick = useCallback(
+    () => navigate(isFromQrCode ? SendRoutes.Scan : SendRoutes.Address),
+    [navigate, isFromQrCode],
+  )
   const handleAssetBackClick = useCallback(() => {
+    if (isFromQrCode) {
+      navigate(SendRoutes.Scan)
+      return
+    }
     setValue(SendFormFields.AssetId, '')
     navigate(SendRoutes.Select, {
       state: {
@@ -125,7 +137,7 @@ export const SendAmountDetails = () => {
         assetId: '',
       },
     })
-  }, [navigate, setValue])
+  }, [navigate, setValue, isFromQrCode])
 
   const handleMaxClick = useCallback(async () => {
     await handleSendMax()
@@ -394,7 +406,7 @@ export const SendAmountDetails = () => {
               <Box>
                 <AccountSelector
                   assetId={asset.assetId}
-                  defaultAccountId={accountId}
+                  accountId={accountId}
                   onChange={handleAccountChange}
                   boxProps={accountDropdownBoxProps}
                   buttonProps={accountDropdownButtonProps}

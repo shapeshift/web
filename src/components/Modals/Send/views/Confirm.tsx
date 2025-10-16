@@ -2,6 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Text as CText,
   Divider,
   Flex,
   HStack,
@@ -10,7 +11,6 @@ import {
   Link,
   Skeleton,
   Stack,
-  Text as CText,
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
@@ -35,6 +35,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -56,7 +57,7 @@ import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { vibrate } from '@/lib/vibrate'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -102,6 +103,8 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
   const toBg = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const {
     state: { wallet },
@@ -302,7 +305,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             </Row.Label>
             <Row.Value fontSize={'md'} display='flex' alignItems='center'>
               <CText>{chainName}</CText>
-              <AssetIcon assetId={asset.assetId} showNetworkIcon size='xs' ml={2} />
+              <LazyLoadAvatar src={networkIcon} size='xs' ml={2} />
             </Row.Value>
           </Row>
           <Row alignItems='center'>

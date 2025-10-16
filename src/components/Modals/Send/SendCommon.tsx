@@ -11,18 +11,18 @@ export const mobileSendRoutes = [
   SendRoutes.Confirm,
   SendRoutes.Status,
   SendRoutes.Scan,
-  SendRoutes.Select,
   SendRoutes.AmountDetails,
   SendRoutes.Address,
+  SendRoutes.Select,
 ]
 
 export const desktopSendRoutes = [
   SendRoutes.Confirm,
   SendRoutes.Status,
   SendRoutes.Scan,
-  SendRoutes.Select,
   SendRoutes.Address,
   SendRoutes.AmountDetails,
+  SendRoutes.Select,
 ]
 
 export enum SendFormFields {

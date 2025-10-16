@@ -119,7 +119,7 @@ export const fetchPortalsTradeOrder = async ({
     params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
   }
 
-  if (feePercentage !== undefined) {
+  if (feePercentage) {
     params.append('feePercentage', feePercentage.toString())
   }
 

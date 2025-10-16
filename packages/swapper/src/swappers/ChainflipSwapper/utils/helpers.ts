@@ -121,7 +121,7 @@ export const getChainFlipSwap = ({
     `&retryDurationInBlocks=${retryDurationInBlocks}` +
     `&commissionBps=${commissionBps}`
 
-  if (numberOfChunks !== undefined && chunkIntervalBlocks !== undefined) {
+  if (numberOfChunks && chunkIntervalBlocks) {
     swapUrl += `&numberOfChunks=${numberOfChunks}`
     swapUrl += `&chunkIntervalBlocks=${chunkIntervalBlocks}`
   }

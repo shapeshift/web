@@ -9,11 +9,10 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { createThrottle, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import dayjs from 'dayjs'
-import qs from 'qs'
 import { zeroAddress } from 'viem'
 
 import type { MarketService } from '../api'
@@ -24,7 +23,7 @@ import { getConfig } from '@/config'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from '@/lib/portals/constants'
 import type { GetTokensResponse, HistoryResponse } from '@/lib/portals/types'
-import { assertUnreachable, getTimeFrameBounds } from '@/lib/utils'
+import { assertUnreachable, getStableTimestamp, getTimeFrameBounds } from '@/lib/utils'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)
@@ -33,18 +32,7 @@ const calculatePercentChange = (openPrice: string, closePrice: string): number =
   return close.minus(open).dividedBy(open).times(100).toNumber()
 }
 
-const { throttle, clear } = createThrottle({
-  // in theory, 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
-  // in practice, we get rate limited way before that
-  capacity: 50,
-  costPerReq: 1,
-  drainPerInterval: 50,
-  intervalMs: 60_000, // 1mn
-})
-
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
-
-const PORTALS_API_KEY = getConfig().VITE_PORTALS_API_KEY
 
 export class PortalsMarketService implements MarketService {
   baseUrl = getConfig().VITE_PORTALS_BASE_URL
@@ -54,9 +42,7 @@ export class PortalsMarketService implements MarketService {
   }
 
   async findAll(args?: FindAllMarketArgs): Promise<MarketCapResult> {
-    const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
-    const { count } = argsToUse
-    const tokensUrl = `${this.baseUrl}/v2/tokens`
+    const { count } = { ...this.defaultGetByMarketCapArgs, ...args }
 
     const marketCapResult: MarketCapResult = {}
 
@@ -64,23 +50,17 @@ export class PortalsMarketService implements MarketService {
       await Promise.all(
         Object.entries(CHAIN_ID_TO_PORTALS_NETWORK).map(async ([chainId, network]) => {
           if (Object.keys(marketCapResult).length >= count) return
-          await throttle()
 
-          const params = {
-            limit: Math.min(this.defaultGetByMarketCapArgs.count, argsToUse.count),
-            minLiquidity: '100000',
-            sortBy: 'volumeUsd7d',
-            networks: [network],
-            // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web
-            page: '0',
-          }
-
-          const { data } = await axios.get<GetTokensResponse>(tokensUrl, {
-            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-            headers: {
-              Authorization: `Bearer ${PORTALS_API_KEY}`,
+          const { data } = await axios.get<GetTokensResponse>(`${this.baseUrl}/v2/tokens`, {
+            params: {
+              limit: Math.min(this.defaultGetByMarketCapArgs.count, count),
+              minLiquidity: '100000',
+              sortBy: 'volumeUsd7d',
+              networks: [network],
+              // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web
+              page: '0',
             },
-            params,
+            paramsSerializer: { indexes: null },
           })
 
           for (const token of data.tokens) {
@@ -111,8 +91,6 @@ export class PortalsMarketService implements MarketService {
     } catch (e) {
       console.error('Error fetching Portals data:', e)
       return marketCapResult
-    } finally {
-      clear()
     }
   }
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
@@ -120,25 +98,15 @@ export class PortalsMarketService implements MarketService {
       const { chainId, assetReference } = fromAssetId(assetId)
 
       const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
-      if (!network) {
-        return null
-      }
+      if (!network) return null
 
-      const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
-      const url = `${this.baseUrl}/v2/tokens/history`
-      const params = {
-        id,
-        from: Math.floor(Date.now() / 1000) - 86400, // 24 hours ago
-        resolution: '1d',
-        page: 0,
-      }
-
-      await throttle()
-      const { data } = await axios.get<HistoryResponse>(url, {
-        headers: {
-          Authorization: `Bearer ${PORTALS_API_KEY}`,
+      const { data } = await axios.get<HistoryResponse>(`${this.baseUrl}/v2/tokens/history`, {
+        params: {
+          id: `${network}:${isToken(assetId) ? assetReference : zeroAddress}`,
+          from: dayjs(getStableTimestamp(5)).subtract(24, 'hours').unix(),
+          resolution: '1d',
+          page: 0,
         },
-        params,
       })
 
       if (!data.history.length) return null
@@ -166,13 +134,9 @@ export class PortalsMarketService implements MarketService {
     const { chainId, assetReference } = fromAssetId(assetId)
     const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
-    if (!network) {
-      console.error(`Unsupported chainId: ${chainId}`)
-      return []
-    }
+    if (!network) return []
 
-    const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
-    const { start: _start, end } = getTimeFrameBounds(timeframe)
+    const { start: _start, end } = getTimeFrameBounds(timeframe, 5)
 
     const resolution = (() => {
       switch (timeframe) {
@@ -194,23 +158,17 @@ export class PortalsMarketService implements MarketService {
     try {
       // Portals can only get historical market data up to 1 year ago
       const start =
-        timeframe === HistoryTimeframe.ALL ? dayjs().startOf('minute').subtract(1, 'year') : _start
-      const from = Math.floor(start.valueOf() / 1000)
-      const to = Math.floor(end.valueOf() / 1000)
-      const url = `${this.baseUrl}/v2/tokens/history`
+        timeframe === HistoryTimeframe.ALL
+          ? dayjs(getStableTimestamp(5)).subtract(1, 'year')
+          : _start
 
-      const params = {
-        id,
-        from,
-        to,
-        resolution,
-      }
-
-      const { data } = await axios.get<HistoryResponse>(url, {
-        headers: {
-          Authorization: `Bearer ${PORTALS_API_KEY}`,
+      const { data } = await axios.get<HistoryResponse>(`${this.baseUrl}/v2/tokens/history`, {
+        params: {
+          id: `${network}:${isToken(assetId) ? assetReference : zeroAddress}`,
+          from: Math.floor(start.valueOf() / 1000),
+          to: Math.floor(end.valueOf() / 1000),
+          resolution,
         },
-        params,
       })
 
       return data.history.reverse().reduce<HistoryData[]>((acc, current) => {

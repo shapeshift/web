@@ -1,19 +1,16 @@
-import { Box, Card, CardHeader, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import type { SwapperName } from '@shapeshiftoss/swapper'
+import { Box, Card, CardHeader, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 
-import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
-
-const borderRadius = { base: 'md', md: 'lg' }
+const borderRadius = { base: 'md', md: 'xl' }
 const hoverProps = {
   cursor: 'pointer',
-  bg: 'background.surface.hover',
+  bg: 'background.button.secondary.hover',
 }
 
 export type TradeQuoteCardProps = {
-  swapperName: SwapperName
-  swapperTitle?: string
+  icon: JSX.Element
+  title?: string
   isActive: boolean
   isActionable: boolean
   headerContent: JSX.Element
@@ -23,8 +20,8 @@ export type TradeQuoteCardProps = {
 }
 
 export const TradeQuoteCard = ({
-  swapperName,
-  swapperTitle,
+  icon,
+  title,
   isActive,
   isActionable,
   headerContent,
@@ -32,26 +29,23 @@ export const TradeQuoteCard = ({
   isDisabled,
   onClick,
 }: TradeQuoteCardProps) => {
-  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const redColor = useColorModeValue('red.500', 'red.200')
-  const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
+  const redColor = useColorModeValue('red.500', 'red.500')
 
   const activeSwapperColor = useMemo(() => {
     if (!isActionable) return redColor
     if (isActive) return 'border.focused'
-    return borderColor
-  }, [borderColor, isActionable, isActive, redColor])
+    return 'border.base'
+  }, [isActionable, isActive, redColor])
 
   const activeProps = useMemo(
-    () => ({ borderColor: isActive ? 'transparent' : focusColor }),
-    [focusColor, isActive],
+    () => ({ borderColor: isActive ? 'transparent' : 'border.focused' }),
+    [isActive],
   )
 
   return (
     <Card
-      borderWidth={2}
-      boxShadow='none'
-      bg={isActive ? 'background.surface.hover' : 'transparent'}
+      borderWidth={1}
+      bg={isActive ? 'background.surface.raised.base' : 'transparent'}
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : 'border.base'}
       _hover={isDisabled ? undefined : hoverProps}
@@ -67,10 +61,15 @@ export const TradeQuoteCard = ({
     >
       <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4} pb={2}>
         <Flex alignItems='center' gap={2}>
-          <Tooltip label={swapperTitle}>
-            <Box>
-              <SwapperIcon swapperName={swapperName} size='sm' />
-            </Box>
+          <Tooltip label={title}>
+            <Flex alignItems='center' gap={2}>
+              <Box>{icon}</Box>
+              {title && (
+                <Text fontSize='sm' fontWeight='medium'>
+                  {title}
+                </Text>
+              )}
+            </Flex>
           </Tooltip>
           {headerContent}
         </Flex>

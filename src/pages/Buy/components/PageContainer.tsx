@@ -10,7 +10,6 @@ export const PageContainer: React.FC<ContainerProps> = props => (
     px={containerPx}
     paddingStart={paddingStart}
     paddingEnd={paddingEnd}
-    maxWidth='4xl'
     py='7.5rem'
     {...props}
   />

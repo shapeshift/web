@@ -35,6 +35,40 @@ export const useRows = ({ limit }: { limit: number }) => {
     }
   > = useMemo(
     () => ({
+      [MarketsCategories.Trending]: {
+        category: MarketsCategories.Trending,
+        title: translate(`markets.categories.${MarketsCategories.Trending}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.Trending}.subtitle`),
+        supportedChainIds: coingeckoSupportedChainIds,
+        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
+          <AssetGridWithData
+            category={MarketsCategories.Trending}
+            selectedChainId={selectedChainId}
+            showSparkline={showSparkline}
+            limit={6}
+            orderBy={orderBy}
+            sortBy={sortBy}
+          />
+        ),
+      },
+      [MarketsCategories.TopMovers]: {
+        category: MarketsCategories.TopMovers,
+        title: translate(`markets.categories.${MarketsCategories.TopMovers}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.TopMovers}.subtitle`, {
+          percentage: '10',
+        }),
+        supportedChainIds: coingeckoSupportedChainIds,
+        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
+          <AssetGridWithData
+            category={MarketsCategories.TopMovers}
+            selectedChainId={selectedChainId}
+            showSparkline={showSparkline}
+            limit={limit}
+            orderBy={orderBy}
+            sortBy={sortBy}
+          />
+        ),
+      },
       [MarketsCategories.TradingVolume]: {
         category: MarketsCategories.TradingVolume,
         title: translate(`markets.categories.${MarketsCategories.TradingVolume}.title`),
@@ -68,40 +102,7 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
       },
-      [MarketsCategories.Trending]: {
-        category: MarketsCategories.Trending,
-        title: translate(`markets.categories.${MarketsCategories.Trending}.title`),
-        subtitle: translate(`markets.categories.${MarketsCategories.Trending}.subtitle`),
-        supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
-          <AssetGridWithData
-            category={MarketsCategories.Trending}
-            selectedChainId={selectedChainId}
-            showSparkline={showSparkline}
-            limit={limit}
-            orderBy={orderBy}
-            sortBy={sortBy}
-          />
-        ),
-      },
-      [MarketsCategories.TopMovers]: {
-        category: MarketsCategories.TopMovers,
-        title: translate(`markets.categories.${MarketsCategories.TopMovers}.title`),
-        subtitle: translate(`markets.categories.${MarketsCategories.TopMovers}.subtitle`, {
-          percentage: '10',
-        }),
-        supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
-          <AssetGridWithData
-            category={MarketsCategories.TopMovers}
-            selectedChainId={selectedChainId}
-            showSparkline={showSparkline}
-            limit={limit}
-            orderBy={orderBy}
-            sortBy={sortBy}
-          />
-        ),
-      },
+
       [MarketsCategories.RecentlyAdded]: {
         category: MarketsCategories.RecentlyAdded,
         title: translate(`markets.categories.${MarketsCategories.RecentlyAdded}.title`),

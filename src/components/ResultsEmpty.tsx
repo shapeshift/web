@@ -3,11 +3,12 @@ import type { ButtonProps, FlexProps } from '@chakra-ui/react'
 import { Box, Button, Circle, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX, PropsWithChildren } from 'react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Link } from 'react-router-dom'
 
 import { DefiIcon } from '@/components/Icons/DeFi'
 import { Text } from '@/components/Text'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 export type ResultsEmptyProps = {
   icon?: JSX.Element
@@ -17,6 +18,7 @@ export type ResultsEmptyProps = {
   ctaText?: string
   buttonProps?: ButtonProps
   containerProps?: FlexProps
+  onCtaClick?: () => void
 } & PropsWithChildren
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -29,10 +31,19 @@ export const ResultsEmpty: React.FC<ResultsEmptyProps> = ({
   ctaText,
   buttonProps,
   containerProps,
+  onCtaClick,
   children,
 }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
   const translate = useTranslate()
+  const { navigate } = useBrowserRouter()
+
+  const handleCtaClick = useCallback(() => {
+    if (ctaHref) {
+      navigate(ctaHref)
+    }
+    onCtaClick?.()
+  }, [ctaHref, navigate, onCtaClick])
   return (
     <Flex
       p={6}
@@ -57,8 +68,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProps> = ({
         {ctaText && (
           <Button
             colorScheme='purple'
-            as={Link}
-            to={ctaHref}
+            onClick={handleCtaClick}
             mt={4}
             rightIcon={arrowForwardIcon}
             {...buttonProps}

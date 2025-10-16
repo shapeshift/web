@@ -17,7 +17,6 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
@@ -29,8 +28,8 @@ import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
-import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -69,10 +68,10 @@ const Assets = makeSuspenseful(
   true,
 )
 
-const Buy = makeSuspenseful(
+const Ramp = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Buy/Buy').then(({ Buy }) => ({
-      default: Buy,
+    import('@/pages/Ramp/Ramp').then(({ Ramp }) => ({
+      default: Ramp,
     })),
   ),
   {},
@@ -182,13 +181,13 @@ export const routes: Route[] = [
   {
     path: '/trade/*',
     label: 'navBar.trade',
-    shortLabel: 'navBar.tradeShort',
+    shortLabel: 'common.trade',
     icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit', '/claim'],
+    relatedPaths: ['/trade', '/limit'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -228,19 +227,47 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
-    path: '/buy-crypto',
+    path: '/ramp/*',
     label: 'navBar.buyCrypto',
     shortLabel: 'navBar.buyCryptoShort',
     icon: <FaCreditCard />,
-    main: Buy,
+    main: Ramp,
     category: RouteCategory.Featured,
     mobileNav: false,
     priority: 4,
-    routes: assetIdPaths.map(assetIdPath => ({
-      path: assetIdPath,
-      main: Buy,
-      hide: true,
-    })),
+    routes: [
+      {
+        path: `trade/*`,
+        main: RampTab,
+        hide: true,
+      },
+      {
+        path: '/ramp/buy/*',
+        label: 'fiatRamps.buy',
+        main: Ramp,
+        hide: true,
+      },
+      {
+        path: '/ramp/sell/*',
+        label: 'fiatRamps.sell',
+        main: Ramp,
+        hide: true,
+      },
+      ...assetIdPaths.flatMap(assetIdPath => [
+        {
+          path: `/ramp/buy${assetIdPath}`,
+          label: 'fiatRamps.buy',
+          main: Ramp,
+          hide: true,
+        },
+        {
+          path: `/ramp/sell${assetIdPath}`,
+          label: 'fiatRamps.sell',
+          main: Ramp,
+          hide: true,
+        },
+      ]),
+    ],
   },
   {
     path: '/explore',
@@ -368,26 +395,6 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
-        hide: true,
-      },
-    ],
-  },
-  {
-    path: '/claim/*',
-    label: '',
-    hideDesktop: true,
-    mobileNav: false,
-    priority: 4,
-    main: ClaimTab,
-    routes: [
-      {
-        path: ClaimRoutePaths.Confirm,
-        main: ClaimTab,
-        hide: true,
-      },
-      {
-        path: ClaimRoutePaths.Status,
-        main: ClaimTab,
         hide: true,
       },
     ],

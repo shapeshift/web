@@ -1,3 +1,4 @@
+import { csp as addressable } from './addressable'
 import { csp as alchemy } from './alchemy'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
@@ -48,6 +49,7 @@ import { csp as sentry } from './sentry'
 import { csp as shapeshiftGateway } from './shapeshiftGateway'
 import { csp as shapeshiftProxy } from './shapeshiftProxy'
 import { csp as snapshots } from './snapshots'
+import { csp as tenderly } from './tenderly'
 import { csp as coinbase } from './wallets/coinbase'
 import { csp as keepkey } from './wallets/keepkey'
 import { csp as metamask } from './wallets/metamask'
@@ -57,6 +59,7 @@ import { csp as webflow } from './webflow'
 
 export const csps = [
   base,
+  addressable,
   alchemy,
   moralis,
   chainflip,
@@ -71,6 +74,7 @@ export const csps = [
   shapeshiftGateway,
   shapeshiftProxy,
   snapshots,
+  tenderly,
   webflow,
   arbitrum,
   arbitrumNova,

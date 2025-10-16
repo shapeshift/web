@@ -17,7 +17,7 @@ import {
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { WithBackButton } from '../WithBackButton'
 
@@ -40,7 +40,8 @@ import {
   selectInputSellAsset,
   selectManualReceiveAddress,
 } from '@/state/slices/tradeInputSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 enum AddressVerificationType {
   Sell = 'sell',
@@ -56,6 +57,7 @@ enum AddressVerificationStatus {
 
 export const VerifyAddresses = () => {
   const wallet = useWallet().state.wallet
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const translate = useTranslate()
 
@@ -63,6 +65,7 @@ export const VerifyAddresses = () => {
   const [buyAddress, setBuyAddress] = useState<string | undefined>()
   const [isSellVerifying, setIsSellVerifying] = useState(false)
   const [isBuyVerifying, setIsBuyVerifying] = useState(false)
+  const [isFetchingChangeAddress, setIsFetchingChangeAddress] = useState(false)
 
   const [buyAddressVerificationStatus, setBuyAddressVerificationStatus] =
     useState<AddressVerificationStatus>(AddressVerificationStatus.Pending)
@@ -141,12 +144,9 @@ export const VerifyAddresses = () => {
   const fetchAddresses = useCallback(async () => {
     if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
 
-    const deviceId = await wallet.getDeviceID()
-
     const fetchedSellAddress = await getReceiveAddress({
       asset: sellAsset,
       wallet,
-      deviceId,
       accountMetadata: sellAccountMetadata,
       pubKey: fromAccountId(sellAssetAccountId).account,
     })
@@ -159,7 +159,6 @@ export const VerifyAddresses = () => {
       return getReceiveAddress({
         asset: buyAsset,
         wallet,
-        deviceId,
         accountMetadata: buyAccountMetadata,
         pubKey: fromAccountId(buyAssetAccountId).account,
       })
@@ -266,15 +265,35 @@ export const VerifyAddresses = () => {
         })
 
         if (deviceAddress && deviceAddress.toLowerCase() === _address.toLowerCase()) {
-          setStatus(type, AddressVerificationStatus.Verified)
+          setIsVerifying(type, false)
+
+          // If we're verifying a UTXO sell asset, fetch the change address
+          if (type === AddressVerificationType.Sell && chainNamespace === CHAIN_NAMESPACE.Utxo) {
+            setIsFetchingChangeAddress(true)
+            setStatus(type, AddressVerificationStatus.Verified)
+            try {
+              const changeAddress = await adapter.getAddress({
+                wallet,
+                showOnDevice: false,
+                accountType: accountMetadata.accountType,
+                accountNumber: bip44Params.accountNumber,
+                isChange: true,
+              })
+              dispatch(tradeInput.actions.setSellAssetUtxoChangeAddress(changeAddress))
+            } catch (e) {
+              console.error('Failed to fetch change address:', e)
+            } finally {
+              setIsFetchingChangeAddress(false)
+            }
+          } else {
+            setStatus(type, AddressVerificationStatus.Verified)
+          }
         } else {
           setStatus(type, AddressVerificationStatus.Error)
           setErrorMessage(type, translate('walletProvider.ledger.verify.addressMismatch'))
         }
       } catch (e) {
         console.error(e)
-      } finally {
-        setIsVerifying(type, false)
       }
     },
     [
@@ -291,6 +310,7 @@ export const VerifyAddresses = () => {
       setStatus,
       setErrorMessage,
       translate,
+      dispatch,
     ],
   )
 
@@ -358,6 +378,23 @@ export const VerifyAddresses = () => {
       )
     }
 
+    if (
+      sellAddressVerificationStatus === AddressVerificationStatus.Verified &&
+      isFetchingChangeAddress
+    ) {
+      return (
+        <Button
+          size='lg'
+          colorScheme='blue'
+          width='full'
+          isLoading
+          loadingText={translate('walletProvider.ledger.gettingChangeAddress')}
+        >
+          <Text translation='walletProvider.ledger.gettingChangeAddress' />
+        </Button>
+      )
+    }
+
     return (
       <Button onClick={handleContinue} size='lg' colorScheme='blue' width='full'>
         <Text translation='common.continue' />
@@ -366,6 +403,7 @@ export const VerifyAddresses = () => {
   }, [
     buyAddressVerificationStatus,
     sellAddressVerificationStatus,
+    isFetchingChangeAddress,
     handleContinue,
     handleBuyVerify,
     isBuyVerifying,
@@ -379,6 +417,10 @@ export const VerifyAddresses = () => {
   const handleBack = useCallback(() => {
     navigate(TradeRoutePaths.Input)
   }, [navigate])
+
+  if (!wallet) {
+    return <Navigate to={TradeRoutePaths.Input} replace />
+  }
 
   return (
     <SlideTransition>
@@ -432,10 +474,10 @@ export const VerifyAddresses = () => {
                     </Skeleton>
                   </Flex>
                   {isSellVerifying && <Spinner boxSize={5} />}
-                  {sellAddressVerificationStatus === 'verified' && (
+                  {sellAddressVerificationStatus === AddressVerificationStatus.Verified && (
                     <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />
                   )}
-                  {sellAddressVerificationStatus === 'error' && (
+                  {sellAddressVerificationStatus === AddressVerificationStatus.Error && (
                     <WarningIcon ml='auto' boxSize={5} color='text.error' />
                   )}
                 </Flex>

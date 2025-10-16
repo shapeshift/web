@@ -12,6 +12,7 @@ type UseLifetimeRewardDistributionsQueryProps = {
 
 export type RewardDistributionWithMetadata = RewardDistribution & {
   epoch: number
+  distributionTimestamp: number
   status: Epoch['distributionStatus']
   stakingAddress: string
   stakingContract: string
@@ -29,7 +30,6 @@ export const useLifetimeRewardDistributionsQuery = ({
     (data: EpochWithIpfsHash[]): RewardDistributionWithMetadata[] => {
       if (!stakingAssetAccountAddresses) return []
       return data
-        .sort((a, b) => b.number - a.number)
         .flatMap(epoch =>
           stakingAssetAccountAddresses.flatMap(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)
@@ -47,6 +47,7 @@ export const useLifetimeRewardDistributionsQuery = ({
 
               return {
                 epoch: epoch.number,
+                distributionTimestamp: epoch.distributionTimestamp,
                 status: epoch.distributionStatus,
                 stakingAddress,
                 stakingContract,

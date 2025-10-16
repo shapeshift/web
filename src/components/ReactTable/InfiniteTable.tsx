@@ -1,7 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { TableProps } from '@chakra-ui/react'
 import {
-  Button,
   Flex,
   Skeleton,
   Table,
@@ -14,11 +13,11 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useMemo, useRef } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import React, { Fragment, memo, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
+import { TableVirtuoso } from 'react-virtuoso'
 import { useLongPress } from 'use-long-press'
 
 import { defaultLongPressConfig, longPressSx } from '@/constants/longPress'
@@ -32,6 +31,7 @@ type ReactTableProps<T extends {}> = {
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
   onRowLongPress?: (row: Row<T>) => void
+  onVisibleRowsChange?: (visibleRows: T[]) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
@@ -39,28 +39,86 @@ type ReactTableProps<T extends {}> = {
   variant?: TableProps['variant']
   loadMore: () => void
   hasMore: boolean
-  scrollableTarget?: string
 }
 
-const tdStyle = { padding: 0 }
 const tableSize = { base: 'sm', md: 'md' }
-const SCROLL_TRESHOLD = 0.4
+const tableStyle = { height: 'auto', minHeight: '200px' }
 
-const Loader = () => {
-  const translate = useTranslate()
+type TableRowContext<T extends object = any> = {
+  expandedItems: Set<string>
+  handleRowClick: (row: Row<T>) => void
+  longPressHandlers: (context: Row<T>) => any
+  onRowClick?: (row: Row<T>) => void
+  rowDataTestKey?: string | number | symbol
+  rowDataTestPrefix?: string
+  renderSubComponent?: (row: Row<T>) => ReactNode
+  visibleColumns: { length: number }
+}
+
+interface InfiniteTableRowProps {
+  children?: ReactNode
+  item: Row<any>
+  context?: TableRowContext
+  [key: string]: unknown
+}
+
+const InfiniteTableRow = memo(({ children, item, context, ...props }: InfiniteTableRowProps) => {
+  const row = item
+
+  const handleRowClickWrapper = useCallback(() => {
+    if (context) {
+      context.handleRowClick(row)
+    }
+  }, [context, row])
+
+  if (!context) return null
+
+  const {
+    expandedItems,
+    longPressHandlers,
+    onRowClick,
+    rowDataTestKey,
+    rowDataTestPrefix,
+    renderSubComponent,
+    visibleColumns,
+  } = context
+
+  const isExpanded = row ? expandedItems.has(row.id) : false
 
   return (
-    <Button
-      className='infinite-loader'
-      isDisabled={true}
-      variant='outline'
-      isLoading={true}
-      loadingText={translate('common.loadingText')}
-      width='100%'
-      mb={2}
-    ></Button>
+    <>
+      <Tr
+        key={`${row?.id}-main`}
+        {...props}
+        {...longPressHandlers(row)}
+        sx={longPressSx}
+        tabIndex={row?.index}
+        onClick={handleRowClickWrapper}
+        className={isExpanded ? 'expanded' : ''}
+        bg={isExpanded ? 'background.surface.raised.base' : 'transparent'}
+        borderBottomRadius={isExpanded ? 0 : 'lg'}
+        {...(row && rowDataTestKey
+          ? {
+              'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
+                .split(' ')
+                .join('-')
+                .toLowerCase()}`,
+            }
+          : {})}
+        cursor={onRowClick ? 'pointer' : undefined}
+      >
+        {children}
+      </Tr>
+      {!!renderSubComponent && isExpanded && row && (
+        <Tr key={`${row.id}-expanded`} className='expanded-details'>
+          <Td colSpan={visibleColumns.length} p={'0!important'}>
+            {renderSubComponent(row)}
+          </Td>
+        </Tr>
+      )}
+    </>
   )
-}
+})
 
 export const InfiniteTable = <T extends {}>({
   columns,
@@ -70,6 +128,7 @@ export const InfiniteTable = <T extends {}>({
   rowDataTestPrefix,
   onRowClick,
   onRowLongPress,
+  onVisibleRowsChange,
   initialState,
   renderSubComponent,
   renderEmptyComponent,
@@ -77,15 +136,18 @@ export const InfiniteTable = <T extends {}>({
   variant = 'default',
   hasMore,
   loadMore,
-  scrollableTarget,
 }: ReactTableProps<T>) => {
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
+
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+
   const longPressHandlers = useLongPress((_, { context: row }) => {
     vibrate('heavy')
     onRowLongPress?.(row as Row<T>)
   }, defaultLongPressConfig)
+
   const tableColumns = useMemo(
     () =>
       isLoading
@@ -96,141 +158,207 @@ export const InfiniteTable = <T extends {}>({
         : columns,
     [columns, isLoading],
   )
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, visibleColumns } =
-    useTable<T>(
-      {
-        columns: tableColumns,
-        data,
-        initialState,
-      },
-      useSortBy,
-      useExpanded,
-    )
-  const renderRows = useMemo(() => {
+
+  const { headerGroups, rows, prepareRow, visibleColumns } = useTable<T>(
+    {
+      columns: tableColumns,
+      data,
+      initialState,
+    },
+    useSortBy,
+    useExpanded,
+  )
+
+  const preparedRows = useMemo(() => {
     return rows.map(row => {
       prepareRow(row)
+      return row
+    })
+  }, [rows, prepareRow])
+
+  const handleRangeChanged = useCallback(
+    ({ startIndex, endIndex }: { startIndex: number; endIndex: number }) => {
+      if (startIndex < 0 || endIndex < startIndex) return
+      const visibleRows = preparedRows.slice(startIndex, endIndex + 1)
+      onVisibleRowsChange?.(visibleRows.map(row => row.original))
+    },
+    [preparedRows, onVisibleRowsChange],
+  )
+
+  const handleRowToggle = useCallback((rowId: string) => {
+    setExpandedItems(prev => {
+      const expandedItems = new Set(prev)
+      if (expandedItems.has(rowId)) {
+        expandedItems.delete(rowId)
+      } else {
+        expandedItems.add(rowId)
+      }
+      return expandedItems
+    })
+  }, [])
+
+  const handleRowClick = useCallback(
+    (row: Row<T>) => {
+      if (renderSubComponent) {
+        row.toggleRowExpanded?.()
+        handleRowToggle(row.id)
+      }
+
+      onRowClick?.(row)
+    },
+    [renderSubComponent, handleRowToggle, onRowClick],
+  )
+
+  const renderRowContent = useCallback(
+    (index: number) => {
+      const row = preparedRows[index]
+      if (!row) return null
+
       return (
         <Fragment key={row.id}>
-          <Tr
-            {...longPressHandlers(row)}
-            {...row.getRowProps()}
-            sx={longPressSx}
-            key={row.id}
-            tabIndex={row.index}
-            // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => onRowClick?.(row)}
-            className={row.isExpanded ? 'expanded' : ''}
-            {...(rowDataTestKey
-              ? {
-                  'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
-                    .split(' ')
-                    .join('-')
-                    .toLowerCase()}`,
-                }
-              : {})}
-            cursor={onRowClick ? 'pointer' : undefined}
-          >
-            {row.cells.map(cell => (
-              <Td
-                {...cell.getCellProps()}
-                // Header can be () => null or a string, only use data-label if it's a string
-                {...(typeof cell.column.Header === 'string'
-                  ? { 'data-label': cell.column.Header }
-                  : undefined)}
-                display={cell.column.display}
-                key={cell.column.id}
-              >
-                {cell.render('Cell')}
-              </Td>
-            ))}
-          </Tr>
-          {!!renderSubComponent && row.isExpanded ? (
-            <Tr className='expanded-details'>
-              <Td colSpan={visibleColumns.length} style={tdStyle}>
-                {renderSubComponent(row)}
-              </Td>
-            </Tr>
-          ) : null}
+          {row.cells.map(cell => (
+            <Td
+              {...cell.getCellProps()}
+              {...(typeof cell.column.Header === 'string'
+                ? { 'data-label': cell.column.Header }
+                : undefined)}
+              display={cell.column.display}
+              key={cell.column.id}
+            >
+              {cell.render('Cell')}
+            </Td>
+          ))}
         </Fragment>
       )
-    })
-  }, [
-    rows,
-    prepareRow,
-    longPressHandlers,
-    rowDataTestKey,
-    rowDataTestPrefix,
-    onRowClick,
-    renderSubComponent,
-    visibleColumns.length,
-  ])
+    },
+    [preparedRows],
+  )
 
-  const loader = useMemo(() => <Loader />, [])
+  const renderHeader = useCallback(() => {
+    if (!displayHeaders) return null
+
+    return (
+      <Tr>
+        {headerGroups.map(headerGroup =>
+          headerGroup.headers.map(column => (
+            <Th
+              {...column.getHeaderProps(column.getSortByToggleProps())}
+              key={column.key}
+              color='text.subtle'
+              textAlign={column.textAlign}
+              display={column.display}
+              // eslint-disable-next-line react-memo/require-usememo
+              _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
+            >
+              <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
+                {column.render('Header')}
+                <Flex alignItems='center'>
+                  {column.isSorted ? (
+                    column.isSortedDesc ? (
+                      <ArrowDownIcon ml={2} aria-label={translate('common.table.sortedDesc')} />
+                    ) : (
+                      <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
+                    )
+                  ) : null}
+                </Flex>
+              </Flex>
+            </Th>
+          )),
+        )}
+      </Tr>
+    )
+  }, [displayHeaders, headerGroups, hoverColor, translate])
+
+  const renderEmpty = useCallback(() => {
+    if (data.length === 0 && !isLoading && renderEmptyComponent) {
+      return (
+        <Tr>
+          <Td colSpan={visibleColumns.length} py={0}>
+            {renderEmptyComponent()}
+          </Td>
+        </Tr>
+      )
+    }
+    return null
+  }, [data.length, isLoading, renderEmptyComponent, visibleColumns.length])
+
+  const tableContext = useMemo(
+    (): TableRowContext<T> => ({
+      expandedItems,
+      handleRowClick,
+      longPressHandlers,
+      onRowClick,
+      rowDataTestKey,
+      rowDataTestPrefix,
+      renderSubComponent,
+      visibleColumns,
+    }),
+    [
+      expandedItems,
+      handleRowClick,
+      longPressHandlers,
+      onRowClick,
+      rowDataTestKey,
+      rowDataTestPrefix,
+      renderSubComponent,
+      visibleColumns,
+    ],
+  )
+
+  const tableComponents = useMemo(
+    () => ({
+      Table: ({ style, ...props }: TableProps & { style?: React.CSSProperties }) => (
+        <Table
+          ref={tableRef}
+          variant={variant}
+          size={tableSize}
+          style={style}
+          className='infinite-table'
+          {...props}
+        />
+      ),
+      TableHead: Thead,
+      TableBody: Tbody,
+      TableFoot: Tfoot,
+      TableRow: InfiniteTableRow,
+      TableCell: Td,
+      TableHeadCell: Th,
+    }),
+    [variant],
+  )
+
+  if (isLoading) {
+    return (
+      <Table variant={variant} size={tableSize} className='infinite-table'>
+        {renderHeader()}
+        <Tbody>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Tr key={index}>
+              {columns.map((_column, colIndex) => (
+                <Td key={colIndex}>
+                  <Skeleton height='16px' />
+                </Td>
+              ))}
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    )
+  }
 
   return (
-    <InfiniteScroll
-      hasMore={hasMore}
-      next={loadMore}
-      dataLength={data.length}
-      loader={loader}
-      scrollableTarget={scrollableTarget}
-      hasChildren={true}
-      scrollThreshold={SCROLL_TRESHOLD}
-    >
-      <Table
-        ref={tableRef}
-        variant={variant}
-        size={tableSize}
-        {...getTableProps()}
-        className='infinite-table'
-      >
-        {displayHeaders && (
-          <Thead>
-            {headerGroups.map(headerGroup => (
-              <Tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
-                  <Th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    color='text.subtle'
-                    textAlign={column.textAlign}
-                    display={column.display}
-                    // we need to pass an arg here, so we need an anonymous function wrapper
-                    // eslint-disable-next-line react-memo/require-usememo
-                    _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
-                  >
-                    <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-                      {column.render('Header')}
-                      <Flex alignItems='center'>
-                        {column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <ArrowDownIcon
-                              ml={2}
-                              aria-label={translate('common.table.sortedDesc')}
-                            />
-                          ) : (
-                            <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
-                          )
-                        ) : null}
-                      </Flex>
-                    </Flex>
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-        )}
-        <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
-        {rows.length === 0 && !isLoading && renderEmptyComponent && (
-          <Tfoot>
-            <Tr>
-              <Td colSpan={visibleColumns.length} py={0}>
-                {renderEmptyComponent()}
-              </Td>
-            </Tr>
-          </Tfoot>
-        )}
-      </Table>
-    </InfiniteScroll>
+    <TableVirtuoso
+      data={preparedRows}
+      itemContent={renderRowContent}
+      fixedHeaderContent={renderHeader}
+      fixedFooterContent={renderEmpty}
+      endReached={hasMore ? loadMore : undefined}
+      components={tableComponents}
+      context={tableContext}
+      useWindowScroll
+      style={tableStyle}
+      overscan={2000}
+      rangeChanged={handleRangeChanged}
+    />
   )
 }

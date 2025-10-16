@@ -1,5 +1,5 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
 import type {
   EvmChainAdapter,
   FeeDataEstimate,
@@ -9,7 +9,7 @@ import type {
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type { Hex } from 'viem'
-import { hexToString, isAddress, isHex, toHex } from 'viem'
+import { hexToString, isAddress, isHex, toHex, validateTypedData } from 'viem'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
@@ -60,25 +60,9 @@ export const getGasData = (
   customTransactionData: ConfirmData | CustomTransactionData,
   fees: FeeDataEstimate<EvmChainId>,
 ) => {
-  const { speed, customFee } = customTransactionData
-  return speed === 'custom' &&
-    bnOrZero(customFee?.baseFee).gt(0) &&
-    bnOrZero(customFee?.priorityFee).gt(0)
-    ? {
-        maxPriorityFeePerGas: convertNumberToHex(
-          bnOrZero(customFee?.priorityFee)
-            .times(1e9)
-            .toString(), // to wei
-        ),
-        maxFeePerGas: convertNumberToHex(
-          bnOrZero(customFee?.baseFee)
-            .times(1e9)
-            .toString(), // to wei
-        ),
-      }
-    : {
-        gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
-      }
+  const { speed } = customTransactionData
+
+  return { gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice) }
 }
 
 /**
@@ -117,13 +101,19 @@ export const extractAllConnectedAccounts = (
 export const getWalletAccountFromEthParams = (
   accountIds: AccountId[],
   params: EthSignParams | TransactionParams[],
+  chainId: ChainId,
 ): AccountId => {
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
-  return (
-    accountIds.find(
-      accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
-    ) || ''
+
+  const matchingAccounts = accountIds.filter(
+    accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
   )
+
+  const accountForChain = matchingAccounts.find(
+    accountId => fromAccountId(accountId).chainId === chainId,
+  )
+
+  return accountForChain ?? ''
 }
 
 export const getWalletAccountFromCosmosParams = (
@@ -149,4 +139,19 @@ export const getWalletAddressFromEthSignParams = (
   const addresses = accountIds.map(accountId => fromAccountId(accountId).account)
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''
+}
+export const getChainIdFromDomain = (message: string): ChainId | undefined => {
+  try {
+    const parsed = JSON.parse(message)
+    validateTypedData(parsed)
+
+    if (!parsed?.domain?.chainId) return undefined
+
+    return toChainId({
+      chainNamespace: CHAIN_NAMESPACE.Evm,
+      chainReference: String(parsed.domain.chainId) as ChainReference,
+    })
+  } catch {
+    return undefined
+  }
 }

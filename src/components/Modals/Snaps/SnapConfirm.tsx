@@ -17,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -32,11 +33,18 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   const [hasAgreed, setHasAgreed] = useState(false)
   const [hasPinkySworeSeedPhraseIsBackedUp, setHasPinkySworeSeedPhraseIsBackedUp] = useState(false)
   const translate = useTranslate()
-  const handleAddSnap = useCallback(() => {
-    setIsInstalling(true)
-    enableShapeShiftSnap()
-    getMixPanel()?.track(MixPanelEvent.SnapInstalled)
-  }, [])
+  const { showErrorToast } = useErrorToast()
+  const handleAddSnap = useCallback(async () => {
+    try {
+      setIsInstalling(true)
+      await enableShapeShiftSnap()
+      getMixPanel()?.track(MixPanelEvent.SnapInstalled)
+      onClose()
+    } catch (e) {
+      setIsInstalling(false)
+      showErrorToast(e, translate('walletProvider.metaMaskSnap.installError'))
+    }
+  }, [showErrorToast, onClose, translate])
 
   const handlePinkySwearSeedPhraseIsBackedUp = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) =>

@@ -12,6 +12,7 @@ import { localAssetData } from '@/lib/asset-service'
 
 export type TradeInputState = {
   slippagePreferencePercentage: string | undefined
+  sellAssetUtxoChangeAddress: string | undefined
 } & TradeInputBaseState
 
 const initialState: TradeInputState = {
@@ -26,6 +27,7 @@ const initialState: TradeInputState = {
   isManualReceiveAddressValid: undefined,
   isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
+  sellAssetUtxoChangeAddress: undefined,
   selectedSellAssetChainId: 'All',
   selectedBuyAssetChainId: 'All',
 }
@@ -40,6 +42,12 @@ export const tradeInput = createTradeInputBaseSlice({
       action: PayloadAction<string | undefined>,
     ) => {
       state.slippagePreferencePercentage = action.payload
+    },
+    setSellAssetUtxoChangeAddress: (
+      state: TradeInputState,
+      action: PayloadAction<string | undefined>,
+    ) => {
+      state.sellAssetUtxoChangeAddress = action.payload
     },
   }),
 })

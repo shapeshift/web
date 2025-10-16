@@ -69,15 +69,14 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
       isActive={isActive}
       fontWeight='medium'
       onClick={handleClick}
-      pb={3}
-      pt={5}
+      py={3}
       flex={1}
       zIndex='sticky'
       {...rest}
     >
       {icon}
       <Flex flexDir='column' fontSize='11px' letterSpacing='-0.020em'>
-        {translate(shortLabel ?? label)}
+        {translate(shortLabel ?? label ?? '')}
       </Flex>
     </Button>
   )

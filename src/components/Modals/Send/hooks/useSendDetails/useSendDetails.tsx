@@ -338,9 +338,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // openapi-generator error-handling https://github.com/OpenAPITools/openapi-generator/blob/8357cc313be5a099f994c4ffaf56146f40dba911/samples/client/petstore/typescript-fetch/builds/enum/runtime.ts#L221
     if (
       estimatedFeesError?.message ===
-      'The request failed and the interceptors did not return an alternative response'
+        'The request failed and the interceptors did not return an alternative response' ||
+      estimatedFeesError?.message?.includes('body stream already read')
     )
       return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
+
     if (estimatedFeesError?.message) {
       setValue(SendFormFields.AmountFieldError, estimatedFeesError.message)
     }

@@ -1,5 +1,4 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import pick from 'lodash/pick'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -7,7 +6,10 @@ import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/selectors'
+import {
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'
@@ -32,9 +34,13 @@ export const useAssetSearchWorker = ({
   walletConnectedChainIds,
   hasWallet,
 }: UseAssetSearchWorkerProps) => {
+  const primaryAssets = useAppSelector(
+    selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  )
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
+
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const [searchString, setSearchString] = useState('')
@@ -85,21 +91,28 @@ export const useAssetSearchWorker = ({
 
   // Update worker with new assets
   useEffect(() => {
-    if (workerRef.current && assets.length) {
+    if (workerRef.current && primaryAssets.length && assets.length) {
       workerRef.current.postMessage({
         type: 'updateAssets',
-        payload: { assets: assets.map(a => pick(a, ['assetId', 'name', 'symbol', 'chainId'])) },
+        payload: { assets },
+      })
+      workerRef.current.postMessage({
+        type: 'updatePrimaryAssets',
+        payload: {
+          assets: primaryAssets,
+        },
       })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
       setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
     }
-  }, [assets])
+  }, [assets, primaryAssets])
 
   // Event-driven search function
   const performSearch = useCallback(
     (searchTerm: string) => {
       const worker = workerRef.current
+
       if (!worker || workerSearchState.workerState !== 'ready') {
         return
       }

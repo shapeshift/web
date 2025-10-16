@@ -139,7 +139,7 @@ export const Carousel = ({
             {renderSlides}
           </Box>
         </Box>
-        {(showDots || showArrows) && scrollSnaps.length > 1 && (
+        {(showDots || showArrows) && (
           <Flex justifyContent='space-between' alignItems='center' mt={2} width='full'>
             {showArrows && (
               <Arrow
@@ -151,7 +151,13 @@ export const Carousel = ({
               </Arrow>
             )}
             {showDots && (
-              <Flex className='embla__dots' gap={2} justifyContent='center' mx='auto'>
+              <Flex
+                className='embla__dots'
+                gap={2}
+                justifyContent='center'
+                mx='auto'
+                minHeight='10px'
+              >
                 {scrollSnaps.map((_, index) => (
                   <DotButton
                     key={index}

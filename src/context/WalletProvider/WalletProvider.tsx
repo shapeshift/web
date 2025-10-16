@@ -41,6 +41,7 @@ import {
   selectWalletType,
 } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
@@ -160,7 +161,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
           deviceId,
           meta: {
             label: meta?.label ?? '',
-            address: (wallet as MetaMaskMultiChainHDWallet).ethAddress ?? '',
+            address: wallet ? (wallet as MetaMaskMultiChainHDWallet).ethAddress ?? '' : '',
           },
         },
       }
@@ -525,6 +526,67 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           // case KeyManager.Ledger:
           // const ledgerWallet = await state.adapters.get(KeyManager.Ledger)?.[0].pairDevice()
           // return ledgerWallet
+          case KeyManager.Ledger: {
+            const featureFlags = preferences.selectors.selectFeatureFlags(store.getState())
+            const isLedgerReadOnlyEnabled = featureFlags.LedgerReadOnly
+
+            // This flag ensures we restore Ledger as connected in terms of state, i.e
+            // wether or not it is *physically* connected
+            if (isLedgerReadOnlyEnabled) {
+              try {
+                // Get the adapter again in each switch case to narrow down the adapter type
+                const ledgerAdapter = await getAdapter(localWalletType)
+
+                if (ledgerAdapter) {
+                  currentAdapters[localWalletType] = ledgerAdapter
+                  dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+                  // Fixes issue with wallet `type` being null when the wallet is loaded from state
+                  dispatch({
+                    type: WalletActions.SET_CONNECTOR_TYPE,
+                    payload: { modalType: localWalletType, isMipdProvider: false },
+                  })
+                }
+
+                // Don't call pairDevice() here as it requires user gesture for WebUSB permission
+                // Instead, restore the wallet state in read-only mode
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Ledger]
+
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: null,
+                    name,
+                    icon,
+                    deviceId: localWalletDeviceId,
+                    connectedType: KeyManager.Ledger,
+                  },
+                })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  // This is the app refresh case - always assume the device is physically disconnected
+                  // The only reliable way to connect is the imperative one with "Pair Device" button
+                  payload: false,
+                })
+
+                // Show the Ledger modal and navigate to connect screen
+                dispatch({
+                  type: WalletActions.SET_INITIAL_ROUTE,
+                  payload: '/ledger/connect',
+                })
+                dispatch({
+                  type: WalletActions.SET_WALLET_MODAL,
+                  payload: true,
+                })
+              } catch (e) {
+                console.error(e)
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            } else {
+              disconnect()
+            }
+            break
+          }
           case KeyManager.KeepKey:
             try {
               const localKeepKeyWallet = await (async () => {

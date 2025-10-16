@@ -1,3 +1,4 @@
+import type { ModalProps } from '@chakra-ui/react'
 import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
@@ -16,6 +17,7 @@ export type DialogProps = {
   onClose: () => void
   height?: string
   isFullScreen?: boolean
+  modalProps?: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'>
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
@@ -49,6 +51,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   onClose,
   height,
   isFullScreen,
+  modalProps,
   children,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -118,7 +121,7 @@ const DialogWindow: React.FC<DialogProps> = ({
     )
   }
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered {...modalProps}>
       <ModalOverlay />
       <ModalContent height={height}>{children}</ModalContent>
     </Modal>

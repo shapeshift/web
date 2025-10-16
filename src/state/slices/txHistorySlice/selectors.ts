@@ -157,10 +157,10 @@ export const selectTxIdsByFilter = createCachedSelector(
     accountIdFilter,
     assetIdFilter,
     txStatusFilter,
-    parser,
-    memo,
-    originMemo,
-    txHash,
+    parserFilter,
+    memoFilter,
+    originMemoFilter,
+    txHashFilter,
   ): TxId[] => {
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
@@ -171,28 +171,34 @@ export const selectTxIdsByFilter = createCachedSelector(
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const maybeFilteredByParser = parser
-      ? uniqueIds.filter(txId => txs[txId].data?.parser === parser)
+    const maybeFilteredByParser = parserFilter
+      ? uniqueIds.filter(txId => txs[txId].data?.parser === parserFilter)
       : uniqueIds
 
-    const maybeFilteredByMemo = memo
+    const maybeFilteredByMemo = memoFilter
       ? maybeFilteredByParser.filter(
           txId =>
-            (txs[txId].data as common.thormaya.TxMetadata | undefined)?.memo?.startsWith(memo),
+            (txs[txId].data as common.thormaya.TxMetadata | undefined)?.memo?.startsWith(
+              memoFilter,
+            ),
         )
       : maybeFilteredByParser
 
-    const maybeFilteredByOriginMemo = originMemo
+    const maybeFilteredByOriginMemo = originMemoFilter
       ? maybeFilteredByMemo.filter(
           txId =>
             (txs[txId].data as common.thormaya.TxMetadata | undefined)?.originMemo?.startsWith(
-              originMemo,
+              originMemoFilter,
             ),
         )
       : maybeFilteredByMemo
 
-    const maybeFilteredByTxHash = txHash
-      ? maybeFilteredByOriginMemo.filter(txId => txs[txId].txid.startsWith(txHash))
+    const maybeFilteredByTxHash = txHashFilter
+      ? maybeFilteredByOriginMemo.filter(txId => {
+          const txIdNormalized = txs[txId].txid.toLowerCase().replace(/^0x/, '')
+          const filterNormalized = txHashFilter.toLowerCase().replace(/^0x/, '')
+          return txIdNormalized.startsWith(filterNormalized)
+        })
       : maybeFilteredByOriginMemo
 
     const maybeUniqueIdsByStatus = txStatusFilter
@@ -376,7 +382,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
   (hydrationMeta, walletAccountIds, accountId, timeframe) => {
-    const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
+    const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL, 0)
 
     const checkIsTxHistoryAvailable = (accountId: AccountId) => {
       const hydrationMetaForAccount = hydrationMeta[accountId]

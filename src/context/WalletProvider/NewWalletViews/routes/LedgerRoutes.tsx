@@ -1,8 +1,9 @@
 import { Button } from '@chakra-ui/react'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import { LedgerReadOnlyBody } from '../components/LedgerReadOnlyBody'
 import { PairBody } from '../components/PairBody'
 
 import { LedgerIcon } from '@/components/Icons/LedgerIcon'
@@ -11,6 +12,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
@@ -35,6 +37,13 @@ export const LedgerRoutes = () => {
   const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+
+  const {
+    connectionState,
+    isConnected: isUSBConnected,
+    handleAutoConnect,
+  } = useLedgerConnectionState()
 
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
@@ -124,6 +133,30 @@ export const LedgerRoutes = () => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
+  useEffect(() => {
+    if (!modalType || !isLedgerReadOnlyEnabled) return
+
+    // NOTE: auto-connect here only refers to attempting a usb conn for the purpose of maybe going to the fallback read-only screen,
+    // not actually pairing the device.
+    // Only auto-connect for users who:
+    // 1. Have connected a Ledger before (portfolio data exists)
+    // 2. AND have a Ledger physically connected (for the sake of simplicity, we assume USB perms granted, if not, welcome to bugs hell)
+    // This ensures first-time users get develop behavior exactly
+    const shouldAttemptAutoConnect =
+      isPreviousLedgerDeviceDetected && isUSBConnected && connectionState === 'idle'
+
+    if (!shouldAttemptAutoConnect) return
+
+    handleAutoConnect()
+  }, [
+    modalType,
+    isLedgerReadOnlyEnabled,
+    isPreviousLedgerDeviceDetected,
+    isUSBConnected,
+    handleAutoConnect,
+    connectionState,
+  ])
+
   const secondaryButton = useMemo(
     () =>
       !isLoading && isPreviousLedgerDeviceDetected ? (
@@ -141,8 +174,15 @@ export const LedgerRoutes = () => {
     [deviceCountError, handleClearCacheAndPair, isLoading, isPreviousLedgerDeviceDetected],
   )
 
-  const ledgerPairElement = useMemo(
-    () => (
+  const ledgerPairElement = useMemo(() => {
+    if (
+      isLedgerReadOnlyEnabled &&
+      (connectionState === 'failed' || !isUSBConnected) &&
+      isPreviousLedgerDeviceDetected
+    ) {
+      return <LedgerReadOnlyBody />
+    }
+    return (
       <PairBody
         icon={icon}
         headerTranslation='walletProvider.ledger.connect.header'
@@ -161,16 +201,18 @@ export const LedgerRoutes = () => {
         onPairDeviceClick={handlePair}
         secondaryContent={secondaryButton}
       />
-    ),
-    [
-      deviceCountError,
-      error,
-      handlePair,
-      isLoading,
-      isPreviousLedgerDeviceDetected,
-      secondaryButton,
-    ],
-  )
+    )
+  }, [
+    isLedgerReadOnlyEnabled,
+    connectionState,
+    isUSBConnected,
+    deviceCountError,
+    error,
+    handlePair,
+    isLoading,
+    isPreviousLedgerDeviceDetected,
+    secondaryButton,
+  ])
 
   if (!modalType) return null
 

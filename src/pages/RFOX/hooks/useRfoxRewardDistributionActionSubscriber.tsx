@@ -18,7 +18,15 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
   )
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
+
+  const toastOptions = useMemo(
+    () => ({
+      duration: isDrawerOpen ? 5000 : null,
+    }),
+    [isDrawerOpen],
+  )
+  const toast = useNotificationToast(toastOptions)
+
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const stakingAssetAccountAddresses = useMemo(
     () => stakingAssetAccountIds.map(accountId => fromAccountId(accountId).account),
@@ -38,11 +46,9 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
       acc[rewardDistribution.txId || rewardDistribution.stakingContract] = rewardDistribution
       return acc
     }, {})
-  }, [lifetimeRewardDistributionsQuery])
+  }, [lifetimeRewardDistributionsQuery.data])
 
   useEffect(() => {
-    const now = Date.now()
-
     Object.entries(rewardDistributionsByTxId).forEach(([_, distribution]) => {
       if (!distribution) return
 
@@ -56,8 +62,8 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
             id: actionId,
             type: ActionType.RewardDistribution,
             status: ActionStatus.Initiated,
-            createdAt: now,
-            updatedAt: now,
+            createdAt: distribution.distributionTimestamp,
+            updatedAt: distribution.distributionTimestamp,
             rewardDistributionMetadata: {
               distribution,
               txHash: distribution.txId || undefined,
@@ -90,26 +96,28 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         }
       }
     })
-  }, [rewardDistributionsByTxId, dispatch, toast, isDrawerOpen, openActionCenter, actions])
+  }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
 
   useEffect(() => {
-    const now = Date.now()
-
     Object.entries(rewardDistributionsByTxId).forEach(([_, distribution]) => {
       if (!distribution) return
 
       if (distribution.status === 'complete' && distribution.txId) {
         const actionId = `reward-distribution-${distribution.epoch}-${distribution.stakingContract}-${distribution.rewardAddress}`
 
-        if (!actions[actionId]) return
+        const existingAction = actions[actionId]
+
+        if (existingAction?.status === ActionStatus.Complete) {
+          return
+        }
 
         dispatch(
           actionSlice.actions.upsertAction({
             id: actionId,
             type: ActionType.RewardDistribution,
             status: ActionStatus.Complete,
-            createdAt: now,
-            updatedAt: now,
+            createdAt: distribution.distributionTimestamp,
+            updatedAt: distribution.distributionTimestamp,
             rewardDistributionMetadata: {
               distribution,
               txHash: distribution.txId,
@@ -117,7 +125,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
           }),
         )
 
-        if (!toast.isActive(actionId)) {
+        if (!toast.isActive(actionId) && existingAction) {
           toast({
             id: actionId,
             status: 'success',
@@ -142,5 +150,5 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
         }
       }
     })
-  }, [rewardDistributionsByTxId, dispatch, toast, isDrawerOpen, openActionCenter, actions])
+  }, [rewardDistributionsByTxId, dispatch, toast, openActionCenter, actions])
 }

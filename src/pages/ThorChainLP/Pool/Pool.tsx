@@ -78,7 +78,7 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
         </PageHeader>
       </Display.Mobile>
       <Display.Desktop>
-        <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
+        <Container px={containerPadding} pt={8} pb={4}>
           <Flex gap={4} alignItems='center'>
             <IconButton
               icon={backIcon}

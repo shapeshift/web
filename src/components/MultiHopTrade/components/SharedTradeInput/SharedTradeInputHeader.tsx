@@ -8,8 +8,6 @@ import { TradeInputTab } from '../../types'
 
 import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { selectWalletId } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
@@ -45,9 +43,8 @@ export const SharedTradeInputHeader = ({
   const activeTextColor = useColorModeValue('black', 'white')
   const activeBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
-  const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
   const enableLimitOrders = useFeatureFlag('LimitOrders')
-  const walletId = useAppSelector(selectWalletId)
+  const enableSwapperFiatRamps = useFeatureFlag('SwapperFiatRamps')
 
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
@@ -65,8 +62,12 @@ export const SharedTradeInputHeader = ({
     handleChangeTab(TradeInputTab.LimitOrder)
   }, [handleChangeTab])
 
-  const handleClickClaim = useCallback(() => {
-    handleChangeTab(TradeInputTab.Claim)
+  const handleClickBuyFiat = useCallback(() => {
+    handleChangeTab(TradeInputTab.BuyFiat)
+  }, [handleChangeTab])
+
+  const handleClickSellFiat = useCallback(() => {
+    handleChangeTab(TradeInputTab.SellFiat)
   }, [handleChangeTab])
 
   return (
@@ -104,15 +105,26 @@ export const SharedTradeInputHeader = ({
                 {translate('limitOrder.heading')}
               </Heading>
             )}
-            {enableBridgeClaims && walletId && !isStandalone && (
+            {enableSwapperFiatRamps && !isStandalone && (
               <Heading
                 as='h5'
                 fontSize='md'
-                color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
-                onClick={handleClickClaim}
-                cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+                color={selectedTab !== TradeInputTab.BuyFiat ? 'text.subtle' : undefined}
+                onClick={handleClickBuyFiat}
+                cursor={selectedTab !== TradeInputTab.BuyFiat ? 'pointer' : undefined}
               >
-                {translate('bridge.claim')}
+                {translate('fiatRamps.buy')}
+              </Heading>
+            )}
+            {enableSwapperFiatRamps && !isStandalone && (
+              <Heading
+                as='h5'
+                fontSize='md'
+                color={selectedTab !== TradeInputTab.SellFiat ? 'text.subtle' : undefined}
+                onClick={handleClickSellFiat}
+                cursor={selectedTab !== TradeInputTab.SellFiat ? 'pointer' : undefined}
+              >
+                {translate('fiatRamps.sell')}
               </Heading>
             )}
           </Flex>
@@ -141,7 +153,7 @@ export const SharedTradeInputHeader = ({
               bg={selectedTab === TradeInputTab.Trade ? activeBgColor : 'none'}
               color={selectedTab === TradeInputTab.Trade ? activeTextColor : 'text.subtle'}
               fontWeight='bold'
-              fontSize='md'
+              fontSize='sm'
               onClick={handleClickTrade}
               type='button'
             >
@@ -156,7 +168,7 @@ export const SharedTradeInputHeader = ({
                 bg={selectedTab === TradeInputTab.LimitOrder ? activeBgColor : 'none'}
                 color={selectedTab === TradeInputTab.LimitOrder ? activeTextColor : 'text.subtle'}
                 fontWeight='bold'
-                fontSize='md'
+                fontSize='sm'
                 ml={-2}
                 onClick={handleClickLimitOrder}
                 type='button'
@@ -164,21 +176,38 @@ export const SharedTradeInputHeader = ({
                 {translate('limitOrder.heading')}
               </Box>
             )}
-            {enableBridgeClaims && walletId && !isStandalone && (
+            {enableSwapperFiatRamps && !isStandalone && (
               <Box
                 as='button'
                 px={6}
                 py={2}
                 borderRadius='full'
-                bg={selectedTab === TradeInputTab.Claim ? activeBgColor : 'none'}
-                color={selectedTab === TradeInputTab.Claim ? activeTextColor : 'text.subtle'}
+                bg={selectedTab === TradeInputTab.BuyFiat ? activeBgColor : 'none'}
+                color={selectedTab === TradeInputTab.BuyFiat ? activeTextColor : 'text.subtle'}
                 fontWeight='bold'
-                fontSize='md'
+                fontSize='sm'
                 ml={-2}
-                onClick={handleClickClaim}
+                onClick={handleClickBuyFiat}
                 type='button'
               >
-                {translate('bridge.claim')}
+                {translate('fiatRamps.buy')}
+              </Box>
+            )}
+            {enableSwapperFiatRamps && !isStandalone && (
+              <Box
+                as='button'
+                px={6}
+                py={2}
+                borderRadius='full'
+                bg={selectedTab === TradeInputTab.SellFiat ? activeBgColor : 'none'}
+                color={selectedTab === TradeInputTab.SellFiat ? activeTextColor : 'text.subtle'}
+                fontWeight='bold'
+                fontSize='sm'
+                ml={-2}
+                onClick={handleClickSellFiat}
+                type='button'
+              >
+                {translate('fiatRamps.sell')}
               </Box>
             )}
           </Flex>

@@ -18,6 +18,7 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
+import { ArbitrumBridgeWithdrawActionCard } from './components/ArbitrumBridgeWithdrawActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
@@ -122,6 +123,9 @@ export const ActionCenter = memo(() => {
           case ActionType.RewardDistribution: {
             return <RewardDistributionActionCard key={action.id} action={action} />
           }
+          case ActionType.ArbitrumBridgeWithdraw: {
+            return <ArbitrumBridgeWithdrawActionCard key={action.id} action={action} />
+          }
           default:
             return null
         }
@@ -158,6 +162,7 @@ export const ActionCenter = memo(() => {
           aria-label={translate('navBar.pendingTransactions')}
           icon={ActionCenterIcon}
           onClick={openActionCenter}
+          variant='ghost'
         />
       </Box>
     )
@@ -214,7 +219,7 @@ export const ActionCenter = memo(() => {
       </Display.Desktop>
       <Display.Mobile>
         <Box pe={2}>
-          <Box height='calc(100vh - 70px - (env(safe-area-inset-top) - var(--safe-area-inset-top)) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - var(--mobile-nav-offset))'>
+          <Box height='calc(100vh - 90px - var(--mobile-header-user-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top) - var(--mobile-nav-offset))'>
             {drawerContent}
           </Box>
         </Box>

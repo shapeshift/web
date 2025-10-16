@@ -10,6 +10,7 @@ import { Route, Switch } from 'wouter'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
+import { maybeFetchChangeAddress } from './utils'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
@@ -22,7 +23,9 @@ import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
+import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -58,6 +61,7 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.VanityAddress]: string
   [SendFormFields.CustomNonce]?: string
   [SendFormFields.TxHash]?: string
+  [SendFormFields.ChangeAddress]?: string
 }
 
 const formStyle = { height: '100%' }
@@ -80,6 +84,9 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const { handleFormSend } = useFormSend()
   const mixpanel = getMixPanel()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const [addressError, setAddressError] = useState<string | null>(null)
 
@@ -118,6 +125,14 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
+      if (!wallet) return
+
+      // Get change address if this is UTXO
+      const changeAddress = await maybeFetchChangeAddress({ sendInput: data, wallet })
+      if (changeAddress) {
+        methods.setValue(SendFormFields.ChangeAddress, changeAddress)
+      }
+
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
       mixpanel?.track(MixPanelEvent.SendBroadcast)
@@ -167,8 +182,9 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       handleClose()
     },
     [
-      handleFormSend,
+      wallet,
       methods,
+      handleFormSend,
       mixpanel,
       assetId,
       dispatch,
@@ -211,14 +227,28 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
       try {
-        const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+        const urlDirectResult = parseUrlDirect(decodedText)
 
-        const parseAddressInputWithChainIdArgs = {
-          assetId: maybeUrlResult.assetId,
-          chainId: maybeUrlResult.chainId,
-          urlOrAddress: decodedText,
-        }
-        const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+        const maybeUrlResult = await (() => {
+          if (urlDirectResult)
+            return {
+              assetId: urlDirectResult.assetId,
+              chainId: urlDirectResult.chainId,
+              value: decodedText,
+              amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+            }
+          return parseAddress({ address: decodedText })
+        })()
+
+        const address = urlDirectResult
+          ? urlDirectResult.maybeAddress
+          : (
+              await parseAddressInputWithChainId({
+                assetId: maybeUrlResult.assetId,
+                chainId: maybeUrlResult.chainId,
+                urlOrAddress: decodedText,
+              })
+            ).address
 
         methods.setValue(SendFormFields.Input, address)
 

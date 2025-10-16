@@ -335,7 +335,8 @@ function _isInGivenStatusRanges(
   // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/status
   // The read-only XMLHttpRequest.status property returns the numerical HTTP status code of the XMLHttpRequest's response.
   // Before the request completes, the value of status is 0. Browsers also report a status of 0 in case of XMLHttpRequest errors.
-  if (status === 0) return true
+  // Status 0 means request was cancelled, network offline, or CORS issue - these are not actionable bugs and create too much noise
+  if (status === 0) return false
   const isIn = failedRequestStatusCodes.some((range: HttpStatusCodeRange) => {
     if (typeof range === 'number') {
       return range === status

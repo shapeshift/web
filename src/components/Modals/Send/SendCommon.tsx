@@ -24,4 +24,5 @@ export enum SendFormFields {
   SendMax = 'sendMax',
   CustomNonce = 'customNonce',
   TxHash = 'txHash',
+  ChangeAddress = 'changeAddress',
 }

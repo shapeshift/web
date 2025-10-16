@@ -1,8 +1,9 @@
-import { Button, useMediaQuery } from '@chakra-ui/react'
+import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useMemo, useState } from 'react'
+import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { Text } from '@/components/Text'
@@ -39,8 +40,15 @@ const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string =>
 }
 
 const buttonMargin = [3, 3, 6]
+const downloadIcon = <TbDownload size='1em' />
 
-export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
+export const DownloadButton = ({
+  txIds,
+  isCompact = false,
+}: {
+  txIds: TxId[]
+  isCompact?: boolean
+}) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const allTxs = useAppSelector(selectTxs)
@@ -124,7 +132,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     }
   }, [allTxs, assets, fields, translate, txIds])
 
-  return isLargerThanLg ? (
+  return isLargerThanLg && !isCompact ? (
     <Button
       ml={buttonMargin}
       colorScheme='blue'
@@ -134,5 +142,14 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     >
       <Text translation='transactionHistory.downloadCSV' />
     </Button>
-  ) : null
+  ) : (
+    <IconButton
+      aria-label={translate('transactionHistory.downloadCSV')}
+      icon={downloadIcon}
+      size='md'
+      ml={2}
+      isLoading={isLoading}
+      onClick={generateCSV}
+    />
+  )
 }

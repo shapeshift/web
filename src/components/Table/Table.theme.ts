@@ -9,16 +9,16 @@ export const TableStyle = {
       thead: {
         tr: {
           th: {
-            paddingLeft: 4,
-            paddingRight: 4,
+            paddingLeft: 6,
+            paddingRight: 6,
           },
         },
       },
       tbody: {
         tr: {
           td: {
-            paddingLeft: 4,
-            paddingRight: 4,
+            paddingLeft: 6,
+            paddingRight: 6,
           },
         },
       },
@@ -86,14 +86,6 @@ export const TableStyle = {
               cursor: 'not-allowed',
               boxShadow: 'none',
               pointerEvents: 'none',
-            },
-            _hover: {
-              color: mode('inherit', 'whiteAlpha.800')(props),
-              bg: mode('gray.100', 'whiteAlpha.100')(props),
-              textDecoration: 'none',
-              _disabled: {
-                bg: 'initial',
-              },
             },
             bg: 'transparent',
             td: {
@@ -168,6 +160,10 @@ export const TableStyle = {
         tbody: {
           tr: {
             borderRadius: 'xl',
+            '.expanded': {
+              borderBottomRightRadius: '0',
+              borderBottomLeftRadius: '0',
+            },
             _focus: {
               boxShadow: 'outline-inset',
             },
@@ -178,7 +174,9 @@ export const TableStyle = {
               pointerEvents: 'none',
             },
             _hover: {
-              bg: 'background.surface.raised.base',
+              ':not(.expanded-details)': {
+                bg: 'background.surface.raised.base',
+              },
               textDecoration: 'none',
               _disabled: {
                 bg: 'initial',
@@ -194,8 +192,18 @@ export const TableStyle = {
             'td:first-of-type': {
               borderLeftRadius: 'xl',
             },
+            'td:first-of-type.expanded': {
+              borderBottomLeftRadius: '0',
+            },
             'td:last-of-type': {
               borderRightRadius: 'xl',
+            },
+            'td:last-of-type.expanded': {
+              borderBottomRightRadius: '0',
+            },
+            '&.expanded-details > td > div': {
+              borderBottomRadius: 'xl',
+              borderTopRadius: '0',
             },
           },
         },

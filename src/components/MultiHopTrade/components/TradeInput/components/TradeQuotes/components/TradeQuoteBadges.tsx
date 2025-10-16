@@ -68,13 +68,33 @@ export const TradeQuoteBadges: React.FC<TradeQuoteBadgesProps> = ({
     () => badges.reduce((acc, curr) => (curr ? acc + 1 : acc), 0),
     [badges],
   )
+
+  const totalTextLength = useMemo(() => {
+    const lengths = [
+      isBoost && translate('common.boost').length,
+      isStreaming &&
+        translate(swapperName === SwapperName.Chainflip ? 'common.dca' : 'common.streaming').length,
+      isBestRate && translate('trade.sort.bestRate').length,
+      isFastest && translate('trade.sort.fastest').length,
+      isLowestGas && translate('trade.sort.lowestGas').length,
+    ].filter(Boolean) as number[]
+
+    // Add 2 chars per badge for spacing and icon visual space
+    const SPACING_AND_ICON_CHARS = 2
+    return lengths.reduce((total, length) => total + length + SPACING_AND_ICON_CHARS, 0)
+  }, [isBoost, isStreaming, isBestRate, isFastest, isLowestGas, translate, swapperName])
+
   const hideLabel = useMemo(() => {
+    const TEXT_LENGTH_THRESHOLD_MD = 38
+    const TEXT_LENGTH_THRESHOLD_SM = 28
     if (quoteDisplayOption === QuoteDisplayOption.Advanced) {
       return badgeCount > 1
     } else {
-      return isLargerThanMd ? badgeCount > badges.length - 1 : badgeCount > 2
+      return isLargerThanMd
+        ? totalTextLength > TEXT_LENGTH_THRESHOLD_MD
+        : totalTextLength > TEXT_LENGTH_THRESHOLD_SM
     }
-  }, [badgeCount, badges.length, isLargerThanMd, quoteDisplayOption])
+  }, [totalTextLength, quoteDisplayOption, isLargerThanMd, badgeCount])
 
   if (badgeCount === 0) return null
 

@@ -9,7 +9,7 @@ import {
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -28,7 +28,6 @@ import { SwapNotification } from '@/components/Layout/Header/ActionCenter/compon
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { getTxLink } from '@/lib/getTxLink'
-import { fromBaseUnit } from '@/lib/math'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { vibrate } from '@/lib/vibrate'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -37,11 +36,9 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
-import { selectTxById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapStatusToActionStatus = {
@@ -56,7 +53,7 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
-  // Special handling for ArbitrumBridge swaps to ETH mainnet
+  // Special handling for ArbitrumBridge - Success means withdrawal initiated, not complete
   if (
     swap.status === SwapStatus.Success &&
     swap.swapperName === SwapperName.ArbitrumBridge &&
@@ -122,6 +119,8 @@ export const useSwapActionSubscriber = () => {
   // Sync swap status with action status
   useEffect(() => {
     Object.values(swapsById).forEach(swap => {
+      if (!swap) return
+
       const swapAction = selectSwapActionBySwapId(store.getState(), {
         swapId: swap.id,
       })
@@ -185,7 +184,9 @@ export const useSwapActionSubscriber = () => {
   }, [dispatch, activeSwapId, swapsById, confirmedTradeExecution])
 
   const swapStatusHandler = useCallback(
-    async (swap: Swap) => {
+    async (swap: Swap | undefined) => {
+      if (!swap) return
+
       const maybeSwapper = swappers[swap.swapperName]
 
       if (maybeSwapper === undefined)
@@ -242,32 +243,6 @@ export const useSwapActionSubscriber = () => {
         }),
       })
 
-      const serializedTxIndex = (() => {
-        if (!swap) return
-
-        const { buyAccountId } = swap
-
-        if (!buyAccountId || !buyTxHash) return
-
-        const accountAddress = fromAccountId(buyAccountId).account
-
-        return serializeTxIndex(buyAccountId, buyTxHash, accountAddress)
-      })()
-
-      const tx = selectTxById(store.getState(), serializedTxIndex ?? '')
-
-      const actualBuyAmountCryptoPrecision = (() => {
-        if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
-
-        const receiveTransfer = tx.transfers.find(
-          transfer =>
-            transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
-        )
-        return receiveTransfer?.value
-          ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
-          : undefined
-      })()
-
       if (status === TxStatus.Confirmed) {
         // TEMP HACK FOR BASE
         if (swap.sellAsset.chainId === baseChainId || swap.buyAsset.chainId === baseChainId) {
@@ -281,13 +256,14 @@ export const useSwapActionSubscriber = () => {
         dispatch(
           swapSlice.actions.upsertSwap({
             ...swap,
-            actualBuyAmountCryptoPrecision,
             status: SwapStatus.Success,
             statusMessage: message,
             buyTxHash,
             txLink,
           }),
         )
+
+        if (toast.isActive(swap.id)) return
 
         toast({
           status: 'success',
@@ -344,6 +320,8 @@ export const useSwapActionSubscriber = () => {
             txLink,
           }),
         )
+
+        if (toast.isActive(swap.id)) return
 
         toast({
           status: 'error',
@@ -411,10 +389,10 @@ export const useSwapActionSubscriber = () => {
         const swap = swapsById[swapId]
 
         return {
-          queryKey: ['action', action.id, swap.id, swap.sellTxHash],
+          queryKey: ['action', action.id, swap?.id, swap?.sellTxHash],
           queryFn: () => swapStatusHandler(swap),
           refetchInterval: TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
-          enabled: isConnected && swap.status === SwapStatus.Pending,
+          enabled: isConnected && swap?.status === SwapStatus.Pending,
         }
       })
       .filter((query): query is NonNullable<typeof query> => query !== undefined)

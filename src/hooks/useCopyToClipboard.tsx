@@ -32,5 +32,5 @@ export function useCopyToClipboard({ timeout = 2000 }: useCopyToClipboardProps) 
     }, timeout)
   }
 
-  return { isCopied, copyToClipboard }
+  return { isCopied, isCopying, copyToClipboard }
 }

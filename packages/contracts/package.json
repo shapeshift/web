@@ -25,7 +25,9 @@
     "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
     "clean": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch",
-    "postbuild": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",

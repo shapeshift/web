@@ -20,8 +20,6 @@ import { RiArrowRightUpLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { useFeatureFlag } from '../../hooks/useFeatureFlag/useFeatureFlag'
-import { AssetSearchRow } from './components/AssetSearchRow'
 import { CategoryCard } from './components/CategoryCard'
 import { Tags } from './components/Tags'
 
@@ -36,8 +34,11 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { useAssetSearchWorker } from '@/components/TradeAssetSearch/hooks/useAssetSearchWorker'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
+import { usePrefetchExploreCategories } from '@/pages/Explore/hooks/usePrefetchExploreCategories'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import { selectAssets, selectMarketDataUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -57,14 +58,14 @@ const linkIcon = <RiArrowRightUpLine />
 const ExploreCard: React.FC<ExploreCardProps> = props => {
   const { title, body, icon, ...rest } = props
   return (
-    <Card _active={activeCard} {...rest}>
+    <Card _active={activeCard} {...rest} m={0.5}>
       <CardBody display='flex' flexDir='column' alignItems='flex-start'>
         <Center fontSize='4xl' width='auto' mb={2} opacity={'0.3'}>
           {icon}
         </Center>
         <Stack>
           <Text fontWeight='bold' translation={title} />
-          <Text color='whiteAlpha.700' translation={body} />
+          <Text color='text.subtle' translation={body} />
         </Stack>
         <Center fontSize='lg' width='auto' opacity={'0.3'} position='absolute' right={4} top={4}>
           {linkIcon}
@@ -89,6 +90,9 @@ export const Explore = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
+  const assetActionsDrawer = useModal('assetActionsDrawer')
+
+  usePrefetchExploreCategories()
 
   const allAssets = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(selectMarketDataUserCurrency)
@@ -142,6 +146,14 @@ export const Explore = memo(() => {
     [navigate],
   )
 
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   const inputProps = useMemo(
     () => ({
       value: searchString,
@@ -178,11 +190,7 @@ export const Explore = memo(() => {
           display='flex'
           flexDir='column'
           flex='1 1 auto'
-          height={
-            isSearching
-              ? 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 40px - 1rem)'
-              : 'auto'
-          }
+          height={isSearching ? 'calc(100vh - var(--mobile-nav-offset) - 130px)' : 'auto'}
         >
           <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>
             <InputGroup size='md'>
@@ -201,8 +209,10 @@ export const Explore = memo(() => {
               assets={assetResults}
               handleClick={handleAssetClick}
               disableUnsupported={false}
-              rowComponent={AssetSearchRow}
-              height='100vh'
+              height='calc(100vh - var(--mobile-nav-offset) - 70px)'
+              showPrice
+              showRelatedAssets
+              handleLongPress={handleAssetLongPress}
             />
           )}
         </Box>

@@ -3,6 +3,8 @@
     "amount": "数量",
     "ascending": "升序",
     "descending": "降序",
+    "selectAll": "全选",
+    "unselectAll": "取消全选",
     "free": "免费",
     "trade": "交易",
     "trades": "交易",
@@ -31,12 +33,16 @@
     "claimable": "可领取的",
     "comingSoon": "即将推出 ...",
     "approve": "授权",
+    "approveToken": "授权代币",
+    "approveAmount": "授权数量",
+    "approveTo": "授权给",
     "reset": "重置",
     "confirm": "确认",
     "seeDetails": "查看具体信息",
     "activity": "激活",
     "reject": "拒绝",
     "goBack": "返回",
+    "fiat": "法币",
     "connected": "已连接",
     "allocation": "分配",
     "trendingTokens": "热门代币",
@@ -62,6 +68,7 @@
     "pairing": "配对中",
     "connectWalletToGetStartedWith": "连接钱包以开始使用 %{feature}",
     "connectedWallet": "已连接的钱包",
+    "crypto": "加密货币",
     "walletActions": "钱包操作",
     "connectedWalletSettings": "钱包设置",
     "noWallet": "没有连接钱包",
@@ -127,6 +134,11 @@
     "enterAmount": "输入数量",
     "enterAddress": "输入地址",
     "pageNotFound": "找不到你要查找的页面",
+    "creditCard": "信用卡",
+    "bankTransfer": "银行转账",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "买/卖",
     "all": "全部",
     "viewAll": "查看全部",
@@ -214,7 +226,23 @@
     "dca": "DCA",
     "boost": "加速",
     "viewOnExplorer": "在区块浏览器上查看",
-    "approval": "批准"
+    "viewAssetDetails": "查看资产详情",
+    "approval": "批准",
+    "permit2Approval": "Permit2 授权",
+    "network": "网络",
+    "feeEstimate": "预计费用"
+  },
+  "quickBuy": {
+    "title": "快速购买 %{assetOnChain}",
+    "nativeNotAvailable": "快速购买不适用于原生资产",
+    "balance": "可用余额",
+    "confirm": "您确定要购买吗？",
+    "edit": "编辑购买数量",
+    "error": {
+      "insufficientFunds": "快速购买 %{amount} 失败，没有足够的资金，要尝试另一笔数量吗？",
+      "noQuote": "快速购买 %{amount} 失败，无法检索有效余额。",
+      "failed": "快速购买 %{amount} 失败。"
+    }
   },
   "consentBanner": {
     "body": "我们的 dApp 使用匿名点击跟踪来分析性能并改善你的体验。使用 app.shapeshift.com，即表示你同意我们的跟踪。访问 %{privateLink} 如果您不希望被匿名跟踪。请查看我们的 %{privacyPolicyLink} 更多细节。",
@@ -225,11 +253,40 @@
     "body": "出了些问题",
     "cta": "再试一次"
   },
-  "buyPage": {
-    "title": "<span>快速</span>购买加密货币 ",
-    "body": "使用信用卡、借记卡或银行账户来购买比特币、以太坊、USDT、USDC 或其他顶级加密货币。适用于非 KYC 用户。",
-    "disclaimer": "*你还可以直接出售加密货币以换取现金存入你的银行账户。",
-    "ctaTitle": "你还可以使用 ShapeShift 与所有顶级钱包进行交易、赚取收益和 <span>在 %{chainCount} 条链上跟踪你的加密货币</span>",
+  "errorBoundary": {
+    "component": {
+      "title": "组件错误",
+      "body": "该组件出现错误，无法正确加载。",
+      "retry": "重试"
+    },
+    "chart": {
+      "title": "图表不可用",
+      "body": "目前无法加载图表数据。",
+      "retry": "重试"
+    },
+    "trading": {
+      "title": "交易错误",
+      "body": "交易界面出现错误。您可以重试或刷新本页面。",
+      "retry": "重试"
+    },
+    "ramp": {
+      "title": "Ramp 错误",
+      "body": "Ramp 界面出现错误，您可以重试或刷新页面。",
+      "retry": "重试"
+    },
+    "suspense": {
+      "title": "加载失败",
+      "body": "无法正确加载此内容。",
+      "retry": "重试"
+    }
+  },
+  "rampPage": {
+    "buyTitle": "<span>在几秒钟内</span>购买加密货币",
+    "sellTitle": "<span>在几秒钟内</span>出售加密货币",
+    "buyBody": "使用信用卡、借记卡或银行账户购买比特币、以太币、USDT、USDC 或其他热门加密货币，无需 KYC。",
+    "sellBody": "使用信用卡、借记卡或银行账户出售比特币、以太币、USDT、USDC 或其他热门加密货币，无需 KYC。",
+    "disclaimer": "*您可以直接使用加密货币换取现金并存入您的银行账户。",
+    "ctaTitle": "您还可以使用各种主流钱包，通过 ShapeShift 进行交易，赚取收益并<span>在 %{chainCount} 条链上追踪您的加密货币资产</span>",
     "availableAssets": "可用资产"
   },
   "updateToast": {
@@ -334,6 +391,9 @@
       "switchWallet": "切换钱包",
       "disconnect": "断开",
       "disconnected": "(已断开)",
+      "locked": "(已锁定)",
+      "reconnectWallet": "重新连接钱包",
+      "walletNotConnected": "您的钱包目前未连接，这将影响交易。",
       "connecting": "正在连接..."
     }
   },
@@ -372,8 +432,6 @@
       },
       "cosmosOverview": {
         "rewards": "你获得的奖励将自动累积。",
-        "cta": "开始质押",
-        "learnMore": "了解更多",
         "withdrawals": "取消质押",
         "emptyWithdraws": "此处将显示待处理的取消质押请求。",
         "availableDate": "在 %{date} 可用"
@@ -511,6 +569,7 @@
     "netWorth": "净值",
     "loadingAccounts": "已加载 %{portfolioAccountsLoaded} 个账户",
     "walletBalance": "钱包余额",
+    "walletBalanceChange24Hr": "24 小时变化",
     "earnBalance": "赚取余额",
     "rewardsBalance": "奖励余额",
     "earnBody": "通过质押你的资产或将其存入 DeFi 策略来赚取被动收入。",
@@ -624,7 +683,6 @@
     "market": "市场",
     "limitOrder": "限价订单",
     "claims": "领取",
-    "tradeShort": "交易",
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "购买/出售",
     "lending": "贷款",
@@ -633,6 +691,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX 生态系统",
     "markets": "市场",
+    "tokens": "代币",
+    "swap": "交换",
     "actionMenu": {
       "send": {
         "title": "发送",
@@ -656,6 +716,34 @@
       }
     }
   },
+  "shapeShiftMenu": {
+    "products": "产品",
+    "mobileApp": {
+      "title": "手机应用",
+      "subtitle": "交易和管理加密货币"
+    },
+    "foxToken": {
+      "title": "FOX 代币",
+      "subtitle": "我们的治理代币"
+    },
+    "classic": {
+      "title": "经典",
+      "subtitle": "OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift 钱包",
+      "subtitle": "了解我们的钱包"
+    },
+    "footer": {
+      "governance": "治理",
+      "support": "支持",
+      "blog": "博客",
+      "faq": "常见问题",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
+    }
+  },
   "transactionRow": {
     "send": "已发送",
     "receive": "已接收",
@@ -668,7 +756,6 @@
     "confirmed": "已确认",
     "pending": "待处理",
     "failed": "失败的",
-    "network": "网络",
     "blockHeight": "区块高度",
     "to": "到",
     "from": "从",
@@ -838,7 +925,10 @@
     "confirmAndClaim": "确认并认领",
     "viewClaims": "查看领取",
     "viewClaimStatus": "查看领取状态",
-    "availableClaimsNotification": "您有桥接领取可用！"
+    "availableClaimsNotification": "您有桥接领取可用！",
+    "bridgeWithdrawalReadyNotification": "链桥提现已可领取",
+    "bridgeWithdrawalFailedNotification": "链桥提现失败",
+    "checkActionCenterNotification": "进入操作中心以查看详情"
   },
   "trade": {
     "trade": "交易",
@@ -912,7 +1002,7 @@
     "viewTransaction": "查看交易",
     "noQuotesAvailable": "没有可用报价",
     "noQuotesAvailableDescription": "目前未找到可用的报价。请尝试选择另一对。",
-    "availableSwappers": "可用交换者",
+    "availableQuotes": "可用报价",
     "unavailableSwappers": "不可用的交换者",
     "unlimited": "无限的",
     "streamStatus": "Stream 状态",
@@ -931,6 +1021,8 @@
     "intoAssetSymbolBody": "你可以继续进行此交易，但接收 %{assetSymbol} 的交易历史记录暂时不可用",
     "manualReceiveAddress": "接收地址",
     "recipientAddress": "接收者地址",
+    "changeAddress": "退款地址",
+    "changeAddressExplainer": "在基于 UTXO 的网络上发送加密货币时，交易中未使用的余额将会通过此地址返回给您。",
     "customRecipientAddress": "自定义接收者地址",
     "customRecipientAddressDescription": "输入此交易的自定义接收者地址",
     "thisIsYourCustomRecipientAddress": "这是您的自定义接收者地址",
@@ -1086,7 +1178,19 @@
       "youGotMore": "您在本次交易中额外获得了 %{cryptoUpside}"
     },
     "networkFee": "网络费用",
-    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用"
+    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用",
+    "claim": {
+      "pending": "您领取的 %{amount} %{symbol} 正在处理中。",
+      "complete": "您领取的 %{amount} %{symbol} 已完成。"
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "您的领取的 %{amountAndSymbol} 奖励正在处理中。"
+      },
+      "complete": {
+        "description": "您领取的 %{amountAndSymbol} 奖励已完成。"
+      }
+    }
   },
   "limitOrder": {
     "heading": "限价",
@@ -1356,7 +1460,8 @@
         "total": "总共",
         "amount": "数量",
         "transactionFee": "交易手续费",
-        "fees": "费用 %{feeType}"
+        "fees": "费用 %{feeType}",
+        "pendingConfirmation": "等待确认中"
       },
       "sendForm": {
         "optionalAssetMemo": "可选 %{assetSymbol} 备忘录",
@@ -1380,7 +1485,7 @@
     "receive": {
       "connectAWallet": "连接钱包来接收 %{symbol}",
       "receiveAsset": "接收 %{asset}",
-      "onlySend": "请只将 %{asset} (%{symbol}) 发送到此地址。发送任何其他代币都可能导致永久丢失。",
+      "onlySend": "请只将 %{symbol} 发送到支持的网络。发送其他代币或发送到其他网络可能会导致代币永久丢失。",
       "copy": "复制",
       "copied": "%{symbol} 的接收地址已复制到剪贴板",
       "copyFailed": "无法将 %{symbol} 接收地址复制到剪贴板",
@@ -1389,7 +1494,9 @@
       "verify": "验证",
       "verified": "已验证",
       "notVerified": "地址不匹配",
-      "blockExplorer": "探索"
+      "blockExplorer": "探索",
+      "supportedNetworks": "支持的网络",
+      "amountNote": "输入您希望接收的数量。这将生成一个带有该数量的二维码，以便更轻松地进行收款。"
     },
     "deposit": {
       "allocation": {
@@ -1553,6 +1660,26 @@
         "ILS": "以色列谢克尔",
         "IDR": "印尼盾"
       }
+    },
+    "ramp": {
+      "payWith": "支付",
+      "youGet": "获得",
+      "sellAmount": "卖出数量",
+      "receiveAmount": "接收数量",
+      "buyAsset": "购买资产",
+      "sellAsset": "出售资产",
+      "receiveAsset": "接收资产",
+      "previewOrder": "预览订单",
+      "processingTime": "处理时间：1-3 个工作日",
+      "buyInfo": "使用法定货币购买加密货币",
+      "sellInfo": "出售加密货币换取法定货币",
+      "availableQuotes": "可用报价",
+      "bestRate": "最佳费率",
+      "fastest": "最快",
+      "rate": "费率",
+      "amount": "数量",
+      "paymentMethods": "支付方法",
+      "selectFiat": "选择法定货币"
     },
     "mobileWelcome": {
       "success": {
@@ -1722,8 +1849,13 @@
         "pairExistingDeviceBody": "正在连接其他 Ledger 设备？单击“配对新设备”即可重新开始。"
       },
       "failure": {
-        "body": "无法连接 Ledger 钱包"
+        "header": "无法连接到 Ledger",
+        "body": "我们无法检测到您的 Ledger，但您可以以只读模式连接。"
       },
+      "readOnly": {
+        "button": "以只读模式连接"
+      },
+      "gettingChangeAddress": "正在获取退款地址...",
       "connectWarning": "在连接链之前，请确保您的设备上已打开该应用程序。",
       "signWarning": "在签名之前，请确保您的设备上已打开 %{chain} 应用程序。"
     },
@@ -1767,6 +1899,7 @@
       "active": "活跃",
       "notActive": "不活跃",
       "addSnap": "添加快照",
+      "installError": "安装 MetaMask 多链快照时发生错误",
       "uninstall": {
         "title": "你已从 MetaMask 中删除了多链支持！",
         "subtitle": "在 MetaMask 上重新添加多链快照，即可在以下链上发送、接收、追踪、交易和赚钱："
@@ -2048,11 +2181,12 @@
   },
   "assets": {
     "more": "展开",
+    "hideAsset": "隐藏资产",
+    "showAsset": "显示资产",
+    "cannotHidePrimary": "无法隐藏具有相关变体的主要资产",
     "spam": {
-      "warning": "由于您已将其标记为垃圾邮件，该资产将被隐藏。",
-      "marked": "该资产被标记为垃圾邮件。",
-      "reportAsSpam": "报告垃圾邮件",
-      "reportAsNotSpam": "标记为非垃圾邮件"
+      "warning": "您可以在钱包下拉菜单中点击 '管理隐藏资产' 来重新显示该资产。",
+      "marked": "该资产已被隐藏。"
     },
     "assetDetails": {
       "assetHeader": {
@@ -2222,7 +2356,8 @@
     "today": "今天",
     "yesterday": "昨天",
     "thisWeek": "本周",
-    "thisMonth": "本月"
+    "thisMonth": "本月",
+    "transactionDetails": "交易详情"
   },
   "plugins": {
     "foxPage": {
@@ -2305,6 +2440,18 @@
         "title": "钱包连接",
         "ethereum": "以太坊",
         "connectAll": "连接所有帐户",
+        "interactContract": "与合约交互",
+        "transactionData": "交易数据",
+        "method": "方法",
+        "signingWith": "使用此帐户签名：",
+        "connectWith": "连接到此帐户：",
+        "chooseAccount": "选择帐户",
+        "chooseNetwork": "选择网络",
+        "required": "必填",
+        "noAccount": "您在 %{chainName} 上没有与此地址对应的帐户",
+        "connectionRequest": "连接请求",
+        "connectionRequestTooltip": "连接将允许此应用请求批准交易。",
+        "sendingTo": "发送到",
         "signMessage": {
           "signingFrom": "签名来自",
           "requestFrom": "请求来自",
@@ -2322,7 +2469,9 @@
           "chainId": "链 ID",
           "authInfo": "授权信息",
           "body": "主体",
-          "comingSoon": "即将推出"
+          "comingSoon": "即将推出",
+          "contract": "合约",
+          "primaryType": "主要类型"
         },
         "sendTransaction": {
           "sendingFrom": "发送自",
@@ -2356,7 +2505,6 @@
         },
         "connect": {
           "title": "通过 WalletConnect 将你的钱包连接到 dApp 并触发交易",
-          "howTo": "如何连接到一个 dApp ？",
           "linkPlaceholder": "二维码或连接链接",
           "connect": "连接",
           "connectionError": "无法连接到提供的 URI。",
@@ -2653,6 +2801,13 @@
     },
     "title": "关注列表"
   },
+  "manageHiddenAssets": {
+    "title": "管理隐藏资产",
+    "empty": {
+      "title": "没有隐藏资产",
+      "body": "您隐藏的资产会在这里展示，以便重新显示它们。"
+    }
+  },
   "explore": {
     "pools": {
       "title": "池",
@@ -2680,6 +2835,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "质押已发起",
+    "unstakeInitiated": "取消质押已发起",
+    "claimWithdraw": "领取提款",
     "staking": "rFOX 质押",
     "bridge": "桥接",
     "bridgeFunds": "桥接资金",
@@ -2981,6 +3139,7 @@
       "switchChainFailed": "无法切换钱包链。请尝试手动将您钱包的活跃链切换为 %{chain}。",
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
+      "blindSigningRequired": "交易需要盲签，请在您的 Ledger 应用设置中启用 'Blind signing' 并重试。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",
       "signMessage": "消息签名失败。",
       "broadcastTransaction": "广播交易失败。",
@@ -3015,7 +3174,9 @@
       "claimAvailable": "可领取",
       "claimed": "已领取",
       "unknown": "未知",
-      "initiated": "已发起"
+      "initiated": "已发起",
+      "awaitingApproval": "等待授权中",
+      "awaitingSwap": "等待兑换中"
     },
     "emptyState": {
       "title": "欢迎使用 ShapeShift",
@@ -3024,10 +3185,12 @@
       "startSwapping": "开始兑换"
     },
     "swap": {
-      "processing": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在进行中。",
-      "complete": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已完成。",
-      "failed": "您已 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
-      "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。"
+      "processing": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在进行中。",
+      "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已完成。",
+      "failed": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
+      "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。",
+      "awaitingApproval": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在等待授权。",
+      "awaitingSwap": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在等待执行。"
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} 和 %{asset2}",
@@ -3053,10 +3216,17 @@
       "complete": "您领取的 %{amount} %{symbol} 已完成。"
     },
     "bridge": {
-      "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在进行中。",
-      "complete": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已完成。",
-      "initiated": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已发起。",
-      "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。"
+      "processing": "正在处理中...",
+      "complete": "您桥接的 %{amountAndSymbol} 已完成。",
+      "initiated": "您将 %{sellAmountAndSymbol} 桥接到 %{buyAmountAndSymbol} 的操作已发起。",
+      "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
+      "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",
+      "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。",
+      "transactionInitiated": "交易已发起",
+      "claimWithdraw": "领取提现",
+      "withdrawTx": "提现交易",
+      "claimTx": "领取交易",
+      "claimNotAvailable": "领取暂时不可用，请等待提现期完成。"
     },
     "limitOrder": {
       "placed": "使用 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单已下单",
@@ -3087,6 +3257,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} 笔待处理交易",
     "orderCancelled": "订单已取消",
-    "orderExpired": "订单已到期"
+    "orderExpired": "订单已到期",
+    "rewardDistribution": {
+      "pending": {
+        "description": "您领取的 %{amountAndSymbol} 正在处理中..."
+      },
+      "complete": {
+        "description": "您领取的 %{amountAndSymbol} 已完成。"
+      }
+    }
   }
 }

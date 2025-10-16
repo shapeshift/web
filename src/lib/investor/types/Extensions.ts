@@ -1,5 +1,3 @@
-import type { BigNumber } from 'bignumber.js'
-
 export type FeePriority = 'fast' | 'average' | 'slow'
 
 export interface ApprovalRequired<T> {

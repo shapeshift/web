@@ -17,7 +17,6 @@ import {
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
-import type { BigNumber } from 'bignumber.js'
 import type { TransactionReceipt } from 'ethers'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'

@@ -45,10 +45,6 @@ type StakingInfoProps = {
   stakingAssetAccountId: AccountId | undefined
 }
 
-const pairProps = {
-  showFirst: true,
-}
-
 export const StakingInfo: React.FC<StakingInfoProps> = ({
   stakingAssetId,
   stakingAssetAccountId,
@@ -138,13 +134,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     <Box>
       <Flex alignItems='center' justifyContent='space-between' mb={6} gap={4} flexWrap='wrap'>
         <Flex alignItems='center' gap={2}>
-          <AssetIcon
-            size='sm'
-            assetId={stakingAssetId}
-            key={stakingAssetId}
-            showNetworkIcon
-            pairProps={pairProps}
-          />
+          <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
             <CText fontSize='sm'>
               {translate('RFOX.mySymbolPosition', { symbol: stakingAsset?.symbol ?? '' })}

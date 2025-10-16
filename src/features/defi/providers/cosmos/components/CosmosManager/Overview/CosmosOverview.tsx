@@ -2,13 +2,10 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import qs from 'qs'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
-import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
@@ -56,7 +53,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     accountId: routeAccountId,
     assetNamespace,
@@ -104,7 +101,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     }
   }, [chainId, stakingAssetId])
 
-  const defaultOpportunityMetadata = useAppSelector(state =>
+  const opportunityMetadata = useAppSelector(state =>
     selectStakingOpportunityByFilter(state, filteredOpportunitiesMetadataFilter),
   )
 
@@ -113,12 +110,11 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
 
   const loaded = useMemo(
-    () => Boolean(opportunityData || defaultOpportunityMetadata),
-    [defaultOpportunityMetadata, opportunityData],
+    () => Boolean(opportunityData || opportunityMetadata),
+    [opportunityMetadata, opportunityData],
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const cosmosEmptyAssets = useMemo(() => (stakingAsset ? [stakingAsset] : []), [stakingAsset])
 
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
@@ -142,32 +138,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
-
-  const navigate = useNavigate()
-
-  const handleStakeClick = useCallback(
-    () =>
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          ...query,
-          modal: DefiAction.Deposit,
-        }),
-      }),
-    [navigate, location.pathname, query],
-  )
-
-  const handleLearnMoreClick = useCallback(
-    () => () =>
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          ...query,
-          modal: DefiAction.GetStarted,
-        }),
-      }),
-    [navigate, location.pathname, query],
-  )
 
   const underlyingAssetsCryptoPrecision = useMemo(
     () => [
@@ -226,18 +196,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
-  if (totalBondings.eq(0)) {
-    return (
-      <CosmosEmpty
-        assets={cosmosEmptyAssets}
-        apy={defaultOpportunityMetadata?.apy ?? ''}
-        onStakeClick={handleStakeClick}
-        onLearnMoreClick={handleLearnMoreClick}
-      />
-    )
-  }
-
-  if (!opportunityData) return null
+  if (!opportunityMetadata) return null
 
   return (
     <Overview
@@ -245,12 +204,12 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       onAccountIdChange={handleAccountIdChange}
       positionAddress={accountId ? fromAccountId(accountId).account : undefined}
       asset={stakingAsset}
-      name={opportunityData.name}
-      icons={makeOpportunityIcons({ assets, opportunity: opportunityData })}
+      name={opportunityMetadata.name}
+      icons={makeOpportunityIcons({ assets, opportunity: opportunityMetadata })}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={underlyingAssetsCryptoPrecision}
       provider={makeDefiProviderDisplayName({
-        provider: opportunityData.provider,
+        provider: opportunityMetadata.provider,
         assetName: stakingAsset.name,
       })}
       menu={overviewMenu}

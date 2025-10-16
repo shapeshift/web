@@ -20,7 +20,7 @@ export const thorQuote: TradeQuote = {
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
-        name: 'FOX on Ethereum',
+        name: 'FOX',
         precision: 18,
         color: '#3761F9',
         icon: '/fox-token-logo.png',
@@ -33,7 +33,7 @@ export const thorQuote: TradeQuote = {
       sellAsset: {
         assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         chainId: 'eip155:1',
-        name: 'USD Coin on Ethereum',
+        name: 'USD Coin',
         precision: 6,
         color: '#2373CB',
         icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
@@ -54,7 +54,7 @@ export const thorQuote: TradeQuote = {
             asset: {
               assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
               chainId: 'eip155:1',
-              name: 'FOX on Ethereum',
+              name: 'FOX',
               precision: 18,
               color: '#3761F9',
               icon: '/fox-token-logo.png',
@@ -70,7 +70,7 @@ export const thorQuote: TradeQuote = {
             asset: {
               assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
               chainId: 'eip155:1',
-              name: 'USD Coin on Ethereum',
+              name: 'USD Coin',
               precision: 6,
               color: '#2373CB',
               icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
@@ -108,7 +108,7 @@ export const cowQuote: TradeQuote = {
             asset: {
               assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
               chainId: 'eip155:1',
-              name: 'USD Coin on Ethereum',
+              name: 'USD Coin',
               precision: 6,
               color: '#2373CB',
               icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
@@ -127,7 +127,7 @@ export const cowQuote: TradeQuote = {
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
-        name: 'FOX on Ethereum',
+        name: 'FOX',
         precision: 18,
         color: '#3761F9',
         icon: '/fox-token-logo.png',
@@ -140,7 +140,7 @@ export const cowQuote: TradeQuote = {
       sellAsset: {
         assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         chainId: 'eip155:1',
-        name: 'USD Coin on Ethereum',
+        name: 'USD Coin',
         precision: 6,
         color: '#2373CB',
         icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
@@ -170,7 +170,7 @@ export const zrxQuote: TradeQuote = {
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
-        name: 'FOX on Ethereum',
+        name: 'FOX',
         precision: 18,
         color: '#3761F9',
         icon: '/fox-token-logo.png',
@@ -183,7 +183,7 @@ export const zrxQuote: TradeQuote = {
       sellAsset: {
         assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         chainId: 'eip155:1',
-        name: 'USD Coin on Ethereum',
+        name: 'USD Coin',
         precision: 6,
         color: '#2373CB',
         icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',

@@ -28,6 +28,8 @@
     "generate": "yarn generate:coingecko && yarn generate:coincap",
     "generate:coingecko": "yarn build && yarn run -T tsx src/adapters/coingecko/generate.ts",
     "generate:coincap": "yarn build && yarn run -T tsx src/adapters/coincap/generate.ts",
-    "postbuild": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   }
 }

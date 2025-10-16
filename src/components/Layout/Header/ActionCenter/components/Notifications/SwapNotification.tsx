@@ -1,5 +1,6 @@
 import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
@@ -12,8 +13,15 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
-import { selectSwapActionBySwapId, selectWalletSwapsById } from '@/state/slices/selectors'
+import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { formatSecondsToDuration } from '@/lib/utils/time'
+import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
+import {
+  selectArbitrumBridgeWithdrawActionByWithdrawTxHash,
+  selectSwapActionBySwapId,
+  selectWalletSwapsById,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SwapNotificationProps = {
@@ -29,7 +37,68 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     return swapsById[swapId]
   }, [swapId, swapsById])
 
-  const action = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
+  const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swapId)
+
+  const swapAction = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
+  // For ArbitrumBridge swaps, look up the corresponding ArbitrumBridge action by withdrawTxHash
+  const withdrawTxHash = useMemo(() => {
+    return swap?.swapperName === SwapperName.ArbitrumBridge ? swap?.sellTxHash : undefined
+  }, [swap?.swapperName, swap?.sellTxHash])
+
+  const maybeArbitrumBridgeAction = useAppSelector(state =>
+    withdrawTxHash
+      ? selectArbitrumBridgeWithdrawActionByWithdrawTxHash(state, withdrawTxHash)
+      : undefined,
+  )
+
+  // Use ArbitrumBridge action for ArbitrumBridge swaps, otherwise use swap action
+  const action =
+    swap?.swapperName === SwapperName.ArbitrumBridge ? maybeArbitrumBridgeAction : swapAction
+
+  const maybeArbitrumBridgeSpecificComponents = useMemo((): Partial<
+    TextPropTypes['components']
+  > => {
+    if (
+      !swap ||
+      swap.swapperName !== SwapperName.ArbitrumBridge ||
+      !action ||
+      !isArbitrumBridgeWithdrawAction(action)
+    ) {
+      return {}
+    }
+
+    const buyAmountCryptoPrecision = bnOrZero(
+      actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision,
+    )
+      .decimalPlaces(8)
+      .toString()
+
+    const timeRemaining =
+      action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
+      action.arbitrumBridgeMetadata.timeRemainingSeconds
+    const timeDisplay =
+      timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
+    const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
+
+    return {
+      amountAndSymbol: (
+        <Amount.Crypto
+          value={buyAmountCryptoPrecision}
+          symbol={swap.buyAsset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={8}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+      timeText: (
+        <Box display='inline' fontWeight='bold'>
+          {timeText}
+        </Box>
+      ),
+    }
+  }, [swap, actualBuyAmountCryptoPrecision, action])
 
   const swapNotificationTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!swap) return
@@ -53,7 +122,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
       ),
       buyAmountAndSymbol: (
         <Amount.Crypto
-          value={swap.actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
+          value={actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
           symbol={swap.buyAsset.symbol}
           fontSize='sm'
           fontWeight='bold'
@@ -67,18 +136,23 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
           {getChainShortName(swap.buyAsset.chainId as KnownChainIds)}
         </Box>
       ),
+      ...maybeArbitrumBridgeSpecificComponents,
     }
-  }, [swap])
+  }, [swap, actualBuyAmountCryptoPrecision, maybeArbitrumBridgeSpecificComponents])
 
   const swapTitleTranslation = useMemo(() => {
     if (!action || !swap) return 'actionCenter.swap.processing'
 
     const { status } = action
 
-    if (swap.swapperName === SwapperName.ArbitrumBridge) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+    if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
-      if (status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
+      if (status === ActionStatus.Initiated) {
+        return isArbitrumBridgeWithdrawAction(action)
+          ? 'actionCenter.bridge.pendingWithdraw'
+          : 'actionCenter.bridge.initiated'
+      }
 
       return 'actionCenter.bridge.processing'
     }

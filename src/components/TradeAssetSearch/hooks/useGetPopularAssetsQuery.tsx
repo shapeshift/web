@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query'
 
 import { getMarketServiceManager } from '@/state/slices/marketDataSlice/marketServiceManagerSingleton'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectRelatedAssetIds } from '@/state/slices/related-assets-selectors'
+import { selectAssets, selectPrimaryAssets } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
 const queryKey = ['getPopularAssetsQuery']
@@ -17,6 +18,7 @@ export const queryFn = async () => {
   }
 
   const assets = selectAssets(store.getState())
+  const primaryAssets = selectPrimaryAssets(store.getState())
   const enabledFlags = preferences.selectors.selectFeatureFlags(store.getState())
 
   // add thorchain and mayachain to popular assets for discoverability on wallets without existing balances
@@ -24,10 +26,24 @@ export const queryFn = async () => {
   if (enabledFlags.Mayachain) assetIds.push(mayachainAssetId)
 
   for (const assetId of assetIds) {
-    const asset = assets[assetId]
+    const asset = primaryAssets[assetId]
+    const relatedAssetIds = selectRelatedAssetIds(store.getState(), { assetId })
     if (!asset) continue
     const { chainId } = asset
     if (!result[chainId]) result[chainId] = []
+
+    relatedAssetIds.forEach(relatedAssetId => {
+      const relatedAsset = assets[relatedAssetId]
+
+      if (!relatedAsset) return
+
+      const relatedAssetChainId = relatedAsset?.chainId
+
+      if (!result[relatedAssetChainId]) result[relatedAssetChainId] = []
+
+      result[relatedAssetChainId].push(relatedAsset)
+    })
+
     result[chainId].push(asset)
     result.All.push(asset)
   }

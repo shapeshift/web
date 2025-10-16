@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
 
-import type { CommonFiatCurrencies } from '../config'
 import type { CreateUrlProps } from '../types'
+
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 type SupportedAssetReturn = {
   buy: AssetId[]

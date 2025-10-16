@@ -42,6 +42,8 @@ export type Modals = {
   mobileWalletDialog: FC<MobileWalletDialogProps>
   assetActionsDrawer: FC<AssetActionsDrawerProps>
   rating: FC
+  walletDrawer: FC
+  manageHiddenAssets: FC
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

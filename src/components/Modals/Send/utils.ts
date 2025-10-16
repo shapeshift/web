@@ -17,6 +17,7 @@ import type {
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
@@ -31,7 +32,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -51,7 +52,7 @@ export type EstimateFeesInput = {
   contractAddress: string | undefined
 }
 
-export const estimateFees = ({
+export const estimateFees = async ({
   amountCryptoPrecision,
   assetId,
   from,
@@ -103,10 +104,22 @@ export const estimateFees = ({
     }
     case CHAIN_NAMESPACE.Solana: {
       const adapter = assertGetSolanaChainAdapter(asset.chainId)
+
+      // For SPL transfers, build complete instruction set including compute budget
+      // For SOL transfers (pure sends i.e not e.g a Jup swap), pass no instructions to get 0 count (avoids blind signing)
+      const instructions = contractAddress
+        ? await adapter.buildEstimationInstructions({
+            from: account,
+            to,
+            tokenId: contractAddress,
+            value,
+          })
+        : undefined
+
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
-        chainSpecific: { from: account, tokenId: contractAddress },
+        chainSpecific: { from: account, tokenId: contractAddress, instructions },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -123,15 +136,8 @@ export const handleSend = async ({
   sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
-  const state = store.getState()
-  const asset = selectAssetById(state, sendInput.assetId ?? '')
-  if (!asset) return ''
-
-  const chainId = asset.chainId
+  const { asset, chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
   const supportedEvmChainIds = getSupportedEvmChainIds()
-
-  const acccountMetadataFilter = { accountId: sendInput.accountId }
-  const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
@@ -147,9 +153,6 @@ export const handleSend = async ({
     .toFixed(0)
 
   const { estimatedFees, feeType, to, memo, from } = sendInput
-
-  if (!accountMetadata)
-    throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
   const { bip44Params, accountType } = accountMetadata
   if (!bip44Params) {
     throw new Error(`useFormSend: no bip44Params for accountId ${sendInput.accountId}`)
@@ -251,28 +254,39 @@ export const handleSend = async ({
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
 
+      const solanaAdapter = assertGetSolanaChainAdapter(chainId)
+      const { account } = fromAccountId(sendInput.accountId)
+      const instructions = await solanaAdapter.buildEstimationInstructions({
+        from: account,
+        to,
+        tokenId: contractAddress,
+        value,
+      })
+
       const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
-        chainSpecific: {
-          tokenId: contractAddress,
-          computeUnitLimit: fees.chainSpecific.computeUnits,
-          computeUnitPrice: fees.chainSpecific.priorityFee,
-        },
+        chainSpecific:
+          instructions.length <= 1
+            ? {
+                tokenId: contractAddress,
+              }
+            : {
+                tokenId: contractAddress,
+                computeUnitLimit: fees.chainSpecific.computeUnits,
+                computeUnitPrice: fees.chainSpecific.priorityFee,
+              },
       }
 
-      const adapter = assertGetSolanaChainAdapter(chainId)
-      return adapter.buildSendTransaction(input)
+      return solanaAdapter.buildSendTransaction(input)
     }
 
     throw new Error(`${chainId} not supported`)
   })()
 
   const txToSign = result.txToSign
-
-  const adapter = assertGetChainAdapter(chainId)
 
   const senderAddress = await adapter.getAddress({
     accountNumber: accountMetadata.bip44Params.accountNumber,
@@ -314,4 +328,48 @@ export const handleSend = async ({
   }
 
   return broadcastTXID
+}
+
+const prepareSendAdapter = (sendInput: SendInput) => {
+  const state = store.getState()
+  const asset = selectAssetById(state, sendInput.assetId ?? '')
+  if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
+
+  const chainId = asset.chainId
+  const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, {
+    accountId: sendInput.accountId,
+  })
+  if (!accountMetadata) {
+    throw new Error(`No accountMetadata found for ${sendInput.accountId}`)
+  }
+
+  const adapter = assertGetChainAdapter(chainId)
+
+  return { asset, chainId, accountMetadata, adapter }
+}
+
+export const maybeFetchChangeAddress = async ({
+  sendInput,
+  wallet,
+}: {
+  sendInput: SendInput
+  wallet: HDWallet
+}): Promise<string | undefined> => {
+  try {
+    const { chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
+
+    // Only fetch for UTXO chains on Ledger wallets
+    if (!isUtxoChainId(chainId) || !isLedger(wallet)) return undefined
+
+    const changeAddress = await adapter.getAddress({
+      accountNumber: accountMetadata.bip44Params.accountNumber,
+      accountType: accountMetadata.accountType,
+      wallet,
+      isChange: true,
+    })
+    return changeAddress
+  } catch (error) {
+    console.error('Failed to fetch change address:', error)
+    return undefined
+  }
 }

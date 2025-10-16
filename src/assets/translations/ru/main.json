@@ -3,6 +3,8 @@
     "amount": "Сумма",
     "ascending": "\nВосходящий",
     "descending": "Нисходящий",
+    "selectAll": "Выбрать все",
+    "unselectAll": "Отменить выбор всего",
     "free": "Бесплатно",
     "trade": "Торговля",
     "trades": "Сделки",
@@ -31,12 +33,16 @@
     "claimable": "Заклеймить",
     "comingSoon": "Скоро будет ...",
     "approve": "Подтвердить",
+    "approveToken": "Утвердить токен",
+    "approveAmount": "Утвердить сумму",
+    "approveTo": "Утвердить",
     "reset": "Сброс",
     "confirm": "Подтвердить",
     "seeDetails": "Посмотреть детали",
     "activity": "Активность",
     "reject": "Отклонить",
     "goBack": "Вернуться",
+    "fiat": "Фиат",
     "connected": "Подключен",
     "allocation": "Распределение",
     "trendingTokens": "Трендовые токены",
@@ -62,6 +68,7 @@
     "pairing": "Создание пары",
     "connectWalletToGetStartedWith": "Подключите кошелек, чтобы начать работу с %{feature}",
     "connectedWallet": "Подключенный кошелек",
+    "crypto": "Криптовалюта",
     "walletActions": "Действия с кошельком",
     "connectedWalletSettings": "Настройки кошелька",
     "noWallet": "Нет подключенного кошелька",
@@ -127,6 +134,11 @@
     "enterAmount": "Ввести сумму",
     "enterAddress": "Введите адрес",
     "pageNotFound": "Страница, которую вы ищете, не найдена",
+    "creditCard": "Кредитная карта",
+    "bankTransfer": "Банковский перевод",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Купить/Продать",
     "all": "Все",
     "viewAll": "Посмотреть все",
@@ -214,7 +226,23 @@
     "dca": "DCA",
     "boost": "Буст",
     "viewOnExplorer": "Просмотр в проводнике",
-    "approval": "Утверждение"
+    "viewAssetDetails": "Просмотреть сведения об активе",
+    "approval": "Утверждение",
+    "permit2Approval": "Permit2 Одобрение",
+    "network": "Сеть",
+    "feeEstimate": "Ориентировочная комиссия"
+  },
+  "quickBuy": {
+    "title": "Быстрая покупка %{assetOnChain}",
+    "nativeNotAvailable": "Быстрая покупка недоступна для собственных активов",
+    "balance": "Доступный баланс",
+    "confirm": "Вы уверены, что хотите купить?",
+    "edit": "Изменить суммы покупок",
+    "error": {
+      "insufficientFunds": "Быстрая покупка на сумму %{amount} не удалась, недостаточно средств, попробовать другую сумму?",
+      "noQuote": "Быстрая покупка %{amount} не удалась, не удалось получить действительную котировку.",
+      "failed": "Быстрая покупка %{amount} не удалась."
+    }
   },
   "consentBanner": {
     "body": "Наш dApp использует анонимизированное отслеживание кликов для анализа производительности и улучшения вашего опыта. Используя app.shapeshift.com, вы соглашаетесь с нашим отслеживанием. Посетите %{privateLink} если вы не хотите, чтобы за вами следили анонимно. См. нашу %{privacyPolicyLink} для более подробной информации.",
@@ -225,11 +253,40 @@
     "body": "Что-то пошло не так",
     "cta": "Попробуйте еще раз"
   },
-  "buyPage": {
-    "title": "Купить криптовалюту <span>за секунду</span>",
-    "body": "Используйте кредитную карту, дебетовую карту или банковский счет. Покупайте Bitcoin, Ethereum, USDT, USDC или сотни других криптовалют.",
-    "disclaimer": "*Вы также можете продавать криптовалюту напрямую за наличные на свой банковский счет.",
-    "ctaTitle": "Вы также можете использовать ShapeShift со всеми ведущими кошельками для торговли, получения доходности и <span>отслеживайте свою криптовалюту по %{chainCount} сетям</span>",
+  "errorBoundary": {
+    "component": {
+      "title": "Ошибка компонента",
+      "body": "В этом компоненте произошла ошибка, и он не смог загрузиться должным образом.",
+      "retry": "Повторить попытку"
+    },
+    "chart": {
+      "title": "График недоступен",
+      "body": "Невозможно загрузить данные графика в данный момент.",
+      "retry": "Повторить попытку"
+    },
+    "trading": {
+      "title": "Ошибка в торговле",
+      "body": "В торговом интерфейсе произошла ошибка. Вы можете повторить попытку или обновить страницу.",
+      "retry": "Попробовать еще раз"
+    },
+    "ramp": {
+      "title": "Ошибка рампы",
+      "body": "В интерфейсе Ramp произошла ошибка. Вы можете повторить попытку или обновить страницу.",
+      "retry": "Попробовать еще раз"
+    },
+    "suspense": {
+      "title": "Загрузка не удалась",
+      "body": "Этот контент не удалось загрузить должным образом.",
+      "retry": "Повторить попытку"
+    }
+  },
+  "rampPage": {
+    "buyTitle": "Купить криптовалюту <span>за считанные секунды</span>",
+    "sellTitle": "Продайте криптовалюту <span>за считанные секунды</span>",
+    "buyBody": "Используйте кредитную карту, дебетовую карту или банковский счет. Покупайте биткойны, эфир, USDT, USDC или другие популярные криптовалюты. Доступны поставщики, не требующие KYC.",
+    "sellBody": "Используйте кредитную карту, дебетовую карту или банковский счет. Продавайте биткойны, эфир, USDT, USDC или другие популярные криптовалюты. Доступны поставщики, не требующие KYC.",
+    "disclaimer": "*Вы также можете продать криптовалюту напрямую за наличные деньги на свой банковский счет.",
+    "ctaTitle": "Вы также можете использовать ShapeShift со всеми ведущими кошельками для торговли, получения дохода и <span>отслеживания ваших криптовалют по %{chainCount} цепочкам</span>.",
     "availableAssets": "Доступные активы"
   },
   "updateToast": {
@@ -334,6 +391,9 @@
       "switchWallet": "Поменять Кошелек ",
       "disconnect": "Отключить",
       "disconnected": "(Отключен)",
+      "locked": "(Заблокировано)",
+      "reconnectWallet": "Повторно подключите кошелек",
+      "walletNotConnected": "Ваш кошелек в настоящее время не подключен. Это повлияет на транзакции.",
       "connecting": "Подключение..."
     }
   },
@@ -372,8 +432,6 @@
       },
       "cosmosOverview": {
         "rewards": "Вознаграждения, которые вы заработаете, будут начисляться автоматически.",
-        "cta": "Начать Стейкинг",
-        "learnMore": "Подробнее",
         "withdrawals": "Снять стейкинг",
         "emptyWithdraws": "Здесь отображаются незавершенные запросы на снятие стейкинга.",
         "availableDate": "доступно %{date}"
@@ -511,6 +569,7 @@
     "netWorth": "Чистая стоимость",
     "loadingAccounts": "Загруженные аккаунты %{portfolioAccountsLoaded}",
     "walletBalance": "Баланс кошелька",
+    "walletBalanceChange24Hr": "24-часовое изменение",
     "earnBalance": "Баланс заработка",
     "rewardsBalance": "Баланс вознаграждений",
     "earnBody": "Получайте пассивный доход вкладывая свои активы в стейкинг или DeFi стратегию.",
@@ -624,7 +683,6 @@
     "market": "Рынок ",
     "limitOrder": "Лимитные ордера",
     "claims": "Клейм",
-    "tradeShort": "Торговля",
     "buyCrypto": "Купить криптовалюту",
     "buyCryptoShort": "Купить/Продать",
     "lending": "Кредитование",
@@ -633,6 +691,8 @@
     "tcy": "TCY",
     "foxEcosystem": "Экосистема FOX ",
     "markets": "Рынки",
+    "tokens": "Токены",
+    "swap": "Обмен",
     "actionMenu": {
       "send": {
         "title": "Отправить",
@@ -656,6 +716,34 @@
       }
     }
   },
+  "shapeShiftMenu": {
+    "products": "Продукты",
+    "mobileApp": {
+      "title": "Мобильное приложение",
+      "subtitle": "Торговля и управление криптовалютой"
+    },
+    "foxToken": {
+      "title": "Токен FOX",
+      "subtitle": "Наш токен управления"
+    },
+    "classic": {
+      "title": "Классический",
+      "subtitle": "ShapeShift OG "
+    },
+    "wallet": {
+      "title": "Кошелек ShapeShift",
+      "subtitle": "Узнайте о нашем кошельке"
+    },
+    "footer": {
+      "governance": "Управление",
+      "support": "Поддержка",
+      "blog": "Блог",
+      "faq": "Часто задаваемые вопросы",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
+    }
+  },
   "transactionRow": {
     "send": "Отправлено",
     "receive": "Получено",
@@ -668,7 +756,6 @@
     "confirmed": "Подтвержден",
     "pending": "В обработке",
     "failed": "Не удалось",
-    "network": "Сеть",
     "blockHeight": "Количество блоков",
     "to": "Куда",
     "from": "Откуда",
@@ -838,7 +925,10 @@
     "confirmAndClaim": "Подтвердить и заклеймить",
     "viewClaims": "Просмотр претензий",
     "viewClaimStatus": "Просмотр статуса клейма",
-    "availableClaimsNotification": "У вы уже перевели клейм!"
+    "availableClaimsNotification": "У вы уже перевели клейм!",
+    "bridgeWithdrawalReadyNotification": "Мост готов к выводу средств",
+    "bridgeWithdrawalFailedNotification": "Снятие с моста не удалось",
+    "checkActionCenterNotification": "Подробности см. в Центре действий."
   },
   "trade": {
     "trade": "Торговля",
@@ -912,7 +1002,7 @@
     "viewTransaction": "Посмотреть транзакцию",
     "noQuotesAvailable": "Котировки отсутствуют",
     "noQuotesAvailableDescription": "В данный момент доступных котировок не найдено. Попробуйте выбрать другую пару.",
-    "availableSwappers": "Доступные котировки",
+    "availableQuotes": "Доступные котировки",
     "unavailableSwappers": "Недоступные обменники",
     "unlimited": "Безлимитный",
     "streamStatus": "Статус операции",
@@ -931,6 +1021,8 @@
     "intoAssetSymbolBody": "Вы можете продолжить эту сделку, но история операций по получению %{assetSymbol} временно недоступна",
     "manualReceiveAddress": "Адрес получателя",
     "recipientAddress": "Адрес получателя",
+    "changeAddress": "Изменить адрес",
+    "changeAddressExplainer": "При отправке криптовалют в сетях на основе UTXO любые оставшиеся средства от вашей транзакции возвращаются вам на этот адрес.",
     "customRecipientAddress": "Пользовательский адрес получателя",
     "customRecipientAddressDescription": "Введите пользовательский адрес получателя для этой сделки",
     "thisIsYourCustomRecipientAddress": "Это ваш пользовательский адрес получателя",
@@ -1086,7 +1178,19 @@
       "youGotMore": "Вы получили %{cryptoUpside} больше на этой сделке"
     },
     "networkFee": "Сетевой сбор",
-    "feeExplainer": "Цена включает %{feePercentage}% за ShapeShift"
+    "feeExplainer": "Цена включает %{feePercentage}% за ShapeShift",
+    "claim": {
+      "pending": "Ваша заявка на сумму %{amount} %{symbol} находится в обработке.",
+      "complete": "Ваша заявка на сумму %{amount} %{symbol} завершена."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Ваша награда в размере %{amountAndSymbol} обрабатывается..."
+      },
+      "complete": {
+        "description": "Ваша награда в размере %{amountAndSymbol} готова."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Ограничение",
@@ -1356,7 +1460,8 @@
         "total": "Всего",
         "amount": "Сумма",
         "transactionFee": "Комиссия за транзакцию",
-        "fees": "Комиссия %{feeType}"
+        "fees": "Комиссия %{feeType}",
+        "pendingConfirmation": "Ожидается подтверждение"
       },
       "sendForm": {
         "optionalAssetMemo": "Необязательный %{assetSymbol} Memo",
@@ -1380,7 +1485,7 @@
     "receive": {
       "connectAWallet": "Подключить кошелек для получения %{symbol}",
       "receiveAsset": "Получить %{asset}",
-      "onlySend": "Отправляйте %{asset} (%{symbol}) только на этот адрес. Отправка любых других монет может привести к необратимой потере.",
+      "onlySend": "Отправляйте %{symbol} только в поддерживаемых сетях. Использование других токенов или сетей может привести к необратимой потере.",
       "copy": "Копировать",
       "copied": "Адрес получения %{symbol} скопирован в буфер обмена",
       "copyFailed": "Не удалось скопировать адрес получения %{symbol} в буфер обмена",
@@ -1389,7 +1494,9 @@
       "verify": "Проверить",
       "verified": "Проверен",
       "notVerified": "Несоответствие адреса",
-      "blockExplorer": "Обзор"
+      "blockExplorer": "Обзор",
+      "supportedNetworks": "Поддерживаемые сети",
+      "amountNote": "Введите сумму, которую хотите запросить. Будет сгенерирован QR-код с указанием суммы для облегчения оплаты."
     },
     "deposit": {
       "allocation": {
@@ -1553,6 +1660,26 @@
         "ILS": "Израильский шекель",
         "IDR": "Индонезийская рупия"
       }
+    },
+    "ramp": {
+      "payWith": "Оплатить с",
+      "youGet": "Вы получаете",
+      "sellAmount": "Сумма продажи",
+      "receiveAmount": "Получить сумму",
+      "buyAsset": "Купить актив",
+      "sellAsset": "Продать актив",
+      "receiveAsset": "Получить актив",
+      "previewOrder": "Предварительный просмотр заказа",
+      "processingTime": "Время обработки: 1-3 рабочих дня",
+      "buyInfo": "Купить криптовалюту за фиатную валюту",
+      "sellInfo": "Продажа криптовалюты за фиатную валюту",
+      "availableQuotes": "Доступные котировки",
+      "bestRate": "Лучший курс",
+      "fastest": "Самый быстрый",
+      "rate": "Ставка",
+      "amount": "Сумма",
+      "paymentMethods": "Способы оплаты",
+      "selectFiat": "Выберите фиатную валюту"
     },
     "mobileWelcome": {
       "success": {
@@ -1722,8 +1849,13 @@
         "pairExistingDeviceBody": "Подключаете другое устройство Ledger? Нажмите \" Подключить новое устройство\", чтобы начать с чистого листа."
       },
       "failure": {
-        "body": "Невозможно подключить кошелек Ledger"
+        "header": "Не удается подключиться к Ledger",
+        "body": "Мы не смогли обнаружить ваш Ledger, но вы можете подключиться в режиме «только для чтения»."
       },
+      "readOnly": {
+        "button": "Подключиться только для чтения"
+      },
+      "gettingChangeAddress": "Получение адреса для получения сдачи...",
       "connectWarning": "Перед подключением сети убедитесь, что на устройстве открыто приложение.",
       "signWarning": "Перед подписанием убедитесь, что на вашем устройстве открыто приложение %{chain}."
     },
@@ -1767,6 +1899,7 @@
       "active": "Активная",
       "notActive": "Не активная",
       "addSnap": "Додать Snap",
+      "installError": "Произошла ошибка при установке Multichain Snap на MetaMask",
       "uninstall": {
         "title": "Вы удалили поддержку Multichain из MetaMask!",
         "subtitle": "Повторно добавьте привязку Multichain на MetaMask, чтобы отправлять, получать, отслеживать, торговать и зарабатывать со следующими цепочками:"
@@ -2048,11 +2181,12 @@
   },
   "assets": {
     "more": "Еще",
+    "hideAsset": "Скрыть актив",
+    "showAsset": "Показать актив",
+    "cannotHidePrimary": "Невозможно скрыть основные активы, имеющие связанные варианты",
     "spam": {
-      "warning": "Этот актив будет скрыт, поскольку вы пометили его как спам.",
-      "marked": "Этот актив помечен как спам.",
-      "reportAsSpam": "Пометить как спам",
-      "reportAsNotSpam": "Пометить как не спам"
+      "warning": "Этот актив можно снова отобразить, открыв раскрывающийся список кошелька и нажав 'Управление скрытыми активами'.",
+      "marked": "Этот актив в настоящее время скрыт."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2222,7 +2356,8 @@
     "today": "Сегодня",
     "yesterday": "Вчера",
     "thisWeek": "На этой неделе",
-    "thisMonth": "В этом месяце"
+    "thisMonth": "В этом месяце",
+    "transactionDetails": "Детали транзакции"
   },
   "plugins": {
     "foxPage": {
@@ -2305,6 +2440,18 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Подключите все аккаунты",
+        "interactContract": "Контракт на взаимодействие",
+        "transactionData": "Данные о транзакциях",
+        "method": "Метод",
+        "signingWith": "Подписание с",
+        "connectWith": "Подключиться с",
+        "chooseAccount": "Выберите учетную запись",
+        "chooseNetwork": "Выбрать сеть",
+        "required": "Обязательно",
+        "noAccount": "У вас нет учетной записи на %{chainName} для этого адреса.",
+        "connectionRequest": "Запрос на подключение",
+        "connectionRequestTooltip": "Подключение позволяет этому dApp запрашивать утверждение транзакций.",
+        "sendingTo": "Отправка",
         "signMessage": {
           "signingFrom": "Подписание от",
           "requestFrom": "Заявка от",
@@ -2322,7 +2469,9 @@
           "chainId": "Chain ID",
           "authInfo": "Auth info",
           "body": "Тело",
-          "comingSoon": "Скоро будет"
+          "comingSoon": "Скоро будет",
+          "contract": "Контракт",
+          "primaryType": "Основной тип"
         },
         "sendTransaction": {
           "sendingFrom": "Отправка из",
@@ -2356,7 +2505,6 @@
         },
         "connect": {
           "title": "Подключите свой кошелек к dApp через WalletConnect и запускайте транзакции",
-          "howTo": "Как подключиться к dApp?",
           "linkPlaceholder": "QR-код или ссылка для подключения",
           "connect": "Подключить",
           "connectionError": "Не удается подключиться к предоставленному URI.",
@@ -2653,6 +2801,13 @@
     },
     "title": "Список наблюдения"
   },
+  "manageHiddenAssets": {
+    "title": "Управление скрытыми активами",
+    "empty": {
+      "title": "Нет скрытых активов",
+      "body": "Скрытые вами активы появятся здесь, что позволит легко отобразить их снова позже."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Пулы",
@@ -2680,6 +2835,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Инициированный стейкинг",
+    "unstakeInitiated": "Инициированное снятие со стейкинга",
+    "claimWithdraw": "Отзыв претензии",
     "staking": "Стейкинг rFOX ",
     "bridge": "Мост",
     "bridgeFunds": "Перевести средства",
@@ -2981,6 +3139,7 @@
       "switchChainFailed": "Не удалось переключить цепочку кошелька. Попробуйте вручную переключить активную цепочку вашего кошелька на %{chain}.",
       "buildTransaction": "Не удалось создать транзакцию.",
       "signTransaction": "Не удалось подписать транзакцию.",
+      "blindSigningRequired": "Для транзакции требуется слепая подпись. Включите функцию 'Blind signing' в настройках приложения Ledger и повторите попытку.",
       "signAndBroadcastTransaction": "Не удалось подписать и передать транзакцию.",
       "signMessage": "Не удалось подписать сообщение.",
       "broadcastTransaction": "Не удалось передать транзакцию.",
@@ -3015,7 +3174,9 @@
       "claimAvailable": "Заявка доступна",
       "claimed": "Заявлено",
       "unknown": "Неизвестный",
-      "initiated": "Инициировано"
+      "initiated": "Инициировано",
+      "awaitingApproval": "Очікується затвердження",
+      "awaitingSwap": "Ожидание обмена"
     },
     "emptyState": {
       "title": "Добро пожаловать в ShapeShift",
@@ -3027,7 +3188,9 @@
       "processing": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} находится в процессе обработки.",
       "complete": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} завершен.",
       "failed": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} не удался.",
-      "streaming": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} является в процесе."
+      "streaming": "Ваш обмен %{sellAmountAndSymbol} на %{buyAmountAndSymbol} является в процесе.",
+      "awaitingApproval": "Ваша сделка по обмену %{sellAmountAndSymbol} на %{buyAmountAndSymbol} ожидает утверждения.",
+      "awaitingSwap": "Ваша сделка по обмену %{sellAmountAndSymbol} на %{buyAmountAndSymbol} ожидает выполнения."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} и %{asset2}",
@@ -3053,10 +3216,17 @@
       "complete": "Ваше требование на %{amount} %{symbol} выполнено."
     },
     "bridge": {
-      "processing": "Ваш мост %{sellAmountAndSymbol}.%{sellChainShortName} на %{buyAmountAndSymbol}.%{buyChainShortName} находится в обработке.",
-      "complete": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} завершен.",
-      "initiated": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} был инициирован.",
-      "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу."
+      "processing": "Обработка...",
+      "complete": "Ваш мост %{amountAndSymbol} готов.",
+      "initiated": "Ваш мост от %{sellAmountAndSymbol} до %{buyAmountAndSymbol} был инициирован.",
+      "pendingWithdraw": "Ваш вывод %{amountAndSymbol} будет доступен %{timeText}.",
+      "claimAvailable": "Ваш мост %{amountAndSymbol} доступен для получения.",
+      "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу.",
+      "transactionInitiated": "Транзакция инициирована",
+      "claimWithdraw": "Заклеймить вывод",
+      "withdrawTx": "Тx вывода",
+      "claimTx": "Tx клейма",
+      "claimNotAvailable": "Заявка еще не доступна. Пожалуйста, дождитесь окончания периода отзыва."
     },
     "limitOrder": {
       "placed": "Размещен лимитный ордер %{sellAmountAndSymbol} на %{buyAmountAndSymbol}.",
@@ -3087,6 +3257,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} В ожидании",
     "orderCancelled": "Ордер отменен",
-    "orderExpired": "Ордер истек"
+    "orderExpired": "Ордер истек",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Ваша награда в размере %{amountAndSymbol} обрабатывается..."
+      },
+      "complete": {
+        "description": "Ваша награда в размере %{amountAndSymbol} готова."
+      }
+    }
   }
 }

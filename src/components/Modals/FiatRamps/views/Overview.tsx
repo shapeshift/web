@@ -17,7 +17,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
@@ -25,9 +25,8 @@ import { useTranslate } from 'react-polyglot'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { CommonFiatCurrencies, FiatCurrencyItem, FiatRamp } from '../config'
+import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
-import commonFiatCurrencyList from '../FiatCurrencyList.json'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
@@ -41,13 +40,17 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItems } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { useMipdProviders } from '@/lib/mipd'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isKeepKeyHDWallet } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
-import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -86,6 +89,10 @@ export const Overview: React.FC<OverviewProps> = ({
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
+
+  useEffect(() => {
+    setFiatRampAction(defaultAction)
+  }, [defaultAction])
   const handleSelectChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) =>
       setFiatCurrency(e.target.value as CommonFiatCurrencies),
@@ -98,7 +105,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const toast = useToast()
   const assets = useAppSelector(selectAssets)
   const {
-    state: { wallet, isConnected },
+    state: { wallet, isConnected, walletInfo },
     dispatch,
   } = useWallet()
 
@@ -115,7 +122,21 @@ export const Overview: React.FC<OverviewProps> = ({
   )
   const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
 
-  const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
+  const chainId = assetId ? fromAssetId(assetId).chainId : undefined
+  const walletSupportsChain = useWalletSupportsChain(chainId ?? '', wallet)
+  const isUnsupportedAsset = !walletSupportsChain
+
+  const maybeRdns = useAppSelector(selectWalletRdns)
+  const mipdProviders = useMipdProviders()
+  const maybeMipdProvider = useMemo(
+    () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
+    [mipdProviders, maybeRdns],
+  )
+
+  const walletName = useMemo(
+    () => maybeMipdProvider?.info?.name || walletInfo?.meta?.label || walletInfo?.name,
+    [maybeMipdProvider, walletInfo],
+  )
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -275,8 +296,7 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [address, vanityAddress])
 
   const renderFiatOptions = useMemo(() => {
-    const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
-    return options.map(option => (
+    return fiatCurrencyItems.map(option => (
       <option key={option.code} value={option.code}>
         {`${option.code} - ${option.name}`}
       </option>
@@ -286,10 +306,11 @@ export const Overview: React.FC<OverviewProps> = ({
   const description: string | [string, InterpolationOptions] | undefined = useMemo(() => {
     if (!asset) return
     if (!isConnected) return
-    if (isUnsupportedAsset)
-      return ['fiatRamps.notSupported', { asset: asset.symbol, wallet: wallet?.getVendor() }]
+    if (isUnsupportedAsset) {
+      return ['fiatRamps.notSupported', { asset: asset.symbol, wallet: walletName }]
+    }
     return fundsTranslation
-  }, [asset, fundsTranslation, isConnected, isUnsupportedAsset, wallet])
+  }, [asset, fundsTranslation, isConnected, isUnsupportedAsset, walletName])
 
   return asset ? (
     <>

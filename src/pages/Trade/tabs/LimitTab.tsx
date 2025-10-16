@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -6,10 +6,11 @@ import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/LimitOrder'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { blurBackgroundSx, gridOverlaySx } from '@/pages/Trade/constants'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 
 const padding = { base: 0, md: 8 }
@@ -61,8 +62,11 @@ export const LimitTab = memo(() => {
         case TradeInputTab.LimitOrder:
           navigate(LimitOrderRoutePaths.Input)
           break
-        case TradeInputTab.Claim:
-          navigate(ClaimRoutePaths.Select)
+        case TradeInputTab.BuyFiat:
+          navigate(FiatRampRoutePaths.Buy)
+          break
+        case TradeInputTab.SellFiat:
+          navigate(FiatRampRoutePaths.Sell)
           break
         default:
           break
@@ -103,22 +107,33 @@ export const LimitTab = memo(() => {
 
   return (
     <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>
-      <SEO title={title} />
-      <Flex
-        pt={containerPaddingTop}
-        px={padding}
-        pb={containerPaddingBottom}
-        alignItems='flex-start'
+      <Box
+        position='relative'
         width='full'
-        justifyContent='center'
-        gap={4}
+        display='flex'
+        flex={1}
+        _before={gridOverlaySx}
+        _after={blurBackgroundSx}
       >
-        <FormProvider {...methods}>
-          <Routes>
-            <Route key={LimitOrderRoutePaths.Input} path={'*'} element={limitOrderElement} />
-          </Routes>
-        </FormProvider>
-      </Flex>
+        <SEO title={title} />
+        <Flex
+          pt={containerPaddingTop}
+          px={padding}
+          pb={containerPaddingBottom}
+          alignItems='flex-start'
+          width='full'
+          justifyContent='center'
+          gap={4}
+          zIndex={2}
+          position='relative'
+        >
+          <FormProvider {...methods}>
+            <Routes>
+              <Route key={LimitOrderRoutePaths.Input} path={'*'} element={limitOrderElement} />
+            </Routes>
+          </FormProvider>
+        </Flex>
+      </Box>
     </Main>
   )
 })

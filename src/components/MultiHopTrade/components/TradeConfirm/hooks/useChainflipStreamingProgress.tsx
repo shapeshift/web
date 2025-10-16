@@ -26,7 +26,7 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 const getChainflipStreamingSwap = async (
   swapId: number | undefined,
 ): Promise<ChainflipStreamingSwapResponseSuccess | undefined> => {
-  if (swapId === undefined) return
+  if (!swapId) return
 
   const config = getConfig()
   const brokerUrl = config.VITE_CHAINFLIP_API_URL
@@ -105,7 +105,7 @@ export const useChainflipStreamingProgress = ({
   useQuery({
     queryKey: ['streamingSwapData', chainflipSwapId, SwapperName.Chainflip],
     queryFn:
-      chainflipSwapId !== undefined &&
+      chainflipSwapId &&
       swap &&
       swap.swapperName === SwapperName.Chainflip &&
       sellTxHash &&

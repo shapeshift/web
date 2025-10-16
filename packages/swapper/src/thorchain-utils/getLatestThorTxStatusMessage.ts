@@ -59,7 +59,7 @@ export const getLatestThorTxStatusMessage = (
       case 'outbound_delay': {
         const obj = response.stages[key]
         if (obj === undefined || obj.completed) continue
-        return obj.remaining_delay_seconds !== undefined
+        return obj.remaining_delay_seconds
           ? // poor man's i18n
             ThorchainStatusMessage.OutboundDelayTimeRemaining.replace(
               '{timeRemaining}',

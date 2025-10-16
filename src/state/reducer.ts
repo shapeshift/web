@@ -44,6 +44,8 @@ import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
+import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
+import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 
@@ -61,6 +63,7 @@ export const slices = {
   limitOrder: limitOrderSlice,
   snapshot,
   localWallet: localWalletSlice,
+  gridplus: gridplusSlice,
 }
 
 const preferencesPersistConfig = {
@@ -137,6 +140,12 @@ const swapPersistConfig = {
   version: Math.max(...Object.keys(clearSwapsMigrations).map(Number)),
 }
 
+const gridplusPersistConfig = {
+  key: 'gridplus',
+  storage: localforage,
+  version: 0,
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -159,6 +168,7 @@ export const sliceReducers = {
   ),
   action: persistReducer<ActionState>(actionPersistConfig, actionSlice.reducer),
   swap: persistReducer<SwapState>(swapPersistConfig, swapSlice.reducer),
+  gridplus: persistReducer<GridPlusState>(gridplusPersistConfig, gridplusSlice.reducer),
 }
 
 export const apiSlices = {

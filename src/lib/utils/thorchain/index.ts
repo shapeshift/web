@@ -9,6 +9,7 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { MidgardActionsResponse, ThornodeStatusResponse } from '@shapeshiftoss/swapper'
 import { thorService } from '@shapeshiftoss/swapper'
@@ -195,12 +196,13 @@ export const getThorchainFromAddress = async ({
     // And re-throw if no adapter found. "Shouldn't happen but" yadi yadi yada you know the drill
     if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
 
+    const skipDeviceDerivation = (isLedger(wallet) || isGridPlus(wallet)) && accountId
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,
       accountNumber: bip44Params.accountNumber,
       accountType,
       addressIndex: 0,
-      pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
     })
     return firstReceiveAddress
   }
@@ -251,12 +253,13 @@ export const getThorfiUtxoFromAddresses = async ({
 
     const { accountType, bip44Params } = accountMetadata
 
+    const skipDeviceDerivation = (isLedger(wallet) || isGridPlus(wallet)) && accountId
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,
       accountNumber: bip44Params.accountNumber,
       accountType,
       addressIndex: 0,
-      pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
     })
 
     return [firstReceiveAddress]

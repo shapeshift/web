@@ -820,6 +820,37 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
+          case KeyManager.GridPlus: {
+            // GridPlus wallet persists in keyring after pairing
+            // Check if wallet exists in keyring from previous session
+            const gridPlusWallet = state.keyring.get(localWalletDeviceId)
+
+            if (gridPlusWallet) {
+              const { name, icon } = SUPPORTED_WALLETS[KeyManager.GridPlus]
+              try {
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: gridPlusWallet,
+                    name,
+                    icon,
+                    deviceId: localWalletDeviceId,
+                    connectedType: KeyManager.GridPlus,
+                  },
+                })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: true,
+                })
+              } catch (e) {
+                disconnect()
+              }
+            } else {
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
+          }
           case KeyManager.WalletConnectV2: {
             // Get the adapter again in each switch case to narrow down the adapter type
             const walletConnectV2Adapter = await getAdapter(localWalletType)

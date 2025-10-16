@@ -43,7 +43,7 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
   )
 
   const blankRows = useMemo(() => {
-    return blanks.map(index => (
+    return blanks.map((_, index) => (
       <Skeleton key={`chain-${index}`} height='82px' width='full' borderRadius='2xl' />
     ))
   }, [blanks])

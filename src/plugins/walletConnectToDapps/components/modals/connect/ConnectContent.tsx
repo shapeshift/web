@@ -146,7 +146,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
                   placeholder={translate(
                     'plugins.walletConnectToDapps.modal.connect.linkPlaceholder',
                   )}
-                  autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                  autoFocus={!window.matchMedia('(pointer: coarse)').matches}
                   variant='filled'
                   onPaste={handleInputPaste}
                 />

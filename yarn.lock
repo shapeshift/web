@@ -10369,7 +10369,7 @@ __metadata:
 
 "@shapeshiftoss/hdwallet-vultisig@file:../hdwallet/packages/hdwallet-vultisig::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
   version: 1.62.3
-  resolution: "@shapeshiftoss/hdwallet-vultisig@file:../hdwallet/packages/hdwallet-vultisig#../hdwallet/packages/hdwallet-vultisig::hash=0b7ec1&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  resolution: "@shapeshiftoss/hdwallet-vultisig@file:../hdwallet/packages/hdwallet-vultisig#../hdwallet/packages/hdwallet-vultisig::hash=4242ec&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/hdwallet-core": 1.62.2
@@ -10378,7 +10378,7 @@ __metadata:
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: b75d74e18f70fd8befccf66e42022e885892eb363b13362553874b9b3b09ffe87310d2ba6adc8d7f53cd9fe455622751d5f993e667602976d8d0f893bcfe958d
+  checksum: d9eda256f6dfe498a72ee983c50da7aea98af84b3a06da55ecd929257a89bf0c9f6d1a516b9dbbd85f0dfdf75e964b2ca3da9b0dbf1adf57310271d090ddfab1
   languageName: node
   linkType: hard
 

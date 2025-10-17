@@ -27,7 +27,7 @@ import {
  */
 const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ETH: [ethAssetId, optimismAssetId, arbitrumAssetId, baseAssetId],
-  MATIC: [polygonAssetId], // TODO: check that MtPelerin updates this to POL upstream
+  POL: [polygonAssetId],
   XDAI: [gnosisAssetId],
   BTC: [btcAssetId],
   BNB: [bscAssetId],
@@ -56,22 +56,6 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
     'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
     'eip155:43114/erc20:0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664',
   ],
-  jEUR: [
-    'eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b',
-    'eip155:56/bep20:0x23b8683ff98f9e4781552dfe6f12aa32814924e8',
-    'eip155:100/erc20:0x9fb1d52596c44603198fb0aee434fac3a679f702',
-    'eip155:137/erc20:0x4e3decbb3645551b8a19f0ea1678079fcb33fb4c',
-  ],
-  jCHF: [
-    'eip155:1/erc20:0x53dfea0a8cc2a2a2e425e1c174bc162999723ea0',
-    'eip155:56/bep20:0x7c869b5a294b1314e985283d01c702b62224a05f',
-    'eip155:100/erc20:0x2d5563da42b06fbbf9c67b7dc073cf6a7842239e',
-    'eip155:137/erc20:0xbd1463f02f61676d53fd183c2b19282bff93d099',
-  ],
-  jGBP: [
-    'eip155:1/erc20:0x7409856cae628f5d578b285b45669b36e7005283',
-    'eip155:137/erc20:0x767058f11800fba6a682e73a6e79ec5eb74fac8c',
-  ],
   WBTC: [
     'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     'eip155:10/erc20:0x68f180fcce6836688e9084f035309e29bf0a2095',
@@ -80,46 +64,47 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
     'eip155:42161/erc20:0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
   ],
   AVAX: [avalancheAssetId],
+  'BTC.b': ['eip155:43114/erc20:0x152b9d0fdc40c096757f570a51e494bd4b943e50'],
+  cbBTC: [
+    'eip155:1/erc20:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf',
+    'eip155:8453/erc20:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf',
+  ],
+  EURA: [
+    'eip155:42161/erc20:0xfa5ed56a203466cbbc2430a43c66b9d8723528e7',
+    'eip155:137/erc20:0xe0b52e49357fd4daf2c15e02058dce6bc0057db4',
+  ],
+  EURC: [
+    'eip155:1/erc20:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c',
+    'eip155:8453/erc20:0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42',
+    'eip155:43114/erc20:0xc891eb4cbdeff6e073e859e987815ed1505c2acd',
+  ],
   EURS: [
     'eip155:1/erc20:0xdb25f211ab05b1c97d595516f45794528a807ad8',
     'eip155:137/erc20:0xe111178a87a3bff0c8d18decba5798827539ae99',
-  ],
-  EURT: ['eip155:1/erc20:0xc581b735a1688071a1746c968e0798d642ede491'],
-  agEUR: [
-    'eip155:1/erc20:0x1a7e4e63778b4f12a199c062f3efdd288afcbce8',
-    'eip155:137/erc20:0xe0b52e49357fd4daf2c15e02058dce6bc0057db4',
   ],
   FRAX: [
     'eip155:1/erc20:0x853d955acef822db058eb8505911ed77f175b99e',
     'eip155:137/erc20:0x45c32fa6df82ead1e2ef74d17b76547eddfaff89',
     'eip155:43114/erc20:0xd24c2ad096400b6fbcd2ad8b24e7acbc21a1da64',
   ],
-  UST: ['eip155:1/erc20:0xa47c8bf37f92abed4a126bda807a7b7498661acd'],
-  EUROC: ['eip155:1/erc20:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c'],
+  GHO: ['eip155:1/erc20:0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f'],
   LUSD: [
     'eip155:1/erc20:0x5f98805a4e8be255a32880fdec7f6728c6568ba0',
     'eip155:10/erc20:0xc40f949f8a4e094d1b49a23ea9241d289b7b2819',
   ],
-  XCHF: ['eip155:1/erc20:0xb4272071ecadd69d933adcd19ca99fe80664fc08'],
+  PAXG: ['eip155:1/erc20:0x45804880de22913dafe09f4980848ece6ecbaf78'],
   WETH: [
     'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8',
     'eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
     'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
   ],
   BTCB: ['eip155:56/bep20:0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c'],
-  BUSD: ['eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56'],
-  MAI: [
-    'eip155:137/erc20:0xa3fa99a148fa48d14ed51d610c367c61876997f1',
-    'eip155:43114/erc20:0x5c49b268c9841aff1cc3b0a418ff5c3442ee3f3b',
-  ],
-  EURC: ['eip155:43114/erc20:0xc891eb4cbdeff6e073e859e987815ed1505c2acd'],
-  EUROe: [
-    'eip155:1/erc20:0x820802fa8a99901f52e39acd21177b0be6ee2974',
-    'eip155:137/erc20:0x820802fa8a99901f52e39acd21177b0be6ee2974',
-    'eip155:42161/erc20:0xcf985aba4647a432e60efceeb8054bbd64244305',
-    'eip155:43114/erc20:0x820802fa8a99901f52e39acd21177b0be6ee2974',
-  ],
   crvUSD: ['eip155:1/erc20:0xf939e0a03fb07f59a73314e73794be0e57ac1b4e'],
+  XAUt: ['eip155:1/erc20:0x68749665ff8d2d112fa859aa293f07a622782f38'],
+  ZCHF: [
+    'eip155:1/erc20:0xb58e61c3098d85632df34eecfb899a1ed80921cb',
+    'eip155:100/erc20:0xd4dd9e2f021bb459d5a5f6c24c12fe09c5d45553',
+  ],
 }
 
 export const mtPelerinSymbolToAssetIds = (id: string): AssetId[] => MtPelerinSymbolToAssetIds[id]

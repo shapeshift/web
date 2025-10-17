@@ -43,10 +43,11 @@ export const AccountSelectorOption = memo(
     onOptionClick,
   }: AccountSelectorOptionProps) => {
     const translate = useTranslate()
-    const handleClick = useCallback(
-      () => !disabled && onOptionClick(accountId),
-      [accountId, disabled, onOptionClick],
-    )
+    const handleClick = useCallback(() => {
+      if (disabled) return
+
+      onOptionClick(accountId)
+    }, [accountId, disabled, onOptionClick])
 
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
@@ -56,7 +57,7 @@ export const AccountSelectorOption = memo(
       [accountMetadata, accountId],
     )
 
-    const cryptoBalancePrecision = useMemo(
+    const balanceCryptoPrecision = useMemo(
       () => fromBaseUnit(cryptoBalance, asset?.precision ?? 0),
       [cryptoBalance, asset?.precision],
     )
@@ -90,7 +91,7 @@ export const AccountSelectorOption = memo(
           <VStack align='end' spacing={0} minW='120px'>
             <Amount.Fiat value={fiatBalance} fontSize='md' fontWeight='bold' color='text.primary' />
             <Amount.Crypto
-              value={cryptoBalancePrecision}
+              value={balanceCryptoPrecision}
               symbol={symbol}
               fontSize='sm'
               color='text.subtle'

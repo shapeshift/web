@@ -2,7 +2,7 @@ import { Button, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 
@@ -44,13 +44,13 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
+  const accountBalancesBaseUnit = useSelector(selectPortfolioAccountBalancesBaseUnit)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(
     () =>
       accountIds.map(accountId => {
-        const cryptoBalance = bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0)
+        const cryptoBalance = bnOrZero(accountBalancesBaseUnit?.[accountId]?.[assetId] ?? 0)
         const fiatBalance = bnOrZero(fromBaseUnit(cryptoBalance, asset.precision ?? 0)).times(
           marketData?.price ?? 0,
         )
@@ -61,12 +61,8 @@ export const AccountSelectorDialog = ({
           fiatBalance: fiatBalance.toFixed(2),
         }
       }),
-    [accountIds, accountBalances, assetId, marketData, asset.precision],
+    [accountIds, accountBalancesBaseUnit, assetId, marketData, asset.precision],
   )
-
-  const handleDone = useCallback(() => {
-    onClose()
-  }, [onClose])
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose}>
@@ -100,7 +96,7 @@ export const AccountSelectorDialog = ({
         </VStack>
       </DialogBody>
       <DialogFooter>
-        <Button colorScheme='blue' onClick={handleDone} size='lg' width='full'>
+        <Button colorScheme='blue' onClick={onClose} size='lg' width='full'>
           {translate('common.done')}
         </Button>
       </DialogFooter>

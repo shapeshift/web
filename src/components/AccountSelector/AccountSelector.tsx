@@ -5,6 +5,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { RiExpandUpDownLine } from 'react-icons/ri'
+import { useTranslate } from 'react-polyglot'
 
 import { AccountSelectorDialog } from '@/components/AccountSelector/AccountSelectorDialog'
 import { Amount } from '@/components/Amount/Amount'
@@ -20,6 +21,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAccountIdsByAssetIdFilter,
+  selectPortfolioAccountMetadata,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -38,6 +40,7 @@ const chevronIconSx = {
 
 export const AccountSelector: FC<AccountSelectorProps> = memo(
   ({ assetId, accountId: selectedAccountId, onChange, disabled, buttonProps, boxProps }) => {
+    const translate = useTranslate()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const {
       number: { localeParts },
@@ -49,11 +52,20 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     )
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const accountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
+    const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
     )
 
     const marketDataPrice = useMemo(() => marketData?.price ?? 0, [marketData])
+
+    const accountNumber = useMemo(
+      () =>
+        selectedAccountId
+          ? accountMetadata[selectedAccountId]?.bip44Params?.accountNumber
+          : undefined,
+      [accountMetadata, selectedAccountId],
+    )
 
     useEffect(() => {
       if (!selectedAccountId) {
@@ -107,6 +119,8 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
             width='full'
             justifyContent='space-between'
             p={4}
+            py={1}
+            h='auto'
             borderRadius='xl'
             color='text.primary'
             {...buttonProps}
@@ -114,7 +128,12 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
             <HStack spacing={3} flex={1}>
               <AssetIcon assetId={assetId} size='sm' borderRadius='full' />
               <VStack align='start' spacing={0} flex={1}>
-                <Text fontSize='md' fontWeight='bold'>
+                {accountNumber !== undefined && (
+                  <Text fontSize='xs' color='text.subtle'>
+                    {translate('accounts.accountNumber', { accountNumber })}
+                  </Text>
+                )}
+                <Text fontSize='sm' fontWeight='bold'>
                   {selectedAccountDetails?.label ?? (
                     <MiddleEllipsis value={fromAccountId(selectedAccountId).account} />
                   )}

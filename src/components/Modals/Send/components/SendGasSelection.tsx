@@ -26,7 +26,7 @@ export const SendGasSelection: FC = () => {
     return bnOrZero(fiatFee).toFixed(2)
   }, [fees, feeType])
 
-  const cryptoAmountFee = useMemo(() => {
+  const txFeeCryptoPrecision = useMemo(() => {
     const { txFee } = fees ? fees[feeType as FeeDataKey] : { txFee: 0 }
     return bnOrZero(txFee).toFixed()
   }, [fees, feeType])
@@ -44,7 +44,7 @@ export const SendGasSelection: FC = () => {
     <GasSelection
       selectedSpeed={selectedSpeed}
       onSpeedChange={handleSpeedChange}
-      amountCryptoPrecision={cryptoAmountFee}
+      amountCryptoPrecision={txFeeCryptoPrecision}
       feeAssetId={feeAsset?.assetId}
       fiatFee={feeAmountUserCurrency.toString()}
       isLoading={false}

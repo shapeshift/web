@@ -1,12 +1,12 @@
 import {
   Box,
   Button,
+  Text as ChakraText,
   FormControl,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Text as ChakraText,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -41,10 +41,6 @@ export const AddressInputWithDropdown = ({
     }
   }, [onOpen, isOpen])
 
-  const handleBlur = useCallback(() => {
-    onClose()
-  }, [onClose])
-
   const handleQRClick = useCallback(() => {
     onScanQRCode()
     onClose()
@@ -67,7 +63,7 @@ export const AddressInputWithDropdown = ({
                 supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
               onFocus={handleFocus}
-              onBlur={handleBlur}
+              onBlur={onClose}
               onPaste={onClose}
             />
           </Box>

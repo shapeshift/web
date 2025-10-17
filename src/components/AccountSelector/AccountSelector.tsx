@@ -48,7 +48,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, filter),
     )
     const asset = useAppSelector(state => selectAssetById(state, assetId))
-    const accountBalances = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
+    const accountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
     )
@@ -65,7 +65,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       if (!selectedAccountId || !asset) return null
 
       const cryptoBalance = fromBaseUnit(
-        accountBalances?.[selectedAccountId]?.[assetId] ?? 0,
+        accountBalancesBaseUnit?.[selectedAccountId]?.[assetId] ?? 0,
         asset.precision ?? 0,
       )
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
@@ -75,7 +75,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
         fiatBalance,
         label: isUtxoAccountId(selectedAccountId) ? accountIdToLabel(selectedAccountId) : undefined,
       }
-    }, [selectedAccountId, asset, accountBalances, assetId, marketDataPrice])
+    }, [selectedAccountId, asset, accountBalancesBaseUnit, assetId, marketDataPrice])
 
     const handleAccountSelect = useCallback(
       (accountId: AccountId) => {
@@ -85,7 +85,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       [onChange, onClose],
     )
 
-    const isButtonDisabled = disabled || accountIds.length <= 1
+    const isButtonDisabled = disabled || accountIds.length === 1
 
     const rightIcon = useMemo(
       () => (isButtonDisabled ? null : <Icon as={RiExpandUpDownLine} color='text.subtle' />),

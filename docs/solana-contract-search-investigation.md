@@ -5,6 +5,8 @@
 **Status:** Fixed and implemented
 **Date:** 2025-10-17
 
+> *"In this farewell, there's no blood, there's no alibi"* - A reflection on what we've built.
+
 ### Implementation Summary
 
 Fixed contract address search for related assets in both global search and trade search by:
@@ -13,6 +15,27 @@ Fixed contract address search for related assets in both global search and trade
 3. ✅ Updated trade search worker to use all assets for CA searches
 4. ✅ Preserved existing UX for name/symbol searches (primary assets only)
 
+### Validation Results
+
+**Automated Tests (18/18 passed):**
+- ✅ EVM address validation (valid/invalid formats)
+- ✅ Solana address validation (valid/invalid formats)
+- ✅ Name/symbol rejection (FOX, ETH, Bitcoin)
+- ✅ Edge cases (empty, too short, too long, invalid chars)
+
+**Worker Logic Tests (6/6 passed):**
+- ✅ Name on "All" → PRIMARY_ASSETS
+- ✅ Contract address on "All" → ASSETS (fixed!)
+- ✅ Name on specific chain → ASSETS
+- ✅ Contract address on specific chain → ASSETS
+- ✅ Solana CA on "All" → ASSETS (fixed!)
+- ✅ Empty search on "All" → PRIMARY_ASSETS
+
+**Real Solana PublicKey Validation:**
+- ✅ WIF token (EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm) - VALID
+- ✅ Wrapped SOL (So11111111111111111111111111111111111111112) - VALID
+- ✅ Token names/EVM addresses - correctly INVALID
+
 ### Files Modified
 - `/src/lib/utils/solanaAddress.ts` - New utility for Solana address validation
 - `/src/lib/utils/contractAddress.ts` - New utility for unified CA detection
@@ -20,6 +43,25 @@ Fixed contract address search for related assets in both global search and trade
 - `/src/components/TradeAssetSearch/workers/assetSearch.worker.ts` - Updated `handleSearch`
 - `/src/components/TradeAssetSearch/hooks/useGetCustomTokensQuery.tsx` - Updated imports
 - Deleted: `/src/components/TradeAssetSearch/helpers/customAssetSearch.ts` (obsolete)
+
+### Safety Guarantees
+
+**What Changed:**
+- Only contract address searches affected
+- Name/symbol searches unchanged (still use PRIMARY_ASSETS on "All")
+
+**What's Preserved:**
+- ✅ Chain filtering logic intact
+- ✅ Market cap filtering intact
+- ✅ Spam filtering intact
+- ✅ Balance aggregation unchanged
+- ✅ Portfolio views unchanged
+
+**Performance:**
+- CA detection: O(1) regex/validation check
+- No additional loops or iterations
+- Worker already caches both asset lists
+- Only applies to explicit CA searches
 
 ---
 

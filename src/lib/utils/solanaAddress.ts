@@ -1,10 +1,10 @@
 import { PublicKey } from '@solana/web3.js'
 
-export const isSolanaAddress = (address: string): boolean => {
+export const isSolanaAddress = (contractAddress: string) => {
   try {
-    new PublicKey(address)
+    new PublicKey(contractAddress)
     return true
-  } catch {
+  } catch (error) {
     // If instantiation fails, it's not a valid Solana address
     return false
   }

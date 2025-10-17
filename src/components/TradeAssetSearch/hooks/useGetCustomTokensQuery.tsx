@@ -10,9 +10,9 @@ import { useCallback, useMemo } from 'react'
 import { isAddress } from 'viem'
 
 import { getConfig } from '@/config'
-import { isSolanaAddress } from '@/lib/utils/solanaAddress'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
+import { isSolanaAddress } from '@/lib/utils/solanaAddress'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 type TokenMetadata = TokenMetadataResponse & {

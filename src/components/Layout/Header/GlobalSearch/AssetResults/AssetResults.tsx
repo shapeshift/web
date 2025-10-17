@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { ListItemSection } from '../ListItemSection'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
+import { isContractAddress } from '@/lib/utils/isContractAddress'
 
 export type AssetResultsProps = {
   results: Asset[]
@@ -16,8 +17,12 @@ export type AssetResultsProps = {
 export const AssetResults: React.FC<AssetResultsProps> = ({ results, onClick, searchQuery }) => {
   const translate = useTranslate()
   const renderItems = useMemo(() => {
-    return <AssetList assets={results} handleClick={onClick} showRelatedAssets />
-  }, [results, onClick])
+    const showRelatedAssets = !isContractAddress(searchQuery ?? '')
+
+    return (
+      <AssetList assets={results} handleClick={onClick} showRelatedAssets={showRelatedAssets} />
+    )
+  }, [results, onClick, searchQuery])
 
   if (searchQuery && !results.length) return null
   return (

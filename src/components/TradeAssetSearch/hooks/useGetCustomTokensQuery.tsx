@@ -9,11 +9,10 @@ import type { TokenMetadataResponse } from 'alchemy-sdk'
 import { useCallback, useMemo } from 'react'
 import { isAddress } from 'viem'
 
-import { isSolanaAddress } from '../helpers/customAssetSearch'
-
 import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
+import { isSolanaAddress } from '@/lib/utils/isSolanaAddress'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 type TokenMetadata = TokenMetadataResponse & {

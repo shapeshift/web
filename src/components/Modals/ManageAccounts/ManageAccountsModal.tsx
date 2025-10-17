@@ -380,7 +380,6 @@ export const ManageAccountsModal = ({ onBack }: ManageAccountsModalProps) => {
       isFullScreen={false}
       height='auto'
       modalProps={modalProps}
-      id='manage-accounts-modal'
     >
       {stepContent}
     </Dialog>

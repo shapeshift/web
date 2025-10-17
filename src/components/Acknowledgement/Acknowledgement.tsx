@@ -15,6 +15,7 @@ import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 
 import { RawText, Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 
 export type AcknowledgementProps = {
   content?: JSX.Element
@@ -45,6 +46,15 @@ export const Acknowledgement = ({
 }: AcknowledgementProps) => {
   const translate = useTranslate()
 
+  const handleCancel = useCallback(() => {
+    setShouldShowAcknowledgement(false)
+  }, [setShouldShowAcknowledgement])
+
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen: shouldShowAcknowledgement,
+    onClose: handleCancel,
+  })
+
   const understandHoverProps = useMemo(
     () => ({ bg: `${buttonColorScheme}.600` }),
     [buttonColorScheme],
@@ -57,14 +67,10 @@ export const Acknowledgement = ({
     onAcknowledge()
   }, [onAcknowledge, setShouldShowAcknowledgement])
 
-  const handleCancel = useCallback(() => {
-    setShouldShowAcknowledgement(false)
-  }, [setShouldShowAcknowledgement])
-
   return (
-    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel}>
-      <ModalOverlay />
-      <ModalContent pointerEvents='all'>
+    <Modal {...modalProps} closeOnEsc={false} closeOnOverlayClick={false}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>
           {CustomIcon ? (
             <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />

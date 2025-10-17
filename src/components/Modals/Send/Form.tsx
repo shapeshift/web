@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
@@ -13,11 +14,11 @@ import { SendFormFields, SendRoutes } from './SendCommon'
 import { maybeFetchChangeAddress } from './utils'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
-import { Details } from './views/Details'
 import { Status } from './views/Status'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -38,10 +39,10 @@ import {
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const status = <Status />
-const confirm = <Confirm />
-const details = <Details />
+const sendAmount = <SendAmountDetails />
 const address = <Address />
 
 export type SendInput<T extends ChainId = ChainId> = {
@@ -87,6 +88,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const {
     state: { wallet },
   } = useWallet()
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const [addressError, setAddressError] = useState<string | null>(null)
 
@@ -208,10 +210,16 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       // Use requestAnimationFrame to ensure navigation happens after state updates
       requestAnimationFrame(() => {
-        navigate(SendRoutes.Address, { replace: true })
+        if (isSmallerThanMd) {
+          navigate(SendRoutes.Address, { replace: true })
+          return
+        }
+        // On desktop, go directly to AmountDetails
+        // On mobile, go to Address first
+        navigate(SendRoutes.AmountDetails, { replace: true })
       })
     },
-    [navigate, methods, selectedCurrency],
+    [navigate, methods, selectedCurrency, isSmallerThanMd],
   )
 
   const handleBack = useCallback(() => {
@@ -268,13 +276,17 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               .toString(),
           )
         }
+        if (isSmallerThanMd) {
+          navigate(SendRoutes.Address)
+          return
+        }
 
-        navigate(SendRoutes.Address)
+        navigate(SendRoutes.AmountDetails)
       } catch (e: any) {
         setAddressError(e.message)
       }
     },
-    [navigate, methods],
+    [navigate, methods, isSmallerThanMd],
   )
 
   const qrCodeScanner = useMemo(
@@ -290,6 +302,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   )
 
   const location = useLocation()
+
+  const confirm = useMemo(
+    () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
+    [handleSubmit, methods],
+  )
 
   return (
     <FormProvider {...methods}>
@@ -307,7 +324,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             <Switch location={location.pathname}>
               <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
               <Route path={SendRoutes.Address}>{address}</Route>
-              <Route path={SendRoutes.Details}> {details}</Route>
+              <Route path={SendRoutes.AmountDetails}>{sendAmount}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
               <Route path={SendRoutes.Confirm}>{confirm}</Route>
               <Route path={SendRoutes.Status}>{status}</Route>

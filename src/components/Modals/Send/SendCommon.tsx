@@ -1,11 +1,29 @@
 export enum SendRoutes {
-  Details = '/send/details',
+  AmountDetails = '/send/amount-details',
   Confirm = '/send/confirm',
   Status = '/send/status',
   Scan = '/send/scan',
   Select = '/send/select',
   Address = '/send/address',
 }
+
+export const mobileSendRoutes = [
+  SendRoutes.Confirm,
+  SendRoutes.Status,
+  SendRoutes.Scan,
+  SendRoutes.AmountDetails,
+  SendRoutes.Address,
+  SendRoutes.Select,
+]
+
+export const desktopSendRoutes = [
+  SendRoutes.Confirm,
+  SendRoutes.Status,
+  SendRoutes.Scan,
+  SendRoutes.Address,
+  SendRoutes.AmountDetails,
+  SendRoutes.Select,
+]
 
 export enum SendFormFields {
   Input = 'input', // the raw field input on the address input

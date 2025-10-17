@@ -18,6 +18,7 @@ import { parseAssetChanges } from '@/plugins/walletConnectToDapps/utils/tenderly
 import type {
   AssetChange,
   TenderlyExposureChange,
+  TenderlySimulationResponse,
 } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store } from '@/state/store'
@@ -34,7 +35,7 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
   const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
   const [cachedSimulationData, setCachedSimulationData] =
-    useState<typeof simulationQuery.data>(null)
+    useState<TenderlySimulationResponse | null>(null)
 
   useEffect(() => {
     if (simulationQuery.data && !cachedSimulationData) {

@@ -28,7 +28,10 @@ import {
   convertToStructuredFields,
   parseDecodedInput,
 } from '@/plugins/walletConnectToDapps/utils/tenderly'
-import type { ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
+import type {
+  ParsedArgument,
+  TenderlySimulationResponse,
+} from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -49,7 +52,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
   const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
   const [cachedSimulationData, setCachedSimulationData] =
-    useState<typeof simulationQuery.data>(null)
+    useState<TenderlySimulationResponse | null>(null)
 
   useEffect(() => {
     if (simulationQuery.data && !cachedSimulationData) {

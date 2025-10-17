@@ -1,20 +1,30 @@
-# Solana Contract Address Search Investigation
+# Contract Address Search - Related Assets & Ungrouped Display
 
-## ✅ RESOLVED
+## ✅ COMPLETED
 
 **Status:** Fixed and implemented
 **Date:** 2025-10-17
+**Closes:** [#10841](https://github.com/shapeshift/web/issues/10841)
 
 > *"In this farewell, there's no blood, there's no alibi"* - A reflection on what we've built.
 
-### Implementation Summary
+### What This PR Fixes
 
-Fixed contract address search for related assets in both global search and trade search by:
+Two birds one stone:
+
+1. **Fixed related assets search by contract address** - Broken in both global and trade asset search
+2. **Ensures contract address searches are ungrouped**:
+   - Trade asset search: Always ungrouped, displays the one variant (primary or specific related) regardless of chain narrowing
+   - Global asset search: Always ungrouped, displays the one variant
+
+### Implementation
+
 1. ✅ Created shared contract address detection utilities (`isContractAddress.ts`, `isEvmAddress.ts`, `isSolanaAddress.ts`)
 2. ✅ Updated global search selector to use all assets for contract address searches
 3. ✅ Updated trade search worker to use all assets for contract address searches
-4. ✅ Replaced nested ternary with IIFE pattern for cleaner logic
-5. ✅ Preserved existing UX for name/symbol searches (primary assets only)
+4. ✅ Added ungrouped display logic for contract address searches
+5. ✅ Replaced nested ternary with IIFE pattern in worker
+6. ✅ Preserved existing UX for name/symbol searches (primary assets only, grouped)
 
 ### Key Changes
 
@@ -58,16 +68,23 @@ Fixed contract address search for related assets in both global search and trade
 
 ---
 
-## Root Cause
+## Context
 
-**GitHub Issue:** [#10840 - Solana Contract Address search in To/From asset is broken](https://github.com/shapeshift/web/issues/10840)
+**Related Issues:**
+- [#10840 - Solana Contract Address search in To/From asset is broken](https://github.com/shapeshift/web/issues/10840) - Fixed in [PR #10842](https://github.com/shapeshift/web/pull/10842)
+- [#10841 - Contract address searches should be ungrouped](https://github.com/shapeshift/web/issues/10841) - Fixed in this PR
 
-### Issue 1: Missing assetId in search config
-Trade search config was missing `assetId` field, so contract addresses in assetIds couldn't be matched.
+**Stack:**
+- [PR #10842](https://github.com/shapeshift/web/pull/10842) - Added `assetId` to search config (fixes #10840)
+- **This PR** - Stacked on #10842, fixes related assets search and ungrouped display (closes #10841)
 
-**Solution:** Added assetId to `/src/lib/assetSearch/config.ts` search keys.
+### What Was Fixed in PR #10842
 
-### Issue 2: Primary vs Related Assets
+Added `assetId` field to trade search config so contract addresses in assetIds could be matched.
+
+### What This PR Fixes
+
+#### Issue 1: Related Assets Not Searchable by Contract Address
 
 When "All" chains selected, only PRIMARY_ASSETS were searched. Related assets (e.g., FOX on Arbitrum with `isPrimary: false`) weren't in the search pool.
 
@@ -75,6 +92,15 @@ When "All" chains selected, only PRIMARY_ASSETS were searched. Related assets (e
 - Detect contract address searches using `isContractAddress()` (combines EVM + Solana validation)
 - Use ALL assets for contract address searches (unique identifiers, no duplicates)
 - Use PRIMARY assets for name/symbol searches on "All" (avoid showing grouped duplicates)
+
+#### Issue 2: Contract Address Results Were Grouped
+
+Contract address searches showed grouped/related assets instead of the specific variant.
+
+**Solution:**
+- Added `!isContractAddress()` check to `showRelatedAssets` prop
+- Trade search: Always ungrouped for contract addresses
+- Global search: Always ungrouped for contract addresses
 
 ---
 

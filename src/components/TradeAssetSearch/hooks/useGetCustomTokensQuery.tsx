@@ -12,7 +12,7 @@ import { isAddress } from 'viem'
 import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
-import { isSolanaAddress } from '@/lib/utils/solanaAddress'
+import { isSolanaAddress } from '@/lib/utils/isSolanaAddress'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
 type TokenMetadata = TokenMetadataResponse & {

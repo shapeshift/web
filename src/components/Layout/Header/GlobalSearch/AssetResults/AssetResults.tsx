@@ -16,13 +16,13 @@ export type AssetResultsProps = {
 
 export const AssetResults: React.FC<AssetResultsProps> = ({ results, onClick, searchQuery }) => {
   const translate = useTranslate()
-  const renderItems = useMemo(() => {
-    const showRelatedAssets = !isContractAddress(searchQuery ?? '')
-
-    return (
+  const showRelatedAssets = useMemo(() => !isContractAddress(searchQuery ?? ''), [searchQuery])
+  const renderItems = useMemo(
+    () => (
       <AssetList assets={results} handleClick={onClick} showRelatedAssets={showRelatedAssets} />
-    )
-  }, [results, onClick, searchQuery])
+    ),
+    [results, onClick, showRelatedAssets],
+  )
 
   if (searchQuery && !results.length) return null
   return (

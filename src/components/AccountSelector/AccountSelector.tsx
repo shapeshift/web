@@ -28,7 +28,6 @@ export type AccountSelectorProps = {
   accountId?: AccountId
   onChange: (accountId: AccountId) => void
   disabled?: boolean
-  autoSelectHighestBalance?: boolean
   buttonProps?: ButtonProps
   boxProps?: BoxProps
 }
@@ -38,15 +37,7 @@ const chevronIconSx = {
 }
 
 export const AccountSelector: FC<AccountSelectorProps> = memo(
-  ({
-    assetId,
-    accountId: selectedAccountId,
-    onChange,
-    disabled,
-    autoSelectHighestBalance,
-    buttonProps,
-    boxProps,
-  }) => {
+  ({ assetId, accountId: selectedAccountId, onChange, disabled, buttonProps, boxProps }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const {
       number: { localeParts },
@@ -165,7 +156,6 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
           accountIds={accountIds}
           assetId={assetId}
           asset={asset}
-          autoSelectHighestBalance={autoSelectHighestBalance}
           selectedAccountId={selectedAccountId}
           onAccountSelect={handleAccountSelect}
           disabled={disabled}

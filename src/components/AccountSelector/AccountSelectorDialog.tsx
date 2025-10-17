@@ -1,8 +1,7 @@
 import { Button, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import sortBy from 'lodash/sortBy'
-import type { Asset } from 'packages/types/src/base'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -29,7 +28,6 @@ export type AccountSelectorDialogProps = {
   accountIds: AccountId[]
   assetId: AssetId
   asset: Asset
-  autoSelectHighestBalance: boolean | undefined
   disabled: boolean | undefined
   selectedAccountId: AccountId | undefined
   onAccountSelect: (accountId: AccountId) => void
@@ -41,7 +39,6 @@ export const AccountSelectorDialog = ({
   accountIds,
   assetId,
   asset,
-  autoSelectHighestBalance,
   disabled,
   selectedAccountId,
   onAccountSelect,
@@ -50,18 +47,9 @@ export const AccountSelectorDialog = ({
   const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
-  const sortedAccountIds = useMemo(() => {
-    if (!autoSelectHighestBalance) return accountIds
-
-    return sortBy(
-      accountIds,
-      accountId => -bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0).toNumber(),
-    )
-  }, [autoSelectHighestBalance, accountIds, accountBalances, assetId])
-
   const accountsWithDetails = useMemo(
     () =>
-      sortedAccountIds.map(accountId => {
+      accountIds.map(accountId => {
         const cryptoBalance = bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0)
         const fiatBalance = bnOrZero(fromBaseUnit(cryptoBalance, asset.precision ?? 0)).times(
           marketData?.price ?? 0,
@@ -73,7 +61,7 @@ export const AccountSelectorDialog = ({
           fiatBalance: fiatBalance.toFixed(2),
         }
       }),
-    [sortedAccountIds, accountBalances, assetId, marketData, asset.precision],
+    [accountIds, accountBalances, assetId, marketData, asset.precision],
   )
 
   const handleDone = useCallback(() => {

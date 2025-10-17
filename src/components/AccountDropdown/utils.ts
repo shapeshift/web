@@ -1,4 +1,4 @@
-import { UtxoAccountType } from 'packages/types/src/base'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 
 export const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
   switch (accountType) {

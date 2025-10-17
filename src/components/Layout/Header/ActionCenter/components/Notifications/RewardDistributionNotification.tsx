@@ -1,16 +1,14 @@
-import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
-import { NotificationWrapper } from './NotificationWrapper'
+import { ActionIcon } from '../ActionIcon'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
-import { ActionStatusIcon } from '@/components/Layout/Header/ActionCenter/components/ActionStatusIcon'
+import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
-import { Text } from '@/components/Text/Text'
+import { StandardToast } from '@/components/Toast/StandardToast'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -35,6 +33,16 @@ export const RewardDistributionNotification = ({
   const action = actions[actionId]
   const isComplete = action?.status === ActionStatus.Complete
 
+  const rewardDistributionTitleTranslation = useMemo(() => {
+    if (isComplete) return 'actionCenter.rewardDistribution.complete.description'
+    return 'actionCenter.rewardDistribution.pending.description'
+  }, [isComplete])
+
+  const icon = useMemo(() => {
+    if (!action) return undefined
+    return <ActionIcon assetId={thorchainAssetId} status={action.status} />
+  }, [action])
+
   const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!runeAsset) return
 
@@ -42,7 +50,7 @@ export const RewardDistributionNotification = ({
       amountAndSymbol: (
         <Amount.Crypto
           value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
-          symbol={runeAsset?.symbol}
+          symbol={runeAsset.symbol}
           fontSize='sm'
           fontWeight='bold'
           maximumFractionDigits={6}
@@ -53,34 +61,20 @@ export const RewardDistributionNotification = ({
     }
   }, [distribution.amount, runeAsset])
 
-  const rewardDistributionTitleTranslation = useMemo(() => {
-    if (isComplete) return 'actionCenter.rewardDistribution.complete.description'
-    return 'actionCenter.rewardDistribution.pending.description'
-  }, [isComplete])
+  const title = useMemo(() => {
+    if (!runeAsset) return undefined
 
-  if (!distribution) return null
+    return (
+      <Text
+        fontSize='sm'
+        letterSpacing='0.02em'
+        translation={rewardDistributionTitleTranslation}
+        components={rewardDistributionTranslationComponents}
+      />
+    )
+  }, [runeAsset, rewardDistributionTitleTranslation, rewardDistributionTranslationComponents])
 
-  return (
-    <NotificationWrapper handleClick={handleClick} onClose={onClose}>
-      <Stack spacing={3}>
-        <Flex alignItems='center' justifyContent='space-between' pe={6}>
-          <HStack spacing={2}>
-            <AssetIconWithBadge assetId={thorchainAssetId} size='md'>
-              <ActionStatusIcon status={action.status} />
-            </AssetIconWithBadge>
+  if (!distribution || !icon || !title) return null
 
-            <Box ml={2}>
-              <Text
-                flex={1}
-                fontSize='sm'
-                letterSpacing='0.02em'
-                translation={rewardDistributionTitleTranslation}
-                components={rewardDistributionTranslationComponents}
-              />
-            </Box>
-          </HStack>
-        </Flex>
-      </Stack>
-    </NotificationWrapper>
-  )
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

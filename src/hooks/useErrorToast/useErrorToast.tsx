@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { SolanaLogsError } from '@shapeshiftoss/swapper'
 import camelCase from 'lodash/camelCase'
@@ -8,11 +7,12 @@ import { useTranslate } from 'react-polyglot'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 
 const defaultErrorMsgTranslation = 'common.generalError'
 
 export const useErrorToast = () => {
-  const toast = useToast()
+  const toast = useNotificationToast()
   const translate = useTranslate()
 
   const showErrorToast = useCallback(
@@ -26,12 +26,10 @@ export const useErrorToast = () => {
           return translate(`trade.errors.${camelCase(error.name)}`)
         }
 
-        // Chain adapter errors take priority
         if (error instanceof ChainAdapterError) {
           return translate(error.metadata.translation, error.metadata.options)
         }
 
-        // If we specified an error translation, use it
         if (errorMsgTranslation) {
           return translate(errorMsgTranslation, errorMsgTranslationOptions)
         }
@@ -51,7 +49,6 @@ export const useErrorToast = () => {
         status: 'error',
         duration: 9000,
         isClosable: true,
-        position: 'top-right',
       })
     },
     [toast, translate],

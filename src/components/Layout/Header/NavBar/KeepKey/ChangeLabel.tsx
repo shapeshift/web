@@ -1,4 +1,4 @@
-import { Button, Flex, Input, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -10,11 +10,12 @@ import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKee
 import { LastDeviceInteractionStatus } from '@/components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const ChangeLabel = () => {
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast()
   const { state } = useWallet()
   const { walletInfo } = state
   const {

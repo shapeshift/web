@@ -1,4 +1,4 @@
-import { Skeleton, useToast } from '@chakra-ui/react'
+import { Skeleton } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
@@ -30,6 +30,7 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useAllowanceApprovalRequirements } from '@/hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
@@ -87,7 +88,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const [isApprovalRequired, setIsApprovalRequired] = useState<boolean | undefined>(false)
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
 
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
@@ -369,7 +370,6 @@ export const Deposit: React.FC<DepositProps> = ({
       } catch (error) {
         console.error(error)
         toast({
-          position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
           title: translate('common.somethingWentWrong'),
           status: 'error',

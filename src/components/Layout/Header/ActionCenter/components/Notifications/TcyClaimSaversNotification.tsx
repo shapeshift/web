@@ -1,14 +1,13 @@
-import { Box, Flex, HStack, Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { tcyAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
-import { ActionStatusIcon } from '../ActionStatusIcon'
+import { ActionIcon } from '../ActionIcon'
 import { ActionStatusTag } from '../ActionStatusTag'
-import { NotificationWrapper } from './NotificationWrapper'
 
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { Text } from '@/components/Text/Text'
+import { StandardToast } from '@/components/Toast/StandardToast'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectTcyClaimActionsByWallet } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -28,28 +27,29 @@ export const TcyClaimSaversNotification = ({
     [tcyClaimActions],
   )
 
+  const icon = useMemo(() => {
+    return <ActionIcon assetId={tcyAssetId} status={ActionStatus.ClaimAvailable} />
+  }, [])
+
+  const title = useMemo(() => {
+    return (
+      <Stack spacing={1}>
+        <Text
+          fontSize='sm'
+          fontWeight='semibold'
+          letterSpacing='0.02em'
+          translation={'TCY.claimNow'}
+        />
+        <Box flexGrow={0}>
+          <ActionStatusTag status={ActionStatus.ClaimAvailable} />
+        </Box>
+      </Stack>
+    )
+  }, [])
+
   if (!hasClaimable) {
     return null
   }
 
-  return (
-    <NotificationWrapper handleClick={handleClick} onClose={onClose}>
-      <Stack spacing={3}>
-        <Flex alignItems='center' justifyContent='space-between' pe={6}>
-          <HStack spacing={2}>
-            <AssetIconWithBadge assetId={tcyAssetId} size='md'>
-              <ActionStatusIcon status={ActionStatus.ClaimAvailable} />
-            </AssetIconWithBadge>
-
-            <Stack spacing={1}>
-              <Text fontSize='sm' translation={'TCY.claimNow'} />
-              <Box flexGrow={0}>
-                <ActionStatusTag status={ActionStatus.ClaimAvailable} />
-              </Box>
-            </Stack>
-          </HStack>
-        </Flex>
-      </Stack>
-    </NotificationWrapper>
-  )
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

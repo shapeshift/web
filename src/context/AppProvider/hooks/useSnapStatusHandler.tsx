@@ -1,4 +1,4 @@
-import { usePrevious, useToast } from '@chakra-ui/react'
+import { usePrevious } from '@chakra-ui/react'
 import { btcAssetId, fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -10,6 +10,7 @@ import { useDiscoverAccounts } from './useDiscoverAccounts'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
@@ -22,7 +23,7 @@ export const useSnapStatusHandler = () => {
   const queryClient = useQueryClient()
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast()
   const connectedRdns = useAppSelector(selectWalletRdns)
   const previousConnectedRdns = usePrevious(connectedRdns)
   const currentWalletId = useAppSelector(selectWalletId)
@@ -57,7 +58,6 @@ export const useSnapStatusHandler = () => {
       toast({
         status: 'success',
         title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
-        position: 'bottom',
       })
       appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
 
@@ -84,7 +84,6 @@ export const useSnapStatusHandler = () => {
       toast({
         status: 'success',
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
-        position: 'bottom',
       })
       return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }

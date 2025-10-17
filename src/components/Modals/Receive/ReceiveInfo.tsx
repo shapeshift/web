@@ -13,7 +13,6 @@ import {
   useBreakpointValue,
   useColorModeValue,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
@@ -44,6 +43,7 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { generateReceiveQrText } from '@/lib/address/generateReceiveQrText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -153,27 +153,25 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   }, [accountType, asset.chainId, bip44Params, chainAdapter, receiveAddress, wallet])
 
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast()
 
   const bg = useColorModeValue('gray.100', 'gray.700')
 
   const handleCopyClick = useCallback(async () => {
     if (!receiveAddress) return
-    const duration = 2500
-    const isClosable = true
     const translatePayload = { symbol: symbol.toUpperCase() }
-    const toastPayload = { duration, isClosable }
     try {
       await navigator.clipboard.writeText(receiveAddress)
-      const title = translate('modals.receive.copied', translatePayload)
-      const status = 'success'
-      const description = firstFourLastFour(receiveAddress)
-      toast({ description, title, status, ...toastPayload })
+      toast({
+        title: translate('modals.receive.copied', translatePayload),
+        description: firstFourLastFour(receiveAddress),
+        duration: 2500,
+      })
     } catch (e) {
-      const title = translate('modals.receive.copyFailed', translatePayload)
-      const status = 'error'
-      const description = translate('modals.receive.copyFailedDescription')
-      toast({ description, title, status })
+      toast({
+        title: translate('modals.receive.copyFailed', translatePayload),
+        description: translate('modals.receive.copyFailedDescription'),
+      })
     }
   }, [receiveAddress, symbol, toast, translate])
 

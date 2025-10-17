@@ -10,6 +10,7 @@ import type {
   SearchableAsset,
 } from '@/lib/assetSearch'
 import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
+import { isContractAddress } from '@/lib/utils/contractAddress'
 
 // Internal state
 let ASSETS: SearchableAsset[] = []
@@ -23,7 +24,14 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
     walletConnectedChainIds = [],
   } = msg.payload
 
-  const assets = activeChainId === 'All' ? PRIMARY_ASSETS : ASSETS
+  // Contract address searches need all assets to find related variants
+  // Name/symbol searches use primaries on "All" to avoid duplicates
+  const isCASearch = isContractAddress(searchString)
+  const assets = isCASearch
+    ? ASSETS // Always use all assets for contract address searches
+    : activeChainId === 'All'
+      ? PRIMARY_ASSETS // Use primaries for name/symbol searches on "All"
+      : ASSETS // Use all assets for chain-specific searches
 
   const preFiltered = filterAssetsByChainSupport(assets, {
     activeChainId,

@@ -25,6 +25,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import { isContractAddress } from '@/lib/utils/contractAddress'
 import { isSome } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -494,11 +495,17 @@ export const selectIsAssetWithoutMarketData = createSelector(
 
 export const selectAssetsBySearchQuery = createCachedSelector(
   selectPrimaryAssetsSortedByMarketCapNoSpam,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,
-  (sortedAssets, marketDataUsd, searchQuery, limit): Asset[] => {
-    if (!searchQuery) return sortedAssets.slice(0, limit)
+  (primaryAssets, allAssets, marketDataUsd, searchQuery, limit): Asset[] => {
+    if (!searchQuery) return primaryAssets.slice(0, limit)
+
+    // Contract address searches need all assets to find related variants
+    // Name/symbol searches use primaries to avoid duplicates
+    const isCASearch = isContractAddress(searchQuery)
+    const sortedAssets = isCASearch ? allAssets : primaryAssets
 
     // Filters by low market-cap to avoid spew
     const filteredAssets = sortedAssets.filter(asset => {

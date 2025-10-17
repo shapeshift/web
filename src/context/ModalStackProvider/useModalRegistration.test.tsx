@@ -131,7 +131,7 @@ describe('useModalRegistration', () => {
     expect(result.current.modalContentProps).toEqual({
       containerProps: {
         sx: {
-          zIndex: 'calc(var(--chakra-zIndices-modal) + 2)',
+          zIndex: 'calc(var(--chakra-zIndices-modal) + 12)',
           pointerEvents: 'auto',
         },
       },
@@ -150,7 +150,7 @@ describe('useModalRegistration', () => {
     expect(result.current.modalContentProps).toEqual({
       containerProps: {
         sx: {
-          zIndex: 'calc(var(--chakra-zIndices-modal) + 1)',
+          zIndex: 'calc(var(--chakra-zIndices-modal) + 11)',
           pointerEvents: 'none',
         },
       },
@@ -168,7 +168,7 @@ describe('useModalRegistration', () => {
 
     expect(result.current.overlayProps).toEqual({
       sx: {
-        zIndex: 'calc(var(--chakra-zIndices-overlay) + 2)',
+        zIndex: 'calc(var(--chakra-zIndices-modal) + 11)',
         pointerEvents: 'auto',
       },
     })
@@ -185,7 +185,7 @@ describe('useModalRegistration', () => {
 
     expect(result.current.overlayProps).toEqual({
       sx: {
-        zIndex: 'calc(var(--chakra-zIndices-overlay) + 1)',
+        zIndex: 'calc(var(--chakra-zIndices-modal) + 10)',
         pointerEvents: 'none',
       },
     })

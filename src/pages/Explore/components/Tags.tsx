@@ -30,9 +30,14 @@ export const Tags = () => {
 
   const handleClick = useCallback(
     (tag: string) => {
-      navigate(`/explore/category/${MarketsCategories.OneClickDefi}/${tag}`)
+      // If the clicked tag is already selected, go back to explore, effectively "unselecting" it
+      if (tagParam === tag) {
+        navigate('/explore')
+      } else {
+        navigate(`/explore/category/${MarketsCategories.OneClickDefi}/${tag}`)
+      }
     },
-    [navigate],
+    [navigate, tagParam],
   )
 
   const activeStyle = useMemo(() => {

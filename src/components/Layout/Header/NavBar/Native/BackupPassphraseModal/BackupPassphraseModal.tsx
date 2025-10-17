@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseRouter } from './BackupPassphraseRouter'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 
 export const entries = Object.values(BackupPassphraseRoutes)
@@ -19,17 +20,26 @@ const modalContentPaddingX = { base: 0, md: 4 }
 
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
   const { close, isOpen } = useModal('backupNativePassphrase')
+  const { modalContentProps, overlayProps, modalProps, isHighestModal } = useModalRegistration({
+    isOpen,
+    onClose: close,
+  })
 
   return (
     <Modal
       isCentered
-      closeOnOverlayClick={!preventClose}
-      closeOnEsc={!preventClose}
-      isOpen={isOpen}
-      onClose={close}
+      {...modalProps}
+      closeOnOverlayClick={!preventClose && isHighestModal}
+      closeOnEsc={!preventClose && isHighestModal}
     >
-      <ModalOverlay />
-      <ModalContent justifyContent='center' px={modalContentPaddingX} pt={3} pb={6}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent
+        justifyContent='center'
+        px={modalContentPaddingX}
+        pt={3}
+        pb={6}
+        {...modalContentProps}
+      >
         <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
           <BackupPassphraseRouter />
         </MemoryRouter>

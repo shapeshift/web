@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 type EarnModalProps = {
@@ -26,14 +27,20 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
     })
   }, [navigate, location.pathname])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose: handleClose,
+  })
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav'>
-      <ModalOverlay />
+    <Modal {...modalProps} onClose={handleClose} variant='header-nav'>
+      <ModalOverlay {...overlayProps} />
       <ModalContent
         width='full'
         borderRadius={modalBorderRadius}
         minWidth={modalMinWidth}
         maxWidth={modalMaxWidth}
+        {...modalContentProps}
       >
         {children}
       </ModalContent>

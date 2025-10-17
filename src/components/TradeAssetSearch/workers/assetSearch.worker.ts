@@ -24,14 +24,12 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
     walletConnectedChainIds = [],
   } = msg.payload
 
-  // Contract address searches need all assets to find related variants
-  // Name/symbol searches use primaries on "All" to avoid duplicates
   const isContractAddressSearch = isContractAddress(searchString)
-  const assets = isContractAddressSearch
-    ? ASSETS // Always use all assets for contract address searches
-    : activeChainId === 'All'
-    ? PRIMARY_ASSETS // Use primaries for name/symbol searches on "All"
-    : ASSETS // Use all assets for chain-specific searches
+  const assets = (() => {
+    if (isContractAddressSearch) return ASSETS // Always use all assets for contract address searches
+    if (activeChainId === 'All') return PRIMARY_ASSETS // Use primaries for name/symbol searches on "All"
+    return ASSETS // Use all assets for chain-specific searches
+  })()
 
   const preFiltered = filterAssetsByChainSupport(assets, {
     activeChainId,

@@ -297,7 +297,7 @@ export const FoxFarming = () => {
   return (
     <>
       <Divider mb={4} />
-      <Box py={4} px={containerPaddingX}>
+      <Box py={4} px={containerPaddingX} id='farming'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
@@ -337,7 +337,7 @@ export const FoxFarming = () => {
                 </Box>
 
                 {rewardsCryptoAmount !== '0' && Boolean(rewardsCryptoAmount && rewardAsset) ? (
-                  <Button onClick={handleClaimClick} colorScheme='gray' size='sm'>
+                  <Button onClick={handleClaimClick} colorScheme='gray'>
                     {translate('common.claim')}
                   </Button>
                 ) : null}
@@ -364,7 +364,7 @@ export const FoxFarming = () => {
                 />
               </Skeleton>
             </Box>
-            <Button onClick={handleManageClick} colorScheme='gray' size='sm'>
+            <Button onClick={handleManageClick} colorScheme='gray'>
               {translate('common.manage')}
             </Button>
           </Stack>

@@ -21,7 +21,12 @@ import {
   selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
+import {
+  selectConfirmedQuote,
+  selectConfirmedTradeExecutionState,
+} from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useGetTradeRateInput = ({
@@ -40,6 +45,8 @@ export const useGetTradeRateInput = ({
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
+  const confirmedQuote = useAppSelector(selectConfirmedQuote)
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
 
   const sellAccountMetadataFilter = useMemo(
     () => ({
@@ -137,16 +144,23 @@ export const useGetTradeRateInput = ({
     // We need a separate quote key here to useGetTradeRates as that query has some side effects
     queryKey: ['getTradeRateInput', ...queryKeys, tradeInputQueryKey],
     queryFn: async () => {
+      // Don't clear quote state during active trade execution
+      const isTradeExecuting =
+        confirmedQuote &&
+        (confirmedTradeExecutionState === TradeExecutionState.Previewing ||
+          confirmedTradeExecutionState === TradeExecutionState.FirstHop ||
+          confirmedTradeExecutionState === TradeExecutionState.SecondHop)
+
       // Clear the slice before asynchronously generating the input and running the request.
       // This is to ensure the initial state change is done synchronously to prevent race conditions
       // and losing sync on loading state etc.
-      if (shouldClearQuoteSlice) {
+      if (shouldClearQuoteSlice && !isTradeExecuting) {
         dispatch(tradeQuoteSlice.actions.clear())
       }
 
       // Early exit on any invalid state
       if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-        if (shouldClearQuoteSlice) {
+        if (shouldClearQuoteSlice && !isTradeExecuting) {
           dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
         }
         return null

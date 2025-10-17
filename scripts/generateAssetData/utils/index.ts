@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import assert from 'assert'
+import axios from 'axios'
 import { intersection } from 'lodash'
 import difference from 'lodash/difference'
 import filter from 'lodash/filter'
@@ -9,7 +10,6 @@ import orderBy from 'lodash/orderBy'
 
 import blacklist from '../blacklist.json'
 
-import { getCoingeckoMarketsRaw } from '@/lib/coingecko/utils'
 import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
 
 // blacklist wormhole assets as well - users can't hold a balance and we don't support wormholes
@@ -24,7 +24,16 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   const results2d: CoinGeckoMarketCap[][] = []
 
   while (true) {
-    const coingeckoAssets = await getCoingeckoMarketsRaw('market_cap_desc', page, 250)
+    const url = 'https://api.proxy.shapeshift.com/api/v1/markets/coins/markets'
+    const { data: coingeckoAssets } = await axios.get<CoinGeckoMarketCap[]>(url, {
+      params: {
+        vs_currency: 'usd',
+        order: 'market_cap_desc',
+        per_page: 250,
+        page,
+        sparkline: false,
+      },
+    })
 
     results2d.push(coingeckoAssets)
 

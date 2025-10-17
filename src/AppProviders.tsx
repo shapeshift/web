@@ -1,5 +1,4 @@
 import { ChakraProvider, ColorModeScript, createLocalStorageManager } from '@chakra-ui/react'
-import { captureException } from '@sentry/react'
 import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
@@ -30,6 +29,7 @@ import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
 import { WalletConnectV2Provider } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { persistor, store } from '@/state/store'
 import { theme } from '@/theme/theme'
+import { captureExceptionWithContext } from '@/utils/sentry/helpers'
 
 type ProvidersProps = {
   children: React.ReactNode
@@ -47,7 +47,16 @@ export function AppProviders({ children }: ProvidersProps) {
         componentStack: string
       },
     ) => {
-      captureException(error)
+      captureExceptionWithContext(error, {
+        tags: {
+          errorBoundary: 'AppProviders',
+          critical: 'true',
+        },
+        extra: {
+          componentStack: info.componentStack,
+        },
+        level: 'fatal',
+      })
       getMixPanel()?.track(MixPanelEvent.Error, { error, info })
     },
     [],

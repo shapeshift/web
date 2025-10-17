@@ -12,7 +12,8 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
-  selectSelectedFiatRampQuote,
+  selectSelectedBuyFiatRampQuote,
+  selectSelectedSellFiatRampQuote,
   selectSellFiatAmount,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
@@ -34,7 +35,13 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
   const sellFiatAmount = useAppSelector(selectSellFiatAmount)
-  const selectedQuote = useAppSelector(selectSelectedFiatRampQuote)
+  const selectedBuyQuote = useAppSelector(selectSelectedBuyFiatRampQuote)
+  const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
+
+  const selectedQuote = useMemo(
+    () => (direction === FiatRampAction.Buy ? selectedBuyQuote : selectedSellQuote),
+    [direction, selectedBuyQuote, selectedSellQuote],
+  )
 
   const quoteAmount = useMemo(() => {
     return direction === FiatRampAction.Buy ? sellFiatAmount : sellAmount
@@ -82,7 +89,7 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
       {sortedQuotes.map(quote => (
         <FiatRampQuoteCard
           key={quote.id}
-          isActive={selectedQuote?.id === quote.id}
+          isActive={selectedQuote?.provider === quote.provider}
           isBestRate={quote.isBestRate}
           quote={quote}
           isLoading={isQueryLoading}

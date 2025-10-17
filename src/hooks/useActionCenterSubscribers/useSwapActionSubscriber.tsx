@@ -53,7 +53,7 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
-  // Special handling for ArbitrumBridge swaps to ETH mainnet
+  // Special handling for ArbitrumBridge - Success means withdrawal initiated, not complete
   if (
     swap.status === SwapStatus.Success &&
     swap.swapperName === SwapperName.ArbitrumBridge &&
@@ -264,6 +264,7 @@ export const useSwapActionSubscriber = () => {
         )
 
         if (toast.isActive(swap.id)) return
+
         toast({
           status: 'success',
           render: ({ title, status, description, onClose, ...props }) => {

@@ -925,7 +925,10 @@
     "confirmAndClaim": "Confirm & Claim",
     "viewClaims": "View Claims",
     "viewClaimStatus": "View Claim Status",
-    "availableClaimsNotification": "You have bridge claims ready!"
+    "availableClaimsNotification": "You have bridge claims ready!",
+    "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
+    "bridgeWithdrawalFailedNotification": "Bridge withdrawal failed",
+    "checkActionCenterNotification": "Check Action Center for details"
   },
   "trade": {
     "trade": "Trade",
@@ -3215,8 +3218,15 @@
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
-      "initiated": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has been initiated.",
-      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed."
+      "initiated": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has been initiated.",
+      "pendingWithdraw": "Your withdraw of %{amountAndSymbol} will be available %{timeText}.",
+      "claimAvailable": "Your bridge of %{amountAndSymbol} is available to claim.",
+      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed.",
+      "transactionInitiated": "Transaction Initiated",
+      "claimWithdraw": "Claim Withdraw",
+      "withdrawTx": "Withdraw Tx",
+      "claimTx": "Claim Tx",
+      "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",

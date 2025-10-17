@@ -1,4 +1,5 @@
 import { useAppUpdateActionSubscriber } from './useAppUpdateActionSubscriber'
+import { useArbitrumWithdrawalActionSubscriber } from './useArbitrumWithdrawalActionSubscriber'
 import { useGenericTransactionSubscriber } from './useGenericTransactionSubscriber'
 import { useLimitOrderActionSubscriber } from './useLimitOrderActionSubscriber'
 import { useSendActionSubscriber } from './useSendActionSubscriber'
@@ -11,6 +12,7 @@ import { useTcyClaimActionSubscriber } from '@/pages/TCY/hooks/useTcyClaimAction
 
 export const useActionCenterSubscribers = () => {
   useSwapActionSubscriber()
+  useArbitrumWithdrawalActionSubscriber()
   useLimitOrderActionSubscriber()
   useAppUpdateActionSubscriber()
   useRfoxClaimActionSubscriber()

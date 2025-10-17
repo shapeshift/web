@@ -841,7 +841,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
   preferences.selectors.selectBalanceThresholdUserCurrency,
   selectPortfolioTotalUserCurrencyBalance,
   (
-    portfolioAccountRows,
+    accountRows,
     totalBalancesByAssetId,
     assets,
     marketData,
@@ -849,12 +849,16 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
     balanceThresholdUserCurrency,
     totalPortfolioUserCurrencyBalance,
   ): AccountRowData[] => {
-    const primaryAccountRows = portfolioAccountRows.filter(row => row.isPrimary)
+    const primaryAccountRowsWithAggregatedBalances = accountRows.reduce<AccountRowData[]>(
+      (acc, { assetId, isPrimary, relatedAssetKey }) => {
+        const primaryAssetId = isPrimary ? assetId : relatedAssetKey
 
-    const primaryAccountRowsWithAggregatedBalances = primaryAccountRows.reduce<AccountRowData[]>(
-      (acc, { assetId: primaryAssetId }) => {
+        if (!primaryAssetId) return acc
+
         const primaryAsset = assets[primaryAssetId]
         const allRelatedAssetIds = relatedAssetIdsByAssetId[primaryAssetId]
+
+        if (acc.find(row => row.assetId === primaryAssetId)) return acc
 
         let totalCryptoBalance = bnOrZero(0)
 
@@ -875,7 +879,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
 
         if (userCurrencyAmount.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
 
-        const allocation = userCurrencyAmount
+        const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
           .times(100)
           .toNumber()

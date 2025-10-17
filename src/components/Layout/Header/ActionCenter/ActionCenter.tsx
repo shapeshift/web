@@ -58,7 +58,6 @@ export const ActionCenter = memo(() => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: isDrawerOpen,
     onClose: closeDrawer,
-    modalId: 'action-center-modal',
   })
 
   const translate = useTranslate()

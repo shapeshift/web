@@ -59,7 +59,6 @@ export const GlobalSearchModal = memo(
     const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
       isOpen,
       onClose: handleClose,
-      modalId: 'global-search-modal',
     })
 
     const customTokenSupportedChainIds = useMemo(() => {

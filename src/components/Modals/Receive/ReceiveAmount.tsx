@@ -229,7 +229,6 @@ export const ReceiveAmount = ({
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen: isModal,
     onClose,
-    modalId: 'receive-amount-modal',
   })
 
   const content = useMemo(

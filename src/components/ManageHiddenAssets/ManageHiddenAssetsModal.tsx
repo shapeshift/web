@@ -24,7 +24,6 @@ export const ManageHiddenAssetsModal = () => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'manage-hidden-assets-modal',
   })
 
   return (

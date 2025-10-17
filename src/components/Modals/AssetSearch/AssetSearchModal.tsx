@@ -43,7 +43,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
     [close, onAssetClick],
   )
   return (
-    <Dialog id='asset-search-modal' isOpen={isOpen} onClose={close} isFullScreen>
+    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
       <DialogHeader>
         <DialogHeaderMiddle>{translate(title)}</DialogHeaderMiddle>
         <DialogHeaderRight>

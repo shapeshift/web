@@ -1,15 +1,17 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useModalStack } from './ModalStackProvider'
 
 export type UseModalRegistrationProps = {
   isOpen: boolean
-  modalId: string
   onClose: () => void
 }
+const ZINDEX_BUFFER = 10
 
-export const useModalRegistration = ({ isOpen, modalId, onClose }: UseModalRegistrationProps) => {
+export const useModalRegistration = ({ isOpen, onClose }: UseModalRegistrationProps) => {
   const { registerModal, unregisterModal, getIsHighestModal, getZIndex } = useModalStack()
+  const [modalId] = useState(uuidv4())
 
   const zIndex = useMemo(() => getZIndex(modalId), [getZIndex, modalId])
 
@@ -32,7 +34,7 @@ export const useModalRegistration = ({ isOpen, modalId, onClose }: UseModalRegis
       ? {
           containerProps: {
             sx: {
-              zIndex: `calc(var(--chakra-zIndices-modal) + ${zIndex})`,
+              zIndex: `calc(var(--chakra-zIndices-modal) + ${zIndex + ZINDEX_BUFFER})`,
               pointerEvents: isHighestModal ? 'auto' : 'none',
             },
           },
@@ -44,7 +46,8 @@ export const useModalRegistration = ({ isOpen, modalId, onClose }: UseModalRegis
     return zIndex
       ? {
           sx: {
-            zIndex: `calc(var(--chakra-zIndices-overlay) + ${zIndex})`,
+            // Overlay is 1 zindex less than the modal to avoid stacking issues
+            zIndex: `calc(var(--chakra-zIndices-modal) + ${zIndex + ZINDEX_BUFFER - 1})`,
             pointerEvents: isHighestModal ? 'auto' : 'none',
           },
         }

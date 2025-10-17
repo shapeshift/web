@@ -34,7 +34,7 @@ export const ModalStackProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const getZIndex = useCallback(
     (id: string): number | undefined => {
       const index = modals.findIndex(modal => modal.id === id)
-      return index !== -1 ? index : undefined
+      return index !== -1 ? index + 1 : undefined
     },
     [modals],
   )

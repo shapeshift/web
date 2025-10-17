@@ -30,7 +30,6 @@ export const FeedbackAndSupport = () => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'feedback-support-modal',
   })
 
   const handleChatWoot = useCallback(() => {

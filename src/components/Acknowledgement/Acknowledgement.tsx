@@ -53,7 +53,6 @@ export const Acknowledgement = ({
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: shouldShowAcknowledgement,
     onClose: handleCancel,
-    modalId: 'acknowledgement-modal',
   })
 
   const understandHoverProps = useMemo(
@@ -69,7 +68,7 @@ export const Acknowledgement = ({
   }, [onAcknowledge, setShouldShowAcknowledgement])
 
   return (
-    <Modal {...modalProps}>
+    <Modal {...modalProps} closeOnEsc={false} closeOnOverlayClick={false}>
       <ModalOverlay {...overlayProps} />
       <ModalContent {...modalContentProps}>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>

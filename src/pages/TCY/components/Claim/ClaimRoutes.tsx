@@ -156,7 +156,6 @@ export const ClaimModal = ({ isOpen, onClose, claim }: ClaimModalProps) => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose,
-    modalId: 'claim-modal',
   })
 
   return (

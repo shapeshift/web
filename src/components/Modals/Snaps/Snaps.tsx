@@ -17,7 +17,6 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'snaps-modal',
   })
 
   useEffect(() => {

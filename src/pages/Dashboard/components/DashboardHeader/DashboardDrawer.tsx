@@ -12,7 +12,6 @@ type DashboardDrawerProps = {
 export const DashboardDrawer: React.FC<DashboardDrawerProps> = memo(({ isOpen, onClose }) => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
-    modalId: 'dashboard-drawer',
     onClose,
   })
   return (

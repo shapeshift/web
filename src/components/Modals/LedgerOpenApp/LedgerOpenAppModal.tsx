@@ -44,7 +44,6 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: handleClose,
-    modalId: 'ledger-open-app-modal',
   })
 
   const appName = useMemo(() => {

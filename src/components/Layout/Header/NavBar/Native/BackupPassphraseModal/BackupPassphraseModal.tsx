@@ -20,18 +20,17 @@ const modalContentPaddingX = { base: 0, md: 4 }
 
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
   const { close, isOpen } = useModal('backupNativePassphrase')
-  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+  const { modalContentProps, overlayProps, modalProps, isHighestModal } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'backup-native-passphrase-modal',
   })
 
   return (
     <Modal
       isCentered
       {...modalProps}
-      closeOnOverlayClick={!preventClose}
-      closeOnEsc={!preventClose}
+      closeOnOverlayClick={!preventClose && isHighestModal}
+      closeOnEsc={!preventClose && isHighestModal}
     >
       <ModalOverlay {...overlayProps} />
       <ModalContent

@@ -82,7 +82,6 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen: orderToCancel !== undefined,
     onClose: handleClose,
-    modalId: 'cancel-limit-order-modal',
   })
 
   const handleRequestCancellation = useCallback(async () => {

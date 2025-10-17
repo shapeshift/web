@@ -18,7 +18,6 @@ export const MobileWelcomeModal = () => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: handleClose,
-    modalId: 'mobile-welcome-modal',
   })
 
   return (

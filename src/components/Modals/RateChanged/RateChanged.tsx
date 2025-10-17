@@ -2,6 +2,7 @@ import { WarningIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Text as CText,
   Flex,
   Heading,
   Modal,
@@ -10,7 +11,6 @@ import {
   ModalFooter,
   ModalOverlay,
   Stack,
-  Text as CText,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -42,7 +42,6 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'rate-changed-modal',
   })
 
   // Mostly to content TS - if we end up here, we *have* a last hop

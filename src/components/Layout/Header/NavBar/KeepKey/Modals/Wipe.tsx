@@ -51,7 +51,6 @@ export const WipeModal = () => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose: handleClose,
-    modalId: 'keep-key-wipe-modal',
   })
 
   const handleWipeDeviceClick = useCallback(async () => {

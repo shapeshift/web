@@ -76,7 +76,6 @@ export const TxWindow = memo(() => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose: handleClose,
-    modalId: 'tx-window-modal',
   })
   return (
     <>

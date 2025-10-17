@@ -36,7 +36,6 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: closeModal,
-    modalId: 'native-onboarding-modal',
   })
 
   const renderRoutes = useMemo(() => {

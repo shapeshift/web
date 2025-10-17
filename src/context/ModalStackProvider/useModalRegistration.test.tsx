@@ -50,17 +50,15 @@ describe('useModalRegistration', () => {
   it('registers modal when isOpen is true', () => {
     setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
-    expect(mockRegisterModal).toHaveBeenCalledWith('test-modal')
+    expect(mockRegisterModal).toHaveBeenCalled()
   })
 
   it('does not register modal when isOpen is false', () => {
     setup({
       isOpen: false,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -71,36 +69,32 @@ describe('useModalRegistration', () => {
     const onClose = vi.fn()
     const { rerender } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose,
     })
 
-    expect(mockRegisterModal).toHaveBeenCalledWith('test-modal')
+    expect(mockRegisterModal).toHaveBeenCalled()
 
     // Clear the mock to track new calls
     mockUnregisterModal.mockClear()
 
     rerender({
       isOpen: false,
-      modalId: 'test-modal',
       onClose,
     })
 
     // unregisterModal should be called when isOpen changes to false
     expect(mockUnregisterModal).toHaveBeenCalled()
-    expect(mockUnregisterModal).toHaveBeenCalledWith('test-modal')
   })
 
   it('unregisters modal on unmount', () => {
     const { unmount } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
     unmount()
 
-    expect(mockUnregisterModal).toHaveBeenCalledWith('test-modal')
+    expect(mockUnregisterModal).toHaveBeenCalled()
   })
 
   it('returns correct zIndex', () => {
@@ -108,7 +102,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -120,7 +113,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -133,7 +125,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -153,7 +144,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -173,7 +163,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -191,7 +180,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -208,7 +196,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -220,7 +207,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose: vi.fn(),
     })
 
@@ -233,7 +219,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose,
     })
 
@@ -253,7 +238,6 @@ describe('useModalRegistration', () => {
 
     const { result } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose,
     })
 
@@ -271,7 +255,6 @@ describe('useModalRegistration', () => {
     const onClose = vi.fn()
     const { result, rerender } = setup({
       isOpen: true,
-      modalId: 'test-modal',
       onClose,
     })
 
@@ -279,7 +262,6 @@ describe('useModalRegistration', () => {
 
     rerender({
       isOpen: false,
-      modalId: 'test-modal',
       onClose,
     })
 

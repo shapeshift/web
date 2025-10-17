@@ -30,7 +30,6 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: handleClose,
-    modalId: 'defi-modal',
   })
 
   return (

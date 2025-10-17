@@ -36,7 +36,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, onClose }) => {
   }, [onClose, navigate])
 
   return (
-    <Dialog id='claim-dialog' isOpen={isOpen} onClose={handleClose} height='auto'>
+    <Dialog isOpen={isOpen} onClose={handleClose} height='auto'>
       <DialogHeader pl={6} pe={0}>
         <DialogHeaderLeft>
           <DialogTitle>{translate('defi.claim')}</DialogTitle>

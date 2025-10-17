@@ -88,7 +88,6 @@ export const AddAccountModal = () => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'add-account-modal',
   })
 
   useEffect(() => {

@@ -192,7 +192,6 @@ export const NewWalletViewsSwitch = () => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen: modal,
     onClose,
-    modalId: 'new-wallet-views-switch-modal',
   })
 
   const handleWalletSelect = useCallback(

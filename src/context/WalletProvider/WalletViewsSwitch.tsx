@@ -90,7 +90,6 @@ export const WalletViewsSwitch = () => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen: modal,
     onClose,
-    modalId: 'wallet-views-switch-modal',
   })
 
   const handleBack = useCallback(async () => {

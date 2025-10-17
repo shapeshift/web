@@ -19,10 +19,9 @@ export type DialogProps = {
   height?: string
   isFullScreen?: boolean
   modalProps?: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'>
-  id: string
 } & PropsWithChildren
 
-const CustomDrawerContent = styled(Drawer.Content)<{ zIndex?: string }>`
+const CustomDrawerContent = styled(Drawer.Content)<{ zIndex?: string; pointerEvents?: string }>`
   background-color: var(--chakra-colors-background-surface-base);
   display: flex;
   flex-direction: column;
@@ -33,13 +32,15 @@ const CustomDrawerContent = styled(Drawer.Content)<{ zIndex?: string }>`
   left: 0;
   right: 0;
   z-index: ${props => props.zIndex || 'var(--chakra-zIndices-modal)'};
+  pointer-events: ${props => props.pointerEvents || 'auto'}!important;
 `
 
-const CustomDrawerOverlay = styled(Drawer.Overlay)<{ zIndex?: string }>`
+const CustomDrawerOverlay = styled(Drawer.Overlay)<{ zIndex?: string; pointerEvents?: string }>`
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
   z-index: ${props => props.zIndex || 'var(--chakra-zIndices-overlay)'};
+  pointer-events: ${props => props.pointerEvents || 'auto'}!important;
 
   user-select: none;
   -webkit-user-select: none;
@@ -55,7 +56,6 @@ const DialogWindow: React.FC<DialogProps> = ({
   isFullScreen,
   modalProps,
   children,
-  id,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
@@ -66,7 +66,6 @@ const DialogWindow: React.FC<DialogProps> = ({
     isHighestModal,
   } = useModalRegistration({
     isOpen,
-    modalId: id,
     onClose,
   })
 
@@ -88,9 +87,8 @@ const DialogWindow: React.FC<DialogProps> = ({
         : 'calc(100% - env(safe-area-inset-top) - var(--safe-area-inset-top))',
       height: isFullScreen ? viewportHeight : height || '80vh',
       paddingTop: isFullScreen ? 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))' : 0,
-      ...modalContentProps?.containerProps?.sx,
     }
-  }, [height, isFullScreen, viewportHeight, modalContentProps])
+  }, [height, isFullScreen, viewportHeight])
 
   useEffect(() => {
     setIsOpen(isOpen)
@@ -130,8 +128,10 @@ const DialogWindow: React.FC<DialogProps> = ({
         noBodyStyles={!isHighestModal}
       >
         <Drawer.Portal>
-          <CustomDrawerOverlay onClick={handleClose} {...overlayProps} />
-          <CustomDrawerContent {...contentStyle}>{children}</CustomDrawerContent>
+          <CustomDrawerOverlay onClick={handleClose} {...overlayProps?.sx} />
+          <CustomDrawerContent style={contentStyle} {...modalContentProps?.containerProps?.sx}>
+            {children}
+          </CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
     )

@@ -136,7 +136,6 @@ const DrawerWalletInner: FC = memo(() => {
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose,
-    modalId: 'wallet-drawer-modal',
   })
 
   const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])

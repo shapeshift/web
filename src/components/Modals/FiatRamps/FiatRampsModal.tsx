@@ -37,7 +37,6 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose: close,
-    modalId: 'fiat-ramps-modal',
   })
 
   return (

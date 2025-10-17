@@ -52,7 +52,6 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
     onClose,
-    modalId: 'popup-window-modal',
   })
 
   const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])

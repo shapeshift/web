@@ -42,7 +42,7 @@ const Settings = () => {
   }, [appHistory, close, isOpen])
 
   return (
-    <Dialog id='settings-modal' isOpen={isOpen} onClose={close} height='auto'>
+    <Dialog isOpen={isOpen} onClose={close} height='auto'>
       <MemoryRouter initialEntries={entries} initialIndex={0}>
         <SettingsRouter />
       </MemoryRouter>

@@ -55,7 +55,7 @@ export const HighlightedTokensCategoryDialog = ({
   handleCategoryChange,
 }: HighlightedTokensCategoryDialogProps) => {
   return (
-    <Dialog id='highlighted-tokens-category-dialog' isOpen={isOpen} onClose={onClose} height='auto'>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <Box
         py={4}
         pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + var(--chakra-space-4))'

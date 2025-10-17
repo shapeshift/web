@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 
 import { SnapContentRouter } from './SnapContent'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 
@@ -13,6 +14,10 @@ export type SnapsModalProps = {
 export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   const { close, isOpen } = useModal('snaps')
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose: close,
+  })
 
   useEffect(() => {
     if (isSnapInstalled && isCorrectVersion) {
@@ -28,9 +33,9 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   if (isCorrectVersion === null) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
-      <ModalOverlay />
-      <ModalContent minW='450px'>
+    <Modal {...modalProps} isCentered size='sm'>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps} minW='450px'>
         <ModalCloseButton />
         <SnapContentRouter
           isRemoved={isRemoved}

@@ -23,6 +23,7 @@ import { useSelector } from 'react-redux'
 
 import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
 import { RawText } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
@@ -84,6 +85,11 @@ export const AddAccountModal = () => {
 
   const { close, isOpen } = useModal('addAccount')
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose: close,
+  })
+
   useEffect(() => {
     setSelectedChainId(chainIds[0])
   }, [chainIds])
@@ -144,9 +150,9 @@ export const AddAccountModal = () => {
   ])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered>
-      <ModalOverlay />
-      <ModalContent>
+    <Modal {...modalProps} isCentered>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalHeader textAlign='center'>{translate('accounts.addAccount')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody alignItems='center' justifyContent='center'>

@@ -2,7 +2,7 @@ import { HStack, Image, Skeleton, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { getAddress, isAddress, maxUint256 } from 'viem'
@@ -33,12 +33,21 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
 
   const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
+  const [cachedSimulationData, setCachedSimulationData] =
+    useState<typeof simulationQuery.data>(null)
+
+  useEffect(() => {
+    if (simulationQuery.data && !cachedSimulationData) {
+      setCachedSimulationData(simulationQuery.data)
+    }
+  }, [simulationQuery.data, cachedSimulationData])
+
   const assetChanges = useMemo((): AssetChange[] => {
-    if (!simulationQuery.data) return []
+    if (!cachedSimulationData) return []
     if (!isAddress(transaction.from)) return []
 
-    return parseAssetChanges(simulationQuery.data, getAddress(transaction.from))
-  }, [simulationQuery.data, transaction.from])
+    return parseAssetChanges(cachedSimulationData, getAddress(transaction.from))
+  }, [cachedSimulationData, transaction.from])
 
   const sendChanges = useMemo(
     () => assetChanges.filter(change => change.type === 'send'),
@@ -52,8 +61,8 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
 
   const exposureChanges = useMemo(
     (): TenderlyExposureChange[] =>
-      simulationQuery.data?.transaction.transaction_info?.exposure_changes || [],
-    [simulationQuery.data?.transaction.transaction_info?.exposure_changes],
+      cachedSimulationData?.transaction.transaction_info?.exposure_changes || [],
+    [cachedSimulationData],
   )
 
   const allowanceSimulationRows = useMemo(() => {
@@ -197,15 +206,12 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
     })
   }, [receiveChanges, translate])
 
-  if (
-    !simulationQuery.isLoading &&
-    !(allowanceSimulationRows.length || sendChanges.length || receiveChanges.length)
-  ) {
+  if (!(allowanceSimulationRows.length || sendChanges.length || receiveChanges.length)) {
     return null
   }
 
   return (
-    <Skeleton isLoaded={!simulationQuery.isLoading}>
+    <Skeleton isLoaded={!!cachedSimulationData}>
       <VStack spacing={2} align='stretch'>
         {allowanceSimulationRows}
         {sendChangeRow}

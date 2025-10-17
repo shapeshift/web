@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -48,14 +48,23 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
 
   const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
+  const [cachedSimulationData, setCachedSimulationData] =
+    useState<typeof simulationQuery.data>(null)
+
+  useEffect(() => {
+    if (simulationQuery.data && !cachedSimulationData) {
+      setCachedSimulationData(simulationQuery.data)
+    }
+  }, [simulationQuery.data, cachedSimulationData])
+
   const functionName = useMemo(() => {
-    return simulationQuery.data?.simulation?.method || null
-  }, [simulationQuery.data?.simulation?.method])
+    return cachedSimulationData?.simulation?.method || null
+  }, [cachedSimulationData])
 
   const decodedArguments = useMemo((): ParsedArgument[] => {
-    if (!simulationQuery.data) return []
-    return parseDecodedInput(simulationQuery.data)
-  }, [simulationQuery.data])
+    if (!cachedSimulationData) return []
+    return parseDecodedInput(cachedSimulationData)
+  }, [cachedSimulationData])
 
   const structuredFields = useMemo((): StructuredField[] => {
     return convertToStructuredFields(decodedArguments)
@@ -116,7 +125,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
                     <RawText fontSize='sm' color='text.subtle'>
                       {translate('plugins.walletConnectToDapps.modal.method')}
                     </RawText>
-                    <Skeleton isLoaded={!simulationQuery.isLoading}>
+                    <Skeleton isLoaded={!!cachedSimulationData}>
                       <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
                         {functionName}
                       </RawText>
@@ -125,7 +134,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
                   <StructuredMessage
                     fields={structuredFields}
                     chainId={chainId}
-                    isLoading={simulationQuery.isLoading}
+                    isLoading={!cachedSimulationData}
                   />
                 </VStack>
               )}

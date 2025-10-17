@@ -78,36 +78,18 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     [handleSpeedChange],
   )
 
-  if (!fee?.feeAsset) return null
-
-  if (gasFeeDataQuery.isLoading || simulationQuery.isLoading) {
-    return (
-      <HStack justify='space-between' w='full' align='center'>
-        <VStack spacing={0} align='flex-start'>
-          <Skeleton height='20px' width='120px' />
-          <HStack spacing={1} align='center'>
-            <HelperTooltip
-              label={translate('modals.status.estimatedGas')}
-              iconProps={tooltipIconSx}
-            />
-            <RawText fontSize='xs' color='text.subtle'>
-              {translate('common.feeEstimate')}
-            </RawText>
-          </HStack>
-        </VStack>
-        <Skeleton height='32px' width='100px' />
-      </HStack>
-    )
-  }
-
-  if (!fee) return null
+  const isLoading = gasFeeDataQuery.isLoading || simulationQuery.isLoading || !fee
 
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
-        <RawText fontSize='sm' fontWeight='medium'>
-          {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
-        </RawText>
+        {isLoading ? (
+          <Skeleton height='20px' width='180px' />
+        ) : (
+          <RawText fontSize='sm' fontWeight='medium'>
+            {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
+          </RawText>
+        )}
         <HStack spacing={1} align='center'>
           <HelperTooltip
             label={translate('modals.status.estimatedGas')}

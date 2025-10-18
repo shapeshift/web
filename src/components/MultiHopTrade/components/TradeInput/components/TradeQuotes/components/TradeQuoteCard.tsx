@@ -13,6 +13,7 @@ export type TradeQuoteCardProps = {
   title?: string
   isActive: boolean
   isActionable: boolean
+  isAvailable: boolean
   headerContent: JSX.Element
   bodyContent: JSX.Element | null
   isDisabled: boolean
@@ -24,6 +25,7 @@ export const TradeQuoteCard = ({
   title,
   isActive,
   isActionable,
+  isAvailable,
   headerContent,
   bodyContent,
   isDisabled,
@@ -64,7 +66,7 @@ export const TradeQuoteCard = ({
           <Tooltip label={title}>
             <Flex alignItems='center' gap={2}>
               <Box>{icon}</Box>
-              {title && (
+              {!isAvailable && (
                 <Text fontSize='sm' fontWeight='medium'>
                   {title}
                 </Text>

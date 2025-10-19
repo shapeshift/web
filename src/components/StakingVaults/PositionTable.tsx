@@ -20,7 +20,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { isEthAddress } from '@/lib/utils/ethAddress'
+import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByChainId,
@@ -180,7 +180,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         return []
       }
       const search = filterValue.trim().toLowerCase()
-      if (isEthAddress(filterValue)) {
+      if (isEvmAddress(filterValue)) {
         return rows.filter(
           row => fromAssetId(row.assetId).assetReference.toLowerCase() === filterValue,
         )

@@ -1,12 +1,13 @@
 import {
   Box,
   Button,
+  Text as ChakraText,
   FormControl,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Text as ChakraText,
+  Portal,
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
@@ -16,6 +17,7 @@ import { AddressInput } from '../AddressInput/AddressInput'
 import { QRCodeIcon } from './QRCodeIcon'
 
 import { AddressBook } from '@/components/Modals/Send/AddressBook/AddressBook'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 
 interface AddressInputWithDropdownProps {
   addressInputRules: any
@@ -42,6 +44,7 @@ export const AddressInputWithDropdown = ({
   onEmptied,
   chainId,
 }: AddressInputWithDropdownProps) => {
+  const modalChildZIndex = useModalChildZIndex()
   const handleQRClick = useCallback(() => {
     onScanQRCode()
   }, [onScanQRCode])
@@ -70,33 +73,35 @@ export const AddressInputWithDropdown = ({
             />
           </Box>
         </PopoverTrigger>
-        <PopoverContent width='full'>
-          <PopoverBody px={4} py={3}>
-            <VStack align='stretch' spacing={3}>
-              <Button
-                size='lg'
-                leftIcon={qrCodeIcon}
-                onClick={handleQRClick}
-                justifyContent='flex-start'
-                height='auto'
-                variant='ghost'
-                px={2}
-                py={2}
-              >
-                <VStack align='start' spacing={0}>
-                  <ChakraText fontSize='md' fontWeight='medium' color='text.primary'>
-                    {translate('modals.send.scanQrCode')}
-                  </ChakraText>
-                  <ChakraText fontSize='sm' color='text.subtle'>
-                    {translate('modals.send.sendForm.scanQrCodeDescription')}
-                  </ChakraText>
-                </VStack>
-              </Button>
+        <Portal>
+          <PopoverContent width='full' zIndex={modalChildZIndex}>
+            <PopoverBody px={4} py={3}>
+              <VStack align='stretch' spacing={3}>
+                <Button
+                  size='lg'
+                  leftIcon={qrCodeIcon}
+                  onClick={handleQRClick}
+                  justifyContent='flex-start'
+                  height='auto'
+                  variant='ghost'
+                  px={2}
+                  py={2}
+                >
+                  <VStack align='start' spacing={0}>
+                    <ChakraText fontSize='md' fontWeight='medium' color='text.primary'>
+                      {translate('modals.send.scanQrCode')}
+                    </ChakraText>
+                    <ChakraText fontSize='sm' color='text.subtle'>
+                      {translate('modals.send.sendForm.scanQrCodeDescription')}
+                    </ChakraText>
+                  </VStack>
+                </Button>
 
-              <AddressBook onSelectEntry={handleSelectEntry} chainId={chainId} />
-            </VStack>
-          </PopoverBody>
-        </PopoverContent>
+                <AddressBook onSelectEntry={handleSelectEntry} chainId={chainId} />
+              </VStack>
+            </PopoverBody>
+          </PopoverContent>
+        </Portal>
       </Popover>
     </FormControl>
   )

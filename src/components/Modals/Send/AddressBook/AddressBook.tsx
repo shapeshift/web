@@ -2,9 +2,9 @@ import {
   Avatar,
   Box,
   Button,
+  Text as CText,
   HStack,
   Icon,
-  Text as CText,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -63,21 +63,29 @@ const AddressBookEntryButton = ({ entry, onSelect, onDelete }: AddressBookEntryB
   )
 
   return (
-    <Box cursor='pointer' alignItems='center' justifyContent='space-between' display='flex'>
+    <Box
+      cursor='pointer'
+      alignItems='center'
+      justifyContent='space-between'
+      display='flex'
+      overflow='hidden'
+      width='full'
+    >
       <HStack
         px={2}
         py={1}
         borderRadius='lg'
         spacing={3}
         align='center'
-        width='full'
+        flex={1}
+        minWidth={0}
         onClick={handleClick}
         transition='all 0.2s'
         sx={addressSx}
         me={2}
       >
-        <Avatar src={avatarUrl} size='sm' />
-        <VStack align='start' spacing={0} flex={1}>
+        <Avatar src={avatarUrl} size='sm' flexShrink={0} />
+        <VStack align='start' spacing={0} flex={1} minWidth={0}>
           <CText fontSize='md' fontWeight='semibold' color='text.primary' lineHeight={1}>
             {entry.name}
           </CText>
@@ -86,7 +94,7 @@ const AddressBookEntryButton = ({ entry, onSelect, onDelete }: AddressBookEntryB
           </CText>
         </VStack>
       </HStack>
-      <Button size='sm' onClick={handleDelete(entry.id)} sx={deleteButtonSx}>
+      <Button size='sm' onClick={handleDelete(entry.id)} sx={deleteButtonSx} flexShrink={0}>
         <Icon as={FaTrash} boxSize={4} />
       </Button>
     </Box>
@@ -112,7 +120,7 @@ export const AddressBook = ({
   const [selectedDeleteEntry, setSelectedDeleteEntry] = useState<AddressBookEntry | null>(null)
 
   const addressBookEntries = useAppSelector(state =>
-    chainId ? selectAddressBookEntriesByChainNamespace(state, chainId) : [],
+    selectAddressBookEntriesByChainNamespace(state, chainId ?? ''),
   )
 
   const handleDelete = useCallback(

@@ -22,6 +22,7 @@ export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
   web3wallet: WalletConnectState['web3wallet'],
 ) => {
+  // Open session proposal modal for confirmation / rejection
   const handleSessionProposal = useCallback(
     (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
       dispatch({

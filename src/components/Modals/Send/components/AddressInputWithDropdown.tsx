@@ -1,31 +1,32 @@
 import {
   Box,
   Button,
-  Text as ChakraText,
   FormControl,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
   Portal,
+  Text as ChakraText,
   VStack,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { fromAssetId } from '@shapeshiftoss/caip/dist/cjs'
+import { useCallback, useMemo } from 'react'
+import type { ControllerProps } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 
 import { AddressInput } from '../AddressInput/AddressInput'
-import { QRCodeIcon } from './QRCodeIcon'
 
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { AddressBook } from '@/components/Modals/Send/AddressBook/AddressBook'
+import type { SendInput } from '@/components/Modals/Send/Form'
 import { useModalChildZIndex } from '@/context/ModalStackProvider'
 
 interface AddressInputWithDropdownProps {
-  addressInputRules: any
+  addressInputRules: ControllerProps['rules']
   supportsENS: boolean
   translate: (key: string) => string
   onScanQRCode: () => void
-  chainId?: ChainId
-  resolvedAddress?: string
   onSelectEntry: (address: string) => void
   onSaveContact: (e: React.MouseEvent<HTMLButtonElement>) => void
   onEmptied?: () => void
@@ -38,12 +39,17 @@ export const AddressInputWithDropdown = ({
   supportsENS,
   translate,
   onScanQRCode,
-  resolvedAddress,
   onSelectEntry,
   onSaveContact,
   onEmptied,
-  chainId,
 }: AddressInputWithDropdownProps) => {
+  const { control } = useFormContext<SendInput>()
+  const { assetId } = useWatch({
+    control,
+  }) as Partial<SendInput>
+
+  const chainId = useMemo(() => fromAssetId(assetId ?? '').chainId, [assetId])
+
   const modalChildZIndex = useModalChildZIndex()
   const handleQRClick = useCallback(() => {
     onScanQRCode()
@@ -66,10 +72,8 @@ export const AddressInputWithDropdown = ({
               placeholder={translate(
                 supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
               )}
-              resolvedAddress={resolvedAddress}
               onSaveContact={onSaveContact}
               onEmptied={onEmptied}
-              chainId={chainId}
             />
           </Box>
         </PopoverTrigger>

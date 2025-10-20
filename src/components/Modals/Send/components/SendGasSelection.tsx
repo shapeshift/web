@@ -5,7 +5,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 
 import type { SendInput } from '../Form'
 
-import { GasSelection } from '@/components/GasSelection'
+import { GasSelection } from '@/components/GasSelection/GasSelection'
 import { useSendFees } from '@/components/Modals/Send/hooks/useSendFees/useSendFees'
 import { SendFormFields } from '@/components/Modals/Send/SendCommon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -26,9 +26,9 @@ export const SendGasSelection: FC = () => {
     return bnOrZero(fiatFee).toFixed(2)
   }, [fees, feeType])
 
-  const cryptoAmountFee = useMemo(() => {
+  const txFeeCryptoPrecision = useMemo(() => {
     const { txFee } = fees ? fees[feeType as FeeDataKey] : { txFee: 0 }
-    return bnOrZero(txFee).toFixed(8)
+    return bnOrZero(txFee).toFixed()
   }, [fees, feeType])
 
   const selectedSpeed = feeType as FeeDataKey
@@ -40,17 +40,14 @@ export const SendGasSelection: FC = () => {
     [setValue],
   )
 
-  const feeSymbol = feeAsset?.symbol ?? 'ETH'
-
   return (
     <GasSelection
       selectedSpeed={selectedSpeed}
       onSpeedChange={handleSpeedChange}
-      feeAmount={cryptoAmountFee}
-      feeSymbol={feeSymbol}
+      amountCryptoPrecision={txFeeCryptoPrecision}
+      feeAssetId={feeAsset?.assetId}
       fiatFee={feeAmountUserCurrency.toString()}
       isLoading={false}
-      showSimulationTooltip={false}
     />
   )
 }

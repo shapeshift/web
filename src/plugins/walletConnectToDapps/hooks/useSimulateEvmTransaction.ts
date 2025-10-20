@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import * as adapters from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -39,12 +40,10 @@ export const useSimulateEvmTransaction = ({
     retry: false,
   })
 
-  const gasPrice = useMemo(() => {
+  const feeData = useMemo(() => {
     if (!gasFeeDataQuery.data) return
 
-    const feeData = gasFeeDataQuery.data[speed]
-
-    return feeData?.gasPrice || feeData?.maxFeePerGas
+    return gasFeeDataQuery.data[speed]
   }, [gasFeeDataQuery.data, speed])
 
   const simulationQuery = useQuery({
@@ -55,10 +54,10 @@ export const useSimulateEvmTransaction = ({
       transaction?.to,
       transaction?.data,
       transaction?.value,
-      gasPrice,
+      feeData,
     ],
     queryFn:
-      transaction && gasPrice
+      transaction && feeData
         ? () =>
             simulateTransaction({
               chainId,
@@ -66,7 +65,7 @@ export const useSimulateEvmTransaction = ({
               to: transaction.to,
               data: transaction.data,
               value: transaction.value,
-              gasPrice,
+              feeData,
             })
         : skipToken,
     staleTime: 30000,
@@ -74,7 +73,7 @@ export const useSimulateEvmTransaction = ({
   })
 
   const fee = useMemo(() => {
-    if (!simulationQuery?.data || !gasPrice) {
+    if (!simulationQuery?.data || !feeData) {
       return null
     }
 
@@ -88,24 +87,25 @@ export const useSimulateEvmTransaction = ({
       return null
     }
 
-    const txFeeCryptoBaseUnit = bnOrZero(gasPrice).times(simulationQuery.data.transaction.gas_used)
-    const txFeeCryptoPrecision = bnOrZero(
-      fromBaseUnit(txFeeCryptoBaseUnit.toFixed(), feeAsset.precision),
-    )
+    const txFeeCryptoBaseUnit = adapters.evm.calcNetworkFeeCryptoBaseUnit({
+      ...feeData,
+      gasLimit: simulationQuery.data.transaction.gas_used.toString(),
+      supportsEIP1559: true,
+    })
+    const txFeeCryptoPrecision = bnOrZero(fromBaseUnit(txFeeCryptoBaseUnit, feeAsset.precision))
     const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
 
     return {
-      txFeeCryptoBaseUnit: txFeeCryptoBaseUnit.toFixed(),
+      txFeeCryptoBaseUnit,
       txFeeCryptoPrecision: txFeeCryptoPrecision.toFixed(6),
       fiatFee: fiatFee.toFixed(2),
       feeAsset,
     }
-  }, [simulationQuery?.data, gasPrice, chainId])
+  }, [simulationQuery?.data, feeData, chainId])
 
   return {
     simulationQuery,
     gasFeeDataQuery,
-    gasPrice,
     fee,
   }
 }

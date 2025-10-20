@@ -34,7 +34,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_RFOX_LP: string
   readonly VITE_FEATURE_ARBITRUM_BRIDGE: string
   readonly VITE_FEATURE_CUSTOM_TOKEN_IMPORT: string
-  readonly VITE_FEATURE_ARBITRUM_BRIDGE_CLAIMS: string
   readonly VITE_FEATURE_USDT_APPROVAL_RESET: string
   readonly VITE_FEATURE_PORTALS_SWAPPER: string
   readonly VITE_FEATURE_RUNEPOOL: string
@@ -172,6 +171,9 @@ interface ImportMetaEnv {
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string
+
+  // Local development only - enables Sentry on localhost
+  readonly VITE_ENABLE_SENTRY_LOCALHOST?: string
 }
 
 interface ImportMeta {

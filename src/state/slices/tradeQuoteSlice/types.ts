@@ -15,6 +15,7 @@ export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
   activeQuoteMeta: ActiveQuoteMeta | undefined // the selected quote metadata used to find the active quote in the api responses
   confirmedQuote: TradeQuote | TradeRate | undefined // the quote being executed
+  isQuickBuy: boolean // whether the current trade is a QuickBuy trade
   tradeExecution: Record<TradeQuote['id'], TradeExecutionMetadata>
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
   tradeQuoteDisplayCache: ApiQuote[]

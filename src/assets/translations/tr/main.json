@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Yükseltme",
     "viewOnExplorer": "Explorer'da görüntüle",
+    "viewAssetDetails": "Varlık Ayrıntılarını Görüntüle",
     "approval": "Onay",
     "permit2Approval": "Permit2 Onayı",
     "network": "Ağ",
@@ -390,6 +391,7 @@
       "switchWallet": "Cüzdanı Değiştir",
       "disconnect": "Bağlantıyı kes",
       "disconnected": "(Bağlantı kesildi)",
+      "locked": "(Kilitli)",
       "reconnectWallet": "Cüzdanı Tekrar Bağla",
       "walletNotConnected": "Cüzdanınız şu anda bağlı değil. Bu durum işlemlerinizi etkileyecektir.",
       "connecting": "Bağlanıyor..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "Onayla ve Talep Et",
     "viewClaims": "Talepleri Görüntüle",
     "viewClaimStatus": "Talep Durumunu Görüntüle",
-    "availableClaimsNotification": "Köprü talepleriniz hazır!"
+    "availableClaimsNotification": "Köprü talepleriniz hazır!",
+    "bridgeWithdrawalReadyNotification": "Köprü çekimi talep edilmeye hazır",
+    "bridgeWithdrawalFailedNotification": "Köprünün çekilmesi başarısız oldu",
+    "checkActionCenterNotification": "Ayrıntılar için Eylem Merkezi'ni kontrol edin"
   },
   "trade": {
     "trade": "Takas",
@@ -2176,11 +2181,12 @@
   },
   "assets": {
     "more": "Daha fazla",
+    "hideAsset": "Varlığı Gizle",
+    "showAsset": "Varlığı Göster",
+    "cannotHidePrimary": "İlgili varyantlara sahip birincil varlıklar gizlenemez",
     "spam": {
-      "warning": "Bu varlık gizlenecek çünkü onu spam olarak işaretlediniz.",
-      "marked": "Bu varlık spam olarak işaretlendi.",
-      "reportAsSpam": "Spam olarak bildir",
-      "reportAsNotSpam": "Spam değil olarak işaretle"
+      "warning": "Bu varlık, cüzdan açılır menüsünü açıp 'Gizli Varlıkları Yönet'e tıklayarak tekrar gösterilebilir.",
+      "marked": "Bu varlık şu anda gizli."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2795,6 +2801,13 @@
     },
     "title": "İzleme listesi"
   },
+  "manageHiddenAssets": {
+    "title": "Gizli Varlıkları Yönet",
+    "empty": {
+      "title": "Gizli varlık yok",
+      "body": "Gizlediğiniz varlıklar burada görünecek ve bunları daha sonra tekrar göstermeniz kolaylaşacaktır."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Havuzlar",
@@ -3126,6 +3139,7 @@
       "switchChainFailed": "Cüzdan zinciri değiştirilemedi. Cüzdan etkin zincirinizi manuel olarak %{chain} olarak değiştirmeyi deneyin.",
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
+      "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda 'Blind Signing'i etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",
@@ -3202,10 +3216,17 @@
       "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
     },
     "bridge": {
-      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
-      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz tamamlandı.",
-      "initiated": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başlatıldı.",
-      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu."
+      "processing": "İşleniyor...",
+      "complete": "%{amountAndSymbol} köprünüz tamamlandı.",
+      "initiated": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki köprünüz başlatıldı.",
+      "pendingWithdraw": "%{amountAndSymbol} tutarındaki çekim işleminiz %{timeText} tarihinde gerçekleştirilebilecek.",
+      "claimAvailable": "%{amountAndSymbol} köprünüz talep edilebilir.",
+      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu.",
+      "transactionInitiated": "İşlem Başlatıldı",
+      "claimWithdraw": "Talep Geri Çekme",
+      "withdrawTx": "Tx'i Çek",
+      "claimTx": "Talep Tx",
+      "claimNotAvailable": "Talep henüz aktif değil. Lütfen cayma süresinin dolmasını bekleyin."
     },
     "limitOrder": {
       "placed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasında limit emri verildi",

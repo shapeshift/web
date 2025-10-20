@@ -24,6 +24,7 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 
@@ -225,6 +226,11 @@ export const ReceiveAmount = ({
   onConfirm,
   isModal = false,
 }: ReceiveAmountProps) => {
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: isModal,
+    onClose,
+  })
+
   const content = useMemo(
     () => (
       <ReceiveAmountContent
@@ -240,9 +246,9 @@ export const ReceiveAmount = ({
 
   if (isModal) {
     return (
-      <Modal isOpen onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>{content}</ModalContent>
+      <Modal {...modalProps} isCentered>
+        <ModalOverlay {...overlayProps} />
+        <ModalContent {...modalContentProps}>{content}</ModalContent>
       </Modal>
     )
   }

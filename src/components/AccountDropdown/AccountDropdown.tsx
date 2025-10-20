@@ -14,7 +14,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import sortBy from 'lodash/sortBy'
@@ -27,7 +26,10 @@ import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
+import type { AccountIdsByNumberAndType } from '@/components/AccountDropdown/types'
+import { utxoAccountTypeToDisplayPriority } from '@/components/AccountDropdown/utils'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
@@ -56,24 +58,6 @@ export type AccountDropdownProps = {
   boxProps?: BoxProps
   showLabel?: boolean
   label?: JSX.Element
-}
-
-const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
-  switch (accountType) {
-    case UtxoAccountType.SegwitNative:
-      return 0
-    case UtxoAccountType.SegwitP2sh:
-      return 1
-    case UtxoAccountType.P2pkh:
-      return 2
-    // We found something else, put it at the end
-    default:
-      return 3
-  }
-}
-
-type AccountIdsByNumberAndType = {
-  [k: number]: AccountId[]
 }
 
 type MenuOptionsProps = {
@@ -198,6 +182,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     showLabel = true,
     label,
   }) => {
+    const modalChildZIndex = useModalChildZIndex()
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>
       selectPortfolioAccountIdsByAssetIdFilter(s, filter),
@@ -350,7 +335,12 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               )}
             </Flex>
           </MenuButton>
-          <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
+          <MenuList
+            minWidth='fit-content'
+            maxHeight='200px'
+            overflowY='auto'
+            zIndex={modalChildZIndex}
+          >
             <MenuOptions
               accountIdsByNumberAndType={accountIdsByNumberAndType}
               asset={asset}

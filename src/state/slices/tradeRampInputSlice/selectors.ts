@@ -45,13 +45,18 @@ export const selectSellFiatAmount = createSelector(
   tradeRampInput => tradeRampInput.sellFiatAmount,
 )
 
-export const selectSelectedFiatRampQuote = createSelector(
+export const selectSelectedBuyFiatRampQuote = createSelector(
   selectBaseSlice,
-  tradeRampInput => tradeRampInput.selectedFiatRampQuote,
+  tradeRampInput => tradeRampInput.selectedBuyFiatRampQuote,
+)
+
+export const selectSelectedSellFiatRampQuote = createSelector(
+  selectBaseSlice,
+  tradeRampInput => tradeRampInput.selectedSellFiatRampQuote,
 )
 
 export const selectFiatBuyAmount = createSelector(
-  [selectSelectedFiatRampQuote, selectInputSellAmountCryptoPrecision],
+  [selectSelectedBuyFiatRampQuote, selectInputSellAmountCryptoPrecision],
   (selectedQuote, sellAmountCryptoPrecision) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
@@ -63,7 +68,7 @@ export const selectFiatBuyAmount = createSelector(
 )
 
 export const selectCryptoBuyAmount = createSelector(
-  [selectSelectedFiatRampQuote, selectSellFiatAmount],
+  [selectSelectedBuyFiatRampQuote, selectSellFiatAmount],
   (selectedQuote, sellFiatAmount) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 

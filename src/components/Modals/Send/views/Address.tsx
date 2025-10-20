@@ -1,10 +1,10 @@
 import {
   Button,
-  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
+  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -12,15 +12,15 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { TbScan } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { AddressBook } from '../AddressBook/AddressBook'
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
@@ -60,6 +60,9 @@ export const Address = () => {
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
   const addAddress = useModal('addAddress')
 
+  const location = useLocation()
+  const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
+
   const qrCodeIcon = useMemo(
     () => (
       <Flex
@@ -71,7 +74,7 @@ export const Address = () => {
         justifyContent='center'
         sx={qrCodeSx}
       >
-        <Icon as={TbScan} />
+        <Icon as={QRCodeIcon} />
       </Flex>
     ),
     [qrBackground],
@@ -99,9 +102,14 @@ export const Address = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
-  const handleNext = useCallback(() => navigate(SendRoutes.Amount), [navigate])
+  const handleNext = useCallback(() => navigate(SendRoutes.AmountDetails), [navigate])
 
   const handleBackClick = useCallback(() => {
+    if (isFromQrCode) {
+      navigate(SendRoutes.Scan)
+      return
+    }
+
     setValue(SendFormFields.AssetId, '')
     navigate(SendRoutes.Select, {
       state: {
@@ -109,7 +117,7 @@ export const Address = () => {
         assetId: '',
       },
     })
-  }, [navigate, setValue])
+  }, [navigate, setValue, isFromQrCode])
 
   const addressInputRules = useMemo(
     () => ({
@@ -199,7 +207,7 @@ export const Address = () => {
             <AddressInput
               rules={addressInputRules}
               placeholder={translate(
-                supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+                supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
               resolvedAddress={address}
               chainId={asset?.chainId}

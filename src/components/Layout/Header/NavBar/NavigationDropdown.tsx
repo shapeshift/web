@@ -70,7 +70,6 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       return (
         currentPath.startsWith('/trade') ||
         currentPath.startsWith('/limit') ||
-        currentPath.startsWith('/claim') ||
         currentPath.startsWith('/ramp')
       )
     }
@@ -130,8 +129,9 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                 as={ReactRouterLink}
                 to={item.path}
                 color={isItemActive ? 'text.base' : 'text.subtle'}
+                p={3}
                 _hover={menuItemHoverSx}
-                icon={item.icon && <Icon as={item.icon} boxSize={4} />}
+                icon={item.icon && <Icon as={item.icon} boxSize={6} />}
               >
                 <Text>{translate(item.label)}</Text>
               </MenuItem>

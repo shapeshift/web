@@ -18,6 +18,7 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
+import { ArbitrumBridgeWithdrawActionCard } from './components/ArbitrumBridgeWithdrawActionCard'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
@@ -31,6 +32,7 @@ import { RfoxInitiatedActionCard } from '@/components/Layout/Header/ActionCenter
 import { CancelLimitOrder } from '@/components/MultiHopTrade/components/LimitOrder/components/CancelLimitOrder'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
@@ -54,6 +56,10 @@ const INCREASE_VIEWPORT_BY = {
 
 export const ActionCenter = memo(() => {
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen: isDrawerOpen,
+    onClose: closeDrawer,
+  })
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
@@ -122,6 +128,9 @@ export const ActionCenter = memo(() => {
           case ActionType.RewardDistribution: {
             return <RewardDistributionActionCard key={action.id} action={action} />
           }
+          case ActionType.ArbitrumBridgeWithdraw: {
+            return <ArbitrumBridgeWithdrawActionCard key={action.id} action={action} />
+          }
           default:
             return null
         }
@@ -187,9 +196,14 @@ export const ActionCenter = memo(() => {
     <>
       <Display.Desktop>
         <Box position='relative'>{actionCenterButton}</Box>
-        <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} size='sm'>
-          <DrawerOverlay backdropBlur='10px' />
-          <DrawerContent minHeight='100vh' maxHeight='100vh' paddingTop='env(safe-area-inset-top)'>
+        <Drawer size='sm' {...modalProps}>
+          <DrawerOverlay backdropBlur='10px' {...overlayProps} />
+          <DrawerContent
+            minHeight='100vh'
+            maxHeight='100vh'
+            paddingTop='env(safe-area-inset-top)'
+            {...modalContentProps}
+          >
             <DrawerCloseButton top='calc(18px + env(safe-area-inset-top))' />
             <DrawerHeader
               px={paddingProp}

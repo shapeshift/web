@@ -18,7 +18,7 @@ import { Status } from './views/Status'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { SendAmount } from '@/components/Modals/Send/views/SendAmount'
+import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -42,7 +42,7 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const status = <Status />
-const sendAmount = <SendAmount />
+const sendAmount = <SendAmountDetails />
 const address = <Address />
 
 export type SendInput<T extends ChainId = ChainId> = {
@@ -88,7 +88,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const {
     state: { wallet },
   } = useWallet()
-  const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const [addressError, setAddressError] = useState<string | null>(null)
 
@@ -210,16 +210,16 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       // Use requestAnimationFrame to ensure navigation happens after state updates
       requestAnimationFrame(() => {
-        if (isUnderMd) {
+        if (isSmallerThanMd) {
           navigate(SendRoutes.Address, { replace: true })
           return
         }
-        // On desktop, go directly to Amount (which includes Address)
+        // On desktop, go directly to AmountDetails
         // On mobile, go to Address first
-        navigate(SendRoutes.Amount, { replace: true })
+        navigate(SendRoutes.AmountDetails, { replace: true })
       })
     },
-    [navigate, methods, selectedCurrency, isUnderMd],
+    [navigate, methods, selectedCurrency, isSmallerThanMd],
   )
 
   const handleBack = useCallback(() => {
@@ -276,17 +276,17 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               .toString(),
           )
         }
-        if (isUnderMd) {
+        if (isSmallerThanMd) {
           navigate(SendRoutes.Address)
           return
         }
 
-        navigate(SendRoutes.Amount)
+        navigate(SendRoutes.AmountDetails)
       } catch (e: any) {
         setAddressError(e.message)
       }
     },
-    [navigate, methods, isUnderMd],
+    [navigate, methods, isSmallerThanMd],
   )
 
   const qrCodeScanner = useMemo(
@@ -324,7 +324,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             <Switch location={location.pathname}>
               <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
               <Route path={SendRoutes.Address}>{address}</Route>
-              <Route path={SendRoutes.Amount}>{sendAmount}</Route>
+              <Route path={SendRoutes.AmountDetails}>{sendAmount}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
               <Route path={SendRoutes.Confirm}>{confirm}</Route>
               <Route path={SendRoutes.Status}>{status}</Route>

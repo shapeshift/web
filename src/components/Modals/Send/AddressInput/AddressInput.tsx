@@ -12,7 +12,6 @@ import {
   InputRightElement,
   Text as CText,
   Text,
-  useMediaQuery,
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
@@ -31,7 +30,6 @@ import type { SendInput } from '@/components/Modals/Send/Form'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']
@@ -42,7 +40,7 @@ type AddressInputProps = {
   chainId?: ChainId
   onSaveContact?: (e: React.MouseEvent<HTMLButtonElement>) => void
   onEmptied?: () => void
-} & InputProps
+} & Omit<InputProps, 'as' | 'value' | 'onChange'>
 
 const addressInputSx = {
   _hover: {
@@ -56,11 +54,13 @@ export const AddressInput = ({
   rules,
   placeholder,
   enableQr = false,
-  pe = 10,
   resolvedAddress,
   chainId,
   onEmptied,
   onSaveContact,
+  onFocus,
+  onBlur,
+  onPaste,
   ...props
 }: AddressInputProps) => {
   const navigate = useNavigate()
@@ -70,7 +70,6 @@ export const AddressInput = ({
   const isDirty = useFormContext<SendInput>().formState.isDirty
   const isValidating = useFormContext<SendInput>().formState.isValidating
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
-  const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const inputRef = useRef<HTMLInputElement>(null)
 
   const addressBookEntries = useAppSelector(state =>
@@ -110,18 +109,18 @@ export const AddressInput = ({
 
   const handleFocus = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
-      props.onFocus?.(e)
+      onFocus?.(e)
       setIsFocused(true)
     },
-    [props],
+    [onFocus],
   )
 
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
-      props.onBlur?.(e)
+      onBlur?.(e)
       setIsFocused(false)
     },
-    [props],
+    [onBlur],
   )
 
   const handleQrClick = useCallback(() => {
@@ -138,14 +137,6 @@ export const AddressInput = ({
     }: {
       field: ControllerRenderProps<FieldValues, SendFormFields.Input>
     }) => {
-      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(e)
-        // Check if the input was emptied
-        if (e.target.value === '' && value !== '' && onEmptied) {
-          onEmptied()
-        }
-      }
-
       if (isFocused || !resolvedAddress || isInvalid) {
         return (
           <InputGroup alignItems='center'>
@@ -155,25 +146,23 @@ export const AddressInput = ({
               </Text>
             </InputLeftElement>
             <Input
-              ref={inputRef}
+              as={ResizeTextarea}
               spellCheck={false}
               placeholder={placeholder}
-              as={ResizeTextarea}
               value={value}
               variant='filled'
               minHeight='auto'
-              minRows={1}
               borderRadius='10px'
+              minRows={1}
               py={3}
               data-test='send-address-input'
               data-1p-ignore
-              autoFocus={isUnderMd}
-              pe={pe}
               isInvalid={isInvalid && isDirty}
               onFocus={handleFocus}
-              {...props}
               onBlur={handleBlur}
-              onChange={handleChange}
+              onPaste={onPaste}
+              {...props}
+              onChange={onChange}
             />
           </InputGroup>
         )
@@ -241,24 +230,9 @@ export const AddressInput = ({
         </Flex>
       )
     },
-    [
-      isFocused,
-      resolvedAddress,
-      isInvalid,
-      placeholder,
-      pe,
-      isDirty,
-      props,
-      translate,
-      handleFocus,
-      handleBlur,
-      addressBookEntry,
-      handleDisplayClick,
-      avatarUrl,
-      onSaveContact,
-      onEmptied,
-      isUnderMd,
-    ],
+    // We want only behavior-specific props to rerender the controller, not all props
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [placeholder, isInvalid, isDirty, translate, onFocus, onBlur, onPaste],
   )
 
   return (

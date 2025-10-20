@@ -18,11 +18,11 @@ export type SendModalProps = {
 
 export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
   const { close, isOpen } = useModal('send')
-  const [isUnderMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const initialEntries = useMemo(() => {
-    return isUnderMd ? mobileSendRoutes : desktopSendRoutes
-  }, [isUnderMd])
+    return isSmallerThanMd ? mobileSendRoutes : desktopSendRoutes
+  }, [isSmallerThanMd])
 
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>

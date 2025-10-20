@@ -1,4 +1,5 @@
 export enum SendRoutes {
+  AmountDetails = '/send/amount-details',
   Confirm = '/send/confirm',
   Status = '/send/status',
   Scan = '/send/scan',
@@ -12,7 +13,7 @@ export const mobileSendRoutes = [
   SendRoutes.Status,
   SendRoutes.Scan,
   SendRoutes.Select,
-  SendRoutes.Amount,
+  SendRoutes.AmountDetails,
   SendRoutes.Address,
 ]
 
@@ -22,7 +23,7 @@ export const desktopSendRoutes = [
   SendRoutes.Scan,
   SendRoutes.Select,
   SendRoutes.Address,
-  SendRoutes.Amount,
+  SendRoutes.AmountDetails,
 ]
 
 export enum SendFormFields {

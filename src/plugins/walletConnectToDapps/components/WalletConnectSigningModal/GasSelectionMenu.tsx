@@ -4,7 +4,7 @@ import type { FC } from 'react'
 import { useCallback, useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-import { GasSelection } from '@/components/GasSelection'
+import { GasSelection } from '@/components/GasSelection/GasSelection'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 
@@ -50,11 +50,10 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     <GasSelection
       selectedSpeed={selectedSpeed ?? FeeDataKey.Fast}
       onSpeedChange={handleSpeedChange}
-      feeAmount={fee.txFeeCryptoPrecision}
-      feeSymbol={fee.feeAsset.symbol}
+      amountCryptoPrecision={fee.txFeeCryptoPrecision}
+      feeAssetId={fee.feeAsset.assetId}
       fiatFee={fee.fiatFee}
       isLoading={gasFeeDataQuery.isLoading || simulationQuery.isLoading}
-      showSimulationTooltip={true}
     />
   )
 }

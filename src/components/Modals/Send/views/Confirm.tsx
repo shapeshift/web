@@ -11,8 +11,8 @@ import {
   Skeleton,
   Stack,
   Text as CText,
+  Tooltip,
   useColorModeValue,
-  useMediaQuery,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -35,6 +35,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -43,6 +44,7 @@ import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader, DialogHeaderRight } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { AnimatedDots } from '@/components/Modals/Send/components/AnimatedDots'
+import { useSendDetails } from '@/components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
@@ -52,13 +54,13 @@ import { getConfig } from '@/config'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { vibrate } from '@/lib/vibrate'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 export type FeePrice = {
   [key in FeeDataKey]: {
@@ -98,10 +100,12 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     control,
   }) as Partial<SendInput>
   const { fees } = useSendFees()
+  const { isLoading } = useSendDetails()
   const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
   const toBg = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
-  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const {
     state: { wallet },
@@ -133,24 +137,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     [setValue],
   )
 
-  const handleBack = useCallback(() => navigate(SendRoutes.Amount), [navigate])
+  const handleBack = useCallback(() => navigate(SendRoutes.AmountDetails), [navigate])
 
   // We don't want this firing -- but need it for typing
   const handleAccountChange = useCallback(() => {}, [])
 
-  const sendAssetTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['modals.send.confirm.sendAsset', { asset: asset?.name ?? '' }],
-    [asset],
-  )
-
   const assetMemoTranslation: TextPropTypes['translation'] = useMemo(
     () => ['modals.send.sendForm.assetMemo', { assetSymbol: asset?.symbol ?? '' }],
     [asset],
-  )
-
-  const confirmTransactionTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['modals.send.confirmTransaction', { address: middleEllipsis(to ?? '') }],
-    [to],
   )
 
   const chainName = useMemo(() => {
@@ -180,26 +174,28 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     requestAnimationFrame(updateProgress)
   }, [isLongPressing])
 
-  const longPressHandlers = useLongPress(() => {}, {
-    ...defaultLongPressConfig,
-    threshold: LONG_PRESS_SECONDS_THRESHOLD,
-    cancelOnMovement: 25,
-    onFinish: () => {
+  const longPressHandlers = useLongPress(
+    () => {
       vibrate('heavy')
       setIsLongPressing(false)
       setProgress(0)
       handleSubmit()
     },
-    onCancel: () => {
-      setIsLongPressing(false)
-      setProgress(0)
+    {
+      ...defaultLongPressConfig,
+      threshold: LONG_PRESS_SECONDS_THRESHOLD,
+      cancelOnMovement: 25,
+      onCancel: () => {
+        setIsLongPressing(false)
+        setProgress(0)
+      },
+      onStart: () => {
+        vibrate('light')
+        setIsLongPressing(true)
+        setProgress(0)
+      },
     },
-    onStart: () => {
-      vibrate('light')
-      setIsLongPressing(true)
-      setProgress(0)
-    },
-  })
+  )
 
   if (!(to && asset?.name && amountCryptoPrecision && fiatAmount && feeType)) return null
 
@@ -208,22 +204,13 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
       <DialogHeader>
         <DialogBackButton onClick={handleBack} />
         <DialogTitle textAlign='center'>
-          <Text translation={sendAssetTranslation} />
+          <Text translation='modals.send.confirmSend' />
         </DialogTitle>
         <DialogHeaderRight>
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
-        <Flex flexDirection='column' alignItems='center' mb={8}>
-          <Text
-            translation={confirmTransactionTranslation}
-            fontSize='2xl'
-            fontWeight='normal'
-            textAlign='center'
-            maxWidth='300px'
-          />
-        </Flex>
         <Flex
           width='full'
           bg='background.surface.raised.base'
@@ -253,7 +240,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             />
             <Flex alignItems='center' gap={2} width='100%' my={4}>
               <Text
-                translation='modals.send.sendForm.to'
+                translation='trade.to'
                 fontSize='sm'
                 backgroundColor={toBg}
                 px={1}
@@ -264,13 +251,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               />
               <Divider width='100%' height='1px' backgroundColor='border.base' />
             </Flex>
-            <Box fontSize='2xl' fontWeight='bold' pb={4}>
-              <InlineCopyButton value={to}>
-                {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
-              </InlineCopyButton>
+            <Box fontSize='2xl' fontWeight='bold'>
+              <Tooltip label={to} shouldWrapChildren>
+                <InlineCopyButton value={to}>
+                  {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
+                </InlineCopyButton>
+              </Tooltip>
             </Box>
           </Box>
-
           <Flex
             flexDirection='column'
             gap={4}
@@ -282,7 +270,6 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             position='relative'
           >
             <AssetIcon assetId={asset.assetId} position='relative' zIndex={2} size='md' />
-
             <Box
               position='absolute'
               left={'50%'}
@@ -293,7 +280,6 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             >
               <AnimatedDots />
             </Box>
-
             {/* @TODO: Use custom receive address avatar */}
             <ProfileAvatar borderRadius='full' position='relative' zIndex={2} size='md' />
           </Flex>
@@ -305,12 +291,12 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             </Row.Label>
             <Row.Value fontSize={'md'} display='flex' alignItems='center'>
               <CText>{chainName}</CText>
-              <AssetIcon assetId={asset.assetId} showNetworkIcon size='xs' ml={2} />
+              <LazyLoadAvatar src={networkIcon} size='xs' ml={2} />
             </Row.Value>
           </Row>
           <Row alignItems='center'>
             <Row.Label>
-              <Text translation='modals.send.sendForm.from' />
+              <Text translation='trade.from' />
             </Row.Label>
             <Row.Value display='flex' alignItems='center'>
               <InlineCopyButton
@@ -401,16 +387,16 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
         <SendGasSelection />
         <Button
           colorScheme='blue'
-          isDisabled={!fees || isSubmitting}
-          isLoading={isSubmitting}
-          loadingText={translate('modals.send.broadcastingTransaction')}
+          isDisabled={!fees || isSubmitting || isLoading}
+          isLoading={isSubmitting || isLoading}
+          loadingText={isLoading ? undefined : translate('modals.send.broadcastingTransaction')}
           size='lg'
           mt={6}
-          type={isSmallerThanMd ? 'button' : 'submit'}
+          type={isMobile ? 'button' : 'submit'}
           width='full'
           position='relative'
           overflow='hidden'
-          {...(isSmallerThanMd ? longPressHandlers() : {})}
+          {...(isMobile ? longPressHandlers() : {})}
         >
           {isLongPressing && (
             <Box
@@ -419,16 +405,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               left='0'
               height='100%'
               width={`${progress}%`}
-              bg='whiteAlpha.200'
+              bg='whiteAlpha.300'
               transition='width 0.1s ease-out'
               zIndex={1}
             />
           )}
 
           <Box position='relative' zIndex={2}>
-            <Text
-              translation={isSmallerThanMd ? 'modals.send.confirm.holdToSend' : 'common.confirm'}
-            />
+            <Text translation={isMobile ? 'modals.send.confirm.holdToSend' : 'common.confirm'} />
           </Box>
         </Button>
       </DialogFooter>

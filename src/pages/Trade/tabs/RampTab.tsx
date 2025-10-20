@@ -11,7 +11,6 @@ import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampTrade } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTrade'
 import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { blurBackgroundSx, gridOverlaySx } from '@/pages/Trade/constants'
 
@@ -48,9 +47,6 @@ export const RampTab = () => {
           break
         case TradeInputTab.SellFiat:
           navigate(FiatRampRoutePaths.Sell)
-          break
-        case TradeInputTab.Claim:
-          navigate(ClaimRoutePaths.Select)
           break
         default:
           break

@@ -9,6 +9,7 @@ import {
   getSupportedOnramperCurrencies,
 } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
 import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { FIAT_RAMP_QUOTE_REFRESH_INTERVAL_MS } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useFiatRampQuotePolling'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
@@ -46,7 +47,9 @@ export const useGetRampQuotes = ({
   const supportedRamps = useMemo(() => {
     if (!ramps?.byAssetId[assetId]?.[direction]) return []
 
-    return ramps?.byAssetId[assetId]?.[direction].map(fiatRampId => supportedFiatRamps[fiatRampId])
+    return ramps?.byAssetId[assetId]?.[direction]
+      .map(fiatRampId => supportedFiatRamps[fiatRampId])
+      .filter(ramp => ramp?.getQuotes)
   }, [ramps, assetId, direction])
 
   const queries = useMemo(
@@ -80,9 +83,9 @@ export const useGetRampQuotes = ({
             }
           }
         },
-        staleTime: 0,
+        staleTime: FIAT_RAMP_QUOTE_REFRESH_INTERVAL_MS,
         enabled: bnOrZero(debouncedAmount).gt(0),
-        gcTime: 0,
+        gcTime: FIAT_RAMP_QUOTE_REFRESH_INTERVAL_MS,
       })) ?? [],
     [
       supportedRamps,

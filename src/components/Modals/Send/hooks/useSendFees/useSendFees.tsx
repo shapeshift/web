@@ -1,13 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
 import type { SendInput } from '../../Form'
 import type { FeePrice } from '../../views/Confirm'
 
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -18,26 +15,21 @@ export const useSendFees = () => {
   const { control } = useFormContext<SendInput>()
   const { assetId, estimatedFees, amountCryptoPrecision } = useWatch({
     control,
-  })
+  }) as Partial<SendInput>
   if (!assetId) throw new Error(`AssetId not found: ${assetId}`)
-  const feeAssetId = getChainAdapterManager()
-    .get(fromAssetId(assetId as AssetId).chainId)
-    ?.getFeeAssetId()
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
 
-  const asset = useAppSelector(state => selectFeeAssetById(state, assetId as AssetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const {
     state: { wallet },
   } = useWallet()
-
-  const price = bnOrZero(
-    useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId))?.price,
+  const marketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
   )
 
+  const price = useMemo(() => marketDataUserCurrency?.price ?? 0, [marketDataUserCurrency])
+
   useEffect(() => {
-    if (wallet && asset && feeAsset && estimatedFees) {
+    if (wallet && feeAsset && estimatedFees) {
       const initialFees: FeePrice = {
         slow: {
           fiatFee: '',

@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -28,10 +28,7 @@ import {
   convertToStructuredFields,
   parseDecodedInput,
 } from '@/plugins/walletConnectToDapps/utils/tenderly'
-import type {
-  ParsedArgument,
-  TenderlySimulationResponse,
-} from '@/plugins/walletConnectToDapps/utils/tenderly/types'
+import type { ParsedArgument } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -51,29 +48,22 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
 
   const { simulationQuery } = useSimulateEvmTransaction({ transaction, chainId, speed })
 
-  const [cachedSimulationData, setCachedSimulationData] =
-    useState<TenderlySimulationResponse | null>(null)
-
-  useEffect(() => {
-    if (simulationQuery.data && !cachedSimulationData) {
-      setCachedSimulationData(simulationQuery.data)
-    }
-  }, [simulationQuery.data, cachedSimulationData])
-
   const functionName = useMemo(() => {
-    return cachedSimulationData?.simulation?.method || null
-  }, [cachedSimulationData])
+    return simulationQuery.data?.simulation?.method || null
+  }, [simulationQuery.data])
 
   const decodedArguments = useMemo((): ParsedArgument[] => {
-    if (!cachedSimulationData) return []
-    return parseDecodedInput(cachedSimulationData)
-  }, [cachedSimulationData])
+    if (!simulationQuery.data) return []
+    return parseDecodedInput(simulationQuery.data)
+  }, [simulationQuery.data])
 
   const structuredFields = useMemo((): StructuredField[] => {
     return convertToStructuredFields(decodedArguments)
   }, [decodedArguments])
 
   const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
+
+  const isLoading = simulationQuery.isFetching
 
   return (
     <Card borderRadius='2xl' p={4}>
@@ -83,16 +73,18 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
             <RawText fontSize='sm' color='text.subtle'>
               {translate('common.network')}
             </RawText>
-            <HStack spacing={2}>
-              <RawText fontSize='sm' fontWeight='bold'>
-                {feeAsset.networkName || feeAsset.name}
-              </RawText>
-              <Image
-                boxSize='20px'
-                src={feeAsset.networkIcon || feeAsset.icon}
-                borderRadius='full'
-              />
-            </HStack>
+            <Skeleton isLoaded={!isLoading}>
+              <HStack spacing={2}>
+                <RawText fontSize='sm' fontWeight='bold'>
+                  {feeAsset.networkName || feeAsset.name}
+                </RawText>
+                <Image
+                  boxSize='20px'
+                  src={feeAsset.networkIcon || feeAsset.icon}
+                  borderRadius='full'
+                />
+              </HStack>
+            </Skeleton>
           </HStack>
         )}
         <TransactionSimulation transaction={transaction} chainId={chainId} />
@@ -100,9 +92,11 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
           <RawText fontSize='sm' color='text.subtle'>
             {translate('plugins.walletConnectToDapps.modal.interactContract')}
           </RawText>
-          <ExpandableCell value={transaction.to} threshold={20} />
+          <Skeleton isLoaded={!isLoading} minW='120px'>
+            <ExpandableCell value={transaction.to} threshold={20} />
+          </Skeleton>
         </HStack>
-        {functionName && (
+        {(functionName || isLoading) && (
           <>
             <Box borderTop='1px solid' borderColor={sectionBorderColor} pt={4} mt={2}>
               <Button
@@ -128,16 +122,16 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
                     <RawText fontSize='sm' color='text.subtle'>
                       {translate('plugins.walletConnectToDapps.modal.method')}
                     </RawText>
-                    <Skeleton isLoaded={!!cachedSimulationData}>
+                    <Skeleton isLoaded={!isLoading} minW='150px'>
                       <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
-                        {functionName}
+                        {functionName || 'loading'}
                       </RawText>
                     </Skeleton>
                   </HStack>
                   <StructuredMessage
                     fields={structuredFields}
                     chainId={chainId}
-                    isLoading={!cachedSimulationData}
+                    isLoading={isLoading}
                   />
                 </VStack>
               )}

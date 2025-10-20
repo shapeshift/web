@@ -27,7 +27,10 @@ import {
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectWalletConnectedChainIdsSorted,
+} from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -97,6 +100,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
+  const chainIdsSortedByBalance = useAppSelector(selectWalletConnectedChainIdsSorted)
 
   const availableChainIds = useMemo(() => {
     // Use all EVM chains available for the selected account number as a source of truth
@@ -119,12 +123,21 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     // Always show required first
     const [required, rest] = partition(allChainIds, chainId => requiredChainIds.includes(chainId))
 
-    return [...required, ...rest]
+    const restSorted = rest.sort((a, b) => {
+      const aIndex = chainIdsSortedByBalance.indexOf(a)
+      const bIndex = chainIdsSortedByBalance.indexOf(b)
+      if (aIndex === -1) return 1
+      if (bIndex === -1) return -1
+      return aIndex - bIndex
+    })
+
+    return [...required, ...restSorted]
   }, [
     selectedAccountNumber,
     accountIdsByAccountNumberAndChainId,
     requiredNamespaces,
     requiredChainIds,
+    chainIdsSortedByBalance,
   ])
 
   const handleChainIdsChange = useCallback(

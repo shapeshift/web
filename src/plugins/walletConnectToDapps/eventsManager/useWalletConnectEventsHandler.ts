@@ -1,11 +1,13 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
 import { useCallback } from 'react'
+import { hexToNumber } from 'viem'
 
 import type {
   SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
+  WalletSwitchEthereumChainParams,
 } from '@/plugins/walletConnectToDapps/types'
 import {
   CosmosSigningMethod,
@@ -18,7 +20,6 @@ export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
   web3wallet: WalletConnectState['web3wallet'],
 ) => {
-  // Open session proposal modal for confirmation / rejection
   const handleSessionProposal = useCallback(
     (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
       dispatch({
@@ -34,7 +35,6 @@ export const useWalletConnectEventsHandler = (
     [],
   )
 
-  // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
     async (requestEvent: SupportedSessionRequest) => {
       const { topic, params } = requestEvent
@@ -42,7 +42,7 @@ export const useWalletConnectEventsHandler = (
       const getRequestSession = () => {
         try {
           const allSessions = web3wallet?.engine.signClient.session.getAll()
-          // We should be able to do web3wallet?.engine.signClient.session.get(topic) here, but this always return undefined, another day in closures-land
+          // Can't use session.get(topic) directly due to closure issues - it returns undefined
           const session = allSessions?.find(s => s.topic === topic)
           return session
         } catch (error) {
@@ -94,39 +94,30 @@ export const useWalletConnectEventsHandler = (
 
         case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
         case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
-          // Extract the actual requested chainId from the RPC request params
-          // WalletConnect's params.chainId shows which chain namespace the request came through
-          // Example: params.chainId = "eip155:100" (Gnosis)
-          // But the actual RPC method params contain the chain the dApp wants to switch TO
-          // Example: request.params[0].chainId = "0x2105" (Base in hex)
-          // We need request.params[0].chainId to properly validate if we have accounts for the requested chain
-          const rpcParams = params.request.params as { chainId?: string }[]
+          // WalletConnect's params.chainId shows the chain namespace the request came through (e.g., "eip155:100")
+          // But request.params[0].chainId contains the actual chain the dApp wants to switch to (e.g., "0x2105")
+          const rpcParams = params.request.params as WalletSwitchEthereumChainParams
           const hexChainId = rpcParams[0]?.chainId
-          const actualChainIdDecimal = hexChainId ? parseInt(hexChainId, 16) : null
-          const actualChainId = actualChainIdDecimal ? `eip155:${actualChainIdDecimal}` : null
+          const chainIdNumber = hexChainId ? hexToNumber(hexChainId) : null
+          const chainId = chainIdNumber ? `eip155:${chainIdNumber}` : null
 
           const approvedAccounts = session?.namespaces.eip155?.accounts ?? []
-
-          // Check if the ACTUAL requested chain (from RPC params) is in approved accounts
-          const actualChainInApprovedAccounts = actualChainId
-            ? approvedAccounts.some(account => account.includes(`:${actualChainIdDecimal}:`))
+          const isChainApproved = chainId
+            ? approvedAccounts.some(account => account.includes(`:${chainIdNumber}:`))
             : false
 
-          // If chain is not in approved accounts, show modal and return error 4902
-          // This follows EIP-3326 spec and prevents dApp from thinking we have accounts for chains we don't
-          if (!actualChainInApprovedAccounts) {
-            // Show modal to inform user
-            // We need to pass the ACTUAL chainId (from RPC params) not WC's chainId
-            // So the modal shows the correct chain icon and name
-            const modifiedRequestEvent = actualChainId
+          if (!isChainApproved) {
+            // Override chainId in requestEvent so modal displays the correct chain icon
+            const modifiedRequestEvent = chainId
               ? {
                   ...requestEvent,
                   params: {
                     ...requestEvent.params,
-                    chainId: actualChainId, // Override with actual chainId (e.g., eip155:8453 for Base)
+                    chainId,
                   },
                 }
               : requestEvent
+
             dispatch({
               type: WalletConnectActionType.SET_MODAL,
               payload: {
@@ -135,8 +126,8 @@ export const useWalletConnectEventsHandler = (
               },
             })
 
-            // Send error to dApp
-            // Error 4902 is a provider error (not server error), so we construct the JSON-RPC error manually
+            // Return error 4902 per EIP-3326 spec
+            // https://eips.ethereum.org/EIPS/eip-3326
             await web3wallet?.respondSessionRequest({
               topic,
               response: {
@@ -151,7 +142,6 @@ export const useWalletConnectEventsHandler = (
             return
           }
 
-          // Chain is approved, return success
           await web3wallet?.respondSessionRequest({
             topic,
             response: formatJsonRpcResult(requestEvent.id, null),

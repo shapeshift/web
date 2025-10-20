@@ -46,13 +46,20 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const accountId = useMemo(() => {
     if (!chainId) return
 
+    let resolvedAccountId
+
     if (
       requestParams &&
       (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
-    )
-      return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
-    if (requestParams) return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    else return undefined
+    ) {
+      resolvedAccountId = getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
+    } else if (requestParams) {
+      resolvedAccountId = getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
+    } else {
+      resolvedAccountId = undefined
+    }
+
+    return resolvedAccountId
   }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined

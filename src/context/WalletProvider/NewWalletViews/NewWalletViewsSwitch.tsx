@@ -293,7 +293,7 @@ export const NewWalletViewsSwitch = () => {
 
     return (
       <Box flex={1} bg={bodyBgColor} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
-        {!isRootRoute || !isLargerThanMd ? (
+        {!isRootRoute ? (
           <Box
             position='absolute'
             left={3}

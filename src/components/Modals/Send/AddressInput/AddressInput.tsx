@@ -37,9 +37,9 @@ type AddressInputProps = {
   placeholder?: string
   pe?: SpaceProps['pe']
   resolvedAddress?: string
+  isReadOnly?: boolean
   chainId?: ChainId
   onSaveContact?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  onEmptied?: () => void
 } & Omit<InputProps, 'as' | 'value' | 'onChange'>
 
 const addressInputSx = {
@@ -54,9 +54,9 @@ export const AddressInput = ({
   rules,
   placeholder,
   enableQr = false,
+  isReadOnly = false,
   resolvedAddress,
   chainId,
-  onEmptied,
   onSaveContact,
   onFocus,
   onBlur,
@@ -137,15 +137,16 @@ export const AddressInput = ({
     }: {
       field: ControllerRenderProps<FieldValues, SendFormFields.Input>
     }) => {
-      if (isFocused || !resolvedAddress || isInvalid) {
+      if ((isFocused || !resolvedAddress || isInvalid) && !isReadOnly) {
         return (
           <InputGroup alignItems='center'>
             <InputLeftElement pointerEvents='none' height='100%'>
               <Text color='text.subtle' w='full' pl={4} fontSize='sm'>
-                {translate('modals.send.sendForm.to')}
+                {translate('trade.to')}
               </Text>
             </InputLeftElement>
             <Input
+              ref={inputRef}
               as={ResizeTextarea}
               spellCheck={false}
               placeholder={placeholder}
@@ -176,7 +177,7 @@ export const AddressInput = ({
             bg='transparent'
             borderRadius='10px'
             cursor='pointer'
-            onClick={handleDisplayClick}
+            onClick={props.onClick ?? handleDisplayClick}
             py={2}
             background='background.input.base'
             px={4}
@@ -232,7 +233,20 @@ export const AddressInput = ({
     },
     // We want only behavior-specific props to rerender the controller, not all props
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [placeholder, isInvalid, isDirty, translate, onFocus, onBlur, onPaste],
+    [
+      placeholder,
+      isInvalid,
+      isReadOnly,
+      isFocused,
+      isDirty,
+      translate,
+      onFocus,
+      onBlur,
+      onPaste,
+      resolvedAddress,
+      addressBookEntry,
+      onSaveContact,
+    ],
   )
 
   return (

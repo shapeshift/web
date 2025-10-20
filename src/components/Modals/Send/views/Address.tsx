@@ -224,6 +224,7 @@ export const Address = () => {
             height='auto'
             background='transparent'
             m={-2}
+            my={0}
             p={2}
           >
             <VStack align='start' spacing={0}>

@@ -147,7 +147,7 @@ export const AddressBook = ({
         </CText>
       </HStack>
 
-      <VStack spacing={3} align='stretch'>
+      <VStack spacing={3} align='stretch' mx={-2}>
         {addressBookEntries.length === 0 ? (
           <Text translation={emptyMessage} size='xs' color='text.subtle' />
         ) : (

@@ -13,9 +13,7 @@ import {
   Skeleton,
   Stack,
   Text as ChakraText,
-  Text as CText,
   Tooltip,
-  useMediaQuery,
   VStack,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
@@ -30,31 +28,29 @@ import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AddressInputWithDropdown } from '../components/AddressInputWithDropdown'
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
-import { Display } from '@/components/Display'
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput'
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 const accountDropdownBoxProps = { px: 0, my: 0 }
 const accountDropdownButtonProps = { px: 2 }
@@ -128,7 +124,6 @@ export const SendAmountDetails = () => {
   } = useLocaleFormatter()
 
   const [isValidating, setIsValidating] = useState(false)
-  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
 
@@ -152,6 +147,7 @@ export const SendAmountDetails = () => {
 
   const supportsENS = asset?.chainId === ethChainId
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+  const addAddress = useModal('addAddress')
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -194,10 +190,6 @@ export const SendAmountDetails = () => {
     },
     [setValue],
   )
-
-  const handleScanQrCode = useCallback(() => {
-    navigate(SendRoutes.Scan)
-  }, [navigate])
 
   const currentValue = fieldName === SendFormFields.FiatAmount ? fiatAmount : amountCryptoPrecision
   const isFiat = fieldName === SendFormFields.FiatAmount
@@ -259,6 +251,17 @@ export const SendAmountDetails = () => {
     [handleInputChange],
   )
 
+  const handleSaveContact = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+
+      if (to && asset?.chainId) {
+        addAddress.open({ address: to, chainId: asset.chainId })
+      }
+    },
+    [to, asset?.chainId, addAddress],
+  )
+
   const renderController = useCallback(
     ({ field: { onChange, value } }: { field: any }) => {
       return (
@@ -317,12 +320,7 @@ export const SendAmountDetails = () => {
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <Display.Mobile>
-          <DialogBackButton onClick={handleBackClick} />
-        </Display.Mobile>
-        <Display.Desktop>
-          <DialogBackButton onClick={handleAssetBackClick} />
-        </Display.Desktop>
+        <DialogBackButton onClick={handleBackClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
@@ -331,33 +329,17 @@ export const SendAmountDetails = () => {
       <DialogBody height='100%'>
         <VStack spacing={6} align='stretch' height='100%'>
           <Box>
-            <Display.Desktop>
-              <AddressInputWithDropdown
-                addressInputRules={addressInputRules}
-                supportsENS={supportsENS}
-                translate={translate}
-                onScanQRCode={handleScanQrCode}
-              />
-            </Display.Desktop>
-            <Display.Mobile>
-              <Box>
-                <Flex
-                  p={4}
-                  borderRadius='2xl'
-                  bg='background.surface.raised.base'
-                  border='1px solid'
-                  borderColor='border.base'
-                  alignItems='center'
-                >
-                  <CText me={4} lineHeight='1'>
-                    {translate('trade.to')}
-                  </CText>
-                  <CText fontSize='sm' color='text.primary' fontWeight='bold' lineHeight='1'>
-                    <MiddleEllipsis value={to || ''} />
-                  </CText>
-                </Flex>
-              </Box>
-            </Display.Mobile>
+            <AddressInput
+              rules={addressInputRules}
+              placeholder={translate(
+                supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
+              )}
+              resolvedAddress={to}
+              onSaveContact={handleSaveContact}
+              chainId={asset?.chainId}
+              isReadOnly
+              onClick={handleBackClick}
+            />
           </Box>
           <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
             {balancesLoading ? (
@@ -379,15 +361,15 @@ export const SendAmountDetails = () => {
                   />
                 )}
 
-                <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
-                  <ChakraText fontSize='sm' color='text.subtle'>
-                    {isFiat ? (
-                      <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
-                    ) : (
-                      <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
-                    )}
-                  </ChakraText>
-                  <Button variant='ghost' size='sm' p={1} minW='auto' h='auto'>
+                <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat} cursor='pointer'>
+                  <Button variant='ghost' size='sm' p={1} minW='auto' h='auto' px={2}>
+                    <ChakraText fontSize='sm' color='text.subtle' me={2}>
+                      {isFiat ? (
+                        <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
+                      ) : (
+                        <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
+                      )}
+                    </ChakraText>
                     <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
                   </Button>
                 </HStack>
@@ -466,7 +448,7 @@ export const SendAmountDetails = () => {
           </Flex>
           <Button
             width='full'
-            colorScheme={addressError && !isValidating && !isSmallerThanMd ? 'red' : 'blue'}
+            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
             isDisabled={

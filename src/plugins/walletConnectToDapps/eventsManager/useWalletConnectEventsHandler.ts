@@ -94,8 +94,12 @@ export const useWalletConnectEventsHandler = (
 
         case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
         case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
-          // Extract the ACTUAL requested chainId from the RPC params (not WC's chainId)
-          // The RPC params contain chainId in hex format (e.g., "0x2105" for Base)
+          // Extract the actual requested chainId from the RPC request params
+          // WalletConnect's params.chainId shows which chain namespace the request came through
+          // Example: params.chainId = "eip155:100" (Gnosis)
+          // But the actual RPC method params contain the chain the dApp wants to switch TO
+          // Example: request.params[0].chainId = "0x2105" (Base in hex)
+          // We need request.params[0].chainId to properly validate if we have accounts for the requested chain
           const rpcParams = params.request.params as { chainId?: string }[]
           const hexChainId = rpcParams[0]?.chainId
           const actualChainIdDecimal = hexChainId ? parseInt(hexChainId, 16) : null

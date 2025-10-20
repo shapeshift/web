@@ -1,6 +1,7 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainReference } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { hexToNumber } from 'viem'
 
@@ -97,11 +98,13 @@ export const useWalletConnectEventsHandler = (
         case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
         case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
           const rpcParams = params.request.params as WalletSwitchEthereumChainParams
-          const hexChainId = rpcParams[0]?.chainId
-          if (!hexChainId) return
+          const evmNetworkIdHex = rpcParams[0]?.chainId
+          if (!evmNetworkIdHex) return
 
-          const evmChainId = hexToNumber(hexChainId)
-          const chainId = `eip155:${evmChainId}`
+          const chainId = toChainId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: String(hexToNumber(evmNetworkIdHex)) as ChainReference,
+          })
           const sessionAccountIds = session?.namespaces.eip155?.accounts ?? []
           const isChainInSession = sessionAccountIds.some(
             accountId => fromAccountId(accountId).chainId === chainId,
@@ -130,7 +133,7 @@ export const useWalletConnectEventsHandler = (
               jsonrpc: '2.0',
               error: {
                 code: 4902,
-                message: `No accounts for chain: ${hexChainId}.`,
+                message: `No accounts for chain: ${evmNetworkIdHex}.`,
               },
             },
           })

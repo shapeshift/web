@@ -249,6 +249,8 @@ export type EthSignParams =
 
 export type RequestParams =
   | TransactionParams[]
+  | WalletSwitchEthereumChainParams
+  | WalletAddEthereumChainParams
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams

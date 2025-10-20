@@ -1,6 +1,6 @@
 import { Button, Center, Flex } from '@chakra-ui/react'
 import type { ChainReference } from '@shapeshiftoss/caip'
-import { toChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { hexToNumber } from 'viem'
@@ -9,8 +9,8 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText, Text } from '@/components/Text'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import type { WalletSwitchEthereumChainParams } from '@/plugins/walletConnectToDapps/types'
+import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -23,13 +23,12 @@ export const NoAccountsForChainModal: React.FC<WalletConnectSessionModalProps> =
 
   const chainId = useMemo(() => {
     const rpcParams = requestEvent?.params.request.params as WalletSwitchEthereumChainParams
-    const hexChainId = rpcParams?.[0]?.chainId
-    if (!hexChainId) return undefined
+    const evmNetworkIdHex = rpcParams?.[0]?.chainId
+    if (!evmNetworkIdHex) return undefined
 
-    const evmChainId = hexToNumber(hexChainId)
     return toChainId({
-      chainNamespace: 'eip155',
-      chainReference: String(evmChainId) as ChainReference,
+      chainNamespace: CHAIN_NAMESPACE.Evm,
+      chainReference: String(hexToNumber(evmNetworkIdHex)) as ChainReference,
     })
   }, [requestEvent])
 

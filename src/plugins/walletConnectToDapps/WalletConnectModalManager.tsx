@@ -213,9 +213,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         const requestParams = state.modalData?.requestEvent?.params.request.params
         const transaction = Array.isArray(requestParams) ? requestParams[0] : undefined
 
-        if (!transaction) return null
+        if (!transaction || typeof transaction === 'string' || !('data' in transaction)) return null
 
-        const isNativeSend = typeof transaction !== 'string' && transaction.data === '0x'
+        const isNativeSend = transaction.data === '0x'
 
         if (isNativeSend)
           return (

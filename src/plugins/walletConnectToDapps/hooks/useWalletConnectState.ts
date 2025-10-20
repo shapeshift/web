@@ -37,7 +37,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
     if (requestParams && isEthSignParams(requestParams))
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
-    if (requestParams) return requestParams.signerAddress
+    if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
     else return undefined
   }, [connectedAccounts, requestParams])
 
@@ -46,20 +46,14 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const accountId = useMemo(() => {
     if (!chainId) return
 
-    let resolvedAccountId
-
     if (
       requestParams &&
       (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
-    ) {
-      resolvedAccountId = getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
-    } else if (requestParams) {
-      resolvedAccountId = getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    } else {
-      resolvedAccountId = undefined
-    }
-
-    return resolvedAccountId
+    )
+      return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
+    if (requestParams && 'signerAddress' in requestParams)
+      return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
+    else return undefined
   }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined

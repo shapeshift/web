@@ -124,7 +124,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
                     </RawText>
                     <Skeleton isLoaded={!isLoading} minW='150px'>
                       <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
-                        {functionName || 'loading'}
+                        {functionName ?? ''}
                       </RawText>
                     </Skeleton>
                   </HStack>

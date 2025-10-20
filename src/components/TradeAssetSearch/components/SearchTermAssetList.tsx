@@ -15,6 +15,7 @@ import { Text } from '@/components/Text'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
+import { isContractAddress } from '@/lib/utils/isContractAddress'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPortfolioUserCurrencyBalances,
@@ -203,7 +204,7 @@ export const SearchTermAssetList = ({
           handleClick={handleAssetClick}
           hideZeroBalanceAmounts={true}
           onImportClick={onImportClick}
-          showRelatedAssets={activeChainId === 'All'}
+          showRelatedAssets={activeChainId === 'All' && !isContractAddress(searchString)}
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
           height={isLargerThanMd ? '50vh' : '70vh'}
         />

@@ -1,4 +1,6 @@
+export { ZINDEX_BUFFER } from './constants'
 export { ModalStackProvider, useModalStack } from './ModalStackProvider'
 export type { ModalStackContextType, ModalStackItem } from './types'
+export { useModalChildZIndex } from './useModalChildZIndex'
 export { useModalRegistration } from './useModalRegistration'
 export type { UseModalRegistrationProps } from './useModalRegistration'

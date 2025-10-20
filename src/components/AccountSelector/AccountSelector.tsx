@@ -168,7 +168,6 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
             </HStack>
           </Button>
         </Box>
-
         <AccountSelectorDialog
           isOpen={isOpen}
           onClose={onClose}

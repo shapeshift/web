@@ -77,7 +77,6 @@ export const AccountSelectorDialog = ({
         <VStack spacing={2} align='stretch'>
           {accountsWithDetails.map(({ accountId, cryptoBalance, fiatBalance }) => {
             const isSelected = selectedAccountId === accountId
-
             return (
               <AccountSelectorOption
                 key={accountId}

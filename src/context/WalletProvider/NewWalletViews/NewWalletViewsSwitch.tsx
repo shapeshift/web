@@ -33,6 +33,7 @@ import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -188,6 +189,11 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: modal,
+    onClose,
+  })
+
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
       if (_initialRoute) navigate(_initialRoute)
@@ -332,21 +338,15 @@ export const NewWalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal
-        isOpen={modal}
-        onClose={onClose}
-        isCentered
-        trapFocus={false}
-        closeOnOverlayClick={true}
-        size={!isLargerThanMd ? modalSize : undefined}
-      >
-        <ModalOverlay />
+      <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>
+        <ModalOverlay {...overlayProps} />
         <ModalContent
           justifyContent='center'
           overflow='hidden'
           borderRadius={!isLargerThanMd ? 'none' : 'xl'}
           maxW='900px'
           bg={!isLargerThanMd ? bodyBgColor : undefined}
+          {...modalContentProps}
         >
           <Box position={isLargerThanMd ? 'relative' : 'initial'}>
             <Box

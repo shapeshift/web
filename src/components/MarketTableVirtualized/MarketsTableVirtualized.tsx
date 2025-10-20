@@ -11,7 +11,6 @@ import { WatchAssetButton } from '../AssetHeader/WatchAssetButton'
 import { AssetCell } from './AssetCell'
 import { ChangeCell } from './ChangeCell'
 import { PriceCell } from './PriceCell'
-import { SparkLineCell } from './SparkLineCell'
 import { TradeButtonCell } from './TradeButtonCell'
 import { VolumeCell } from './VolumeCell'
 
@@ -67,16 +66,6 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             <AssetCell assetId={row.original.assetId} symbol={row.original.symbol} />
           ),
         },
-        ...(isLargerThanMd
-          ? [
-              {
-                id: 'sparkline',
-                Cell: ({ row }: { row: Row<Asset> }) => (
-                  <SparkLineCell assetId={row.original.assetId} themeColor={row.original.color} />
-                ),
-              },
-            ]
-          : []),
         {
           id: 'price',
           Header: () => <Text ml='auto' translation='dashboard.portfolio.price' />,

@@ -7,6 +7,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Portal,
   Tooltip,
 } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
@@ -18,6 +19,7 @@ import { AssetRowLoading } from '../AssetRowLoading'
 import { AssetChainRow } from './AssetChainRow'
 
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -63,6 +65,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       state: { wallet },
     } = useWallet()
     const translate = useTranslate()
+    const modalChildZIndex = useModalChildZIndex()
     const chainDisplayName = useAppSelector(state =>
       selectChainDisplayNameByAssetId(state, assetId ?? ''),
     )
@@ -207,11 +210,13 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
             />
           </MenuButton>
         </Tooltip>
-        <MenuList zIndex='modal'>
-          <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
-            {renderedChains}
-          </MenuOptionGroup>
-        </MenuList>
+        <Portal>
+          <MenuList zIndex={modalChildZIndex}>
+            <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
+              {renderedChains}
+            </MenuOptionGroup>
+          </MenuList>
+        </Portal>
       </Menu>
     )
   },

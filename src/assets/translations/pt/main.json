@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Impulso",
     "viewOnExplorer": "Ver no explorador",
+    "viewAssetDetails": "Ver Detalhes do Ativo",
     "approval": "Aprovação",
     "permit2Approval": "Aprovaçõa Permit2 ",
     "network": "Rede",
@@ -390,6 +391,7 @@
       "switchWallet": "Trocar Carteira",
       "disconnect": "Desconectar",
       "disconnected": "(Sem conexão)",
+      "locked": "(Travado)",
       "reconnectWallet": "Reconectar carteira",
       "walletNotConnected": "Sua carteira não está conectada no momento. Isso afetará as transações.",
       "connecting": "Conectando..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "Confirmar e Resgate",
     "viewClaims": "Ver resgates",
     "viewClaimStatus": "Ver status do resgate",
-    "availableClaimsNotification": "Você tem resgates de pontes prontas!"
+    "availableClaimsNotification": "Você tem resgates de pontes prontas!",
+    "bridgeWithdrawalReadyNotification": "Saque da ponte pronto para resgate",
+    "bridgeWithdrawalFailedNotification": "O saque da ponte falhou",
+    "checkActionCenterNotification": "Verifique o Centro de Ações para obter detalhes"
   },
   "trade": {
     "trade": "Swap",
@@ -2176,11 +2181,12 @@
   },
   "assets": {
     "more": "Mais",
+    "hideAsset": "Ocultar ativo",
+    "showAsset": "Mostrar ativo",
+    "cannotHidePrimary": "Não é possível ocultar ativos primários que tenham variantes relacionadas",
     "spam": {
-      "warning": "Este recurso será ocultado porque você o marcou como spam.",
-      "marked": "Este ativo está marcado como spam.",
-      "reportAsSpam": "Denunciar como spam",
-      "reportAsNotSpam": "Marcar como não spam"
+      "warning": "Este ativo pode ser exibido novamente abrindo o menu suspenso da carteira e clicando em \"Gerenciar ativos ocultos\".",
+      "marked": "Este ativo está oculto no momento."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2795,6 +2801,13 @@
     },
     "title": "Lista de observação"
   },
+  "manageHiddenAssets": {
+    "title": "Gerenciar ativos ocultos",
+    "empty": {
+      "title": "Nenhum ativo oculto",
+      "body": "Os ativos que você ocultar aparecerão aqui, facilitando exibi-los novamente mais tarde."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -3126,6 +3139,7 @@
       "switchChainFailed": "Falha ao alternar a rede da carteira. Tente alternar manualmente a cadeia ativa da carteira para %{chain}.",
       "buildTransaction": "Falha ao construir transação.",
       "signTransaction": "Falha ao assinar a transação.",
+      "blindSigningRequired": "A transação requer blind signing. Ative a opção \"Blind signing\" nas configurações do seu aplicativo Ledger e tente novamente.",
       "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
       "signMessage": "Falha ao assinar a mensagem.",
       "broadcastTransaction": "Falha ao transmitir a transação.",
@@ -3202,10 +3216,17 @@
       "complete": "Seu resgate de %{amount} %{symbol} foi concluído."
     },
     "bridge": {
-      "processing": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} está sendo processada.",
-      "complete": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} foi concluída.",
-      "initiated": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} foi iniciada.",
-      "failed": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} falhou."
+      "processing": "Processando...",
+      "complete": "Sua ponte de %{amountAndSymbol} está concluída.",
+      "initiated": "Sua ponte de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} foi iniciada.",
+      "pendingWithdraw": "Seu saque de %{amountAndSymbol} estará disponível em %{timeText}.",
+      "claimAvailable": "Sua ponte de %{amountAndSymbol} está disponível para ser resgatada.",
+      "failed": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} falhou.",
+      "transactionInitiated": "Transação iniciada",
+      "claimWithdraw": "Resgate seu saque",
+      "withdrawTx": "Saque Tx",
+      "claimTx": "Resgate Tx",
+      "claimNotAvailable": "Resgate ainda não está disponível. Aguarde o término do período de saque."
     },
     "limitOrder": {
       "placed": "Sua ordem limite colocada de %{sellAmountAndSymbol} para %{buyAmountAndSymbol}",

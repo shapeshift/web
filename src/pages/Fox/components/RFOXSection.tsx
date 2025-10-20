@@ -304,14 +304,19 @@ export const RFOXSection = () => {
     }
 
     return (
-      <Flex justifyContent='space-between'>
-        <Button onClick={handleStakeClick} colorScheme='gray' me={2} leftIcon={tbArrowUp}>
+      <Flex flexWrap='wrap' gap={2}>
+        <Button onClick={handleStakeClick} colorScheme='gray' flex='1 1 auto' leftIcon={tbArrowUp}>
           {translate('defi.stake')}
         </Button>
-        <Button onClick={handleUnstakeClick} colorScheme='gray' me={2} leftIcon={tbArrowDown}>
+        <Button
+          onClick={handleUnstakeClick}
+          colorScheme='gray'
+          flex='1 1 auto'
+          leftIcon={tbArrowDown}
+        >
           {translate('defi.unstake')}
         </Button>
-        <Button onClick={handleClaimClick} colorScheme='green'>
+        <Button onClick={handleClaimClick} colorScheme='green' flex='1 1 auto'>
           {translate('defi.claim')}
         </Button>
       </Flex>
@@ -381,7 +386,14 @@ export const RFOXSection = () => {
         </Flex>
 
         <SimpleGrid my={4} columns={columnsProps} spacing='26px' width='100%' mb={8}>
-          <Stack {...stackProps} alignItems='center' flexDir='row' justifyContent='space-between'>
+          <Stack
+            {...stackProps}
+            alignItems='center'
+            flexDir='row'
+            justifyContent='space-between'
+            flexWrap='wrap'
+            gap={4}
+          >
             <Box>
               <Text
                 fontSize='md'

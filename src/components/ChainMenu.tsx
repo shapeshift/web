@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircleIcon } from '@/components/Icons/Circle'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export type ChainMenuProps<T extends ChainId | 'All'> = {
@@ -130,6 +131,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
   buttonProps,
 }: ChainMenuProps<T>) => {
   const translate = useTranslate()
+  const modalChildZIndex = useModalChildZIndex()
 
   return (
     <Menu autoSelect={false}>
@@ -149,7 +151,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
         </MenuButton>
       </Tooltip>
 
-      <MenuList p={2} maxHeight='350px' overflowY='auto' zIndex='dropdown'>
+      <MenuList p={2} maxHeight='350px' overflowY='auto' zIndex={modalChildZIndex}>
         <MenuGroup title={translate('common.selectNetwork')} ml={3} color='text.subtle'>
           {chainIds.map(chainId => (
             <ChainMenuItem<T>

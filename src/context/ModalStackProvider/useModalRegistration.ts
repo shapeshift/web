@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
+import { ZINDEX_BUFFER } from './constants'
 import { useModalStack } from './ModalStackProvider'
 
 export type UseModalRegistrationProps = {
   isOpen: boolean
   onClose: () => void
 }
-const ZINDEX_BUFFER = 10
 
 export const useModalRegistration = ({ isOpen, onClose }: UseModalRegistrationProps) => {
   const { registerModal, unregisterModal, getIsHighestModal, getZIndex } = useModalStack()

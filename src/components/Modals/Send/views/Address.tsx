@@ -12,7 +12,6 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { TbScan } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -20,6 +19,7 @@ import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
@@ -70,7 +70,7 @@ export const Address = () => {
         justifyContent='center'
         sx={qrCodeSx}
       >
-        <Icon as={TbScan} />
+        <Icon as={QRCodeIcon} />
       </Flex>
     ),
     [qrBackground],

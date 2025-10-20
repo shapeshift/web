@@ -157,6 +157,14 @@ export const SendAmountDetails = () => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
+  // Clear derived address fields when input is emptied
+  useEffect(() => {
+    if (input === '' || input === undefined) {
+      setValue(SendFormFields.To, '')
+      setValue(SendFormFields.VanityAddress, '')
+    }
+  }, [input, setValue])
+
   const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [navigate])
   const handleBackClick = useCallback(
     () => navigate(isFromQrCode ? SendRoutes.Scan : SendRoutes.Address),
@@ -351,7 +359,6 @@ export const SendAmountDetails = () => {
               </Box>
             </Display.Mobile>
           </Box>
-
           <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
             {balancesLoading ? (
               <Skeleton height='80px' width='100%' maxWidth='240px' mx='auto' />
@@ -387,7 +394,6 @@ export const SendAmountDetails = () => {
               </FormControl>
             )}
           </Flex>
-
           {showMemoField && (
             <FormControl mt={6} mb={4}>
               <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -424,7 +430,6 @@ export const SendAmountDetails = () => {
           )}
         </VStack>
       </DialogBody>
-
       <DialogFooter
         borderTop='1px solid'
         borderColor='border.base'
@@ -442,7 +447,6 @@ export const SendAmountDetails = () => {
               <Text translation={amountFieldError} fontSize='sm' />
             </Alert>
           )}
-
           <Flex alignItems='center' justifyContent='space-between' mb={4}>
             <Flex alignItems='center'>
               <FormLabel color='text.subtle' mb={0}>
@@ -458,10 +462,8 @@ export const SendAmountDetails = () => {
                 />
               </Box>
             </Flex>
-
-            <SendMaxButton onClick={handleMaxClick} />
+            <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to)} />
           </Flex>
-
           <Button
             width='full'
             colorScheme={addressError && !isValidating && !isSmallerThanMd ? 'red' : 'blue'}

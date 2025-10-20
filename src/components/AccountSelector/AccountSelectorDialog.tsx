@@ -1,4 +1,4 @@
-import { Button, VStack } from '@chakra-ui/react'
+import { VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
@@ -10,7 +10,6 @@ import { AccountSelectorOption } from '@/components/AccountSelector/AccountSelec
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
-import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import {
   DialogHeader,
   DialogHeaderLeft,
@@ -95,11 +94,6 @@ export const AccountSelectorDialog = ({
           })}
         </VStack>
       </DialogBody>
-      <DialogFooter>
-        <Button colorScheme='blue' onClick={onClose} size='lg' width='full'>
-          {translate('common.done')}
-        </Button>
-      </DialogFooter>
     </Dialog>
   )
 }

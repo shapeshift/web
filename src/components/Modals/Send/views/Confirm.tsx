@@ -13,7 +13,6 @@ import {
   Text as CText,
   Tooltip,
   useColorModeValue,
-  useMediaQuery,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -55,13 +54,13 @@ import { getConfig } from '@/config'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { vibrate } from '@/lib/vibrate'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 export type FeePrice = {
   [key in FeeDataKey]: {
@@ -104,7 +103,6 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
   const { isLoading } = useSendDetails()
   const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
   const toBg = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
-  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
@@ -176,26 +174,28 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     requestAnimationFrame(updateProgress)
   }, [isLongPressing])
 
-  const longPressHandlers = useLongPress(() => {}, {
-    ...defaultLongPressConfig,
-    threshold: LONG_PRESS_SECONDS_THRESHOLD,
-    cancelOnMovement: 25,
-    onFinish: () => {
+  const longPressHandlers = useLongPress(
+    () => {
       vibrate('heavy')
       setIsLongPressing(false)
       setProgress(0)
       handleSubmit()
     },
-    onCancel: () => {
-      setIsLongPressing(false)
-      setProgress(0)
+    {
+      ...defaultLongPressConfig,
+      threshold: LONG_PRESS_SECONDS_THRESHOLD,
+      cancelOnMovement: 25,
+      onCancel: () => {
+        setIsLongPressing(false)
+        setProgress(0)
+      },
+      onStart: () => {
+        vibrate('light')
+        setIsLongPressing(true)
+        setProgress(0)
+      },
     },
-    onStart: () => {
-      vibrate('light')
-      setIsLongPressing(true)
-      setProgress(0)
-    },
-  })
+  )
 
   if (!(to && asset?.name && amountCryptoPrecision && fiatAmount && feeType)) return null
 
@@ -392,11 +392,11 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           loadingText={isLoading ? undefined : translate('modals.send.broadcastingTransaction')}
           size='lg'
           mt={6}
-          type={isSmallerThanMd ? 'button' : 'submit'}
+          type={isMobile ? 'button' : 'submit'}
           width='full'
           position='relative'
           overflow='hidden'
-          {...(isSmallerThanMd ? longPressHandlers() : {})}
+          {...(isMobile ? longPressHandlers() : {})}
         >
           {isLongPressing && (
             <Box
@@ -405,16 +405,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               left='0'
               height='100%'
               width={`${progress}%`}
-              bg='whiteAlpha.200'
+              bg='whiteAlpha.300'
               transition='width 0.1s ease-out'
               zIndex={1}
             />
           )}
 
           <Box position='relative' zIndex={2}>
-            <Text
-              translation={isSmallerThanMd ? 'modals.send.confirm.holdToSend' : 'common.confirm'}
-            />
+            <Text translation={isMobile ? 'modals.send.confirm.holdToSend' : 'common.confirm'} />
           </Box>
         </Button>
       </DialogFooter>

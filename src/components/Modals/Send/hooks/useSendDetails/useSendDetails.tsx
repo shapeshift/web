@@ -223,10 +223,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const queryKey = useMemo(
     () => [
       'setEstimatedFormFees',
-      { amountCryptoPrecision: debouncedAmountCryptoPrecision, sendMax },
+      { amountCryptoPrecision: debouncedAmountCryptoPrecision, sendMax, to, accountId },
     ],
-    [debouncedAmountCryptoPrecision, sendMax],
-  ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
+    [debouncedAmountCryptoPrecision, sendMax, to, accountId],
+  ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean; to: string }]
 
   // No debouncing here, since there is no user input
   const estimateSendMaxFormFeesQueryKey = useMemo(
@@ -405,6 +405,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const handleInputChange = useCallback(
     (inputValue: string) => {
+      setValue(SendFormFields.AmountFieldError, '')
+
       if (isManualInputChange.current) {
         setValue(SendFormFields.SendMax, false)
       }
@@ -415,7 +417,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           : SendFormFields.AmountCryptoPrecision
 
       if (inputValue === '') {
-        setValue(SendFormFields.AmountFieldError, '')
         // Set value of the other input to an empty string as well
         setValue(otherField, '') // TODO: this shouldn't be a thing, using a single amount field
         return

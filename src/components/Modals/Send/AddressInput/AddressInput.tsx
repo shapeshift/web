@@ -12,6 +12,7 @@ import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import ResizeTextarea from 'react-textarea-autosize'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
@@ -68,12 +69,14 @@ export const AddressInput = ({
           </Text>
         </InputLeftElement>
         <Input
+          as={ResizeTextarea}
           spellCheck={false}
           placeholder={placeholder}
           value={value}
           variant='filled'
           minHeight='auto'
           borderRadius='10px'
+          minRows={1}
           py={3}
           data-test='send-address-input'
           data-1p-ignore

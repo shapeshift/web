@@ -1,12 +1,12 @@
 import {
   Box,
   Button,
-  Text as ChakraText,
   FormControl,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Text as ChakraText,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'

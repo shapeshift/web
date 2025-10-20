@@ -1,5 +1,6 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { hexToNumber } from 'viem'
 
@@ -35,6 +36,7 @@ export const useWalletConnectEventsHandler = (
     [],
   )
 
+  // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
     async (requestEvent: SupportedSessionRequest) => {
       const { topic, params } = requestEvent
@@ -42,7 +44,7 @@ export const useWalletConnectEventsHandler = (
       const getRequestSession = () => {
         try {
           const allSessions = web3wallet?.engine.signClient.session.getAll()
-          // Can't use session.get(topic) directly due to closure issues - it returns undefined
+          // We should be able to do web3wallet?.engine.signClient.session.get(topic) here, but this always return undefined, another day in closures-land
           const session = allSessions?.find(s => s.topic === topic)
           return session
         } catch (error) {
@@ -94,57 +96,43 @@ export const useWalletConnectEventsHandler = (
 
         case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
         case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
-          // WalletConnect's params.chainId shows the chain namespace the request came through (e.g., "eip155:100")
-          // But request.params[0].chainId contains the actual chain the dApp wants to switch to (e.g., "0x2105")
           const rpcParams = params.request.params as WalletSwitchEthereumChainParams
           const hexChainId = rpcParams[0]?.chainId
-          const chainIdNumber = hexChainId ? hexToNumber(hexChainId) : null
-          const chainId = chainIdNumber ? `eip155:${chainIdNumber}` : null
+          if (!hexChainId) return
 
-          const approvedAccounts = session?.namespaces.eip155?.accounts ?? []
-          const isChainApproved = chainId
-            ? approvedAccounts.some(account => account.includes(`:${chainIdNumber}:`))
-            : false
-
-          if (!isChainApproved) {
-            // Override chainId in requestEvent so modal displays the correct chain icon
-            const modifiedRequestEvent = chainId
-              ? {
-                  ...requestEvent,
-                  params: {
-                    ...requestEvent.params,
-                    chainId,
-                  },
-                }
-              : requestEvent
-
-            dispatch({
-              type: WalletConnectActionType.SET_MODAL,
-              payload: {
-                modal: WalletConnectModal.NoAccountsForChain,
-                data: { requestEvent: modifiedRequestEvent, requestSession: getRequestSession() },
-              },
-            })
-
-            // Return error 4902 per EIP-3326 spec
-            // https://eips.ethereum.org/EIPS/eip-3326
-            await web3wallet?.respondSessionRequest({
+          const evmChainId = hexToNumber(hexChainId)
+          const chainId = `eip155:${evmChainId}`
+          const sessionAccountIds = session?.namespaces.eip155?.accounts ?? []
+          const isChainInSession = sessionAccountIds.some(
+            accountId => fromAccountId(accountId).chainId === chainId,
+          )
+          // There's an account for said chain in the session - all g, we can "switch" to it (as far as WC is concerned)
+          if (isChainInSession)
+            return web3wallet?.respondSessionRequest({
               topic,
-              response: {
-                id: requestEvent.id,
-                jsonrpc: '2.0',
-                error: {
-                  code: 4902,
-                  message: `Unrecognized chain ID ${hexChainId}. Try adding the chain using wallet_addEthereumChain.`,
-                },
-              },
+              response: formatJsonRpcResult(requestEvent.id, null),
             })
-            return
-          }
 
+          dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.NoAccountsForChain,
+              data: { requestEvent, requestSession: getRequestSession() },
+            },
+          })
+
+          // Return error 4902 (unrecognized chain) - de facto standard from MM and recognized by WC (or well, so it is by Relay)
+          // See: https://docs.metamask.io/wallet/reference/wallet_switchethereumchain/
           await web3wallet?.respondSessionRequest({
             topic,
-            response: formatJsonRpcResult(requestEvent.id, null),
+            response: {
+              id: requestEvent.id,
+              jsonrpc: '2.0',
+              error: {
+                code: 4902,
+                message: `No accounts for chain: ${hexChainId}.`,
+              },
+            },
           })
           return
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:

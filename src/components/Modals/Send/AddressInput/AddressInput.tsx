@@ -1,5 +1,12 @@
-import type { SpaceProps } from '@chakra-ui/react'
-import { IconButton, InputGroup, InputRightElement, Textarea } from '@chakra-ui/react'
+import type { InputProps } from '@chakra-ui/react'
+import {
+  IconButton,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Text,
+} from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -16,8 +23,7 @@ type AddressInputProps = {
   rules: ControllerProps['rules']
   enableQr?: boolean
   placeholder?: string
-  pe?: SpaceProps['pe']
-}
+} & Omit<InputProps, 'as' | 'value' | 'onChange'>
 
 const qrCodeIcon = <QRCodeIcon />
 
@@ -25,7 +31,10 @@ export const AddressInput = ({
   rules,
   placeholder,
   enableQr = false,
-  pe = 10,
+  onFocus,
+  onBlur,
+  onPaste,
+  ...props
 }: AddressInputProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -53,26 +62,36 @@ export const AddressInput = ({
     }: {
       field: ControllerRenderProps<FieldValues, SendFormFields.Input>
     }) => (
-      <Textarea
-        spellCheck={false}
-        onChange={onChange}
-        placeholder={placeholder}
-        as={ResizeTextarea}
-        value={value}
-        variant='filled'
-        minHeight='auto'
-        minRows={1}
-        py={3}
-        data-test='send-address-input'
-        data-1p-ignore
-        // Because the InputRightElement is hover the input, we need to let this space free
-        pe={pe}
-        isInvalid={isInvalid && isDirty}
-        // This is already a `useCallback()`
-        // eslint-disable-next-line react-memo/require-usememo
-      />
+      <InputGroup alignItems='center'>
+        <InputLeftElement pointerEvents='none' height='100%'>
+          <Text color='text.subtle' w='full' pl={4} fontSize='sm'>
+            {translate('trade.to')}
+          </Text>
+        </InputLeftElement>
+        <Input
+          as={ResizeTextarea}
+          spellCheck={false}
+          placeholder={placeholder}
+          value={value}
+          variant='filled'
+          minHeight='auto'
+          borderRadius='10px'
+          minRows={1}
+          py={3}
+          data-test='send-address-input'
+          data-1p-ignore
+          isInvalid={isInvalid && isDirty}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onPaste={onPaste}
+          {...props}
+          onChange={onChange}
+        />
+      </InputGroup>
     ),
-    [placeholder, pe, isInvalid, isDirty],
+    // We want only behavior-specific props to rerender the controller, not all props
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [placeholder, isInvalid, isDirty, translate, onFocus, onBlur, onPaste],
   )
 
   return (

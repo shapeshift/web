@@ -63,7 +63,7 @@ export const TradeQuoteCard = ({
     >
       <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4} pb={2}>
         <Flex alignItems='center' gap={2}>
-          <Tooltip label={title}>
+          <Tooltip label={isAvailable && title}>
             <Flex alignItems='center' gap={2}>
               <Box>{icon}</Box>
               {!isAvailable && (

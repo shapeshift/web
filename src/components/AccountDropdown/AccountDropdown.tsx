@@ -28,6 +28,7 @@ import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
@@ -198,6 +199,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     showLabel = true,
     label,
   }) => {
+    const modalChildZIndex = useModalChildZIndex()
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>
       selectPortfolioAccountIdsByAssetIdFilter(s, filter),
@@ -350,7 +352,12 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               )}
             </Flex>
           </MenuButton>
-          <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
+          <MenuList
+            minWidth='fit-content'
+            maxHeight='200px'
+            overflowY='auto'
+            zIndex={modalChildZIndex}
+          >
             <MenuOptions
               accountIdsByNumberAndType={accountIdsByNumberAndType}
               asset={asset}

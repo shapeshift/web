@@ -140,16 +140,15 @@
             <div class="info" style="background: #fff; border-left: 4px solid #ff9800; margin-bottom: 20px;">
                 <strong>Mobile Testing Setup:</strong>
                 <ol>
-                    <li>Get your local IP by running: <code>ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'</code></li>
-                    <li>Replace <code>YOUR_LOCAL_IP</code> below with your actual IP (e.g., 192.168.1.111)</li>
-                    <li>Run: <code>yarn serve:test</code> on your dev machine</li>
-                    <li>On your mobile browser, visit: <code>http://YOUR_LOCAL_IP:8080/test-walletconnect-deeplink.html</code></li>
-                    <li>Ensure ShapeShift mobile app is installed (Production, TestFlight, or Expo Dev Client)</li>
+                    <li>Get your local IP: <code>ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'</code></li>
+                    <li>Run: <code>yarn serve:test</code> in the shapeshiftWebClone directory</li>
+                    <li>On your mobile browser, visit: <code>http://YOUR_LOCAL_IP:8765/test-walletconnect-deeplink.html</code></li>
+                    <li>Ensure ShapeShift mobile app is installed (Expo Development Client, TestFlight, or Production)</li>
                     <li>Get a fresh WalletConnect URI from a dApp</li>
-                    <li>Paste it below and click the button to test</li>
+                    <li>Paste it below and click the button to generate the deep link</li>
                 </ol>
                 <p style="font-size: 12px; color: #ff6b00; margin-top: 10px;">
-                    <strong>Note:</strong> Expo Go is NOT supported - use a Development Client build or production app.
+                    <strong>Note:</strong> Expo Go is NOT supported. Use Expo Development Client or a standalone build.
                 </p>
             </div>
 

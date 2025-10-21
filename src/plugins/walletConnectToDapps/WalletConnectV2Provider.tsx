@@ -10,6 +10,7 @@ import type {
 } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import { clearAllWalletConnectToDappsSessions } from '@/plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
+import { WalletConnectDebugOverlay } from '@/plugins/walletConnectToDapps/components/WalletConnectDebugOverlay'
 import { WalletConnectModalManager } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import { walletConnectReducer } from '@/plugins/walletConnectToDapps/walletConnectReducer'
 import {
@@ -82,6 +83,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
     <WalletConnectContext.Provider value={value}>
       {children}
       <WalletConnectModalManager state={state} dispatch={dispatch} />
+      <WalletConnectDebugOverlay />
     </WalletConnectContext.Provider>
   )
 }

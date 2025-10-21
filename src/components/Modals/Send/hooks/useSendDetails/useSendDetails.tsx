@@ -423,7 +423,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const fiatAmount =
         fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(bnOrZero(price))
       const otherAmount =
-        fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
+        fieldName === SendFormFields.FiatAmount
+          ? bnOrZero(cryptoAmount).toFixed()
+          : bnOrZero(fiatAmount).toFixed()
 
       setValue(otherField, otherAmount)
     },

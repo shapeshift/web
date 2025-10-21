@@ -407,9 +407,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     (inputValue: string) => {
       setValue(SendFormFields.AmountFieldError, '')
 
-      if (isManualInputChange.current) {
-        setValue(SendFormFields.SendMax, false)
-      }
+      // Always clear sendMax mode when user manually edits the amount
+      setValue(SendFormFields.SendMax, false)
 
       const otherField =
         fieldName !== SendFormFields.FiatAmount

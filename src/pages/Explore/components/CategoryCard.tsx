@@ -204,24 +204,6 @@ export const CategoryCard = memo(
         )
       }
 
-      if (category === MarketsCategories.MarketCap) {
-        return (
-          <Flex flexDir='column' width='100%'>
-            {filteredAssets.map((asset, index) => (
-              <AssetRow
-                key={asset.assetId}
-                asset={asset}
-                data={assetSearchRowData}
-                index={index}
-                style={emptyStyle}
-                color={assetTitleColor}
-                showMarketCap
-              />
-            ))}
-          </Flex>
-        )
-      }
-
       return (
         <Flex flexDir='column' width='100%'>
           {filteredAssets.map((asset, index) => (
@@ -233,7 +215,8 @@ export const CategoryCard = memo(
               // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
               style={emptyStyle}
               color={assetTitleColor}
-              showPrice
+              showPrice={category !== MarketsCategories.MarketCap}
+              showMarketCap={category === MarketsCategories.MarketCap}
             />
           ))}
         </Flex>

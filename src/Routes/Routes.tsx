@@ -104,11 +104,9 @@ export const AppRoutes = memo(() => {
         const MainComponent = route.main
 
         if (isMobile && !state.isConnected) {
-          // Preserve both pathname and search params for deep links like /wc?uri=...
-          const fullPath = location.pathname + location.search
           const to = {
             pathname: '/connect-mobile-wallet',
-            search: `returnUrl=${encodeURIComponent(fullPath || TradeRoutePaths.Input)}`,
+            search: `returnUrl=${location?.pathname ?? TradeRoutePaths.Input}`,
           }
 
           return (

@@ -204,6 +204,24 @@ export const CategoryCard = memo(
         )
       }
 
+      if (category === MarketsCategories.MarketCap) {
+        return (
+          <Flex flexDir='column' width='100%'>
+            {filteredAssets.map((asset, index) => (
+              <AssetRow
+                key={asset.assetId}
+                asset={asset}
+                data={assetSearchRowData}
+                index={index}
+                style={emptyStyle}
+                color={assetTitleColor}
+                showMarketCap
+              />
+            ))}
+          </Flex>
+        )
+      }
+
       return (
         <Flex flexDir='column' width='100%'>
           {filteredAssets.map((asset, index) => (

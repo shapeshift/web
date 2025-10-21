@@ -134,11 +134,45 @@
             </div>
         </div>
 
-        <div class="test-section">
-            <h2>📱 Mobile Deep Link Format</h2>
-            <p>For mobile app testing (requires mobile device with app installed):</p>
-            <div class="code">shapeshift://wc?uri=wc%3A...</div>
-            <p><em>The mobile app will convert this to the web route automatically.</em></p>
+        <div class="test-section" id="mobileSection" style="background: #fff4e6; border-left: 4px solid #ff9800;">
+            <h2>📱 Mobile Deep Link Testing</h2>
+
+            <div class="info" style="background: #fff; border-left: 4px solid #ff9800; margin-bottom: 20px;">
+                <strong>Mobile Testing Setup:</strong>
+                <ol>
+                    <li>Get your local IP by running: <code>ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'</code></li>
+                    <li>Replace <code>YOUR_LOCAL_IP</code> below with your actual IP (e.g., 192.168.1.111)</li>
+                    <li>Run: <code>yarn serve:test</code> on your dev machine</li>
+                    <li>On your mobile browser, visit: <code>http://YOUR_LOCAL_IP:8080/test-walletconnect-deeplink.html</code></li>
+                    <li>Ensure ShapeShift mobile app is installed (Production, TestFlight, or Expo Dev Client)</li>
+                    <li>Get a fresh WalletConnect URI from a dApp</li>
+                    <li>Paste it below and click the button to test</li>
+                </ol>
+                <p style="font-size: 12px; color: #ff6b00; margin-top: 10px;">
+                    <strong>Note:</strong> Expo Go is NOT supported - use a Development Client build or production app.
+                </p>
+            </div>
+
+            <div class="link-container">
+                <p><strong>Mobile Deep Link Generator:</strong></p>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">
+                    Paste a WalletConnect URI or full ShapeShift URL below:
+                </p>
+                <input type="text" id="mobileUri" placeholder="Paste WalletConnect URI or full URL here" style="width: 100%; padding: 10px; margin: 10px 0;">
+                <button onclick="testMobileDeepLink()" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    📱 Generate Mobile Deep Link
+                </button>
+                <p id="mobileDeepLinkResult" style="margin-top: 10px; font-size: 14px; color: #666;"></p>
+            </div>
+
+            <div class="link-container" style="margin-top: 20px;">
+                <p><strong>Deep Link Format:</strong></p>
+                <div class="code">shapeshift://wc?uri=wc%3A...</div>
+                <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                    This format works for all builds (Production, TestFlight, and Expo Development Client).
+                    The mobile app automatically converts it to the appropriate web route.
+                </p>
+            </div>
         </div>
 
         <div class="test-section">
@@ -154,6 +188,86 @@
     </div>
 
     <script>
+        function testMobileDeepLink() {
+            const input = document.getElementById('mobileUri').value.trim();
+            if (!input) {
+                alert('Please enter a WalletConnect URI');
+                return;
+            }
+
+            let wcUri;
+
+            // Extract WalletConnect URI from input
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                // Parse full URL to extract the uri parameter
+                try {
+                    const url = new URL(input);
+                    const params = new URLSearchParams(url.hash ? url.hash.split('?')[1] : url.search);
+                    wcUri = params.get('uri');
+                    if (!wcUri) {
+                        alert('No URI parameter found in the URL');
+                        return;
+                    }
+                    wcUri = decodeURIComponent(wcUri);
+                } catch (e) {
+                    alert('Invalid URL format');
+                    return;
+                }
+            } else if (input.startsWith('wc:')) {
+                wcUri = input;
+            } else {
+                alert('Please enter a valid WalletConnect URI (starting with wc:) or a full URL');
+                return;
+            }
+
+            // Create mobile deep link
+            const encodedUri = encodeURIComponent(wcUri);
+            const deepLink = `shapeshift://wc?uri=${encodedUri}`;
+
+            // Display the generated deep link
+            const resultEl = document.getElementById('mobileDeepLinkResult');
+            resultEl.innerHTML = `
+                <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; margin-top: 10px;">
+                    <strong>Generated Deep Link:</strong>
+                    <div style="word-break: break-all; font-family: monospace; font-size: 12px; margin: 10px 0;">${deepLink}</div>
+                    <button onclick="copyToClipboard('${deepLink.replace(/'/g, "\\'")}');" style="padding: 5px 10px; background: #4099ff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                        📋 Copy Link
+                    </button>
+                    <a href="${deepLink}" style="padding: 5px 10px;">🚀 Open in Mobile App</a>
+                </div>
+            `;
+
+            console.log('Mobile deep link:', deepLink);
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Deep link copied to clipboard!');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('Deep link copied to clipboard!');
+            } catch (e) {
+                alert('Failed to copy. Please copy manually: ' + text);
+            }
+            document.body.removeChild(textarea);
+        }
+
         function testCustomUri() {
             const input = document.getElementById('customUri').value.trim();
             if (!input) {

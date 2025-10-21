@@ -42,6 +42,7 @@
     "postinstall": "git config --local include.path '.gitconfig'",
     "release": "yarn tsx ./scripts/release.ts",
     "scrape-walletconnect-dapps": "yarn tsx ./scripts/scrapeWalletConnectRegistry.ts",
+    "serve:test": "npx serve -p 8080 -s .",
     "test": "yarn test:packages && yarn test:web",
     "test:web": "yarn vitest run -c vitest-web.config.mts && yarn vitest run -c vitest-side-effects.config.mts",
     "test:packages": "yarn vitest run -c vitest-packages.config.mts",

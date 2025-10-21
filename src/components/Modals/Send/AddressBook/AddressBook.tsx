@@ -2,9 +2,9 @@ import {
   Avatar,
   Box,
   Button,
-  Text as CText,
   HStack,
   Icon,
+  Text as CText,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'

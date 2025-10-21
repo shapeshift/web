@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { ChainId, ChainNamespace } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 
 import { addressBookSlice } from './addressBookSlice'
@@ -30,3 +31,32 @@ export const selectAddressBookEntriesByChainNamespace = createCachedSelector(
   const { chainNamespace } = fromChainId(chainId)
   return chainNamespace
 })
+
+type SearchQueryFilter = {
+  chainId: ChainId
+  searchQuery: string
+}
+
+const selectSearchQueryFromFilter = (_state: ReduxState, filter: SearchQueryFilter) =>
+  filter.searchQuery
+
+export const selectAddressBookEntriesBySearchQuery = createCachedSelector(
+  (state: ReduxState, filter: SearchQueryFilter) =>
+    selectAddressBookEntriesByChainNamespace(state, filter.chainId),
+  selectSearchQueryFromFilter,
+  (entries, searchQuery) => {
+    if (!searchQuery) return entries
+
+    const matchedEntries = matchSorter(entries, searchQuery, {
+      keys: [
+        { key: 'name', threshold: matchSorter.rankings.MATCHES },
+        { key: 'address', threshold: matchSorter.rankings.CONTAINS },
+      ],
+    })
+
+    return matchedEntries
+  },
+)(
+  (_state: ReduxState, filter: SearchQueryFilter) =>
+    `${filter.chainId}_${filter.searchQuery ?? 'addressBookEntriesBySearchQuery'}`,
+)

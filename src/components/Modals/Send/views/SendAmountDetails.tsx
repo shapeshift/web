@@ -3,7 +3,6 @@ import {
   AlertIcon,
   Box,
   Button,
-  Text as ChakraText,
   Flex,
   FormControl,
   FormHelperText,
@@ -13,6 +12,7 @@ import {
   Input,
   Skeleton,
   Stack,
+  Text as ChakraText,
   Tooltip,
   VStack,
 } from '@chakra-ui/react'

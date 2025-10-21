@@ -10,14 +10,20 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
+import { get, useFormContext, useWatch } from 'react-hook-form'
 import { FaRegAddressBook, FaTrash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+
+import { SendFormFields } from '../SendCommon'
 
 import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
-import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
+import {
+  selectAddressBookEntriesByChainNamespace,
+  selectAddressBookEntriesBySearchQuery,
+} from '@/state/slices/addressBookSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type AddressBookEntry = {
@@ -114,13 +120,40 @@ export const AddressBook = ({
 }: AddressBookProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext()
   const { isOpen, onClose, onOpen } = useDisclosure({
     defaultIsOpen: false,
   })
   const [selectedDeleteEntry, setSelectedDeleteEntry] = useState<AddressBookEntry | null>(null)
-
   const addressBookEntries = useAppSelector(state =>
     selectAddressBookEntriesByChainNamespace(state, chainId ?? ''),
+  )
+
+  const address = useWatch({
+    control,
+    name: SendFormFields.To,
+  }) as string
+  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+
+  const input = useWatch({
+    control,
+    name: SendFormFields.Input,
+  }) as string
+
+  const selectedEntry = useMemo(() => {
+    return addressBookEntries.find(entry => entry.address === input)
+  }, [addressBookEntries, input])
+
+  const searchQuery = useMemo(() => input ?? '', [input])
+
+  const addressBookSearchEntries = useAppSelector(state =>
+    selectAddressBookEntriesBySearchQuery(state, {
+      chainId: chainId ?? '',
+      searchQuery,
+    }),
   )
 
   const handleDelete = useCallback(
@@ -138,6 +171,12 @@ export const AddressBook = ({
     [onOpen],
   )
 
+  const entries = useMemo(() => {
+    if (selectedEntry || (address && !addressError)) return addressBookEntries
+
+    return addressBookSearchEntries
+  }, [selectedEntry, addressBookEntries, addressBookSearchEntries, address, addressError])
+
   return (
     <Box>
       <HStack spacing={2} mb={2}>
@@ -147,20 +186,22 @@ export const AddressBook = ({
         </CText>
       </HStack>
 
-      <VStack spacing={3} align='stretch' mx={-2}>
-        {addressBookEntries.length === 0 ? (
-          <Text translation={emptyMessage} size='xs' color='text.subtle' />
-        ) : (
-          addressBookEntries.map(entry => (
-            <AddressBookEntryButton
-              key={entry.id}
-              entry={entry}
-              onSelect={onSelectEntry}
-              onDelete={handleDeleteConfirm(entry)}
-            />
-          ))
-        )}
-      </VStack>
+      <Box maxHeight='200px' overflowY='auto' mx={-4} className='scroll-container' px={2}>
+        <VStack spacing={3} align='stretch'>
+          {entries.length === 0 ? (
+            <Text translation={emptyMessage} size='xs' mx={2} color='text.subtle' />
+          ) : (
+            entries.map(entry => (
+              <AddressBookEntryButton
+                key={entry.id}
+                entry={entry}
+                onSelect={onSelectEntry}
+                onDelete={handleDeleteConfirm(entry)}
+              />
+            ))
+          )}
+        </VStack>
+      </Box>
       {selectedDeleteEntry && (
         <ConfirmDelete
           isOpen={isOpen}

@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   Button,
-  Text as CText,
   Flex,
   HStack,
   IconButton,
@@ -11,6 +10,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Text as CText,
   Text,
   VStack,
 } from '@chakra-ui/react'

@@ -1447,7 +1447,7 @@
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "addressBook": "Address Book",
-      "noEntries": "No address yet.",
+      "noEntries": "No address found.",
       "addNewAddress": "Add New Address",
       "addContact": {
         "nameRequired": "Name is required",

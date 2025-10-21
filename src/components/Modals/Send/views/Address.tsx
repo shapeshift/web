@@ -170,8 +170,9 @@ export const Address = () => {
   const handleSelectAddressBookEntry = useCallback(
     (entryAddress: string) => {
       setValue(SendFormFields.Input, entryAddress, { shouldValidate: true })
+      navigate(SendRoutes.AmountDetails)
     },
-    [setValue],
+    [setValue, navigate],
   )
 
   const handleSaveContact = useCallback(

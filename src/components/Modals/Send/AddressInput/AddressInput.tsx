@@ -3,6 +3,7 @@ import {
   Avatar,
   Box,
   Button,
+  Text as CText,
   Flex,
   HStack,
   IconButton,
@@ -10,7 +11,6 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Text as CText,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -194,7 +194,7 @@ export const AddressInput = ({
                   <CText fontSize='md' fontWeight='semibold' color='text.primary'>
                     {addressBookEntry.name}
                   </CText>
-                  <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+                  <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress ?? ''} />
                 </VStack>
               </HStack>
             </HStack>
@@ -220,7 +220,7 @@ export const AddressInput = ({
               {translate('modals.send.sendForm.to')}
             </Text>
             <Box bg={'background.surface.raised.base'} px={3} py={2} borderRadius='full'>
-              <MiddleEllipsis fontSize='sm' color='text.subtle' value={resolvedAddress} />
+              <MiddleEllipsis fontSize='sm' color='text.subtle' value={resolvedAddress ?? ''} />
             </Box>
           </HStack>
           {onSaveContact && (

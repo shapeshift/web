@@ -3,6 +3,7 @@ import {
   AlertIcon,
   Box,
   Button,
+  Text as ChakraText,
   Flex,
   FormControl,
   FormHelperText,
@@ -12,7 +13,6 @@ import {
   Input,
   Skeleton,
   Stack,
-  Text as ChakraText,
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
@@ -41,7 +41,6 @@ import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput'
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
-import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -166,19 +165,6 @@ export const SendAmountDetails = () => {
     () => navigate(isFromQrCode ? SendRoutes.Scan : SendRoutes.Address),
     [navigate, isFromQrCode],
   )
-  const handleAssetBackClick = useCallback(() => {
-    if (isFromQrCode) {
-      navigate(SendRoutes.Scan)
-      return
-    }
-    setValue(SendFormFields.AssetId, '')
-    navigate(SendRoutes.Select, {
-      state: {
-        toRoute: SelectAssetRoutes.Search,
-        assetId: '',
-      },
-    })
-  }, [navigate, setValue, isFromQrCode])
 
   const handleMaxClick = useCallback(async () => {
     await handleSendMax()

@@ -71,17 +71,16 @@ export const WalletConnectV2Connect = () => {
   }, [dispatch, getAdapter, localWallet, state.wallet, navigate])
 
   return (
-    <div>
-      <ConnectModal
-        headerText={'walletProvider.walletConnect.connect.header'}
-        bodyText={'walletProvider.walletConnect.connect.body'}
-        buttonText={'walletProvider.walletConnect.connect.button'}
-        onPairDeviceClick={pairDevice}
-        loading={loading}
-        error={null}
-      />
-      {/* UGLY POC: Ugly direct connection button */}
+    <ConnectModal
+      headerText={'walletProvider.walletConnect.connect.header'}
+      bodyText={'walletProvider.walletConnect.connect.body'}
+      buttonText={'walletProvider.walletConnect.connect.button'}
+      onPairDeviceClick={pairDevice}
+      loading={loading}
+      error={null}
+    >
+      {/* UGLY POC: Ugly direct connection button - now inside the modal! */}
       <WalletConnectDirectButton />
-    </div>
+    </ConnectModal>
   )
 }

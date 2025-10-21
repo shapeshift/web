@@ -4,7 +4,7 @@ import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -49,8 +49,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { accountId, assetId, to, amountCryptoPrecision, fiatAmount, sendMax } = useWatch({
     control,
   }) as Partial<SendInput>
-
-  const isManualInputChange = useRef(true)
 
   const marketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
@@ -362,7 +360,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [estimatedFees, sendMax, setValue])
 
   const handleSendMax = useCallback(async () => {
-    isManualInputChange.current = false
     setValue(SendFormFields.SendMax, true)
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
@@ -407,9 +404,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     (inputValue: string) => {
       setValue(SendFormFields.AmountFieldError, '')
 
-      if (isManualInputChange.current) {
-        setValue(SendFormFields.SendMax, false)
-      }
+      // Always clear sendMax mode when user manually edits the amount
+      setValue(SendFormFields.SendMax, false)
 
       const otherField =
         fieldName !== SendFormFields.FiatAmount
@@ -430,7 +426,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
 
       setValue(otherField, otherAmount)
-      isManualInputChange.current = true
     },
     [fieldName, price, setValue],
   )

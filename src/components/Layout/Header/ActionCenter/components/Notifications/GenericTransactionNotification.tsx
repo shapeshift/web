@@ -1,9 +1,11 @@
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 
 import { ActionIcon } from '../ActionIcon'
 
+import { Amount } from '@/components/Amount/Amount'
+import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
 import { firstFourLastFour } from '@/lib/utils'
 import {
@@ -22,7 +24,6 @@ export const GenericTransactionNotification = ({
   actionId,
   onClose,
 }: GenericTransactionNotificationProps) => {
-  const translate = useTranslate()
   const actions = useAppSelector(selectWalletGenericTransactionActionsSorted)
   const action = useMemo(() => actions.find(action => action.id === actionId), [actions, actionId])
   const asset = useAppSelector(state =>
@@ -34,14 +35,43 @@ export const GenericTransactionNotification = ({
     return <ActionIcon assetId={action.transactionMetadata.assetId} status={action.status} />
   }, [action])
 
-  const title = useMemo(() => {
+  const translationComponents = useMemo((): TextPropTypes['components'] | undefined => {
+    if (!action || !asset) return undefined
+
+    return {
+      amountAndSymbol: (
+        <Amount.Crypto
+          value={action.transactionMetadata.amountCryptoPrecision}
+          symbol={asset.symbol}
+          fontSize='sm'
+          fontWeight='bold'
+          maximumFractionDigits={6}
+          omitDecimalTrailingZeros
+          display='inline'
+        />
+      ),
+    }
+  }, [action, asset])
+
+  const translationArgs = useMemo(() => {
     if (!action) return undefined
-    return translate(action.transactionMetadata.message, {
-      amount: action.transactionMetadata.amountCryptoPrecision,
-      symbol: asset?.symbol,
-      newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
-    })
-  }, [action, asset, translate])
+    return [
+      action.transactionMetadata.message,
+      { newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? '') },
+    ] as [string, Record<string, string>]
+  }, [action])
+
+  const title = useMemo(() => {
+    if (!action || !translationComponents || !translationArgs) return undefined
+    return (
+      <Text
+        fontSize='sm'
+        letterSpacing='0.02em'
+        translation={translationArgs}
+        components={translationComponents}
+      />
+    )
+  }, [action, translationComponents, translationArgs])
 
   if (!action || !icon || !title) return null
 

@@ -164,6 +164,7 @@ export const mockStore: ReduxState = {
       NewWalletManager: false,
       SwapperFiatRamps: false,
       LedgerReadOnly: false,
+      AddressBook: false,
     },
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,

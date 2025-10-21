@@ -1,10 +1,10 @@
 import {
   Button,
+  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
-  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -29,6 +29,7 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
@@ -59,6 +60,7 @@ export const Address = () => {
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
   const addAddress = useModal('addAddress')
+  const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   const location = useLocation()
   const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
@@ -95,8 +97,8 @@ export const Address = () => {
   }, [input, address, addressBookEntries, asset?.chainId])
 
   useEffect(() => {
-    setShowSaveButton(isCustomAddress && !!address && !addressError)
-  }, [isCustomAddress, address, addressError])
+    setShowSaveButton(isCustomAddress && !!address && !addressError && isAddressBookEnabled)
+  }, [isCustomAddress, address, addressError, isAddressBookEnabled])
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -238,7 +240,9 @@ export const Address = () => {
             </VStack>
           </Button>
 
-          <AddressBook chainId={asset?.chainId} onSelectEntry={handleSelectAddressBookEntry} />
+          {isAddressBookEnabled && (
+            <AddressBook chainId={asset?.chainId} onSelectEntry={handleSelectAddressBookEntry} />
+          )}
         </VStack>
       </DialogBody>
 

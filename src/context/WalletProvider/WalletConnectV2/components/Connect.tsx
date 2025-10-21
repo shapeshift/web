@@ -12,6 +12,8 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from '@/lib/utils'
 import { clearWalletConnectLocalStorage } from '@/plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 
+import { WalletConnectDirectButton } from './WalletConnectDirectButton'
+
 export const WalletConnectV2Connect = () => {
   // Sometimes the Web3Modal doesn't trigger if there is already wc things in local storage.
   // This is a bit blunt, and we might want to consider a more targeted approach.
@@ -69,13 +71,17 @@ export const WalletConnectV2Connect = () => {
   }, [dispatch, getAdapter, localWallet, state.wallet, navigate])
 
   return (
-    <ConnectModal
-      headerText={'walletProvider.walletConnect.connect.header'}
-      bodyText={'walletProvider.walletConnect.connect.body'}
-      buttonText={'walletProvider.walletConnect.connect.button'}
-      onPairDeviceClick={pairDevice}
-      loading={loading}
-      error={null}
-    />
+    <div>
+      <ConnectModal
+        headerText={'walletProvider.walletConnect.connect.header'}
+        bodyText={'walletProvider.walletConnect.connect.body'}
+        buttonText={'walletProvider.walletConnect.connect.button'}
+        onPairDeviceClick={pairDevice}
+        loading={loading}
+        error={null}
+      />
+      {/* UGLY POC: Ugly direct connection button */}
+      <WalletConnectDirectButton />
+    </div>
   )
 }

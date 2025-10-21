@@ -143,13 +143,24 @@
                     <li>Get your local IP: <code>ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'</code></li>
                     <li>Run: <code>yarn serve:test</code> in the shapeshiftWebClone directory</li>
                     <li>On your mobile browser, visit: <code>http://YOUR_LOCAL_IP:8765/test-walletconnect-deeplink.html</code></li>
-                    <li>Ensure ShapeShift mobile app is installed (Expo Development Client, TestFlight, or Production)</li>
+                    <li>Start the mobile app with <code>yarn start</code> in the shapeshiftMobileApp directory</li>
+                    <li>Open the app in Expo Go or your custom build</li>
                     <li>Get a fresh WalletConnect URI from a dApp</li>
-                    <li>Paste it below and click the button to generate the deep link</li>
+                    <li>Paste it below and click the appropriate button for your setup</li>
                 </ol>
-                <p style="font-size: 12px; color: #ff6b00; margin-top: 10px;">
-                    <strong>Note:</strong> Expo Go is NOT supported. Use Expo Development Client or a standalone build.
-                </p>
+            </div>
+
+            <div class="link-container">
+                <p><strong>Configuration:</strong></p>
+                <label style="display: block; margin: 10px 0;">
+                    <strong>Local IP Address:</strong>
+                    <input type="text" id="localIp" placeholder="e.g., 192.168.1.111" style="width: 300px; padding: 8px; margin-left: 10px;" value="192.168.1.111">
+                </label>
+                <label style="display: block; margin: 10px 0;">
+                    <strong>Expo Dev Server Port:</strong>
+                    <input type="text" id="expoPort" placeholder="e.g., 8081" style="width: 100px; padding: 8px; margin-left: 10px;" value="8081">
+                    <span style="font-size: 12px; color: #666; margin-left: 10px;">(from 'yarn start' output)</span>
+                </label>
             </div>
 
             <div class="link-container">
@@ -158,18 +169,25 @@
                     Paste a WalletConnect URI or full ShapeShift URL below:
                 </p>
                 <input type="text" id="mobileUri" placeholder="Paste WalletConnect URI or full URL here" style="width: 100%; padding: 10px; margin: 10px 0;">
-                <button onclick="testMobileDeepLink()" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                    📱 Generate Mobile Deep Link
-                </button>
+
+                <div style="margin: 10px 0;">
+                    <button onclick="testMobileDeepLink('standalone')" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">
+                        📱 Production/TestFlight
+                    </button>
+                    <button onclick="testMobileDeepLink('expo-go')" style="padding: 10px 20px; background: #673AB7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        🧪 Expo Go
+                    </button>
+                </div>
+
                 <p id="mobileDeepLinkResult" style="margin-top: 10px; font-size: 14px; color: #666;"></p>
             </div>
 
             <div class="link-container" style="margin-top: 20px;">
-                <p><strong>Deep Link Format:</strong></p>
-                <div class="code">shapeshift://wc?uri=wc%3A...</div>
+                <p><strong>Deep Link Formats:</strong></p>
+                <div class="code"><strong>Production/TestFlight/Dev Client:</strong><br>shapeshift://wc?uri=wc%3A...</div>
+                <div class="code" style="margin-top: 10px;"><strong>Expo Go:</strong><br>exp://YOUR_IP:8081/--/wc?uri=wc%3A...</div>
                 <p style="font-size: 14px; color: #666; margin-top: 10px;">
-                    This format works for all builds (Production, TestFlight, and Expo Development Client).
-                    The mobile app automatically converts it to the appropriate web route.
+                    The mobile app automatically converts these deep links to the appropriate web routes.
                 </p>
             </div>
         </div>
@@ -187,7 +205,7 @@
     </div>
 
     <script>
-        function testMobileDeepLink() {
+        function testMobileDeepLink(type) {
             const input = document.getElementById('mobileUri').value.trim();
             if (!input) {
                 alert('Please enter a WalletConnect URI');
@@ -219,24 +237,35 @@
                 return;
             }
 
-            // Create mobile deep link
+            // Create mobile deep link based on type
             const encodedUri = encodeURIComponent(wcUri);
-            const deepLink = `shapeshift://wc?uri=${encodedUri}`;
+            let deepLink;
+            let description;
+
+            if (type === 'expo-go') {
+                const localIp = document.getElementById('localIp').value || 'YOUR_LOCAL_IP';
+                const expoPort = document.getElementById('expoPort').value || '8081';
+                deepLink = `exp://${localIp}:${expoPort}/--/wc?uri=${encodedUri}`;
+                description = 'Expo Go Deep Link';
+            } else {
+                deepLink = `shapeshift://wc?uri=${encodedUri}`;
+                description = 'Production/TestFlight/Dev Client Deep Link';
+            }
 
             // Display the generated deep link
             const resultEl = document.getElementById('mobileDeepLinkResult');
             resultEl.innerHTML = `
                 <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; margin-top: 10px;">
-                    <strong>Generated Deep Link:</strong>
-                    <div style="word-break: break-all; font-family: monospace; font-size: 12px; margin: 10px 0;">${deepLink}</div>
-                    <button onclick="copyToClipboard('${deepLink.replace(/'/g, "\\'")}');" style="padding: 5px 10px; background: #4099ff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                    <strong>${description}:</strong>
+                    <div style="word-break: break-all; font-family: monospace; font-size: 12px; margin: 10px 0; background: white; padding: 10px; border-radius: 4px;">${deepLink}</div>
+                    <button onclick="copyToClipboard('${deepLink.replace(/'/g, "\\'")}');" style="padding: 8px 15px; background: #4099ff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
                         📋 Copy Link
                     </button>
-                    <a href="${deepLink}" style="padding: 5px 10px;">🚀 Open in Mobile App</a>
+                    <a href="${deepLink}" style="padding: 8px 15px; background: #ff9800; color: white; text-decoration: none; border-radius: 4px;">🚀 Open in App</a>
                 </div>
             `;
 
-            console.log('Mobile deep link:', deepLink);
+            console.log(`${description}:`, deepLink);
         }
 
         function copyToClipboard(text) {

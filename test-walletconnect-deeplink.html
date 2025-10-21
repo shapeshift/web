@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalletConnect Deep Link Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        h2 {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .link-container {
+            margin: 10px 0;
+        }
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4099ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        a:hover {
+            background: #2d7dd2;
+        }
+        .error-link {
+            background: #ff6b6b;
+        }
+        .error-link:hover {
+            background: #ff5252;
+        }
+        .code {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .info {
+            background: #e7f5ff;
+            border-left: 4px solid #4099ff;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 WalletConnect Deep Link Test Page</h1>
+
+        <div class="info">
+            <strong>How to test:</strong>
+            <ol>
+                <li>Make sure your ShapeShift dev server is running on http://localhost:3000</li>
+                <li>Get a valid WalletConnect URI from a dApp (e.g., Uniswap, 1inch)</li>
+                <li>Replace the example URI below with your actual URI</li>
+                <li>Click the test links to verify the deep link handler works</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>✅ Valid WalletConnect v2 URI Tests</h2>
+
+            <div class="link-container">
+                <p><strong>Example URI (replace with real one from a dApp):</strong></p>
+                <div class="code">wc:7f6e504bfad60b485450578e05678ed3e8e8c4751d3c6160be17160d63ec90f9@2?relay-protocol=irn&symKey=587d5484ce2a2a6ee3ba1962fdd7e8588e06200c46823bd18fbd67def96ad303&expiryTimestamp=1761041150</div>
+
+                <p><strong>Test Links:</strong></p>
+                <a href="http://localhost:3000/#/wc?uri=wc%3A7f6e504bfad60b485450578e05678ed3e8e8c4751d3c6160be17160d63ec90f9%402%3Frelay-protocol%3Dirn%26symKey%3D587d5484ce2a2a6ee3ba1962fdd7e8588e06200c46823bd18fbd67def96ad303%26expiryTimestamp%3D1761041150" target="_blank">
+                    Test with Example URI (may be expired)
+                </a>
+            </div>
+
+            <div class="link-container">
+                <p><strong>Custom URI or Full URL Test:</strong></p>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">
+                    Paste either:
+                    <br>• A WalletConnect URI (e.g., wc:...)
+                    <br>• A full ShapeShift URL (e.g., https://app.shapeshift.com/wc?uri=...)
+                </p>
+                <input type="text" id="customUri" placeholder="Paste WalletConnect URI or full URL here" style="width: 100%; padding: 10px; margin: 10px 0;">
+                <button onclick="testCustomUri()" style="padding: 10px 20px; background: #4099ff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Test URI/URL
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>❌ Error Case Tests</h2>
+
+            <div class="link-container">
+                <a href="http://localhost:3000/#/wc" target="_blank" class="error-link">
+                    Test with Missing URI Parameter
+                </a>
+            </div>
+
+            <div class="link-container">
+                <a href="http://localhost:3000/#/wc?uri=invalid-uri" target="_blank" class="error-link">
+                    Test with Invalid URI Format
+                </a>
+            </div>
+
+            <div class="link-container">
+                <a href="http://localhost:3000/#/wc?uri=wc%3Ainvalid%401%3Fbridge%3Dold" target="_blank" class="error-link">
+                    Test with WalletConnect v1 URI (not supported)
+                </a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📱 Mobile Deep Link Format</h2>
+            <p>For mobile app testing (requires mobile device with app installed):</p>
+            <div class="code">shapeshift://wc?uri=wc%3A...</div>
+            <p><em>The mobile app will convert this to the web route automatically.</em></p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 How to Get a Real WalletConnect URI</h2>
+            <ol>
+                <li>Go to a dApp like <a href="https://app.uniswap.org" target="_blank">Uniswap</a> or <a href="https://app.1inch.io" target="_blank">1inch</a></li>
+                <li>Click "Connect Wallet"</li>
+                <li>Select "WalletConnect"</li>
+                <li>Instead of scanning the QR code, click "Copy link" or similar option</li>
+                <li>Paste the URI in the custom test field above</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function testCustomUri() {
+            const input = document.getElementById('customUri').value.trim();
+            if (!input) {
+                alert('Please enter a WalletConnect URI or full URL');
+                return;
+            }
+
+            let testUrl;
+
+            // Check if input is a full URL (starts with http:// or https://)
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                try {
+                    const url = new URL(input);
+
+                    // Extract the path and query string
+                    let pathAndQuery;
+
+                    // Handle both hash-based routing and regular routing
+                    if (url.hash) {
+                        // URL like: https://app.shapeshift.com/#/wc?uri=...
+                        pathAndQuery = url.hash.substring(1); // Remove the #
+                    } else {
+                        // URL like: https://app.shapeshift.com/wc?uri=...
+                        pathAndQuery = url.pathname + url.search;
+                    }
+
+                    // Build localhost URL with hash routing
+                    testUrl = `http://localhost:3000/#${pathAndQuery}`;
+                } catch (e) {
+                    alert('Invalid URL format');
+                    return;
+                }
+            } else if (input.startsWith('wc:')) {
+                // Input is a raw WalletConnect URI
+                const encodedUri = encodeURIComponent(input);
+                testUrl = `http://localhost:3000/#/wc?uri=${encodedUri}`;
+            } else {
+                alert('Please enter either a valid WalletConnect URI (starting with wc:) or a full ShapeShift URL');
+                return;
+            }
+
+            console.log('Opening:', testUrl);
+
+            // Open in new tab
+            window.open(testUrl, '_blank');
+        }
+
+        // Allow testing with Enter key
+        document.getElementById('customUri').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testCustomUri();
+            }
+        });
+    </script>
+</body>
+</html>

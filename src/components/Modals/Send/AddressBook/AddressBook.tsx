@@ -2,9 +2,9 @@ import {
   Avatar,
   Box,
   Button,
+  Text as CText,
   HStack,
   Icon,
-  Text as CText,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -113,6 +113,11 @@ type AddressBookProps = {
   emptyMessage?: string
 }
 
+const addressBookMaxHeight = {
+  base: 'auto',
+  md: '200px',
+}
+
 export const AddressBook = ({
   chainId,
   onSelectEntry,
@@ -186,7 +191,13 @@ export const AddressBook = ({
         </CText>
       </HStack>
 
-      <Box maxHeight='200px' overflowY='auto' mx={-4} className='scroll-container' px={2}>
+      <Box
+        maxHeight={addressBookMaxHeight}
+        overflowY='auto'
+        mx={-4}
+        className='scroll-container'
+        px={2}
+      >
         <VStack spacing={3} align='stretch'>
           {entries.length === 0 ? (
             <Text translation={emptyMessage} size='xs' mx={2} color='text.subtle' />

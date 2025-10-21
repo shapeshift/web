@@ -94,7 +94,17 @@ export const useDirectWalletConnect = () => {
             // UGLY: Mobile - direct deep link
             console.log('🚨 UGLY: MOBILE DETECTED - Opening deep link NOW')
             console.log('🚨 UGLY: Deep link URL:', fullDeepLink)
-            window.location.href = fullDeepLink
+
+            // Try window.open to keep the page alive
+            const opened = window.open(fullDeepLink, '_blank')
+            console.log('🚨 UGLY: window.open result:', opened)
+
+            // Fallback to location.href if window.open fails
+            if (!opened) {
+              console.log('🚨 UGLY: window.open failed, using location.href fallback')
+              window.location.href = fullDeepLink
+            }
+
             console.log('🚨 UGLY: Deep link opened, waiting for wallet response...')
           } else {
             // UGLY: Desktop - show QR

@@ -30,15 +30,6 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
       const params = new URLSearchParams(location.search)
       const encodedUri = params.get('uri')
 
-      // Debug toast
-      toast({
-        title: '🔗 Deep Link Detected',
-        description: `Route: /wc | Has URI: ${!!encodedUri}`,
-        status: 'info',
-        duration: 3000,
-        isClosable: true,
-      })
-
       if (!encodedUri) {
         toast({
           title: 'Invalid WalletConnect Link',
@@ -70,15 +61,6 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
 
       // Store the valid URI for processing
       pendingUriRef.current = uri
-
-      // Debug toast
-      toast({
-        title: '✅ Valid URI Found',
-        description: `Waiting for wallet unlock... | URI: ${uri.substring(0, 30)}...`,
-        status: 'info',
-        duration: 4000,
-        isClosable: true,
-      })
     }
 
     // Step 2: Process the pending URI once state.pair is available AND wallet is unlocked
@@ -99,15 +81,6 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
 
       processingRef.current = true
 
-      // Debug toast
-      toast({
-        title: '🚀 Starting Pairing',
-        description: `Wallet unlocked! Initiating WalletConnect pairing...`,
-        status: 'info',
-        duration: 3000,
-        isClosable: true,
-      })
-
       const handlePairing = async () => {
         const uri = pendingUriRef.current
         if (!uri) return
@@ -116,15 +89,6 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
           // We do not handle session_authenticate events, so make it a session_proposal instead
           const pairingUri = uri.replace('sessionAuthenticate', 'sessionProposal')
           await state.pair!({ uri: pairingUri })
-
-          // Debug toast
-          toast({
-            title: '✅ Pairing Successful',
-            description: 'Session proposal should appear',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          })
 
           // Successfully initiated pairing, navigate away
           if (!hasNavigatedRef.current) {

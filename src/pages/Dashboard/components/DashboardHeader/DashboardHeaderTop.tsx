@@ -26,7 +26,6 @@ import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { WalletConnectDebugOverlay } from '@/plugins/walletConnectToDapps/components/WalletConnectDebugOverlay'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -260,7 +259,6 @@ export const DashboardHeaderTop = memo(() => {
             {mobileNetWorth}
             {desktopButtons}
           </Container>
-          <WalletConnectDebugOverlay />
           {mobileButtons}
         </>
       </Display.Mobile>

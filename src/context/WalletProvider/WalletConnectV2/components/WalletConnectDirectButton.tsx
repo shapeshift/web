@@ -9,6 +9,7 @@ import { useDirectWalletConnect } from '../useDirectConnect'
  * This is an intentionally ugly proof of concept
  */
 export const WalletConnectDirectButton = () => {
+  console.log('🚨 UGLY: WalletConnectDirectButton is rendering!')
   const { connectToWallet, isConnecting } = useDirectWalletConnect()
   const [isLoading, setIsLoading] = useState(false)
   const toast = useToast()

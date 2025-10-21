@@ -9,6 +9,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { WalletConnectV2Config } from '@/context/WalletProvider/WalletConnectV2/config'
 import { WalletNotFoundError } from '@/context/WalletProvider/WalletConnectV2/Error'
+import { WalletConnectDirectButton } from '@/context/WalletProvider/WalletConnectV2/components/WalletConnectDirectButton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from '@/lib/utils'
 import { clearWalletConnectLocalStorage } from '@/plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
@@ -74,15 +75,19 @@ export const NewWalletConnectV2Connect = () => {
   }, [dispatch, getAdapter, navigate, localWallet, state.wallet])
 
   return (
-    <PairBody
-      icon={icon}
-      headerTranslation='walletProvider.walletConnect.connect.header'
-      bodyTranslation='walletProvider.walletConnect.connect.body'
-      buttonTranslation='walletProvider.walletConnect.connect.button'
-      isLoading={loading}
-      error={error}
-      onPairDeviceClick={pairDevice}
-    />
+    <>
+      <PairBody
+        icon={icon}
+        headerTranslation='walletProvider.walletConnect.connect.header'
+        bodyTranslation='walletProvider.walletConnect.connect.body'
+        buttonTranslation='walletProvider.walletConnect.connect.button'
+        isLoading={loading}
+        error={error}
+        onPairDeviceClick={pairDevice}
+      />
+      {/* UGLY POC: Direct connection button */}
+      <WalletConnectDirectButton />
+    </>
   )
 }
 

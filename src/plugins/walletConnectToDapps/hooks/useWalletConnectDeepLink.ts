@@ -1,9 +1,11 @@
+import { useToast } from '@chakra-ui/react'
 import { useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useToast } from '@chakra-ui/react'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import type { WalletConnectState } from '../types'
+
 import { isWalletConnectV2Uri } from '../components/modals/connect/utils'
+import type { WalletConnectState } from '../types'
+
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const useWalletConnectDeepLink = (state: WalletConnectState) => {
   const location = useLocation()
@@ -88,7 +90,7 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
         try {
           // We do not handle session_authenticate events, so make it a session_proposal instead
           const pairingUri = uri.replace('sessionAuthenticate', 'sessionProposal')
-          await state.pair!({ uri: pairingUri })
+          await state.pair?.({ uri: pairingUri })
 
           // Successfully initiated pairing, navigate away
           if (!hasNavigatedRef.current) {
@@ -128,5 +130,5 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
 
       void handlePairing()
     }
-  }, [location, navigate, toast, state.activeModal, state.pair, wallet])
+  }, [location, navigate, toast, state.activeModal, state.pair, wallet, state])
 }

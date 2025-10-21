@@ -25,14 +25,14 @@ export const ConfirmDelete = ({ entryName, onDelete, onClose, isOpen }: ConfirmD
   }, [onDelete, onClose])
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose}>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogHeader>
         <DialogHeaderMiddle>
           <DialogTitle>{translate('modals.send.confirmDelete.title')}</DialogTitle>
         </DialogHeaderMiddle>
       </DialogHeader>
       <DialogBody>
-        <CText color='text.subtle' textAlign='center'>
+        <CText color='text.subtle' textAlign='center' py={4}>
           {translate('modals.send.confirmDelete.message', { name: entryName })}
         </CText>
       </DialogBody>
